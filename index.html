@@ -771,7 +771,7 @@
       <a href="#about" style="color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">About</a>
       <a href="#community" style="color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Community</a>
       <a href="#contact" style="color:var(--text-muted);text-decoration:none;font-size:14px;font-weight:500;transition:color 0.2s;" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--text-muted)'">Contact</a>
-      <button onclick="enterApp()" style="padding:9px 22px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;letter-spacing:0.5px;transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">Login / Sign Up</button>
+      <button onclick="openAuthModal()" style="padding:9px 22px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;letter-spacing:0.5px;transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">Login / Sign Up</button>
     </div>
     <button class="mobile-menu-btn" onclick="toggleLandingMenu()" style="display:none;background:none;border:none;color:var(--text-primary);font-size:22px;cursor:pointer;">☰</button>
   </nav>
@@ -796,10 +796,10 @@
       </p>
       
       <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:50px;">
-        <button onclick="enterApp()" style="padding:15px 32px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;letter-spacing:0.3px;display:flex;align-items:center;gap:8px;transition:transform 0.2s;box-shadow:0 4px 20px rgba(245,158,11,0.3);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <button onclick="openAuthModal()" style="padding:15px 32px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;letter-spacing:0.3px;display:flex;align-items:center;gap:8px;transition:transform 0.2s;box-shadow:0 4px 20px rgba(245,158,11,0.3);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
           🔐 Login / Sign Up
         </button>
-        <a href="#" target="_blank" style="padding:15px 32px;background:transparent;color:var(--text-primary);border:1px solid var(--border);border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;letter-spacing:0.3px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-primary)'">
+        <a href="#" onclick="enterApp();return false;" style="padding:15px 32px;background:transparent;color:var(--text-primary);border:1px solid var(--border);border-radius:10px;font-weight:600;font-size:15px;cursor:pointer;letter-spacing:0.3px;display:inline-flex;align-items:center;gap:8px;text-decoration:none;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-primary)'">
           📊 Explore Tools
         </a>
       </div>
@@ -1248,7 +1248,7 @@
       <div style="position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(245,158,11,0.1) 0%,transparent 70%);pointer-events:none;"></div>
       <h2 style="font-size:36px;font-weight:800;color:var(--text-primary);margin-bottom:16px;letter-spacing:-1px;position:relative;">Ready to Master Forex?</h2>
       <p style="font-size:16px;color:var(--text-muted);margin-bottom:32px;position:relative;">Sign up free and access live charts, news, currency strength meter, calculators, and trade journal.</p>
-      <button onclick="enterApp()" style="padding:16px 40px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;border:none;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;letter-spacing:0.3px;display:inline-flex;align-items:center;gap:10px;transition:transform 0.2s;box-shadow:0 4px 20px rgba(245,158,11,0.3);position:relative;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+      <button onclick="openAuthModal()" style="padding:16px 40px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;border:none;border-radius:10px;font-weight:700;font-size:16px;cursor:pointer;letter-spacing:0.3px;display:inline-flex;align-items:center;gap:10px;transition:transform 0.2s;box-shadow:0 4px 20px rgba(245,158,11,0.3);position:relative;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
         🔐 Login / Sign Up to Access
       </button>
     </div>
@@ -5806,8 +5806,8 @@
   // ============ SUPABASE AUTHENTICATION ============
   // ============================================================
   
-  const SUPABASE_URL = 'https://YOUR-NEW-PROJECT.supabase.co'; // <-- apne NAYE Supabase project ka URL yahan daalo
-  const SUPABASE_KEY = 'YOUR_NEW_SUPABASE_ANON_KEY'; // <-- apne NAYE project ka anon/publishable key yahan daalo
+  const SUPABASE_URL = 'https://vjqvoinsspgsrcyhwspy.supabase.co'; // <-- apne NAYE Supabase project ka URL yahan daalo
+  const SUPABASE_KEY = 'sb_publishable_pARKqVhdmy3qMg98JAzTkw_1ZAtYW5o'; // <-- apne NAYE project ka anon/publishable key yahan daalo
   
   // Initialize Supabase client (with safety fallback)
   let sb = null;
@@ -6331,10 +6331,9 @@
   }
   
   function init() {
-    // ===== Guest unlock (demo) — show landing first, enter app on Login/Sign Up =====
-    currentUser = { id: 'guest', email: '', user_metadata: { full_name: 'Trader' } };
-    currentProfile = { full_name: 'Trader', username: 'trader', email: '', is_premium: false };
+    // Show landing first; restore real session if user already logged in
     showLandingPage();
+    loadUserProfile();
     
     updateTime();
     buildCalendar();
@@ -6351,8 +6350,7 @@
     // Load quiz questions from database
     loadQuizQuestionsFromDB();
     
-    // Login-free mode: show guest UI (no session check)
-    updateAuthUI();
+    // (real session handled by loadUserProfile above)
   }
   
   init();
