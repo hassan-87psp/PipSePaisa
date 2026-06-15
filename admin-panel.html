@@ -1482,7 +1482,7 @@
             <input id="artImage" class="search-input" type="text" placeholder="Image / chart URL (optional)">
             <textarea id="artContent" class="search-input" rows="5" placeholder="Article content..." style="resize:vertical;font-family:inherit"></textarea>
             <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input id="artPublish" type="checkbox" checked> Publish now</label>
-            <button class="btn" onclick="createArticle()">➕ Create Article</button>
+            <button class="btn" id="artBtn" onclick="createArticle()">➕ Create Article</button>
           </div>
         </div>
         <div class="card" style="margin-top:18px">
@@ -2673,6 +2673,7 @@ async function initCharts() {
 
 
 <script>
+let editingArticleId=null;
 async function loadAdminArticles(){
   if(!sb) return;
   const list=document.getElementById('articlesList'); if(!list) return;
@@ -2680,7 +2681,7 @@ async function loadAdminArticles(){
   const {data,error}=await sb.from('articles').select('*').order('created_at',{ascending:false});
   if(error){list.innerHTML='<div style="padding:16px;color:var(--red)">Error: '+error.message+'</div>';return;}
   if(!data||!data.length){list.innerHTML='<div style="padding:16px;color:var(--text-muted)">No articles yet. Create one above.</div>';return;}
-  list.innerHTML=data.map(a=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)"><div style="font-size:20px">${a.type==='chart'?'📈':'📝'}</div><div style="flex:1"><div style="font-weight:700">${(a.title||'(untitled)')}</div><div style="font-size:12px;color:var(--text-muted)">${a.type||'single'} · ${a.is_published?'Published':'Draft'} · ${new Date(a.created_at).toLocaleDateString()}</div></div><button class="action-btn delete" title="Delete" onclick="deleteArticle('${a.id}')">🗑️</button></div>`).join('');
+  list.innerHTML=data.map(a=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)"><div style="font-size:20px">${a.type==='chart'?'📈':'📝'}</div><div style="flex:1;min-width:0"><div style="font-weight:700">${(a.title||'(untitled)')}</div><div style="font-size:12px;color:var(--text-muted)">${a.type||'single'} · ${a.is_published?'<span style="color:var(--green)">Published</span>':'<span style="color:var(--gold)">Draft</span>'} · ${new Date(a.created_at).toLocaleDateString()}</div></div><button class="action-btn" title="${a.is_published?'Unpublish':'Publish'}" onclick="toggleArticle('${a.id}',${a.is_published?'true':'false'})">${a.is_published?'🙈':'🌐'}</button><button class="action-btn" title="Edit" onclick="editArticle('${a.id}')">✏️</button><button class="action-btn delete" title="Delete" onclick="deleteArticle('${a.id}')">🗑️</button></div>`).join('');
 }
 async function createArticle(){
   if(!sb){alert('Supabase not connected');return;}
@@ -2690,10 +2691,32 @@ async function createArticle(){
   const content=document.getElementById('artContent').value.trim();
   const is_published=document.getElementById('artPublish').checked;
   if(!title){alert('Title is required');return;}
-  const {data:{user}}=await sb.auth.getUser();
-  const {error}=await sb.from('articles').insert({type,title,image_url,content,is_published,is_official:true,author_id:user?user.id:null});
-  if(error){alert('Error: '+error.message);return;}
+  if(editingArticleId){
+    const {error}=await sb.from('articles').update({type,title,image_url,content,is_published}).eq('id',editingArticleId);
+    if(error){alert('Error: '+error.message);return;}
+    editingArticleId=null;const b=document.getElementById('artBtn');if(b)b.textContent='➕ Create Article';
+  }else{
+    const {data:{user}}=await sb.auth.getUser();
+    const {error}=await sb.from('articles').insert({type,title,image_url,content,is_published,is_official:true,author_id:user?user.id:null});
+    if(error){alert('Error: '+error.message);return;}
+  }
   document.getElementById('artTitle').value='';document.getElementById('artImage').value='';document.getElementById('artContent').value='';
+  loadAdminArticles();
+}
+async function editArticle(id){
+  const {data,error}=await sb.from('articles').select('*').eq('id',id).single();
+  if(error||!data){alert('Could not load article');return;}
+  document.getElementById('artType').value=data.type||'single';
+  document.getElementById('artTitle').value=data.title||'';
+  document.getElementById('artImage').value=data.image_url||'';
+  document.getElementById('artContent').value=data.content||'';
+  document.getElementById('artPublish').checked=!!data.is_published;
+  editingArticleId=id;const b=document.getElementById('artBtn');if(b)b.textContent='💾 Update Article';
+  window.scrollTo(0,0);
+}
+async function toggleArticle(id,pub){
+  const {error}=await sb.from('articles').update({is_published:!pub}).eq('id',id);
+  if(error){alert('Error: '+error.message);return;}
   loadAdminArticles();
 }
 async function deleteArticle(id){

@@ -803,6 +803,9 @@
           📊 Explore Tools
         </a>
       </div>
+      <div style="text-align:center;margin-top:-34px;margin-bottom:50px;">
+        <a href="mentor-panel.html" style="color:var(--gold);font-size:14px;font-weight:600;text-decoration:none;">🎓 Are you a mentor? Sign up as Mentor →</a>
+      </div>
       
       <!-- Trust indicators -->
       <div style="display:flex;gap:48px;justify-content:center;flex-wrap:wrap;padding-top:30px;border-top:1px solid var(--border);">
@@ -2915,6 +2918,11 @@
         <label>Phone <span style="color:var(--red);">*</span></label>
         <input type="tel" id="signupPhone" placeholder="+92 3XX XXXXXXX" required>
       </div>
+
+      <div class="form-group">
+        <label>Mentor Code <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+        <input type="text" id="signupMentorCode" placeholder="Mentor ka code (agar hai)" style="text-transform:uppercase;">
+      </div>
       
       <div class="form-group">
         <label>Password (min 6 characters)</label>
@@ -3280,8 +3288,8 @@
     if (page === 'newshub' && window.nhInitLoad) window.nhInitLoad();
     if (page === 'strength') loadStrength();
     if (page === 'charts') loadChart();
-    if (page === 'signals') renderSignals();
-    if (page === 'articles') renderArticles();
+    if (page === 'signals') loadSignalsFromDB();
+    if (page === 'articles') loadArticlesFromDB();
     if (page === 'market') { loadGoldPrice(); loadMarketTicker(); }
     if (page === 'settings') updateSettingsProfile();
     
@@ -5902,7 +5910,21 @@
       showAuthMessage('error', 'Please agree to the terms', 'authMessageSignup');
       return;
     }
-    
+
+    const mentorCode = (document.getElementById('signupMentorCode') ? document.getElementById('signupMentorCode').value : '').trim().toUpperCase();
+    if (mentorCode) {
+      try {
+        const { data: mid, error: cErr } = await sb.rpc('mentor_id_for_code', { code: mentorCode });
+        if (cErr || !mid) {
+          showAuthMessage('error', 'Invalid mentor code. Sahi code daalein ya khaali chhod dein.', 'authMessageSignup');
+          return;
+        }
+      } catch (e) {
+        showAuthMessage('error', 'Mentor code verify nahi ho saka. Dobara try karein.', 'authMessageSignup');
+        return;
+      }
+    }
+
     const btn = document.getElementById('signupBtn');
     btn.disabled = true;
     btn.textContent = '⏳ Creating account...';
@@ -5918,7 +5940,9 @@
           data: {
             full_name: fullName,
             username: username,
-            phone: phone
+            phone: phone,
+            role: 'student',
+            mentor_code: mentorCode
           }
         }
       });
@@ -6460,25 +6484,36 @@ window.addEventListener('appinstalled', () => {
 </style>
 <div id="artModal" onclick="if(event.target===this)closeArt()"><div class="art-modal-box" id="artModalBox"></div></div>
 <script>
-// ===== SIGNALS =====
-const SIGNALS=[
-  {pair:'XAU/USD',ico:'🥇',cat:'gold',dir:'buy',entry:'2418.50',sl:'2410.00',tp1:'2428.00',tp2:'2440.00',status:'active',time:'2h ago',premium:false},
-  {pair:'EUR/USD',ico:'🇪🇺',cat:'forex',dir:'sell',entry:'1.0865',sl:'1.0895',tp1:'1.0820',tp2:'1.0780',status:'tp',time:'5h ago',premium:false},
-  {pair:'GBP/JPY',ico:'💷',cat:'forex',dir:'buy',entry:'198.40',sl:'197.60',tp1:'199.80',tp2:'201.20',status:'active',time:'1d ago',premium:true},
-  {pair:'BTC/USD',ico:'₿',cat:'crypto',dir:'buy',entry:'68,200',sl:'66,500',tp1:'71,000',tp2:'74,500',status:'active',time:'3h ago',premium:true},
-  {pair:'USD/JPY',ico:'🇯🇵',cat:'forex',dir:'sell',entry:'156.80',sl:'157.50',tp1:'155.40',tp2:'154.00',status:'closed',time:'2d ago',premium:false},
-  {pair:'XAU/USD',ico:'🥇',cat:'gold',dir:'sell',entry:'2452.00',sl:'2461.00',tp1:'2438.00',tp2:'2420.00',status:'tp',time:'2d ago',premium:true},
-];
+// ===== SIGNALS (from DB: mentor + official, RLS-restricted) =====
+let SIGNALS=[];
 let sigF='all';
+function sigCat(p){p=(p||'').toUpperCase();if(/BTC|ETH|XRP|SOL|DOGE|BNB|USDT|CRYPTO/.test(p))return 'crypto';if(/XAU|GOLD|XAG|SILVER/.test(p))return 'gold';return 'forex';}
+function sigIco(p){const c=sigCat(p);return c==='crypto'?'₿':c==='gold'?'🥇':'💱';}
+function timeAgo(t){if(!t)return '';const d=(Date.now()-new Date(t).getTime())/1000;if(d<3600)return Math.max(1,Math.round(d/60))+'m ago';if(d<86400)return Math.round(d/3600)+'h ago';return Math.round(d/86400)+'d ago';}
 function sigFilter(f,el){sigF=f;document.querySelectorAll('#sigFilters .sig-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderSignals()}
+async function loadSignalsFromDB(){
+  const g=document.getElementById('signalsGrid');if(!g)return;
+  if(!sb){g.innerHTML='';return;}
+  g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading signals...</div>';
+  const {data,error}=await sb.from('signals').select('*').order('created_at',{ascending:false});
+  if(error){g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">'+error.message+'</div>';return;}
+  SIGNALS=(data||[]).map(s=>({
+    pair:s.pair||'', dir:(/sell/i).test(s.direction||'')?'sell':'buy',
+    entry:s.entry_price==null?'-':s.entry_price, sl:s.stop_loss==null?'-':s.stop_loss,
+    tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2,
+    status:(s.status==='tp_hit')?'tp':(s.status==='active'?'active':'closed'),
+    cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:timeAgo(s.created_at)
+  }));
+  renderSignals();
+}
 function renderSignals(){
   const g=document.getElementById('signalsGrid');if(!g)return;
   const list=SIGNALS.filter(s=>sigF==='all'?true:sigF==='active'?s.status==='active':s.cat===sigF);
   const stMap={active:['st-active','● Active'],tp:['st-tp','✓ TP Hit'],closed:['st-closed','Closed']};
   g.innerHTML=list.map(s=>{
-    const[sc,st]=stMap[s.status];
-    const lock=s.premium?`<div class="sig-lock"><div class="lk">🔒</div><div class="lt">Premium Signal</div><div class="ld">Subscribe to your mentor's plan to unlock</div><button onclick="alert('Subscription system coming next — this links to your mentor\\'s paid plan')">Unlock</button></div>`:'';
-    return `<div class="card sig-card">${lock}
+    const a=stMap[s.status]||stMap.active;const sc=a[0],st=a[1];
+    const src=s.official?'<span class="sig-status st-tp" style="margin-left:6px">PipSePaisa</span>':'<span class="sig-status st-active" style="margin-left:6px">Mentor</span>';
+    return `<div class="card sig-card">
       <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}</span></div>
       <div class="sig-levels">
         <div class="sig-lv"><div class="l">Entry</div><div class="v">${s.entry}</div></div>
@@ -6486,43 +6521,50 @@ function renderSignals(){
         <div class="sig-lv"><div class="l">Take Profit 1</div><div class="v" style="color:var(--green)">${s.tp1}</div></div>
         <div class="sig-lv"><div class="l">Take Profit 2</div><div class="v" style="color:var(--green)">${s.tp2}</div></div>
       </div>
-      <div class="sig-foot"><span class="sig-status ${sc}">${st}</span><span>🕐 ${s.time}</span></div>
+      <div class="sig-foot"><span>${src}</span><span class="sig-status ${sc}">${st}</span><span>🕐 ${s.time}</span></div>
     </div>`;
-  }).join('')||'<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No signals in this category yet.</div>';
+  }).join('')||'<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No signals yet. Aapke mentor (ya PipSePaisa) jab signal post karenge, yahan dikhenge.</div>';
 }
 
-// ===== ARTICLES =====
-const ARTICLES=[
-  {cat:'analysis',tag:'Analysis',ico:'📈',grad:'linear-gradient(135deg,#1e3a5f,#0f1f33)',title:'Gold Eyes $2,500 as Fed Holds Rates',ex:'XAU/USD broke key resistance this week. Here is what the structure tells us about the next move...',author:'PipSePaisa Desk',date:'Jun 12',read:'4 min'},
-  {cat:'strategy',tag:'Strategy',ico:'🎯',grad:'linear-gradient(135deg,#3a2f1e,#332512)',title:'Supply & Demand Zones: A Practical Guide',ex:'How to mark institutional zones correctly and avoid the common mistakes most retail traders make...',author:'PipSePaisa Desk',date:'Jun 10',read:'7 min'},
-  {cat:'education',tag:'Education',ico:'🎓',grad:'linear-gradient(135deg,#1e3a2f,#0f2319)',title:'Risk Management 101: Position Sizing',ex:'The single most important skill that separates profitable traders from blown accounts...',author:'PipSePaisa Desk',date:'Jun 08',read:'5 min'},
-  {cat:'analysis',tag:'Analysis',ico:'💶',grad:'linear-gradient(135deg,#2f1e3a,#1f0f33)',title:'EUR/USD Weekly Outlook',ex:'ECB commentary and US data set the tone. Key levels to watch on the euro this week...',author:'PipSePaisa Desk',date:'Jun 06',read:'4 min'},
-];
+// ===== ARTICLES (from DB) =====
+let ARTICLES=[];
 let artF='all';
 function artFilter(f,el){artF=f;document.querySelectorAll('#artFilters .sig-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderArticles()}
+async function loadArticlesFromDB(){
+  const g=document.getElementById('articlesGrid');if(!g)return;
+  if(!sb){g.innerHTML='';return;}
+  g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading articles...</div>';
+  const {data,error}=await sb.from('articles').select('*').eq('is_published',true).order('created_at',{ascending:false});
+  if(error){g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">'+error.message+'</div>';return;}
+  ARTICLES=(data||[]).map(a=>({
+    cat:(a.type==='chart'?'analysis':(a.category||'education')),
+    tag:(a.type==='chart'?'Chart':(a.category||'Article')),
+    ico:(a.type==='chart'?'📈':'📝'),
+    grad:'linear-gradient(135deg,#3a2f1e,#1f0f33)',
+    title:a.title||'(untitled)', ex:(a.content||'').slice(0,140), content:a.content||'',
+    image:a.image_url||'', date:new Date(a.created_at).toLocaleDateString()
+  }));
+  renderArticles();
+}
 function renderArticles(){
   const g=document.getElementById('articlesGrid');if(!g)return;
   const list=ARTICLES.filter(a=>artF==='all'||a.cat===artF);
-  g.innerHTML=list.map((a,i)=>`<div class="card art-card" onclick="openArt(${ARTICLES.indexOf(a)})">
-    <div class="art-cover" style="background:${a.grad}">${a.ico}</div>
+  g.innerHTML=list.map((a)=>`<div class="card art-card" onclick="openArt(${ARTICLES.indexOf(a)})">
+    <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover'):a.grad}">${a.image?'':a.ico}</div>
     <span class="art-tag">${a.tag}</span>
     <div class="art-title">${a.title}</div>
     <div class="art-ex">${a.ex}</div>
-    <div class="art-meta"><span>✍️ ${a.author}</span><span>${a.date} · ${a.read}</span></div>
+    <div class="art-meta"><span>✍️ PipSePaisa</span><span>${a.date}</span></div>
   </div>`).join('')||'<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No articles yet.</div>';
 }
 function openArt(i){
-  const a=ARTICLES[i];
+  const a=ARTICLES[i];if(!a)return;
   document.getElementById('artModalBox').innerHTML=`
-    <div class="art-cover" style="background:${a.grad};height:150px;font-size:54px">${a.ico}</div>
+    <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover'):a.grad};height:150px;font-size:54px">${a.image?'':a.ico}</div>
     <span class="art-tag" style="margin-top:14px">${a.tag}</span>
     <h2>${a.title}</h2>
-    <div class="art-meta" style="border:none;padding:0"><span>✍️ ${a.author}</span><span>${a.date} · ${a.read} read</span></div>
-    <div class="body">
-      <p>${a.ex}</p>
-      <p>This is a sample article body. In the live platform, full article content will load here — written by the mentor or pulled from the platform's built-in analysis feed.</p>
-      <p>Mentors can publish their own articles from the Mentor Panel, and premium articles can be locked behind their subscription plans.</p>
-    </div>
+    <div class="art-meta" style="border:none;padding:0"><span>✍️ PipSePaisa</span><span>${a.date}</span></div>
+    <div class="body"><p>${(a.content||'').replace(/\n/g,'<br>')}</p></div>
     <button onclick="closeArt()" style="margin-top:20px;padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-weight:600;cursor:pointer;font-family:inherit">Close</button>`;
   document.getElementById('artModal').classList.add('open');
 }
