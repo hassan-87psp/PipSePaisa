@@ -431,6 +431,7 @@
       <div class="menu-label">Content Management</div>
       <div class="menu-item" data-page="courses" onclick="showPage('courses', this)"><span class="menu-icon">🎓</span>Courses</div>
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>News & Events</div>
+      <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📝</span>Articles</div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;">LIVE</span></div>
       <div class="menu-item" data-page="quiz" onclick="showPage('quiz', this)"><span class="menu-icon">🎯</span>Quiz Questions</div>
       <div class="menu-item" data-page="youtube" onclick="showPage('youtube', this)"><span class="menu-icon">▶️</span>YouTube Videos</div>
@@ -442,7 +443,6 @@
       
       <div class="menu-label">System</div>
       <div class="menu-item" data-page="settings" onclick="showPage('settings', this)"><span class="menu-icon">⚙️</span>Settings</div>
-      <div class="menu-item" data-page="appearance" onclick="showPage('appearance', this)"><span class="menu-icon">🎨</span>Appearance</div>
       <div class="menu-item" data-page="logs" onclick="showPage('logs', this)"><span class="menu-icon">📋</span>Activity Logs</div>
       <div class="menu-item" data-page="profile" onclick="showPage('profile', this)"><span class="menu-icon">👤</span>Admin Profile</div>
     </nav>
@@ -1472,6 +1472,25 @@
         </div>
       </div>
       
+      <!-- ========== ARTICLES ========== -->
+      <div class="page" id="page-articles">
+        <div class="card">
+          <div class="card-title">📝 Create Article</div>
+          <div style="display:grid;gap:12px;margin-top:14px;max-width:640px">
+            <select id="artType" class="search-input"><option value="single">📝 Single Article</option><option value="chart">📈 Chart Article</option></select>
+            <input id="artTitle" class="search-input" type="text" placeholder="Article title">
+            <input id="artImage" class="search-input" type="text" placeholder="Image / chart URL (optional)">
+            <textarea id="artContent" class="search-input" rows="5" placeholder="Article content..." style="resize:vertical;font-family:inherit"></textarea>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input id="artPublish" type="checkbox" checked> Publish now</label>
+            <button class="btn" onclick="createArticle()">➕ Create Article</button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <div class="card-title">📚 All Articles</div>
+          <div id="articlesList" style="margin-top:10px">Loading...</div>
+        </div>
+      </div>
+
       <!-- ========== APPEARANCE ========== -->
       <div class="page" id="page-appearance">
         <div class="card">
@@ -1697,11 +1716,11 @@ function showPage(page, el) {
     newshub: ['World News Hub', 'Live global news feed with forex impact analysis'],
     quiz: ['Quiz Manager', 'Manage daily quiz question bank'],
     youtube: ['YouTube Videos', 'Featured video management'],
+    articles: ['Articles', 'Single & chart articles'],
     messages: ['Messages / Support', 'User support tickets and inbox'],
     notifications: ['Push Notifications', 'Send notifications to users'],
     emails: ['Email Campaigns', 'Send mass emails and newsletters'],
     settings: ['Platform Settings', 'Configure your platform'],
-    appearance: ['Appearance & Branding', 'Customize colors, logos, theme'],
     logs: ['Activity Logs', 'System and user activity history'],
     profile: ['Admin Profile', 'Your account settings']
   };
@@ -1721,6 +1740,7 @@ function showPage(page, el) {
   if (page === 'news') loadAdminNewsPosts();
   if (page === 'quiz') loadAdminQuiz();
   if (page === 'youtube') loadAdminYoutube();
+  if (page === 'articles') loadAdminArticles();
   if (page === 'newshub' && window.anhInitLoad) window.anhInitLoad();
 }
 
@@ -2652,5 +2672,36 @@ async function initCharts() {
 </div>
 
 
+<script>
+async function loadAdminArticles(){
+  if(!sb) return;
+  const list=document.getElementById('articlesList'); if(!list) return;
+  list.innerHTML='<div style="padding:16px;color:var(--text-muted)">Loading...</div>';
+  const {data,error}=await sb.from('articles').select('*').order('created_at',{ascending:false});
+  if(error){list.innerHTML='<div style="padding:16px;color:var(--red)">Error: '+error.message+'</div>';return;}
+  if(!data||!data.length){list.innerHTML='<div style="padding:16px;color:var(--text-muted)">No articles yet. Create one above.</div>';return;}
+  list.innerHTML=data.map(a=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)"><div style="font-size:20px">${a.type==='chart'?'📈':'📝'}</div><div style="flex:1"><div style="font-weight:700">${(a.title||'(untitled)')}</div><div style="font-size:12px;color:var(--text-muted)">${a.type||'single'} · ${a.is_published?'Published':'Draft'} · ${new Date(a.created_at).toLocaleDateString()}</div></div><button class="action-btn delete" title="Delete" onclick="deleteArticle('${a.id}')">🗑️</button></div>`).join('');
+}
+async function createArticle(){
+  if(!sb){alert('Supabase not connected');return;}
+  const type=document.getElementById('artType').value;
+  const title=document.getElementById('artTitle').value.trim();
+  const image_url=document.getElementById('artImage').value.trim();
+  const content=document.getElementById('artContent').value.trim();
+  const is_published=document.getElementById('artPublish').checked;
+  if(!title){alert('Title is required');return;}
+  const {data:{user}}=await sb.auth.getUser();
+  const {error}=await sb.from('articles').insert({type,title,image_url,content,is_published,is_official:true,author_id:user?user.id:null});
+  if(error){alert('Error: '+error.message);return;}
+  document.getElementById('artTitle').value='';document.getElementById('artImage').value='';document.getElementById('artContent').value='';
+  loadAdminArticles();
+}
+async function deleteArticle(id){
+  if(!confirm('Delete this article?'))return;
+  const {error}=await sb.from('articles').delete().eq('id',id);
+  if(error){alert('Error: '+error.message);return;}
+  loadAdminArticles();
+}
+</script>
 </body>
 </html>
