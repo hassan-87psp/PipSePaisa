@@ -1591,13 +1591,24 @@ let isLoggedIn = false;
 
 // On load, check if already logged in
 window.addEventListener('load', async () => {
-  // ===== LOGIN-FREE MODE: open admin directly (demo) =====
-  currentAdmin = { full_name: 'Admin', email: '', is_admin: true };
-  isLoggedIn = true;
+  // Check for an existing admin session; otherwise show the login screen
+  try {
+    const { data: { user } } = await sb.auth.getUser();
+    if (user) {
+      const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+      if (profile && profile.is_admin) {
+        currentAdmin = profile;
+        isLoggedIn = true;
+        const ov = document.getElementById('loginOverlay');
+        if (ov) ov.classList.remove('active');
+        setTimeout(initCharts, 100);
+        loadDashboardStats();
+        return;
+      }
+    }
+  } catch (e) {}
   const ov = document.getElementById('loginOverlay');
-  if (ov) ov.classList.remove('active');
-  setTimeout(initCharts, 100);
-  try { loadDashboardStats(); } catch(e) {}
+  if (ov) ov.classList.add('active');
 });
 
 async function loginAdmin() {
@@ -2640,49 +2651,6 @@ async function initCharts() {
   </div>
 </div>
 
-<script>
-/* ===== DEMO / DUMMY DATA ===== */
-(function(){
-  const DUSERS=[
-    {n:'Bilal Hussain',e:'bilal@mail.com',c:'🇵🇰 Pakistan',d:'Jun 12, 2026',plan:'premium',admin:false,s:'active'},
-    {n:'Sara Malik',e:'sara@mail.com',c:'🇦🇪 UAE',d:'Jun 11, 2026',plan:'free',admin:false,s:'active'},
-    {n:'Usman Tariq',e:'usman@mail.com',c:'🇵🇰 Pakistan',d:'Jun 10, 2026',plan:'premium',admin:false,s:'active'},
-    {n:'Ayesha Noor',e:'ayesha@mail.com',c:'🇲🇾 Malaysia',d:'Jun 09, 2026',plan:'free',admin:false,s:'active'},
-    {n:'Hamza Sheikh',e:'hamza@mail.com',c:'🇬🇧 UK',d:'Jun 07, 2026',plan:'free',admin:false,s:'banned'},
-    {n:'Admin',e:'admin@pipsepaisa.com',c:'🌐 Global',d:'Jun 01, 2026',plan:'premium',admin:true,s:'active'}
-  ];
-  const DPAIRS=[['XAU/USD',420],['EUR/USD',318],['GBP/JPY',265],['BTC/USD',190],['USD/JPY',142]];
-  const DTOP=[['Bilal Hussain',1840],['Ayesha Noor',1220],['Usman Tariq',880],['Sara Malik',540],['Hamza Sheikh',-260]];
-  const DTRD=[['09:42 AM','Bilal Hussain','XAU/USD','BUY','0.50','2410.0','2428.0',90,'S&D Zone'],['10:15 AM','Sara Malik','EUR/USD','SELL','1.0','1.0890','1.0865',25,'Breakout'],['11:03 AM','Usman Tariq','GBP/JPY','BUY','0.30','198.20','197.60',-18,'Pullback'],['12:20 PM','Ayesha Noor','BTC/USD','BUY','0.10','67000','68240',124,'Trend'],['01:48 PM','Hamza Sheikh','USD/JPY','SELL','0.20','156.80','157.50',-14,'Range']];
-  const M=['🥇','🥈','🥉','4.','5.'];
-  const rowS='display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);';
-  window.loadDashboardStats=function(){
-    const sv=document.querySelectorAll('#page-dashboard .stats-grid:first-of-type .stat-value');
-    [['1,248'],['3,640'],['86'],['12']].forEach((v,i)=>{if(sv[i])sv[i].textContent=v[0];});
-    const sc=document.getElementById('sidebarUsersCount');if(sc)sc.textContent='1,248';
-    const se=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-    se('statRevenue','$2,580');se('statQuizPlays','940');se('statNewsCount','28');se('statQuizCount','60');
-    const sl=document.getElementById('recentSignupsList');
-    if(sl)sl.innerHTML=DUSERS.slice(0,5).map(u=>`<div class="activity-item"><div class="activity-icon" style="background:var(--green-bg);color:var(--green);">${u.n.slice(0,2).toUpperCase()}</div><div class="activity-content"><div class="activity-text"><strong>${u.n}</strong> signed up</div><div class="activity-time">${u.d} · ${u.e}</div></div></div>`).join('');
-    const tp=document.getElementById('topPairsList');
-    if(tp)tp.innerHTML=DPAIRS.map((p,i)=>`<div style="${rowS}"><span>${M[i]} ${p[0]}</span><strong>${p[1]}</strong></div>`).join('');
-    const tu=document.getElementById('topUsersList');
-    if(tu)tu.innerHTML=DTOP.map((u,i)=>`<div style="${rowS}"><span>${M[i]} ${u[0]}</span><strong style="color:${u[1]>=0?'var(--green)':'var(--red)'};">${u[1]>=0?'+$':'-$'}${Math.abs(u[1])}</strong></div>`).join('');
-    const ps=document.getElementById('platformStatsList');
-    if(ps)ps.innerHTML=`<div style="${rowS}"><span>Total Signups</span><strong style="color:var(--green);">1,248</strong></div><div style="${rowS}"><span>Premium Users</span><strong style="color:var(--gold);">86</strong></div><div style="${rowS}"><span>Total Trades</span><strong>3,640</strong></div><div style="${rowS}"><span>Quiz Plays</span><strong>940</strong></div><div style="display:flex;justify-content:space-between;padding:10px 0;"><span>Active Courses</span><strong>12</strong></div>`;
-  };
-  window.loadAdminUsers=function(){
-    const tb=document.querySelector('#page-users table tbody');if(!tb)return;
-    tb.innerHTML=DUSERS.map(u=>{const ini=u.n.split(' ').map(s=>s[0]).join('').toUpperCase().slice(0,2);const st=u.s=='banned'?'<span class="badge banned">Banned</span>':'<span class="badge active">Active</span>';const pl=u.plan=='premium'?'<span class="badge premium">Premium</span>':'<span class="badge free">Free</span>';const ab=u.admin?'<span class="badge premium" style="margin-left:4px;">⚡ ADMIN</span>':'';return `<tr><td><input type="checkbox"></td><td><div class="user-cell"><div class="user-cell-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706);">${ini}</div><div><div class="user-cell-name">${u.n}${ab}</div><div class="user-cell-email">${u.e}</div></div></div></td><td>${u.c}</td><td>${u.d}</td><td>-</td><td>-</td><td>${pl}</td><td>${st}</td><td><button class="action-btn" title="View">👁️</button><button class="action-btn" title="Edit">✏️</button><button class="action-btn delete" title="Ban">🚫</button></td></tr>`;}).join('');
-  };
-  window.loadAdminTrades=function(){
-    const tb=document.querySelector('#page-trades table tbody');if(!tb)return;
-    tb.innerHTML=DTRD.map(t=>{const db=t[3]=='BUY'?'<span class="badge active">BUY</span>':'<span class="badge banned">SELL</span>';const c=t[7]>=0?'var(--green)':'var(--red)';const pf=t[7]>=0?'+$':'-$';return `<tr><td>${t[0]}</td><td>${t[1]}</td><td><strong>${t[2]}</strong></td><td>${db}</td><td>${t[4]}</td><td>${t[5]}</td><td>${t[6]}</td><td style="color:${c};font-weight:700;">${pf}${Math.abs(t[7]).toFixed(2)}</td><td>${t[8]}</td></tr>`;}).join('');
-  };
-  function paint(){try{loadDashboardStats();loadAdminUsers();loadAdminTrades();}catch(e){}}
-  document.addEventListener('DOMContentLoaded',paint);
-  window.addEventListener('load',function(){setTimeout(paint,150);});
-})();
-</script>
+
 </body>
 </html>

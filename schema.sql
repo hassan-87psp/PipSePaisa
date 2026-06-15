@@ -145,6 +145,33 @@ drop policy if exists quiz_read on public.quiz_questions;
 create policy quiz_read on public.quiz_questions for select using (true);
 
 -- =====================================================================
+--  ADMIN ACCESS — let admins read all users & trades (for Admin Panel)
+-- =====================================================================
+-- security-definer helper avoids RLS recursion
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer set search_path = public
+stable
+as $$
+  select coalesce((select is_admin from public.profiles where id = auth.uid()), false);
+$$;
+
+drop policy if exists profiles_admin_read   on public.profiles;
+create policy profiles_admin_read   on public.profiles for select using (public.is_admin());
+drop policy if exists profiles_admin_update on public.profiles;
+create policy profiles_admin_update on public.profiles for update using (public.is_admin());
+
+drop policy if exists trades_admin_read on public.trades;
+create policy trades_admin_read on public.trades for select using (public.is_admin());
+
+-- link trades -> profiles so admin trades list can show the user's name/email
+alter table public.trades drop constraint if exists trades_user_id_fkey;
+alter table public.trades
+  add constraint trades_user_id_fkey
+  foreign key (user_id) references public.profiles(id) on delete cascade;
+
+-- =====================================================================
 --  DONE.
 --  After running, make yourself ADMIN (replace with YOUR email):
 --    update public.profiles set is_admin = true where email = 'you@example.com';
