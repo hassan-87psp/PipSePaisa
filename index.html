@@ -6607,13 +6607,22 @@ function renderArticles(){
 }
 function openArt(i){
   const a=ARTICLES[i];if(!a)return;
-  document.getElementById('artModalBox').innerHTML=`
-    <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover'):a.grad};height:150px;font-size:54px">${a.image?'':a.ico}</div>
-    <span class="art-tag" style="margin-top:14px">${a.tag}</span>
-    <h2>${a.title}</h2>
-    <div class="art-meta" style="border:none;padding:0"><span>✍️ PipSePaisa</span><span>${a.date}</span></div>
-    <div class="body"><p>${(a.content||'').replace(/\n/g,'<br>')}</p></div>
-    <button onclick="closeArt()" style="margin-top:20px;padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-weight:600;cursor:pointer;font-family:inherit">Close</button>`;
+  const box=document.getElementById('artModalBox');
+  const hasImg=!!a.image;
+  box.style.maxWidth=hasImg?'1040px':'680px';
+  box.style.padding=hasImg?'0':'26px';
+  const closeBtn='<button onclick="closeArt()" style="margin-top:20px;padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-weight:600;cursor:pointer;font-family:inherit">Close</button>';
+  const text=`<span class="art-tag">${a.tag}</span><h2 style="margin-top:12px">${a.title}</h2><div class="art-meta" style="border:none;padding:0"><span>✍️ PipSePaisa</span><span>${a.date}</span></div><div class="body"><p>${(a.content||'').replace(/\n/g,'<br>')}</p></div>${closeBtn}`;
+  if(hasImg){
+    box.innerHTML=`<div style="display:flex;flex-wrap:wrap;align-items:stretch">
+      <div style="flex:1 1 440px;min-width:300px;background:#0a0e1a;display:flex;align-items:center;justify-content:center;padding:14px">
+        <img src="${a.image}" title="Click to open full size" style="width:100%;max-height:80vh;object-fit:contain;border-radius:8px;cursor:zoom-in" onclick="window.open('${a.image}','_blank')">
+      </div>
+      <div style="flex:1 1 320px;min-width:280px;max-width:440px;padding:26px;overflow-y:auto;max-height:84vh">${text}</div>
+    </div>`;
+  } else {
+    box.innerHTML=`<div class="art-cover" style="background:${a.grad};height:150px;font-size:54px">${a.ico}</div>${text}`;
+  }
   document.getElementById('artModal').classList.add('open');
 }
 function closeArt(){document.getElementById('artModal').classList.remove('open')}
