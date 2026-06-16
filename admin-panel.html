@@ -2034,6 +2034,7 @@ function openCourseForm(course) {
     document.getElementById('courseDescription').value = course.description || '';
     document.getElementById('courseLevel').value = course.level || 'Beginner';
     document.getElementById('courseCategory').value = course.category || '';
+    document.getElementById('courseThumbnail').value = course.thumbnail || '';
     document.getElementById('courseEmoji').value = course.thumbnail_emoji || '📚';
     document.getElementById('courseColor').value = course.thumbnail_color || 1;
     document.getElementById('courseYoutubeUrl').value = course.youtube_url || '';
@@ -2044,6 +2045,7 @@ function openCourseForm(course) {
   } else {
     document.getElementById('courseFormTitle').textContent = 'Add New Course';
     ['courseId','courseTitle','courseDescription','courseCategory','courseYoutubeUrl'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('courseThumbnail').value = '';
     document.getElementById('courseEmoji').value = '📚';
     document.getElementById('courseColor').value = '1';
     document.getElementById('courseLevel').value = 'Beginner';
@@ -2083,6 +2085,7 @@ async function saveCourse() {
     description: document.getElementById('courseDescription').value.trim(),
     level: document.getElementById('courseLevel').value,
     category: document.getElementById('courseCategory').value.trim(),
+    thumbnail: document.getElementById('courseThumbnail').value.trim() || null,
     thumbnail_emoji: document.getElementById('courseEmoji').value || '📚',
     thumbnail_color: parseInt(document.getElementById('courseColor').value),
     youtube_url: document.getElementById('courseYoutubeUrl').value.trim() || null,
@@ -2573,6 +2576,7 @@ async function initCharts() {
     <div class="form-row">
       <div class="form-group"><label>Emoji Icon</label><input type="text" id="courseEmoji" placeholder="📊" maxlength="2" value="📚"></div>
       <div class="form-group"><label>Color (1-6)</label><select id="courseColor"><option value="1">🟧 Gold</option><option value="2">🟦 Blue</option><option value="3">🟩 Green</option><option value="4">🟪 Purple</option><option value="5">🟥 Pink</option><option value="6">🔴 Red</option></select></div>
+      <div class="form-group" style="grid-column:1/-1"><label>Thumbnail Image URL (optional)</label><input type="text" id="courseThumbnail" placeholder="https://example.com/cover.jpg"></div>
     </div>
     <div class="form-group"><label>YouTube URL</label><input type="url" id="courseYoutubeUrl" placeholder="https://youtube.com/..."></div>
     <div class="form-row">

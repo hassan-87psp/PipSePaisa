@@ -1946,7 +1946,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
                 </div>
               </div>
               <div style="padding:8px 14px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between">
-                <span><b id="nhEC" style="color:var(--gold)">0</b> events</span><span>Auto-refresh: 3min</span>
+                <span><b id="nhEC" style="color:var(--gold)">0</b> events</span><span>Auto-refresh: 1min</span>
               </div>
               <div id="nhList" style="max-height:550px;overflow-y:auto">
                 <div class="nh-loading"><div class="nh-spin"></div>Fetching live news...</div>
@@ -2084,7 +2084,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         function nhMaybeHideClear(){const tc=document.getElementById('nhToasts');if(tc&&!tc.querySelector('.nh-toast')){const cb=document.getElementById('nhClearBtn');if(cb)cb.remove();}}
 
         let nhLoaded=false;
-        window.nhInitLoad=function(){if(!nhLoaded){nhLoaded=true;nhLoad();setInterval(nhLoad,3*60*1000);}};
+        window.nhInitLoad=function(){if(!nhLoaded){nhLoaded=true;nhLoad();setInterval(nhLoad,60*1000);}};
         </script>
       </div>
 
@@ -2694,7 +2694,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <!-- ========== ABOUT ========== -->
       <div class="page" id="page-about">
         <div class="card" style="max-width: 700px; margin: 0 auto; text-align: center; padding: 40px;">
-          <div style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); border-radius: 24px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 800; color: #0a0e1a; box-shadow: 0 8px 24px rgba(245,158,11,0.3);">P</div>
+          <div class="brand-logo" style="width: 100px; height: 100px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); border-radius: 24px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 800; color: #0a0e1a; box-shadow: 0 8px 24px rgba(245,158,11,0.3);">P</div>
           <h2 style="font-size: 26px; margin-bottom: 8px;">PipSePaisa</h2>
           <p style="color: var(--gold); font-weight: 600; margin-bottom: 16px; letter-spacing: 1px;">YOUR TRADING PLATFORM</p>
           <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; line-height: 1.7;">
@@ -3830,11 +3830,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if (countEl) countEl.textContent = data.length + ' courses available';
     
     grid.innerHTML = data.map(c => {
-      const url = c.youtube_url || '#';
+      let url = (c.youtube_url || '').trim(); if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url; if (!url) url = '#';
       const premiumBadge = c.is_premium ? '<span style="position: absolute; top: 12px; right: 12px; padding: 3px 8px; background: var(--gold); color: #0a0e1a; font-size: 9px; font-weight: 800; border-radius: 4px;">⭐ PREMIUM</span>' : '';
       return `<div class="tool-card" onclick="window.open('${url}', '_blank')" style="position: relative;">
         ${premiumBadge}
-        <div class="tool-icon">${c.thumbnail_emoji || '📚'}</div>
+        ${c.thumbnail ? `<img src="${c.thumbnail}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;">` : `<div class="tool-icon">${c.thumbnail_emoji || '📚'}</div>`}
         <h3>${c.title}</h3>
         <p>${c.description || ''}</p>
         <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
@@ -5357,7 +5357,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     }
     html += `<div style="font-size:11px;color:var(--text-muted);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
       <span>📊 Strongest: <strong style="color:var(--green);">${strengths[0].currency} ${strengths[0].strength >= 0 ? '+' : ''}${strengths[0].strength.toFixed(2)}%</strong> · Weakest: <strong style="color:var(--red);">${strengths[strengths.length-1].currency} ${strengths[strengths.length-1].strength.toFixed(2)}%</strong></span>
-      <span>Data: ${latestDate || 'Latest'} · Auto-refresh: 5 min</span>
+      <span>Data: ${latestDate || 'Latest'} · Auto-refresh: 1 min</span>
     </div>`;
     
     // Sort by currency name (A-Z) for consistent display like reference website
@@ -5556,63 +5556,22 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     renderStrengthSuggestions(sorted);
   }
   
-  function renderStrengthSuggestions(sorted) {
-    const container = document.getElementById('strengthSuggestions');
-    if (!container) return;
-    
-    // Top 3 trade ideas: strongest vs weakest combinations
-    const strongest = sorted.slice(0, 3); // top 3 strong
-    const weakest = sorted.slice(-3).reverse(); // top 3 weak
-    
-    const ideas = [];
-    // Best idea: #1 strong vs #1 weak
-    for (let i = 0; i < 3; i++) {
-      const strong = strongest[i];
-      const weak = weakest[i];
-      if (!strong || !weak || strong.code === weak.code) continue;
-      
-      // Check if this is a real tradable pair
-      const pair = `${strong.code}/${weak.code}`;
-      const reversePair = `${weak.code}/${strong.code}`;
-      const action = 'BUY';
-      const diff = strong.strength - weak.strength;
-      const confidence = diff >= 80 ? 'Very High' : (diff >= 50 ? 'High' : (diff >= 25 ? 'Medium' : 'Low'));
-      const confColor = diff >= 50 ? 'var(--green)' : (diff >= 25 ? 'var(--gold)' : 'var(--text-muted)');
-      
-      ideas.push({ pair, reversePair, action, strong, weak, diff, confidence, confColor });
-    }
-    
-    if (ideas.length === 0 || ideas[0].diff < 5) {
-      container.innerHTML = '<div style="padding: 16px; background: var(--bg-elevated); border-radius: 8px; text-align: center; color: var(--text-muted); font-size: 13px;">📊 Currencies are evenly balanced right now. No strong trade opportunities at the moment.</div>';
-      return;
-    }
-    
-    container.innerHTML = ideas.map((idea, i) => {
-      const rank = ['🥇', '🥈', '🥉'][i];
-      return `<div style="padding: 14px; background: var(--bg-elevated); border-radius: 10px; margin-bottom: 8px; border-left: 3px solid ${idea.confColor};">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="font-size: 20px;">${rank}</div>
-            <div>
-              <div style="font-size: 16px; font-weight: 700;">
-                <span class="badge buy" style="margin-right: 6px;">${idea.action}</span>
-                <strong>${idea.pair}</strong>
-              </div>
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-                ${CURRENCY_FLAGS[idea.strong.code]} ${idea.strong.code} (${idea.strong.strength >= 0 ? '+' : ''}${idea.strong.strength.toFixed(1)}) vs 
-                ${CURRENCY_FLAGS[idea.weak.code]} ${idea.weak.code} (${idea.weak.strength >= 0 ? '+' : ''}${idea.weak.strength.toFixed(1)})
-              </div>
-            </div>
-          </div>
-          <div style="text-align: right;">
-            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Confidence</div>
-            <div style="font-size: 14px; font-weight: 700; color: ${idea.confColor};">${idea.confidence}</div>
-            <div style="font-size: 10px; color: var(--text-muted);">Δ ${idea.diff.toFixed(1)} pts</div>
-          </div>
-        </div>
-      </div>`;
-    }).join('') + 
-    '<div style="font-size: 11px; color: var(--text-muted); margin-top: 10px; padding: 10px; background: var(--bg-elevated); border-radius: 6px; line-height: 1.5;">⚠️ <strong>Disclaimer:</strong> These are educational suggestions only based on currency strength. Always combine with your own technical analysis, market context, and risk management. Not financial advice.</div>';
+  function renderStrengthSuggestions(sorted){
+    const container=document.getElementById('strengthSuggestions');
+    if(!container) return;
+    try{
+      const arr=(sorted||[]).map(x=>({code:x.code||x.currency||'',strength:Number(x.strength)||0})).filter(x=>x.code);
+      if(arr.length<2){container.innerHTML='<div style="padding:16px;color:var(--text-muted);font-size:13px;text-align:center;">No data available.</div>';return;}
+      const s2=[...arr].sort((a,b)=>b.strength-a.strength);
+      const strong=s2.slice(0,3), weak=s2.slice(-3).reverse();
+      const ideas=[];
+      for(let i=0;i<3;i++){const s=strong[i], w=weak[i]; if(!s||!w||s.code===w.code) continue; const diff=Math.abs(s.strength-w.strength); const conf=diff>=1?'Very High':diff>=0.5?'High':diff>=0.2?'Medium':'Low'; const cc=diff>=0.5?'var(--green)':diff>=0.2?'var(--gold)':'var(--text-muted)'; ideas.push({pair:s.code+'/'+w.code,diff,conf,cc,s,w});}
+      if(!ideas.length){container.innerHTML='<div style="padding:16px;background:var(--bg-elevated);border-radius:8px;text-align:center;color:var(--text-muted);font-size:13px;">📊 Currencies are evenly balanced — no strong opportunities right now.</div>';return;}
+      container.innerHTML=ideas.map((id,i)=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-elevated);border-radius:10px;margin-bottom:8px;border-left:3px solid ${id.cc};">
+        <div><div style="font-weight:800;font-size:15px;">${i===0?'🥇 ':''}BUY ${id.pair}</div><div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Strong ${id.s.code} (${id.s.strength>=0?'+':''}${id.s.strength.toFixed(2)}%) vs Weak ${id.w.code} (${id.w.strength>=0?'+':''}${id.w.strength.toFixed(2)}%)</div></div>
+        <div style="text-align:right;"><div style="font-size:12px;color:${id.cc};font-weight:700;">${id.conf}</div><div style="font-size:10px;color:var(--text-muted);">Spread ${id.diff.toFixed(2)}%</div></div>
+      </div>`).join('');
+    }catch(e){container.innerHTML='<div style="padding:16px;color:var(--text-muted);font-size:13px;text-align:center;">Could not load suggestions.</div>';}
   }
   
   // ============ SEARCH PALETTE ============
@@ -6431,10 +6390,12 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     // Refresh strength if on strength page
     const strengthPage = document.getElementById('page-strength');
     if (strengthPage && strengthPage.classList.contains('active')) {
-      console.log('🔄 Auto-refreshing currency strength...');
       loadStrength();
     }
-  }, 5 * 60 * 1000); // 5 minutes
+    // Refresh world news hub if active
+    const nhp = document.getElementById('page-newshub');
+    if (nhp && nhp.classList.contains('active') && typeof nhLoad === 'function') { nhLoad(); }
+  }, 60 * 1000); // 1 minute
 </script>
 
 <!-- PWA Install Banner -->
