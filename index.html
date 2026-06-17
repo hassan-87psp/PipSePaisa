@@ -729,6 +729,7 @@
     .d-lg-block { display: block !important; }
     .d-lg-flex { display: flex !important; }
   }
+.vip-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px}.vip-modal{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:22px;max-width:440px;width:100%;max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.5)}
 </style>
 
 <!-- Bootstrap 5 CSS (utilities only, scoped to .bs-scope class) -->
@@ -2369,6 +2370,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
           <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">Unlock premium signals, charts & analysis from your mentor.</div>
         </div>
         <div id="vipPlansGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;"><div class="empty-state"><div>Loading plans...</div></div></div>
+        <div id="myVipReqs" style="margin-top:18px"></div>
+        <div id="vipModalHost"></div>
       </div>
       <div class="page" id="page-tools">
         <div class="card" style="margin-bottom: 14px;">
@@ -6095,6 +6098,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   }
   
   function vEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  let vipPlansById={};
   let vipMentorContact = null;
   async function loadVipPlans(){
     const grid=document.getElementById('vipPlansGrid');const statusEl=document.getElementById('vipStatus');
@@ -6114,7 +6118,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     }catch(e){error=e;}
     if(error){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div>'+vEsc(error.message||'Error')+'</div></div>';return;}
     if(!rows.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div>No VIP plans available yet.</div><div style="font-size:12px;color:var(--text-muted);margin-top:6px;">'+(mentorId?'Your mentor hasn\'t published any premium plans yet.':'You are not linked to a mentor yet. Sign up using a mentor code to see their VIP plans.')+'</div></div>';return;}
-    grid.innerHTML=rows.map(function(r){return vipPlanCard(parseVipPlan(r));}).join('');
+    grid.innerHTML=rows.map(function(r){var p=parseVipPlan(r);vipPlansById[p.id]=p;return vipPlanCard(p);}).join('');
+    loadMyVipRequests();
   }
   function parseVipPlan(row){
     const lines=(row.features||'').split('\n');let icon='💎',tag='',pop=false,vip=false,period='monthly';const feats=[];
@@ -6137,16 +6142,77 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       (p.tagline?'<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">'+vEsc(p.tagline)+'</div>':'')+
       '<div style="font-size:30px;font-weight:800;color:var(--gold);margin:14px 0;">'+(p.price||0)+'<span style="font-size:13px;color:var(--text-muted);font-weight:600;"> '+vEsc(p.currency||'')+' '+perLbl+'</span></div>'+
       '<ul style="list-style:none;padding:0;margin:0 0 18px;">'+feats+'</ul>'+
-      '<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;" onclick="subscribeVip('+JSON.stringify(p.name||'Plan')+','+JSON.stringify(String(p.price||0)+' '+(p.currency||''))+')">💎 Subscribe</button>'+
+      '<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;" onclick="openVipCheckout('+JSON.stringify(p.id)+')">💎 Subscribe</button>'+
     '</div>';
   }
-  function subscribeVip(name,priceStr){
-    const phone=(vipMentorContact&&vipMentorContact.phone)?String(vipMentorContact.phone).replace(/[^0-9]/g,''):'';
-    const mentorName=(vipMentorContact&&vipMentorContact.full_name)?vipMentorContact.full_name:'my mentor';
-    const msg=encodeURIComponent('Hi '+mentorName+', I want to subscribe to the "'+name+'" plan ('+priceStr+'). Please guide me on payment.');
-    if(phone){window.open('https://wa.me/'+phone+'?text='+msg,'_blank');}
-    else{alert('To subscribe to "'+name+'", please contact your mentor directly. They will activate your VIP access after payment.');}
+  async function openVipCheckout(id){
+    const p=vipPlansById[id];if(!p)return;
+    const mentorId=currentProfile&&currentProfile.mentor_id;
+    let methods=[];
+    try{
+      const r=mentorId?await sb.from('payment_methods').select('*').eq('owner_id',mentorId).eq('enabled',true):await sb.from('payment_methods').select('*').eq('enabled',true);
+      methods=r.data||[];
+    }catch(e){}
+    const dur=p.period==='lifetime'?36500:(p.period==='yearly'?365:30);
+    window._vipCheckout={plan:p,methods:methods,dur:dur};
+    const host=document.getElementById('vipModalHost');if(!host)return;
+    const tlMap={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'Crypto USDT (TRC20)'};
+    const opts=methods.map(function(m,i){return '<option value="'+i+'">'+vEsc(m.label||tlMap[m.type]||m.type)+'</option>';}).join('');
+    const body=methods.length?(
+      '<label style="font-size:12px;color:var(--text-muted)">Choose payment method</label>'+
+      '<select id="vipMethod" onchange="vipMethodDetail()" style="width:100%;padding:10px;margin:6px 0 10px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);color:var(--text)">'+opts+'</select>'+
+      '<div id="vipMethodDetail" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:12px;font-size:13px;margin-bottom:12px"></div>'+
+      '<label style="font-size:12px;color:var(--text-muted)">Upload payment receipt (screenshot) *</label>'+
+      '<input type="file" id="vipReceipt" accept="image/*" style="width:100%;margin:6px 0 10px;color:var(--text)">'+
+      '<input type="text" id="vipTxn" placeholder="Transaction ID (optional)" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);color:var(--text)">'+
+      '<textarea id="vipNotes" placeholder="Notes (optional)" rows="2" style="width:100%;padding:10px;margin-bottom:12px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);color:var(--text)"></textarea>'+
+      '<button onclick="submitVipRequest()" style="width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer">📤 Submit Payment Request</button>'+
+      '<div id="vipSubMsg" style="margin-top:10px;font-size:13px"></div>'
+    ):'<div style="color:var(--text-muted);font-size:13px">Your mentor hasn\'t added any payment methods yet. Please contact them directly to subscribe.</div>';
+    host.innerHTML='<div class="vip-modal-bg" onclick="if(event.target===this)closeVipModal()"><div class="vip-modal">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:18px;font-weight:800">💎 Subscribe — '+vEsc(p.name)+'</div><button onclick="closeVipModal()" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer">✕</button></div>'+
+      '<div style="color:var(--gold);font-weight:800;font-size:20px;margin-bottom:14px">'+(p.price||0)+' '+vEsc(p.currency||'')+'</div>'+body+'</div></div>';
+    if(methods.length)vipMethodDetail();
   }
+  function vipMethodDetail(){
+    const c=window._vipCheckout;if(!c)return;
+    const i=parseInt(document.getElementById('vipMethod').value,10)||0;const m=c.methods[i];if(!m)return;
+    let h='';
+    if(m.type==='crypto'){h='<div><strong>Wallet (TRC20):</strong> '+vEsc(m.wallet||'')+'</div><div><strong>Network:</strong> '+vEsc(m.network||'TRC20')+'</div>';}
+    else{h='<div><strong>Account Title:</strong> '+vEsc(m.account_title||'')+'</div><div><strong>Account Number:</strong> '+vEsc(m.account_number||'')+'</div>'+(m.bank_name?('<div><strong>Bank:</strong> '+vEsc(m.bank_name)+'</div>'):'');}
+    document.getElementById('vipMethodDetail').innerHTML='<div style="font-weight:700;margin-bottom:5px">Send payment to:</div>'+h+'<div style="color:var(--text-muted);font-size:11.5px;margin-top:7px">After paying, upload the receipt below & submit.</div>';
+  }
+  async function submitVipRequest(){
+    const c=window._vipCheckout;if(!c)return;
+    const msg=document.getElementById('vipSubMsg');
+    const i=parseInt(document.getElementById('vipMethod').value,10)||0;const m=c.methods[i];
+    const file=document.getElementById('vipReceipt').files[0];
+    if(!file){msg.style.color='var(--red)';msg.textContent='Please upload your payment receipt.';return;}
+    msg.style.color='var(--text-muted)';msg.textContent='Uploading...';
+    try{
+      const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+      const path='receipts/'+currentProfile.id+'_'+Date.now()+'.'+ext;
+      const up=await sb.storage.from('charts').upload(path,file,{upsert:true});
+      if(up.error){msg.style.color='var(--red)';msg.textContent='Upload failed: '+up.error.message;return;}
+      const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
+      const obj={user_id:currentProfile.id,mentor_id:currentProfile.mentor_id||null,plan_id:c.plan.id,plan_name:c.plan.name,amount:c.plan.price,currency:c.plan.currency,duration_days:c.dur,method_type:(m?m.type:null),receipt_url:url,txn_id:(document.getElementById('vipTxn').value||null),notes:(document.getElementById('vipNotes').value||null),status:'pending'};
+      const ins=await sb.from('payment_requests').insert(obj);
+      if(ins.error){msg.style.color='var(--red)';msg.textContent='Error: '+ins.error.message;return;}
+      msg.style.color='var(--green)';msg.textContent='✅ Request submitted! Your mentor will verify & activate your VIP soon.';
+      setTimeout(function(){closeVipModal();loadMyVipRequests();},1600);
+    }catch(e){msg.style.color='var(--red)';msg.textContent='Error: '+e.message;}
+  }
+  function closeVipModal(){const h=document.getElementById('vipModalHost');if(h)h.innerHTML='';}
+  async function loadMyVipRequests(){
+    const box=document.getElementById('myVipReqs');if(!box||!currentProfile||!sb)return;
+    let data=[];try{const r=await sb.from('payment_requests').select('*').eq('user_id',currentProfile.id).order('created_at',{ascending:false}).limit(10);data=r.data||[];}catch(e){return;}
+    if(!data.length){box.innerHTML='';return;}
+    box.innerHTML='<div class="card"><div class="card-title">📋 My Requests</div>'+data.map(function(r){
+      const stc=r.status==='approved'?'var(--green)':(r.status==='rejected'?'var(--red)':'var(--gold)');
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)"><div><strong>'+vEsc(r.plan_name||'Plan')+'</strong> <span style="color:var(--text-muted);font-size:12px">'+(r.amount||0)+' '+vEsc(r.currency||'')+'</span><div style="font-size:11px;color:var(--text-muted)">'+new Date(r.created_at).toLocaleString()+'</div></div><span style="color:'+stc+';font-weight:800;font-size:12px;text-transform:uppercase">'+vEsc(r.status)+'</span></div>';
+    }).join('')+'</div>';
+  }
+
 
   // ============ UPDATE UI BASED ON AUTH STATE ============
   function updateAuthUI() {
