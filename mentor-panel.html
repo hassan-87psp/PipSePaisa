@@ -226,10 +226,10 @@ function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;'
 
 const MODS={
   courses:{icon:'🎓',label:'Courses',sub:'Lessons for your students',table:'courses',
-    fields:[['title','Course title','text'],['description','Short description','text'],['thumbnail','Thumbnail URL (optional)','text'],['content','Course content','area']],
+    fields:[['title','Course title','text'],['description','Short description','text'],['thumbnail','Thumbnail image','image'],['content','Course content','area']],
     row:r=>`<strong>${esc(r.title)}</strong> <span class="muted">${esc(r.description||'')}</span>`},
   news:{icon:'📰',label:'News',sub:'Announcements',table:'news_posts',
-    fields:[['title','Title','text'],['category','Category (optional)','text'],['content','Content','area'],['image','Image URL (optional)','text']],
+    fields:[['title','Title','text'],['category','Category (optional)','text'],['content','Content','area'],['image','Image','image']],
     row:r=>`<strong>${esc(r.title)}</strong> <span class="muted">${esc(r.category||'')}</span>`},
   quiz:{icon:'❓',label:'Quiz',sub:'Practice questions',table:'quiz_questions',
     fields:[['question','Question','text'],['options','Options (comma separated)','text'],['correct_answer','Correct answer','text'],['explanation','Explanation (optional)','area']],
@@ -532,10 +532,9 @@ function renderCharts(){
         <select class="inp" id="chPair">${pairOptions()}</select>
         <input class="inp" id="chTitle" placeholder="Title e.g. XAU 4H breakout">
         <input class="inp" id="chFile" type="file" accept="image/png,image/jpeg,image/jpg">
-        <input class="inp" id="chUrl" placeholder="...or paste image URL">
         <textarea class="inp" id="chNotes" rows="3" placeholder="Analysis notes"></textarea>
         <button class="btn" id="chBtn" onclick="createChart()">📊 Publish Chart</button>
-        <p class="muted" style="font-size:11.5px">To upload images, create a public bucket named "charts" in Supabase (or paste an image URL).</p>
+        <p class="muted" style="font-size:11.5px">Upload a chart image (PNG/JPG). Requires a public "charts" bucket in Supabase Storage.</p>
       </div></div>
     <div class="card"><div class="card-title">🖼️ Your Charts</div><div id="chList" style="margin-top:12px"><div class="list-empty">Loading...</div></div></div>
   </div>`;
@@ -545,7 +544,7 @@ async function createChart(){
   const btn=document.getElementById('chBtn');btn.disabled=true;btn.textContent='⏳ Saving...';
   try{
     const pair=document.getElementById('chPair').value;const title=document.getElementById('chTitle').value.trim();
-    let image_url=document.getElementById('chUrl').value.trim();
+    let image_url='';
     const file=document.getElementById('chFile').files[0];
     if(!title){alert('Title is required');btn.disabled=false;btn.textContent='📊 Publish Chart';return;}
     if(file){
@@ -556,7 +555,7 @@ async function createChart(){
     }
     const {error}=await sb.from('charts').insert({owner_id:ME.id,is_official:false,pair,title,image_url,notes:document.getElementById('chNotes').value.trim()||null});
     if(error){alert('Error: '+error.message);}
-    else{document.getElementById('chTitle').value='';document.getElementById('chUrl').value='';document.getElementById('chFile').value='';document.getElementById('chNotes').value='';loadCharts();}
+    else{document.getElementById('chTitle').value='';document.getElementById('chFile').value='';document.getElementById('chNotes').value='';loadCharts();}
   }catch(e){alert(e.message);}
   btn.disabled=false;btn.textContent='📊 Publish Chart';
 }
@@ -719,7 +718,7 @@ function renderModule(k){
   el.innerHTML=`<div class="grid" style="grid-template-columns:1fr 1.2fr">
     <div class="card"><div class="card-title">${m.icon} Create</div>
       <div style="display:grid;gap:11px;margin-top:12px">
-        ${m.fields.map(([id,ph,t])=>t==='area'?`<textarea class="inp" id="f-${k}-${id}" rows="3" placeholder="${ph}"></textarea>`:`<input class="inp" id="f-${k}-${id}" ${t==='num'?'type="number" step="any"':''} placeholder="${ph}">`).join('')}
+        ${m.fields.map(([id,ph,t])=>t==='area'?`<textarea class="inp" id="f-${k}-${id}" rows="3" placeholder="${ph}"></textarea>`:t==='image'?`<label class="muted" style="font-size:11.5px;margin-bottom:-4px">${ph} (upload)</label><input class="inp" type="file" accept="image/*" id="ff-${k}-${id}" onchange="genUpload('${k}','${id}',this)"><input type="hidden" id="f-${k}-${id}"><div id="fp-${k}-${id}"></div>`:`<input class="inp" id="f-${k}-${id}" ${t==='num'?'type="number" step="any"':''} placeholder="${ph}">`).join('')}
         <button class="btn" onclick="createItem('${k}')">➕ Publish</button>
       </div></div>
     <div class="card"><div class="card-title">📋 Your ${m.label}</div><div id="list-${k}" style="margin-top:8px"><div class="list-empty">Loading...</div></div></div>
@@ -740,9 +739,22 @@ async function createItem(k){
   if(m.transform)obj=m.transform(obj);
   const {error}=await sb.from(m.table).insert(obj);
   if(error){alert('Error: '+error.message);return;}
-  m.fields.forEach(([id])=>{const e=document.getElementById(`f-${k}-${id}`);if(e)e.value='';});loadList(k);
+  m.fields.forEach(([id])=>{const e=document.getElementById(`f-${k}-${id}`);if(e)e.value='';const ff=document.getElementById(`ff-${k}-${id}`);if(ff)ff.value='';const fp=document.getElementById(`fp-${k}-${id}`);if(fp)fp.innerHTML='';});loadList(k);
 }
 async function delItem(k,id){if(!confirm('Delete?'))return;await sb.from(MODS[k].table).delete().eq('id',id);loadList(k);}
+async function genUpload(k,id,input){
+  const file=input.files&&input.files[0];if(!file)return;
+  const prev=document.getElementById('fp-'+k+'-'+id);if(prev)prev.innerHTML='<span class="muted" style="font-size:12px">Uploading...</span>';
+  try{
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const path=ME.id+'/'+k+'_'+Date.now()+'_'+Math.random().toString(36).slice(2,7)+'.'+ext;
+    const {error}=await sb.storage.from('charts').upload(path,file,{upsert:true});
+    if(error){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">Upload failed: '+error.message+' (create a public \'charts\' bucket)</span>';return;}
+    const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
+    const hid=document.getElementById('f-'+k+'-'+id);if(hid)hid.value=url;
+    if(prev)prev.innerHTML='<img src="'+url+'" style="width:120px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border);margin-top:6px">';
+  }catch(e){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">Error: '+e.message+'</span>';}
+}
 
 /* ============ SETTINGS ============ */
 function renderSettings(){
