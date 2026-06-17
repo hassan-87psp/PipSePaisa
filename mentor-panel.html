@@ -248,10 +248,10 @@ const MODS={
 const NAV=[['MAIN',[['dashboard','🏠','Dashboard'],['signals','📊','Signals'],['adminsignals','🏦','Admin Signals'],['charts','📈','Charts'],['subscriptions','💳','Subscriptions']]],
   ['CONTENT',[['courses','🎓','Courses'],['news','📰','News'],['quiz','❓','Quiz'],['youtube','▶️','YouTube']]],
   ['INSIGHTS',[['analytics','📉','Analytics'],['earnings','💰','Earnings'],['students','👥','Students']]],
-  ['MONETIZE',[['requests','🧾','Requests']]],
+  ['MONETIZE',[['requests','🧾','Requests'],['ibbrokers','🤝','IB Brokers'],['ibreqs','🧾','IB Requests']]],
   ['COMMUNICATION',[['messages','💬','Messages'],['notifications','🔔','Notifications']]],
   ['SYSTEM',[['settings','⚙️','Settings']]]];
-const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP']};
+const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],ibbrokers:['IB Brokers','Your partner brokers'],ibreqs:['IB Requests','Approve your students IB accounts']};
 function metaOf(k){return MODS[k]?[MODS[k].label,MODS[k].sub]:(TITLES[k]||[k,'']);}
 
 /* ============ AUTH ============ */
@@ -405,13 +405,81 @@ async function loadRequests(filter,ev){
 async function approveReq(id){if(!confirm('Approve & activate VIP for this student?'))return;const {error}=await sb.rpc('approve_payment',{req_id:id});if(error){alert('Error: '+error.message);return;}loadRequests('pending');}
 async function rejectReq(id){if(!confirm('Reject this request?'))return;const {error}=await sb.rpc('reject_payment',{req_id:id});if(error){alert('Error: '+error.message);return;}loadRequests('pending');}
 
+/* ============ IB PROGRAM (Phase 2) ============ */
+async function renderIbBrokers(){
+  const el=document.getElementById('pg-ibbrokers');
+  el.innerHTML=`
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px">
+    <div class="card"><div class="card-title">➕ Add Partner Broker</div>
+      <div style="display:grid;gap:11px;margin-top:12px">
+        <input class="inp" id="ibName" placeholder="Broker name (e.g. Exness)">
+        <input class="inp" id="ibEmoji" placeholder="Emoji/icon" value="🤝">
+        <input class="inp" id="ibLink" placeholder="Registration / IB referral link">
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px"><input class="inp" id="ibMin" type="number" placeholder="Min deposit"><input class="inp" id="ibCur" placeholder="USD" value="USD"></div>
+        <textarea class="inp" id="ibBenefits" rows="3" placeholder="Benefits (one per line)"></textarea>
+        <textarea class="inp" id="ibInstr" rows="2" placeholder="Instructions (optional)"></textarea>
+        <button class="btn" onclick="addMentorBroker()">💾 Save Broker</button>
+      </div></div>
+    <div class="card"><div class="card-title">🤝 Your Partner Brokers</div><div id="ibList" style="margin-top:10px"><div class="list-empty">Loading...</div></div></div>
+  </div>`;
+  loadMentorBrokers();
+}
+async function addMentorBroker(){
+  const name=val('ibName');if(!name){alert('Broker name required');return;}
+  const obj={owner_id:ME.id,is_official:false,name:name,logo_emoji:val('ibEmoji')||'🤝',registration_link:val('ibLink')||null,min_deposit:parseFloat(val('ibMin'))||0,currency:val('ibCur')||'USD',benefits:val('ibBenefits')||null,instructions:val('ibInstr')||null,enabled:true};
+  const {error}=await sb.from('ib_brokers').insert(obj);
+  if(error){alert('Error: '+error.message);return;}
+  ['ibName','ibLink','ibMin','ibBenefits','ibInstr'].forEach(i=>document.getElementById(i).value='');
+  loadMentorBrokers();
+}
+async function loadMentorBrokers(){
+  const box=document.getElementById('ibList');if(!box)return;
+  const {data,error}=await sb.from('ib_brokers').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false});
+  if(error){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}
+  if(!data||!data.length){box.innerHTML='<div class="list-empty">No brokers yet.</div>';return;}
+  box.innerHTML=data.map(b=>`<div class="row" style="padding:11px 0;border-bottom:1px solid var(--border)"><div><strong>${esc(b.logo_emoji||'🤝')} ${esc(b.name)}</strong> <span class="badge ${b.enabled?'green':'muted'}" style="font-size:9px">${b.enabled?'ON':'OFF'}</span><div class="muted" style="font-size:12px;margin-top:3px">${b.min_deposit>0?('Min '+b.min_deposit+' '+esc(b.currency||'USD')+' · '):''}${esc(b.registration_link||'no link')}</div></div><div style="display:flex;gap:6px"><button class="btn sm ghost" onclick="toggleMentorBroker('${b.id}',${b.enabled?'false':'true'})">${b.enabled?'Disable':'Enable'}</button><button class="del" style="padding:5px 9px;border-radius:7px" onclick="delMentorBroker('${b.id}')">🗑️</button></div></div>`).join('');
+}
+async function toggleMentorBroker(id,on){await sb.from('ib_brokers').update({enabled:on}).eq('id',id);loadMentorBrokers();}
+async function delMentorBroker(id){if(!confirm('Delete this broker?'))return;await sb.from('ib_brokers').delete().eq('id',id);loadMentorBrokers();}
+
+async function renderIbReqs(){
+  const el=document.getElementById('pg-ibreqs');
+  el.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px"><div class="card-title">🧾 IB Registration Requests</div><div class="seg"><button class="on" onclick="loadIbReqList('pending',event)">Pending</button><button onclick="loadIbReqList('all',event)">All</button></div></div><div id="ibReqList" style="margin-top:14px"><div class="list-empty">Loading...</div></div></div>`;
+  loadIbReqList('pending');
+}
+async function loadIbReqList(filter,ev){
+  if(ev&&ev.target){ev.target.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));ev.target.classList.add('on');}
+  const box=document.getElementById('ibReqList');if(!box)return;
+  let q=sb.from('ib_registrations').select('*, profiles:user_id(full_name,email)').eq('mentor_id',ME.id).order('created_at',{ascending:false});
+  if(filter==='pending')q=q.eq('status','pending');
+  const {data,error}=await q;
+  if(error){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}
+  if(!data||!data.length){box.innerHTML='<div class="list-empty">No requests yet.</div>';return;}
+  box.innerHTML=data.map(r=>{
+    const u=r.profiles||{};const stc=r.status==='approved'?'green':(r.status==='rejected'?'red':'gold');
+    const rc=r.proof_url?`<a href="${esc(r.proof_url)}" target="_blank"><img src="${esc(r.proof_url)}" style="width:74px;height:74px;object-fit:cover;border-radius:8px;border:1px solid var(--border)"></a>`:'<span class="muted" style="font-size:12px">No proof</span>';
+    const act=r.status==='pending'?`<div style="display:flex;gap:8px;margin-top:10px"><button class="btn sm" onclick="approveIbReq('${r.id}')">✅ Approve</button><button class="del" style="padding:6px 12px;border-radius:8px" onclick="rejectIbReq('${r.id}')">❌ Reject</button></div>`:'';
+    return `<div class="card" style="margin-bottom:10px;background:var(--glass)"><div style="display:flex;gap:12px"><div>${rc}</div><div style="flex:1">
+      <div style="display:flex;justify-content:space-between;gap:8px"><strong>${esc(u.full_name||u.email||'Student')}</strong><span class="badge ${stc}">${esc(r.status)}</span></div>
+      <div class="muted" style="font-size:12px;margin-top:2px">${esc(u.email||'')}</div>
+      <div style="font-size:13px;margin-top:7px">🤝 ${esc(r.broker_name||'Broker')} · Acc: <strong>${esc(r.trading_account||'-')}</strong>${r.deposit_amount?(' · '+r.deposit_amount+' '+esc(r.currency||'')):''}</div>
+      ${r.notes?`<div class="muted" style="font-size:12px">Note: ${esc(r.notes)}</div>`:''}
+      ${r.reject_reason?`<div style="font-size:12px;color:var(--red)">Reason: ${esc(r.reject_reason)}</div>`:''}
+      <div class="muted" style="font-size:11px;margin-top:4px">${new Date(r.created_at).toLocaleString()}</div>
+      ${act}</div></div></div>`;
+  }).join('');
+}
+async function approveIbReq(id){if(!confirm('Approve this IB registration?'))return;const {error}=await sb.rpc('approve_ib',{req_id:id});if(error){alert('Error: '+error.message);return;}loadIbReqList('pending');}
+async function rejectIbReq(id){const reason=prompt('Reason for rejection (optional):')||null;const {error}=await sb.rpc('reject_ib',{req_id:id,reason:reason});if(error){alert('Error: '+error.message);return;}loadIbReqList('pending');}
+
+
 function showPage(k){
   document.querySelectorAll('.menu-item[data-k]').forEach(e=>e.classList.toggle('active',e.dataset.k===k));
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
   document.getElementById('pg-'+k).classList.add('active');
   const m=metaOf(k);document.getElementById('pageTitle').textContent=m[0];document.getElementById('pageSub').textContent=m[1];
   document.getElementById('sidebar').classList.remove('open');
-  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests}[k]||(()=>renderModule(k)))();
+  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,ibbrokers:renderIbBrokers,ibreqs:renderIbReqs}[k]||(()=>renderModule(k)))();
 }
 
 /* ============ DASHBOARD ============ */
