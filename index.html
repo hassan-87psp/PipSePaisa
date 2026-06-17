@@ -6106,21 +6106,15 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     }
     if(!sb){grid.innerHTML='<div class="empty-state"><div>Connect to view plans.</div></div>';return;}
     const mentorId=currentProfile&&currentProfile.mentor_id;
-    let data=[],error=null;
+    let rows=[],error=null;
     try{
-      if(mentorId){
-        const r=await sb.from('subscription_plans').select('*').eq('is_active',true).eq('owner_id',mentorId).order('price',{ascending:true});
-        data=r.data||[];error=r.error;
-        const mp=await sb.from('profiles').select('full_name,phone').eq('id',mentorId).single();
-        if(mp.data)vipMentorContact=mp.data;
-      }else{
-        const r=await sb.from('subscription_plans').select('*').eq('is_active',true).eq('is_official',true).order('price',{ascending:true});
-        data=r.data||[];error=r.error;
-      }
+      const r=await sb.from('subscription_plans').select('*').eq('is_active',true).order('price',{ascending:true});
+      rows=r.data||[];error=r.error;
+      if(mentorId){const mp=await sb.from('profiles').select('full_name,phone').eq('id',mentorId).single();if(mp.data)vipMentorContact=mp.data;}
     }catch(e){error=e;}
     if(error){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div>'+vEsc(error.message||'Error')+'</div></div>';return;}
-    if(!data.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div>No VIP plans available yet.</div><div style="font-size:12px;color:var(--text-muted);margin-top:6px;">Your mentor hasn\'t published any premium plans.</div></div>';return;}
-    grid.innerHTML=data.map(function(r){return vipPlanCard(parseVipPlan(r));}).join('');
+    if(!rows.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div>No VIP plans available yet.</div><div style="font-size:12px;color:var(--text-muted);margin-top:6px;">'+(mentorId?'Your mentor hasn\'t published any premium plans yet.':'You are not linked to a mentor yet. Sign up using a mentor code to see their VIP plans.')+'</div></div>';return;}
+    grid.innerHTML=rows.map(function(r){return vipPlanCard(parseVipPlan(r));}).join('');
   }
   function parseVipPlan(row){
     const lines=(row.features||'').split('\n');let icon='💎',tag='',pop=false,vip=false,period='monthly';const feats=[];
