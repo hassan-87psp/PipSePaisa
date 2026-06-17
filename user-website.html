@@ -1355,7 +1355,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>Economic News<span class="dot"></span></div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;animation:pulse 2s infinite;">LIVE</span></div>
       <div class="menu-item" data-page="strength" onclick="showPage('strength', this)"><span class="menu-icon">💪</span>Currency Strength</div>
-      <div class="menu-item" data-page="market" onclick="showPage('market', this)"><span class="menu-icon">🌐</span>Live Market</div>
       
       <div class="menu-item" data-page="tools" onclick="showPage('tools', this)"><span class="menu-icon">🔧</span>Tools</div>
       
@@ -2135,18 +2134,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
           </div>
         </div>
         
-        <!-- Trade Suggestions Card -->
-        <div class="card" style="margin-top: 14px;">
-          <div class="card-title" style="margin-bottom: 14px;">🎯 Top Trading Opportunities</div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
-            Based on current strength differences — strongest vs weakest currencies
-          </div>
-          <div id="strengthSuggestions">
-            <div class="empty-state" style="height: 100px;">
-              <div>Loading suggestions...</div>
-            </div>
-          </div>
-        </div>
         
         <!-- Reference Strength Scale -->
         <div class="card" style="margin-top: 14px;">
@@ -2581,14 +2568,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       </div>
       
       <div class="page" id="page-learn">
-        <div class="youtube-banner">
-          <div class="yt-icon">▶</div>
-          <div class="yt-content">
-            <h3>PipSePaisa Community</h3>
-            <p>Free forex education in Roman Urdu / Hindi. Live analysis, strategies, aur trading psychology.</p>
-          </div>
-          <a class="yt-btn" href="#" target="_blank">Visit Channel</a>
-        </div>
         
         <div class="card-header" style="margin-top: 18px; margin-bottom: 14px;">
           <div class="card-title">🎓 All Courses</div>
@@ -2776,9 +2755,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       </div>
       <p style="font-size:12px;color:var(--text-muted);line-height:1.7;max-width:280px;">A complete Forex Partner Ecosystem — professional trading tools, signals and education in one platform.</p>
       <div style="display:flex;gap:10px;margin-top:14px;">
-        <a href="#" target="_blank" title="YouTube" style="width:36px;height:36px;background:#FF0000;border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-        </a>
         <a href="#" target="_blank" title="Facebook" style="width:36px;height:36px;background:#1877F2;border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
         </a>
@@ -5592,7 +5568,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     { cat: 'Main', icon: '📉', title: 'Trades Analysis', desc: 'Performance analytics', page: 'analysis' },
     { cat: 'Analysis', icon: '📰', title: 'Economic News', desc: 'Calendar of news events', page: 'news' },
     { cat: 'Analysis', icon: '💪', title: 'Currency Strength', desc: 'Live currency strength', page: 'strength' },
-    { cat: 'Analysis', icon: '🌐', title: 'Live Market', desc: 'Forex heatmap', page: 'market' },
     { cat: 'Analysis', icon: '📊', title: 'Live Charts', desc: 'TradingView charts', page: 'charts' },
     { cat: 'Tools', icon: '🔧', title: 'All Tools & Calculators', desc: 'Pip, Lot, R:R, P/L, Margin, Compounding', page: 'tools' },
     { cat: 'Tools', icon: '📐', title: 'Pip Calculator', desc: 'Calculate pip values', calc: 'pip' },
@@ -5603,7 +5578,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     { cat: 'Tools', icon: '📈', title: 'Compounding', desc: 'Compound growth', calc: 'compound' },
     { cat: 'Account', icon: '⚙️', title: 'Settings', desc: 'Preferences and profile', page: 'settings' },
     { cat: 'Account', icon: '🎓', title: 'Learn Forex', desc: 'Education resources', page: 'learn' },
-    { cat: 'Account', icon: '▶️', title: 'Community', desc: 'Join the PipSePaisa community', url: '#' },
     { cat: 'Account', icon: 'ℹ️', title: 'About', desc: 'About the platform', page: 'about' },
   ];
   
@@ -6505,9 +6479,10 @@ async function loadSignalsFromDB(){
   const {data,error}=await sb.from('signals').select('*').order('created_at',{ascending:false});
   if(error){g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">'+error.message+'</div>';return;}
   const _isVip=!!(currentProfile&&currentProfile.is_premium);
-  SIGNALS=(data||[]).filter(s=>(s.access_level||'free')!=='vip'||_isVip).map(s=>({
+  SIGNALS=(data||[]).map(s=>({
     pair:s.pair||'', dir:(/sell/i).test(s.direction||'')?'sell':'buy',
     access:s.access_level||'free', plan:s.plan_name||'',
+    locked:(((s.access_level||'free')==='vip')&&!_isVip),
     entry:s.entry_price==null?'-':s.entry_price, sl:s.stop_loss==null?'-':s.stop_loss,
     tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2,
     status:(s.status==='tp_hit')?'tp':(s.status==='active'?'active':'closed'),
@@ -6523,13 +6498,19 @@ function renderSignals(){
     const a=stMap[s.status]||stMap.active;const sc=a[0],st=a[1];
     const src=s.official?'<span class="sig-status st-tp" style="margin-left:6px">PipSePaisa</span>':'<span class="sig-status st-active" style="margin-left:6px">Mentor</span>';
     const acc=s.access==='vip'?`<span class="sig-status st-tp" style="margin-left:6px;background:var(--gold);color:#0a0e1a">👑 VIP${s.plan?(' · '+s.plan):''}</span>`:'';
+    const lockOv=s.locked?'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;z-index:2">\
+<div style="font-size:14px;font-weight:800;color:var(--gold)">🔒 VIP Signal</div>\
+<div style="font-size:11px;color:var(--text-muted)">Upgrade to unlock Entry, SL &amp; TP</div></div>':'';
     return `<div class="card sig-card">
       <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}</span></div>
-      <div class="sig-levels">
-        <div class="sig-lv"><div class="l">Entry</div><div class="v">${s.entry}</div></div>
-        <div class="sig-lv"><div class="l">Stop Loss</div><div class="v" style="color:var(--red)">${s.sl}</div></div>
-        <div class="sig-lv"><div class="l">Take Profit 1</div><div class="v" style="color:var(--green)">${s.tp1}</div></div>
-        <div class="sig-lv"><div class="l">Take Profit 2</div><div class="v" style="color:var(--green)">${s.tp2}</div></div>
+      <div style="position:relative">
+        ${lockOv}
+        <div class="sig-levels" style="${s.locked?'filter:blur(7px);pointer-events:none;user-select:none':''}">
+          <div class="sig-lv"><div class="l">Entry</div><div class="v">${s.entry}</div></div>
+          <div class="sig-lv"><div class="l">Stop Loss</div><div class="v" style="color:var(--red)">${s.sl}</div></div>
+          <div class="sig-lv"><div class="l">Take Profit 1</div><div class="v" style="color:var(--green)">${s.tp1}</div></div>
+          <div class="sig-lv"><div class="l">Take Profit 2</div><div class="v" style="color:var(--green)">${s.tp2}</div></div>
+        </div>
       </div>
       <div class="sig-foot"><span>${src}${acc}</span><span class="sig-status ${sc}">${st}</span><span>🕐 ${s.time}</span></div>
     </div>`;
