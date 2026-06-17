@@ -776,8 +776,18 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 .pip-toast.ok{border-left-color:#10b981}.pip-toast.err{border-left-color:#ef4444}
 @keyframes pipToastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}.pip-toast.out{animation:pipToastOut .3s ease forwards}@keyframes pipToastOut{to{opacity:0;transform:translateX(40px)}}
 </style>
+<style id="pipSplash">
+#pipBoot{position:fixed;inset:0;z-index:999999;background:radial-gradient(circle at 50% 40%,#0d1322,#070b15 72%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .6s ease,visibility .6s}
+#pipBoot.gone{opacity:0;visibility:hidden}
+#pipBoot .bl{width:86px;height:86px;border-radius:22px;box-shadow:0 12px 44px rgba(245,158,11,.45);animation:pipBootPulse 1.4s ease-in-out infinite}
+#pipBoot .bt{font-size:21px;font-weight:800;letter-spacing:.4px;color:#e8eaf0}#pipBoot .bt span{color:#f59e0b}
+#pipBoot .bar{width:150px;height:4px;border-radius:30px;background:rgba(255,255,255,.08);overflow:hidden}
+#pipBoot .bar i{display:block;height:100%;width:40%;background:linear-gradient(90deg,#f59e0b,#fcd34d);border-radius:30px;animation:pipBootBar 1.1s ease-in-out infinite}
+@keyframes pipBootPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes pipBootBar{0%{margin-left:-40%}100%{margin-left:150%}}
+</style>
 </head>
-<body>
+<body><div id="pipBoot"><div class="brand-logo bl"></div><div class="bt">PipSe<span>Paisa</span></div><div class="bar"><i></i></div></div>
 
 <!-- ========================================================================
      LANDING PAGE - Shows on first visit (sessionStorage check)
@@ -6494,8 +6504,10 @@ async function loadSignalsFromDB(){
   g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading signals...</div>';
   const {data,error}=await sb.from('signals').select('*').order('created_at',{ascending:false});
   if(error){g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">'+error.message+'</div>';return;}
-  SIGNALS=(data||[]).map(s=>({
+  const _isVip=!!(currentProfile&&currentProfile.is_premium);
+  SIGNALS=(data||[]).filter(s=>(s.access_level||'free')!=='vip'||_isVip).map(s=>({
     pair:s.pair||'', dir:(/sell/i).test(s.direction||'')?'sell':'buy',
+    access:s.access_level||'free', plan:s.plan_name||'',
     entry:s.entry_price==null?'-':s.entry_price, sl:s.stop_loss==null?'-':s.stop_loss,
     tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2,
     status:(s.status==='tp_hit')?'tp':(s.status==='active'?'active':'closed'),
@@ -6510,6 +6522,7 @@ function renderSignals(){
   g.innerHTML=list.map(s=>{
     const a=stMap[s.status]||stMap.active;const sc=a[0],st=a[1];
     const src=s.official?'<span class="sig-status st-tp" style="margin-left:6px">PipSePaisa</span>':'<span class="sig-status st-active" style="margin-left:6px">Mentor</span>';
+    const acc=s.access==='vip'?`<span class="sig-status st-tp" style="margin-left:6px;background:var(--gold);color:#0a0e1a">👑 VIP${s.plan?(' · '+s.plan):''}</span>`:'';
     return `<div class="card sig-card">
       <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}</span></div>
       <div class="sig-levels">
@@ -6518,7 +6531,7 @@ function renderSignals(){
         <div class="sig-lv"><div class="l">Take Profit 1</div><div class="v" style="color:var(--green)">${s.tp1}</div></div>
         <div class="sig-lv"><div class="l">Take Profit 2</div><div class="v" style="color:var(--green)">${s.tp2}</div></div>
       </div>
-      <div class="sig-foot"><span>${src}</span><span class="sig-status ${sc}">${st}</span><span>🕐 ${s.time}</span></div>
+      <div class="sig-foot"><span>${src}${acc}</span><span class="sig-status ${sc}">${st}</span><span>🕐 ${s.time}</span></div>
     </div>`;
   }).join('')||'<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No signals yet. Once your mentor (or PipSePaisa) posts a signal, it will appear here.</div>';
 }
@@ -6603,5 +6616,6 @@ function animateNum(el){if(el.dataset.cu)return;var raw=(el.textContent||'').tri
 function scan(){document.querySelectorAll('.stat .n, .stat-value').forEach(function(el){var x=(el.textContent||'').trim();if(/\d/.test(x)&&x!=='...')animateNum(el);});}
 var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=setTimeout(scan,150)});document.addEventListener('DOMContentLoaded',function(){try{mo.observe(document.body,{subtree:true,childList:true,characterData:true});}catch(e){}setTimeout(scan,500)});})();
 </script>
+<script>(function(){function hide(){var b=document.getElementById('pipBoot');if(b){b.classList.add('gone');setTimeout(function(){if(b)b.remove();},700);}}if(document.readyState==='complete'){setTimeout(hide,450);}else{window.addEventListener('load',function(){setTimeout(hide,450);});}setTimeout(hide,3500);})();</script>
 </body>
 </html>
