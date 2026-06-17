@@ -1352,6 +1352,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📝</span>Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
+      <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>Economic News<span class="dot"></span></div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;animation:pulse 2s infinite;">LIVE</span></div>
       <div class="menu-item" data-page="strength" onclick="showPage('strength', this)"><span class="menu-icon">💪</span>Currency Strength</div>
@@ -2361,6 +2362,14 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       </div>
       
       <!-- ========== CALCULATORS ========== -->
+      <div class="page" id="page-vipplans">
+        <div id="vipStatus"></div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-title" style="font-size:18px;">💎 VIP Plans</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">Unlock premium signals, charts & analysis from your mentor.</div>
+        </div>
+        <div id="vipPlansGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;"><div class="empty-state"><div>Loading plans...</div></div></div>
+      </div>
       <div class="page" id="page-tools">
         <div class="card" style="margin-bottom: 14px;">
           <div class="card-header">
@@ -3295,7 +3304,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       dashboard: 'Dashboard', trades: 'My Trades',
       analysis: 'Trades Analysis', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex',
-      signals: 'Signals', articles: 'Articles',
+      signals: 'Signals', articles: 'Articles', vipplans: 'VIP Plans',
       settings: 'Settings', about: 'About'
     };
     document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
@@ -3308,6 +3317,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if (page === 'newshub' && window.nhInitLoad) window.nhInitLoad();
     if (page === 'strength') loadStrength();
     if (page === 'charts') loadChart();
+    if (page === 'vipplans') loadVipPlans();
     if (page === 'signals') loadSignalsFromDB();
     if (page === 'articles') loadArticlesFromDB();
     if (page === 'market') { loadGoldPrice(); loadMarketTicker(); }
@@ -6084,6 +6094,66 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     loadTradesFromDB();
   }
   
+  function vEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  let vipMentorContact = null;
+  async function loadVipPlans(){
+    const grid=document.getElementById('vipPlansGrid');const statusEl=document.getElementById('vipStatus');
+    if(!grid)return;
+    if(statusEl){
+      statusEl.innerHTML=(currentProfile&&currentProfile.is_premium)
+        ?'<div class="card" style="margin-bottom:14px;border:1px solid rgba(16,185,129,.4);background:linear-gradient(135deg,rgba(16,185,129,.12),transparent);"><div style="font-weight:800;color:var(--green);font-size:15px;">✨ You are a VIP member</div><div style="font-size:13px;color:var(--text-muted);margin-top:3px;">You have full access to premium signals, charts & analysis.</div></div>'
+        :'';
+    }
+    if(!sb){grid.innerHTML='<div class="empty-state"><div>Connect to view plans.</div></div>';return;}
+    const mentorId=currentProfile&&currentProfile.mentor_id;
+    let data=[],error=null;
+    try{
+      if(mentorId){
+        const r=await sb.from('subscription_plans').select('*').eq('is_active',true).eq('owner_id',mentorId).order('price',{ascending:true});
+        data=r.data||[];error=r.error;
+        const mp=await sb.from('profiles').select('full_name,phone').eq('id',mentorId).single();
+        if(mp.data)vipMentorContact=mp.data;
+      }else{
+        const r=await sb.from('subscription_plans').select('*').eq('is_active',true).eq('is_official',true).order('price',{ascending:true});
+        data=r.data||[];error=r.error;
+      }
+    }catch(e){error=e;}
+    if(error){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div>'+vEsc(error.message||'Error')+'</div></div>';return;}
+    if(!data.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div>No VIP plans available yet.</div><div style="font-size:12px;color:var(--text-muted);margin-top:6px;">Your mentor hasn\'t published any premium plans.</div></div>';return;}
+    grid.innerHTML=data.map(function(r){return vipPlanCard(parseVipPlan(r));}).join('');
+  }
+  function parseVipPlan(row){
+    const lines=(row.features||'').split('\n');let icon='💎',tag='',pop=false,vip=false,period='monthly';const feats=[];
+    lines.forEach(function(l){const t=l.trim();if(!t)return;
+      if(t==='[POPULAR]')pop=true;else if(t==='[VIP]')vip=true;
+      else if(t.indexOf('[ICON]')===0)icon=t.slice(6).trim()||'💎';
+      else if(t.indexOf('[TAG]')===0)tag=t.slice(5).trim();
+      else if(t.indexOf('[PERIOD]')===0)period=t.slice(8).trim()||'monthly';
+      else feats.push(t);});
+    return {id:row.id,name:row.name,price:row.price,currency:row.currency,icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats};
+  }
+  function vipPlanCard(p){
+    const perLbl=p.period==='lifetime'?'one-time':(p.period==='yearly'?'/yr':'/mo');
+    const feats=((p.features&&p.features.length)?p.features:['Premium access']).map(function(x){return '<li style="padding:4px 0;font-size:13px;">✓ '+vEsc(x)+'</li>';}).join('');
+    const badge=p.popular?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;white-space:nowrap;">⭐ MOST POPULAR</div>':(p.vip?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;">👑 VIP</div>':'');
+    const bd=(p.vip||p.popular)?'border:1.5px solid var(--gold);box-shadow:0 12px 40px rgba(245,158,11,.18);':'border:1px solid var(--border);';
+    return '<div style="position:relative;background:linear-gradient(160deg,rgba(245,158,11,.07),rgba(255,255,255,.02));border-radius:16px;padding:24px 20px;'+bd+'">'+badge+
+      '<div style="font-size:34px;line-height:1;">'+vEsc(p.icon||'💎')+'</div>'+
+      '<div style="font-size:18px;font-weight:800;margin-top:8px;">'+vEsc(p.name||'Plan')+'</div>'+
+      (p.tagline?'<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">'+vEsc(p.tagline)+'</div>':'')+
+      '<div style="font-size:30px;font-weight:800;color:var(--gold);margin:14px 0;">'+(p.price||0)+'<span style="font-size:13px;color:var(--text-muted);font-weight:600;"> '+vEsc(p.currency||'')+' '+perLbl+'</span></div>'+
+      '<ul style="list-style:none;padding:0;margin:0 0 18px;">'+feats+'</ul>'+
+      '<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;" onclick="subscribeVip('+JSON.stringify(p.name||'Plan')+','+JSON.stringify(String(p.price||0)+' '+(p.currency||''))+')">💎 Subscribe</button>'+
+    '</div>';
+  }
+  function subscribeVip(name,priceStr){
+    const phone=(vipMentorContact&&vipMentorContact.phone)?String(vipMentorContact.phone).replace(/[^0-9]/g,''):'';
+    const mentorName=(vipMentorContact&&vipMentorContact.full_name)?vipMentorContact.full_name:'my mentor';
+    const msg=encodeURIComponent('Hi '+mentorName+', I want to subscribe to the "'+name+'" plan ('+priceStr+'). Please guide me on payment.');
+    if(phone){window.open('https://wa.me/'+phone+'?text='+msg,'_blank');}
+    else{alert('To subscribe to "'+name+'", please contact your mentor directly. They will activate your VIP access after payment.');}
+  }
+
   // ============ UPDATE UI BASED ON AUTH STATE ============
   function updateAuthUI() {
     const userCard = document.getElementById('userCard');
