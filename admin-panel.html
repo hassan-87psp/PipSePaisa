@@ -452,6 +452,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item" data-page="users" onclick="showPage('users', this)"><span class="menu-icon">👥</span>Users<span class="badge-count" id="sidebarUsersCount">0</span></div>
       <div class="menu-item" data-page="trades" onclick="showPage('trades', this)"><span class="menu-icon">📈</span>All Trades</div>
       <div class="menu-item" data-page="subscriptions" onclick="showPage('subscriptions', this)"><span class="menu-icon">💎</span>Subscriptions</div>
+      <div class="menu-item" data-page="payments" onclick="showPage('payments', this)"><span class="menu-icon">💳</span>Payment Methods</div>
+      <div class="menu-item" data-page="paymentreqs" onclick="showPage('paymentreqs', this)"><span class="menu-icon">🧾</span>Payment Requests</div>
       
       <div class="menu-label">Content Management</div>
       <div class="menu-item" data-page="courses" onclick="showPage('courses', this)"><span class="menu-icon">🎓</span>Courses</div>
@@ -905,6 +907,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       </div>
       
       <!-- ========== NEWS ========== -->
+      <div class="page" id="page-payments"><div id="apmWrap"></div></div>
+      <div class="page" id="page-paymentreqs"><div id="aprWrap"></div></div>
       <div class="page" id="page-news">
         <div class="card">
           <div class="card-header">
@@ -1738,6 +1742,73 @@ async function uploadCourseThumb(input){
 function toggleQuickAdd(e){if(e)e.stopPropagation();const m=document.getElementById('qaMenu');if(m)m.style.display=m.style.display==='none'?'block':'none';}
 function qaGo(page){const m=document.getElementById('qaMenu');if(m)m.style.display='none';const nav=document.querySelector('[data-page="'+page+'"]');if(nav)nav.click();else showPage(page);}
 document.addEventListener('click',function(e){const m=document.getElementById('qaMenu');if(m&&m.style.display==='block'&&!e.target.closest('#qaWrap'))m.style.display='none';});
+function aEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+var APMS='padding:10px;border-radius:8px;background:var(--input-bg,#0d1322);border:1px solid var(--border,#1f2937);color:var(--text,#e8eaf0);width:100%';
+async function loadAdminPayments(){
+  const wrap=document.getElementById('apmWrap');if(!wrap)return;
+  wrap.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">'+
+    '<div class="card"><h3 style="margin:0 0 12px">➕ Add Payment Method</h3><div style="display:grid;gap:11px">'+
+      '<select id="apmType" onchange="apmTypeChange()" style="'+APMS+'"><option value="easypaisa">EasyPaisa</option><option value="jazzcash">JazzCash</option><option value="bank">Bank Transfer</option><option value="crypto">Crypto (USDT TRC20)</option></select>'+
+      '<input id="apmLabel" placeholder="Label (optional)" style="'+APMS+'">'+
+      '<input id="apmTitle" class="apm-title" placeholder="Account Title" style="'+APMS+'">'+
+      '<input id="apmNum" class="apm-num" placeholder="Account Number" style="'+APMS+'">'+
+      '<input id="apmBank" class="apm-bank" placeholder="Bank Name" style="display:none;'+APMS+'">'+
+      '<input id="apmWallet" class="apm-wallet" placeholder="Wallet Address (TRC20)" style="display:none;'+APMS+'">'+
+      '<input id="apmNet" class="apm-net" placeholder="Network" value="TRC20" style="display:none;'+APMS+'">'+
+      '<button onclick="addAdminPM()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">💾 Save Method</button>'+
+    '</div></div>'+
+    '<div class="card"><h3 style="margin:0 0 12px">💳 Payment Methods</h3><div id="apmList">Loading...</div></div></div>';
+  apmTypeChange();loadAdminPMList();
+}
+function apmTypeChange(){var t=document.getElementById('apmType').value;var S=function(c,on){var e=document.querySelector(c);if(e)e.style.display=on?'block':'none';};S('.apm-bank',t==='bank');S('.apm-wallet',t==='crypto');S('.apm-net',t==='crypto');S('.apm-title',t!=='crypto');S('.apm-num',t!=='crypto');}
+async function addAdminPM(){
+  var t=document.getElementById('apmType').value;var v=function(id){return (document.getElementById(id).value||'').trim();};
+  var obj={owner_id:currentAdmin.id,type:t,label:v('apmLabel')||null,enabled:true};
+  if(t==='crypto'){obj.wallet=v('apmWallet');obj.network=v('apmNet')||'TRC20';if(!obj.wallet){alert('Wallet address required');return;}}
+  else{obj.account_title=v('apmTitle');obj.account_number=v('apmNum');if(!obj.account_number){alert('Account number required');return;}if(t==='bank')obj.bank_name=v('apmBank');}
+  var r=await sb.from('payment_methods').insert(obj);
+  if(r.error){alert('Error: '+r.error.message);return;}
+  ['apmLabel','apmTitle','apmNum','apmBank','apmWallet'].forEach(function(i){document.getElementById(i).value='';});
+  loadAdminPMList();
+}
+async function loadAdminPMList(){
+  var box=document.getElementById('apmList');if(!box)return;
+  var r=await sb.from('payment_methods').select('*').eq('owner_id',currentAdmin.id).order('created_at',{ascending:false});
+  if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}
+  var data=r.data||[];if(!data.length){box.innerHTML='<div style="color:#94a0b8">No payment methods yet.</div>';return;}
+  box.innerHTML=data.map(function(m){
+    var tl={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'Crypto USDT'}[m.type]||m.type;
+    var det=m.type==='crypto'?(aEsc(m.wallet||'')+' ('+aEsc(m.network||'TRC20')+')'):(aEsc(m.account_title||'')+' · '+aEsc(m.account_number||'')+(m.bank_name?(' · '+aEsc(m.bank_name)):''));
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border,#1f2937)"><div><strong>'+aEsc(m.label||tl)+'</strong> <span style="font-size:10px;padding:2px 7px;border-radius:10px;background:'+(m.enabled?'rgba(16,185,129,.18);color:#10b981':'rgba(148,160,184,.18);color:#94a0b8')+'">'+(m.enabled?'ON':'OFF')+'</span><div style="font-size:12px;color:#94a0b8;margin-top:3px">'+tl+' · '+det+'</div></div><div style="display:flex;gap:6px"><button onclick="toggleAdminPM(\''+m.id+'\','+(m.enabled?'false':'true')+')" style="padding:5px 10px;border-radius:7px;background:transparent;border:1px solid var(--border,#1f2937);color:var(--text,#e8eaf0);cursor:pointer;font-size:12px">'+(m.enabled?'Disable':'Enable')+'</button><button onclick="delAdminPM(\''+m.id+'\')" style="padding:5px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div></div>';
+  }).join('');
+}
+async function toggleAdminPM(id,on){await sb.from('payment_methods').update({enabled:on}).eq('id',id);loadAdminPMList();}
+async function delAdminPM(id){if(!confirm('Delete this payment method?'))return;await sb.from('payment_methods').delete().eq('id',id);loadAdminPMList();}
+
+async function loadAdminPaymentReqs(){
+  var wrap=document.getElementById('aprWrap');if(!wrap)return;
+  wrap.innerHTML='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px"><h3 style="margin:0">🧾 Payment Requests</h3><select id="aprFilter" onchange="loadAprList()" style="'+APMS+';max-width:160px"><option value="pending">Pending</option><option value="all">All</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div><div id="aprList" style="margin-top:14px">Loading...</div></div>';
+  loadAprList();
+}
+async function loadAprList(){
+  var box=document.getElementById('aprList');if(!box)return;
+  var f=document.getElementById('aprFilter')?document.getElementById('aprFilter').value:'pending';
+  var q=sb.from('payment_requests').select('*, profiles:user_id(full_name,email), mentor:mentor_id(full_name)').order('created_at',{ascending:false});
+  if(f!=='all')q=q.eq('status',f);
+  var r=await q;
+  if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}
+  var data=r.data||[];if(!data.length){box.innerHTML='<div style="color:#94a0b8">No requests.</div>';return;}
+  box.innerHTML=data.map(function(x){
+    var u=x.profiles||{};var mn=x.mentor?x.mentor.full_name:'-';
+    var col=x.status==='approved'?'#10b981':(x.status==='rejected'?'#ef4444':'#f59e0b');
+    var rc=x.receipt_url?'<a href="'+aEsc(x.receipt_url)+'" target="_blank"><img src="'+aEsc(x.receipt_url)+'" style="width:74px;height:74px;object-fit:cover;border-radius:8px;border:1px solid var(--border,#1f2937)"></a>':'<span style="color:#94a0b8;font-size:12px">No receipt</span>';
+    var act=x.status==='pending'?'<div style="display:flex;gap:8px;margin-top:10px"><button onclick="aprApprove(\''+x.id+'\')" style="padding:7px 14px;border:none;border-radius:8px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:700;cursor:pointer">✅ Approve</button><button onclick="aprReject(\''+x.id+'\')" style="padding:7px 14px;border:none;border-radius:8px;background:rgba(239,68,68,.15);color:#ef4444;cursor:pointer">❌ Reject</button></div>':'';
+    return '<div style="display:flex;gap:12px;padding:12px;border:1px solid var(--border,#1f2937);border-radius:12px;margin-bottom:10px"><div>'+rc+'</div><div style="flex:1"><div style="display:flex;justify-content:space-between;gap:8px"><strong>'+aEsc(u.full_name||u.email||'Student')+'</strong><span style="color:'+col+';font-weight:800;font-size:12px;text-transform:uppercase">'+aEsc(x.status)+'</span></div><div style="font-size:12px;color:#94a0b8">'+aEsc(u.email||'')+' · Mentor: '+aEsc(mn)+'</div><div style="font-size:13px;margin-top:7px">💎 '+aEsc(x.plan_name||'Plan')+' · <strong>'+(x.amount||0)+' '+aEsc(x.currency||'')+'</strong> · '+aEsc(x.method_type||'')+'</div>'+(x.txn_id?'<div style="font-size:12px;color:#94a0b8">Txn: '+aEsc(x.txn_id)+'</div>':'')+(x.notes?'<div style="font-size:12px;color:#94a0b8">Note: '+aEsc(x.notes)+'</div>':'')+'<div style="font-size:11px;color:#94a0b8;margin-top:4px">'+new Date(x.created_at).toLocaleString()+'</div>'+act+'</div></div>';
+  }).join('');
+}
+async function aprApprove(id){if(!confirm('Approve & activate VIP for this student?'))return;var r=await sb.rpc('approve_payment',{req_id:id});if(r.error){alert('Error: '+r.error.message);return;}loadAprList();}
+async function aprReject(id){if(!confirm('Reject this request?'))return;var r=await sb.rpc('reject_payment',{req_id:id});if(r.error){alert('Error: '+r.error.message);return;}loadAprList();}
+
 function showPage(page, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const pageEl = document.getElementById('page-' + page);
@@ -1752,6 +1823,8 @@ function showPage(page, el) {
     users: ['User Management', 'Manage all registered users'],
     trades: ['All Trades', 'Live feed of user trading activity'],
     subscriptions: ['Subscriptions', 'Manage premium memberships and pricing'],
+    payments: ['Payment Methods', 'EasyPaisa, JazzCash, Bank, Crypto'],
+    paymentreqs: ['Payment Requests', 'Verify & approve VIP payments'],
     courses: ['Courses Manager', 'Create and manage learning content'],
     news: ['News & Events', 'Manage economic calendar and news posts'],
     newshub: ['World News Hub', 'Live global news feed with forex impact analysis'],
@@ -1782,6 +1855,8 @@ function showPage(page, el) {
   if (page === 'quiz') loadAdminQuiz();
   if (page === 'youtube') loadAdminYoutube();
   if (page === 'articles') loadAdminArticles();
+  if (page === 'payments') loadAdminPayments();
+  if (page === 'paymentreqs') loadAdminPaymentReqs();
   if (page === 'newshub' && window.anhInitLoad) window.anhInitLoad();
 }
 

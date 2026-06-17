@@ -6142,7 +6142,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       (p.tagline?'<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">'+vEsc(p.tagline)+'</div>':'')+
       '<div style="font-size:30px;font-weight:800;color:var(--gold);margin:14px 0;">'+(p.price||0)+'<span style="font-size:13px;color:var(--text-muted);font-weight:600;"> '+vEsc(p.currency||'')+' '+perLbl+'</span></div>'+
       '<ul style="list-style:none;padding:0;margin:0 0 18px;">'+feats+'</ul>'+
-      '<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;" onclick="openVipCheckout('+JSON.stringify(p.id)+')">💎 Subscribe</button>'+
+      '<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;" onclick="openVipCheckout(\''+p.id+'\')">💎 Subscribe</button>'+
     '</div>';
   }
   async function openVipCheckout(id){
@@ -6150,7 +6150,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     const mentorId=currentProfile&&currentProfile.mentor_id;
     let methods=[];
     try{
-      const r=mentorId?await sb.from('payment_methods').select('*').eq('owner_id',mentorId).eq('enabled',true):await sb.from('payment_methods').select('*').eq('enabled',true);
+      const r=await sb.from('payment_methods').select('*').eq('enabled',true);
       methods=r.data||[];
     }catch(e){}
     const dur=p.period==='lifetime'?36500:(p.period==='yearly'?365:30);
