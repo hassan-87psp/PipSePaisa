@@ -1990,7 +1990,7 @@ async function loadRecentNotifs(){
   tb.innerHTML=data.map(function(n){return '<tr><td><strong>'+aEsc(n.title||'')+'</strong><div style="font-size:11px;color:#94a0b8">'+aEsc((n.body||'').slice(0,60))+'</div></td><td>'+(albl[n.audience]||'📢 All')+'</td><td>'+aEsc(n.type||'general')+'</td><td>'+new Date(n.created_at).toLocaleString()+'</td></tr>';}).join('');
 }
 // Auto-refresh support inbox while the Messages page is open
-setInterval(function(){var p=document.getElementById('page-messages');if(p&&p.classList.contains('active'))loadAdminMessages(true);},6000);
+setInterval(function(){var p=document.getElementById('page-messages');if(p&&p.classList.contains('active'))loadAdminMessages(true);},3000);
 
 function showPage(page, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
