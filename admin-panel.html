@@ -1025,7 +1025,7 @@ select option{background:#0f1729;color:#e8eaf0}
         </div>
 
         <script>
-        const ANH_PROXY = 'https://dainty-rabanadas-cc8064.netlify.app/.netlify/functions/news';
+        const ANH_PROXY = 'https://pipsepaisa-api.vercel.app/api/news';
         const ANH_CATS = {
           conflict:    {bg:'rgba(239,68,68,0.12)',   c:'#ef4444', l:'⚔️ Conflict'},
           geopolitics: {bg:'rgba(139,92,246,0.12)',  c:'#8b5cf6', l:'🌍 Geopolitics'},
@@ -1142,7 +1142,7 @@ select option{background:#0f1729;color:#e8eaf0}
           const tr=anhNews.some(n=>['tariff','trade war'].some(w=>n.title.toLowerCase().includes(w)));
           const uk=anhNews.some(n=>['ukraine','russia'].some(w=>n.title.toLowerCase().includes(w)));
           document.getElementById('anhImpact').innerHTML=`
-            <div style="display:flex;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);font-size:12px"><span style="font-weight:700;color:var(--text-secondary)">XAU/USD</span><span style="color:${cc>4||me?'#10b981':'var(--text-muted)';font-weight:600}">${cc>4||me?'▲ Bullish':'— Neutral'}</span></div>
+            <div style="display:flex;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);font-size:12px"><span style="font-weight:700;color:var(--text-secondary)">XAU/USD</span><span style="color:${cc>4||me?'#10b981':'var(--text-muted)'};font-weight:600">${cc>4||me?'▲ Bullish':'— Neutral'}</span></div>
             <div style="display:flex;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);font-size:12px"><span style="font-weight:700;color:var(--text-secondary)">EUR/USD</span><span style="color:${tr?'#ef4444':'var(--text-muted)'};font-weight:600">${tr?'▼ Bearish':'— Neutral'}</span></div>
             <div style="display:flex;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--border);font-size:12px"><span style="font-weight:700;color:var(--text-secondary)">USD/JPY</span><span style="color:${cc>3||uk?'#ef4444':'var(--text-muted)'};font-weight:600">${cc>3||uk?'▼ Bearish':'— Neutral'}</span></div>
             <div style="display:flex;justify-content:space-between;padding:8px 14px;font-size:12px"><span style="font-weight:700;color:var(--text-secondary)">USD Index</span><span style="color:${me||cc>5?'#10b981':'var(--text-muted)'};font-weight:600">${me||cc>5?'▲ Bullish':'— Neutral'}</span></div>`;
