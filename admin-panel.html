@@ -394,7 +394,14 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @keyframes pipBootBar{0%{margin-left:-40%}100%{margin-left:150%}}
 </style>
 </head>
-<body><div id="pipBoot"><div class="brand-logo bl"></div><div class="bt">PipSe<span>Paisa</span></div><div class="bar"><i></i></div></div>
+<body><style id="darkfix-css">
+select{color-scheme:dark}
+select option{background:#0f1729;color:#e8eaf0}
+.tick-chip{display:inline-flex;gap:7px;align-items:center;font-size:12.5px;cursor:pointer;background:linear-gradient(160deg,rgba(245,158,11,.06),rgba(255,255,255,.02));border:1px solid var(--border);padding:7px 13px;border-radius:10px;transition:.15s;font-weight:600;user-select:none}
+.tick-chip:hover{border-color:var(--gold)}
+.tick-chip:has(input:checked){background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(245,158,11,.08));border-color:var(--gold);color:var(--gold)}
+.tick-chip input{accent-color:var(--gold);width:15px;height:15px;cursor:pointer}
+</style><div id="pipBoot"><div class="brand-logo bl"></div><div class="bt">PipSe<span>Paisa</span></div><div class="bar"><i></i></div></div>
 
 <!-- Demo Banner -->
 <!-- LOGIN OVERLAY (will hide once "Login" clicked) -->

@@ -43,4 +43,9 @@ grant execute on function approve_payment_v2(uuid) to authenticated;
 
 -- reject keeps using existing reject_payment(req_id)
 
+
+-- 6) Content audience on courses & news
+alter table courses    add column if not exists audience text default 'all';
+alter table news_posts add column if not exists audience text default 'all';
+
 -- done ✅

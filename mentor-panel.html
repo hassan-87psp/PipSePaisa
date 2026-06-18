@@ -164,7 +164,14 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @keyframes pipBootBar{0%{margin-left:-40%}100%{margin-left:150%}}
 </style>
 </head>
-<body><div id="pipBoot"><div class="brand-logo bl"></div><div class="bt">PipSe<span>Paisa</span></div><div class="bar"><i></i></div></div>
+<body><style id="darkfix-css">
+select{color-scheme:dark}
+select option{background:#0f1729;color:#e8eaf0}
+.tick-chip{display:inline-flex;gap:7px;align-items:center;font-size:12.5px;cursor:pointer;background:linear-gradient(160deg,rgba(245,158,11,.06),rgba(255,255,255,.02));border:1px solid var(--border);padding:7px 13px;border-radius:10px;transition:.15s;font-weight:600;user-select:none}
+.tick-chip:hover{border-color:var(--gold)}
+.tick-chip:has(input:checked){background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(245,158,11,.08));border-color:var(--gold);color:var(--gold)}
+.tick-chip input{accent-color:var(--gold);width:15px;height:15px;cursor:pointer}
+</style><div id="pipBoot"><div class="brand-logo bl"></div><div class="bt">PipSe<span>Paisa</span></div><div class="bar"><i></i></div></div>
 
 <!-- AUTH -->
 <div class="overlay" id="authOverlay">
@@ -225,10 +232,10 @@ function calcPips(entry,target,pair){if(entry==null||target==null||isNaN(entry)|
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 const MODS={
-  courses:{icon:'🎓',label:'Courses',sub:'Lessons for your students',table:'courses',
+  courses:{icon:'🎓',label:'Courses',sub:'Lessons for your students',table:'courses',audience:true,
     fields:[['title','Course title','text'],['description','Short description','text'],['thumbnail','Thumbnail image','image'],['content','Course content','area']],
     row:r=>`<strong>${esc(r.title)}</strong> <span class="muted">${esc(r.description||'')}</span>`},
-  news:{icon:'📰',label:'News',sub:'Announcements',table:'news_posts',
+  news:{icon:'📰',label:'News',sub:'Announcements',table:'news_posts',audience:true,
     fields:[['title','Title','text'],['category','Category (optional)','text'],['content','Content','area'],['image','Image','image']],
     row:r=>`<strong>${esc(r.title)}</strong> <span class="muted">${esc(r.category||'')}</span>`},
   quiz:{icon:'❓',label:'Quiz',sub:'Practice questions',table:'quiz_questions',
@@ -498,9 +505,9 @@ function renderSignals(){
         <input class="inp" id="sgNotes" placeholder="Notes (optional)">
         <label class="muted" style="font-size:11.5px;margin-bottom:-5px">👁️ Who can see this signal? (tick one or more)</label>
         <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sg-aud" value="free" checked> 🆓 Free</label>
-          <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sg-aud" value="premium"> 💎 Premium</label>
-          <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sg-aud" value="vip"> 👑 VIP</label>
+          <label class="tick-chip"><input type="checkbox" class="sg-aud" value="free" checked> 🆓 Free</label>
+          <label class="tick-chip"><input type="checkbox" class="sg-aud" value="premium"> 💎 Premium</label>
+          <label class="tick-chip"><input type="checkbox" class="sg-aud" value="vip"> 👑 VIP</label>
         </div>
         <input class="inp" id="sgPlan" placeholder="VIP package name (optional) e.g. Gold IB">
         <button class="btn" onclick="createSignal()">🚀 Publish Signal</button>
@@ -626,9 +633,9 @@ function renderCharts(){
         <select class="inp" id="chPair">${pairOptions()}</select>
         <input class="inp" id="chTitle" placeholder="Title e.g. XAU 4H breakout">
         <div><div class="muted" style="font-size:11.5px;margin-bottom:6px">👁️ Send to (tick one or more)</div><div style="display:flex;flex-wrap:wrap;gap:8px">
-          <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="ch-aud" value="free" checked> 🆓 Free</label>
-          <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="ch-aud" value="premium"> 💎 Premium</label>
-          <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="ch-aud" value="vip"> 👑 VIP</label>
+          <label class="tick-chip"><input type="checkbox" class="ch-aud" value="free" checked> 🆓 Free</label>
+          <label class="tick-chip"><input type="checkbox" class="ch-aud" value="premium"> 💎 Premium</label>
+          <label class="tick-chip"><input type="checkbox" class="ch-aud" value="vip"> 👑 VIP</label>
         </div></div>
         <input class="inp" id="chFile" type="file" accept="image/png,image/jpeg,image/jpg">
         <textarea class="inp" id="chNotes" rows="3" placeholder="Analysis notes"></textarea>
@@ -690,11 +697,11 @@ function renderSubs(){
           <div style="border-top:1px solid var(--border);padding-top:11px">
             <div class="muted" style="font-size:12px;margin-bottom:8px;font-weight:700">📦 Services included (tick one or more)</div>
             <div style="display:flex;flex-wrap:wrap;gap:8px">
-              <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sp-svc" value="signal" onchange="updatePreview()"> 📶 Signal</label>
-              <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sp-svc" value="chart" onchange="updatePreview()"> 📈 Chart</label>
-              <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sp-svc" value="courses" onchange="updatePreview()"> 🎓 Courses</label>
-              <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sp-svc" value="vipindicator" onchange="updatePreview()"> 📐 VIP Indicator <span class="muted" style="font-size:10px">(soon)</span></label>
-              <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sp-svc" value="vipea" onchange="updatePreview()"> 🤖 VIP EA <span class="muted" style="font-size:10px">(soon)</span></label>
+              <label class="tick-chip"><input type="checkbox" class="sp-svc" value="signal" onchange="updatePreview()"> 📶 Signal</label>
+              <label class="tick-chip"><input type="checkbox" class="sp-svc" value="chart" onchange="updatePreview()"> 📈 Chart</label>
+              <label class="tick-chip"><input type="checkbox" class="sp-svc" value="courses" onchange="updatePreview()"> 🎓 Courses</label>
+              <label class="tick-chip"><input type="checkbox" class="sp-svc" value="vipindicator" onchange="updatePreview()"> 📐 VIP Indicator <span class="muted" style="font-size:10px">(soon)</span></label>
+              <label class="tick-chip"><input type="checkbox" class="sp-svc" value="vipea" onchange="updatePreview()"> 🤖 VIP EA <span class="muted" style="font-size:10px">(soon)</span></label>
             </div>
           </div>
           <select class="inp" id="sp-mtype" onchange="updatePreview()"><option value="premium">💎 Member type: Premium</option><option value="vip">👑 Member type: VIP</option></select>
@@ -864,6 +871,7 @@ function renderModule(k){
     <div class="card"><div class="card-title">${m.icon} Create</div>
       <div style="display:grid;gap:11px;margin-top:12px">
         ${m.fields.map(([id,ph,t])=>t==='area'?`<textarea class="inp" id="f-${k}-${id}" rows="3" placeholder="${ph}"></textarea>`:t==='image'?`<label class="muted" style="font-size:11.5px;margin-bottom:-4px">${ph} (upload)</label><input class="inp" type="file" accept="image/*" id="ff-${k}-${id}" onchange="genUpload('${k}','${id}',this)"><input type="hidden" id="f-${k}-${id}"><div id="fp-${k}-${id}"></div>`:`<input class="inp" id="f-${k}-${id}" ${t==='num'?'type="number" step="any"':''} placeholder="${ph}">`).join('')}
+        ${m.audience?`<div style="border-top:1px solid var(--border);padding-top:11px"><div class="muted" style="font-size:11.5px;margin-bottom:7px">👁️ Send to (tick one or more)</div><div style="display:flex;flex-wrap:wrap;gap:8px"><label class="tick-chip"><input type="checkbox" class="mod-aud" value="free" checked> 🆓 Free</label><label class="tick-chip"><input type="checkbox" class="mod-aud" value="premium"> 💎 Premium</label><label class="tick-chip"><input type="checkbox" class="mod-aud" value="vip"> 👑 VIP</label></div></div>`:''}
         <button class="btn" onclick="createItem('${k}')">➕ Publish</button>
       </div></div>
     <div class="card"><div class="card-title">📋 Your ${m.label}</div><div id="list-${k}" style="margin-top:8px"><div class="list-empty">Loading...</div></div></div>
@@ -875,12 +883,13 @@ async function loadList(k){
   const {data,error}=await sb.from(m.table).select('*').eq('owner_id',ME.id).order('created_at',{ascending:false});
   if(error){box.innerHTML=`<div class="list-empty" style="color:var(--red)">${esc(error.message)}</div>`;return;}
   if(!data||!data.length){box.innerHTML='<div class="list-empty">Nothing yet.</div>';return;}
-  box.innerHTML=data.map(r=>`<div class="row"><div style="min-width:0">${m.row(r)}</div><button class="del" onclick="delItem('${k}','${r.id}')">🗑️</button></div>`).join('');
+  box.innerHTML=data.map(r=>{var ab='';if(m.audience){var aud=(r.audience||'free');var parts=(aud==='all')?['free','premium','vip']:aud.split(',').map(x=>x.trim()).filter(Boolean);var lbl={free:'🆓',premium:'💎',vip:'👑'};ab=' '+parts.map(function(p){return '<span class="badge '+(p==='free'?'green':'gold')+'" style="font-size:9px">'+(lbl[p]||p)+'</span>';}).join(' ');}return `<div class="row"><div style="min-width:0">${m.row(r)}${ab}</div><button class="del" onclick="delItem('${k}','${r.id}')">🗑️</button></div>`;}).join('');
 }
 async function createItem(k){
   const m=MODS[k];let obj={owner_id:ME.id,is_official:false};let any=false;
   m.fields.forEach(([id,ph,t])=>{let v=document.getElementById(`f-${k}-${id}`).value.trim();if(v!==''){obj[id]=(t==='num')?parseFloat(v):v;any=true;}});
   if(!any){alert('Pehle fields bharein');return;}
+  if(m.audience){var aud=Array.prototype.slice.call(document.querySelectorAll('.mod-aud:checked')).map(function(c){return c.value;});if(!aud.length)aud.push('free');obj.audience=aud.join(',');}
   if(m.transform)obj=m.transform(obj);
   const {error}=await sb.from(m.table).insert(obj);
   if(error){alert('Error: '+error.message);return;}
