@@ -620,6 +620,7 @@ function renderCharts(){
       <div style="display:grid;gap:11px;margin-top:12px">
         <select class="inp" id="chPair">${pairOptions()}</select>
         <input class="inp" id="chTitle" placeholder="Title e.g. XAU 4H breakout">
+        <select class="inp" id="chAudience"><option value="all">👥 Send to: All members</option><option value="premium">💎 Send to: Premium members only</option><option value="vip">👑 Send to: VIP members only</option></select>
         <input class="inp" id="chFile" type="file" accept="image/png,image/jpeg,image/jpg">
         <textarea class="inp" id="chNotes" rows="3" placeholder="Analysis notes"></textarea>
         <button class="btn" id="chBtn" onclick="createChart()">📊 Publish Chart</button>
@@ -642,7 +643,7 @@ async function createChart(){
       if(upErr){alert('Upload failed — create a public "charts" bucket in Supabase Storage: '+upErr.message);btn.disabled=false;btn.textContent='📊 Publish Chart';return;}
       image_url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
     }
-    const {error}=await sb.from('charts').insert({owner_id:ME.id,is_official:false,pair,title,image_url,notes:document.getElementById('chNotes').value.trim()||null});
+    const {error}=await sb.from('charts').insert({owner_id:ME.id,is_official:false,pair,title,image_url,audience:document.getElementById('chAudience').value,notes:document.getElementById('chNotes').value.trim()||null});
     if(error){alert('Error: '+error.message);}
     else{document.getElementById('chTitle').value='';document.getElementById('chFile').value='';document.getElementById('chNotes').value='';loadCharts();}
   }catch(e){alert(e.message);}
@@ -653,7 +654,7 @@ async function loadCharts(){
   const {data,error}=await sb.from('charts').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false});
   if(error){box.innerHTML=`<div class="list-empty" style="color:var(--red)">${esc(error.message)}</div>`;return;}
   if(!data||!data.length){box.innerHTML='<div class="list-empty">No charts yet.</div>';return;}
-  box.innerHTML='<div style="display:grid;gap:12px">'+data.map(c=>`<div class="sigc"><div class="top"><div class="pair">${esc(c.title)} <span class="muted" style="font-size:12px">${esc(c.pair||'')}</span></div><button class="del" onclick="delChart('${c.id}')">🗑️</button></div>${c.image_url?`<img src="${esc(c.image_url)}" style="width:100%;border-radius:10px;margin:4px 0">`:''}${c.notes?`<div class="muted" style="font-size:13px">${esc(c.notes)}</div>`:''}</div>`).join('')+'</div>';
+  box.innerHTML='<div style="display:grid;gap:12px">'+data.map(c=>{const aud=c.audience||'all';const ab=aud==='all'?'<span class="badge green" style="font-size:9px">👥 ALL</span>':(aud==='vip'?'<span class="badge gold" style="font-size:9px">👑 VIP ONLY</span>':'<span class="badge gold" style="font-size:9px">💎 PREMIUM ONLY</span>');return `<div class="sigc"><div class="top"><div class="pair">${esc(c.title)} <span class="muted" style="font-size:12px">${esc(c.pair||'')}</span> ${ab}</div><button class="del" onclick="delChart('${c.id}')">🗑️</button></div>${c.image_url?`<img src="${esc(c.image_url)}" style="width:100%;border-radius:10px;margin:4px 0">`:''}${c.notes?`<div class="muted" style="font-size:13px">${esc(c.notes)}</div>`:''}</div>`;}).join('')+'</div>';
 }
 async function delChart(id){if(!confirm('Delete chart?'))return;await sb.from('charts').delete().eq('id',id);loadCharts();}
 
@@ -675,11 +676,22 @@ function renderSubs(){
           <div style="display:flex;gap:10px"><input class="inp" id="sp-price" type="number" step="any" placeholder="Price" oninput="updatePreview()"><select class="inp" id="sp-cur" style="max-width:84px" onchange="updatePreview()"><option>PKR</option><option>USD</option></select><select class="inp" id="sp-period" style="max-width:128px" onchange="updatePreview()"><option value="monthly">per month</option><option value="yearly">per year</option><option value="lifetime">Lifetime</option></select></div>
           <textarea class="inp" id="sp-feat" rows="4" placeholder="Features (one per line)&#10;Daily VIP signals&#10;Private chart analysis&#10;1-on-1 support" oninput="updatePreview()"></textarea>
           <div style="display:flex;gap:18px;flex-wrap:wrap"><label style="display:flex;gap:7px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" id="sp-pop" onchange="updatePreview()"> ⭐ Most Popular</label><label style="display:flex;gap:7px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" id="sp-vip" onchange="updatePreview()"> 👑 VIP (gold)</label></div>
-          <select class="inp" id="sp-unlock" onchange="ibFieldsToggle();updatePreview()"><option value="payment">💳 Unlock by: Payment</option><option value="ib">🤝 Unlock by: Join via IB (no payment)</option></select>
+          <div style="border-top:1px solid var(--border);padding-top:11px">
+            <div class="muted" style="font-size:12px;margin-bottom:8px;font-weight:700">📦 Services included (tick one or more)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sp-svc" value="signal" onchange="updatePreview()"> 📶 Signal</label>
+              <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sp-svc" value="chart" onchange="updatePreview()"> 📈 Chart</label>
+              <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sp-svc" value="courses" onchange="updatePreview()"> 🎓 Courses</label>
+              <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sp-svc" value="vipindicator" onchange="updatePreview()"> 📐 VIP Indicator <span class="muted" style="font-size:10px">(soon)</span></label>
+              <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;cursor:pointer;background:var(--glass);border:1px solid var(--border);padding:6px 10px;border-radius:8px"><input type="checkbox" class="sp-svc" value="vipea" onchange="updatePreview()"> 🤖 VIP EA <span class="muted" style="font-size:10px">(soon)</span></label>
+            </div>
+          </div>
+          <label style="display:flex;gap:7px;align-items:center;font-size:13px;cursor:pointer;border-top:1px solid var(--border);padding-top:11px"><input type="checkbox" id="sp-ibon" onchange="ibFieldsToggle();updatePreview()"> 🤝 Also offer this package via IB (discounted / free)</label>
           <div id="sp-ibfields" style="display:none;gap:11px">
             <input class="inp" id="sp-iblink" placeholder="Broker registration / IB referral link" oninput="updatePreview()">
-            <div style="display:flex;gap:10px"><input class="inp" id="sp-ibbroker" placeholder="Broker name (e.g. Exness)" oninput="updatePreview()"><input class="inp" id="sp-ibdep" type="number" placeholder="Min deposit" oninput="updatePreview()" style="max-width:130px"></div>
-            <div class="muted" style="font-size:11.5px">Students who open an account & deposit under your IB get this plan's services — no payment.</div>
+            <div style="display:flex;gap:10px"><input class="inp" id="sp-ibbroker" placeholder="Broker name (e.g. Exness)" oninput="updatePreview()"><input class="inp" id="sp-ibdep" type="number" placeholder="Min deposit" oninput="updatePreview()" style="max-width:120px"></div>
+            <div style="display:flex;gap:10px;align-items:center"><input class="inp" id="sp-ibprice" type="number" placeholder="IB members fee (0 = free)" value="0" oninput="updatePreview()"><span class="muted" style="font-size:11.5px;white-space:nowrap">vs normal fee above</span></div>
+            <div class="muted" style="font-size:11.5px">IB users open account + deposit under your link, submit Account ID + screenshot → you approve → they get this package at the IB fee.</div>
           </div>
           <button class="btn" onclick="createPlan()">✨ Create Plan</button>
         </div></div>
@@ -689,13 +701,17 @@ function renderSubs(){
   loadPlans();loadSubs2();updatePreview();
 }
 function setBilling(b){billing=b;loadPlans();}
-function ibFieldsToggle(){var s=document.getElementById('sp-unlock');var f=document.getElementById('sp-ibfields');if(f)f.style.display=(s&&s.value==='ib')?'grid':'none';}
+function ibFieldsToggle(){var s=document.getElementById('sp-ibon');var f=document.getElementById('sp-ibfields');if(f)f.style.display=(s&&s.checked)?'grid':'none';}
+var SVC_LABELS={signal:'📶 Signal',chart:'📈 Chart',courses:'🎓 Courses',vipindicator:'📐 VIP Indicator',vipea:'🤖 VIP EA'};
+function svcChips(arr){return (arr||[]).map(function(s){return '<span style="display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:20px;background:rgba(245,158,11,.15);color:var(--gold);font-weight:700;margin:2px 3px 0 0">'+(SVC_LABELS[s]||s)+'</span>';}).join('');}
 function parsePlan(row){
   const lines=(row.features||'').split('\n');let icon='💎',tag='',pop=false,vip=false,period='monthly';const feats=[];
-  let ib=false,iblink='',ibdep=0,ibbroker='';
+  let ib=false,iblink='',ibdep=0,ibbroker='',ibprice=0,services=[];
   lines.forEach(l=>{const t=l.trim();if(!t)return;
     if(t==='[POPULAR]')pop=true;else if(t==='[VIP]')vip=true;
     else if(t==='[IB]')ib=true;
+    else if(t.indexOf('[SERVICES]')===0)services=t.slice(10).split(',').map(x=>x.trim()).filter(Boolean);
+    else if(t.indexOf('[IBPRICE]')===0)ibprice=parseFloat(t.slice(9).trim())||0;
     else if(t.indexOf('[IBLINK]')===0)iblink=t.slice(8).trim();
     else if(t.indexOf('[IBDEPOSIT]')===0)ibdep=parseFloat(t.slice(11).trim())||0;
     else if(t.indexOf('[IBBROKER]')===0)ibbroker=t.slice(10).trim();
@@ -703,48 +719,54 @@ function parsePlan(row){
     else if(t.indexOf('[TAG]')===0)tag=t.slice(5).trim();
     else if(t.indexOf('[PERIOD]')===0)period=t.slice(8).trim()||'monthly';
     else feats.push(t);});
-  return {id:row.id,name:row.name,price:row.price,currency:row.currency,icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats,ib:ib,iblink:iblink,ibdep:ibdep,ibbroker:ibbroker};
+  return {id:row.id,name:row.name,price:row.price,currency:row.currency,icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats,ib:ib,iblink:iblink,ibdep:ibdep,ibbroker:ibbroker,ibprice:ibprice,services:services};
 }
 function planCardHTML(p){
   const pop=p.popular,vip=p.vip;
   const yr=billing==='yearly'&&p.period!=='lifetime';
   let price=p.price||0;if(yr)price=Math.round(price*10);
   const perLbl=p.period==='lifetime'?'one-time':(yr?'/yr':'/mo');
-  const feats=((p.features&&p.features.length)?p.features:['Premium signals access']).map(x=>`<li>✓ ${esc(x)}</li>`).join('');
-  const save=(yr&&!p.ib)?'<div class="save-badge">Save 17% yearly</div>':'';
-  const badge=p.ib?'<div class="pop-badge" style="background:var(--green);color:#0a0e1a">🤝 VIA IB</div>':(pop?'<div class="pop-badge">⭐ MOST POPULAR</div>':(vip?'<div class="pop-badge vipb">👑 VIP</div>':''));
-  const priceLine=p.ib
-    ?`<div class="pp" style="color:var(--green);font-size:22px">Join via IB<span style="display:block;font-size:12px;color:var(--muted);font-weight:600">${p.ibdep>0?('Min deposit '+p.ibdep+' '+esc(p.currency||'USD')):'No payment'}</span></div>`
-    :`<div class="pp">${price}<span style="font-size:13px;color:var(--muted)"> ${esc(p.currency||'')} ${perLbl}</span></div>`;
+  const feats=((p.features&&p.features.length)?p.features:['Premium access']).map(x=>`<li>✓ ${esc(x)}</li>`).join('');
+  const save=yr?'<div class="save-badge">Save 17% yearly</div>':'';
+  const badge=pop?'<div class="pop-badge">⭐ MOST POPULAR</div>':(vip?'<div class="pop-badge vipb">👑 VIP</div>':'');
+  const chips=(p.services&&p.services.length)?`<div style="margin:4px 0 8px;line-height:1.9">${svcChips(p.services)}</div>`:'';
+  const ibLine=p.ib?`<div style="margin-top:6px;padding:7px 10px;border-radius:9px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3)"><span style="font-size:12px;color:var(--green);font-weight:800">🤝 IB members: ${p.ibprice>0?(p.ibprice+' '+esc(p.currency||'')):'FREE'}</span></div>`:'';
   return `<div class="price ${pop?'pop':''} ${vip?'vip':''}">${badge}
     <div class="pico">${esc(p.icon||'💎')}</div>
     <div class="pn">${esc(p.name||'Plan name')}</div>
     ${p.tagline?`<div class="ptag">${esc(p.tagline)}</div>`:''}
-    ${priceLine}
-    ${save}
+    ${chips}
+    <div class="pp">${price}<span style="font-size:13px;color:var(--muted)"> ${esc(p.currency||'')} ${perLbl}</span></div>
+    ${save}${ibLine}
     <ul>${feats}</ul>
     ${p.id?`<button class="del" style="width:auto;padding:6px 12px;border-radius:8px" onclick="delPlan('${p.id}')">🗑️ Remove</button>`:'<div class="muted" style="font-size:11px;text-align:center;margin-top:8px">— Live preview —</div>'}
   </div>`;
 }
+function getServices(){return Array.prototype.slice.call(document.querySelectorAll('.sp-svc:checked')).map(function(c){return c.value;});}
 function updatePreview(){
   const box=document.getElementById('planPreview');if(!box)return;
-  const ib=(document.getElementById('sp-unlock')||{}).value==='ib';
-  const p={icon:val('sp-icon')||'💎',name:val('sp-name')||'Plan name',tagline:val('sp-tag'),price:parseFloat(val('sp-price')||'0')||0,currency:val('sp-cur'),period:document.getElementById('sp-period').value,popular:document.getElementById('sp-pop').checked,vip:document.getElementById('sp-vip').checked,features:val('sp-feat').split('\n').map(x=>x.trim()).filter(x=>x),ib:ib,iblink:val('sp-iblink'),ibdep:parseFloat(val('sp-ibdep')||'0')||0,ibbroker:val('sp-ibbroker')};
+  const ibon=(document.getElementById('sp-ibon')||{}).checked;
+  const p={icon:val('sp-icon')||'💎',name:val('sp-name')||'Plan name',tagline:val('sp-tag'),price:parseFloat(val('sp-price')||'0')||0,currency:val('sp-cur'),period:document.getElementById('sp-period').value,popular:document.getElementById('sp-pop').checked,vip:document.getElementById('sp-vip').checked,features:val('sp-feat').split('\n').map(x=>x.trim()).filter(x=>x),services:getServices(),ib:ibon,iblink:val('sp-iblink'),ibdep:parseFloat(val('sp-ibdep')||'0')||0,ibbroker:val('sp-ibbroker'),ibprice:parseFloat(val('sp-ibprice')||'0')||0};
   box.innerHTML=planCardHTML(p);
 }
 async function createPlan(){
   const name=val('sp-name');if(!name){alert('Plan name is required');return;}
   const period=document.getElementById('sp-period').value;const dur=period==='lifetime'?36500:(period==='yearly'?365:30);
-  const ib=(document.getElementById('sp-unlock')||{}).value==='ib';
+  const ibon=(document.getElementById('sp-ibon')||{}).checked;
+  const services=getServices();
   let f='[ICON]'+(val('sp-icon')||'💎')+'\n';
   if(document.getElementById('sp-pop').checked)f+='[POPULAR]\n';
   if(document.getElementById('sp-vip').checked)f+='[VIP]\n';
-  if(ib){f+='[IB]\n';const lk=val('sp-iblink');if(lk)f+='[IBLINK]'+lk+'\n';const br=val('sp-ibbroker');if(br)f+='[IBBROKER]'+br+'\n';const dp=parseFloat(val('sp-ibdep')||'0')||0;if(dp)f+='[IBDEPOSIT]'+dp+'\n';}
+  if(services.length)f+='[SERVICES]'+services.join(',')+'\n';
+  if(ibon){f+='[IB]\n';const lk=val('sp-iblink');if(lk)f+='[IBLINK]'+lk+'\n';const br=val('sp-ibbroker');if(br)f+='[IBBROKER]'+br+'\n';const dp=parseFloat(val('sp-ibdep')||'0')||0;if(dp)f+='[IBDEPOSIT]'+dp+'\n';f+='[IBPRICE]'+(parseFloat(val('sp-ibprice')||'0')||0)+'\n';}
   f+='[PERIOD]'+period+'\n';const tag=val('sp-tag');if(tag)f+='[TAG]'+tag+'\n';f+=val('sp-feat');
-  const obj={owner_id:ME.id,is_official:false,name:name,price:ib?0:(parseFloat(val('sp-price')||'0')),currency:val('sp-cur'),duration_days:dur,features:f,is_active:true};
+  const obj={owner_id:ME.id,is_official:false,name:name,price:parseFloat(val('sp-price')||'0')||0,currency:val('sp-cur'),duration_days:dur,features:f,is_active:true};
   const {error}=await sb.from('subscription_plans').insert(obj);
   if(error){alert('Error: '+error.message);return;}
-  ['sp-name','sp-price','sp-feat','sp-tag','sp-iblink','sp-ibbroker','sp-ibdep'].forEach(i=>{var e=document.getElementById(i);if(e)e.value='';});document.getElementById('sp-icon').value='💎';document.getElementById('sp-pop').checked=false;document.getElementById('sp-vip').checked=false;document.getElementById('sp-unlock').value='payment';ibFieldsToggle();
+  ['sp-name','sp-price','sp-feat','sp-tag','sp-iblink','sp-ibbroker','sp-ibdep'].forEach(i=>{var e=document.getElementById(i);if(e)e.value='';});
+  document.getElementById('sp-icon').value='💎';document.getElementById('sp-pop').checked=false;document.getElementById('sp-vip').checked=false;
+  document.getElementById('sp-ibon').checked=false;document.getElementById('sp-ibprice').value='0';
+  document.querySelectorAll('.sp-svc').forEach(c=>c.checked=false);ibFieldsToggle();
   updatePreview();loadPlans();
 }
 async function loadPlans(){

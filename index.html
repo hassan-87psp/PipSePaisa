@@ -6123,10 +6123,12 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   }
   function parseVipPlan(row){
     const lines=(row.features||'').split('\n');let icon='💎',tag='',pop=false,vip=false,period='monthly';const feats=[];
-    let ib=false,iblink='',ibdep=0,ibbroker='';
+    let ib=false,iblink='',ibdep=0,ibbroker='',ibprice=0,services=[];
     lines.forEach(function(l){const t=l.trim();if(!t)return;
       if(t==='[POPULAR]')pop=true;else if(t==='[VIP]')vip=true;
       else if(t==='[IB]')ib=true;
+      else if(t.indexOf('[SERVICES]')===0)services=t.slice(10).split(',').map(function(x){return x.trim();}).filter(Boolean);
+      else if(t.indexOf('[IBPRICE]')===0)ibprice=parseFloat(t.slice(9).trim())||0;
       else if(t.indexOf('[IBLINK]')===0)iblink=t.slice(8).trim();
       else if(t.indexOf('[IBDEPOSIT]')===0)ibdep=parseFloat(t.slice(11).trim())||0;
       else if(t.indexOf('[IBBROKER]')===0)ibbroker=t.slice(10).trim();
@@ -6134,27 +6136,27 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       else if(t.indexOf('[TAG]')===0)tag=t.slice(5).trim();
       else if(t.indexOf('[PERIOD]')===0)period=t.slice(8).trim()||'monthly';
       else feats.push(t);});
-    return {id:row.id,name:row.name,price:row.price,currency:row.currency,icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats,ib:ib,iblink:iblink,ibdep:ibdep,ibbroker:ibbroker};
+    return {id:row.id,name:row.name,price:row.price,currency:row.currency,icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats,ib:ib,iblink:iblink,ibdep:ibdep,ibbroker:ibbroker,ibprice:ibprice,services:services};
   }
+  var VSVC_LABELS={signal:'📶 Signal',chart:'📈 Chart',courses:'🎓 Courses',vipindicator:'📐 VIP Indicator',vipea:'🤖 VIP EA'};
+  function vSvcChips(arr){return (arr||[]).map(function(s){return '<span style="display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:20px;background:rgba(245,158,11,.15);color:var(--gold);font-weight:700;margin:2px 3px 0 0">'+vEsc(VSVC_LABELS[s]||s)+'</span>';}).join('');}
   function vipPlanCard(p){
     const perLbl=p.period==='lifetime'?'one-time':(p.period==='yearly'?'/yr':'/mo');
     const feats=((p.features&&p.features.length)?p.features:['Premium access']).map(function(x){return '<li style="padding:4px 0;font-size:13px;">✓ '+vEsc(x)+'</li>';}).join('');
-    const ibBadge=p.ib?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--green);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;white-space:nowrap;">🤝 VIA IB</div>':'';
-    const badge=p.popular?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;white-space:nowrap;">⭐ MOST POPULAR</div>':(p.vip?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;">👑 VIP</div>':ibBadge);
-    const bd=(p.ib)?'border:1.5px solid var(--green);box-shadow:0 12px 40px rgba(16,185,129,.16);':((p.vip||p.popular)?'border:1.5px solid var(--gold);box-shadow:0 12px 40px rgba(245,158,11,.18);':'border:1px solid var(--border);');
-    const priceBlock=p.ib
-      ?'<div style="font-size:22px;font-weight:800;color:var(--green);margin:14px 0;">Join via IB<span style="display:block;font-size:12px;color:var(--text-muted);font-weight:600;margin-top:2px;">'+(p.ibdep>0?('Min deposit '+p.ibdep+' '+vEsc(p.currency||'USD')):'No payment — open account under your mentor')+'</span></div>'
-      :'<div style="font-size:30px;font-weight:800;color:var(--gold);margin:14px 0;">'+(p.price||0)+'<span style="font-size:13px;color:var(--text-muted);font-weight:600;"> '+vEsc(p.currency||'')+' '+perLbl+'</span></div>';
-    const btn=p.ib
-      ?'<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--green),#059669);color:#fff;font-weight:800;cursor:pointer;font-size:14px;" onclick="openIbJoin(\''+p.id+'\')">🤝 Join via IB</button>'
-      :'<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;" onclick="openVipCheckout(\''+p.id+'\')">💎 Subscribe</button>';
+    const badge=p.popular?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;white-space:nowrap;">⭐ MOST POPULAR</div>':(p.vip?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;">👑 VIP</div>':'');
+    const bd=(p.vip||p.popular)?'border:1.5px solid var(--gold);box-shadow:0 12px 40px rgba(245,158,11,.18);':'border:1px solid var(--border);';
+    const chips=(p.services&&p.services.length)?'<div style="margin:2px 0 10px;line-height:1.9;">'+vSvcChips(p.services)+'</div>':'';
+    const subBtn='<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;" onclick="openVipCheckout(\''+p.id+'\')">💎 Subscribe — '+(p.price||0)+' '+vEsc(p.currency||'')+'</button>';
+    const ibBtn=p.ib?'<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--green),#059669);color:#fff;font-weight:800;cursor:pointer;font-size:14px;margin-top:8px;" onclick="openIbJoin(\''+p.id+'\')">🤝 Join via IB — '+(p.ibprice>0?(p.ibprice+' '+vEsc(p.currency||'')):'FREE')+'</button>':'';
+    const ibNote=p.ib?'<div style="font-size:11px;color:var(--green);text-align:center;margin-top:6px;">Open account under your mentor & save'+(p.ibprice>0?'':' 100%')+'</div>':'';
     return '<div style="position:relative;width:255px;max-width:100%;background:linear-gradient(160deg,rgba(245,158,11,.07),rgba(255,255,255,.02));border-radius:16px;padding:22px 18px;'+bd+'">'+badge+
       '<div style="font-size:34px;line-height:1;">'+vEsc(p.icon||'💎')+'</div>'+
       '<div style="font-size:18px;font-weight:800;margin-top:8px;">'+vEsc(p.name||'Plan')+'</div>'+
       (p.tagline?'<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">'+vEsc(p.tagline)+'</div>':'')+
-      priceBlock+
-      '<ul style="list-style:none;padding:0;margin:0 0 18px;">'+feats+'</ul>'+
-      btn+
+      chips+
+      '<div style="font-size:30px;font-weight:800;color:var(--gold);margin:12px 0;">'+(p.price||0)+'<span style="font-size:13px;color:var(--text-muted);font-weight:600;"> '+vEsc(p.currency||'')+' '+perLbl+'</span></div>'+
+      '<ul style="list-style:none;padding:0;margin:0 0 16px;">'+feats+'</ul>'+
+      subBtn+ibBtn+ibNote+
     '</div>';
   }
   async function openVipCheckout(id){
@@ -6254,7 +6256,10 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       const up=await sb.storage.from('charts').upload(path,file,{upsert:true});
       if(up.error){msg.style.color='var(--red)';msg.textContent='Upload failed: '+up.error.message;return;}
       const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
-      const obj={user_id:currentProfile.id,mentor_id:currentProfile.mentor_id||null,plan_id:c.plan.id,plan_name:c.plan.name,amount:parseFloat(document.getElementById('ibDep').value)||0,currency:c.plan.currency,duration_days:c.dur,request_type:'ib',method_type:'ib',trading_account:acc,receipt_url:url,notes:(document.getElementById('ibNotes').value||null),status:'pending'};
+      const depVal=parseFloat(document.getElementById('ibDep').value)||0;
+      const userNote=(document.getElementById('ibNotes').value||'').trim();
+      const noteFull=(depVal?('Deposited: '+depVal+' '+(c.plan.currency||'')):'')+(userNote?((depVal?' · ':'')+userNote):'')||null;
+      const obj={user_id:currentProfile.id,mentor_id:currentProfile.mentor_id||null,plan_id:c.plan.id,plan_name:c.plan.name,amount:(c.plan.ibprice||0),currency:c.plan.currency,duration_days:c.dur,request_type:'ib',method_type:'ib',trading_account:acc,receipt_url:url,notes:noteFull,status:'pending'};
       const ins=await sb.from('payment_requests').insert(obj);
       if(ins.error){msg.style.color='var(--red)';msg.textContent='Error: '+ins.error.message;return;}
       msg.style.color='var(--green)';msg.textContent='✅ Submitted! Your mentor will verify your IB account & activate access soon.';
@@ -6729,11 +6734,19 @@ async function loadArticlesFromDB(){
     title:a.title||'(untitled)', ex:(a.content||'').slice(0,140), content:a.content||'',
     image:a.image_url||'', date:new Date(a.created_at).toLocaleDateString(), ts:new Date(a.created_at).getTime()
   }));
-  const charts=(cres&&cres.error)?[]:((cres&&cres.data)||[]).map(c=>({
-    cat:'analysis', tag:(c.is_official?'PipSePaisa Chart':'Mentor Chart'), ico:'📈', grad:grad,
-    title:c.title||'Chart Analysis', ex:(c.notes||'').slice(0,140), content:c.notes||'',
-    image:c.image_url||'', date:new Date(c.created_at).toLocaleDateString(), ts:new Date(c.created_at).getTime()
-  }));
+  const _isPrem=!!(currentProfile&&currentProfile.is_premium);
+  const charts=(cres&&cres.error)?[]:((cres&&cres.data)||[]).map(c=>{
+    const aud=c.audience||'all';
+    const locked=(aud!=='all')&&!_isPrem;
+    return {
+      cat:'analysis', tag:(c.is_official?'PipSePaisa Chart':'Mentor Chart'), ico:'📈', grad:grad,
+      title:c.title||'Chart Analysis',
+      ex:locked?('🔒 '+(aud==='vip'?'VIP':'Premium')+' members only — unlock to view'):(c.notes||'').slice(0,140),
+      content:locked?('🔒 This chart is for '+(aud==='vip'?'VIP':'Premium')+' members only.\n\nUpgrade from the VIP Plans page to unlock mentor charts & analysis.'):(c.notes||''),
+      image:locked?'':(c.image_url||''), locked:locked,
+      date:new Date(c.created_at).toLocaleDateString(), ts:new Date(c.created_at).getTime()
+    };
+  });
   ARTICLES=arts.concat(charts).sort((a,b)=>b.ts-a.ts);
   renderArticles();
 }
@@ -6741,7 +6754,7 @@ function renderArticles(){
   const g=document.getElementById('articlesGrid');if(!g)return;
   const list=ARTICLES.filter(a=>artF==='all'||a.cat===artF);
   g.innerHTML=list.map((a)=>`<div class="card art-card" onclick="openArt(${ARTICLES.indexOf(a)})">
-    <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover'):a.grad}">${a.image?'':a.ico}</div>
+    <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover'):a.grad}">${a.image?'':a.ico}${a.locked?'<span style="position:absolute;top:10px;right:10px;background:var(--gold);color:#0a0e1a;font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px">🔒 LOCKED</span>':''}</div>
     <span class="art-tag">${a.tag}</span>
     <div class="art-title">${a.title}</div>
     <div class="art-ex">${a.ex}</div>
