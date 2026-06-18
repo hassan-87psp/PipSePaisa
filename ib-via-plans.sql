@@ -48,4 +48,32 @@ grant execute on function approve_payment_v2(uuid) to authenticated;
 alter table courses    add column if not exists audience text default 'all';
 alter table news_posts add column if not exists audience text default 'all';
 
+
+-- 7) Reject/Revoke (works on pending OR already-approved requests).
+--    If the user has no other approved request left, premium is removed.
+create or replace function reject_payment_v2(req_id uuid)
+returns void language plpgsql security definer as $$
+declare r payment_requests; other int;
+begin
+  select * into r from payment_requests where id = req_id;
+  if not found then raise exception 'Request not found'; end if;
+  if not (is_admin() or r.mentor_id = auth.uid()) then raise exception 'Not allowed'; end if;
+  update payment_requests set status='rejected' where id = req_id;
+  select count(*) into other from payment_requests
+    where user_id = r.user_id and status='approved' and id <> req_id;
+  if other = 0 then
+    update profiles set is_premium=false, premium_until=null, member_type=null, services=null
+      where id = r.user_id;
+  end if;
+end $$;
+grant execute on function reject_payment_v2(uuid) to authenticated;
+
+
+-- 8) Make official plans visible to ALL students (additive policy; safe if RLS on)
+do $$ begin
+  if not exists (select 1 from pg_policies where tablename='subscription_plans' and policyname='subplans_official_public') then
+    execute 'create policy subplans_official_public on subscription_plans for select using (is_official = true and is_active = true)';
+  end if;
+exception when others then null; end $$;
+
 -- done ✅
