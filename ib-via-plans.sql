@@ -115,3 +115,6 @@ do $$ begin
   end if;
 exception when others then null; end $$;
 -- done ✅✅
+
+-- Threaded support: mark who sent each message (user/admin)
+alter table support_messages add column if not exists sender text default 'user';
