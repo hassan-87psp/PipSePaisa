@@ -1989,8 +1989,16 @@ async function loadRecentNotifs(){
   var albl={all:'📢 All',premium:'💎 Premium',free:'🆓 Free'};
   tb.innerHTML=data.map(function(n){return '<tr><td><strong>'+aEsc(n.title||'')+'</strong><div style="font-size:11px;color:#94a0b8">'+aEsc((n.body||'').slice(0,60))+'</div></td><td>'+(albl[n.audience]||'📢 All')+'</td><td>'+aEsc(n.type||'general')+'</td><td>'+new Date(n.created_at).toLocaleString()+'</td></tr>';}).join('');
 }
-// Auto-refresh support inbox while the Messages page is open
+// Auto-refresh support inbox while the Messages page is open (fallback)
 setInterval(function(){var p=document.getElementById('page-messages');if(p&&p.classList.contains('active'))loadAdminMessages(true);},3000);
+// INSTANT realtime updates (Supabase Realtime — needs realtime-enable.sql)
+(function rtAdmin(){
+  if(typeof sb==='undefined'||!sb){return setTimeout(rtAdmin,800);}
+  try{
+    sb.channel('rt-admin-support').on('postgres_changes',{event:'*',schema:'public',table:'support_messages'},function(){var p=document.getElementById('page-messages');if(p&&p.classList.contains('active'))loadAdminMessages(true);}).subscribe();
+    sb.channel('rt-admin-notif').on('postgres_changes',{event:'*',schema:'public',table:'notifications'},function(){var p=document.getElementById('page-notifications');if(p&&p.classList.contains('active'))loadRecentNotifs();}).subscribe();
+  }catch(e){}
+})();
 
 function showPage(page, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));

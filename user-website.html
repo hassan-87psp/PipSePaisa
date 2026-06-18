@@ -6329,6 +6329,14 @@ select option{background:#0f1729;color:#e8eaf0}
   }
 
   function closeVipModal(){const h=document.getElementById('vipModalHost');if(h)h.innerHTML='';}
+  // INSTANT realtime updates (Supabase Realtime — needs realtime-enable.sql)
+  (function rtUser(){
+    if(typeof sb==='undefined'||!sb){return setTimeout(rtUser,1000);}
+    try{
+      sb.channel('rt-user-support').on('postgres_changes',{event:'*',schema:'public',table:'support_messages'},function(){var p=document.getElementById('page-support');if(p&&p.classList.contains('active'))loadSupport(true);}).subscribe();
+      sb.channel('rt-user-notif').on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications'},function(){if(typeof checkAnnounceBanner==='function')checkAnnounceBanner();var p=document.getElementById('page-announce');if(p&&p.classList.contains('active'))loadAnnouncements();}).subscribe();
+    }catch(e){}
+  })();
   async function openIbJoin(id){
     const p=vipPlansById[id];if(!p)return;
     const dur=p.period==='lifetime'?36500:(p.period==='yearly'?365:30);
