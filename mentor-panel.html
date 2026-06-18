@@ -426,7 +426,7 @@ function showPage(k){
   document.getElementById('pg-'+k).classList.add('active');
   const m=metaOf(k);document.getElementById('pageTitle').textContent=m[0];document.getElementById('pageSub').textContent=m[1];
   document.getElementById('sidebar').classList.remove('open');
-  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests}[k]||(()=>renderModule(k)))();
+  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,courses:renderMentorCourses}[k]||(()=>renderModule(k)))();
 }
 
 /* ============ DASHBOARD ============ */
@@ -677,6 +677,68 @@ async function loadCharts(){
   box.innerHTML='<div style="display:grid;gap:12px">'+data.map(c=>{var aud=(c.audience||'all');var parts=(aud==='all')?['free','premium','vip']:aud.split(',').map(x=>x.trim()).filter(Boolean);var lbl={free:'🆓 Free',premium:'💎 Premium',vip:'👑 VIP'};var ab=parts.map(function(p){return '<span class="badge '+(p==='free'?'green':'gold')+'" style="font-size:9px;margin-left:4px">'+(lbl[p]||p)+'</span>';}).join('');return `<div class="sigc"><div class="top"><div class="pair">${esc(c.title)} <span class="muted" style="font-size:12px">${esc(c.pair||'')}</span> ${ab}</div><button class="del" onclick="delChart('${c.id}')">🗑️</button></div>${c.image_url?`<img src="${esc(c.image_url)}" style="width:100%;border-radius:10px;margin:4px 0">`:''}${c.notes?`<div class="muted" style="font-size:13px">${esc(c.notes)}</div>`:''}</div>`;}).join('')+'</div>';
 }
 async function delChart(id){if(!confirm('Delete chart?'))return;await sb.from('charts').delete().eq('id',id);loadCharts();}
+
+/* ============ MENTOR COURSES (detailed, like admin) ============ */
+function renderMentorCourses(){
+  const el=document.getElementById('pg-courses');
+  el.innerHTML=`<div class="grid" style="grid-template-columns:1fr 1.2fr">
+    <div class="card"><div class="card-title">🎓 Create Course</div>
+      <div style="display:grid;gap:11px;margin-top:12px">
+        <input class="inp" id="mc-title" placeholder="Course title *">
+        <textarea class="inp" id="mc-desc" rows="2" placeholder="Short description — what will students learn"></textarea>
+        <div style="display:flex;gap:10px"><select class="inp" id="mc-level"><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>All Levels</option></select><input class="inp" id="mc-cat" placeholder="Category (e.g. Technical)"></div>
+        <div style="display:flex;gap:10px"><input class="inp" id="mc-emoji" maxlength="2" value="📚" style="max-width:70px;text-align:center;font-size:18px"><input class="inp" id="mc-yt" placeholder="YouTube URL (optional)"></div>
+        <label class="muted" style="font-size:11.5px;margin-bottom:-4px">Thumbnail image (upload)</label>
+        <input class="inp" id="mc-file" type="file" accept="image/*" onchange="mcUpload(this)"><input type="hidden" id="mc-thumb"><div id="mc-prev"></div>
+        <div style="display:flex;gap:10px"><input class="inp" id="mc-order" type="number" placeholder="Display order" value="0"><input class="inp" id="mc-enroll" type="number" placeholder="Enrollments" value="0"></div>
+        <div><div class="muted" style="font-size:11.5px;margin-bottom:7px">👁️ Visible to (tick one or more)</div><div style="display:flex;flex-wrap:wrap;gap:8px"><label class="tick-chip"><input type="checkbox" class="mc-aud" value="free" checked> 🆓 Free</label><label class="tick-chip"><input type="checkbox" class="mc-aud" value="premium"> 💎 Premium</label><label class="tick-chip"><input type="checkbox" class="mc-aud" value="vip"> 👑 VIP</label></div></div>
+        <div style="display:flex;gap:18px;flex-wrap:wrap"><label style="display:flex;gap:7px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" id="mc-pub" checked> ✅ Published</label><label style="display:flex;gap:7px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" id="mc-prem"> ⭐ Premium only</label></div>
+        <button class="btn" id="mc-btn" onclick="createMentorCourse()">➕ Publish Course</button>
+        <p class="muted" style="font-size:11.5px">Requires a public "charts" bucket in Supabase Storage for thumbnails.</p>
+      </div></div>
+    <div class="card"><div class="card-title">📋 Your Courses</div><div id="mcList" style="margin-top:10px"><div class="list-empty">Loading...</div></div></div>
+  </div>`;
+  loadMentorCourses();
+}
+async function mcUpload(input){
+  const file=input.files&&input.files[0];if(!file)return;
+  const prev=document.getElementById('mc-prev');if(prev)prev.innerHTML='<span class="muted" style="font-size:12px">Uploading...</span>';
+  try{
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const path=ME.id+'/course_'+Date.now()+'.'+ext;
+    const {error}=await sb.storage.from('charts').upload(path,file,{upsert:true});
+    if(error){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">Upload failed: '+esc(error.message)+'</span>';return;}
+    const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
+    document.getElementById('mc-thumb').value=url;
+    if(prev)prev.innerHTML='<img src="'+url+'" style="width:140px;height:80px;object-fit:cover;border-radius:8px;border:1px solid var(--border);margin-top:6px">';
+  }catch(e){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">Error: '+esc(e.message)+'</span>';}
+}
+async function createMentorCourse(){
+  const title=val('mc-title');if(!title){alert('Course title required');return;}
+  const aud=Array.prototype.slice.call(document.querySelectorAll('.mc-aud:checked')).map(function(c){return c.value;});if(!aud.length)aud.push('free');
+  const obj={owner_id:ME.id,is_official:false,title:title,description:val('mc-desc')||null,level:document.getElementById('mc-level').value,
+    category:val('mc-cat')||null,thumbnail_emoji:val('mc-emoji')||'📚',thumbnail:val('mc-thumb')||null,
+    youtube_url:val('mc-yt')||null,display_order:parseInt(val('mc-order'))||0,enrollments_count:parseInt(val('mc-enroll'))||0,
+    audience:aud.join(','),is_published:document.getElementById('mc-pub').checked,is_premium:document.getElementById('mc-prem').checked};
+  const {error}=await sb.from('courses').insert(obj);
+  if(error){alert('Error: '+error.message);return;}
+  ['mc-title','mc-desc','mc-cat','mc-yt','mc-thumb','mc-file'].forEach(i=>{var e=document.getElementById(i);if(e)e.value='';});
+  document.getElementById('mc-emoji').value='📚';document.getElementById('mc-order').value='0';document.getElementById('mc-enroll').value='0';document.getElementById('mc-pub').checked=true;document.getElementById('mc-prem').checked=false;
+  document.querySelectorAll('.mc-aud').forEach(c=>c.checked=(c.value==='free'));document.getElementById('mc-prev').innerHTML='';
+  loadMentorCourses();
+}
+async function loadMentorCourses(){
+  const box=document.getElementById('mcList');if(!box)return;
+  const {data,error}=await sb.from('courses').select('*').eq('owner_id',ME.id).order('display_order',{ascending:true});
+  if(error){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}
+  if(!data||!data.length){box.innerHTML='<div class="list-empty">No courses yet.</div>';return;}
+  box.innerHTML='<div style="display:grid;gap:12px">'+data.map(c=>{
+    var aud=(c.audience||'free');var parts=(aud==='all')?['free','premium','vip']:aud.split(',').map(x=>x.trim()).filter(Boolean);var lbl={free:'🆓',premium:'💎',vip:'👑'};var ab=parts.map(function(p){return '<span class="badge '+(p==='free'?'green':'gold')+'" style="font-size:9px;margin-left:3px">'+(lbl[p]||p)+'</span>';}).join('');
+    var thumb=c.thumbnail?`background:#000 url('${esc(c.thumbnail)}') center/cover`:'background:linear-gradient(135deg,var(--gold),var(--gold-dark))';
+    return `<div class="sigc"><div style="display:flex;gap:12px"><div style="width:90px;height:60px;border-radius:8px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:24px;${thumb}">${c.thumbnail?'':esc(c.thumbnail_emoji||'📚')}</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:6px"><strong>${esc(c.title)}</strong><span class="badge ${c.is_published?'green':'muted'}" style="font-size:9px">${c.is_published?'PUBLISHED':'DRAFT'}</span></div><div class="muted" style="font-size:12px">${esc(c.description||'')}</div><div style="font-size:11px;margin-top:3px"><span class="muted">${esc(c.level||'')} · 👥 ${c.enrollments_count||0}</span>${ab}</div></div><button class="del" style="padding:5px 9px;border-radius:7px;align-self:flex-start" onclick="delMentorCourse('${c.id}')">🗑️</button></div></div>`;
+  }).join('')+'</div>';
+}
+async function delMentorCourse(id){if(!confirm('Delete this course?'))return;await sb.from('courses').delete().eq('id',id);loadMentorCourses();}
 
 /* ============ SUBSCRIPTIONS (premium pricing) ============ */
 let billing='monthly';

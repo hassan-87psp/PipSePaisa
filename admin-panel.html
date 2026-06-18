@@ -718,7 +718,7 @@ select option{background:#0f1729;color:#e8eaf0}
               <select style="padding: 9px 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 12px;">
                 <option>Today</option><option>This Week</option><option>This Month</option>
               </select>
-              <button class="btn btn-secondary btn-sm">📥 Export</button>
+              <button class="btn btn-secondary btn-sm" onclick="exportTradesCSV()">📥 Export</button>
             </div>
           </div>
           <div style="overflow-x: auto;">
@@ -2044,10 +2044,39 @@ async function loadAdminUsers() {
 }
 
 // ============ LOAD REAL TRADES LIST ============
+async function exportTradesCSV(){
+  if(!sb)return;
+  const {data}=await sb.from('trades').select('*, profiles(full_name,email)').order('created_at',{ascending:false});
+  const rows=data||[];
+  if(!rows.length){alert('No trades to export');return;}
+  const head=['Date','User','Pair','Direction','Lot','Entry','Exit','PnL','Strategy'];
+  const csv=[head.join(',')].concat(rows.map(function(t){
+    const u=t.profiles?(t.profiles.full_name||t.profiles.email||''):'';
+    const cell=function(v){v=(v==null?'':String(v));return '"'+v.replace(/"/g,'""')+'"';};
+    return [new Date(t.created_at).toLocaleString(),u,t.pair,t.direction,t.lot_size,t.entry_price,(t.exit_price||''),(t.pnl||0),(t.strategy||'')].map(cell).join(',');
+  })).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='trades_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
 async function loadAdminTrades() {
   if (!sb) return;
   
-  const { data: trades, error } = await sb.from('trades').select('*, profiles(full_name, email)').order('created_at', { ascending: false }).limit(20);
+  // Stats from ALL trades
+  try {
+    const { data: allT } = await sb.from('trades').select('pnl');
+    const arr = allT || [];
+    const total = arr.length;
+    let prof = 0, loss = 0, sum = 0;
+    arr.forEach(t => { const p = parseFloat(t.pnl) || 0; sum += p; if (p > 0) prof++; else if (p < 0) loss++; });
+    const set = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
+    set('tradesAllCount', total);
+    set('tradesProfitableCount', prof);
+    set('tradesLossesCount', loss);
+    set('tradesProfitablePct', total ? Math.round(prof / total * 100) + '%' : '0%');
+    set('tradesLossesPct', total ? Math.round(loss / total * 100) + '%' : '0%');
+    set('tradesTotalPnL', (sum >= 0 ? '+$' : '-$') + Math.abs(sum).toFixed(2));
+  } catch (e) {}
+  
+  const { data: trades, error } = await sb.from('trades').select('*, profiles(full_name, email)').order('created_at', { ascending: false }).limit(50);
   
   if (error || !trades) {
     console.error('Trades load error:', error);
@@ -2104,8 +2133,8 @@ async function loadAdminCourses() {
     const statusBadge = c.is_published ? '<span class="badge published">Published</span>' : '<span class="badge draft">Draft</span>';
     const premiumBadge = c.is_premium ? '<span style="position: absolute; top: 12px; right: 12px; padding: 3px 8px; background: var(--gold); color: #0a0e1a; font-size: 9px; font-weight: 800; border-radius: 4px;">⭐ PREMIUM</span>' : '';
     return `<div class="course-card">
-      <div class="course-thumb course-thumb-bg-${colorIdx}" style="position: relative;">
-        <span>${c.thumbnail_emoji || '📚'}</span>
+      <div class="course-thumb course-thumb-bg-${colorIdx}" style="position: relative;${c.thumbnail ? `background:#000 url('${c.thumbnail}') center/cover;` : ''}">
+        ${c.thumbnail ? '' : `<span>${c.thumbnail_emoji || '📚'}</span>`}
         <span class="level-badge">${c.level || 'All Levels'}</span>
         ${premiumBadge}
       </div>
