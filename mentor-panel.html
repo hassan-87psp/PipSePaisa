@@ -248,10 +248,10 @@ const MODS={
 const NAV=[['MAIN',[['dashboard','🏠','Dashboard'],['signals','📊','Signals'],['adminsignals','🏦','Admin Signals'],['charts','📈','Charts'],['subscriptions','💳','Subscriptions']]],
   ['CONTENT',[['courses','🎓','Courses'],['news','📰','News'],['quiz','❓','Quiz'],['youtube','▶️','YouTube']]],
   ['INSIGHTS',[['analytics','📉','Analytics'],['earnings','💰','Earnings'],['students','👥','Students']]],
-  ['MONETIZE',[['requests','🧾','Requests'],['ibbrokers','🤝','IB Brokers'],['ibreqs','🧾','IB Requests']]],
+  ['MONETIZE',[['requests','🧾','Requests']]],
   ['COMMUNICATION',[['messages','💬','Messages'],['notifications','🔔','Notifications']]],
   ['SYSTEM',[['settings','⚙️','Settings']]]];
-const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],ibbrokers:['IB Brokers','Your partner brokers'],ibreqs:['IB Requests','Approve your students IB accounts']};
+const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP']};
 function metaOf(k){return MODS[k]?[MODS[k].label,MODS[k].sub]:(TITLES[k]||[k,'']);}
 
 /* ============ AUTH ============ */
@@ -392,10 +392,15 @@ async function loadRequests(filter,ev){
     const u=r.profiles||{};const stc=r.status==='approved'?'green':(r.status==='rejected'?'red':'gold');
     const rc=r.receipt_url?`<a href="${esc(r.receipt_url)}" target="_blank"><img src="${esc(r.receipt_url)}" style="width:74px;height:74px;object-fit:cover;border-radius:8px;border:1px solid var(--border)"></a>`:'<span class="muted" style="font-size:12px">No receipt</span>';
     const act=r.status==='pending'?`<div style="display:flex;gap:8px;margin-top:10px"><button class="btn sm" onclick="approveReq('${r.id}')">✅ Approve</button><button class="del" style="padding:6px 12px;border-radius:8px" onclick="rejectReq('${r.id}')">❌ Reject</button></div>`:'';
+    const isIb=r.request_type==='ib';
+    const tBadge=isIb?'<span class="badge green" style="font-size:9px;margin-left:6px">🤝 IB</span>':'';
+    const line=isIb
+      ?`🤝 ${esc(r.plan_name||'Plan')} · Acc: <strong>${esc(r.trading_account||'-')}</strong>${r.amount?(' · deposit '+r.amount+' '+esc(r.currency||'')):''}`
+      :`💎 ${esc(r.plan_name||'Plan')} · <strong>${r.amount||0} ${esc(r.currency||'')}</strong> · ${esc(r.method_type||'')}`;
     return `<div class="card" style="margin-bottom:10px;background:var(--glass)"><div style="display:flex;gap:12px"><div>${rc}</div><div style="flex:1">
-      <div style="display:flex;justify-content:space-between;gap:8px"><strong>${esc(u.full_name||u.email||'Student')}</strong><span class="badge ${stc}">${esc(r.status)}</span></div>
+      <div style="display:flex;justify-content:space-between;gap:8px"><strong>${esc(u.full_name||u.email||'Student')}${tBadge}</strong><span class="badge ${stc}">${esc(r.status)}</span></div>
       <div class="muted" style="font-size:12px;margin-top:2px">${esc(u.email||'')}</div>
-      <div style="font-size:13px;margin-top:7px">💎 ${esc(r.plan_name||'Plan')} · <strong>${r.amount||0} ${esc(r.currency||'')}</strong> · ${esc(r.method_type||'')}</div>
+      <div style="font-size:13px;margin-top:7px">${line}</div>
       ${r.txn_id?`<div class="muted" style="font-size:12px">Txn: ${esc(r.txn_id)}</div>`:''}
       ${r.notes?`<div class="muted" style="font-size:12px">Note: ${esc(r.notes)}</div>`:''}
       <div class="muted" style="font-size:11px;margin-top:4px">${new Date(r.created_at).toLocaleString()}</div>
@@ -405,73 +410,6 @@ async function loadRequests(filter,ev){
 async function approveReq(id){if(!confirm('Approve & activate VIP for this student?'))return;const {error}=await sb.rpc('approve_payment',{req_id:id});if(error){alert('Error: '+error.message);return;}loadRequests('pending');}
 async function rejectReq(id){if(!confirm('Reject this request?'))return;const {error}=await sb.rpc('reject_payment',{req_id:id});if(error){alert('Error: '+error.message);return;}loadRequests('pending');}
 
-/* ============ IB PROGRAM (Phase 2) ============ */
-async function renderIbBrokers(){
-  const el=document.getElementById('pg-ibbrokers');
-  el.innerHTML=`
-  <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px">
-    <div class="card"><div class="card-title">➕ Add Partner Broker</div>
-      <div style="display:grid;gap:11px;margin-top:12px">
-        <input class="inp" id="ibName" placeholder="Broker name (e.g. Exness)">
-        <input class="inp" id="ibEmoji" placeholder="Emoji/icon" value="🤝">
-        <input class="inp" id="ibLink" placeholder="Registration / IB referral link">
-        <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px"><input class="inp" id="ibMin" type="number" placeholder="Min deposit"><input class="inp" id="ibCur" placeholder="USD" value="USD"></div>
-        <textarea class="inp" id="ibBenefits" rows="3" placeholder="Benefits (one per line)"></textarea>
-        <textarea class="inp" id="ibInstr" rows="2" placeholder="Instructions (optional)"></textarea>
-        <button class="btn" onclick="addMentorBroker()">💾 Save Broker</button>
-      </div></div>
-    <div class="card"><div class="card-title">🤝 Your Partner Brokers</div><div id="ibList" style="margin-top:10px"><div class="list-empty">Loading...</div></div></div>
-  </div>`;
-  loadMentorBrokers();
-}
-async function addMentorBroker(){
-  const name=val('ibName');if(!name){alert('Broker name required');return;}
-  const obj={owner_id:ME.id,is_official:false,name:name,logo_emoji:val('ibEmoji')||'🤝',registration_link:val('ibLink')||null,min_deposit:parseFloat(val('ibMin'))||0,currency:val('ibCur')||'USD',benefits:val('ibBenefits')||null,instructions:val('ibInstr')||null,enabled:true};
-  const {error}=await sb.from('ib_brokers').insert(obj);
-  if(error){alert('Error: '+error.message);return;}
-  ['ibName','ibLink','ibMin','ibBenefits','ibInstr'].forEach(i=>document.getElementById(i).value='');
-  loadMentorBrokers();
-}
-async function loadMentorBrokers(){
-  const box=document.getElementById('ibList');if(!box)return;
-  const {data,error}=await sb.from('ib_brokers').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false});
-  if(error){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}
-  if(!data||!data.length){box.innerHTML='<div class="list-empty">No brokers yet.</div>';return;}
-  box.innerHTML=data.map(b=>`<div class="row" style="padding:11px 0;border-bottom:1px solid var(--border)"><div><strong>${esc(b.logo_emoji||'🤝')} ${esc(b.name)}</strong> <span class="badge ${b.enabled?'green':'muted'}" style="font-size:9px">${b.enabled?'ON':'OFF'}</span><div class="muted" style="font-size:12px;margin-top:3px">${b.min_deposit>0?('Min '+b.min_deposit+' '+esc(b.currency||'USD')+' · '):''}${esc(b.registration_link||'no link')}</div></div><div style="display:flex;gap:6px"><button class="btn sm ghost" onclick="toggleMentorBroker('${b.id}',${b.enabled?'false':'true'})">${b.enabled?'Disable':'Enable'}</button><button class="del" style="padding:5px 9px;border-radius:7px" onclick="delMentorBroker('${b.id}')">🗑️</button></div></div>`).join('');
-}
-async function toggleMentorBroker(id,on){await sb.from('ib_brokers').update({enabled:on}).eq('id',id);loadMentorBrokers();}
-async function delMentorBroker(id){if(!confirm('Delete this broker?'))return;await sb.from('ib_brokers').delete().eq('id',id);loadMentorBrokers();}
-
-async function renderIbReqs(){
-  const el=document.getElementById('pg-ibreqs');
-  el.innerHTML=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px"><div class="card-title">🧾 IB Registration Requests</div><div class="seg"><button class="on" onclick="loadIbReqList('pending',event)">Pending</button><button onclick="loadIbReqList('all',event)">All</button></div></div><div id="ibReqList" style="margin-top:14px"><div class="list-empty">Loading...</div></div></div>`;
-  loadIbReqList('pending');
-}
-async function loadIbReqList(filter,ev){
-  if(ev&&ev.target){ev.target.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));ev.target.classList.add('on');}
-  const box=document.getElementById('ibReqList');if(!box)return;
-  let q=sb.from('ib_registrations').select('*, profiles:user_id(full_name,email)').eq('mentor_id',ME.id).order('created_at',{ascending:false});
-  if(filter==='pending')q=q.eq('status','pending');
-  const {data,error}=await q;
-  if(error){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}
-  if(!data||!data.length){box.innerHTML='<div class="list-empty">No requests yet.</div>';return;}
-  box.innerHTML=data.map(r=>{
-    const u=r.profiles||{};const stc=r.status==='approved'?'green':(r.status==='rejected'?'red':'gold');
-    const rc=r.proof_url?`<a href="${esc(r.proof_url)}" target="_blank"><img src="${esc(r.proof_url)}" style="width:74px;height:74px;object-fit:cover;border-radius:8px;border:1px solid var(--border)"></a>`:'<span class="muted" style="font-size:12px">No proof</span>';
-    const act=r.status==='pending'?`<div style="display:flex;gap:8px;margin-top:10px"><button class="btn sm" onclick="approveIbReq('${r.id}')">✅ Approve</button><button class="del" style="padding:6px 12px;border-radius:8px" onclick="rejectIbReq('${r.id}')">❌ Reject</button></div>`:'';
-    return `<div class="card" style="margin-bottom:10px;background:var(--glass)"><div style="display:flex;gap:12px"><div>${rc}</div><div style="flex:1">
-      <div style="display:flex;justify-content:space-between;gap:8px"><strong>${esc(u.full_name||u.email||'Student')}</strong><span class="badge ${stc}">${esc(r.status)}</span></div>
-      <div class="muted" style="font-size:12px;margin-top:2px">${esc(u.email||'')}</div>
-      <div style="font-size:13px;margin-top:7px">🤝 ${esc(r.broker_name||'Broker')} · Acc: <strong>${esc(r.trading_account||'-')}</strong>${r.deposit_amount?(' · '+r.deposit_amount+' '+esc(r.currency||'')):''}</div>
-      ${r.notes?`<div class="muted" style="font-size:12px">Note: ${esc(r.notes)}</div>`:''}
-      ${r.reject_reason?`<div style="font-size:12px;color:var(--red)">Reason: ${esc(r.reject_reason)}</div>`:''}
-      <div class="muted" style="font-size:11px;margin-top:4px">${new Date(r.created_at).toLocaleString()}</div>
-      ${act}</div></div></div>`;
-  }).join('');
-}
-async function approveIbReq(id){if(!confirm('Approve this IB registration?'))return;const {error}=await sb.rpc('approve_ib',{req_id:id});if(error){alert('Error: '+error.message);return;}loadIbReqList('pending');}
-async function rejectIbReq(id){const reason=prompt('Reason for rejection (optional):')||null;const {error}=await sb.rpc('reject_ib',{req_id:id,reason:reason});if(error){alert('Error: '+error.message);return;}loadIbReqList('pending');}
-
 
 function showPage(k){
   document.querySelectorAll('.menu-item[data-k]').forEach(e=>e.classList.toggle('active',e.dataset.k===k));
@@ -479,7 +417,7 @@ function showPage(k){
   document.getElementById('pg-'+k).classList.add('active');
   const m=metaOf(k);document.getElementById('pageTitle').textContent=m[0];document.getElementById('pageSub').textContent=m[1];
   document.getElementById('sidebar').classList.remove('open');
-  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,ibbrokers:renderIbBrokers,ibreqs:renderIbReqs}[k]||(()=>renderModule(k)))();
+  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests}[k]||(()=>renderModule(k)))();
 }
 
 /* ============ DASHBOARD ============ */
@@ -737,6 +675,12 @@ function renderSubs(){
           <div style="display:flex;gap:10px"><input class="inp" id="sp-price" type="number" step="any" placeholder="Price" oninput="updatePreview()"><select class="inp" id="sp-cur" style="max-width:84px" onchange="updatePreview()"><option>PKR</option><option>USD</option></select><select class="inp" id="sp-period" style="max-width:128px" onchange="updatePreview()"><option value="monthly">per month</option><option value="yearly">per year</option><option value="lifetime">Lifetime</option></select></div>
           <textarea class="inp" id="sp-feat" rows="4" placeholder="Features (one per line)&#10;Daily VIP signals&#10;Private chart analysis&#10;1-on-1 support" oninput="updatePreview()"></textarea>
           <div style="display:flex;gap:18px;flex-wrap:wrap"><label style="display:flex;gap:7px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" id="sp-pop" onchange="updatePreview()"> ⭐ Most Popular</label><label style="display:flex;gap:7px;align-items:center;font-size:13px;cursor:pointer"><input type="checkbox" id="sp-vip" onchange="updatePreview()"> 👑 VIP (gold)</label></div>
+          <select class="inp" id="sp-unlock" onchange="ibFieldsToggle();updatePreview()"><option value="payment">💳 Unlock by: Payment</option><option value="ib">🤝 Unlock by: Join via IB (no payment)</option></select>
+          <div id="sp-ibfields" style="display:none;gap:11px">
+            <input class="inp" id="sp-iblink" placeholder="Broker registration / IB referral link" oninput="updatePreview()">
+            <div style="display:flex;gap:10px"><input class="inp" id="sp-ibbroker" placeholder="Broker name (e.g. Exness)" oninput="updatePreview()"><input class="inp" id="sp-ibdep" type="number" placeholder="Min deposit" oninput="updatePreview()" style="max-width:130px"></div>
+            <div class="muted" style="font-size:11.5px">Students who open an account & deposit under your IB get this plan's services — no payment.</div>
+          </div>
           <button class="btn" onclick="createPlan()">✨ Create Plan</button>
         </div></div>
       <div class="card"><div class="card-title">👁️ Live Preview</div><div id="planPreview" class="price-grid" style="margin-top:14px;grid-template-columns:1fr"></div>
@@ -745,15 +689,21 @@ function renderSubs(){
   loadPlans();loadSubs2();updatePreview();
 }
 function setBilling(b){billing=b;loadPlans();}
+function ibFieldsToggle(){var s=document.getElementById('sp-unlock');var f=document.getElementById('sp-ibfields');if(f)f.style.display=(s&&s.value==='ib')?'grid':'none';}
 function parsePlan(row){
   const lines=(row.features||'').split('\n');let icon='💎',tag='',pop=false,vip=false,period='monthly';const feats=[];
+  let ib=false,iblink='',ibdep=0,ibbroker='';
   lines.forEach(l=>{const t=l.trim();if(!t)return;
     if(t==='[POPULAR]')pop=true;else if(t==='[VIP]')vip=true;
+    else if(t==='[IB]')ib=true;
+    else if(t.indexOf('[IBLINK]')===0)iblink=t.slice(8).trim();
+    else if(t.indexOf('[IBDEPOSIT]')===0)ibdep=parseFloat(t.slice(11).trim())||0;
+    else if(t.indexOf('[IBBROKER]')===0)ibbroker=t.slice(10).trim();
     else if(t.indexOf('[ICON]')===0)icon=t.slice(6).trim()||'💎';
     else if(t.indexOf('[TAG]')===0)tag=t.slice(5).trim();
     else if(t.indexOf('[PERIOD]')===0)period=t.slice(8).trim()||'monthly';
     else feats.push(t);});
-  return {id:row.id,name:row.name,price:row.price,currency:row.currency,icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats};
+  return {id:row.id,name:row.name,price:row.price,currency:row.currency,icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats,ib:ib,iblink:iblink,ibdep:ibdep,ibbroker:ibbroker};
 }
 function planCardHTML(p){
   const pop=p.popular,vip=p.vip;
@@ -761,13 +711,16 @@ function planCardHTML(p){
   let price=p.price||0;if(yr)price=Math.round(price*10);
   const perLbl=p.period==='lifetime'?'one-time':(yr?'/yr':'/mo');
   const feats=((p.features&&p.features.length)?p.features:['Premium signals access']).map(x=>`<li>✓ ${esc(x)}</li>`).join('');
-  const save=yr?'<div class="save-badge">Save 17% yearly</div>':'';
-  const badge=pop?'<div class="pop-badge">⭐ MOST POPULAR</div>':(vip?'<div class="pop-badge vipb">👑 VIP</div>':'');
+  const save=(yr&&!p.ib)?'<div class="save-badge">Save 17% yearly</div>':'';
+  const badge=p.ib?'<div class="pop-badge" style="background:var(--green);color:#0a0e1a">🤝 VIA IB</div>':(pop?'<div class="pop-badge">⭐ MOST POPULAR</div>':(vip?'<div class="pop-badge vipb">👑 VIP</div>':''));
+  const priceLine=p.ib
+    ?`<div class="pp" style="color:var(--green);font-size:22px">Join via IB<span style="display:block;font-size:12px;color:var(--muted);font-weight:600">${p.ibdep>0?('Min deposit '+p.ibdep+' '+esc(p.currency||'USD')):'No payment'}</span></div>`
+    :`<div class="pp">${price}<span style="font-size:13px;color:var(--muted)"> ${esc(p.currency||'')} ${perLbl}</span></div>`;
   return `<div class="price ${pop?'pop':''} ${vip?'vip':''}">${badge}
     <div class="pico">${esc(p.icon||'💎')}</div>
     <div class="pn">${esc(p.name||'Plan name')}</div>
     ${p.tagline?`<div class="ptag">${esc(p.tagline)}</div>`:''}
-    <div class="pp">${price}<span style="font-size:13px;color:var(--muted)"> ${esc(p.currency||'')} ${perLbl}</span></div>
+    ${priceLine}
     ${save}
     <ul>${feats}</ul>
     ${p.id?`<button class="del" style="width:auto;padding:6px 12px;border-radius:8px" onclick="delPlan('${p.id}')">🗑️ Remove</button>`:'<div class="muted" style="font-size:11px;text-align:center;margin-top:8px">— Live preview —</div>'}
@@ -775,20 +728,23 @@ function planCardHTML(p){
 }
 function updatePreview(){
   const box=document.getElementById('planPreview');if(!box)return;
-  const p={icon:val('sp-icon')||'💎',name:val('sp-name')||'Plan name',tagline:val('sp-tag'),price:parseFloat(val('sp-price')||'0')||0,currency:val('sp-cur'),period:document.getElementById('sp-period').value,popular:document.getElementById('sp-pop').checked,vip:document.getElementById('sp-vip').checked,features:val('sp-feat').split('\n').map(x=>x.trim()).filter(x=>x)};
+  const ib=(document.getElementById('sp-unlock')||{}).value==='ib';
+  const p={icon:val('sp-icon')||'💎',name:val('sp-name')||'Plan name',tagline:val('sp-tag'),price:parseFloat(val('sp-price')||'0')||0,currency:val('sp-cur'),period:document.getElementById('sp-period').value,popular:document.getElementById('sp-pop').checked,vip:document.getElementById('sp-vip').checked,features:val('sp-feat').split('\n').map(x=>x.trim()).filter(x=>x),ib:ib,iblink:val('sp-iblink'),ibdep:parseFloat(val('sp-ibdep')||'0')||0,ibbroker:val('sp-ibbroker')};
   box.innerHTML=planCardHTML(p);
 }
 async function createPlan(){
   const name=val('sp-name');if(!name){alert('Plan name is required');return;}
   const period=document.getElementById('sp-period').value;const dur=period==='lifetime'?36500:(period==='yearly'?365:30);
+  const ib=(document.getElementById('sp-unlock')||{}).value==='ib';
   let f='[ICON]'+(val('sp-icon')||'💎')+'\n';
   if(document.getElementById('sp-pop').checked)f+='[POPULAR]\n';
   if(document.getElementById('sp-vip').checked)f+='[VIP]\n';
+  if(ib){f+='[IB]\n';const lk=val('sp-iblink');if(lk)f+='[IBLINK]'+lk+'\n';const br=val('sp-ibbroker');if(br)f+='[IBBROKER]'+br+'\n';const dp=parseFloat(val('sp-ibdep')||'0')||0;if(dp)f+='[IBDEPOSIT]'+dp+'\n';}
   f+='[PERIOD]'+period+'\n';const tag=val('sp-tag');if(tag)f+='[TAG]'+tag+'\n';f+=val('sp-feat');
-  const obj={owner_id:ME.id,is_official:false,name:name,price:parseFloat(val('sp-price')||'0'),currency:val('sp-cur'),duration_days:dur,features:f,is_active:true};
+  const obj={owner_id:ME.id,is_official:false,name:name,price:ib?0:(parseFloat(val('sp-price')||'0')),currency:val('sp-cur'),duration_days:dur,features:f,is_active:true};
   const {error}=await sb.from('subscription_plans').insert(obj);
   if(error){alert('Error: '+error.message);return;}
-  ['sp-name','sp-price','sp-feat','sp-tag'].forEach(i=>document.getElementById(i).value='');document.getElementById('sp-icon').value='💎';document.getElementById('sp-pop').checked=false;document.getElementById('sp-vip').checked=false;
+  ['sp-name','sp-price','sp-feat','sp-tag','sp-iblink','sp-ibbroker','sp-ibdep'].forEach(i=>{var e=document.getElementById(i);if(e)e.value='';});document.getElementById('sp-icon').value='💎';document.getElementById('sp-pop').checked=false;document.getElementById('sp-vip').checked=false;document.getElementById('sp-unlock').value='payment';ibFieldsToggle();
   updatePreview();loadPlans();
 }
 async function loadPlans(){

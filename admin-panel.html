@@ -454,8 +454,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item" data-page="subscriptions" onclick="showPage('subscriptions', this)"><span class="menu-icon">💎</span>Subscriptions</div>
       <div class="menu-item" data-page="payments" onclick="showPage('payments', this)"><span class="menu-icon">💳</span>Payment Methods</div>
       <div class="menu-item" data-page="paymentreqs" onclick="showPage('paymentreqs', this)"><span class="menu-icon">🧾</span>Payment Requests</div>
-      <div class="menu-item" data-page="ibbrokers" onclick="showPage('ibbrokers', this)"><span class="menu-icon">🤝</span>IB Brokers</div>
-      <div class="menu-item" data-page="ibreqs" onclick="showPage('ibreqs', this)"><span class="menu-icon">🧾</span>IB Requests</div>
       
       <div class="menu-label">Content Management</div>
       <div class="menu-item" data-page="courses" onclick="showPage('courses', this)"><span class="menu-icon">🎓</span>Courses</div>
@@ -911,8 +909,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <!-- ========== NEWS ========== -->
       <div class="page" id="page-payments"><div id="apmWrap"></div></div>
       <div class="page" id="page-paymentreqs"><div id="aprWrap"></div></div>
-      <div class="page" id="page-ibbrokers"><div id="aibWrap"></div></div>
-      <div class="page" id="page-ibreqs"><div id="airWrap"></div></div>
       <div class="page" id="page-news">
         <div class="card">
           <div class="card-header">
@@ -1807,73 +1803,16 @@ async function loadAprList(){
     var col=x.status==='approved'?'#10b981':(x.status==='rejected'?'#ef4444':'#f59e0b');
     var rc=x.receipt_url?'<a href="'+aEsc(x.receipt_url)+'" target="_blank"><img src="'+aEsc(x.receipt_url)+'" style="width:74px;height:74px;object-fit:cover;border-radius:8px;border:1px solid var(--border,#1f2937)"></a>':'<span style="color:#94a0b8;font-size:12px">No receipt</span>';
     var act=x.status==='pending'?'<div style="display:flex;gap:8px;margin-top:10px"><button onclick="aprApprove(\''+x.id+'\')" style="padding:7px 14px;border:none;border-radius:8px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:700;cursor:pointer">✅ Approve</button><button onclick="aprReject(\''+x.id+'\')" style="padding:7px 14px;border:none;border-radius:8px;background:rgba(239,68,68,.15);color:#ef4444;cursor:pointer">❌ Reject</button></div>':'';
-    return '<div style="display:flex;gap:12px;padding:12px;border:1px solid var(--border,#1f2937);border-radius:12px;margin-bottom:10px"><div>'+rc+'</div><div style="flex:1"><div style="display:flex;justify-content:space-between;gap:8px"><strong>'+aEsc(u.full_name||u.email||'Student')+'</strong><span style="color:'+col+';font-weight:800;font-size:12px;text-transform:uppercase">'+aEsc(x.status)+'</span></div><div style="font-size:12px;color:#94a0b8">'+aEsc(u.email||'')+' · Mentor: '+aEsc(mn)+'</div><div style="font-size:13px;margin-top:7px">💎 '+aEsc(x.plan_name||'Plan')+' · <strong>'+(x.amount||0)+' '+aEsc(x.currency||'')+'</strong> · '+aEsc(x.method_type||'')+'</div>'+(x.txn_id?'<div style="font-size:12px;color:#94a0b8">Txn: '+aEsc(x.txn_id)+'</div>':'')+(x.notes?'<div style="font-size:12px;color:#94a0b8">Note: '+aEsc(x.notes)+'</div>':'')+'<div style="font-size:11px;color:#94a0b8;margin-top:4px">'+new Date(x.created_at).toLocaleString()+'</div>'+act+'</div></div>';
+    var isIb=x.request_type==='ib';
+    var typeBadge=isIb?'<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(16,185,129,.18);color:#10b981;margin-left:6px">🤝 IB</span>':'';
+    var line=isIb
+      ?('🤝 '+aEsc(x.plan_name||'Plan')+' · Acc: <strong>'+aEsc(x.trading_account||'-')+'</strong>'+(x.amount?(' · deposit '+x.amount+' '+aEsc(x.currency||'')):''))
+      :('💎 '+aEsc(x.plan_name||'Plan')+' · <strong>'+(x.amount||0)+' '+aEsc(x.currency||'')+'</strong> · '+aEsc(x.method_type||''));
+    return '<div style="display:flex;gap:12px;padding:12px;border:1px solid var(--border,#1f2937);border-radius:12px;margin-bottom:10px"><div>'+rc+'</div><div style="flex:1"><div style="display:flex;justify-content:space-between;gap:8px"><strong>'+aEsc(u.full_name||u.email||'Student')+typeBadge+'</strong><span style="color:'+col+';font-weight:800;font-size:12px;text-transform:uppercase">'+aEsc(x.status)+'</span></div><div style="font-size:12px;color:#94a0b8">'+aEsc(u.email||'')+' · Mentor: '+aEsc(mn)+'</div><div style="font-size:13px;margin-top:7px">'+line+'</div>'+(x.txn_id?'<div style="font-size:12px;color:#94a0b8">Txn: '+aEsc(x.txn_id)+'</div>':'')+(x.notes?'<div style="font-size:12px;color:#94a0b8">Note: '+aEsc(x.notes)+'</div>':'')+'<div style="font-size:11px;color:#94a0b8;margin-top:4px">'+new Date(x.created_at).toLocaleString()+'</div>'+act+'</div></div>';
   }).join('');
 }
 async function aprApprove(id){if(!confirm('Approve & activate VIP for this student?'))return;var r=await sb.rpc('approve_payment',{req_id:id});if(r.error){alert('Error: '+r.error.message);return;}loadAprList();}
 async function aprReject(id){if(!confirm('Reject this request?'))return;var r=await sb.rpc('reject_payment',{req_id:id});if(r.error){alert('Error: '+r.error.message);return;}loadAprList();}
-
-// ============ IB PROGRAM (Phase 2) ============
-async function loadAdminIbBrokers(){
-  var wrap=document.getElementById('aibWrap');if(!wrap)return;
-  wrap.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">'+
-    '<div class="card"><h3 style="margin:0 0 12px">➕ Add Partner Broker</h3><div style="display:grid;gap:11px">'+
-      '<input id="aibName" placeholder="Broker name (e.g. Exness)" style="'+APMS+'">'+
-      '<input id="aibEmoji" placeholder="Emoji/icon (e.g. 🤝)" value="🤝" style="'+APMS+'">'+
-      '<input id="aibLink" placeholder="Registration / IB referral link" style="'+APMS+'">'+
-      '<div style="display:grid;grid-template-columns:2fr 1fr;gap:10px"><input id="aibMin" type="number" placeholder="Min deposit" style="'+APMS+'"><input id="aibCur" placeholder="USD" value="USD" style="'+APMS+'"></div>'+
-      '<textarea id="aibBenefits" rows="3" placeholder="Benefits (one per line)" style="'+APMS+'"></textarea>'+
-      '<textarea id="aibInstr" rows="2" placeholder="Instructions (optional)" style="'+APMS+'"></textarea>'+
-      '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-secondary,#94a0b8)"><input type="checkbox" id="aibOfficial" checked> Official (show to all students)</label>'+
-      '<button onclick="addAdminBroker()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">💾 Save Broker</button>'+
-    '</div></div>'+
-    '<div class="card"><h3 style="margin:0 0 12px">🤝 Partner Brokers</h3><div id="aibList">Loading...</div></div></div>';
-  loadAdminBrokerList();
-}
-async function addAdminBroker(){
-  var v=function(id){return (document.getElementById(id).value||'').trim();};
-  var name=v('aibName');if(!name){alert('Broker name required');return;}
-  var obj={owner_id:currentAdmin.id,is_official:document.getElementById('aibOfficial').checked,name:name,logo_emoji:v('aibEmoji')||'🤝',registration_link:v('aibLink')||null,min_deposit:parseFloat(v('aibMin'))||0,currency:v('aibCur')||'USD',benefits:v('aibBenefits')||null,instructions:v('aibInstr')||null,enabled:true};
-  var r=await sb.from('ib_brokers').insert(obj);
-  if(r.error){alert('Error: '+r.error.message);return;}
-  ['aibName','aibLink','aibMin','aibBenefits','aibInstr'].forEach(function(i){document.getElementById(i).value='';});
-  loadAdminBrokerList();
-}
-async function loadAdminBrokerList(){
-  var box=document.getElementById('aibList');if(!box)return;
-  var r=await sb.from('ib_brokers').select('*').eq('owner_id',currentAdmin.id).order('created_at',{ascending:false});
-  if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}
-  var data=r.data||[];if(!data.length){box.innerHTML='<div style="color:#94a0b8">No brokers yet.</div>';return;}
-  box.innerHTML=data.map(function(b){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border,#1f2937)"><div><strong>'+aEsc(b.logo_emoji||'🤝')+' '+aEsc(b.name)+'</strong> <span style="font-size:10px;padding:2px 7px;border-radius:10px;background:'+(b.enabled?'rgba(16,185,129,.18);color:#10b981':'rgba(148,160,184,.18);color:#94a0b8')+'">'+(b.enabled?'ON':'OFF')+'</span>'+(b.is_official?' <span style="font-size:10px;padding:2px 7px;border-radius:10px;background:rgba(245,158,11,.18);color:#f59e0b">OFFICIAL</span>':'')+'<div style="font-size:12px;color:#94a0b8;margin-top:3px">'+(b.min_deposit>0?('Min '+b.min_deposit+' '+aEsc(b.currency||'USD')+' · '):'')+aEsc(b.registration_link||'no link')+'</div></div><div style="display:flex;gap:6px"><button onclick="toggleBroker(\''+b.id+'\','+(b.enabled?'false':'true')+')" style="padding:5px 10px;border-radius:7px;background:transparent;border:1px solid var(--border,#1f2937);color:var(--text,#e8eaf0);cursor:pointer;font-size:12px">'+(b.enabled?'Disable':'Enable')+'</button><button onclick="delBroker(\''+b.id+'\')" style="padding:5px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div></div>';
-  }).join('');
-}
-async function toggleBroker(id,on){await sb.from('ib_brokers').update({enabled:on}).eq('id',id);loadAdminBrokerList();}
-async function delBroker(id){if(!confirm('Delete this broker?'))return;await sb.from('ib_brokers').delete().eq('id',id);loadAdminBrokerList();}
-
-async function loadAdminIbReqs(){
-  var wrap=document.getElementById('airWrap');if(!wrap)return;
-  wrap.innerHTML='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px"><h3 style="margin:0">🧾 IB Registration Requests</h3><select id="airFilter" onchange="loadAirList()" style="'+APMS+';max-width:160px"><option value="pending">Pending</option><option value="all">All</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div><div id="airList" style="margin-top:14px">Loading...</div></div>';
-  loadAirList();
-}
-async function loadAirList(){
-  var box=document.getElementById('airList');if(!box)return;
-  var f=document.getElementById('airFilter')?document.getElementById('airFilter').value:'pending';
-  var q=sb.from('ib_registrations').select('*, profiles:user_id(full_name,email), mentor:mentor_id(full_name)').order('created_at',{ascending:false});
-  if(f!=='all')q=q.eq('status',f);
-  var r=await q;
-  if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}
-  var data=r.data||[];if(!data.length){box.innerHTML='<div style="color:#94a0b8">No requests.</div>';return;}
-  box.innerHTML=data.map(function(x){
-    var u=x.profiles||{};var mn=x.mentor?x.mentor.full_name:'-';
-    var col=x.status==='approved'?'#10b981':(x.status==='rejected'?'#ef4444':'#f59e0b');
-    var rc=x.proof_url?'<a href="'+aEsc(x.proof_url)+'" target="_blank"><img src="'+aEsc(x.proof_url)+'" style="width:74px;height:74px;object-fit:cover;border-radius:8px;border:1px solid var(--border,#1f2937)"></a>':'<span style="color:#94a0b8;font-size:12px">No proof</span>';
-    var act=x.status==='pending'?'<div style="display:flex;gap:8px;margin-top:10px"><button onclick="airApprove(\''+x.id+'\')" style="padding:7px 14px;border:none;border-radius:8px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:700;cursor:pointer">✅ Approve</button><button onclick="airReject(\''+x.id+'\')" style="padding:7px 14px;border:none;border-radius:8px;background:rgba(239,68,68,.15);color:#ef4444;cursor:pointer">❌ Reject</button></div>':'';
-    return '<div style="display:flex;gap:12px;padding:12px;border:1px solid var(--border,#1f2937);border-radius:12px;margin-bottom:10px"><div>'+rc+'</div><div style="flex:1"><div style="display:flex;justify-content:space-between;gap:8px"><strong>'+aEsc(u.full_name||u.email||'Student')+'</strong><span style="color:'+col+';font-weight:800;font-size:12px;text-transform:uppercase">'+aEsc(x.status)+'</span></div><div style="font-size:12px;color:#94a0b8">'+aEsc(u.email||'')+' · Mentor: '+aEsc(mn)+'</div><div style="font-size:13px;margin-top:7px">🤝 '+aEsc(x.broker_name||'Broker')+' · Acc: <strong>'+aEsc(x.trading_account||'-')+'</strong>'+(x.deposit_amount?(' · '+x.deposit_amount+' '+aEsc(x.currency||'')):'')+'</div>'+(x.notes?'<div style="font-size:12px;color:#94a0b8">Note: '+aEsc(x.notes)+'</div>':'')+(x.reject_reason?'<div style="font-size:12px;color:#ef4444">Reason: '+aEsc(x.reject_reason)+'</div>':'')+'<div style="font-size:11px;color:#94a0b8;margin-top:4px">'+new Date(x.created_at).toLocaleString()+'</div>'+act+'</div></div>';
-  }).join('');
-}
-async function airApprove(id){if(!confirm('Approve this IB registration?'))return;var r=await sb.rpc('approve_ib',{req_id:id});if(r.error){alert('Error: '+r.error.message);return;}loadAirList();}
-async function airReject(id){var reason=prompt('Reason for rejection (optional):')||null;var r=await sb.rpc('reject_ib',{req_id:id,reason:reason});if(r.error){alert('Error: '+r.error.message);return;}loadAirList();}
 
 function showPage(page, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1891,8 +1830,6 @@ function showPage(page, el) {
     subscriptions: ['Subscriptions', 'Manage premium memberships and pricing'],
     payments: ['Payment Methods', 'EasyPaisa, JazzCash, Bank, Crypto'],
     paymentreqs: ['Payment Requests', 'Verify & approve VIP payments'],
-    ibbrokers: ['IB Brokers', 'Manage partner brokers for the IB program'],
-    ibreqs: ['IB Requests', 'Verify & approve IB account registrations'],
     courses: ['Courses Manager', 'Create and manage learning content'],
     news: ['News & Events', 'Manage economic calendar and news posts'],
     newshub: ['World News Hub', 'Live global news feed with forex impact analysis'],
@@ -1925,8 +1862,6 @@ function showPage(page, el) {
   if (page === 'articles') loadAdminArticles();
   if (page === 'payments') loadAdminPayments();
   if (page === 'paymentreqs') loadAdminPaymentReqs();
-  if (page === 'ibbrokers') loadAdminIbBrokers();
-  if (page === 'ibreqs') loadAdminIbReqs();
   if (page === 'newshub' && window.anhInitLoad) window.anhInitLoad();
 }
 

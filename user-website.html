@@ -1354,7 +1354,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📝</span>Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
-      <div class="menu-item" data-page="ibprogram" onclick="showPage('ibprogram', this)"><span class="menu-icon">🤝</span>IB Program<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>Economic News<span class="dot"></span></div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;animation:pulse 2s infinite;">LIVE</span></div>
       <div class="menu-item" data-page="strength" onclick="showPage('strength', this)"><span class="menu-icon">💪</span>Currency Strength</div>
@@ -2374,16 +2373,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         <div id="myVipReqs" style="margin-top:18px"></div>
         <div id="vipModalHost"></div>
       </div>
-      <div class="page" id="page-ibprogram">
-        <div id="ibStatus"></div>
-        <div class="card" style="margin-bottom:14px;">
-          <div class="card-title" style="font-size:18px;">🤝 IB Program</div>
-          <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">Open a trading account with our partner brokers under your mentor and unlock exclusive IB benefits.</div>
-        </div>
-        <div id="ibBrokersGrid" style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;"><div class="empty-state"><div>Loading brokers...</div></div></div>
-        <div id="myIbReqs" style="margin-top:18px"></div>
-        <div id="ibModalHost"></div>
-      </div>
       <div class="page" id="page-tools">
         <div class="card" style="margin-bottom: 14px;">
           <div class="card-header">
@@ -3319,7 +3308,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       analysis: 'Trades Analysis', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex',
       signals: 'Signals', articles: 'Articles', vipplans: 'VIP Plans',
-      ibprogram: 'IB Program',
       settings: 'Settings', about: 'About'
     };
     document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
@@ -3333,7 +3321,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if (page === 'strength') loadStrength();
     if (page === 'charts') loadChart();
     if (page === 'vipplans') loadVipPlans();
-    if (page === 'ibprogram') loadIbProgram();
     if (page === 'signals') loadSignalsFromDB();
     if (page === 'articles') loadArticlesFromDB();
     if (page === 'market') { loadGoldPrice(); loadMarketTicker(); }
@@ -6136,26 +6123,38 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   }
   function parseVipPlan(row){
     const lines=(row.features||'').split('\n');let icon='💎',tag='',pop=false,vip=false,period='monthly';const feats=[];
+    let ib=false,iblink='',ibdep=0,ibbroker='';
     lines.forEach(function(l){const t=l.trim();if(!t)return;
       if(t==='[POPULAR]')pop=true;else if(t==='[VIP]')vip=true;
+      else if(t==='[IB]')ib=true;
+      else if(t.indexOf('[IBLINK]')===0)iblink=t.slice(8).trim();
+      else if(t.indexOf('[IBDEPOSIT]')===0)ibdep=parseFloat(t.slice(11).trim())||0;
+      else if(t.indexOf('[IBBROKER]')===0)ibbroker=t.slice(10).trim();
       else if(t.indexOf('[ICON]')===0)icon=t.slice(6).trim()||'💎';
       else if(t.indexOf('[TAG]')===0)tag=t.slice(5).trim();
       else if(t.indexOf('[PERIOD]')===0)period=t.slice(8).trim()||'monthly';
       else feats.push(t);});
-    return {id:row.id,name:row.name,price:row.price,currency:row.currency,icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats};
+    return {id:row.id,name:row.name,price:row.price,currency:row.currency,icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats,ib:ib,iblink:iblink,ibdep:ibdep,ibbroker:ibbroker};
   }
   function vipPlanCard(p){
     const perLbl=p.period==='lifetime'?'one-time':(p.period==='yearly'?'/yr':'/mo');
     const feats=((p.features&&p.features.length)?p.features:['Premium access']).map(function(x){return '<li style="padding:4px 0;font-size:13px;">✓ '+vEsc(x)+'</li>';}).join('');
-    const badge=p.popular?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;white-space:nowrap;">⭐ MOST POPULAR</div>':(p.vip?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;">👑 VIP</div>':'');
-    const bd=(p.vip||p.popular)?'border:1.5px solid var(--gold);box-shadow:0 12px 40px rgba(245,158,11,.18);':'border:1px solid var(--border);';
+    const ibBadge=p.ib?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--green);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;white-space:nowrap;">🤝 VIA IB</div>':'';
+    const badge=p.popular?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;white-space:nowrap;">⭐ MOST POPULAR</div>':(p.vip?'<div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0a0e1a;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px;">👑 VIP</div>':ibBadge);
+    const bd=(p.ib)?'border:1.5px solid var(--green);box-shadow:0 12px 40px rgba(16,185,129,.16);':((p.vip||p.popular)?'border:1.5px solid var(--gold);box-shadow:0 12px 40px rgba(245,158,11,.18);':'border:1px solid var(--border);');
+    const priceBlock=p.ib
+      ?'<div style="font-size:22px;font-weight:800;color:var(--green);margin:14px 0;">Join via IB<span style="display:block;font-size:12px;color:var(--text-muted);font-weight:600;margin-top:2px;">'+(p.ibdep>0?('Min deposit '+p.ibdep+' '+vEsc(p.currency||'USD')):'No payment — open account under your mentor')+'</span></div>'
+      :'<div style="font-size:30px;font-weight:800;color:var(--gold);margin:14px 0;">'+(p.price||0)+'<span style="font-size:13px;color:var(--text-muted);font-weight:600;"> '+vEsc(p.currency||'')+' '+perLbl+'</span></div>';
+    const btn=p.ib
+      ?'<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--green),#059669);color:#fff;font-weight:800;cursor:pointer;font-size:14px;" onclick="openIbJoin(\''+p.id+'\')">🤝 Join via IB</button>'
+      :'<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;" onclick="openVipCheckout(\''+p.id+'\')">💎 Subscribe</button>';
     return '<div style="position:relative;width:255px;max-width:100%;background:linear-gradient(160deg,rgba(245,158,11,.07),rgba(255,255,255,.02));border-radius:16px;padding:22px 18px;'+bd+'">'+badge+
       '<div style="font-size:34px;line-height:1;">'+vEsc(p.icon||'💎')+'</div>'+
       '<div style="font-size:18px;font-weight:800;margin-top:8px;">'+vEsc(p.name||'Plan')+'</div>'+
       (p.tagline?'<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">'+vEsc(p.tagline)+'</div>':'')+
-      '<div style="font-size:30px;font-weight:800;color:var(--gold);margin:14px 0;">'+(p.price||0)+'<span style="font-size:13px;color:var(--text-muted);font-weight:600;"> '+vEsc(p.currency||'')+' '+perLbl+'</span></div>'+
+      priceBlock+
       '<ul style="list-style:none;padding:0;margin:0 0 18px;">'+feats+'</ul>'+
-      '<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;" onclick="openVipCheckout(\''+p.id+'\')">💎 Subscribe</button>'+
+      btn+
     '</div>';
   }
   async function openVipCheckout(id){
@@ -6216,61 +6215,19 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     }catch(e){msg.style.color='var(--red)';msg.textContent='Error: '+e.message;}
   }
   function closeVipModal(){const h=document.getElementById('vipModalHost');if(h)h.innerHTML='';}
-  async function loadMyVipRequests(){
-    const box=document.getElementById('myVipReqs');if(!box||!currentProfile||!sb)return;
-    let data=[];try{const r=await sb.from('payment_requests').select('*').eq('user_id',currentProfile.id).order('created_at',{ascending:false}).limit(10);data=r.data||[];}catch(e){return;}
-    if(!data.length){box.innerHTML='';return;}
-    box.innerHTML='<div class="card"><div class="card-title">📋 My Requests</div>'+data.map(function(r){
-      const stc=r.status==='approved'?'var(--green)':(r.status==='rejected'?'var(--red)':'var(--gold)');
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)"><div><strong>'+vEsc(r.plan_name||'Plan')+'</strong> <span style="color:var(--text-muted);font-size:12px">'+(r.amount||0)+' '+vEsc(r.currency||'')+'</span><div style="font-size:11px;color:var(--text-muted)">'+new Date(r.created_at).toLocaleString()+'</div></div><span style="color:'+stc+';font-weight:800;font-size:12px;text-transform:uppercase">'+vEsc(r.status)+'</span></div>';
-    }).join('')+'</div>';
-  }
-
-
-  // ============ IB PROGRAM (Phase 2) ============
-  let ibBrokersById={};
-  async function loadIbProgram(){
-    const grid=document.getElementById('ibBrokersGrid');const statusEl=document.getElementById('ibStatus');
-    if(!grid)return;
-    if(statusEl){
-      statusEl.innerHTML=(currentProfile&&currentProfile.is_ib)
-        ?'<div class="card" style="margin-bottom:14px;border:1px solid rgba(245,158,11,.4);background:linear-gradient(135deg,rgba(245,158,11,.12),transparent);"><div style="font-weight:800;color:var(--gold);font-size:15px;">🤝 You are an approved IB member</div><div style="font-size:13px;color:var(--text-muted);margin-top:3px;">Your partner account is verified. Enjoy your IB benefits.</div></div>'
-        :'';
-    }
-    if(!sb){grid.innerHTML='<div class="empty-state"><div>Connect to view brokers.</div></div>';return;}
-    let rows=[],error=null;
-    try{
-      const r=await sb.from('ib_brokers').select('*').eq('enabled',true).order('display_order',{ascending:true});
-      rows=r.data||[];error=r.error;
-    }catch(e){error=e;}
-    if(error){grid.innerHTML='<div class="empty-state"><div>'+vEsc(error.message||'Error')+'</div></div>';return;}
-    if(!rows.length){grid.innerHTML='<div class="empty-state"><div>No partner brokers available yet.</div><div style="font-size:12px;color:var(--text-muted);margin-top:6px;">Your mentor hasn\'t added any IB brokers yet.</div></div>';loadMyIbRequests();return;}
-    ibBrokersById={};
-    grid.innerHTML=rows.map(function(b){ibBrokersById[b.id]=b;return ibBrokerCard(b);}).join('');
-    loadMyIbRequests();
-  }
-  function ibBrokerCard(b){
-    const benefits=((b.benefits||'').split('\n').map(function(x){return x.trim();}).filter(Boolean));
-    const feats=(benefits.length?benefits:['Trade under your mentor','Exclusive IB support']).map(function(x){return '<li style="padding:4px 0;font-size:13px;">✓ '+vEsc(x)+'</li>';}).join('');
-    const reg=b.registration_link?'<a href="'+vEsc(b.registration_link)+'" target="_blank" rel="noopener" style="display:block;text-align:center;width:100%;padding:10px;border-radius:10px;background:rgba(245,158,11,.14);color:var(--gold);font-weight:800;text-decoration:none;font-size:13px;margin-bottom:8px;box-sizing:border-box;">🔗 Register / Open Account</a>':'';
-    return '<div style="position:relative;width:255px;max-width:100%;background:linear-gradient(160deg,rgba(245,158,11,.07),rgba(255,255,255,.02));border:1px solid var(--border);border-radius:16px;padding:22px 18px;">'+
-      '<div style="font-size:34px;line-height:1;">'+vEsc(b.logo_emoji||'🤝')+'</div>'+
-      '<div style="font-size:18px;font-weight:800;margin-top:8px;">'+vEsc(b.name||'Broker')+'</div>'+
-      (Number(b.min_deposit)>0?'<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Min deposit: '+vEsc(b.min_deposit)+' '+vEsc(b.currency||'USD')+'</div>':'')+
-      (b.instructions?'<div style="font-size:12px;color:var(--text-muted);margin-top:8px;line-height:1.5;">'+vEsc(b.instructions)+'</div>':'')+
-      '<ul style="list-style:none;padding:0;margin:12px 0 16px;">'+feats+'</ul>'+
-      reg+
-      '<button style="width:100%;padding:11px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;" onclick="openIbRegister(\''+b.id+'\')">📤 Submit My Account</button>'+
-    '</div>';
-  }
-  function openIbRegister(id){
-    const b=ibBrokersById[id];if(!b)return;
-    window._ibReg={broker:b};
-    const host=document.getElementById('ibModalHost');if(!host)return;
-    host.innerHTML='<div style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeIbModal()">'+
+  async function openIbJoin(id){
+    const p=vipPlansById[id];if(!p)return;
+    const dur=p.period==='lifetime'?36500:(p.period==='yearly'?365:30);
+    window._ibJoin={plan:p,dur:dur};
+    const host=document.getElementById('vipModalHost');if(!host)return;
+    host.innerHTML='<div style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeVipModal()">'+
       '<div style="background:#0f1729;border:1px solid var(--border);border-radius:16px;max-width:440px;width:100%;max-height:90vh;overflow:auto;padding:22px;">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><div style="font-size:17px;font-weight:800;">🤝 '+vEsc(b.name)+' — IB Registration</div><span style="cursor:pointer;font-size:20px;color:var(--text-muted);" onclick="closeIbModal()">×</span></div>'+
-      (b.registration_link?'<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Step 1: <a href="'+vEsc(b.registration_link)+'" target="_blank" rel="noopener" style="color:var(--gold);">Open your account here</a> · Step 2: deposit · Step 3: submit details below.</div>':'')+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><div style="font-size:17px;font-weight:800;">🤝 '+vEsc(p.name)+' — Join via IB</div><span style="cursor:pointer;font-size:20px;color:var(--text-muted);" onclick="closeVipModal()">×</span></div>'+
+      '<div style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">'+
+        (p.iblink?'<b>Step 1:</b> <a href="'+vEsc(p.iblink)+'" target="_blank" rel="noopener" style="color:var(--gold);">Open your trading account here</a> (under your mentor).<br>':'<b>Step 1:</b> Open a trading account under your mentor.<br>')+
+        '<b>Step 2:</b> Deposit'+(p.ibdep>0?(' at least <b>'+p.ibdep+' '+vEsc(p.currency||'USD')+'</b>'):'')+'.<br>'+
+        '<b>Step 3:</b> Submit your account number + deposit proof below.</div>'+
+      (p.iblink?'<a href="'+vEsc(p.iblink)+'" target="_blank" rel="noopener" style="display:block;text-align:center;width:100%;padding:10px;border-radius:10px;background:rgba(245,158,11,.14);color:var(--gold);font-weight:800;text-decoration:none;font-size:13px;margin-bottom:14px;box-sizing:border-box;">🔗 Open Account / Register</a>':'')+
       '<label style="font-size:12px;color:var(--text-muted)">Trading account number *</label>'+
       '<input id="ibAcc" placeholder="e.g. 12345678" style="width:100%;padding:10px;margin:5px 0 12px;border-radius:9px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);box-sizing:border-box;"/>'+
       '<label style="font-size:12px;color:var(--text-muted)">Deposit amount</label>'+
@@ -6280,11 +6237,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       '<label style="font-size:12px;color:var(--text-muted)">Notes (optional)</label>'+
       '<textarea id="ibNotes" rows="2" placeholder="Anything your mentor should know" style="width:100%;padding:10px;margin:5px 0 14px;border-radius:9px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);box-sizing:border-box;"></textarea>'+
       '<div id="ibSubMsg" style="font-size:12px;margin-bottom:10px;color:var(--text-muted);"></div>'+
-      '<button onclick="submitIbRegistration()" style="width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer">📤 Submit Registration</button>'+
+      '<button onclick="submitIbJoin()" style="width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--green),#059669);color:#fff;font-weight:800;cursor:pointer">🤝 Submit IB Request</button>'+
       '</div></div>';
   }
-  async function submitIbRegistration(){
-    const c=window._ibReg;if(!c)return;
+  async function submitIbJoin(){
+    const c=window._ibJoin;if(!c)return;
     const msg=document.getElementById('ibSubMsg');
     const acc=(document.getElementById('ibAcc').value||'').trim();
     const file=document.getElementById('ibProof').files[0];
@@ -6297,23 +6254,25 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       const up=await sb.storage.from('charts').upload(path,file,{upsert:true});
       if(up.error){msg.style.color='var(--red)';msg.textContent='Upload failed: '+up.error.message;return;}
       const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
-      const obj={user_id:currentProfile.id,mentor_id:currentProfile.mentor_id||null,broker_id:c.broker.id,broker_name:c.broker.name,trading_account:acc,deposit_amount:parseFloat(document.getElementById('ibDep').value)||null,currency:c.broker.currency||'USD',proof_url:url,notes:(document.getElementById('ibNotes').value||null),status:'pending'};
-      const ins=await sb.from('ib_registrations').insert(obj);
+      const obj={user_id:currentProfile.id,mentor_id:currentProfile.mentor_id||null,plan_id:c.plan.id,plan_name:c.plan.name,amount:parseFloat(document.getElementById('ibDep').value)||0,currency:c.plan.currency,duration_days:c.dur,request_type:'ib',method_type:'ib',trading_account:acc,receipt_url:url,notes:(document.getElementById('ibNotes').value||null),status:'pending'};
+      const ins=await sb.from('payment_requests').insert(obj);
       if(ins.error){msg.style.color='var(--red)';msg.textContent='Error: '+ins.error.message;return;}
-      msg.style.color='var(--green)';msg.textContent='✅ Submitted! Your mentor will verify your IB account soon.';
-      setTimeout(function(){closeIbModal();loadMyIbRequests();},1600);
+      msg.style.color='var(--green)';msg.textContent='✅ Submitted! Your mentor will verify your IB account & activate access soon.';
+      setTimeout(function(){closeVipModal();loadMyVipRequests();},1700);
     }catch(e){msg.style.color='var(--red)';msg.textContent='Error: '+e.message;}
   }
-  function closeIbModal(){const h=document.getElementById('ibModalHost');if(h)h.innerHTML='';}
-  async function loadMyIbRequests(){
-    const box=document.getElementById('myIbReqs');if(!box||!currentProfile||!sb)return;
-    let data=[];try{const r=await sb.from('ib_registrations').select('*').eq('user_id',currentProfile.id).order('created_at',{ascending:false}).limit(10);data=r.data||[];}catch(e){return;}
+  async function loadMyVipRequests(){
+    const box=document.getElementById('myVipReqs');if(!box||!currentProfile||!sb)return;
+    let data=[];try{const r=await sb.from('payment_requests').select('*').eq('user_id',currentProfile.id).order('created_at',{ascending:false}).limit(10);data=r.data||[];}catch(e){return;}
     if(!data.length){box.innerHTML='';return;}
-    box.innerHTML='<div class="card"><div class="card-title">📋 My IB Requests</div>'+data.map(function(r){
+    box.innerHTML='<div class="card"><div class="card-title">📋 My Requests</div>'+data.map(function(r){
       const stc=r.status==='approved'?'var(--green)':(r.status==='rejected'?'var(--red)':'var(--gold)');
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)"><div><strong>'+vEsc(r.broker_name||'Broker')+'</strong> <span style="color:var(--text-muted);font-size:12px">Acc: '+vEsc(r.trading_account||'-')+'</span><div style="font-size:11px;color:var(--text-muted)">'+new Date(r.created_at).toLocaleString()+(r.reject_reason?' · '+vEsc(r.reject_reason):'')+'</div></div><span style="color:'+stc+';font-weight:800;font-size:12px;text-transform:uppercase">'+vEsc(r.status)+'</span></div>';
+      const typeLbl=r.request_type==='ib'?'<span style="font-size:10px;padding:1px 7px;border-radius:10px;background:rgba(16,185,129,.18);color:var(--green);font-weight:700;margin-left:6px;">🤝 IB</span>':'';
+      const sub=r.request_type==='ib'?('Acc: '+vEsc(r.trading_account||'-')):((r.amount||0)+' '+vEsc(r.currency||''));
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)"><div><strong>'+vEsc(r.plan_name||'Plan')+'</strong>'+typeLbl+' <span style="color:var(--text-muted);font-size:12px">'+sub+'</span><div style="font-size:11px;color:var(--text-muted)">'+new Date(r.created_at).toLocaleString()+'</div></div><span style="color:'+stc+';font-weight:800;font-size:12px;text-transform:uppercase">'+vEsc(r.status)+'</span></div>';
     }).join('')+'</div>';
   }
+
 
   // ============ UPDATE UI BASED ON AUTH STATE ============
   function updateAuthUI() {
