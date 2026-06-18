@@ -77,3 +77,41 @@ do $$ begin
 exception when others then null; end $$;
 
 -- done ✅
+
+-- ============================================================
+-- SUPPORT MESSAGES + NOTIFICATIONS (admin Messages & Notifications)
+-- ============================================================
+-- Support tickets: user -> admin, with admin reply
+create table if not exists support_messages (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  name text, email text,
+  subject text, body text,
+  status text default 'open',        -- open | replied
+  admin_reply text, replied_at timestamptz,
+  created_at timestamptz default now()
+);
+alter table support_messages enable row level security;
+drop policy if exists sm_select on support_messages;
+create policy sm_select on support_messages for select using (user_id = auth.uid() or is_admin());
+drop policy if exists sm_insert on support_messages;
+create policy sm_insert on support_messages for insert with check (user_id = auth.uid());
+drop policy if exists sm_update on support_messages;
+create policy sm_update on support_messages for update using (is_admin());
+
+-- Notifications: extra fields + read/insert policies
+alter table notifications add column if not exists type text default 'general';
+alter table notifications add column if not exists action_link text;
+alter table notifications add column if not exists audience text default 'all';
+alter table notifications enable row level security;
+do $$ begin
+  if not exists (select 1 from pg_policies where tablename='notifications' and policyname='notif_read_all') then
+    execute 'create policy notif_read_all on notifications for select using (is_official = true or owner_id = auth.uid())';
+  end if;
+exception when others then null; end $$;
+do $$ begin
+  if not exists (select 1 from pg_policies where tablename='notifications' and policyname='notif_admin_ins') then
+    execute 'create policy notif_admin_ins on notifications for insert with check (is_admin() or owner_id = auth.uid())';
+  end if;
+exception when others then null; end $$;
+-- done ✅✅

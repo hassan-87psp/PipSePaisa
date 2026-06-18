@@ -1383,6 +1383,8 @@ select option{background:#0f1729;color:#e8eaf0}
     <div class="sidebar-footer">
       <div class="menu-item" data-page="settings" onclick="showPage('settings', this)"><span class="menu-icon">⚙️</span>Settings</div>
       <div class="menu-item" data-page="about" onclick="showPage('about', this)"><span class="menu-icon">ℹ️</span>About</div>
+      <div class="menu-item" data-page="announce" onclick="showPage('announce', this)"><span class="menu-icon">📢</span>Announcements</div>
+      <div class="menu-item" data-page="support" onclick="showPage('support', this)"><span class="menu-icon">💬</span>Support</div>
       <div class="menu-item" id="authMenuItem" onclick="authMenuClick()" style="background: linear-gradient(135deg, var(--green-bg), transparent); color: var(--green);"><span class="menu-icon">🔐</span><strong id="authMenuText">Login / Sign Up</strong></div>
     </div>
   </aside>
@@ -2380,6 +2382,21 @@ select option{background:#0f1729;color:#e8eaf0}
         <div id="myVipReqs" style="margin-top:18px"></div>
         <div id="vipModalHost"></div>
       </div>
+      <div class="page" id="page-support">
+        <div class="card" style="max-width:760px;margin:0 auto;">
+          <div class="card-title" style="font-size:18px;">💬 Contact Support</div>
+          <div style="font-size:13px;color:var(--text-muted);margin:4px 0 16px;">Send us a message and our team will reply right here.</div>
+          <input id="supSubject" placeholder="Subject" style="width:100%;padding:11px;margin-bottom:11px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);box-sizing:border-box;">
+          <textarea id="supBody" rows="4" placeholder="How can we help you?" style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);box-sizing:border-box;"></textarea>
+          <div id="supMsg" style="font-size:12px;margin:8px 0;color:var(--text-muted);"></div>
+          <button onclick="submitSupport()" style="width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;">📤 Send Message</button>
+        </div>
+        <div id="supList" style="max-width:760px;margin:16px auto 0;"></div>
+      </div>
+      <div class="page" id="page-announce">
+        <div class="card" style="margin-bottom:14px;"><div class="card-title" style="font-size:18px;">📢 Announcements</div><div style="font-size:13px;color:var(--text-muted);margin-top:4px;">Latest updates from PipSePaisa.</div></div>
+        <div id="announceList"><div class="empty-state"><div>Loading...</div></div></div>
+      </div>
       <div class="page" id="page-tools">
         <div class="card" style="margin-bottom: 14px;">
           <div class="card-header">
@@ -3315,6 +3332,7 @@ select option{background:#0f1729;color:#e8eaf0}
       analysis: 'Trades Analysis', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex',
       signals: 'Signals', articles: 'Articles', vipplans: 'VIP Plans',
+      support: 'Support', announce: 'Announcements',
       settings: 'Settings', about: 'About'
     };
     document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
@@ -3328,6 +3346,8 @@ select option{background:#0f1729;color:#e8eaf0}
     if (page === 'strength') loadStrength();
     if (page === 'charts') loadChart();
     if (page === 'vipplans') loadVipPlans();
+    if (page === 'support') loadSupport();
+    if (page === 'announce') loadAnnouncements();
     if (page === 'signals') loadSignalsFromDB();
     if (page === 'articles') loadArticlesFromDB();
     if (page === 'market') { loadGoldPrice(); loadMarketTicker(); }
@@ -6225,6 +6245,41 @@ select option{background:#0f1729;color:#e8eaf0}
       setTimeout(function(){closeVipModal();loadMyVipRequests();},1600);
     }catch(e){msg.style.color='var(--red)';msg.textContent='Error: '+e.message;}
   }
+  // ============ SUPPORT + ANNOUNCEMENTS ============
+  async function submitSupport(){
+    const msg=document.getElementById('supMsg');
+    if(!currentProfile||!sb){msg.style.color='var(--red)';msg.textContent='Please sign in first.';return;}
+    const subj=(document.getElementById('supSubject').value||'').trim();
+    const body=(document.getElementById('supBody').value||'').trim();
+    if(!body){msg.style.color='var(--red)';msg.textContent='Please write a message.';return;}
+    msg.style.color='var(--text-muted)';msg.textContent='Sending...';
+    const obj={user_id:currentProfile.id,name:(currentProfile.full_name||''),email:(currentProfile.email||''),subject:subj||'(no subject)',body:body,status:'open'};
+    const r=await sb.from('support_messages').insert(obj);
+    if(r.error){msg.style.color='var(--red)';msg.textContent='Error: '+r.error.message;return;}
+    msg.style.color='var(--green)';msg.textContent='✅ Message sent! We will reply soon.';
+    document.getElementById('supSubject').value='';document.getElementById('supBody').value='';
+    loadSupport();
+  }
+  async function loadSupport(){
+    const box=document.getElementById('supList');if(!box||!currentProfile||!sb)return;
+    let data=[];try{const r=await sb.from('support_messages').select('*').eq('user_id',currentProfile.id).order('created_at',{ascending:false}).limit(20);data=r.data||[];}catch(e){return;}
+    if(!data.length){box.innerHTML='';return;}
+    box.innerHTML='<div class="card"><div class="card-title">📋 Your Messages</div>'+data.map(function(m){
+      const st=m.status==='replied'?'<span style="color:var(--green);font-weight:800;font-size:11px">REPLIED</span>':'<span style="color:var(--gold);font-weight:800;font-size:11px">PENDING</span>';
+      return '<div style="padding:12px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between;gap:8px"><strong>'+vEsc(m.subject||'(no subject)')+'</strong>'+st+'</div><div style="font-size:13px;color:var(--text-muted);margin-top:4px">'+vEsc(m.body||'')+'</div>'+(m.admin_reply?'<div style="margin-top:8px;padding:10px;border-radius:9px;background:rgba(16,185,129,.1)"><div style="font-size:11px;color:var(--green);margin-bottom:3px">↩️ Support reply</div><div style="font-size:13px">'+vEsc(m.admin_reply)+'</div></div>':'')+'<div style="font-size:10px;color:var(--text-muted);margin-top:4px">'+new Date(m.created_at).toLocaleString()+'</div></div>';
+    }).join('')+'</div>';
+  }
+  async function loadAnnouncements(){
+    const box=document.getElementById('announceList');if(!box)return;
+    if(!sb){box.innerHTML='<div class="empty-state"><div>Sign in to view announcements.</div></div>';return;}
+    let data=[];try{const r=await sb.from('notifications').select('*').eq('is_official',true).order('created_at',{ascending:false}).limit(40);data=r.data||[];}catch(e){box.innerHTML='<div class="empty-state"><div>'+vEsc(e.message||'Error')+'</div></div>';return;}
+    if(!data.length){box.innerHTML='<div class="empty-state"><div>No announcements yet.</div></div>';return;}
+    const ico={general:'📢',urgent:'🔴',course:'🎓',signal:'📈',promo:'🎁'};
+    box.innerHTML=data.map(function(n){
+      return '<div class="card" style="margin-bottom:10px;border-left:3px solid var(--gold)"><div style="display:flex;justify-content:space-between;gap:8px"><strong style="font-size:15px">'+(ico[n.type]||'📢')+' '+vEsc(n.title||'')+'</strong><span style="font-size:11px;color:var(--text-muted)">'+new Date(n.created_at).toLocaleDateString()+'</span></div><div style="font-size:13px;color:var(--text-secondary);margin-top:6px;line-height:1.5">'+vEsc(n.body||'')+'</div>'+(n.action_link?'<a href="'+vEsc(n.action_link)+'" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;color:var(--gold);font-size:13px;font-weight:700">Open link →</a>':'')+'</div>';
+    }).join('');
+  }
+
   function closeVipModal(){const h=document.getElementById('vipModalHost');if(h)h.innerHTML='';}
   async function openIbJoin(id){
     const p=vipPlansById[id];if(!p)return;
