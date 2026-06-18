@@ -6105,7 +6105,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if(!grid)return;
     if(statusEl){
       statusEl.innerHTML=(currentProfile&&currentProfile.is_premium)
-        ?'<div class="card" style="margin-bottom:14px;border:1px solid rgba(16,185,129,.4);background:linear-gradient(135deg,rgba(16,185,129,.12),transparent);"><div style="font-weight:800;color:var(--green);font-size:15px;">✨ You are a VIP member</div><div style="font-size:13px;color:var(--text-muted);margin-top:3px;">You have full access to premium signals, charts & analysis.</div></div>'
+        ?'<div class="card" style="margin-bottom:14px;border:1px solid rgba(16,185,129,.4);background:linear-gradient(135deg,rgba(16,185,129,.12),transparent);"><div style="font-weight:800;color:var(--green);font-size:15px;">✨ You are a '+(currentProfile.member_type==='vip'?'👑 VIP':'💎 Premium')+' member</div><div style="font-size:13px;color:var(--text-muted);margin-top:3px;">'+(function(){var s=userServicesList();return (s&&s.length)?('Unlocked: '+vSvcChips(s)):'You have full access to premium signals, charts &amp; analysis.';})()+'</div></div>'
         :'';
     }
     if(!sb){grid.innerHTML='<div class="empty-state"><div>Connect to view plans.</div></div>';return;}
@@ -6298,7 +6298,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       if (userName) userName.textContent = name;
       if (userStatus) userStatus.textContent = currentProfile.email || 'Welcome back';
       if (userBadge) {
-        userBadge.textContent = currentProfile.is_premium ? '💎 PREMIUM' : 'FREE';
+        userBadge.textContent = currentProfile.is_premium ? (currentProfile.member_type==='vip'?'👑 VIP':'💎 PREMIUM') : 'FREE';
         userBadge.style.background = currentProfile.is_premium ? 'rgba(139, 92, 246, 0.15)' : '';
         userBadge.style.color = currentProfile.is_premium ? 'var(--purple)' : '';
       }
@@ -6667,6 +6667,19 @@ function sigCat(p){p=(p||'').toUpperCase();if(/BTC|ETH|XRP|SOL|DOGE|BNB|USDT|CRY
 function sigIco(p){const c=sigCat(p);return c==='crypto'?'₿':c==='gold'?'🥇':'💱';}
 function timeAgo(t){if(!t)return '';const d=(Date.now()-new Date(t).getTime())/1000;if(d<3600)return Math.max(1,Math.round(d/60))+'m ago';if(d<86400)return Math.round(d/3600)+'h ago';return Math.round(d/86400)+'d ago';}
 function sigFilter(f,el){sigF=f;document.querySelectorAll('#sigFilters .sig-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderSignals()}
+function memberCat(){ if(!currentProfile||!currentProfile.is_premium) return 'free'; var mt=currentProfile.member_type; if(!mt) return 'vip'; return mt==='vip'?'vip':'premium'; }
+function userServicesList(){ if(!currentProfile) return []; var s=currentProfile.services; if(s==null||s==='') return null; return String(s).split(',').map(function(x){return x.trim();}).filter(Boolean); }
+function canAccessContent(svc,audienceStr){
+  if(audienceStr==='all'||audienceStr==null||audienceStr==='') return true;
+  var aud=String(audienceStr).split(',').map(function(x){return x.trim();}).filter(Boolean);
+  if(!aud.length||aud.indexOf('free')>=0) return true;
+  var cat=memberCat();
+  if(cat==='free') return false;
+  if(aud.indexOf(cat)<0) return false;
+  var svcs=userServicesList();
+  if(svcs===null) return true;
+  return svcs.indexOf(svc)>=0;
+}
 async function loadSignalsFromDB(){
   const g=document.getElementById('signalsGrid');if(!g)return;
   if(!sb){g.innerHTML='';return;}
@@ -6674,15 +6687,17 @@ async function loadSignalsFromDB(){
   const {data,error}=await sb.from('signals').select('*').order('created_at',{ascending:false});
   if(error){g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">'+error.message+'</div>';return;}
   const _isVip=!!(currentProfile&&currentProfile.is_premium);
-  SIGNALS=(data||[]).map(s=>({
+  SIGNALS=(data||[]).map(s=>{
+    const audStr=s.audience||(((s.access_level||'free')==='vip')?'premium,vip':'free');
+    return {
     pair:s.pair||'', dir:(/sell/i).test(s.direction||'')?'sell':'buy',
     access:s.access_level||'free', plan:s.plan_name||'',
-    locked:(((s.access_level||'free')==='vip')&&!_isVip),
+    locked:!canAccessContent('signal',audStr),
     entry:s.entry_price==null?'-':s.entry_price, sl:s.stop_loss==null?'-':s.stop_loss,
     tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2,
     status:(s.status==='tp_hit')?'tp':(s.status==='active'?'active':'closed'),
     cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:timeAgo(s.created_at)
-  }));
+  };});
   renderSignals();
 }
 function renderSignals(){
@@ -6736,13 +6751,13 @@ async function loadArticlesFromDB(){
   }));
   const _isPrem=!!(currentProfile&&currentProfile.is_premium);
   const charts=(cres&&cres.error)?[]:((cres&&cres.data)||[]).map(c=>{
-    const aud=c.audience||'all';
-    const locked=(aud!=='all')&&!_isPrem;
+    const audStr=c.audience||'all';
+    const locked=!canAccessContent('chart',audStr);
     return {
       cat:'analysis', tag:(c.is_official?'PipSePaisa Chart':'Mentor Chart'), ico:'📈', grad:grad,
       title:c.title||'Chart Analysis',
-      ex:locked?('🔒 '+(aud==='vip'?'VIP':'Premium')+' members only — unlock to view'):(c.notes||'').slice(0,140),
-      content:locked?('🔒 This chart is for '+(aud==='vip'?'VIP':'Premium')+' members only.\n\nUpgrade from the VIP Plans page to unlock mentor charts & analysis.'):(c.notes||''),
+      ex:locked?('🔒 Members-only chart — unlock to view'):(c.notes||'').slice(0,140),
+      content:locked?('🔒 This chart is shared with selected members only.\n\nUpgrade from the VIP Plans page to unlock mentor charts & analysis.'):(c.notes||''),
       image:locked?'':(c.image_url||''), locked:locked,
       date:new Date(c.created_at).toLocaleDateString(), ts:new Date(c.created_at).getTime()
     };

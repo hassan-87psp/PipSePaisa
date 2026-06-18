@@ -1811,7 +1811,7 @@ async function loadAprList(){
     return '<div style="display:flex;gap:12px;padding:12px;border:1px solid var(--border,#1f2937);border-radius:12px;margin-bottom:10px"><div>'+rc+'</div><div style="flex:1"><div style="display:flex;justify-content:space-between;gap:8px"><strong>'+aEsc(u.full_name||u.email||'Student')+typeBadge+'</strong><span style="color:'+col+';font-weight:800;font-size:12px;text-transform:uppercase">'+aEsc(x.status)+'</span></div><div style="font-size:12px;color:#94a0b8">'+aEsc(u.email||'')+' · Mentor: '+aEsc(mn)+'</div><div style="font-size:13px;margin-top:7px">'+line+'</div>'+(x.txn_id?'<div style="font-size:12px;color:#94a0b8">Txn: '+aEsc(x.txn_id)+'</div>':'')+(x.notes?'<div style="font-size:12px;color:#94a0b8">Note: '+aEsc(x.notes)+'</div>':'')+'<div style="font-size:11px;color:#94a0b8;margin-top:4px">'+new Date(x.created_at).toLocaleString()+'</div>'+act+'</div></div>';
   }).join('');
 }
-async function aprApprove(id){if(!confirm('Approve & activate VIP for this student?'))return;var r=await sb.rpc('approve_payment',{req_id:id});if(r.error){alert('Error: '+r.error.message);return;}loadAprList();}
+async function aprApprove(id){if(!confirm('Approve & activate VIP for this student?'))return;var r=await sb.rpc('approve_payment_v2',{req_id:id});if(r.error){alert('Error: '+r.error.message);return;}loadAprList();}
 async function aprReject(id){if(!confirm('Reject this request?'))return;var r=await sb.rpc('reject_payment',{req_id:id});if(r.error){alert('Error: '+r.error.message);return;}loadAprList();}
 
 function showPage(page, el) {
