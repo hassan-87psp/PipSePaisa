@@ -1898,7 +1898,7 @@ async function delAdChart(id){if(!confirm('Delete this chart?'))return;await sb.
 var _threads={};var _selUser=null;var _msgSig='';
 async function loadAdminMessages(silent){
   var box=document.getElementById('messagesInbox');if(!box||!sb)return;
-  var r=await sb.from('support_messages').select('*').is('closed_at',null).order('created_at',{ascending:true}).limit(500);
+  var r=await sb.from('support_messages').select('*').order('created_at',{ascending:true}).limit(1000);
   if(r.error){if(!silent)box.innerHTML='<div style="padding:16px;color:#ef4444;font-size:12px">'+aEsc(r.error.message)+'</div>';return;}
   var rows=r.data||[];
   var sig=rows.length+'|'+(rows.length?(rows[rows.length-1].id+rows[rows.length-1].created_at):'');
@@ -1912,17 +1912,24 @@ async function loadAdminMessages(silent){
     _threads[uid].msgs.push(m);
   });
   var list=Object.values(_threads).sort(function(a,b){
-    var au=a.msgs[a.msgs.length-1].sender!=='admin'?1:0;
-    var bu=b.msgs[b.msgs.length-1].sender!=='admin'?1:0;
+    var aa=a.msgs.filter(function(m){return !m.closed_at;});var ba=b.msgs.filter(function(m){return !m.closed_at;});
+    var au=(aa.length&&aa[aa.length-1].sender!=='admin')?1:0;
+    var bu=(ba.length&&ba[ba.length-1].sender!=='admin')?1:0;
     if(au!==bu)return bu-au;
+    var ac=aa.length===0?1:0;var bc=ba.length===0?1:0;
+    if(ac!==bc)return ac-bc;
     return new Date(b.msgs[b.msgs.length-1].created_at)-new Date(a.msgs[a.msgs.length-1].created_at);
   });
   if(!list.length){box.innerHTML='<div class="empty-state" style="height:220px;"><div class="empty-icon">📭</div><div style="font-size:13px;">No messages yet</div><div style="font-size:11px;color:var(--text-muted);margin-top:4px;">User support tickets will appear here</div></div>';return;}
   box.innerHTML=list.map(function(t){
     var last=t.msgs[t.msgs.length-1];
-    var unread=last.sender!=='admin';
-    return '<div onclick="selectThread(\''+t.user_id+'\')" style="padding:12px 14px;border-radius:10px;cursor:pointer;margin:4px;border:1px solid '+((_selUser===t.user_id)?'var(--gold,#f59e0b)':(unread?'rgba(245,158,11,.35)':'var(--border,#1f2937)'))+';background:'+((_selUser===t.user_id)?'rgba(245,158,11,.08)':(unread?'rgba(245,158,11,.06)':'transparent'))+';">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><strong style="font-size:13px">'+aEsc(t.name)+'</strong><span style="font-size:10px;padding:1px 7px;border-radius:10px;background:'+(unread?'rgba(245,158,11,.2);color:#f59e0b':'rgba(16,185,129,.18);color:#10b981')+'">'+(unread?'NEW':'REPLIED')+'</span></div>'+
+    var activeMsgs=t.msgs.filter(function(m){return !m.closed_at;});
+    var closed=activeMsgs.length===0;
+    var lastActive=activeMsgs.length?activeMsgs[activeMsgs.length-1]:last;
+    var unread=!closed&&lastActive.sender!=='admin';
+    var badge=closed?'<span style="font-size:10px;padding:1px 7px;border-radius:10px;background:rgba(148,160,184,.18);color:#94a0b8">CLOSED</span>':'<span style="font-size:10px;padding:1px 7px;border-radius:10px;background:'+(unread?'rgba(245,158,11,.2);color:#f59e0b':'rgba(16,185,129,.18);color:#10b981')+'">'+(unread?'NEW':'REPLIED')+'</span>';
+    return '<div onclick="selectThread(\''+t.user_id+'\')" style="padding:12px 14px;border-radius:10px;cursor:pointer;margin:4px;border:1px solid '+((_selUser===t.user_id)?'var(--gold,#f59e0b)':(unread?'rgba(245,158,11,.35)':'var(--border,#1f2937)'))+';background:'+((_selUser===t.user_id)?'rgba(245,158,11,.08)':(unread?'rgba(245,158,11,.06)':'transparent'))+';'+(closed?'opacity:.7;':'')+'">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><strong style="font-size:13px">'+aEsc(t.name)+'</strong>'+badge+'</div>'+
       '<div style="font-size:11px;color:#94a0b8;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+aEsc((last.body||'').slice(0,50))+'</div>'+
       '<div style="font-size:10px;color:#94a0b8;margin-top:4px">💬 '+t.msgs.length+' msg'+(t.msgs.length>1?'s':'')+' · '+new Date(last.created_at).toLocaleString()+'</div>'+
     '</div>';
@@ -1935,14 +1942,17 @@ function renderThread(uid,keepScroll){
   document.getElementById('msgThreadTitle').textContent='💬 '+t.name;
   document.getElementById('msgThreadMeta').textContent=(t.email||'')+' · '+t.msgs.length+' messages';
   document.getElementById('msgDeleteBtn').style.display='';
-  var cbtn=document.getElementById('msgCloseBtn');if(cbtn)cbtn.style.display='';
+  var activeMsgs=t.msgs.filter(function(m){return !m.closed_at;});
+  var cbtn=document.getElementById('msgCloseBtn');if(cbtn)cbtn.style.display=activeMsgs.length?'':'none';
   var body=document.getElementById('msgThreadBody');
   var atBottom=keepScroll?(body.scrollHeight-body.scrollTop-body.clientHeight<60):true;
   body.style.cssText='flex:1;padding:16px;background:var(--bg-elevated);border-radius:10px;margin:6px 0 12px;min-height:200px;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;';
+  var hasClosed=t.msgs.some(function(m){return m.closed_at;});var divShown=false;
   body.innerHTML=t.msgs.map(function(m){
-    var admin=m.sender==='admin';
-    return '<div style="align-self:'+(admin?'flex-end':'flex-start')+';max-width:75%;">'+
-      '<div style="font-size:10px;color:#94a0b8;margin-bottom:3px;'+(admin?'text-align:right':'')+'">'+(admin?'↩️ Support':'📨 '+aEsc(t.name))+' · '+new Date(m.created_at).toLocaleString()+'</div>'+
+    var admin=m.sender==='admin';var div='';
+    if(!m.closed_at&&!divShown&&hasClosed){divShown=true;div='<div style="text-align:center;font-size:11px;color:#94a0b8;margin:4px 0;"><span style="background:rgba(255,255,255,.05);padding:3px 12px;border-radius:20px;">🔒 Previous ticket closed — new chat</span></div>';}
+    return div+'<div style="align-self:'+(admin?'flex-end':'flex-start')+';max-width:75%;'+(m.closed_at?'opacity:.55;':'')+'">'+
+      '<div style="font-size:10px;color:#94a0b8;margin-bottom:3px;'+(admin?'text-align:right':'')+'">'+(admin?'↩️ Support':'📨 '+aEsc(t.name))+' · '+new Date(m.created_at).toLocaleString()+(m.closed_at?' · 🔒':'')+'</div>'+
       '<div style="padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.5;background:'+(admin?'rgba(245,158,11,.16);color:#f59e0b':'var(--bg-card,#0f1729);color:var(--text-primary,#e8eaf0)')+'">'+aEsc(m.body||(m.admin_reply||''))+'</div>'+
     '</div>';
   }).join('');
@@ -1962,17 +1972,11 @@ async function sendSupportReply(){
   loadAdminMessages();
 }
 async function closeAdminTicket(){
-  if(!_selUser)return;if(!confirm('Close this ticket? The user can start a new chat afterwards.'))return;
-  var r=await sb.rpc('close_support_ticket',{p_user:_selUser});
+  if(!_selUser)return;if(!confirm('Close this ticket? Chat history stays; the user can start a new chat.'))return;
+  var uid=_selUser;
+  var r=await sb.rpc('close_support_ticket',{p_user:uid});
   if(r.error){alert('Error: '+r.error.message);return;}
-  _selUser=null;_msgSig='';
-  document.getElementById('msgThreadTitle').textContent='Select a message';
-  document.getElementById('msgThreadMeta').textContent='Click a conversation from the inbox to view and reply';
-  document.getElementById('msgThreadBody').innerHTML='No conversation selected';
-  document.getElementById('msgReplyText').value='';
-  document.getElementById('msgDeleteBtn').style.display='none';var cb=document.getElementById('msgCloseBtn');if(cb)cb.style.display='none';
-  var btn=document.getElementById('msgSendBtn');btn.disabled=true;btn.style.opacity='.5';
-  loadAdminMessages();
+  _msgSig='';await loadAdminMessages();if(_threads[uid]){_selUser=uid;renderThread(uid);}
 }
 async function deleteSupportMsg(){
   if(!_selUser)return;if(!confirm('Delete this entire conversation?'))return;

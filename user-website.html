@@ -6277,20 +6277,26 @@ select option{background:#0f1729;color:#e8eaf0}
   }
   async function loadSupport(silent){
     const box=document.getElementById('supThread');if(!box||!currentProfile||!sb)return;
-    let data=[];try{const r=await sb.from('support_messages').select('*').eq('user_id',currentProfile.id).is('closed_at',null).order('created_at',{ascending:true}).limit(100);data=r.data||[];}catch(e){return;}
-    const sig=data.length+'|'+(data.length?(data[data.length-1].id+data[data.length-1].created_at):'');
+    let data=[];try{const r=await sb.from('support_messages').select('*').eq('user_id',currentProfile.id).order('created_at',{ascending:true}).limit(200);data=r.data||[];}catch(e){return;}
+    const sig=data.length+'|'+(data.length?(data[data.length-1].id+data[data.length-1].created_at+(data[data.length-1].closed_at||'')):'');
     if(silent&&sig===_supSig)return;
     _supSig=sig;
-    _supHasMsgs=data.length>0;
+    const activeCount=data.filter(function(m){return !m.closed_at;}).length;
+    _supHasMsgs=activeCount>0;
     const sw=document.getElementById('supSubjectWrap');if(sw)sw.style.display=_supHasMsgs?'none':'';
     const sb2=document.getElementById('supSendBtn');if(sb2)sb2.textContent=_supHasMsgs?'📤 Send Reply':'📤 Send';
     const cb=document.getElementById('supCloseBtn');if(cb)cb.style.display=_supHasMsgs?'':'none';
     const atBottom=box.scrollHeight-box.scrollTop-box.clientHeight<60;
-    if(!data.length){box.innerHTML='<div class="empty-state" style="margin:auto;color:var(--text-muted);font-size:13px;">No active ticket. Start a new conversation below.</div>';return;}
-    box.innerHTML=data.map(function(m){
+    if(!data.length){box.innerHTML='<div class="empty-state" style="margin:auto;color:var(--text-muted);font-size:13px;">No messages yet. Start the conversation below.</div>';return;}
+    var html='';var dividerShown=false;
+    data.forEach(function(m){
       const admin=m.sender==='admin';
-      return '<div style="align-self:'+(admin?'flex-start':'flex-end')+';max-width:80%;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;'+(admin?'':'text-align:right')+'">'+(admin?'↩️ Support':'You')+' · '+new Date(m.created_at).toLocaleString()+'</div><div style="padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.5;background:'+(admin?'rgba(16,185,129,.14);color:var(--text)':'rgba(245,158,11,.16);color:var(--text)')+'">'+vEsc(m.body||m.admin_reply||'')+'</div></div>';
-    }).join('');
+      if(m.closed_at){ /* closed history bubble (faded) */ }
+      // divider between closed history and active new ticket
+      if(!m.closed_at&&!dividerShown&&data.some(function(x){return x.closed_at;})){dividerShown=true;html+='<div style="text-align:center;font-size:11px;color:var(--text-muted);margin:6px 0;"><span style="background:rgba(255,255,255,.05);padding:3px 12px;border-radius:20px;">🔒 Previous ticket closed — new chat</span></div>';}
+      html+='<div style="align-self:'+(admin?'flex-start':'flex-end')+';max-width:80%;'+(m.closed_at?'opacity:.55;':'')+'"><div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;'+(admin?'':'text-align:right')+'">'+(admin?'↩️ Support':'You')+' · '+new Date(m.created_at).toLocaleString()+(m.closed_at?' · 🔒 closed':'')+'</div><div style="padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.5;background:'+(admin?'rgba(16,185,129,.14);color:var(--text)':'rgba(245,158,11,.16);color:var(--text)')+'">'+vEsc(m.body||m.admin_reply||'')+'</div></div>';
+    });
+    box.innerHTML=html;
     if(atBottom||!silent)box.scrollTop=box.scrollHeight;
   }
   async function closeMyTicket(){
@@ -6358,6 +6364,7 @@ select option{background:#0f1729;color:#e8eaf0}
         .on('postgres_changes',{event:'*',schema:'public',table:'news_posts'},rtContent)
         .on('postgres_changes',{event:'*',schema:'public',table:'subscription_plans'},rtContent)
         .subscribe();
+      setInterval(rtContent,8000);
     }catch(e){}
   })();
   async function openIbJoin(id){
