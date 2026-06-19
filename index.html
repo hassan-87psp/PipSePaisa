@@ -6246,7 +6246,7 @@ select option{background:#0f1729;color:#e8eaf0}
       const up=await sb.storage.from('charts').upload(path,file,{upsert:true});
       if(up.error){msg.style.color='var(--red)';msg.textContent='Upload failed: '+up.error.message;return;}
       const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
-      const obj={user_id:currentProfile.id,mentor_id:currentProfile.mentor_id||null,plan_id:c.plan.id,plan_name:c.plan.name,amount:c.plan.price,currency:c.plan.currency,duration_days:c.dur,method_type:(m?m.type:null),receipt_url:url,txn_id:(document.getElementById('vipTxn').value||null),notes:(document.getElementById('vipNotes').value||null),status:'pending'};
+      const obj={user_id:currentProfile.id,mentor_id:currentProfile.mentor_id||null,plan_id:c.plan.id,plan_name:c.plan.name,amount:c.plan.price,currency:c.plan.currency,duration_days:c.dur,request_type:'payment',method_type:(m?m.type:null),receipt_url:url,txn_id:(document.getElementById('vipTxn').value||null),notes:(document.getElementById('vipNotes').value||null),status:'pending'};
       const ins=await sb.from('payment_requests').insert(obj);
       if(ins.error){msg.style.color='var(--red)';msg.textContent='Error: '+ins.error.message;return;}
       msg.style.color='var(--green)';msg.textContent='✅ Request submitted! Your mentor will verify & activate your VIP soon.';
@@ -6364,7 +6364,6 @@ select option{background:#0f1729;color:#e8eaf0}
         .on('postgres_changes',{event:'*',schema:'public',table:'news_posts'},rtContent)
         .on('postgres_changes',{event:'*',schema:'public',table:'subscription_plans'},rtContent)
         .subscribe();
-      setInterval(rtContent,8000);
     }catch(e){}
   })();
   async function openIbJoin(id){

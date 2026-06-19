@@ -1695,7 +1695,7 @@ async function loadAdminPaymentReqs(){
 async function loadAprList(){
   var box=document.getElementById('aprList');if(!box)return;
   var f=document.getElementById('aprFilter')?document.getElementById('aprFilter').value:'pending';
-  var q=sb.from('payment_requests').select('*, profiles:user_id(full_name,email), mentor:mentor_id(full_name)').order('created_at',{ascending:false});
+  var q=sb.from('payment_requests').select('*, profiles:user_id(full_name,email), mentor:mentor_id(full_name)').or('request_type.is.null,request_type.eq.payment').order('created_at',{ascending:false});
   if(f!=='all')q=q.eq('status',f);
   var r=await q;
   if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}

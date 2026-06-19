@@ -390,7 +390,7 @@ async function renderRequests(){
 async function loadRequests(filter,ev){
   if(ev&&ev.target){ev.target.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));ev.target.classList.add('on');}
   const box=document.getElementById('reqList');if(!box)return;
-  let q=sb.from('payment_requests').select('*, profiles:user_id(full_name,email)').eq('mentor_id',ME.id).order('created_at',{ascending:false});
+  let q=sb.from('payment_requests').select('*, profiles:user_id(full_name,email)').eq('mentor_id',ME.id).eq('request_type','ib').order('created_at',{ascending:false});
   if(filter==='pending')q=q.eq('status','pending');
   const {data,error}=await q;
   if(error){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}
