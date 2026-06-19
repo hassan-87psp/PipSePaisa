@@ -2393,13 +2393,17 @@ select option{background:#0f1729;color:#e8eaf0}
             <div id="commFeedHead" style="display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px;">
               <div><div class="card-title" id="commGroupName" style="font-size:17px;">Select a group</div><div id="commGroupDesc" style="font-size:12px;color:var(--text-muted);"></div></div>
             </div>
-            <div id="commComposer" style="display:none;margin-bottom:16px;">
-              <textarea id="commPostText" rows="2" placeholder="Share something with the group..." style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);box-sizing:border-box;"></textarea>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;flex-wrap:wrap;">
-                <label style="font-size:12px;color:var(--text-muted);cursor:pointer;">📷 <input id="commPostImg" type="file" accept="image/*" style="display:none;" onchange="commImgPicked(this)"> <span id="commImgLbl">Add photo</span></label>
-                <button onclick="createPost()" style="padding:9px 20px;border:none;border-radius:9px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;">Post</button>
+            <div id="commComposer" style="display:none;margin-bottom:18px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:14px;">
+              <div style="display:flex;gap:10px;align-items:flex-start;">
+                <div id="commMyAvatar" style="width:42px;height:42px;border-radius:50%;flex:0 0 auto;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;font-size:16px;">M</div>
+                <textarea id="commPostText" rows="2" placeholder="What's on your mind?" style="flex:1;padding:11px 14px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);box-sizing:border-box;font-size:14px;resize:none;outline:none;"></textarea>
               </div>
-              <div id="commPostMsg" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
+              <div id="commImgPreview" style="display:none;position:relative;margin:12px 0 0 52px;"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+                <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--green);cursor:pointer;font-weight:700;padding:7px 12px;border-radius:10px;background:rgba(16,185,129,.08);">🖼️ Photo<input id="commPostImg" type="file" accept="image/*" style="display:none;" onchange="commImgPicked(this)"></label>
+                <button onclick="createPost()" style="padding:9px 26px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;">Post</button>
+              </div>
+              <div id="commPostMsg" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
             </div>
             <div id="commFeed"><div class="empty-state" style="color:var(--text-muted);">Pick a group on the left to see posts.</div></div>
           </div>
@@ -6396,6 +6400,7 @@ select option{background:#0f1729;color:#e8eaf0}
     const g=_commGroups.find(function(x){return x.id===id;});
     if(g){document.getElementById('commGroupName').textContent=(g.icon||'👥')+' '+g.name;document.getElementById('commGroupDesc').textContent=g.description||'';}
     document.getElementById('commComposer').style.display='';
+    var av=document.getElementById('commMyAvatar');if(av&&currentProfile)av.textContent=((currentProfile.full_name||currentProfile.email||'M')[0]||'M').toUpperCase();
     loadFeed();
   }
   async function loadFeed(silent){
@@ -6409,24 +6414,37 @@ select option{background:#0f1729;color:#e8eaf0}
     if(silent&&sig===_commFeedSig)return;_commFeedSig=sig;
     if(!posts.length){feed.innerHTML='<div class="empty-state" style="color:var(--text-muted);">No posts yet. Be the first to share!</div>';return;}
     const myId=currentProfile?currentProfile.id:null;
+    const ownerId=(_commGroups.find(function(x){return x.id===_commGid;})||{}).owner_id;
     feed.innerHTML=posts.map(function(p){
       const pl=likes.filter(function(l){return l.post_id===p.id;});
       const liked=myId&&pl.some(function(l){return l.user_id===myId;});
       const pc=comments.filter(function(c){return c.post_id===p.id;});
       const open=_commOpenComments[p.id];
-      const cHtml=open?('<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px;">'+pc.map(function(c){return '<div style="margin-bottom:8px;"><span style="font-weight:700;font-size:12px;">'+commName(c.author)+'</span> <span style="font-size:12px;color:var(--text-secondary)">'+vEsc(c.content||'')+'</span></div>';}).join('')+'<div style="display:flex;gap:6px;margin-top:6px;"><input id="cm-'+p.id+'" placeholder="Write a comment..." style="flex:1;padding:8px 10px;border-radius:18px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);font-size:12px;"><button onclick="addComment(\''+p.id+'\')" style="padding:7px 14px;border:none;border-radius:18px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;font-size:12px;">Send</button></div></div>'):'';
-      return '<div class="card" style="margin-bottom:12px;">'+
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;">'+(commName(p.author)[0]||'M').toUpperCase()+'</div><div><div style="font-weight:700;font-size:13px;">'+commName(p.author)+'</div><div style="font-size:10px;color:var(--text-muted)">'+new Date(p.created_at).toLocaleString()+'</div></div></div>'+
-        (p.content?'<div style="font-size:14px;line-height:1.55;white-space:pre-wrap;">'+vEsc(p.content)+'</div>':'')+
-        (p.image_url?'<img src="'+vEsc(p.image_url)+'" style="width:100%;border-radius:10px;margin-top:8px;">':'')+
-        '<div style="display:flex;gap:18px;margin-top:10px;border-top:1px solid var(--border);padding-top:8px;">'+
-          '<button onclick="toggleLike(\''+p.id+'\')" style="background:none;border:none;cursor:pointer;color:'+(liked?'var(--gold)':'var(--text-muted)')+';font-weight:700;font-size:13px;">'+(liked?'❤️':'🤍')+' '+pl.length+'</button>'+
-          '<button onclick="toggleComments(\''+p.id+'\')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-weight:700;font-size:13px;">💬 '+pc.length+'</button>'+
+      const canDel=myId&&(p.author_id===myId||myId===ownerId);
+      const av=(commName(p.author)[0]||'M').toUpperCase();
+      const cHtml=open?('<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">'+pc.map(function(c){return '<div style="display:flex;gap:8px;margin-bottom:10px;"><div style="width:30px;height:30px;border-radius:50%;flex:0 0 auto;background:linear-gradient(135deg,#3b82f6,#1e40af);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;">'+(commName(c.author)[0]||'M').toUpperCase()+'</div><div style="background:rgba(255,255,255,.05);border-radius:14px;padding:8px 12px;"><div style="font-weight:700;font-size:12px;">'+commName(c.author)+'</div><div style="font-size:13px;color:var(--text-secondary);">'+vEsc(c.content||'')+'</div></div></div>';}).join('')+'<div style="display:flex;gap:8px;margin-top:6px;"><input id="cm-'+p.id+'" placeholder="Write a comment..." onkeydown="if(event.key===\'Enter\')addComment(\''+p.id+'\')" style="flex:1;padding:9px 14px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:13px;outline:none;"><button onclick="addComment(\''+p.id+'\')" style="padding:8px 16px;border:none;border-radius:20px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;font-size:13px;">Send</button></div></div>'):'';
+      return '<div class="card" style="margin-bottom:14px;border-radius:16px;">'+
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;font-size:16px;">'+av+'</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:14px;">'+commName(p.author)+'</div><div style="font-size:11px;color:var(--text-muted)">'+commTimeAgo(p.created_at)+'</div></div>'+(canDel?'<button onclick="delPost(\''+p.id+'\')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;">🗑️</button>':'')+'</div>'+
+        (p.content?'<div style="font-size:15px;line-height:1.6;white-space:pre-wrap;margin-bottom:'+(p.image_url?'10px':'4px')+';">'+vEsc(p.content)+'</div>':'')+
+        (p.image_url?'<img src="'+vEsc(p.image_url)+'" onclick="commLightbox(\''+vEsc(p.image_url)+'\')" style="width:100%;border-radius:12px;cursor:zoom-in;display:block;">':'')+
+        (pl.length||pc.length?'<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-top:10px;">'+(pl.length?'<span>❤️ '+pl.length+'</span>':'<span></span>')+(pc.length?'<span>'+pc.length+' comment'+(pc.length>1?'s':'')+'</span>':'<span></span>')+'</div>':'')+
+        '<div style="display:flex;gap:8px;margin-top:8px;border-top:1px solid var(--border);padding-top:6px;">'+
+          '<button onclick="toggleLike(\''+p.id+'\')" style="flex:1;background:none;border:none;cursor:pointer;color:'+(liked?'#ef4444':'var(--text-muted)')+';font-weight:700;font-size:13px;padding:8px;border-radius:8px;transition:.15s;">'+(liked?'❤️ Liked':'🤍 Like')+'</button>'+
+          '<button onclick="toggleComments(\''+p.id+'\')" style="flex:1;background:none;border:none;cursor:pointer;color:var(--text-muted);font-weight:700;font-size:13px;padding:8px;border-radius:8px;">💬 Comment</button>'+
         '</div>'+cHtml+
       '</div>';
     }).join('');
   }
-  function commImgPicked(input){_commImgFile=input.files&&input.files[0]||null;document.getElementById('commImgLbl').textContent=_commImgFile?_commImgFile.name.slice(0,18):'Add photo';}
+  async function delPost(id){if(!confirm('Delete this post?'))return;await sb.from('group_posts').delete().eq('id',id);_commFeedSig='';loadFeed();}
+  function commTimeAgo(ts){var s=Math.floor((Date.now()-new Date(ts))/1000);if(s<60)return 'just now';var m=Math.floor(s/60);if(m<60)return m+'m';var h=Math.floor(m/60);if(h<24)return h+'h';var d=Math.floor(h/24);if(d<7)return d+'d';return new Date(ts).toLocaleDateString();}
+  function commImgPicked(input){
+    _commImgFile=input.files&&input.files[0]||null;
+    const pv=document.getElementById('commImgPreview');if(!pv)return;
+    if(!_commImgFile){pv.style.display='none';pv.innerHTML='';return;}
+    const rd=new FileReader();rd.onload=function(e){pv.style.display='block';pv.innerHTML='<img src="'+e.target.result+'" style="max-width:100%;max-height:260px;border-radius:12px;border:1px solid var(--border);"><button onclick="removeCommImg()" style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-weight:800;cursor:pointer;">✕</button>';};rd.readAsDataURL(_commImgFile);
+  }
+  function removeCommImg(){_commImgFile=null;var p=document.getElementById('commPostImg');if(p)p.value='';var pv=document.getElementById('commImgPreview');if(pv){pv.style.display='none';pv.innerHTML='';}}
+  function commLightbox(url){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;';o.onclick=function(){o.remove();};o.innerHTML='<img src="'+url+'" style="max-width:94vw;max-height:94vh;border-radius:10px;">';document.body.appendChild(o);}
   async function createPost(){
     const msg=document.getElementById('commPostMsg');
     if(!currentProfile||!sb){msg.style.color='var(--red)';msg.textContent='Please sign in.';return;}
@@ -6438,7 +6456,7 @@ select option{background:#0f1729;color:#e8eaf0}
     if(_commImgFile){try{const ext=(_commImgFile.name.split('.').pop()||'jpg').toLowerCase();const path='community/'+currentProfile.id+'_'+Date.now()+'.'+ext;const up=await sb.storage.from('charts').upload(path,_commImgFile,{upsert:true});if(up.error){msg.style.color='var(--red)';msg.textContent='Image failed: '+up.error.message;return;}img=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}catch(e){}}
     const r=await sb.from('group_posts').insert({group_id:_commGid,author_id:currentProfile.id,content:txt||null,image_url:img||null});
     if(r.error){msg.style.color='var(--red)';msg.textContent='Error: '+r.error.message;return;}
-    document.getElementById('commPostText').value='';_commImgFile=null;document.getElementById('commPostImg').value='';document.getElementById('commImgLbl').textContent='Add photo';msg.textContent='';
+    document.getElementById('commPostText').value='';_commImgFile=null;document.getElementById('commPostImg').value='';removeCommImg();msg.textContent='';
     _commFeedSig='';loadFeed();
   }
   async function toggleLike(postId){
