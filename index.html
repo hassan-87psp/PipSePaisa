@@ -2400,6 +2400,7 @@ select option{background:#0f1729;color:#e8eaf0}
             <button onclick="submitSupport()" id="supSendBtn" style="padding:11px 22px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;">📤 Send Reply</button>
           </div>
         </div>
+        <div id="supClosedList" style="max-width:780px;margin:14px auto 0;"></div>
       </div>
       <div class="page" id="page-announce">
         <div class="card" style="margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;"><div><div class="card-title" style="font-size:18px;">📢 Notifications</div><div style="font-size:13px;color:var(--text-muted);margin-top:4px;">Latest updates from PipSePaisa.</div></div><button onclick="markAnnounceRead()" style="padding:9px 16px;border:1px solid var(--border);border-radius:9px;background:rgba(255,255,255,.04);color:var(--text);font-weight:700;cursor:pointer;font-size:13px;">✓ Mark all read</button></div>
@@ -6277,28 +6278,40 @@ select option{background:#0f1729;color:#e8eaf0}
   }
   async function loadSupport(silent){
     const box=document.getElementById('supThread');if(!box||!currentProfile||!sb)return;
-    let data=[];try{const r=await sb.from('support_messages').select('*').eq('user_id',currentProfile.id).order('created_at',{ascending:true}).limit(200);data=r.data||[];}catch(e){return;}
+    let data=[];try{const r=await sb.from('support_messages').select('*').eq('user_id',currentProfile.id).order('created_at',{ascending:true}).limit(300);data=r.data||[];}catch(e){return;}
     const sig=data.length+'|'+(data.length?(data[data.length-1].id+data[data.length-1].created_at+(data[data.length-1].closed_at||'')):'');
     if(silent&&sig===_supSig)return;
     _supSig=sig;
-    const activeCount=data.filter(function(m){return !m.closed_at;}).length;
-    _supHasMsgs=activeCount>0;
+    const active=data.filter(function(m){return !m.closed_at;});
+    _supHasMsgs=active.length>0;
     const sw=document.getElementById('supSubjectWrap');if(sw)sw.style.display=_supHasMsgs?'none':'';
     const sb2=document.getElementById('supSendBtn');if(sb2)sb2.textContent=_supHasMsgs?'📤 Send Reply':'📤 Send';
     const cb=document.getElementById('supCloseBtn');if(cb)cb.style.display=_supHasMsgs?'':'none';
     const atBottom=box.scrollHeight-box.scrollTop-box.clientHeight<60;
-    if(!data.length){box.innerHTML='<div class="empty-state" style="margin:auto;color:var(--text-muted);font-size:13px;">No messages yet. Start the conversation below.</div>';return;}
-    var html='';var dividerShown=false;
-    data.forEach(function(m){
+    if(!active.length){box.innerHTML='<div class="empty-state" style="margin:auto;color:var(--text-muted);font-size:13px;">No active ticket. Start a new conversation below.</div>';}
+    else{box.innerHTML=active.map(function(m){
       const admin=m.sender==='admin';
-      if(m.closed_at){ /* closed history bubble (faded) */ }
-      // divider between closed history and active new ticket
-      if(!m.closed_at&&!dividerShown&&data.some(function(x){return x.closed_at;})){dividerShown=true;html+='<div style="text-align:center;font-size:11px;color:var(--text-muted);margin:6px 0;"><span style="background:rgba(255,255,255,.05);padding:3px 12px;border-radius:20px;">🔒 Previous ticket closed — new chat</span></div>';}
-      html+='<div style="align-self:'+(admin?'flex-start':'flex-end')+';max-width:80%;'+(m.closed_at?'opacity:.55;':'')+'"><div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;'+(admin?'':'text-align:right')+'">'+(admin?'↩️ Support':'You')+' · '+new Date(m.created_at).toLocaleString()+(m.closed_at?' · 🔒 closed':'')+'</div><div style="padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.5;background:'+(admin?'rgba(16,185,129,.14);color:var(--text)':'rgba(245,158,11,.16);color:var(--text)')+'">'+vEsc(m.body||m.admin_reply||'')+'</div></div>';
-    });
-    box.innerHTML=html;
-    if(atBottom||!silent)box.scrollTop=box.scrollHeight;
+      return '<div style="align-self:'+(admin?'flex-start':'flex-end')+';max-width:80%;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:3px;'+(admin?'':'text-align:right')+'">'+(admin?'↩️ Support':'You')+' · '+new Date(m.created_at).toLocaleString()+'</div><div style="padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.5;background:'+(admin?'rgba(16,185,129,.14);color:var(--text)':'rgba(245,158,11,.16);color:var(--text)')+'">'+vEsc(m.body||m.admin_reply||'')+'</div></div>';
+    }).join('');if(atBottom||!silent)box.scrollTop=box.scrollHeight;}
+    // closed tickets -> separate boxes
+    renderClosedTickets(data.filter(function(m){return m.closed_at;}));
   }
+  var _closedExpanded={};
+  function renderClosedTickets(closedMsgs){
+    const wrap=document.getElementById('supClosedList');if(!wrap)return;
+    if(!closedMsgs.length){wrap.innerHTML='';return;}
+    var groups={};closedMsgs.forEach(function(m){var k=m.closed_at;if(!groups[k])groups[k]=[];groups[k].push(m);});
+    var keys=Object.keys(groups).sort(function(a,b){return new Date(b)-new Date(a);});
+    wrap.innerHTML='<div class="card-title" style="font-size:14px;margin-bottom:8px;">📁 Closed tickets</div>'+keys.map(function(k){
+      var ms=groups[k];var subj=(ms[0]&&ms[0].subject)?ms[0].subject:'Ticket';var open=_closedExpanded[k];
+      var head='<div onclick="toggleClosed(\''+k+'\')" style="display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;padding:12px 14px;">'+
+        '<div style="min-width:0"><strong style="font-size:13px">🔒 '+vEsc(subj.slice(0,40))+'</strong><div style="font-size:11px;color:var(--text-muted)">'+ms.length+' messages · closed '+new Date(k).toLocaleDateString()+'</div></div>'+
+        '<span style="font-size:13px;color:var(--text-muted)">'+(open?'▲':'▼')+'</span></div>';
+      var bodyHtml=open?('<div style="display:flex;flex-direction:column;gap:8px;padding:0 14px 14px;">'+ms.map(function(m){var admin=m.sender==='admin';return '<div style="align-self:'+(admin?'flex-start':'flex-end')+';max-width:82%;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px;'+(admin?'':'text-align:right')+'">'+(admin?'↩️ Support':'You')+'</div><div style="padding:9px 12px;border-radius:11px;font-size:12.5px;line-height:1.45;background:'+(admin?'rgba(16,185,129,.1)':'rgba(245,158,11,.1)')+';color:var(--text)">'+vEsc(m.body||m.admin_reply||'')+'</div></div>';}).join('')+'</div>'):'';
+      return '<div class="card" style="padding:0;margin-bottom:10px;opacity:.92;">'+head+bodyHtml+'</div>';
+    }).join('');
+  }
+  function toggleClosed(k){_closedExpanded[k]=!_closedExpanded[k];_supSig='';loadSupport();}
   async function closeMyTicket(){
     if(!currentProfile||!sb)return;
     if(!confirm('Close this ticket? You can start a new chat after closing.'))return;
