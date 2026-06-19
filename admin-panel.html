@@ -1202,7 +1202,10 @@ select option{background:#0f1729;color:#e8eaf0}
                 <div class="card-title" id="msgThreadTitle">Select a message</div>
                 <div class="card-meta" id="msgThreadMeta">Click a message from the inbox to view and reply</div>
               </div>
-              <button class="action-btn delete" id="msgDeleteBtn" title="Delete" onclick="deleteSupportMsg()" style="display: none;">🗑️</button>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <button class="action-btn" id="msgCloseBtn" title="Close ticket" onclick="closeAdminTicket()" style="display: none; background:rgba(239,68,68,.12); color:#ef4444; border:1px solid var(--border); padding:6px 11px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer;">🔒 Close</button>
+                <button class="action-btn delete" id="msgDeleteBtn" title="Delete" onclick="deleteSupportMsg()" style="display: none;">🗑️</button>
+              </div>
             </div>
             
             <div id="msgThreadBody" style="flex: 1; padding: 16px; background: var(--bg-elevated); border-radius: 10px; margin: 6px 0 12px; font-size: 13px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; min-height: 140px; text-align: center;">No message selected</div>
@@ -1895,7 +1898,7 @@ async function delAdChart(id){if(!confirm('Delete this chart?'))return;await sb.
 var _threads={};var _selUser=null;var _msgSig='';
 async function loadAdminMessages(silent){
   var box=document.getElementById('messagesInbox');if(!box||!sb)return;
-  var r=await sb.from('support_messages').select('*').order('created_at',{ascending:true}).limit(500);
+  var r=await sb.from('support_messages').select('*').is('closed_at',null).order('created_at',{ascending:true}).limit(500);
   if(r.error){if(!silent)box.innerHTML='<div style="padding:16px;color:#ef4444;font-size:12px">'+aEsc(r.error.message)+'</div>';return;}
   var rows=r.data||[];
   var sig=rows.length+'|'+(rows.length?(rows[rows.length-1].id+rows[rows.length-1].created_at):'');
@@ -1932,6 +1935,7 @@ function renderThread(uid,keepScroll){
   document.getElementById('msgThreadTitle').textContent='💬 '+t.name;
   document.getElementById('msgThreadMeta').textContent=(t.email||'')+' · '+t.msgs.length+' messages';
   document.getElementById('msgDeleteBtn').style.display='';
+  var cbtn=document.getElementById('msgCloseBtn');if(cbtn)cbtn.style.display='';
   var body=document.getElementById('msgThreadBody');
   var atBottom=keepScroll?(body.scrollHeight-body.scrollTop-body.clientHeight<60):true;
   body.style.cssText='flex:1;padding:16px;background:var(--bg-elevated);border-radius:10px;margin:6px 0 12px;min-height:200px;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;';
@@ -1949,9 +1953,25 @@ async function sendSupportReply(){
   if(!_selUser){alert('Select a conversation first');return;}
   var txt=(document.getElementById('msgReplyText').value||'').trim();if(!txt){alert('Type a reply');return;}
   var t=_threads[_selUser];
+  // optimistic: show instantly
+  var body=document.getElementById('msgThreadBody');
+  if(body){body.insertAdjacentHTML('beforeend','<div style="align-self:flex-end;max-width:75%;"><div style="font-size:10px;color:#94a0b8;margin-bottom:3px;text-align:right">↩️ Support · '+new Date().toLocaleString()+'</div><div style="padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.5;background:rgba(245,158,11,.16);color:#f59e0b">'+aEsc(txt)+'</div></div>');body.scrollTop=body.scrollHeight;}
+  document.getElementById('msgReplyText').value='';
   var r=await sb.from('support_messages').insert({user_id:_selUser,sender:'admin',name:'Support',email:(t?t.email:null),subject:'Re:',body:txt,status:'replied'});
   if(r.error){alert('Error: '+r.error.message);return;}
+  loadAdminMessages();
+}
+async function closeAdminTicket(){
+  if(!_selUser)return;if(!confirm('Close this ticket? The user can start a new chat afterwards.'))return;
+  var r=await sb.rpc('close_support_ticket',{p_user:_selUser});
+  if(r.error){alert('Error: '+r.error.message);return;}
+  _selUser=null;_msgSig='';
+  document.getElementById('msgThreadTitle').textContent='Select a message';
+  document.getElementById('msgThreadMeta').textContent='Click a conversation from the inbox to view and reply';
+  document.getElementById('msgThreadBody').innerHTML='No conversation selected';
   document.getElementById('msgReplyText').value='';
+  document.getElementById('msgDeleteBtn').style.display='none';var cb=document.getElementById('msgCloseBtn');if(cb)cb.style.display='none';
+  var btn=document.getElementById('msgSendBtn');btn.disabled=true;btn.style.opacity='.5';
   loadAdminMessages();
 }
 async function deleteSupportMsg(){
