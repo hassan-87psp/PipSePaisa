@@ -253,12 +253,12 @@ const MODS={
     row:r=>`<strong>${esc(r.title)}</strong> <span class="muted">${esc((r.body||'').slice(0,50))}</span>`},
 };
 const NAV=[['MAIN',[['dashboard','🏠','Dashboard'],['signals','📊','Signals'],['charts','📈','Charts'],['subscriptions','💳','Subscriptions']]],
-  ['CONTENT',[['courses','🎓','Courses'],['news','📰','News'],['quiz','❓','Quiz']]],
+  ['CONTENT',[['courses','🎓','Courses'],['news','📰','News'],['quiz','❓','Quiz'],['community','👥','Community']]],
   ['INSIGHTS',[['analytics','📉','Analytics'],['earnings','💰','Earnings'],['students','👥','Students']]],
   ['MONETIZE',[['requests','🧾','Requests']]],
   ['COMMUNICATION',[['messages','💬','Messages'],['notifications','🔔','Notifications']]],
   ['SYSTEM',[['settings','⚙️','Settings']]]];
-const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP']};
+const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups']};
 function metaOf(k){return MODS[k]?[MODS[k].label,MODS[k].sub]:(TITLES[k]||[k,'']);}
 
 /* ============ AUTH ============ */
@@ -426,7 +426,7 @@ function showPage(k){
   document.getElementById('pg-'+k).classList.add('active');
   const m=metaOf(k);document.getElementById('pageTitle').textContent=m[0];document.getElementById('pageSub').textContent=m[1];
   document.getElementById('sidebar').classList.remove('open');
-  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,courses:renderMentorCourses}[k]||(()=>renderModule(k)))();
+  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,courses:renderMentorCourses,community:renderMentorCommunity}[k]||(()=>renderModule(k)))();
 }
 
 /* ============ DASHBOARD ============ */
@@ -739,6 +739,43 @@ async function loadMentorCourses(){
   }).join('')+'</div>';
 }
 async function delMentorCourse(id){if(!confirm('Delete this course?'))return;await sb.from('courses').delete().eq('id',id);loadMentorCourses();}
+
+/* ============ MENTOR COMMUNITY (groups) ============ */
+function renderMentorCommunity(){
+  const el=document.getElementById('pg-community');
+  el.innerHTML=`<div class="grid" style="grid-template-columns:1fr 1.2fr">
+    <div class="card"><div class="card-title">👥 Create Group</div>
+      <div style="display:grid;gap:11px;margin-top:12px">
+        <input class="inp" id="gp-name" placeholder="Group name (e.g. VIP Members)">
+        <textarea class="inp" id="gp-desc" rows="2" placeholder="Short description"></textarea>
+        <div style="display:flex;gap:10px">
+          <input class="inp" id="gp-icon" maxlength="2" value="👥" style="max-width:70px;text-align:center;font-size:18px">
+          <select class="inp" id="gp-aud"><option value="all">All my members</option><option value="premium">Premium + VIP</option><option value="vip">VIP only</option></select>
+        </div>
+        <button class="btn" onclick="createMentorGroup()">➕ Create Group</button>
+        <p class="muted" style="font-size:11.5px">Your students automatically see groups that match their tier. Posting, likes & comments happen on the user site Community tab.</p>
+      </div></div>
+    <div class="card"><div class="card-title">📋 Your Groups</div><div id="gpList" style="margin-top:10px"><div class="list-empty">Loading...</div></div></div>
+  </div>`;
+  loadMentorGroups();
+}
+async function createMentorGroup(){
+  const name=val('gp-name');if(!name){alert('Group name required');return;}
+  const obj={owner_id:ME.id,is_official:false,name:name,description:val('gp-desc')||null,icon:val('gp-icon')||'👥',audience:document.getElementById('gp-aud').value};
+  const {error}=await sb.from('groups').insert(obj);
+  if(error){alert('Error: '+error.message);return;}
+  document.getElementById('gp-name').value='';document.getElementById('gp-desc').value='';document.getElementById('gp-icon').value='👥';
+  loadMentorGroups();
+}
+async function loadMentorGroups(){
+  const box=document.getElementById('gpList');if(!box)return;
+  const {data,error}=await sb.from('groups').select('*').eq('owner_id',ME.id).order('created_at',{ascending:true});
+  if(error){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}
+  if(!data||!data.length){box.innerHTML='<div class="list-empty">No groups yet.</div>';return;}
+  const lbl={all:'All members',premium:'Premium + VIP',vip:'VIP only'};
+  box.innerHTML='<div style="display:grid;gap:10px">'+data.map(g=>`<div class="sigc"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><strong>${esc(g.icon||'👥')} ${esc(g.name)}</strong><div class="muted" style="font-size:12px">${esc(g.description||'')}</div><span class="badge gold" style="font-size:9px;margin-top:3px">${lbl[g.audience]||g.audience}</span></div><button class="del" style="padding:5px 9px;border-radius:7px" onclick="delMentorGroup('${g.id}')">🗑️</button></div></div>`).join('')+'</div>';
+}
+async function delMentorGroup(id){if(!confirm('Delete this group and all its posts?'))return;await sb.from('groups').delete().eq('id',id);loadMentorGroups();}
 
 /* ============ SUBSCRIPTIONS (premium pricing) ============ */
 let billing='monthly';

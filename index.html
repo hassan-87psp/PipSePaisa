@@ -1358,6 +1358,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="menu-item" data-page="trades" onclick="showPage('trades', this)"><span class="menu-icon">📈</span>My Trades</div>
       <div class="menu-item" data-page="analysis" onclick="showPage('analysis', this)"><span class="menu-icon">📉</span>Trades Analysis</div>
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
+      <div class="menu-item" data-page="community" onclick="showPage('community', this)"><span class="menu-icon">👥</span>Community<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📝</span>Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
@@ -2382,6 +2383,28 @@ select option{background:#0f1729;color:#e8eaf0}
         <div id="myVipReqs" style="margin-top:18px"></div>
         <div id="vipModalHost"></div>
       </div>
+      <div class="page" id="page-community">
+        <div style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px;align-items:start;">
+          <div class="card" style="padding:12px;">
+            <div class="card-title" style="font-size:15px;margin-bottom:8px;">👥 Groups</div>
+            <div id="commGroups"><div class="empty-state" style="font-size:12px;color:var(--text-muted);">Loading...</div></div>
+          </div>
+          <div class="card" id="commFeedCard" style="min-height:400px;">
+            <div id="commFeedHead" style="display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px;">
+              <div><div class="card-title" id="commGroupName" style="font-size:17px;">Select a group</div><div id="commGroupDesc" style="font-size:12px;color:var(--text-muted);"></div></div>
+            </div>
+            <div id="commComposer" style="display:none;margin-bottom:16px;">
+              <textarea id="commPostText" rows="2" placeholder="Share something with the group..." style="width:100%;padding:11px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);box-sizing:border-box;"></textarea>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;flex-wrap:wrap;">
+                <label style="font-size:12px;color:var(--text-muted);cursor:pointer;">📷 <input id="commPostImg" type="file" accept="image/*" style="display:none;" onchange="commImgPicked(this)"> <span id="commImgLbl">Add photo</span></label>
+                <button onclick="createPost()" style="padding:9px 20px;border:none;border-radius:9px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;">Post</button>
+              </div>
+              <div id="commPostMsg" style="font-size:12px;color:var(--text-muted);margin-top:4px;"></div>
+            </div>
+            <div id="commFeed"><div class="empty-state" style="color:var(--text-muted);">Pick a group on the left to see posts.</div></div>
+          </div>
+        </div>
+      </div>
       <div class="page" id="page-support">
         <div class="card" style="max-width:780px;margin:0 auto;display:flex;flex-direction:column;">
           <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
@@ -3356,6 +3379,7 @@ select option{background:#0f1729;color:#e8eaf0}
     if (page === 'charts') loadChart();
     if (page === 'vipplans') loadVipPlans();
     if (page === 'support') loadSupport();
+    if (page === 'community') loadCommunityGroups();
     if (page === 'announce') loadAnnouncements();
     if (page === 'signals') loadSignalsFromDB();
     if (page === 'articles') loadArticlesFromDB();
@@ -6353,6 +6377,87 @@ select option{background:#0f1729;color:#e8eaf0}
     '</div>';
   }
 
+  // ============ COMMUNITY (groups + posts + likes + comments) ============
+  var _commGid=null;var _commGroups=[];var _commImgFile=null;var _commFeedSig='';var _commOpenComments={};
+  function commName(p){return (p&&(p.full_name||p.email))?vEsc(p.full_name||p.email):'Member';}
+  async function loadCommunityGroups(){
+    const box=document.getElementById('commGroups');if(!box||!sb)return;
+    let data=[];try{const r=await sb.from('groups').select('*').order('is_official',{ascending:false}).order('created_at',{ascending:true});data=r.data||[];}catch(e){box.innerHTML='<div style="font-size:12px;color:var(--red)">'+vEsc(e.message||'Error')+'</div>';return;}
+    _commGroups=data;
+    if(!data.length){box.innerHTML='<div style="font-size:12px;color:var(--text-muted)">No groups yet.</div>';return;}
+    box.innerHTML=data.map(function(g){
+      const sel=_commGid===g.id;
+      const tier=g.is_official?'Official':(g.audience==='vip'?'VIP':g.audience==='premium'?'Premium':'Members');
+      return '<div onclick="selectGroup(\''+g.id+'\')" style="padding:10px 11px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1px solid '+(sel?'var(--gold)':'var(--border)')+';background:'+(sel?'rgba(245,158,11,.08)':'transparent')+';"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">'+(g.icon||'👥')+'</span><div style="min-width:0"><div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+vEsc(g.name)+'</div><div style="font-size:10px;color:var(--text-muted)">'+tier+'</div></div></div></div>';
+    }).join('');
+    if(!_commGid&&data.length)selectGroup(data[0].id);
+  }
+  function selectGroup(id){_commGid=id;_commFeedSig='';loadCommunityGroups();
+    const g=_commGroups.find(function(x){return x.id===id;});
+    if(g){document.getElementById('commGroupName').textContent=(g.icon||'👥')+' '+g.name;document.getElementById('commGroupDesc').textContent=g.description||'';}
+    document.getElementById('commComposer').style.display='';
+    loadFeed();
+  }
+  async function loadFeed(silent){
+    const feed=document.getElementById('commFeed');if(!feed||!_commGid||!sb)return;
+    let posts=[];try{const r=await sb.from('group_posts').select('*, author:author_id(full_name,email)').eq('group_id',_commGid).order('created_at',{ascending:false}).limit(60);posts=r.data||[];}catch(e){feed.innerHTML='<div style="color:var(--red)">'+vEsc(e.message||'Error')+'</div>';return;}
+    const ids=posts.map(function(p){return p.id;});
+    let likes=[],comments=[];
+    if(ids.length){try{likes=(await sb.from('post_likes').select('post_id,user_id').in('post_id',ids)).data||[];}catch(e){}
+      try{comments=(await sb.from('post_comments').select('*, author:author_id(full_name,email)').in('post_id',ids).order('created_at',{ascending:true})).data||[];}catch(e){}}
+    const sig=JSON.stringify([posts.map(function(p){return p.id;}),likes.length,comments.length,_commOpenComments]);
+    if(silent&&sig===_commFeedSig)return;_commFeedSig=sig;
+    if(!posts.length){feed.innerHTML='<div class="empty-state" style="color:var(--text-muted);">No posts yet. Be the first to share!</div>';return;}
+    const myId=currentProfile?currentProfile.id:null;
+    feed.innerHTML=posts.map(function(p){
+      const pl=likes.filter(function(l){return l.post_id===p.id;});
+      const liked=myId&&pl.some(function(l){return l.user_id===myId;});
+      const pc=comments.filter(function(c){return c.post_id===p.id;});
+      const open=_commOpenComments[p.id];
+      const cHtml=open?('<div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px;">'+pc.map(function(c){return '<div style="margin-bottom:8px;"><span style="font-weight:700;font-size:12px;">'+commName(c.author)+'</span> <span style="font-size:12px;color:var(--text-secondary)">'+vEsc(c.content||'')+'</span></div>';}).join('')+'<div style="display:flex;gap:6px;margin-top:6px;"><input id="cm-'+p.id+'" placeholder="Write a comment..." style="flex:1;padding:8px 10px;border-radius:18px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);font-size:12px;"><button onclick="addComment(\''+p.id+'\')" style="padding:7px 14px;border:none;border-radius:18px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;font-size:12px;">Send</button></div></div>'):'';
+      return '<div class="card" style="margin-bottom:12px;">'+
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;"><div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;">'+(commName(p.author)[0]||'M').toUpperCase()+'</div><div><div style="font-weight:700;font-size:13px;">'+commName(p.author)+'</div><div style="font-size:10px;color:var(--text-muted)">'+new Date(p.created_at).toLocaleString()+'</div></div></div>'+
+        (p.content?'<div style="font-size:14px;line-height:1.55;white-space:pre-wrap;">'+vEsc(p.content)+'</div>':'')+
+        (p.image_url?'<img src="'+vEsc(p.image_url)+'" style="width:100%;border-radius:10px;margin-top:8px;">':'')+
+        '<div style="display:flex;gap:18px;margin-top:10px;border-top:1px solid var(--border);padding-top:8px;">'+
+          '<button onclick="toggleLike(\''+p.id+'\')" style="background:none;border:none;cursor:pointer;color:'+(liked?'var(--gold)':'var(--text-muted)')+';font-weight:700;font-size:13px;">'+(liked?'❤️':'🤍')+' '+pl.length+'</button>'+
+          '<button onclick="toggleComments(\''+p.id+'\')" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-weight:700;font-size:13px;">💬 '+pc.length+'</button>'+
+        '</div>'+cHtml+
+      '</div>';
+    }).join('');
+  }
+  function commImgPicked(input){_commImgFile=input.files&&input.files[0]||null;document.getElementById('commImgLbl').textContent=_commImgFile?_commImgFile.name.slice(0,18):'Add photo';}
+  async function createPost(){
+    const msg=document.getElementById('commPostMsg');
+    if(!currentProfile||!sb){msg.style.color='var(--red)';msg.textContent='Please sign in.';return;}
+    if(!_commGid){msg.style.color='var(--red)';msg.textContent='Select a group.';return;}
+    const txt=(document.getElementById('commPostText').value||'').trim();
+    if(!txt&&!_commImgFile){msg.style.color='var(--red)';msg.textContent='Write something or add a photo.';return;}
+    msg.style.color='var(--text-muted)';msg.textContent='Posting...';
+    let img='';
+    if(_commImgFile){try{const ext=(_commImgFile.name.split('.').pop()||'jpg').toLowerCase();const path='community/'+currentProfile.id+'_'+Date.now()+'.'+ext;const up=await sb.storage.from('charts').upload(path,_commImgFile,{upsert:true});if(up.error){msg.style.color='var(--red)';msg.textContent='Image failed: '+up.error.message;return;}img=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}catch(e){}}
+    const r=await sb.from('group_posts').insert({group_id:_commGid,author_id:currentProfile.id,content:txt||null,image_url:img||null});
+    if(r.error){msg.style.color='var(--red)';msg.textContent='Error: '+r.error.message;return;}
+    document.getElementById('commPostText').value='';_commImgFile=null;document.getElementById('commPostImg').value='';document.getElementById('commImgLbl').textContent='Add photo';msg.textContent='';
+    _commFeedSig='';loadFeed();
+  }
+  async function toggleLike(postId){
+    if(!currentProfile||!sb)return;
+    try{const ex=await sb.from('post_likes').select('id').eq('post_id',postId).eq('user_id',currentProfile.id).maybeSingle();
+      if(ex.data){await sb.from('post_likes').delete().eq('id',ex.data.id);}
+      else{await sb.from('post_likes').insert({post_id:postId,user_id:currentProfile.id});}
+    }catch(e){}
+    _commFeedSig='';loadFeed();
+  }
+  function toggleComments(postId){_commOpenComments[postId]=!_commOpenComments[postId];_commFeedSig='';loadFeed();}
+  async function addComment(postId){
+    if(!currentProfile||!sb)return;
+    const el=document.getElementById('cm-'+postId);const txt=(el&&el.value||'').trim();if(!txt)return;
+    const r=await sb.from('post_comments').insert({post_id:postId,author_id:currentProfile.id,content:txt});
+    if(r.error){alert('Error: '+r.error.message);return;}
+    _commOpenComments[postId]=true;_commFeedSig='';loadFeed();
+  }
+
   function closeVipModal(){const h=document.getElementById('vipModalHost');if(h)h.innerHTML='';}
   // INSTANT realtime updates (Supabase Realtime — needs realtime-enable.sql)
   (function rtUser(){
@@ -6376,6 +6481,11 @@ select option{background:#0f1729;color:#e8eaf0}
         .on('postgres_changes',{event:'*',schema:'public',table:'courses'},rtContent)
         .on('postgres_changes',{event:'*',schema:'public',table:'news_posts'},rtContent)
         .on('postgres_changes',{event:'*',schema:'public',table:'subscription_plans'},rtContent)
+        .subscribe();
+      sb.channel('rt-user-community')
+        .on('postgres_changes',{event:'*',schema:'public',table:'group_posts'},function(){if(act('page-community')&&typeof loadFeed==='function')loadFeed(true);})
+        .on('postgres_changes',{event:'*',schema:'public',table:'post_likes'},function(){if(act('page-community')&&typeof loadFeed==='function')loadFeed(true);})
+        .on('postgres_changes',{event:'*',schema:'public',table:'post_comments'},function(){if(act('page-community')&&typeof loadFeed==='function')loadFeed(true);})
         .subscribe();
     }catch(e){}
   })();

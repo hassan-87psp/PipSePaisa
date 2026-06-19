@@ -469,6 +469,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>News & Events</div>
       <div class="menu-item" data-page="adsignals" onclick="showPage('adsignals', this)"><span class="menu-icon">📊</span>Signals</div>
       <div class="menu-item" data-page="adcharts" onclick="showPage('adcharts', this)"><span class="menu-icon">📈</span>Charts</div>
+      <div class="menu-item" data-page="community" onclick="showPage('community', this)"><span class="menu-icon">👥</span>Community</div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;">LIVE</span></div>
       <div class="menu-item" data-page="quiz" onclick="showPage('quiz', this)"><span class="menu-icon">🎯</span>Quiz Questions</div>
       
@@ -857,6 +858,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="page" id="page-payments"><div id="apmWrap"></div></div>
       <div class="page" id="page-adsignals"><div id="adSigWrap"></div></div>
       <div class="page" id="page-adcharts"><div id="adChartWrap"></div></div>
+      <div class="page" id="page-community"><div id="adCommWrap"></div></div>
       <div class="page" id="page-paymentreqs"><div id="aprWrap"></div></div>
       <div class="page" id="page-news">
         <div class="card">
@@ -1894,6 +1896,39 @@ async function loadAdChartList(){
 }
 async function delAdChart(id){if(!confirm('Delete this chart?'))return;await sb.from('charts').delete().eq('id',id);loadAdChartList();}
 
+// ============ COMMUNITY (admin) ============
+function loadAdminCommunity(){
+  var wrap=document.getElementById('adCommWrap');if(!wrap)return;
+  wrap.innerHTML='<div style="display:grid;grid-template-columns:1fr 1.2fr;gap:18px">'+
+    '<div class="card"><h3 style="margin:0 0 12px">👥 Create Group</h3><div style="display:grid;gap:11px">'+
+      '<input id="gc-name" placeholder="Group name" style="'+APMS+'">'+
+      '<textarea id="gc-desc" rows="2" placeholder="Description" style="'+APMS+'"></textarea>'+
+      '<div style="display:flex;gap:10px"><input id="gc-icon" maxlength="2" value="🌐" style="'+APMS+';max-width:70px;text-align:center;font-size:18px"><label style="display:flex;align-items:center;gap:7px;font-size:13px;color:#94a0b8;cursor:pointer"><input type="checkbox" id="gc-official" checked> Official (everyone)</label></div>'+
+      '<button onclick="createAdminGroup()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">➕ Create Group</button>'+
+    '</div></div>'+
+    '<div class="card"><h3 style="margin:0 0 12px">📋 All Groups</h3><div id="adGroupList">Loading...</div></div></div>';
+  loadAdGroupList();
+}
+async function createAdminGroup(){
+  var name=(document.getElementById('gc-name').value||'').trim();if(!name){alert('Group name required');return;}
+  var off=document.getElementById('gc-official').checked;
+  var r=await sb.from('groups').insert({owner_id:currentAdmin.id,is_official:off,name:name,description:(document.getElementById('gc-desc').value||'').trim()||null,icon:(document.getElementById('gc-icon').value||'🌐'),audience:'all'});
+  if(r.error){alert('Error: '+r.error.message);return;}
+  document.getElementById('gc-name').value='';document.getElementById('gc-desc').value='';
+  loadAdGroupList();
+}
+async function loadAdGroupList(){
+  var box=document.getElementById('adGroupList');if(!box)return;
+  var r=await sb.from('groups').select('*, owner:owner_id(full_name,email)').order('is_official',{ascending:false}).order('created_at',{ascending:true});
+  if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}
+  var data=r.data||[];if(!data.length){box.innerHTML='<div style="color:#94a0b8">No groups yet.</div>';return;}
+  box.innerHTML=data.map(function(g){
+    var own=g.is_official?'Official':((g.owner&&(g.owner.full_name||g.owner.email))||'Mentor');
+    return '<div style="padding:11px 0;border-bottom:1px solid var(--border,#1f2937);display:flex;justify-content:space-between;align-items:center;gap:8px"><div><strong>'+aEsc(g.icon||'👥')+' '+aEsc(g.name)+'</strong> '+(g.is_official?'<span style="font-size:9px;padding:1px 6px;border-radius:10px;background:rgba(245,158,11,.18);color:#f59e0b">OFFICIAL</span>':'<span style="font-size:9px;padding:1px 6px;border-radius:10px;background:rgba(148,160,184,.18);color:#94a0b8">'+aEsc(g.audience)+'</span>')+'<div style="font-size:11px;color:#94a0b8">by '+aEsc(own)+'</div></div><button onclick="delAdminGroup(\''+g.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div>';
+  }).join('');
+}
+async function delAdminGroup(id){if(!confirm('Delete this group and all its posts?'))return;await sb.from('groups').delete().eq('id',id);loadAdGroupList();}
+
 // ============ SUPPORT MESSAGES (admin inbox - threaded) ============
 // ============ SUPPORT (admin — ticket based) ============
 var _tickets={};var _selTicket=null;var _msgSig='';
@@ -2082,6 +2117,7 @@ function showPage(page, el) {
   if (page === 'quiz') loadAdminQuiz();
   if (page === 'adsignals') loadAdSignals();
   if (page === 'adcharts') loadAdCharts();
+  if (page === 'community') loadAdminCommunity();
   if (page === 'messages') loadAdminMessages();
   if (page === 'notifications') loadRecentNotifs();
   if (page === 'payments') loadAdminPayments();
