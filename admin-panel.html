@@ -475,6 +475,7 @@ select option{background:#0f1729;color:#e8eaf0}
       
       <div class="menu-label">Communication</div>
       <div class="menu-item" data-page="messages" onclick="showPage('messages', this)"><span class="menu-icon">💬</span>Messages</div>
+      <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">✉️</span>Member Chats</div>
       <div class="menu-item" data-page="notifications" onclick="showPage('notifications', this)"><span class="menu-icon">🔔</span>Notifications</div>
       <div class="menu-item" data-page="emails" onclick="showPage('emails', this)"><span class="menu-icon">📧</span>Email Campaigns</div>
       
@@ -859,6 +860,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="page" id="page-adsignals"><div id="adSigWrap"></div></div>
       <div class="page" id="page-adcharts"><div id="adChartWrap"></div></div>
       <div class="page" id="page-community"><div id="adCommWrap"></div></div>
+      <div class="page" id="page-chats"><div id="adChatsWrap"></div></div>
       <div class="page" id="page-paymentreqs"><div id="aprWrap"></div></div>
       <div class="page" id="page-news">
         <div class="card">
@@ -1950,6 +1952,75 @@ async function loadAdGroupList(){
 }
 async function delAdminGroup(id){if(!confirm('Delete this group and all its posts?'))return;await sb.from('groups').delete().eq('id',id);loadAdGroupList();}
 
+// ============ MEMBER CHATS (DM — admin) ============
+var _aDmPeer=null,_aDmConvs=[],_aDmRt=false,_aTypeChan=null;
+function aIsOnline(ls){return ls&&(Date.now()-new Date(ls)<90000);}
+function aDot(ls){return '<span style="position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg-card,#0f1729);background:'+(aIsOnline(ls)?'#10b981':'#6b7280')+'"></span>';}
+function aAv(p,s){s=s||40;var u=p&&p.avatar_url;var i=((p&&(p.full_name||p.email)||'M')[0]||'M').toUpperCase();if(u)return '<div style="width:'+s+'px;height:'+s+'px;border-radius:50%;flex:0 0 auto;background:#000 url(\''+u+'\') center/cover"></div>';return '<div style="width:'+s+'px;height:'+s+'px;border-radius:50%;flex:0 0 auto;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;font-size:'+Math.round(s*.4)+'px">'+i+'</div>';}
+function aNm(p){return aEsc((p&&(p.full_name||p.email))||'Member');}
+function renderAdminChats(){
+  var w=document.getElementById('adChatsWrap');if(!w)return;
+  w.innerHTML='<div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;height:calc(100vh - 200px);min-height:480px">'+
+    '<div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box"><h3 style="margin:0 0 10px">✉️ Member Chats</h3>'+
+      '<input id="aDmNew" oninput="aDmSearchUsers()" placeholder="🔍 Search members..." style="'+APMS+';margin-bottom:6px"><div id="aDmSearchRes"></div>'+
+      '<div id="aDmList" style="flex:1;overflow-y:auto;margin-top:6px">Loading...</div></div>'+
+    '<div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box">'+
+      '<div id="aDmHead" style="display:none;align-items:center;gap:10px;border-bottom:1px solid var(--border,#1f2937);padding-bottom:12px;margin-bottom:12px"></div>'+
+      '<div id="aDmBody" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px"><div style="margin:auto;color:#94a0b8">Select a member to start chatting.</div></div>'+
+      '<div id="aDmTyping" style="font-size:11px;color:#94a0b8;height:14px;padding:0 4px"></div>'+
+      '<div id="aDmComposer" style="display:none;gap:8px;margin-top:8px"><input id="aDmInput" oninput="aTypePing()" onkeydown="if(event.key===String.fromCharCode(13))aSendDM()" placeholder="Type a message..." style="'+APMS+';flex:1;border-radius:22px"><button onclick="aSendDM()" style="padding:10px 22px;border:none;border-radius:22px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">Send</button></div>'+
+    '</div></div>';
+  aHeartbeat();aLoadDMList();
+}
+async function aHeartbeat(){try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',currentAdmin.id);}catch(e){}}
+setInterval(function(){if(typeof currentAdmin!=='undefined'&&currentAdmin&&sb)aHeartbeat();},30000);
+function aDmInitRt(){if(_aDmRt||!sb)return;_aDmRt=true;try{sb.channel('rt-admin-dm').on('postgres_changes',{event:'*',schema:'public',table:'dm_messages'},function(){aLoadDMList();if(_aDmPeer)aOpenDM(_aDmPeer.id,_aDmPeer,true);}).subscribe();}catch(e){}}
+async function aDmSearchUsers(){
+  var q=(document.getElementById('aDmNew').value||'').trim();var box=document.getElementById('aDmSearchRes');
+  if(q.length<2){box.innerHTML='';return;}
+  var r=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').or('full_name.ilike.%'+q+'%,email.ilike.%'+q+'%').limit(8);
+  var data=(r.data||[]).filter(function(u){return u.id!==currentAdmin.id;});
+  box.innerHTML=data.length?('<div style="border:1px solid var(--border,#1f2937);border-radius:10px;padding:4px;margin-bottom:6px">'+data.map(function(u){return '<div onclick="aOpenDM(\''+u.id+'\')" style="display:flex;align-items:center;gap:8px;padding:7px;border-radius:8px;cursor:pointer">'+aAv(u,30)+'<div style="font-size:13px">'+aNm(u)+'</div></div>';}).join('')+'</div>'):'<div style="font-size:12px;color:#94a0b8;padding:4px">No match</div>';
+}
+async function aLoadDMList(){
+  if(!currentAdmin||!sb)return;aDmInitRt();var me=currentAdmin.id;
+  var r=await sb.from('dm_messages').select('*').or('sender_id.eq.'+me+',recipient_id.eq.'+me).order('created_at',{ascending:false}).limit(400);
+  var msgs=r.data||[];var byPeer={};
+  msgs.forEach(function(m){var peer=m.sender_id===me?m.recipient_id:m.sender_id;if(!byPeer[peer])byPeer[peer]={last:m,unread:0};if(m.recipient_id===me&&!m.read_at)byPeer[peer].unread++;});
+  var ids=Object.keys(byPeer),profs={};
+  if(ids.length){var pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').in('id',ids);(pr.data||[]).forEach(function(p){profs[p.id]=p;});}
+  _aDmConvs=ids.map(function(id){return {prof:profs[id]||{id:id,full_name:'Member'},last:byPeer[id].last,unread:byPeer[id].unread};}).sort(function(a,b){return new Date(b.last.created_at)-new Date(a.last.created_at);});
+  var box=document.getElementById('aDmList');if(!box)return;
+  if(!_aDmConvs.length){box.innerHTML='<div style="color:#94a0b8;font-size:13px">No chats yet. Search a member above.</div>';return;}
+  box.innerHTML=_aDmConvs.map(function(c){var sel=_aDmPeer&&_aDmPeer.id===c.prof.id;var prev=(c.last.sender_id===me?'You: ':'')+(c.last.body||'');return '<div onclick="aOpenDM(\''+c.prof.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;margin-bottom:4px;background:'+(sel?'rgba(245,158,11,.08)':'transparent')+';border:1px solid '+(sel?'#f59e0b':'transparent')+'"><div style="position:relative">'+aAv(c.prof,38)+aDot(c.prof.last_seen)+'</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><strong style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+aNm(c.prof)+'</strong>'+(c.unread?'<span style="background:#ef4444;color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px">'+c.unread+'</span>':'')+'</div><div style="font-size:11px;color:#94a0b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+aEsc(prev.slice(0,36))+'</div></div></div>';}).join('');
+}
+async function aOpenDM(peerId,peerObj,silent){
+  if(!currentAdmin||!sb)return;var me=currentAdmin.id;
+  document.getElementById('aDmNew').value='';document.getElementById('aDmSearchRes').innerHTML='';
+  if(!peerObj){var pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').eq('id',peerId).maybeSingle();peerObj=pr.data;}
+  if(!peerObj)peerObj={id:peerId,full_name:'Member'};_aDmPeer=peerObj;
+  var head=document.getElementById('aDmHead');head.style.display='flex';
+  head.innerHTML='<div style="position:relative">'+aAv(peerObj,40)+aDot(peerObj.last_seen)+'</div><div><div style="font-weight:700;font-size:15px">'+aNm(peerObj)+'</div><div style="font-size:11px;color:#94a0b8">'+(aIsOnline(peerObj.last_seen)?'🟢 Online':'Offline')+'</div></div>';
+  document.getElementById('aDmComposer').style.display='flex';
+  var r=await sb.from('dm_messages').select('*').or('and(sender_id.eq.'+me+',recipient_id.eq.'+peerId+'),and(sender_id.eq.'+peerId+',recipient_id.eq.'+me+')').order('created_at',{ascending:true}).limit(500);
+  var msgs=r.data||[];var body=document.getElementById('aDmBody');var atB=body.scrollHeight-body.scrollTop-body.clientHeight<80;
+  var lastMine=null;msgs.forEach(function(m){if(m.sender_id===me)lastMine=m;});
+  body.innerHTML=msgs.map(function(m){var mine=m.sender_id===me;var seen=(mine&&m===lastMine&&m.read_at)?'<div style="font-size:10px;color:#94a0b8;text-align:right;margin-top:2px">Seen</div>':'';return '<div style="align-self:'+(mine?'flex-end':'flex-start')+';max-width:72%"><div style="padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;background:'+(mine?'linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a':'rgba(255,255,255,.06);color:var(--text-primary,#e8eaf0)')+'">'+aEsc(m.body||'')+'</div>'+seen+'</div>';}).join('')||'<div style="margin:auto;color:#94a0b8">Say hi 👋</div>';
+  if(atB||!silent)body.scrollTop=body.scrollHeight;
+  var unread=msgs.filter(function(m){return m.recipient_id===me&&!m.read_at;});
+  if(unread.length){try{await sb.from('dm_messages').update({read_at:new Date().toISOString()}).in('id',unread.map(function(m){return m.id;}));aLoadDMList();}catch(e){}}
+  if(!silent)aLoadDMList();
+  if(!silent){var ck=[me,peerId].sort().join('_');try{if(_aTypeChan)sb.removeChannel(_aTypeChan);}catch(e){}_aTypeChan=sb.channel('dm-typing-'+ck);_aTypeChan.on('broadcast',{event:'typing'},function(p){if(p.payload&&p.payload.from===peerId)aShowTyping();}).subscribe();}
+}
+var _aTypeTimer=null;function aShowTyping(){var t=document.getElementById('aDmTyping');if(!t||!_aDmPeer)return;t.textContent=aNm(_aDmPeer)+' is typing...';clearTimeout(_aTypeTimer);_aTypeTimer=setTimeout(function(){t.textContent='';},2500);}
+var _aPing=0;function aTypePing(){if(!_aTypeChan)return;var n=Date.now();if(n-_aPing<1200)return;_aPing=n;try{_aTypeChan.send({type:'broadcast',event:'typing',payload:{from:currentAdmin.id}});}catch(e){}}
+async function aSendDM(){
+  if(!currentAdmin||!sb||!_aDmPeer)return;var inp=document.getElementById('aDmInput');var txt=(inp.value||'').trim();if(!txt)return;inp.value='';
+  var body=document.getElementById('aDmBody');if(body){var em=body.querySelector('div[style*="margin:auto"]');if(em)body.innerHTML='';body.insertAdjacentHTML('beforeend','<div style="align-self:flex-end;max-width:72%"><div style="padding:9px 13px;border-radius:16px;font-size:14px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a">'+aEsc(txt)+'</div></div>');body.scrollTop=body.scrollHeight;}
+  var r=await sb.from('dm_messages').insert({sender_id:currentAdmin.id,recipient_id:_aDmPeer.id,body:txt});
+  if(r.error){alert('Error: '+r.error.message);return;}aLoadDMList();
+}
+
 // ============ SUPPORT MESSAGES (admin inbox - threaded) ============
 // ============ SUPPORT (admin — ticket based) ============
 var _tickets={};var _selTicket=null;var _msgSig='';
@@ -2139,6 +2210,7 @@ function showPage(page, el) {
   if (page === 'adsignals') loadAdSignals();
   if (page === 'adcharts') loadAdCharts();
   if (page === 'community') loadAdminCommunity();
+  if (page === 'chats') renderAdminChats();
   if (page === 'messages') loadAdminMessages();
   if (page === 'notifications') loadRecentNotifs();
   if (page === 'payments') loadAdminPayments();

@@ -256,9 +256,9 @@ const NAV=[['MAIN',[['dashboard','🏠','Dashboard'],['signals','📊','Signals'
   ['CONTENT',[['courses','🎓','Courses'],['news','📰','News'],['quiz','❓','Quiz'],['community','👥','Community']]],
   ['INSIGHTS',[['analytics','📉','Analytics'],['earnings','💰','Earnings'],['students','👥','Students']]],
   ['MONETIZE',[['requests','🧾','Requests']]],
-  ['COMMUNICATION',[['messages','💬','Messages'],['notifications','🔔','Notifications']]],
+  ['COMMUNICATION',[['chats','✉️','Member Chats'],['messages','💬','Messages'],['notifications','🔔','Notifications']]],
   ['SYSTEM',[['settings','⚙️','Settings']]]];
-const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups']};
+const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members']};
 function metaOf(k){return MODS[k]?[MODS[k].label,MODS[k].sub]:(TITLES[k]||[k,'']);}
 
 /* ============ AUTH ============ */
@@ -426,7 +426,7 @@ function showPage(k){
   document.getElementById('pg-'+k).classList.add('active');
   const m=metaOf(k);document.getElementById('pageTitle').textContent=m[0];document.getElementById('pageSub').textContent=m[1];
   document.getElementById('sidebar').classList.remove('open');
-  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,courses:renderMentorCourses,community:renderMentorCommunity}[k]||(()=>renderModule(k)))();
+  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,courses:renderMentorCourses,community:renderMentorCommunity,chats:renderMentorChats}[k]||(()=>renderModule(k)))();
 }
 
 /* ============ DASHBOARD ============ */
@@ -777,6 +777,83 @@ async function loadMentorGroups(){
   box.innerHTML='<div style="display:grid;gap:10px">'+data.map(g=>`<div class="sigc"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><strong>${esc(g.icon||'👥')} ${esc(g.name)}</strong><div class="muted" style="font-size:12px">${esc(g.description||'')}</div><span class="badge gold" style="font-size:9px;margin-top:3px">${lbl[g.audience]||g.audience}</span></div><button class="del" style="padding:5px 9px;border-radius:7px" onclick="delMentorGroup('${g.id}')">🗑️</button></div></div>`).join('')+'</div>';
 }
 async function delMentorGroup(id){if(!confirm('Delete this group and all its posts?'))return;await sb.from('groups').delete().eq('id',id);loadMentorGroups();}
+
+/* ============ MEMBER CHATS (DM) ============ */
+var _mDmPeer=null,_mDmConvs=[],_mDmRt=false,_mTypeChan=null;
+function mIsOnline(ls){return ls&&(Date.now()-new Date(ls)<90000);}
+function mDot(ls){return '<span style="position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;border:2px solid var(--card,#0f1729);background:'+(mIsOnline(ls)?'#10b981':'#6b7280')+'"></span>';}
+function mAv(p,s){s=s||40;var u=p&&p.avatar_url;var i=((p&&(p.full_name||p.email)||'M')[0]||'M').toUpperCase();if(u)return '<div style="width:'+s+'px;height:'+s+'px;border-radius:50%;flex:0 0 auto;background:#000 url(\''+u+'\') center/cover"></div>';return '<div style="width:'+s+'px;height:'+s+'px;border-radius:50%;flex:0 0 auto;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;font-size:'+Math.round(s*.4)+'px">'+i+'</div>';}
+function mNm(p){return esc((p&&(p.full_name||p.email))||'Member');}
+function renderMentorChats(){
+  const el=document.getElementById('pg-chats');
+  el.innerHTML=`<div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;height:calc(100vh - 170px);min-height:480px">
+    <div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box;padding:12px">
+      <div class="card-title" style="font-size:15px;margin-bottom:8px">✉️ Member Chats</div>
+      <input id="mDmNew" class="inp" oninput="mDmSearchUsers()" placeholder="🔍 Search members to message..." style="margin-bottom:6px">
+      <div id="mDmSearchRes"></div>
+      <div id="mDmList" style="flex:1;overflow-y:auto;margin-top:6px"><div class="list-empty">Loading...</div></div>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box">
+      <div id="mDmHead" style="display:none;align-items:center;gap:10px;border-bottom:1px solid var(--border,#1f2937);padding-bottom:12px;margin-bottom:12px"></div>
+      <div id="mDmBody" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px"><div class="list-empty" style="margin:auto">Select a member to start chatting.</div></div>
+      <div id="mDmTyping" style="font-size:11px;color:#94a0b8;height:14px;padding:0 4px"></div>
+      <div id="mDmComposer" style="display:none;gap:8px;margin-top:8px">
+        <input id="mDmInput" class="inp" oninput="mTypePing()" onkeydown="if(event.key==='Enter')mSendDM()" placeholder="Type a message..." style="flex:1;border-radius:22px">
+        <button onclick="mSendDM()" class="btn" style="border-radius:22px">Send</button>
+      </div>
+    </div>
+  </div>`;
+  mHeartbeat();mLoadDMList();
+}
+async function mHeartbeat(){try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);}catch(e){}}
+setInterval(function(){if(typeof ME!=='undefined'&&ME&&sb)mHeartbeat();},30000);
+function mDmInitRt(){if(_mDmRt||!sb)return;_mDmRt=true;try{sb.channel('rt-mentor-dm').on('postgres_changes',{event:'*',schema:'public',table:'dm_messages'},function(){mLoadDMList();if(_mDmPeer)mOpenDM(_mDmPeer.id,_mDmPeer,true);}).subscribe();}catch(e){}}
+async function mDmSearchUsers(){
+  var q=(document.getElementById('mDmNew').value||'').trim();var box=document.getElementById('mDmSearchRes');
+  if(q.length<2){box.innerHTML='';return;}
+  var r=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').or('full_name.ilike.%'+q+'%,email.ilike.%'+q+'%').limit(8);
+  var data=(r.data||[]).filter(function(u){return u.id!==ME.id;});
+  box.innerHTML=data.length?('<div style="border:1px solid var(--border,#1f2937);border-radius:10px;padding:4px;margin-bottom:6px">'+data.map(function(u){return '<div onclick="mOpenDM(\''+u.id+'\')" style="display:flex;align-items:center;gap:8px;padding:7px;border-radius:8px;cursor:pointer"><div style="position:relative">'+mAv(u,30)+'</div><div style="font-size:13px">'+mNm(u)+'</div></div>';}).join('')+'</div>'):'<div style="font-size:12px;color:#94a0b8;padding:4px">No match</div>';
+}
+async function mLoadDMList(){
+  if(!ME||!sb)return;mDmInitRt();
+  var me=ME.id;
+  var r=await sb.from('dm_messages').select('*').or('sender_id.eq.'+me+',recipient_id.eq.'+me).order('created_at',{ascending:false}).limit(400);
+  var msgs=r.data||[];var byPeer={};
+  msgs.forEach(function(m){var peer=m.sender_id===me?m.recipient_id:m.sender_id;if(!byPeer[peer])byPeer[peer]={last:m,unread:0};if(m.recipient_id===me&&!m.read_at)byPeer[peer].unread++;});
+  var ids=Object.keys(byPeer),profs={};
+  if(ids.length){var pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').in('id',ids);(pr.data||[]).forEach(function(p){profs[p.id]=p;});}
+  _mDmConvs=ids.map(function(id){return {prof:profs[id]||{id:id,full_name:'Member'},last:byPeer[id].last,unread:byPeer[id].unread};}).sort(function(a,b){return new Date(b.last.created_at)-new Date(a.last.created_at);});
+  var box=document.getElementById('mDmList');if(!box)return;
+  if(!_mDmConvs.length){box.innerHTML='<div class="list-empty">No chats yet. Search a member above.</div>';return;}
+  box.innerHTML=_mDmConvs.map(function(c){var sel=_mDmPeer&&_mDmPeer.id===c.prof.id;var prev=(c.last.sender_id===me?'You: ':'')+(c.last.body||'');return '<div onclick="mOpenDM(\''+c.prof.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;margin-bottom:4px;background:'+(sel?'rgba(245,158,11,.08)':'transparent')+';border:1px solid '+(sel?'#f59e0b':'transparent')+'"><div style="position:relative">'+mAv(c.prof,38)+mDot(c.prof.last_seen)+'</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><strong style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+mNm(c.prof)+'</strong>'+(c.unread?'<span style="background:#ef4444;color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px">'+c.unread+'</span>':'')+'</div><div style="font-size:11px;color:#94a0b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(prev.slice(0,36))+'</div></div></div>';}).join('');
+}
+async function mOpenDM(peerId,peerObj,silent){
+  if(!ME||!sb)return;var me=ME.id;
+  document.getElementById('mDmNew').value='';document.getElementById('mDmSearchRes').innerHTML='';
+  if(!peerObj){var pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').eq('id',peerId).maybeSingle();peerObj=pr.data;}
+  if(!peerObj)peerObj={id:peerId,full_name:'Member'};_mDmPeer=peerObj;
+  var head=document.getElementById('mDmHead');head.style.display='flex';
+  head.innerHTML='<div style="position:relative">'+mAv(peerObj,40)+mDot(peerObj.last_seen)+'</div><div><div style="font-weight:700;font-size:15px">'+mNm(peerObj)+'</div><div style="font-size:11px;color:#94a0b8">'+(mIsOnline(peerObj.last_seen)?'🟢 Online':'Offline')+'</div></div>';
+  document.getElementById('mDmComposer').style.display='flex';
+  var r=await sb.from('dm_messages').select('*').or('and(sender_id.eq.'+me+',recipient_id.eq.'+peerId+'),and(sender_id.eq.'+peerId+',recipient_id.eq.'+me+')').order('created_at',{ascending:true}).limit(500);
+  var msgs=r.data||[];var body=document.getElementById('mDmBody');var atB=body.scrollHeight-body.scrollTop-body.clientHeight<80;
+  var lastMine=null;msgs.forEach(function(m){if(m.sender_id===me)lastMine=m;});
+  body.innerHTML=msgs.map(function(m){var mine=m.sender_id===me;var seen=(mine&&m===lastMine&&m.read_at)?'<div style="font-size:10px;color:#94a0b8;text-align:right;margin-top:2px">Seen</div>':'';return '<div style="align-self:'+(mine?'flex-end':'flex-start')+';max-width:72%"><div style="padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;background:'+(mine?'linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a':'rgba(255,255,255,.06);color:var(--text,#e8eaf0)')+'">'+esc(m.body||'')+'</div>'+seen+'</div>';}).join('')||'<div class="list-empty" style="margin:auto">Say hi 👋</div>';
+  if(atB||!silent)body.scrollTop=body.scrollHeight;
+  var unread=msgs.filter(function(m){return m.recipient_id===me&&!m.read_at;});
+  if(unread.length){try{await sb.from('dm_messages').update({read_at:new Date().toISOString()}).in('id',unread.map(function(m){return m.id;}));mLoadDMList();}catch(e){}}
+  if(!silent)mLoadDMList();
+  if(!silent){var ck=[me,peerId].sort().join('_');try{if(_mTypeChan)sb.removeChannel(_mTypeChan);}catch(e){}_mTypeChan=sb.channel('dm-typing-'+ck);_mTypeChan.on('broadcast',{event:'typing'},function(p){if(p.payload&&p.payload.from===peerId)mShowTyping();}).subscribe();}
+}
+var _mTypeTimer=null;function mShowTyping(){var t=document.getElementById('mDmTyping');if(!t||!_mDmPeer)return;t.textContent=mNm(_mDmPeer)+' is typing...';clearTimeout(_mTypeTimer);_mTypeTimer=setTimeout(function(){t.textContent='';},2500);}
+var _mPing=0;function mTypePing(){if(!_mTypeChan)return;var n=Date.now();if(n-_mPing<1200)return;_mPing=n;try{_mTypeChan.send({type:'broadcast',event:'typing',payload:{from:ME.id}});}catch(e){}}
+async function mSendDM(){
+  if(!ME||!sb||!_mDmPeer)return;var inp=document.getElementById('mDmInput');var txt=(inp.value||'').trim();if(!txt)return;inp.value='';
+  var body=document.getElementById('mDmBody');if(body){if(body.querySelector('.list-empty'))body.innerHTML='';body.insertAdjacentHTML('beforeend','<div style="align-self:flex-end;max-width:72%"><div style="padding:9px 13px;border-radius:16px;font-size:14px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a">'+esc(txt)+'</div></div>');body.scrollTop=body.scrollHeight;}
+  var r=await sb.from('dm_messages').insert({sender_id:ME.id,recipient_id:_mDmPeer.id,body:txt});
+  if(r.error){alert('Error: '+r.error.message);return;}mLoadDMList();
+}
 
 /* ============ SUBSCRIPTIONS (premium pricing) ============ */
 let billing='monthly';
