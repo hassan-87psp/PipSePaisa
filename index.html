@@ -1359,6 +1359,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="menu-item" data-page="analysis" onclick="showPage('analysis', this)"><span class="menu-icon">📉</span>Trades Analysis</div>
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
       <div class="menu-item" data-page="community" onclick="showPage('community', this)"><span class="menu-icon">👥</span>Community<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:700;">NEW</span></div>
+      <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📝</span>Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
@@ -2383,6 +2384,7 @@ select option{background:#0f1729;color:#e8eaf0}
         <div id="myVipReqs" style="margin-top:18px"></div>
         <div id="vipModalHost"></div>
       </div>
+      <style>.commSkel{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 37%,rgba(255,255,255,.04) 63%);background-size:400% 100%;animation:commShimmer 1.4s ease infinite;}@keyframes commShimmer{0%{background-position:100% 0}100%{background-position:0 0}}</style>
       <div class="page" id="page-community">
         <div style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px;align-items:start;">
           <div class="card" style="padding:12px;">
@@ -2392,7 +2394,8 @@ select option{background:#0f1729;color:#e8eaf0}
           <div class="card" id="commFeedCard" style="min-height:400px;">
             <div id="commFeedHead" style="display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px;">
               <div><div class="card-title" id="commGroupName" style="font-size:17px;">Select a group</div><div id="commGroupDesc" style="font-size:12px;color:var(--text-muted);"></div></div>
-              <div style="position:relative;">
+              <div style="position:relative;display:flex;gap:8px;">
+                <button onclick="openMembersModal()" style="background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:8px 12px;cursor:pointer;font-size:13px;color:var(--text);font-weight:700;">👥 Members</button>
                 <button onclick="toggleCommNotifs()" style="position:relative;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:8px 12px;cursor:pointer;font-size:16px;">🔔<span id="commNotifBadge" style="display:none;position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:none;align-items:center;justify-content:center;padding:0 4px;"></span></button>
                 <div id="commNotifPanel" style="display:none;position:absolute;right:0;top:46px;width:300px;max-height:380px;overflow-y:auto;background:var(--bg-card,#0f1729);border:1px solid var(--border);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.4);z-index:50;padding:8px;"></div>
               </div>
@@ -2402,14 +2405,44 @@ select option{background:#0f1729;color:#e8eaf0}
                 <div id="commMyAvatar" style="width:42px;height:42px;border-radius:50%;flex:0 0 auto;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;font-size:16px;">M</div>
                 <textarea id="commPostText" rows="2" placeholder="What's on your mind?" style="flex:1;padding:11px 14px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);box-sizing:border-box;font-size:14px;resize:none;outline:none;"></textarea>
               </div>
-              <div id="commImgPreview" style="display:none;position:relative;margin:12px 0 0 52px;"></div>
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
-                <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--green);cursor:pointer;font-weight:700;padding:7px 12px;border-radius:10px;background:rgba(16,185,129,.08);">🖼️ Photo<input id="commPostImg" type="file" accept="image/*" style="display:none;" onchange="commImgPicked(this)"></label>
+              <div id="commImgPreview" style="display:none;margin:12px 0 0 52px;"></div>
+              <div id="commPollBuilder" style="display:none;margin:12px 0 0 52px;padding:12px;border:1px dashed var(--border);border-radius:12px;">
+                <input id="pollQ" placeholder="Poll question (e.g. Gold today — Buy or Sell?)" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);box-sizing:border-box;font-size:13px;margin-bottom:8px;">
+                <div id="pollOpts">
+                  <input class="pollOpt" placeholder="Option 1" style="width:100%;padding:8px 12px;border-radius:9px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);box-sizing:border-box;font-size:13px;margin-bottom:6px;">
+                  <input class="pollOpt" placeholder="Option 2" style="width:100%;padding:8px 12px;border-radius:9px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);box-sizing:border-box;font-size:13px;margin-bottom:6px;">
+                </div>
+                <button onclick="addPollOpt()" style="font-size:12px;color:var(--gold);background:none;border:none;cursor:pointer;font-weight:700;">+ Add option</button>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;border-top:1px solid var(--border);padding-top:12px;gap:8px;flex-wrap:wrap;">
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <label style="display:flex;align-items:center;gap:7px;font-size:13px;color:var(--green);cursor:pointer;font-weight:700;padding:7px 12px;border-radius:10px;background:rgba(16,185,129,.08);">🖼️ Photos<input id="commPostImg" type="file" accept="image/*" multiple style="display:none;" onchange="commImgPicked(this)"></label>
+                  <button onclick="togglePollBuilder()" id="pollToggleBtn" style="display:flex;align-items:center;gap:7px;font-size:13px;color:#3b82f6;cursor:pointer;font-weight:700;padding:7px 12px;border-radius:10px;background:rgba(59,130,246,.1);border:none;">📊 Poll</button>
+                </div>
                 <button onclick="createPost()" style="padding:9px 26px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-size:14px;">Post</button>
               </div>
               <div id="commPostMsg" style="font-size:12px;color:var(--text-muted);margin-top:6px;"></div>
             </div>
+            <input id="commSearch" oninput="renderFeed()" placeholder="🔍 Search posts in this group..." style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);box-sizing:border-box;font-size:13px;margin-bottom:14px;display:none;outline:none;">
             <div id="commFeed"><div class="empty-state" style="color:var(--text-muted);">Pick a group on the left to see posts.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="page" id="page-chats">
+        <div style="display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px;align-items:start;height:calc(100vh - 160px);min-height:480px;">
+          <div class="card" style="padding:12px;display:flex;flex-direction:column;height:100%;box-sizing:border-box;">
+            <div class="card-title" style="font-size:15px;margin-bottom:8px;">💬 Chats</div>
+            <input id="dmSearch" oninput="renderDMList()" placeholder="🔍 Search people..." style="width:100%;padding:9px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);box-sizing:border-box;font-size:13px;margin-bottom:8px;outline:none;">
+            <div id="dmList" style="flex:1;overflow-y:auto;"><div class="empty-state" style="font-size:12px;color:var(--text-muted);">Loading...</div></div>
+          </div>
+          <div class="card" id="dmThreadCard" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box;">
+            <div id="dmThreadHead" style="display:none;align-items:center;gap:10px;border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px;"></div>
+            <div id="dmThreadBody" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px;"><div class="empty-state" style="margin:auto;color:var(--text-muted);">Select a chat or pick a member from a group to start messaging.</div></div>
+            <div id="dmTyping" style="font-size:11px;color:var(--text-muted);height:14px;padding:0 4px;"></div>
+            <div id="dmComposer" style="display:none;gap:8px;margin-top:8px;">
+              <input id="dmInput" placeholder="Type a message..." oninput="dmTypingPing()" onkeydown="if(event.key==='Enter')sendDM()" style="flex:1;padding:11px 14px;border-radius:22px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:14px;outline:none;">
+              <button onclick="sendDM()" style="padding:10px 22px;border:none;border-radius:22px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;">Send</button>
+            </div>
           </div>
         </div>
       </div>
@@ -3389,6 +3422,7 @@ select option{background:#0f1729;color:#e8eaf0}
     if (page === 'vipplans') loadVipPlans();
     if (page === 'support') loadSupport();
     if (page === 'community') loadCommunityGroups();
+    if (page === 'chats') loadDMList();
     if (page === 'announce') loadAnnouncements();
     if (page === 'signals') loadSignalsFromDB();
     if (page === 'articles') loadArticlesFromDB();
@@ -6197,6 +6231,9 @@ select option{background:#0f1729;color:#e8eaf0}
     
     // Load user's trades from database
     loadTradesFromDB();
+    // presence + DM unread badge
+    try{pingPresence();}catch(e){}
+    try{loadDMList(true);}catch(e){}
   }
   
   function vEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -6447,18 +6484,55 @@ select option{background:#0f1729;color:#e8eaf0}
     var av=document.getElementById('commMyAvatar');if(av&&currentProfile){av.outerHTML=avatarHTML(currentProfile,42).replace('<div ','<div id="commMyAvatar" ');}
     loadFeed();loadCommNotifs();
   }
+  var _feedCache=null;
+  function feedSkeleton(){return '<div style="margin-bottom:14px;"></div>'+[0,1].map(function(){return '<div class="card" style="margin-bottom:14px;border-radius:16px;"><div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;"><div class="commSkel" style="width:42px;height:42px;border-radius:50%;"></div><div style="flex:1"><div class="commSkel" style="height:12px;width:40%;border-radius:6px;margin-bottom:6px;"></div><div class="commSkel" style="height:10px;width:20%;border-radius:6px;"></div></div></div><div class="commSkel" style="height:12px;width:90%;border-radius:6px;margin-bottom:6px;"></div><div class="commSkel" style="height:12px;width:70%;border-radius:6px;"></div></div>';}).join('');}
   async function loadFeed(silent){
     const feed=document.getElementById('commFeed');if(!feed||!_commGid||!sb)return;
+    if(!silent)feed.innerHTML=feedSkeleton();
     let posts=[];try{const r=await sb.from('group_posts').select('*, author:author_id(full_name,email,avatar_url)').eq('group_id',_commGid).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(80);posts=r.data||[];}catch(e){feed.innerHTML='<div style="color:var(--red)">'+vEsc(e.message||'Error')+'</div>';return;}
     const ids=posts.map(function(p){return p.id;});
-    let likes=[],comments=[];
+    let likes=[],comments=[],votes=[];
     if(ids.length){try{likes=(await sb.from('post_likes').select('post_id,user_id,reaction').in('post_id',ids)).data||[];}catch(e){}
-      try{comments=(await sb.from('post_comments').select('*, author:author_id(full_name,email,avatar_url)').in('post_id',ids).order('created_at',{ascending:true})).data||[];}catch(e){}}
-    const sig=JSON.stringify([posts.map(function(p){return p.id+(p.edited_at||'')+(p.pinned?'p':'');}),likes,comments.length,_commOpenComments,_editPost,_editComment,_replyTo,_reactPickFor]);
-    if(silent&&sig===_commFeedSig)return;_commFeedSig=sig;
-    if(!posts.length){feed.innerHTML='<div class="empty-state" style="color:var(--text-muted);">No posts yet. Be the first to share!</div>';return;}
+      try{comments=(await sb.from('post_comments').select('*, author:author_id(full_name,email,avatar_url)').in('post_id',ids).order('created_at',{ascending:true})).data||[];}catch(e){}
+      try{votes=(await sb.from('post_poll_votes').select('post_id,user_id,option_id').in('post_id',ids)).data||[];}catch(e){}}
+    const sig=JSON.stringify([posts.map(function(p){return p.id+(p.edited_at||'')+(p.pinned?'p':'');}),likes,comments.length,votes,_commOpenComments,_editPost,_editComment,_replyTo,_reactPickFor]);
+    if(silent&&sig===_commFeedSig){return;}_commFeedSig=sig;
     const myId=currentProfile?currentProfile.id:null;
     const ownerId=(_commGroups.find(function(x){return x.id===_commGid;})||{}).owner_id;
+    _feedCache={posts:posts,likes:likes,comments:comments,votes:votes,myId:myId,ownerId:ownerId};
+    var srch=document.getElementById('commSearch');if(srch)srch.style.display=posts.length?'block':'none';
+    renderFeed();
+  }
+  function galleryHTML(p){
+    var imgs=Array.isArray(p.images)&&p.images.length?p.images:(p.image_url?[p.image_url]:[]);
+    if(!imgs.length)return '';
+    if(imgs.length===1)return '<img src="'+vEsc(imgs[0])+'" onclick="commLightbox(\''+vEsc(imgs[0])+'\')" style="width:100%;border-radius:12px;cursor:zoom-in;display:block;">';
+    var show=imgs.slice(0,4);
+    return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;border-radius:12px;overflow:hidden;">'+show.map(function(u,i){var more=(i===3&&imgs.length>4);return '<div style="position:relative;cursor:zoom-in;" onclick="commLightbox(\''+vEsc(u)+'\')"><img src="'+vEsc(u)+'" style="width:100%;height:150px;object-fit:cover;display:block;">'+(more?'<div style="position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;font-weight:800;">+'+(imgs.length-4)+'</div>':'')+'</div>';}).join('')+'</div>';
+  }
+  function pollHTML(p,votes,myId){
+    if(!p.poll||!p.poll.options)return '';
+    var pv=votes.filter(function(v){return v.post_id===p.id;});
+    var total=pv.length;
+    var myVote=(pv.find(function(v){return v.user_id===myId;})||{}).option_id;
+    return '<div style="margin-top:10px;border:1px solid var(--border);border-radius:12px;padding:12px;">'+
+      (p.poll.q?'<div style="font-weight:700;font-size:14px;margin-bottom:10px;">📊 '+vEsc(p.poll.q)+'</div>':'')+
+      p.poll.options.map(function(o){
+        var c=pv.filter(function(v){return v.option_id===o.id;}).length;
+        var pct=total?Math.round(c/total*100):0;
+        var mine=myVote===o.id;
+        return '<div onclick="votePoll(\''+p.id+'\',\''+o.id+'\',\''+p.author_id+'\')" style="position:relative;cursor:pointer;border:1px solid '+(mine?'var(--gold)':'var(--border)')+';border-radius:9px;padding:9px 12px;margin-bottom:7px;overflow:hidden;">'+
+          '<div style="position:absolute;left:0;top:0;bottom:0;width:'+pct+'%;background:'+(mine?'rgba(245,158,11,.22)':'rgba(255,255,255,.06)')+';transition:.3s;"></div>'+
+          '<div style="position:relative;display:flex;justify-content:space-between;font-size:13px;font-weight:'+(mine?'700':'500')+';"><span>'+(mine?'✓ ':'')+vEsc(o.text)+'</span><span style="color:var(--text-muted)">'+pct+'%</span></div></div>';
+      }).join('')+
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:2px;">'+total+' vote'+(total===1?'':'s')+'</div></div>';
+  }
+  function renderFeed(){
+    const feed=document.getElementById('commFeed');if(!feed||!_feedCache)return;
+    var q=((document.getElementById('commSearch')||{}).value||'').toLowerCase().trim();
+    var posts=_feedCache.posts,likes=_feedCache.likes,comments=_feedCache.comments,votes=_feedCache.votes,myId=_feedCache.myId,ownerId=_feedCache.ownerId;
+    if(q)posts=posts.filter(function(p){return (p.content||'').toLowerCase().indexOf(q)>=0||commName(p.author).toLowerCase().indexOf(q)>=0;});
+    if(!posts.length){feed.innerHTML='<div class="empty-state" style="color:var(--text-muted);">'+(q?'No posts match your search.':'No posts yet. Be the first to share!')+'</div>';return;}
     feed.innerHTML=posts.map(function(p){
       const pl=likes.filter(function(l){return l.post_id===p.id;});
       const myL=myId&&pl.find(function(l){return l.user_id===myId;});
@@ -6470,10 +6544,9 @@ select option{background:#0f1729;color:#e8eaf0}
       const canMod=myId&&(p.author_id===myId||myId===ownerId);
       const canPin=myId&&(myId===ownerId);
       const pick=_reactPickFor===p.id;
-      // edit mode
       var contentBlock;
       if(_editPost===p.id){contentBlock='<textarea id="ep-'+p.id+'" rows="3" style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);box-sizing:border-box;">'+vEsc(p.content||'')+'</textarea><div style="display:flex;gap:8px;margin-top:6px;"><button onclick="saveEditPost(\''+p.id+'\')" style="padding:7px 16px;border:none;border-radius:8px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;">Save</button><button onclick="_editPost=null;_commFeedSig=\'\';loadFeed()" style="padding:7px 16px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text);cursor:pointer;">Cancel</button></div>';}
-      else{contentBlock=(p.content?'<div style="font-size:15px;line-height:1.6;white-space:pre-wrap;margin-bottom:'+(p.image_url?'10px':'4px')+';">'+fmtContent(p.content)+(p.edited_at?' <span style="font-size:11px;color:var(--text-muted)">(edited)</span>':'')+'</div>':'')+(p.image_url?'<img src="'+vEsc(p.image_url)+'" onclick="commLightbox(\''+vEsc(p.image_url)+'\')" style="width:100%;border-radius:12px;cursor:zoom-in;display:block;">':'');}
+      else{contentBlock=(p.content?'<div style="font-size:15px;line-height:1.6;white-space:pre-wrap;margin-bottom:10px;">'+fmtContent(p.content)+(p.edited_at?' <span style="font-size:11px;color:var(--text-muted)">(edited)</span>':'')+'</div>':'')+galleryHTML(p)+pollHTML(p,votes,myId);}
       const reactPicker=pick?('<div style="display:flex;gap:4px;background:var(--bg-card,#0f1729);border:1px solid var(--border);border-radius:24px;padding:6px 10px;margin-top:6px;width:fit-content;box-shadow:0 6px 20px rgba(0,0,0,.3);">'+REACTS.map(function(e){return '<button onclick="setReaction(\''+p.id+'\',\''+e+'\',\''+p.author_id+'\')" style="background:none;border:none;font-size:22px;cursor:pointer;transition:.1s;" onmouseover="this.style.transform=\'scale(1.3)\'" onmouseout="this.style.transform=\'scale(1)\'">'+e+'</button>';}).join('')+'</div>'):'';
       const cHtml=open?('<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">'+tops.map(function(c){return commentHTML(c,pc,myId,p.id);}).join('')+'<div style="display:flex;gap:8px;margin-top:6px;align-items:center;">'+avatarHTML(currentProfile,30)+'<input id="cm-'+p.id+'" placeholder="Write a comment..." onkeydown="if(event.key===\'Enter\')addComment(\''+p.id+'\',\''+p.author_id+'\')" style="flex:1;padding:9px 14px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:13px;outline:none;"><button onclick="addComment(\''+p.id+'\',\''+p.author_id+'\')" style="padding:8px 16px;border:none;border-radius:20px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;font-size:13px;">Send</button></div></div>'):'';
       return '<div class="card" style="margin-bottom:14px;border-radius:16px;'+(p.pinned?'border:1px solid var(--gold);':'')+'">'+
@@ -6484,7 +6557,7 @@ select option{background:#0f1729;color:#e8eaf0}
         contentBlock+
         (summary?'<div style="font-size:13px;color:var(--text-muted);margin-top:10px;">'+summary+'</div>':'')+
         '<div style="display:flex;gap:8px;margin-top:8px;border-top:1px solid var(--border);padding-top:6px;position:relative;">'+
-          '<button onclick="_reactPickFor=(_reactPickFor===\''+p.id+'\'?null:\''+p.id+'\');_commFeedSig=\'\';loadFeed()" style="flex:1;background:none;border:none;cursor:pointer;color:'+(myL?'var(--gold)':'var(--text-muted)')+';font-weight:700;font-size:13px;padding:8px;border-radius:8px;">'+(myL?(myL.reaction||'❤️')+' Reacted':'😊 React')+'</button>'+
+          '<button onclick="_reactPickFor=(_reactPickFor===\''+p.id+'\'?null:\''+p.id+'\');renderFeed()" style="flex:1;background:none;border:none;cursor:pointer;color:'+(myL?'var(--gold)':'var(--text-muted)')+';font-weight:700;font-size:13px;padding:8px;border-radius:8px;">'+(myL?(myL.reaction||'❤️')+' Reacted':'😊 React')+'</button>'+
           '<button onclick="toggleComments(\''+p.id+'\')" style="flex:1;background:none;border:none;cursor:pointer;color:var(--text-muted);font-weight:700;font-size:13px;padding:8px;border-radius:8px;">💬 Comment'+(pc.length?' ('+pc.length+')':'')+'</button>'+
         '</div>'+reactPicker+cHtml+
       '</div>';
@@ -6507,27 +6580,45 @@ select option{background:#0f1729;color:#e8eaf0}
       (replies.length?'<div style="margin:8px 0 0 6px;border-left:2px solid var(--border);padding-left:10px;">'+replies.map(function(r){return commentHTML(r,allc,myId,postId);}).join('')+'</div>':'')+
     '</div></div>';
   }
+  var _commImgFiles=[];var _pollOn=false;
   function commImgPicked(input){
-    _commImgFile=input.files&&input.files[0]||null;
+    _commImgFiles=input.files?Array.prototype.slice.call(input.files):[];
+    _commImgFile=_commImgFiles[0]||null;
     const pv=document.getElementById('commImgPreview');if(!pv)return;
-    if(!_commImgFile){pv.style.display='none';pv.innerHTML='';return;}
-    const rd=new FileReader();rd.onload=function(e){pv.style.display='block';pv.innerHTML='<img src="'+e.target.result+'" style="max-width:100%;max-height:260px;border-radius:12px;border:1px solid var(--border);"><button onclick="removeCommImg()" style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-weight:800;cursor:pointer;">✕</button>';};rd.readAsDataURL(_commImgFile);
+    if(!_commImgFiles.length){pv.style.display='none';pv.innerHTML='';return;}
+    pv.style.display='block';pv.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;position:relative;">'+_commImgFiles.map(function(f,i){return '<div style="position:relative;"><img id="cthumb-'+i+'" style="width:90px;height:90px;object-fit:cover;border-radius:10px;border:1px solid var(--border);"></div>';}).join('')+'<button onclick="removeCommImg()" style="align-self:flex-start;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-weight:800;cursor:pointer;">✕</button></div>';
+    _commImgFiles.forEach(function(f,i){const rd=new FileReader();rd.onload=function(e){var im=document.getElementById('cthumb-'+i);if(im)im.src=e.target.result;};rd.readAsDataURL(f);});
   }
-  function removeCommImg(){_commImgFile=null;var p=document.getElementById('commPostImg');if(p)p.value='';var pv=document.getElementById('commImgPreview');if(pv){pv.style.display='none';pv.innerHTML='';}}
+  function removeCommImg(){_commImgFile=null;_commImgFiles=[];var p=document.getElementById('commPostImg');if(p)p.value='';var pv=document.getElementById('commImgPreview');if(pv){pv.style.display='none';pv.innerHTML='';}}
+  function togglePollBuilder(){_pollOn=!_pollOn;var b=document.getElementById('commPollBuilder');if(b)b.style.display=_pollOn?'block':'none';var bt=document.getElementById('pollToggleBtn');if(bt)bt.style.background=_pollOn?'rgba(59,130,246,.3)':'rgba(59,130,246,.1)';}
+  function addPollOpt(){var box=document.getElementById('pollOpts');if(!box)return;var n=box.querySelectorAll('.pollOpt').length;if(n>=5)return;var inp=document.createElement('input');inp.className='pollOpt';inp.placeholder='Option '+(n+1);inp.style.cssText='width:100%;padding:8px 12px;border-radius:9px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);box-sizing:border-box;font-size:13px;margin-bottom:6px;';box.appendChild(inp);}
   function commLightbox(url){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;';o.onclick=function(){o.remove();};o.innerHTML='<img src="'+url+'" style="max-width:94vw;max-height:94vh;border-radius:10px;">';document.body.appendChild(o);}
   async function createPost(){
     const msg=document.getElementById('commPostMsg');
     if(!currentProfile||!sb){msg.style.color='var(--red)';msg.textContent='Please sign in.';return;}
     if(!_commGid){msg.style.color='var(--red)';msg.textContent='Select a group.';return;}
     const txt=(document.getElementById('commPostText').value||'').trim();
-    if(!txt&&!_commImgFile){msg.style.color='var(--red)';msg.textContent='Write something or add a photo.';return;}
+    // poll
+    var poll=null;
+    if(_pollOn){var q=(document.getElementById('pollQ').value||'').trim();var opts=[];document.querySelectorAll('#pollOpts .pollOpt').forEach(function(el,i){var v=(el.value||'').trim();if(v)opts.push({id:'o'+(i+1),text:v});});if(opts.length<2){msg.style.color='var(--red)';msg.textContent='Poll needs at least 2 options.';return;}poll={q:q,options:opts};}
+    if(!txt&&!_commImgFiles.length&&!poll){msg.style.color='var(--red)';msg.textContent='Write something, add a photo or a poll.';return;}
     msg.style.color='var(--text-muted)';msg.textContent='Posting...';
-    let img='';
-    if(_commImgFile){try{const ext=(_commImgFile.name.split('.').pop()||'jpg').toLowerCase();const path='community/'+currentProfile.id+'_'+Date.now()+'.'+ext;const up=await sb.storage.from('charts').upload(path,_commImgFile,{upsert:true});if(up.error){msg.style.color='var(--red)';msg.textContent='Image failed: '+up.error.message;return;}img=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}catch(e){}}
-    const r=await sb.from('group_posts').insert({group_id:_commGid,author_id:currentProfile.id,content:txt||null,image_url:img||null});
+    var images=[];
+    for(var i=0;i<_commImgFiles.length;i++){try{var f=_commImgFiles[i];var ext=(f.name.split('.').pop()||'jpg').toLowerCase();var path='community/'+currentProfile.id+'_'+Date.now()+'_'+i+'.'+ext;var up=await sb.storage.from('charts').upload(path,f,{upsert:true});if(up.error){msg.style.color='var(--red)';msg.textContent='Image failed: '+up.error.message;return;}images.push(sb.storage.from('charts').getPublicUrl(path).data.publicUrl);}catch(e){}}
+    const r=await sb.from('group_posts').insert({group_id:_commGid,author_id:currentProfile.id,content:txt||null,image_url:(images[0]||null),images:(images.length?images:null),poll:poll});
     if(r.error){msg.style.color='var(--red)';msg.textContent='Error: '+r.error.message;return;}
-    document.getElementById('commPostText').value='';_commImgFile=null;document.getElementById('commPostImg').value='';removeCommImg();msg.textContent='';
+    document.getElementById('commPostText').value='';removeCommImg();
+    if(_pollOn){togglePollBuilder();document.getElementById('pollQ').value='';document.querySelectorAll('#pollOpts .pollOpt').forEach(function(el){el.value='';});}
+    msg.textContent='';
     _commFeedSig='';loadFeed();
+  }
+  async function votePoll(postId,optId,authorId){
+    if(!currentProfile||!sb)return;
+    try{const ex=await sb.from('post_poll_votes').select('id,option_id').eq('post_id',postId).eq('user_id',currentProfile.id).maybeSingle();
+      if(ex.data){await sb.from('post_poll_votes').update({option_id:optId}).eq('id',ex.data.id);}
+      else{await sb.from('post_poll_votes').insert({post_id:postId,user_id:currentProfile.id,option_id:optId});notifyUser(authorId,postId,'comment','voted on your poll');}
+    }catch(e){}
+    _commFeedSig='';loadFeed(true);
   }
   async function saveEditPost(id){
     const t=(document.getElementById('ep-'+id).value||'').trim();
@@ -6545,7 +6636,7 @@ select option{background:#0f1729;color:#e8eaf0}
     _reactPickFor=null;_commFeedSig='';loadFeed();
   }
   async function toggleLike(postId,authorId){return setReaction(postId,'❤️',authorId);}
-  function toggleComments(postId){_commOpenComments[postId]=!_commOpenComments[postId];_commFeedSig='';loadFeed();}
+  function toggleComments(postId){_commOpenComments[postId]=!_commOpenComments[postId];renderFeed();}
   async function addComment(postId,authorId){
     if(!currentProfile||!sb)return;
     const el=document.getElementById('cm-'+postId);const txt=(el&&el.value||'').trim();if(!txt)return;
@@ -6590,6 +6681,121 @@ select option{background:#0f1729;color:#e8eaf0}
     if(unreadIds.length){try{await sb.from('community_notifications').update({read:true}).in('id',unreadIds);}catch(e){}loadCommNotifs();}
   }
 
+  // ============ DIRECT MESSAGES + MEMBERS + PRESENCE ============
+  function isOnline(ls){return ls&&(Date.now()-new Date(ls)<90000);}
+  function onlineDot(ls){return '<span style="position:absolute;bottom:0;right:0;width:11px;height:11px;border-radius:50%;border:2px solid var(--bg-card,#0f1729);background:'+(isOnline(ls)?'#10b981':'#6b7280')+';"></span>';}
+  // presence heartbeat
+  (function(){setInterval(async function(){if(currentProfile&&sb){try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',currentProfile.id);}catch(e){}}},30000);})();
+  async function pingPresence(){if(currentProfile&&sb){try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',currentProfile.id);}catch(e){}}}
+
+  // ---- Members modal ----
+  async function openMembersModal(){
+    if(!_commGid||!sb)return;
+    const g=_commGroups.find(function(x){return x.id===_commGid;});if(!g)return;
+    var host=document.getElementById('vipModalHost');if(!host){host=document.createElement('div');host.id='vipModalHost';document.body.appendChild(host);}
+    host.innerHTML='<div style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeVipModal()"><div style="background:var(--bg-card,#0f1729);border:1px solid var(--border);border-radius:16px;max-width:420px;width:100%;max-height:80vh;overflow-y:auto;padding:18px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><div style="font-weight:800;font-size:16px;">👥 '+vEsc(g.name)+' — Members</div><button onclick="closeVipModal()" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;">✕</button></div><div id="memberListBody"><div style="color:var(--text-muted);font-size:13px;">Loading...</div></div></div></div>';
+    let members=[];
+    try{
+      if(g.is_official){const r=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen,role,member_type').order('last_seen',{ascending:false,nullsFirst:false}).limit(200);members=r.data||[];}
+      else{
+        let q=sb.from('profiles').select('id,full_name,email,avatar_url,last_seen,role,member_type').eq('mentor_id',g.owner_id);
+        if(g.audience==='premium')q=q.in('member_type',['premium','vip']);
+        else if(g.audience==='vip')q=q.eq('member_type','vip');
+        const r=await q.limit(200);members=r.data||[];
+        const ow=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen,role,member_type').eq('id',g.owner_id).maybeSingle();
+        if(ow.data&&!members.some(function(m){return m.id===ow.data.id;}))members.unshift(ow.data);
+      }
+    }catch(e){}
+    const body=document.getElementById('memberListBody');if(!body)return;
+    if(!members.length){body.innerHTML='<div style="color:var(--text-muted);font-size:13px;">No members found.</div>';return;}
+    const myId=currentProfile?currentProfile.id:null;
+    body.innerHTML=members.map(function(m){
+      const me=m.id===myId;const role=m.id===g.owner_id?(g.is_official?'Admin':'Mentor'):(m.member_type==='vip'?'VIP':m.member_type==='premium'?'Premium':'');
+      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);"><div style="position:relative;">'+avatarHTML(m,38)+onlineDot(m.last_seen)+'</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;">'+commName(m)+(me?' (you)':'')+'</div><div style="font-size:11px;color:var(--text-muted)">'+(isOnline(m.last_seen)?'🟢 Online':'Offline')+(role?' · '+role:'')+'</div></div>'+(me?'':'<button onclick="closeVipModal();openDM(\''+m.id+'\')" style="padding:6px 14px;border:none;border-radius:18px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;font-size:12px;">Message</button>')+'</div>';
+    }).join('');
+  }
+
+  // ---- DM list ----
+  var _dmPeer=null;var _dmConvs=[];var _dmTypeChan=null;var _dmInitDone=false;
+  function dmInitRealtime(){
+    if(_dmInitDone||!sb)return;_dmInitDone=true;
+    try{sb.channel('rt-user-dm').on('postgres_changes',{event:'*',schema:'public',table:'dm_messages'},function(){loadDMList(true);if(_dmPeer)openDM(_dmPeer.id,_dmPeer,true);}).subscribe();}catch(e){}
+  }
+  async function loadDMList(silent){
+    if(!currentProfile||!sb)return;dmInitRealtime();
+    const me=currentProfile.id;
+    let msgs=[];try{const r=await sb.from('dm_messages').select('*').or('sender_id.eq.'+me+',recipient_id.eq.'+me).order('created_at',{ascending:false}).limit(400);msgs=r.data||[];}catch(e){return;}
+    var byPeer={};
+    msgs.forEach(function(m){var peer=m.sender_id===me?m.recipient_id:m.sender_id;if(!byPeer[peer])byPeer[peer]={peer:peer,last:m,unread:0};if(m.recipient_id===me&&!m.read_at)byPeer[peer].unread++;});
+    var peerIds=Object.keys(byPeer);
+    var profs={};
+    if(peerIds.length){try{const pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').in('id',peerIds);(pr.data||[]).forEach(function(p){profs[p.id]=p;});}catch(e){}}
+    _dmConvs=peerIds.map(function(id){return {prof:profs[id]||{id:id,full_name:'Member'},last:byPeer[id].last,unread:byPeer[id].unread};}).sort(function(a,b){return new Date(b.last.created_at)-new Date(a.last.created_at);});
+    var totalUnread=_dmConvs.reduce(function(s,c){return s+c.unread;},0);
+    var nb=document.getElementById('chatsNavBadge');if(nb){if(totalUnread){nb.style.display='inline-block';nb.textContent=totalUnread>9?'9+':totalUnread;}else{nb.style.display='none';}}
+    renderDMList();
+  }
+  function renderDMList(){
+    const box=document.getElementById('dmList');if(!box)return;
+    var q=((document.getElementById('dmSearch')||{}).value||'').toLowerCase().trim();
+    var list=_dmConvs;if(q)list=list.filter(function(c){return commName(c.prof).toLowerCase().indexOf(q)>=0;});
+    if(!list.length){box.innerHTML='<div class="empty-state" style="font-size:12px;color:var(--text-muted);padding:14px;">'+(q?'No matches.':'No chats yet. Open a group → Members → Message someone.')+'</div>';return;}
+    const me=currentProfile?currentProfile.id:null;
+    box.innerHTML=list.map(function(c){
+      var sel=_dmPeer&&_dmPeer.id===c.prof.id;
+      var prev=(c.last.sender_id===me?'You: ':'')+(c.last.body||'');
+      return '<div onclick="openDM(\''+c.prof.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;margin-bottom:4px;background:'+(sel?'rgba(245,158,11,.08)':'transparent')+';border:1px solid '+(sel?'var(--gold)':'transparent')+';"><div style="position:relative;">'+avatarHTML(c.prof,40)+onlineDot(c.prof.last_seen)+'</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:6px"><strong style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+commName(c.prof)+'</strong>'+(c.unread?'<span style="background:var(--red);color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;">'+c.unread+'</span>':'')+'</div><div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+vEsc(prev.slice(0,38))+'</div></div></div>';
+    }).join('');
+  }
+  async function openDM(peerId,peerObj,silent){
+    if(!currentProfile||!sb)return;
+    const me=currentProfile.id;
+    // ensure on chats page
+    if(!silent){var pg=document.getElementById('page-chats');if(pg&&!pg.classList.contains('active')){showPage('chats',document.querySelector('[data-page=chats]'));}}
+    if(!peerObj){try{const pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').eq('id',peerId).maybeSingle();peerObj=pr.data;}catch(e){}}
+    if(!peerObj)peerObj={id:peerId,full_name:'Member'};
+    _dmPeer=peerObj;
+    const head=document.getElementById('dmThreadHead');
+    head.style.display='flex';
+    head.innerHTML='<div style="position:relative;">'+avatarHTML(peerObj,40)+onlineDot(peerObj.last_seen)+'</div><div><div style="font-weight:700;font-size:15px;">'+commName(peerObj)+'</div><div style="font-size:11px;color:var(--text-muted)">'+(isOnline(peerObj.last_seen)?'🟢 Online':'Offline')+'</div></div>';
+    document.getElementById('dmComposer').style.display='flex';
+    let msgs=[];try{const r=await sb.from('dm_messages').select('*').or('and(sender_id.eq.'+me+',recipient_id.eq.'+peerId+'),and(sender_id.eq.'+peerId+',recipient_id.eq.'+me+')').order('created_at',{ascending:true}).limit(500);msgs=r.data||[];}catch(e){}
+    const body=document.getElementById('dmThreadBody');
+    const atBottom=body.scrollHeight-body.scrollTop-body.clientHeight<80;
+    var lastMine=null;msgs.forEach(function(m){if(m.sender_id===me)lastMine=m;});
+    body.innerHTML=msgs.map(function(m){
+      var mine=m.sender_id===me;
+      var seen=(mine&&m===lastMine&&m.read_at)?'<div style="font-size:10px;color:var(--text-muted);text-align:right;margin-top:2px;">Seen</div>':'';
+      return '<div style="align-self:'+(mine?'flex-end':'flex-start')+';max-width:72%;"><div style="padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;background:'+(mine?'linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a':'rgba(255,255,255,.06);color:var(--text)')+';">'+vEsc(m.body||'')+'</div><div style="font-size:9px;color:var(--text-muted);'+(mine?'text-align:right':'')+';margin-top:2px;">'+commTimeAgo(m.created_at)+'</div>'+seen+'</div>';
+    }).join('')||'<div class="empty-state" style="margin:auto;color:var(--text-muted);">Say hi 👋</div>';
+    if(atBottom||!silent)body.scrollTop=body.scrollHeight;
+    // mark incoming read
+    var unread=msgs.filter(function(m){return m.recipient_id===me&&!m.read_at;});
+    if(unread.length){try{await sb.from('dm_messages').update({read_at:new Date().toISOString()}).in('id',unread.map(function(m){return m.id;}));loadDMList(true);}catch(e){}}
+    if(!silent)renderDMList();
+    // typing channel
+    if(!silent){
+      const ck=[me,peerId].sort().join('_');
+      try{if(_dmTypeChan)sb.removeChannel(_dmTypeChan);}catch(e){}
+      _dmTypeChan=sb.channel('dm-typing-'+ck);
+      _dmTypeChan.on('broadcast',{event:'typing'},function(p){if(p.payload&&p.payload.from===peerId){showDMTyping();}}).subscribe();
+    }
+  }
+  var _dmTypeTimer=null;
+  function showDMTyping(){const t=document.getElementById('dmTyping');if(!t||!_dmPeer)return;t.textContent=commName(_dmPeer)+' is typing...';clearTimeout(_dmTypeTimer);_dmTypeTimer=setTimeout(function(){t.textContent='';},2500);}
+  var _dmPingThrottle=0;
+  function dmTypingPing(){if(!_dmTypeChan||!currentProfile)return;var now=Date.now();if(now-_dmPingThrottle<1200)return;_dmPingThrottle=now;try{_dmTypeChan.send({type:'broadcast',event:'typing',payload:{from:currentProfile.id}});}catch(e){}}
+  async function sendDM(){
+    if(!currentProfile||!sb||!_dmPeer)return;
+    const inp=document.getElementById('dmInput');const txt=(inp.value||'').trim();if(!txt)return;
+    inp.value='';
+    const body=document.getElementById('dmThreadBody');
+    if(body){if(body.querySelector('.empty-state'))body.innerHTML='';body.insertAdjacentHTML('beforeend','<div style="align-self:flex-end;max-width:72%;"><div style="padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;">'+vEsc(txt)+'</div></div>');body.scrollTop=body.scrollHeight;}
+    const r=await sb.from('dm_messages').insert({sender_id:currentProfile.id,recipient_id:_dmPeer.id,body:txt});
+    if(r.error){alert('Error: '+r.error.message);return;}
+    loadDMList(true);
+  }
+
   function closeVipModal(){const h=document.getElementById('vipModalHost');if(h)h.innerHTML='';}
   // INSTANT realtime updates (Supabase Realtime — needs realtime-enable.sql)
   (function rtUser(){
@@ -6618,6 +6824,7 @@ select option{background:#0f1729;color:#e8eaf0}
         .on('postgres_changes',{event:'*',schema:'public',table:'group_posts'},function(){if(act('page-community')&&typeof loadFeed==='function')loadFeed(true);})
         .on('postgres_changes',{event:'*',schema:'public',table:'post_likes'},function(){if(act('page-community')&&typeof loadFeed==='function')loadFeed(true);})
         .on('postgres_changes',{event:'*',schema:'public',table:'post_comments'},function(){if(act('page-community')&&typeof loadFeed==='function')loadFeed(true);})
+        .on('postgres_changes',{event:'*',schema:'public',table:'post_poll_votes'},function(){if(act('page-community')&&typeof loadFeed==='function')loadFeed(true);})
         .subscribe();
       sb.channel('rt-user-commnotif').on('postgres_changes',{event:'*',schema:'public',table:'community_notifications'},function(){if(typeof loadCommNotifs==='function')loadCommNotifs();}).subscribe();
     }catch(e){}
