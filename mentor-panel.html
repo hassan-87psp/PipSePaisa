@@ -789,9 +789,14 @@ function renderMentorChats(){
   el.innerHTML=`<div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;height:calc(100vh - 170px);min-height:480px">
     <div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box;padding:12px">
       <div class="card-title" style="font-size:15px;margin-bottom:8px">✉️ Member Chats</div>
-      <input id="mDmNew" class="inp" oninput="mDmSearchUsers()" placeholder="🔍 Search members to message..." style="margin-bottom:6px">
+      <input id="mDmNew" class="inp" oninput="mDmSearchUsers()" placeholder="🔍 Search members..." style="margin-bottom:6px">
       <div id="mDmSearchRes"></div>
-      <div id="mDmList" style="flex:1;overflow-y:auto;margin-top:6px"><div class="list-empty">Loading...</div></div>
+      <div style="flex:1;overflow-y:auto;margin-top:6px">
+        <div style="font-size:11px;color:#94a0b8;font-weight:700;margin:4px 0 6px">GROUPS & MEMBERS</div>
+        <div id="mGroupsBox"><div class="list-empty" style="font-size:12px">Loading...</div></div>
+        <div style="font-size:11px;color:#94a0b8;font-weight:700;margin:14px 0 6px">RECENT CHATS</div>
+        <div id="mDmList"><div class="list-empty" style="font-size:12px">No chats yet.</div></div>
+      </div>
     </div>
     <div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box">
       <div id="mDmHead" style="display:none;align-items:center;gap:10px;border-bottom:1px solid var(--border,#1f2937);padding-bottom:12px;margin-bottom:12px"></div>
@@ -803,7 +808,40 @@ function renderMentorChats(){
       </div>
     </div>
   </div>`;
-  mHeartbeat();mLoadDMList();
+  mHeartbeat();mLoadDMList();mLoadGroups();
+}
+var _mGroups=[],_mGroupOpen={},_mGroupMembers={};
+async function mLoadGroups(){
+  var box=document.getElementById('mGroupsBox');if(!box)return;
+  var r=await sb.from('groups').select('*').or('owner_id.eq.'+ME.id+',is_official.eq.true').order('is_official',{ascending:false});
+  _mGroups=[{id:'__students',name:'My Students',icon:'🎓',_virtual:true}].concat(r.data||[]);
+  mRenderGroups();
+}
+function mRenderGroups(){
+  var box=document.getElementById('mGroupsBox');if(!box)return;
+  box.innerHTML=_mGroups.map(function(g){
+    var open=_mGroupOpen[g.id];
+    var head='<div onclick="mToggleGroup(\''+g.id+'\')" style="display:flex;align-items:center;gap:8px;padding:8px 6px;border-radius:8px;cursor:pointer"><span style="font-size:16px">'+(g.icon||'👥')+'</span><strong style="font-size:13px;flex:1">'+esc(g.name)+'</strong><span style="color:#94a0b8">'+(open?'▾':'▸')+'</span></div>';
+    var mem=open?('<div id="mgm-'+g.id+'" style="padding:0 0 6px 10px">'+(_mGroupMembers[g.id]?mMembersHTML(_mGroupMembers[g.id]):'<div style="font-size:11px;color:#94a0b8;padding:4px">Loading...</div>')+'</div>'):'';
+    return '<div style="border-bottom:1px solid var(--border,#1f2937)">'+head+mem+'</div>';
+  }).join('');
+}
+function mMembersHTML(list){
+  if(!list.length)return '<div style="font-size:11px;color:#94a0b8;padding:4px">No members.</div>';
+  return list.map(function(m){return '<div onclick="mOpenDM(\''+m.id+'\')" style="display:flex;align-items:center;gap:8px;padding:6px;border-radius:8px;cursor:pointer"><div style="position:relative">'+mAv(m,28)+mDot(m.last_seen)+'</div><div style="font-size:12px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+mNm(m)+'</div></div>';}).join('');
+}
+async function mToggleGroup(gid){
+  _mGroupOpen[gid]=!_mGroupOpen[gid];mRenderGroups();
+  if(_mGroupOpen[gid]&&!_mGroupMembers[gid]){
+    var g=_mGroups.find(function(x){return x.id===gid;});var members=[];
+    try{
+      if(gid==='__students'){var r=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').eq('mentor_id',ME.id).limit(200);members=r.data||[];}
+      else if(g.is_official){var r2=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').order('last_seen',{ascending:false,nullsFirst:false}).limit(200);members=r2.data||[];}
+      else{var q=sb.from('profiles').select('id,full_name,email,avatar_url,last_seen,member_type').eq('mentor_id',g.owner_id);if(g.audience==='premium')q=q.in('member_type',['premium','vip']);else if(g.audience==='vip')q=q.eq('member_type','vip');var r3=await q.limit(200);members=r3.data||[];}
+    }catch(e){}
+    members=members.filter(function(m){return m.id!==ME.id;});
+    _mGroupMembers[gid]=members;mRenderGroups();
+  }
 }
 async function mHeartbeat(){try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);}catch(e){}}
 setInterval(function(){if(typeof ME!=='undefined'&&ME&&sb)mHeartbeat();},30000);

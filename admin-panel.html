@@ -1963,14 +1963,50 @@ function renderAdminChats(){
   w.innerHTML='<div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;height:calc(100vh - 200px);min-height:480px">'+
     '<div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box"><h3 style="margin:0 0 10px">✉️ Member Chats</h3>'+
       '<input id="aDmNew" oninput="aDmSearchUsers()" placeholder="🔍 Search members..." style="'+APMS+';margin-bottom:6px"><div id="aDmSearchRes"></div>'+
-      '<div id="aDmList" style="flex:1;overflow-y:auto;margin-top:6px">Loading...</div></div>'+
+      '<div style="flex:1;overflow-y:auto;margin-top:6px">'+
+        '<div style="font-size:11px;color:#94a0b8;font-weight:700;margin:4px 0 6px">GROUPS & MEMBERS</div><div id="aGroupsBox">Loading...</div>'+
+        '<div style="font-size:11px;color:#94a0b8;font-weight:700;margin:14px 0 6px">RECENT CHATS</div><div id="aDmList">No chats yet.</div>'+
+      '</div></div>'+
     '<div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box">'+
       '<div id="aDmHead" style="display:none;align-items:center;gap:10px;border-bottom:1px solid var(--border,#1f2937);padding-bottom:12px;margin-bottom:12px"></div>'+
       '<div id="aDmBody" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px"><div style="margin:auto;color:#94a0b8">Select a member to start chatting.</div></div>'+
       '<div id="aDmTyping" style="font-size:11px;color:#94a0b8;height:14px;padding:0 4px"></div>'+
       '<div id="aDmComposer" style="display:none;gap:8px;margin-top:8px"><input id="aDmInput" oninput="aTypePing()" onkeydown="if(event.key===String.fromCharCode(13))aSendDM()" placeholder="Type a message..." style="'+APMS+';flex:1;border-radius:22px"><button onclick="aSendDM()" style="padding:10px 22px;border:none;border-radius:22px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">Send</button></div>'+
     '</div></div>';
-  aHeartbeat();aLoadDMList();
+  aHeartbeat();aLoadDMList();aLoadGroups();
+}
+var _aGroups=[],_aGroupOpen={},_aGroupMembers={};
+async function aLoadGroups(){
+  var box=document.getElementById('aGroupsBox');if(!box)return;
+  var r=await sb.from('groups').select('*, owner:owner_id(full_name,email)').order('is_official',{ascending:false}).order('created_at',{ascending:true});
+  _aGroups=[{id:'__all',name:'All Members',icon:'🌐',_virtual:true}].concat(r.data||[]);
+  aRenderGroups();
+}
+function aRenderGroups(){
+  var box=document.getElementById('aGroupsBox');if(!box)return;
+  box.innerHTML=_aGroups.map(function(g){
+    var open=_aGroupOpen[g.id];
+    var sub=g._virtual?'':(g.is_official?'Official':(g.owner&&(g.owner.full_name||g.owner.email)||'Mentor'));
+    var head='<div onclick="aToggleGroup(\''+g.id+'\')" style="display:flex;align-items:center;gap:8px;padding:8px 6px;border-radius:8px;cursor:pointer"><span style="font-size:16px">'+(g.icon||'👥')+'</span><div style="flex:1;min-width:0"><strong style="font-size:13px">'+aEsc(g.name)+'</strong>'+(sub?'<div style="font-size:10px;color:#94a0b8">'+aEsc(sub)+'</div>':'')+'</div><span style="color:#94a0b8">'+(open?'▾':'▸')+'</span></div>';
+    var mem=open?('<div style="padding:0 0 6px 10px">'+(_aGroupMembers[g.id]?aMembersHTML(_aGroupMembers[g.id]):'<div style="font-size:11px;color:#94a0b8;padding:4px">Loading...</div>')+'</div>'):'';
+    return '<div style="border-bottom:1px solid var(--border,#1f2937)">'+head+mem+'</div>';
+  }).join('');
+}
+function aMembersHTML(list){
+  if(!list.length)return '<div style="font-size:11px;color:#94a0b8;padding:4px">No members.</div>';
+  return list.map(function(m){return '<div onclick="aOpenDM(\''+m.id+'\')" style="display:flex;align-items:center;gap:8px;padding:6px;border-radius:8px;cursor:pointer"><div style="position:relative">'+aAv(m,28)+aDot(m.last_seen)+'</div><div style="font-size:12px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+aNm(m)+'</div></div>';}).join('');
+}
+async function aToggleGroup(gid){
+  _aGroupOpen[gid]=!_aGroupOpen[gid];aRenderGroups();
+  if(_aGroupOpen[gid]&&!_aGroupMembers[gid]){
+    var g=_aGroups.find(function(x){return x.id===gid;});var members=[];
+    try{
+      if(gid==='__all'||g.is_official){var r=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').order('last_seen',{ascending:false,nullsFirst:false}).limit(300);members=r.data||[];}
+      else{var q=sb.from('profiles').select('id,full_name,email,avatar_url,last_seen,member_type').eq('mentor_id',g.owner_id);if(g.audience==='premium')q=q.in('member_type',['premium','vip']);else if(g.audience==='vip')q=q.eq('member_type','vip');var r2=await q.limit(200);members=r2.data||[];}
+    }catch(e){}
+    members=members.filter(function(m){return m.id!==currentAdmin.id;});
+    _aGroupMembers[gid]=members;aRenderGroups();
+  }
 }
 async function aHeartbeat(){try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',currentAdmin.id);}catch(e){}}
 setInterval(function(){if(typeof currentAdmin!=='undefined'&&currentAdmin&&sb)aHeartbeat();},30000);
