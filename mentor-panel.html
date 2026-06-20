@@ -219,7 +219,7 @@ select option{background:#0f1729;color:#e8eaf0}
 const SUPABASE_URL='https://vjqvoinsspgsrcyhwspy.supabase.co';
 const SUPABASE_KEY='sb_publishable_pARKqVhdmy3qMg98JAzTkw_1ZAtYW5o';
 let ME=null, authMode='login', pipsView=false;
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:"pipsepaisa-mentor-auth",persistSession:true,autoRefreshToken:true}});
 
 /* ---- trading pairs ---- */
 const PAIRS={Gold:['XAU/USD','XAG/USD'],

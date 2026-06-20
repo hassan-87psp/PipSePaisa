@@ -1533,7 +1533,7 @@ const SUPABASE_KEY = 'sb_publishable_pARKqVhdmy3qMg98JAzTkw_1ZAtYW5o'; // <-- na
 let sb = null;
 try {
   if (window.supabase && window.supabase.createClient) {
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-admin-auth",persistSession:true,autoRefreshToken:true}});
     console.log('✅ Supabase initialized');
   }
 } catch (e) {
