@@ -1904,18 +1904,39 @@ function loadAdminCommunity(){
       '<input id="gc-name" placeholder="Group name" style="'+APMS+'">'+
       '<textarea id="gc-desc" rows="2" placeholder="Description" style="'+APMS+'"></textarea>'+
       '<div style="display:flex;gap:10px"><input id="gc-icon" maxlength="2" value="🌐" style="'+APMS+';max-width:70px;text-align:center;font-size:18px"><label style="display:flex;align-items:center;gap:7px;font-size:13px;color:#94a0b8;cursor:pointer"><input type="checkbox" id="gc-official" checked> Official (everyone)</label></div>'+
+      '<select id="gc-slow" style="'+APMS+'"><option value="0">Slow mode: Off</option><option value="30">1 post / 30s</option><option value="60">1 post / 1 min</option><option value="300">1 post / 5 min</option></select>'+
       '<button onclick="createAdminGroup()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">➕ Create Group</button>'+
     '</div></div>'+
-    '<div class="card"><h3 style="margin:0 0 12px">📋 All Groups</h3><div id="adGroupList">Loading...</div></div></div>';
-  loadAdGroupList();
+    '<div class="card"><h3 style="margin:0 0 12px">📋 All Groups</h3><div id="adGroupList">Loading...</div></div></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px">'+
+      '<div class="card"><h3 style="margin:0 0 12px">🚩 Reported Posts</h3><div id="adReports">Loading...</div></div>'+
+      '<div class="card"><h3 style="margin:0 0 12px">📜 Moderation Log</h3><div id="adAudit">Loading...</div></div></div>';
+  loadAdGroupList();loadAdReports();loadAdAudit();
 }
 async function createAdminGroup(){
   var name=(document.getElementById('gc-name').value||'').trim();if(!name){alert('Group name required');return;}
   var off=document.getElementById('gc-official').checked;
-  var r=await sb.from('groups').insert({owner_id:currentAdmin.id,is_official:off,name:name,description:(document.getElementById('gc-desc').value||'').trim()||null,icon:(document.getElementById('gc-icon').value||'🌐'),audience:'all'});
+  var r=await sb.from('groups').insert({owner_id:currentAdmin.id,is_official:off,name:name,description:(document.getElementById('gc-desc').value||'').trim()||null,icon:(document.getElementById('gc-icon').value||'🌐'),audience:'all',slow_mode_seconds:parseInt(document.getElementById('gc-slow').value||'0')});
   if(r.error){alert('Error: '+r.error.message);return;}
   document.getElementById('gc-name').value='';document.getElementById('gc-desc').value='';
   loadAdGroupList();
+}
+async function loadAdReports(){
+  var box=document.getElementById('adReports');if(!box)return;
+  var r=await sb.from('post_reports').select('*').eq('status','open').order('created_at',{ascending:false}).limit(50);
+  if(r.error){box.innerHTML='<div style="color:#ef4444;font-size:12px">'+aEsc(r.error.message)+'</div>';return;}
+  var data=r.data||[];if(!data.length){box.innerHTML='<div style="color:#94a0b8;font-size:13px">No open reports 🎉</div>';return;}
+  box.innerHTML=data.map(function(rp){return '<div style="padding:10px 0;border-bottom:1px solid var(--border,#1f2937)"><div style="font-size:12px"><strong>'+aEsc(rp.reporter_name||'Member')+'</strong> reported a post</div><div style="font-size:12px;color:#94a0b8;margin:3px 0">"'+aEsc(rp.reason||'')+'"</div><div style="display:flex;gap:6px;margin-top:5px"><button onclick="delReportedPost(\''+rp.post_id+'\',\''+rp.id+'\')" style="padding:4px 10px;border:none;border-radius:7px;background:rgba(239,68,68,.15);color:#ef4444;cursor:pointer;font-size:11px;font-weight:700">Delete post</button><button onclick="resolveReport(\''+rp.id+'\')" style="padding:4px 10px;border:none;border-radius:7px;background:rgba(16,185,129,.15);color:#10b981;cursor:pointer;font-size:11px;font-weight:700">Dismiss</button></div></div>';}).join('');
+}
+async function delReportedPost(postId,reportId){if(!confirm('Delete this reported post?'))return;await sb.from('group_posts').delete().eq('id',postId);await sb.from('post_reports').update({status:'resolved'}).eq('id',reportId);try{await sb.from('moderation_log').insert({actor_id:currentAdmin.id,actor_name:'Admin',action:'delete_post',detail:'via report'});}catch(e){}loadAdReports();loadAdAudit();}
+async function resolveReport(id){await sb.from('post_reports').update({status:'resolved'}).eq('id',id);try{await sb.from('moderation_log').insert({actor_id:currentAdmin.id,actor_name:'Admin',action:'resolve_report',detail:id});}catch(e){}loadAdReports();loadAdAudit();}
+async function loadAdAudit(){
+  var box=document.getElementById('adAudit');if(!box)return;
+  var r=await sb.from('moderation_log').select('*').order('created_at',{ascending:false}).limit(50);
+  if(r.error){box.innerHTML='<div style="color:#ef4444;font-size:12px">'+aEsc(r.error.message)+'</div>';return;}
+  var data=r.data||[];if(!data.length){box.innerHTML='<div style="color:#94a0b8;font-size:13px">No actions logged yet.</div>';return;}
+  var ico={delete_post:'🗑️',ban:'⛔',mute:'🔇',unban:'✅',resolve_report:'✔️'};
+  box.innerHTML=data.map(function(l){return '<div style="padding:8px 0;border-bottom:1px solid var(--border,#1f2937);font-size:12px"><span>'+(ico[l.action]||'•')+' <strong>'+aEsc(l.actor_name||'Mod')+'</strong> '+aEsc((l.action||'').replace('_',' '))+'</span> <span style="color:#94a0b8">'+aEsc(l.detail||'')+'</span><div style="font-size:10px;color:#94a0b8">'+new Date(l.created_at).toLocaleString()+'</div></div>';}).join('');
 }
 async function loadAdGroupList(){
   var box=document.getElementById('adGroupList');if(!box)return;

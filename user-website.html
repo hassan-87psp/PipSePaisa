@@ -6464,7 +6464,17 @@ select option{background:#0f1729;color:#e8eaf0}
     return '<div style="width:'+s+'px;height:'+s+'px;border-radius:50%;flex:0 0 auto;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;font-size:'+Math.round(s*0.4)+'px;">'+init+'</div>';
   }
   function commTimeAgo(ts){var s=Math.floor((Date.now()-new Date(ts))/1000);if(s<60)return 'just now';var m=Math.floor(s/60);if(m<60)return m+'m';var h=Math.floor(m/60);if(h<24)return h+'h';var d=Math.floor(h/24);if(d<7)return d+'d';return new Date(ts).toLocaleDateString();}
-  function fmtContent(t){return vEsc(t||'').replace(/@([\w.]+)/g,'<span style="color:var(--gold);font-weight:700">@$1</span>').replace(/#(\w+)/g,'<span style="color:#3b82f6;font-weight:700">#$1</span>');}
+  var BADWORDS=['fuck','shit','bitch','asshole','bastard','dick','cunt','slut','whore','nigger','faggot','randi','madarchod','behenchod','bhenchod','gandu','chutiya','chutiyaa','harami','kutta','kutiya','lund','gaand','bsdk','mc','bc'];
+  function censorText(t){if(!t)return t;var s=t;BADWORDS.forEach(function(w){try{s=s.replace(new RegExp('\\b'+w+'\\b','gi'),function(m){return m[0]+'*'.repeat(Math.max(1,m.length-1));});}catch(e){}});return s;}
+  function fmtContent(t){return censorText(vEsc(t||'')).replace(/@([\w.]+)/g,'<span style="color:var(--gold);font-weight:700">@$1</span>').replace(/#(\w+)/g,'<span style="color:#3b82f6;font-weight:700">#$1</span>');}
+  function roleBadge(author,ownerId){
+    if(!author)return '';
+    if(author.id===ownerId)return '<span style="font-size:9px;padding:1px 6px;border-radius:8px;background:rgba(245,158,11,.2);color:var(--gold);font-weight:800;margin-left:5px;">'+(author.role==='admin'?'ADMIN':'MENTOR')+'</span>';
+    if(author.role==='admin')return '<span style="font-size:9px;padding:1px 6px;border-radius:8px;background:rgba(239,68,68,.2);color:#ef4444;font-weight:800;margin-left:5px;">ADMIN</span>';
+    if(author.member_type==='vip')return '<span style="font-size:9px;padding:1px 6px;border-radius:8px;background:rgba(168,85,247,.2);color:#a855f7;font-weight:800;margin-left:5px;">VIP</span>';
+    if(author.member_type==='premium')return '<span style="font-size:9px;padding:1px 6px;border-radius:8px;background:rgba(16,185,129,.2);color:#10b981;font-weight:800;margin-left:5px;">PREMIUM</span>';
+    return '';
+  }
   async function loadCommunityGroups(){
     const box=document.getElementById('commGroups');if(!box||!sb)return;
     let data=[];try{const r=await sb.from('groups').select('*').order('is_official',{ascending:false}).order('created_at',{ascending:true});data=r.data||[];}catch(e){box.innerHTML='<div style="font-size:12px;color:var(--red)">'+vEsc(e.message||'Error')+'</div>';return;}
@@ -6489,7 +6499,7 @@ select option{background:#0f1729;color:#e8eaf0}
   async function loadFeed(silent){
     const feed=document.getElementById('commFeed');if(!feed||!_commGid||!sb)return;
     if(!silent)feed.innerHTML=feedSkeleton();
-    let posts=[];try{const r=await sb.from('group_posts').select('*, author:author_id(full_name,email,avatar_url)').eq('group_id',_commGid).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(80);posts=r.data||[];}catch(e){feed.innerHTML='<div style="color:var(--red)">'+vEsc(e.message||'Error')+'</div>';return;}
+    let posts=[];try{const r=await sb.from('group_posts').select('*, author:author_id(full_name,email,avatar_url,role,member_type)').eq('group_id',_commGid).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(80);posts=r.data||[];}catch(e){feed.innerHTML='<div style="color:var(--red)">'+vEsc(e.message||'Error')+'</div>';return;}
     const ids=posts.map(function(p){return p.id;});
     let likes=[],comments=[],votes=[];
     if(ids.length){try{likes=(await sb.from('post_likes').select('post_id,user_id,reaction').in('post_id',ids)).data||[];}catch(e){}
@@ -6551,8 +6561,9 @@ select option{background:#0f1729;color:#e8eaf0}
       const cHtml=open?('<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">'+tops.map(function(c){return commentHTML(c,pc,myId,p.id);}).join('')+'<div style="display:flex;gap:8px;margin-top:6px;align-items:center;">'+avatarHTML(currentProfile,30)+'<input id="cm-'+p.id+'" placeholder="Write a comment..." onkeydown="if(event.key===\'Enter\')addComment(\''+p.id+'\',\''+p.author_id+'\')" style="flex:1;padding:9px 14px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:13px;outline:none;"><button onclick="addComment(\''+p.id+'\',\''+p.author_id+'\')" style="padding:8px 16px;border:none;border-radius:20px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;font-size:13px;">Send</button></div></div>'):'';
       return '<div class="card" style="margin-bottom:14px;border-radius:16px;'+(p.pinned?'border:1px solid var(--gold);':'')+'">'+
         (p.pinned?'<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:6px;">📌 Pinned</div>':'')+
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+avatarHTML(p.author,42)+'<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:14px;">'+commName(p.author)+'</div><div style="font-size:11px;color:var(--text-muted)">'+commTimeAgo(p.created_at)+'</div></div>'+
-          (canMod?'<div style="display:flex;gap:4px;">'+(p.author_id===myId?'<button onclick="_editPost=\''+p.id+'\';_commFeedSig=\'\';loadFeed()" title="Edit" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;">✏️</button>':'')+(canPin?'<button onclick="togglePin(\''+p.id+'\','+(p.pinned?'false':'true')+')" title="Pin" style="background:none;border:none;color:'+(p.pinned?'var(--gold)':'var(--text-muted)')+';cursor:pointer;font-size:14px;">📌</button>':'')+'<button onclick="delPost(\''+p.id+'\')" title="Delete" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;">🗑️</button></div>':'')+
+        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+avatarHTML(p.author,42)+'<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:14px;">'+commName(p.author)+roleBadge(p.author,ownerId)+'</div><div style="font-size:11px;color:var(--text-muted)">'+commTimeAgo(p.created_at)+'</div></div>'+
+          '<div style="display:flex;gap:4px;">'+(myId&&p.author_id!==myId?'<button onclick="reportPost(\''+p.id+'\',\''+_commGid+'\')" title="Report" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;">🚩</button>':'')+
+          (canMod?(p.author_id===myId?'<button onclick="_editPost=\''+p.id+'\';renderFeed()" title="Edit" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;">✏️</button>':'')+(canPin?'<button onclick="togglePin(\''+p.id+'\','+(p.pinned?'false':'true')+')" title="Pin" style="background:none;border:none;color:'+(p.pinned?'var(--gold)':'var(--text-muted)')+';cursor:pointer;font-size:14px;">📌</button>':'')+'<button onclick="delPost(\''+p.id+'\')" title="Delete" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:14px;">🗑️</button>':'')+'</div>'+
         '</div>'+
         contentBlock+
         (summary?'<div style="font-size:13px;color:var(--text-muted);margin-top:10px;">'+summary+'</div>':'')+
@@ -6602,6 +6613,9 @@ select option{background:#0f1729;color:#e8eaf0}
     var poll=null;
     if(_pollOn){var q=(document.getElementById('pollQ').value||'').trim();var opts=[];document.querySelectorAll('#pollOpts .pollOpt').forEach(function(el,i){var v=(el.value||'').trim();if(v)opts.push({id:'o'+(i+1),text:v});});if(opts.length<2){msg.style.color='var(--red)';msg.textContent='Poll needs at least 2 options.';return;}poll={q:q,options:opts};}
     if(!txt&&!_commImgFiles.length&&!poll){msg.style.color='var(--red)';msg.textContent='Write something, add a photo or a poll.';return;}
+    // slow mode
+    var grp=_commGroups.find(function(x){return x.id===_commGid;});
+    if(grp&&grp.slow_mode_seconds>0){try{var lp=await sb.from('group_posts').select('created_at').eq('group_id',_commGid).eq('author_id',currentProfile.id).order('created_at',{ascending:false}).limit(1);var last=(lp.data||[])[0];if(last){var diff=(Date.now()-new Date(last.created_at))/1000;if(diff<grp.slow_mode_seconds){msg.style.color='var(--red)';msg.textContent='🐢 Slow mode: wait '+Math.ceil(grp.slow_mode_seconds-diff)+'s before posting again.';return;}}}catch(e){}}
     msg.style.color='var(--text-muted)';msg.textContent='Posting...';
     var images=[];
     for(var i=0;i<_commImgFiles.length;i++){try{var f=_commImgFiles[i];var ext=(f.name.split('.').pop()||'jpg').toLowerCase();var path='community/'+currentProfile.id+'_'+Date.now()+'_'+i+'.'+ext;var up=await sb.storage.from('charts').upload(path,f,{upsert:true});if(up.error){msg.style.color='var(--red)';msg.textContent='Image failed: '+up.error.message;return;}images.push(sb.storage.from('charts').getPublicUrl(path).data.publicUrl);}catch(e){}}
@@ -6626,7 +6640,14 @@ select option{background:#0f1729;color:#e8eaf0}
     _editPost=null;_commFeedSig='';loadFeed();
   }
   async function togglePin(id,val){await sb.from('group_posts').update({pinned:val}).eq('id',id);_commFeedSig='';loadFeed();}
-  async function delPost(id){if(!confirm('Delete this post?'))return;await sb.from('group_posts').delete().eq('id',id);_commFeedSig='';loadFeed();}
+  async function delPost(id){if(!confirm('Delete this post?'))return;await sb.from('group_posts').delete().eq('id',id);try{await sb.from('moderation_log').insert({group_id:_commGid,actor_id:currentProfile.id,actor_name:(currentProfile.full_name||currentProfile.email||'Member'),action:'delete_post',detail:'Post '+id});}catch(e){}_commFeedSig='';loadFeed();}
+  async function reportPost(postId,groupId){
+    if(!currentProfile||!sb)return;
+    var reason=prompt('Why are you reporting this post?');if(reason===null)return;reason=(reason||'').trim()||'No reason';
+    var r=await sb.from('post_reports').insert({post_id:postId,group_id:groupId,reporter_id:currentProfile.id,reporter_name:(currentProfile.full_name||currentProfile.email||'Member'),reason:reason});
+    if(r.error){alert('Error: '+r.error.message);return;}
+    alert('✓ Reported. Thanks — our team will review it.');
+  }
   async function setReaction(postId,emoji,authorId){
     if(!currentProfile||!sb)return;
     try{const ex=await sb.from('post_likes').select('id,reaction').eq('post_id',postId).eq('user_id',currentProfile.id).maybeSingle();
@@ -6709,11 +6730,25 @@ select option{background:#0f1729;color:#e8eaf0}
     const body=document.getElementById('memberListBody');if(!body)return;
     if(!members.length){body.innerHTML='<div style="color:var(--text-muted);font-size:13px;">No members found.</div>';return;}
     const myId=currentProfile?currentProfile.id:null;
+    const isMod=myId&&(myId===g.owner_id||currentProfile.role==='admin'||currentProfile.is_admin);
+    var bans={};try{const br=await sb.from('group_bans').select('user_id,type').eq('group_id',g.id);(br.data||[]).forEach(function(b){bans[b.user_id]=b.type;});}catch(e){}
+    window._memBans=bans;window._memGid=g.id;
     body.innerHTML=members.map(function(m){
       const me=m.id===myId;const role=m.id===g.owner_id?(g.is_official?'Admin':'Mentor'):(m.member_type==='vip'?'VIP':m.member_type==='premium'?'Premium':'');
-      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);"><div style="position:relative;">'+avatarHTML(m,38)+onlineDot(m.last_seen)+'</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;">'+commName(m)+(me?' (you)':'')+'</div><div style="font-size:11px;color:var(--text-muted)">'+(isOnline(m.last_seen)?'🟢 Online':'Offline')+(role?' · '+role:'')+'</div></div>'+(me?'':'<button onclick="closeVipModal();openDM(\''+m.id+'\')" style="padding:6px 14px;border:none;border-radius:18px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;font-size:12px;">Message</button>')+'</div>';
+      const st=bans[m.id];
+      var ctrl='';
+      if(me){ctrl='';}
+      else if(isMod&&m.id!==g.owner_id){
+        if(st==='ban')ctrl='<button onclick="unbanUser(\''+m.id+'\')" style="padding:5px 10px;border:none;border-radius:14px;background:rgba(16,185,129,.15);color:#10b981;font-weight:700;cursor:pointer;font-size:11px;">Unban</button>';
+        else if(st==='mute')ctrl='<button onclick="unbanUser(\''+m.id+'\')" style="padding:5px 10px;border:none;border-radius:14px;background:rgba(16,185,129,.15);color:#10b981;font-weight:700;cursor:pointer;font-size:11px;">Unmute</button> <button onclick="banUser(\''+m.id+'\',\''+vEsc(commName(m))+'\')" style="padding:5px 10px;border:none;border-radius:14px;background:rgba(239,68,68,.15);color:#ef4444;font-weight:700;cursor:pointer;font-size:11px;">Ban</button>';
+        else ctrl='<button onclick="muteUser(\''+m.id+'\',\''+vEsc(commName(m))+'\')" style="padding:5px 10px;border:none;border-radius:14px;background:rgba(245,158,11,.12);color:var(--gold);font-weight:700;cursor:pointer;font-size:11px;">Mute</button> <button onclick="banUser(\''+m.id+'\',\''+vEsc(commName(m))+'\')" style="padding:5px 10px;border:none;border-radius:14px;background:rgba(239,68,68,.15);color:#ef4444;font-weight:700;cursor:pointer;font-size:11px;">Ban</button>';
+      } else {ctrl='<button onclick="closeVipModal();openDM(\''+m.id+'\')" style="padding:6px 14px;border:none;border-radius:18px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;font-size:12px;">Message</button>';}
+      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);"><div style="position:relative;">'+avatarHTML(m,38)+onlineDot(m.last_seen)+'</div><div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;">'+commName(m)+(me?' (you)':'')+(st?' <span style="font-size:9px;padding:1px 5px;border-radius:7px;background:rgba(239,68,68,.15);color:#ef4444;">'+(st==='ban'?'BANNED':'MUTED')+'</span>':'')+'</div><div style="font-size:11px;color:var(--text-muted)">'+(isOnline(m.last_seen)?'🟢 Online':'Offline')+(role?' · '+role:'')+'</div></div><div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;">'+ctrl+'</div></div>';
     }).join('');
   }
+  async function muteUser(uid,name){if(!confirm('Mute '+name+'? They can read but not post.'))return;await sb.from('group_bans').upsert({group_id:window._memGid,user_id:uid,type:'mute',by_id:currentProfile.id},{onConflict:'group_id,user_id'});try{await sb.from('moderation_log').insert({group_id:window._memGid,actor_id:currentProfile.id,actor_name:(currentProfile.full_name||currentProfile.email),action:'mute',detail:name});}catch(e){}openMembersModal();}
+  async function banUser(uid,name){if(!confirm('Ban '+name+'? They lose access to this group.'))return;await sb.from('group_bans').upsert({group_id:window._memGid,user_id:uid,type:'ban',by_id:currentProfile.id},{onConflict:'group_id,user_id'});try{await sb.from('moderation_log').insert({group_id:window._memGid,actor_id:currentProfile.id,actor_name:(currentProfile.full_name||currentProfile.email),action:'ban',detail:name});}catch(e){}openMembersModal();}
+  async function unbanUser(uid){await sb.from('group_bans').delete().eq('group_id',window._memGid).eq('user_id',uid);try{await sb.from('moderation_log').insert({group_id:window._memGid,actor_id:currentProfile.id,actor_name:(currentProfile.full_name||currentProfile.email),action:'unban',detail:uid});}catch(e){}openMembersModal();}
 
   // ---- DM list ----
   var _dmPeer=null;var _dmConvs=[];var _dmTypeChan=null;var _dmInitDone=false;

@@ -752,6 +752,7 @@ function renderMentorCommunity(){
           <input class="inp" id="gp-icon" maxlength="2" value="👥" style="max-width:70px;text-align:center;font-size:18px">
           <select class="inp" id="gp-aud"><option value="all">All my members</option><option value="premium">Premium + VIP</option><option value="vip">VIP only</option></select>
         </div>
+        <select class="inp" id="gp-slow"><option value="0">Slow mode: Off</option><option value="30">1 post / 30s</option><option value="60">1 post / 1 min</option><option value="300">1 post / 5 min</option></select>
         <button class="btn" onclick="createMentorGroup()">➕ Create Group</button>
         <p class="muted" style="font-size:11.5px">Your students automatically see groups that match their tier. Posting, likes & comments happen on the user site Community tab.</p>
       </div></div>
@@ -761,7 +762,7 @@ function renderMentorCommunity(){
 }
 async function createMentorGroup(){
   const name=val('gp-name');if(!name){alert('Group name required');return;}
-  const obj={owner_id:ME.id,is_official:false,name:name,description:val('gp-desc')||null,icon:val('gp-icon')||'👥',audience:document.getElementById('gp-aud').value};
+  const obj={owner_id:ME.id,is_official:false,name:name,description:val('gp-desc')||null,icon:val('gp-icon')||'👥',audience:document.getElementById('gp-aud').value,slow_mode_seconds:parseInt(document.getElementById('gp-slow').value||'0')};
   const {error}=await sb.from('groups').insert(obj);
   if(error){alert('Error: '+error.message);return;}
   document.getElementById('gp-name').value='';document.getElementById('gp-desc').value='';document.getElementById('gp-icon').value='👥';
