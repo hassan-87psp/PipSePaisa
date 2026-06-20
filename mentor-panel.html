@@ -786,30 +786,96 @@ function mAv(p,s){s=s||40;var u=p&&p.avatar_url;var i=((p&&(p.full_name||p.email
 function mNm(p){return esc((p&&(p.full_name||p.email))||'Member');}
 function renderMentorChats(){
   const el=document.getElementById('pg-chats');
-  el.innerHTML=`<div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;height:calc(100vh - 170px);min-height:480px">
-    <div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box;padding:12px">
-      <div class="card-title" style="font-size:15px;margin-bottom:8px">✉️ Member Chats</div>
-      <input id="mDmNew" class="inp" oninput="mDmSearchUsers()" placeholder="🔍 Search members..." style="margin-bottom:6px">
-      <div id="mDmSearchRes"></div>
-      <div style="flex:1;overflow-y:auto;margin-top:6px">
-        <div style="font-size:11px;color:#94a0b8;font-weight:700;margin:4px 0 6px">GROUPS & MEMBERS</div>
-        <div id="mGroupsBox"><div class="list-empty" style="font-size:12px">Loading...</div></div>
-        <div style="font-size:11px;color:#94a0b8;font-weight:700;margin:14px 0 6px">RECENT CHATS</div>
-        <div id="mDmList"><div class="list-empty" style="font-size:12px">No chats yet.</div></div>
-      </div>
+  el.innerHTML=`
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button id="mctab-chats" onclick="mCommSwitch('chats')" style="padding:9px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">💬 Direct Chats</button>
+      <button id="mctab-comm" onclick="mCommSwitch('comm')" style="padding:9px 18px;border:1px solid var(--border,#1f2937);border-radius:10px;background:transparent;color:var(--text,#e8eaf0);font-weight:700;cursor:pointer">👥 Community</button>
     </div>
-    <div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box">
-      <div id="mDmHead" style="display:none;align-items:center;gap:10px;border-bottom:1px solid var(--border,#1f2937);padding-bottom:12px;margin-bottom:12px"></div>
-      <div id="mDmBody" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px"><div class="list-empty" style="margin:auto">Select a member to start chatting.</div></div>
-      <div id="mDmTyping" style="font-size:11px;color:#94a0b8;height:14px;padding:0 4px"></div>
-      <div id="mDmComposer" style="display:none;gap:8px;margin-top:8px">
-        <input id="mDmInput" class="inp" oninput="mTypePing()" onkeydown="if(event.key==='Enter')mSendDM()" placeholder="Type a message..." style="flex:1;border-radius:22px">
-        <button onclick="mSendDM()" class="btn" style="border-radius:22px">Send</button>
+    <div id="mTabChats"><div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;height:calc(100vh - 220px);min-height:460px">
+      <div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box;padding:12px">
+        <input id="mDmNew" class="inp" oninput="mDmSearchUsers()" placeholder="🔍 Search members..." style="margin-bottom:6px">
+        <div id="mDmSearchRes"></div>
+        <div style="flex:1;overflow-y:auto;margin-top:6px">
+          <div style="font-size:11px;color:#94a0b8;font-weight:700;margin:4px 0 6px">GROUPS & MEMBERS</div>
+          <div id="mGroupsBox"><div class="list-empty" style="font-size:12px">Loading...</div></div>
+          <div style="font-size:11px;color:#94a0b8;font-weight:700;margin:14px 0 6px">RECENT CHATS</div>
+          <div id="mDmList"><div class="list-empty" style="font-size:12px">No chats yet.</div></div>
+        </div>
       </div>
-    </div>
-  </div>`;
+      <div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box">
+        <div id="mDmHead" style="display:none;align-items:center;gap:10px;border-bottom:1px solid var(--border,#1f2937);padding-bottom:12px;margin-bottom:12px"></div>
+        <div id="mDmBody" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px"><div class="list-empty" style="margin:auto">Select a member to start chatting.</div></div>
+        <div id="mDmTyping" style="font-size:11px;color:#94a0b8;height:14px;padding:0 4px"></div>
+        <div id="mDmComposer" style="display:none;gap:8px;margin-top:8px">
+          <input id="mDmInput" class="inp" oninput="mTypePing()" onkeydown="if(event.key==='Enter')mSendDM()" placeholder="Type a message..." style="flex:1;border-radius:22px">
+          <button onclick="mSendDM()" class="btn" style="border-radius:22px">Send</button>
+        </div>
+      </div>
+    </div></div>
+    <div id="mTabComm" style="display:none"><div style="display:grid;grid-template-columns:240px 1fr;gap:16px;align-items:start;height:calc(100vh - 220px);min-height:460px">
+      <div class="card" style="padding:12px;height:100%;box-sizing:border-box;overflow-y:auto"><div class="card-title" style="font-size:15px;margin-bottom:8px">👥 Groups</div><div id="mCommGroups"><div class="list-empty" style="font-size:12px">Loading...</div></div></div>
+      <div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box">
+        <div class="card-title" id="mCommGName" style="font-size:16px;margin-bottom:10px">Select a group</div>
+        <div id="mCommComposer" style="display:none;margin-bottom:12px;gap:8px">
+          <textarea id="mCommText" class="inp" rows="2" placeholder="Share something with the group..." style="width:100%;box-sizing:border-box"></textarea>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><label style="font-size:12px;color:#10b981;cursor:pointer">🖼️ Photo<input id="mCommImg" type="file" accept="image/*" style="display:none"></label><button onclick="mCommPost()" class="btn" style="padding:8px 18px">Post</button></div>
+        </div>
+        <div id="mCommFeed" style="flex:1;overflow-y:auto"><div class="list-empty" style="margin:auto">Pick a group to see posts.</div></div>
+      </div>
+    </div></div>`;
   mHeartbeat();mLoadDMList();mLoadGroups();
 }
+function mCommSwitch(tab){
+  document.getElementById('mTabChats').style.display=tab==='chats'?'block':'none';
+  document.getElementById('mTabComm').style.display=tab==='comm'?'block':'none';
+  var a=document.getElementById('mctab-chats'),b=document.getElementById('mctab-comm');
+  a.style.background=tab==='chats'?'linear-gradient(135deg,#f59e0b,#d97706)':'transparent';a.style.color=tab==='chats'?'#0a0e1a':'var(--text,#e8eaf0)';a.style.border=tab==='chats'?'none':'1px solid var(--border,#1f2937)';
+  b.style.background=tab==='comm'?'linear-gradient(135deg,#f59e0b,#d97706)':'transparent';b.style.color=tab==='comm'?'#0a0e1a':'var(--text,#e8eaf0)';b.style.border=tab==='comm'?'none':'1px solid var(--border,#1f2937)';
+  if(tab==='comm'&&!_mcLoaded)mCommInit();
+}
+var _mcLoaded=false,_mcGid=null,_mcGroups=[];
+async function mCommInit(){
+  _mcLoaded=true;var box=document.getElementById('mCommGroups');
+  var r=await sb.from('groups').select('*').or('owner_id.eq.'+ME.id+',is_official.eq.true').order('is_official',{ascending:false});
+  _mcGroups=r.data||[];
+  if(!_mcGroups.length){box.innerHTML='<div class="list-empty" style="font-size:12px">No groups.</div>';return;}
+  box.innerHTML=_mcGroups.map(function(g){var sel=_mcGid===g.id;return '<div onclick="mCommSelect(\''+g.id+'\')" style="padding:9px 10px;border-radius:9px;cursor:pointer;margin-bottom:5px;border:1px solid '+(sel?'#f59e0b':'transparent')+';background:'+(sel?'rgba(245,158,11,.08)':'transparent')+'"><span style="font-size:15px">'+(g.icon||'👥')+'</span> <strong style="font-size:13px">'+esc(g.name)+'</strong></div>';}).join('');
+  if(!_mcGid&&_mcGroups.length)mCommSelect(_mcGroups[0].id);
+}
+function mCommSelect(gid){_mcGid=gid;mCommInit2();var g=_mcGroups.find(function(x){return x.id===gid;});if(g)document.getElementById('mCommGName').textContent=(g.icon||'👥')+' '+g.name;document.getElementById('mCommComposer').style.display='block';mCommFeed();}
+function mCommInit2(){var box=document.getElementById('mCommGroups');if(box)box.innerHTML=_mcGroups.map(function(g){var sel=_mcGid===g.id;return '<div onclick="mCommSelect(\''+g.id+'\')" style="padding:9px 10px;border-radius:9px;cursor:pointer;margin-bottom:5px;border:1px solid '+(sel?'#f59e0b':'transparent')+';background:'+(sel?'rgba(245,158,11,.08)':'transparent')+'"><span style="font-size:15px">'+(g.icon||'👥')+'</span> <strong style="font-size:13px">'+esc(g.name)+'</strong></div>';}).join('');}
+var _mcOpenC={};
+async function mCommFeed(){
+  var feed=document.getElementById('mCommFeed');if(!feed||!_mcGid)return;
+  var pr=await sb.from('group_posts').select('*, author:author_id(full_name,email,avatar_url)').eq('group_id',_mcGid).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(60);
+  var posts=pr.data||[];var ids=posts.map(function(p){return p.id;});
+  var likes=[],comments=[];
+  if(ids.length){likes=(await sb.from('post_likes').select('post_id,user_id').in('post_id',ids)).data||[];comments=(await sb.from('post_comments').select('*, author:author_id(full_name,email,avatar_url)').in('post_id',ids).order('created_at',{ascending:true})).data||[];}
+  if(!posts.length){feed.innerHTML='<div class="list-empty" style="margin:auto">No posts yet.</div>';return;}
+  feed.innerHTML=posts.map(function(p){
+    var pl=likes.filter(function(l){return l.post_id===p.id;});var liked=pl.some(function(l){return l.user_id===ME.id;});
+    var pc=comments.filter(function(c){return c.post_id===p.id&&!c.parent_id;});var open=_mcOpenC[p.id];
+    var cH=open?('<div style="margin-top:10px;border-top:1px solid var(--border,#1f2937);padding-top:10px">'+pc.map(function(c){return '<div style="display:flex;gap:8px;margin-bottom:8px">'+mAv(c.author,28)+'<div style="background:rgba(255,255,255,.05);border-radius:12px;padding:7px 11px"><strong style="font-size:12px">'+mNm(c.author)+'</strong><div style="font-size:12px">'+esc(c.content||'')+'</div></div></div>';}).join('')+'<div style="display:flex;gap:6px;margin-top:6px"><input id="mcc-'+p.id+'" class="inp" placeholder="Write a comment..." style="flex:1;border-radius:18px" onkeydown="if(event.key===\'Enter\')mCommAddComment(\''+p.id+'\')"><button onclick="mCommAddComment(\''+p.id+'\')" class="btn" style="border-radius:18px;padding:6px 14px">Send</button></div></div>'):'';
+    return '<div class="card" style="margin-bottom:12px">'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'+mAv(p.author,40)+'<div><div style="font-weight:700;font-size:13px">'+mNm(p.author)+'</div><div style="font-size:10px;color:#94a0b8">'+new Date(p.created_at).toLocaleString()+'</div></div></div>'+
+      (p.content?'<div style="font-size:14px;line-height:1.55;white-space:pre-wrap;margin-bottom:'+(p.image_url?'8px':'0')+'">'+esc(p.content)+'</div>':'')+
+      (p.image_url?'<img src="'+p.image_url+'" style="width:100%;border-radius:10px">':'')+
+      '<div style="display:flex;gap:8px;margin-top:8px;border-top:1px solid var(--border,#1f2937);padding-top:6px">'+
+        '<button onclick="mCommLike(\''+p.id+'\')" style="flex:1;background:none;border:none;cursor:pointer;color:'+(liked?'#ef4444':'#94a0b8')+';font-weight:700;font-size:13px;padding:6px">'+(liked?'❤️':'🤍')+' '+pl.length+'</button>'+
+        '<button onclick="_mcOpenC[\''+p.id+'\']=!_mcOpenC[\''+p.id+'\'];mCommFeed()" style="flex:1;background:none;border:none;cursor:pointer;color:#94a0b8;font-weight:700;font-size:13px;padding:6px">💬 '+pc.length+'</button>'+
+      '</div>'+cH+'</div>';
+  }).join('');
+}
+async function mCommPost(){
+  var txt=(document.getElementById('mCommText').value||'').trim();var f=document.getElementById('mCommImg').files[0];
+  if(!txt&&!f)return;var img=null;
+  if(f){try{var ext=(f.name.split('.').pop()||'jpg');var path='community/'+ME.id+'_'+Date.now()+'.'+ext;var up=await sb.storage.from('charts').upload(path,f,{upsert:true});if(!up.error)img=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}catch(e){}}
+  var r=await sb.from('group_posts').insert({group_id:_mcGid,author_id:ME.id,content:txt||null,image_url:img});
+  if(r.error){alert('Error: '+r.error.message);return;}
+  document.getElementById('mCommText').value='';document.getElementById('mCommImg').value='';mCommFeed();
+}
+async function mCommLike(pid){try{var ex=await sb.from('post_likes').select('id').eq('post_id',pid).eq('user_id',ME.id).maybeSingle();if(ex.data)await sb.from('post_likes').delete().eq('id',ex.data.id);else await sb.from('post_likes').insert({post_id:pid,user_id:ME.id});}catch(e){}mCommFeed();}
+async function mCommAddComment(pid){var el=document.getElementById('mcc-'+pid);var t=(el&&el.value||'').trim();if(!t)return;await sb.from('post_comments').insert({post_id:pid,author_id:ME.id,content:t});_mcOpenC[pid]=true;mCommFeed();}
 var _mGroups=[],_mGroupOpen={},_mGroupMembers={};
 async function mLoadGroups(){
   var box=document.getElementById('mGroupsBox');if(!box)return;

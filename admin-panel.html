@@ -1960,7 +1960,10 @@ function aAv(p,s){s=s||40;var u=p&&p.avatar_url;var i=((p&&(p.full_name||p.email
 function aNm(p){return aEsc((p&&(p.full_name||p.email))||'Member');}
 function renderAdminChats(){
   var w=document.getElementById('adChatsWrap');if(!w)return;
-  w.innerHTML='<div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;height:calc(100vh - 200px);min-height:480px">'+
+  w.innerHTML='<div style="display:flex;gap:8px;margin-bottom:14px">'+
+    '<button id="actab-chats" onclick="aCommSwitch(\'chats\')" style="padding:9px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">💬 Direct Chats</button>'+
+    '<button id="actab-comm" onclick="aCommSwitch(\'comm\')" style="padding:9px 18px;border:1px solid var(--border,#1f2937);border-radius:10px;background:transparent;color:var(--text-primary,#e8eaf0);font-weight:700;cursor:pointer">👥 Community</button></div>'+
+    '<div id="aTabChats"><div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;height:calc(100vh - 250px);min-height:460px">'+
     '<div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box"><h3 style="margin:0 0 10px">✉️ Member Chats</h3>'+
       '<input id="aDmNew" oninput="aDmSearchUsers()" placeholder="🔍 Search members..." style="'+APMS+';margin-bottom:6px"><div id="aDmSearchRes"></div>'+
       '<div style="flex:1;overflow-y:auto;margin-top:6px">'+
@@ -1972,9 +1975,60 @@ function renderAdminChats(){
       '<div id="aDmBody" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px"><div style="margin:auto;color:#94a0b8">Select a member to start chatting.</div></div>'+
       '<div id="aDmTyping" style="font-size:11px;color:#94a0b8;height:14px;padding:0 4px"></div>'+
       '<div id="aDmComposer" style="display:none;gap:8px;margin-top:8px"><input id="aDmInput" oninput="aTypePing()" onkeydown="if(event.key===String.fromCharCode(13))aSendDM()" placeholder="Type a message..." style="'+APMS+';flex:1;border-radius:22px"><button onclick="aSendDM()" style="padding:10px 22px;border:none;border-radius:22px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">Send</button></div>'+
-    '</div></div>';
+    '</div></div></div>'+
+    '<div id="aTabComm" style="display:none"><div style="display:grid;grid-template-columns:240px 1fr;gap:16px;align-items:start;height:calc(100vh - 250px);min-height:460px">'+
+      '<div class="card" style="height:100%;box-sizing:border-box;overflow-y:auto"><h3 style="margin:0 0 10px">👥 Groups</h3><div id="aCommGroups">Loading...</div></div>'+
+      '<div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box">'+
+        '<h3 id="aCommGName" style="margin:0 0 10px">Select a group</h3>'+
+        '<div id="aCommComposer" style="display:none;margin-bottom:12px"><textarea id="aCommText" rows="2" placeholder="Share something..." style="'+APMS+';width:100%;box-sizing:border-box"></textarea><div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><label style="font-size:12px;color:#10b981;cursor:pointer">🖼️ Photo<input id="aCommImg" type="file" accept="image/*" style="display:none"></label><button onclick="aCommPost()" style="padding:8px 18px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">Post</button></div></div>'+
+        '<div id="aCommFeed" style="flex:1;overflow-y:auto"><div style="margin:auto;color:#94a0b8">Pick a group to see posts.</div></div>'+
+      '</div></div></div>';
   aHeartbeat();aLoadDMList();aLoadGroups();
 }
+function aCommSwitch(tab){
+  document.getElementById('aTabChats').style.display=tab==='chats'?'block':'none';
+  document.getElementById('aTabComm').style.display=tab==='comm'?'block':'none';
+  var a=document.getElementById('actab-chats'),b=document.getElementById('actab-comm');
+  a.style.background=tab==='chats'?'linear-gradient(135deg,#f59e0b,#d97706)':'transparent';a.style.color=tab==='chats'?'#0a0e1a':'var(--text-primary,#e8eaf0)';a.style.border=tab==='chats'?'none':'1px solid var(--border,#1f2937)';
+  b.style.background=tab==='comm'?'linear-gradient(135deg,#f59e0b,#d97706)':'transparent';b.style.color=tab==='comm'?'#0a0e1a':'var(--text-primary,#e8eaf0)';b.style.border=tab==='comm'?'none':'1px solid var(--border,#1f2937)';
+  if(tab==='comm'&&!_acLoaded)aCommInit();
+}
+var _acLoaded=false,_acGid=null,_acGroups=[],_acOpenC={};
+async function aCommInit(){
+  _acLoaded=true;var r=await sb.from('groups').select('*').order('is_official',{ascending:false}).order('created_at',{ascending:true});
+  _acGroups=r.data||[];aCommRenderGroups();
+  if(!_acGid&&_acGroups.length)aCommSelect(_acGroups[0].id);
+}
+function aCommRenderGroups(){var box=document.getElementById('aCommGroups');if(!box)return;if(!_acGroups.length){box.innerHTML='<div style="color:#94a0b8;font-size:12px">No groups.</div>';return;}box.innerHTML=_acGroups.map(function(g){var sel=_acGid===g.id;return '<div onclick="aCommSelect(\''+g.id+'\')" style="padding:9px 10px;border-radius:9px;cursor:pointer;margin-bottom:5px;border:1px solid '+(sel?'#f59e0b':'transparent')+';background:'+(sel?'rgba(245,158,11,.08)':'transparent')+'"><span style="font-size:15px">'+(g.icon||'👥')+'</span> <strong style="font-size:13px">'+aEsc(g.name)+'</strong></div>';}).join('');}
+function aCommSelect(gid){_acGid=gid;aCommRenderGroups();var g=_acGroups.find(function(x){return x.id===gid;});if(g)document.getElementById('aCommGName').textContent=(g.icon||'👥')+' '+g.name;document.getElementById('aCommComposer').style.display='block';aCommFeed();}
+async function aCommFeed(){
+  var feed=document.getElementById('aCommFeed');if(!feed||!_acGid)return;
+  var pr=await sb.from('group_posts').select('*, author:author_id(full_name,email,avatar_url)').eq('group_id',_acGid).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(60);
+  var posts=pr.data||[];var ids=posts.map(function(p){return p.id;});var likes=[],comments=[];
+  if(ids.length){likes=(await sb.from('post_likes').select('post_id,user_id').in('post_id',ids)).data||[];comments=(await sb.from('post_comments').select('*, author:author_id(full_name,email,avatar_url)').in('post_id',ids).order('created_at',{ascending:true})).data||[];}
+  if(!posts.length){feed.innerHTML='<div style="margin:auto;color:#94a0b8">No posts yet.</div>';return;}
+  feed.innerHTML=posts.map(function(p){
+    var pl=likes.filter(function(l){return l.post_id===p.id;});var liked=pl.some(function(l){return l.user_id===currentAdmin.id;});
+    var pc=comments.filter(function(c){return c.post_id===p.id&&!c.parent_id;});var open=_acOpenC[p.id];
+    var cH=open?('<div style="margin-top:10px;border-top:1px solid var(--border,#1f2937);padding-top:10px">'+pc.map(function(c){return '<div style="display:flex;gap:8px;margin-bottom:8px">'+aAv(c.author,28)+'<div style="background:rgba(255,255,255,.05);border-radius:12px;padding:7px 11px"><strong style="font-size:12px">'+aNm(c.author)+'</strong><div style="font-size:12px">'+aEsc(c.content||'')+'</div></div></div>';}).join('')+'<div style="display:flex;gap:6px;margin-top:6px"><input id="acc-'+p.id+'" placeholder="Write a comment..." style="'+APMS+';flex:1;border-radius:18px" onkeydown="if(event.key===String.fromCharCode(13))aCommAddComment(\''+p.id+'\')"><button onclick="aCommAddComment(\''+p.id+'\')" style="padding:6px 14px;border:none;border-radius:18px;background:#f59e0b;color:#0a0e1a;font-weight:800;cursor:pointer">Send</button></div></div>'):'';
+    return '<div class="card" style="margin-bottom:12px">'+
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'+aAv(p.author,40)+'<div><div style="font-weight:700;font-size:13px">'+aNm(p.author)+'</div><div style="font-size:10px;color:#94a0b8">'+new Date(p.created_at).toLocaleString()+'</div></div></div>'+
+      (p.content?'<div style="font-size:14px;line-height:1.55;white-space:pre-wrap;margin-bottom:'+(p.image_url?'8px':'0')+'">'+aEsc(p.content)+'</div>':'')+
+      (p.image_url?'<img src="'+p.image_url+'" style="width:100%;border-radius:10px">':'')+
+      '<div style="display:flex;gap:8px;margin-top:8px;border-top:1px solid var(--border,#1f2937);padding-top:6px">'+
+        '<button onclick="aCommLike(\''+p.id+'\')" style="flex:1;background:none;border:none;cursor:pointer;color:'+(liked?'#ef4444':'#94a0b8')+';font-weight:700;font-size:13px;padding:6px">'+(liked?'❤️':'🤍')+' '+pl.length+'</button>'+
+        '<button onclick="_acOpenC[\''+p.id+'\']=!_acOpenC[\''+p.id+'\'];aCommFeed()" style="flex:1;background:none;border:none;cursor:pointer;color:#94a0b8;font-weight:700;font-size:13px;padding:6px">💬 '+pc.length+'</button>'+
+      '</div>'+cH+'</div>';
+  }).join('');
+}
+async function aCommPost(){
+  var txt=(document.getElementById('aCommText').value||'').trim();var f=document.getElementById('aCommImg').files[0];if(!txt&&!f)return;var img=null;
+  if(f){try{var ext=(f.name.split('.').pop()||'jpg');var path='community/'+currentAdmin.id+'_'+Date.now()+'.'+ext;var up=await sb.storage.from('charts').upload(path,f,{upsert:true});if(!up.error)img=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}catch(e){}}
+  var r=await sb.from('group_posts').insert({group_id:_acGid,author_id:currentAdmin.id,content:txt||null,image_url:img});
+  if(r.error){alert('Error: '+r.error.message);return;}document.getElementById('aCommText').value='';document.getElementById('aCommImg').value='';aCommFeed();
+}
+async function aCommLike(pid){try{var ex=await sb.from('post_likes').select('id').eq('post_id',pid).eq('user_id',currentAdmin.id).maybeSingle();if(ex.data)await sb.from('post_likes').delete().eq('id',ex.data.id);else await sb.from('post_likes').insert({post_id:pid,user_id:currentAdmin.id});}catch(e){}aCommFeed();}
+async function aCommAddComment(pid){var el=document.getElementById('acc-'+pid);var t=(el&&el.value||'').trim();if(!t)return;await sb.from('post_comments').insert({post_id:pid,author_id:currentAdmin.id,content:t});_acOpenC[pid]=true;aCommFeed();}
 var _aGroups=[],_aGroupOpen={},_aGroupMembers={};
 async function aLoadGroups(){
   var box=document.getElementById('aGroupsBox');if(!box)return;
