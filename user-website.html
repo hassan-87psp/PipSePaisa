@@ -6807,7 +6807,7 @@ select option{background:#0f1729;color:#e8eaf0}
     body.innerHTML=msgs.map(function(m){
       var mine=m.sender_id===me;
       var seen=(mine&&m===lastMine&&m.read_at)?'<div style="font-size:10px;color:var(--text-muted);text-align:right;margin-top:2px;">Seen</div>':'';
-      return '<div style="align-self:'+(mine?'flex-end':'flex-start')+';max-width:72%;"><div style="padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;background:'+(mine?'linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a':'rgba(255,255,255,.06);color:var(--text)')+';">'+vEsc(m.body||'')+'</div><div style="font-size:9px;color:var(--text-muted);'+(mine?'text-align:right':'')+';margin-top:2px;">'+commTimeAgo(m.created_at)+'</div>'+seen+'</div>';
+      return '<div style="align-self:'+(mine?'flex-end':'flex-start')+';max-width:72%;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px;'+(mine?'text-align:right':'')+';">'+(mine?'You':commName(_dmPeer))+'</div><div style="padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;background:'+(mine?'linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a':'rgba(255,255,255,.06);color:var(--text)')+';">'+vEsc(m.body||'')+'</div><div style="font-size:9px;color:var(--text-muted);'+(mine?'text-align:right':'')+';margin-top:2px;">'+commTimeAgo(m.created_at)+'</div>'+seen+'</div>';
     }).join('')||'<div class="empty-state" style="margin:auto;color:var(--text-muted);">Say hi 👋</div>';
     if(atBottom||!silent)body.scrollTop=body.scrollHeight;
     // mark incoming read
@@ -6831,7 +6831,7 @@ select option{background:#0f1729;color:#e8eaf0}
     const inp=document.getElementById('dmInput');const txt=(inp.value||'').trim();if(!txt)return;
     inp.value='';
     const body=document.getElementById('dmThreadBody');
-    if(body){if(body.querySelector('.empty-state'))body.innerHTML='';body.insertAdjacentHTML('beforeend','<div style="align-self:flex-end;max-width:72%;"><div style="padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;">'+vEsc(txt)+'</div></div>');body.scrollTop=body.scrollHeight;}
+    if(body){if(body.querySelector('.empty-state'))body.innerHTML='';body.insertAdjacentHTML('beforeend','<div style="align-self:flex-end;max-width:72%;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px;text-align:right;">You</div><div style="padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;">'+vEsc(txt)+'</div></div>');body.scrollTop=body.scrollHeight;}
     const r=await sb.from('dm_messages').insert({sender_id:currentProfile.id,recipient_id:_dmPeer.id,body:txt});
     if(r.error){alert('Error: '+r.error.message);return;}
     loadDMList(true);
