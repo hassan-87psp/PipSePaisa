@@ -1358,8 +1358,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="menu-item" data-page="trades" onclick="showPage('trades', this)"><span class="menu-icon">📈</span>My Trades</div>
       <div class="menu-item" data-page="analysis" onclick="showPage('analysis', this)"><span class="menu-icon">📉</span>Trades Analysis</div>
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
-      <div class="menu-item" data-page="community" onclick="showPage('community', this)"><span class="menu-icon">👥</span>Community<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:700;">NEW</span></div>
-      <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
+      <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Member Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📝</span>Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
@@ -2385,7 +2384,13 @@ select option{background:#0f1729;color:#e8eaf0}
         <div id="vipModalHost"></div>
       </div>
       <style>.commSkel{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 37%,rgba(255,255,255,.04) 63%);background-size:400% 100%;animation:commShimmer 1.4s ease infinite;}@keyframes commShimmer{0%{background-position:100% 0}100%{background-position:0 0}}</style>
-      <div class="page" id="page-community">
+      <div class="page" id="page-community"></div>
+      <div class="page" id="page-chats">
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <button id="uctab-comm" onclick="uTabSwitch('comm')" style="padding:9px 18px;border-radius:10px;cursor:pointer;font-weight:800;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;">👥 Community</button>
+          <button id="uctab-direct" onclick="uTabSwitch('direct')" style="padding:9px 18px;border-radius:10px;cursor:pointer;font-weight:800;border:1px solid var(--border);background:transparent;color:var(--text);font-weight:700;">💬 Direct</button>
+        </div>
+        <div id="uTabComm">
         <div style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:16px;align-items:start;">
           <div class="card" style="padding:12px;">
             <div class="card-title" style="font-size:15px;margin-bottom:8px;">👥 Groups</div>
@@ -2427,8 +2432,8 @@ select option{background:#0f1729;color:#e8eaf0}
             <div id="commFeed"><div class="empty-state" style="color:var(--text-muted);">Pick a group on the left to see posts.</div></div>
           </div>
         </div>
-      </div>
-      <div class="page" id="page-chats">
+        </div>
+        <div id="uTabDirect" style="display:none;">
         <div style="display:grid;grid-template-columns:280px minmax(0,1fr);gap:16px;align-items:start;height:calc(100vh - 160px);min-height:480px;">
           <div class="card" style="padding:12px;display:flex;flex-direction:column;height:100%;box-sizing:border-box;">
             <div class="card-title" style="font-size:15px;margin-bottom:8px;">💬 Chats</div>
@@ -2444,6 +2449,7 @@ select option{background:#0f1729;color:#e8eaf0}
               <button onclick="sendDM()" style="padding:10px 22px;border:none;border-radius:22px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;">Send</button>
             </div>
           </div>
+        </div>
         </div>
       </div>
       <div class="page" id="page-support">
@@ -3421,8 +3427,8 @@ select option{background:#0f1729;color:#e8eaf0}
     if (page === 'charts') loadChart();
     if (page === 'vipplans') loadVipPlans();
     if (page === 'support') loadSupport();
-    if (page === 'community') loadCommunityGroups();
-    if (page === 'chats') loadDMList();
+    if (page === 'community') { showPage('chats', document.querySelector('[data-page=chats]')); return; }
+    if (page === 'chats') uTabSwitch(_uTab||'comm');
     if (page === 'announce') loadAnnouncements();
     if (page === 'signals') loadSignalsFromDB();
     if (page === 'articles') loadArticlesFromDB();
@@ -6786,7 +6792,7 @@ select option{background:#0f1729;color:#e8eaf0}
     if(!currentProfile||!sb)return;
     const me=currentProfile.id;
     // ensure on chats page
-    if(!silent){var pg=document.getElementById('page-chats');if(pg&&!pg.classList.contains('active')){showPage('chats',document.querySelector('[data-page=chats]'));}}
+    if(!silent){var pg=document.getElementById('page-chats');if(pg&&!pg.classList.contains('active')){showPage('chats',document.querySelector('[data-page=chats]'));}if(typeof uTabSwitch==='function'&&_uTab!=='direct')uTabSwitch('direct');}
     if(!peerObj){try{const pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').eq('id',peerId).maybeSingle();peerObj=pr.data;}catch(e){}}
     if(!peerObj)peerObj={id:peerId,full_name:'Member'};
     _dmPeer=peerObj;
@@ -6831,6 +6837,15 @@ select option{background:#0f1729;color:#e8eaf0}
     loadDMList(true);
   }
 
+  var _uTab='comm';
+  function commVisible(){var p=document.getElementById('page-chats');var c=document.getElementById('uTabComm');return p&&p.classList.contains('active')&&c&&c.style.display!=='none';}
+  function uTabSwitch(tab){_uTab=tab;
+    var tc=document.getElementById('uTabComm'),td=document.getElementById('uTabDirect');if(tc)tc.style.display=tab==='comm'?'block':'none';if(td)td.style.display=tab==='direct'?'block':'none';
+    var a=document.getElementById('uctab-comm'),b=document.getElementById('uctab-direct');
+    if(a){a.style.background=tab==='comm'?'linear-gradient(135deg,var(--gold),var(--gold-dark))':'transparent';a.style.color=tab==='comm'?'#0a0e1a':'var(--text)';a.style.border=tab==='comm'?'none':'1px solid var(--border)';a.style.fontWeight=tab==='comm'?'800':'700';}
+    if(b){b.style.background=tab==='direct'?'linear-gradient(135deg,var(--gold),var(--gold-dark))':'transparent';b.style.color=tab==='direct'?'#0a0e1a':'var(--text)';b.style.border=tab==='direct'?'none':'1px solid var(--border)';b.style.fontWeight=tab==='direct'?'800':'700';}
+    if(tab==='comm'){if(typeof loadCommunityGroups==='function')loadCommunityGroups();}else{if(typeof loadDMList==='function')loadDMList();}
+  }
   function closeVipModal(){const h=document.getElementById('vipModalHost');if(h)h.innerHTML='';}
   // INSTANT realtime updates (Supabase Realtime — needs realtime-enable.sql)
   (function rtUser(){
@@ -6856,10 +6871,10 @@ select option{background:#0f1729;color:#e8eaf0}
         .on('postgres_changes',{event:'*',schema:'public',table:'subscription_plans'},rtContent)
         .subscribe();
       sb.channel('rt-user-community')
-        .on('postgres_changes',{event:'*',schema:'public',table:'group_posts'},function(){if(act('page-community')&&typeof loadFeed==='function')loadFeed(true);})
-        .on('postgres_changes',{event:'*',schema:'public',table:'post_likes'},function(){if(act('page-community')&&typeof loadFeed==='function')loadFeed(true);})
-        .on('postgres_changes',{event:'*',schema:'public',table:'post_comments'},function(){if(act('page-community')&&typeof loadFeed==='function')loadFeed(true);})
-        .on('postgres_changes',{event:'*',schema:'public',table:'post_poll_votes'},function(){if(act('page-community')&&typeof loadFeed==='function')loadFeed(true);})
+        .on('postgres_changes',{event:'*',schema:'public',table:'group_posts'},function(){if(commVisible()&&typeof loadFeed==='function')loadFeed(true);})
+        .on('postgres_changes',{event:'*',schema:'public',table:'post_likes'},function(){if(commVisible()&&typeof loadFeed==='function')loadFeed(true);})
+        .on('postgres_changes',{event:'*',schema:'public',table:'post_comments'},function(){if(commVisible()&&typeof loadFeed==='function')loadFeed(true);})
+        .on('postgres_changes',{event:'*',schema:'public',table:'post_poll_votes'},function(){if(commVisible()&&typeof loadFeed==='function')loadFeed(true);})
         .subscribe();
       sb.channel('rt-user-commnotif').on('postgres_changes',{event:'*',schema:'public',table:'community_notifications'},function(){if(typeof loadCommNotifs==='function')loadCommNotifs();}).subscribe();
     }catch(e){}
