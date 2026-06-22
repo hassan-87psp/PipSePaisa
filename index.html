@@ -7037,28 +7037,67 @@ select option{background:#0f1729;color:#e8eaf0}
         '<div style="font-size:13.5px;line-height:1.6;color:var(--text);">'+bodyHtml+'</div></div>';
     }).join('');
   }
-  function renderAIReport(box,text,provider,cached){
+  function aiExtractScore(text){
+    var m=text.match(/overall\s*(?:trader)?\s*score\s*[:\-]?\s*\*?\*?(\d{1,3})/i);
+    if(m)return Math.min(100,parseInt(m[1]));
+    var any=text.match(/overall[^\n]*?(\d{1,3})\s*\/\s*100/i);return any?parseInt(any[1]):null;
+  }
+  function aiExtractLevel(text){
+    var m=text.match(/\b(Beginner|Developing|Intermediate|Advanced|Professional)\b/i);
+    return m?(m[1].charAt(0).toUpperCase()+m[1].slice(1).toLowerCase()):null;
+  }
+  function aiGauge(score){
+    var col=score>=70?'#10b981':score>=45?'#f59e0b':'#ef4444';
+    var r=46,c=2*Math.PI*r,off=c*(1-score/100);
+    return '<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'" transform="rotate(-90 60 60)"/><text x="60" y="56" text-anchor="middle" font-size="30" font-weight="800" fill="'+col+'">'+score+'</text><text x="60" y="76" text-anchor="middle" font-size="11" fill="var(--text-muted)">/ 100</text></svg>';
+  }
+  function aiTile(label,value,color){
+    return '<div style="flex:1;min-width:120px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:12px 14px;"><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">'+label+'</div><div style="font-size:20px;font-weight:800;margin-top:3px;color:'+(color||'var(--text)')+';">'+value+'</div></div>';
+  }
+  function aiHero(text,s){
+    if(!s)return '';
+    var score=aiExtractScore(text);if(score==null)score=Math.max(5,Math.min(95,Math.round((s.winRate+(s.profitFactor>=1?60:30))/2)));
+    var level=aiExtractLevel(text)||'';
+    var lvlCol={Beginner:'#ef4444',Developing:'#f59e0b',Intermediate:'#3b82f6',Advanced:'#10b981',Professional:'#a855f7'}[level]||'var(--gold)';
+    var pfCol=s.profitFactor>=1.5?'#10b981':s.profitFactor>=1?'var(--gold)':'#ef4444';
+    var pnlCol=s.totalPnl>=0?'#10b981':'#ef4444';
+    return '<div class="card" style="background:linear-gradient(135deg,rgba(245,158,11,.1),rgba(0,0,0,0));margin-bottom:14px;">'+
+      '<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">'+
+        '<div style="text-align:center;">'+aiGauge(score)+'<div style="font-size:11px;color:var(--text-muted);margin-top:-6px;">Overall Score</div></div>'+
+        '<div style="flex:1;min-width:200px;">'+
+          (level?'<div style="display:inline-block;background:'+lvlCol+';color:#0a0e1a;font-weight:800;font-size:13px;padding:5px 14px;border-radius:20px;margin-bottom:10px;">'+level+' Trader</div>':'')+
+          '<div style="display:flex;gap:10px;flex-wrap:wrap;">'+
+            aiTile('Win Rate',s.winRate+'%',s.winRate>=50?'#10b981':'var(--gold)')+
+            aiTile('Profit Factor',s.profitFactor.toFixed(2),pfCol)+
+            aiTile('Net P&L',(s.totalPnl>=0?'+':'')+'$'+s.totalPnl.toFixed(0),pnlCol)+
+            aiTile('Max DD','$'+s.maxDD.toFixed(0),'#ef4444')+
+          '</div>'+
+        '</div>'+
+      '</div></div>';
+  }
+  function renderAIReport(box,text,provider,cached,stats){
     var pBadge=cached?'<span style="background:rgba(148,160,184,.18);color:#94a0b8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">📁 Saved</span>':(provider==='rules'?'<span style="background:rgba(148,160,184,.18);color:#94a0b8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">⚡ Quick analysis</span>':'<span style="background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;">✨ AI Powered</span>');
     box.innerHTML='<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;align-items:center;">'+pBadge+'<span style="font-size:11px;color:var(--text-muted);">'+new Date().toLocaleString()+'</span></div>'+
+      aiHero(text,stats)+
       aiMdToHtml(text)+
       '<div style="font-size:11px;color:var(--text-muted);margin-top:10px;text-align:center;border-top:1px solid var(--border);padding-top:10px;">⚠️ Educational analysis based on your trade history — not financial advice.</div>';
   }
   async function loadCachedAIReport(){
     const box=document.getElementById('aiReportBox');const btn=document.getElementById('aiReportBtn');if(!box)return;
-    if(currentProfile&&sb){try{const c=await sb.from('ai_reports').select('*').eq('user_id',currentProfile.id).maybeSingle();if(c.data&&c.data.report){renderAIReport(box,c.data.report,c.data.provider,true);if(btn)btn.textContent='🔄 Regenerate';}}catch(e){}}
+    if(currentProfile&&sb){try{const c=await sb.from('ai_reports').select('*').eq('user_id',currentProfile.id).maybeSingle();if(c.data&&c.data.report){var s=(trades&&trades.length)?computeTradeStats(trades):null;renderAIReport(box,c.data.report,c.data.provider,true,s);if(btn)btn.textContent='🔄 Regenerate';}}catch(e){}}
   }
   async function generateAIReport(){
     const box=document.getElementById('aiReportBox');const btn=document.getElementById('aiReportBtn');if(!box)return;
     if(!trades||!trades.length){box.innerHTML='<div style="color:var(--text-muted);">Add some trades first, then generate your report.</div>';return;}
     const s=computeTradeStats(trades);
     const regen=btn&&btn.textContent.indexOf('Regenerate')>=0;
-    if(!regen&&currentProfile&&sb){try{const c=await sb.from('ai_reports').select('*').eq('user_id',currentProfile.id).maybeSingle();if(c.data&&c.data.trades_count===s.n&&c.data.report){renderAIReport(box,c.data.report,c.data.provider,true);if(btn)btn.textContent='🔄 Regenerate';return;}}catch(e){}}
+    if(!regen&&currentProfile&&sb){try{const c=await sb.from('ai_reports').select('*').eq('user_id',currentProfile.id).maybeSingle();if(c.data&&c.data.trades_count===s.n&&c.data.report){renderAIReport(box,c.data.report,c.data.provider,true,s);if(btn)btn.textContent="🔄 Regenerate";return;}}catch(e){}}
     if(btn){btn.disabled=true;btn.textContent='⏳ Analyzing...';}
     box.innerHTML='<div style="color:var(--text-muted);">🤖 Analyzing your '+s.n+' trades in depth... (10-20 sec)</div>';
     let report='',provider='rules';
     try{const r=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:buildReportPrompt(s,tradeSample(trades))})});if(r.ok){const d=await r.json();if(d.report){report=d.report;provider=d.provider||'ai';}}}catch(e){}
     if(!report){report=generateRuleReport(s);provider='rules';}
-    renderAIReport(box,report,provider,false);
+    renderAIReport(box,report,provider,false,s);
     if(btn){btn.disabled=false;btn.textContent='🔄 Regenerate';}
     if(currentProfile&&sb){try{await sb.from('ai_reports').upsert({user_id:currentProfile.id,report:report,trades_count:s.n,provider:provider,updated_at:new Date().toISOString()});}catch(e){}}
   }
