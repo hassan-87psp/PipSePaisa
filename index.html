@@ -6951,7 +6951,7 @@ select option{background:#0f1729;color:#e8eaf0}
 '## Top 5 Improvements\n(Highest-impact, specific.)\n'+
 '## Next 30-Day Development Plan\n(Practical, measurable goals.)\n'+
 '## Final Coach Verdict\n(Concise, speak directly to the trader.)\n\n'+
-'Be objective, evidence-based and constructive. Do NOT give generic advice. Base ALL conclusions strictly on the data below. Use short bullet points (start with -). Bold key numbers with **.\n\n';
+'Be objective, evidence-based and constructive. Do NOT give generic advice. Base ALL conclusions strictly on the data below. Write in VERY SIMPLE, easy English that a beginner can understand — short sentences, no heavy jargon (if you use a trading term, explain it in 3-4 words). Use short bullet points (start with -). Bold key numbers and key words with **.\n\n';
     return instr+data;
   }
   function tradeSample(list){
@@ -6996,45 +6996,52 @@ select option{background:#0f1729;color:#e8eaf0}
     return L.join('\n');
   }
   function aiInl(x){return vEsc(x).replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--gold);font-weight:800;">$1</strong>');}
-  function aiSectionIcon(title){
+  function aiSectionStyle(title){
     var t=title.toLowerCase();
-    if(t.indexOf('overall assess')>=0)return '🎯';if(t.indexOf('performance score')>=0||t.indexOf('score')>=0&&t.indexOf('discipline')<0)return '📊';
-    if(t.indexOf('strength')>=0)return '💪';if(t.indexOf('weakness')>=0)return '⚠️';if(t.indexOf('behavior')>=0)return '🧠';
-    if(t.indexOf('risk')>=0)return '🛡️';if(t.indexOf('profitab')>=0)return '💰';if(t.indexOf('coaching')>=0)return '🎓';
-    if(t.indexOf('improvement')>=0||t.indexOf('top 5')>=0)return '🚀';if(t.indexOf('30-day')>=0||t.indexOf('plan')>=0)return '🗓️';
-    if(t.indexOf('verdict')>=0)return '⚖️';if(t.indexOf('coach report')>=0)return '📋';return '▸';
+    if(t.indexOf('strength')>=0)return {icon:'💪',color:'#10b981',bullet:'✓'};
+    if(t.indexOf('weakness')>=0)return {icon:'⚠️',color:'#ef4444',bullet:'✗'};
+    if(t.indexOf('behavior')>=0)return {icon:'🧠',color:'#a855f7',bullet:'•'};
+    if(t.indexOf('risk')>=0)return {icon:'🛡️',color:'#ef4444',bullet:'•'};
+    if(t.indexOf('profitab')>=0)return {icon:'💰',color:'#10b981',bullet:'•'};
+    if(t.indexOf('coaching')>=0)return {icon:'🎓',color:'#3b82f6',bullet:'•'};
+    if(t.indexOf('improvement')>=0||t.indexOf('top 5')>=0)return {icon:'🚀',color:'#f59e0b',bullet:'★'};
+    if(t.indexOf('30-day')>=0||t.indexOf('plan')>=0||t.indexOf('development')>=0)return {icon:'🗓️',color:'#3b82f6',bullet:'→'};
+    if(t.indexOf('verdict')>=0)return {icon:'⚖️',color:'#f59e0b',bullet:'•'};
+    if(t.indexOf('performance score')>=0||t.indexOf('score')>=0)return {icon:'📊',color:'#f59e0b',bullet:'•'};
+    if(t.indexOf('overall assess')>=0)return {icon:'🎯',color:'#f59e0b',bullet:'•'};
+    return {icon:'▸',color:'#f59e0b',bullet:'•'};
   }
   function aiMdToHtml(text){
-    // split into ## sections
-    var lines=text.split('\n');
-    var sections=[];var cur=null;
-    lines.forEach(function(raw){
-      var l=raw.trim();
+    var lines=text.split('\n');var sections=[];var cur=null;
+    lines.forEach(function(raw){var l=raw.trim();
       if(l.indexOf('## ')===0){cur={title:l.slice(3).trim(),body:[]};sections.push(cur);}
       else if(l.indexOf('# ')===0){cur={title:l.slice(2).trim(),body:[]};sections.push(cur);}
-      else if(l){ if(!cur){cur={title:'',body:[]};sections.push(cur);} cur.body.push(l); }
+      else if(l){if(!cur){cur={title:'',body:[]};sections.push(cur);}cur.body.push(l);}
     });
     return sections.map(function(sec){
-      var icon=aiSectionIcon(sec.title);
-      var isHeader=sec.title.toLowerCase().indexOf('coach report')>=0;
-      // detect score lines / verdict for special styling
+      if(sec.title.toLowerCase().indexOf('coach report')>=0)return '';
+      var st=aiSectionStyle(sec.title);
+      var dangerous=/dangerous|high risk|poor|severe/i.test(sec.body.join(' '))&&sec.title.toLowerCase().indexOf('risk')>=0;
+      var healthy=/healthy|good|safe|well[- ]managed/i.test(sec.body.join(' '))&&sec.title.toLowerCase().indexOf('risk')>=0;
+      var alert='';
+      if(dangerous)alert='<div style="background:rgba(239,68,68,.14);color:#ef4444;font-weight:800;font-size:12px;padding:6px 12px;border-radius:8px;display:inline-block;margin-bottom:8px;">🚨 Risk: DANGEROUS</div>';
+      else if(healthy)alert='<div style="background:rgba(16,185,129,.14);color:#10b981;font-weight:800;font-size:12px;padding:6px 12px;border-radius:8px;display:inline-block;margin-bottom:8px;">✅ Risk: HEALTHY</div>';
       var bodyHtml=sec.body.map(function(l){
         if(/^[-*]\s+/.test(l)){
           var txt=l.replace(/^[-*]\s+/,'');
-          // score bullet e.g. "Discipline: 40/100" or "Discipline: 40"
           var sm=txt.match(/^([A-Za-z][\w\s/&]+?):\s*\*?\*?(\d{1,3})(\/100)?\b/);
-          if(sm){var val=parseInt(sm[2]);var col=val>=70?'#10b981':val>=45?'var(--gold)':'#ef4444';
-            return '<div style="display:flex;align-items:center;gap:10px;margin:7px 0;"><div style="min-width:150px;font-size:13px;color:var(--text-secondary);">'+vEsc(sm[1].trim())+'</div><div style="flex:1;height:8px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="height:100%;width:'+val+'%;background:'+col+';border-radius:6px;"></div></div><div style="min-width:40px;text-align:right;font-weight:800;color:'+col+';">'+val+'</div></div>';}
-          return '<div style="display:flex;gap:8px;margin:6px 0;"><span style="color:var(--gold);">•</span><span style="flex:1;">'+aiInl(txt)+'</span></div>';
+          if(sm){var val=parseInt(sm[2]);var col=val>=70?'#10b981':val>=45?'#f59e0b':'#ef4444';
+            return '<div style="display:flex;align-items:center;gap:10px;margin:8px 0;"><div style="min-width:140px;font-size:13px;font-weight:600;">'+vEsc(sm[1].trim())+'</div><div style="flex:1;height:10px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;"><div style="height:100%;width:'+val+'%;background:linear-gradient(90deg,'+col+'aa,'+col+');border-radius:6px;"></div></div><div style="min-width:38px;text-align:right;font-weight:800;color:'+col+';font-size:15px;">'+val+'</div></div>';}
+          return '<div style="display:flex;gap:9px;margin:7px 0;align-items:flex-start;"><span style="color:'+st.color+';font-weight:800;flex:0 0 auto;">'+st.bullet+'</span><span style="flex:1;">'+aiInl(txt)+'</span></div>';
         }
-        return '<div style="margin:6px 0;">'+aiInl(l)+'</div>';
+        return '<div style="margin:7px 0;color:var(--text-secondary);">'+aiInl(l)+'</div>';
       }).join('');
-      if(isHeader){
-        return '<div style="text-align:center;padding:6px 0 14px;"><div style="font-size:20px;font-weight:900;color:var(--gold);letter-spacing:.5px;">📋 '+vEsc(sec.title)+'</div>'+(sec.body.length?'<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">'+aiInl(sec.body.join(' '))+'</div>':'')+'</div>';
-      }
-      return '<div style="background:rgba(255,255,255,.025);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:12px;padding:14px 16px;margin-bottom:12px;">'+
-        '<div style="font-size:14px;font-weight:800;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:8px;">'+icon+' '+vEsc(sec.title)+'</div>'+
-        '<div style="font-size:13.5px;line-height:1.6;color:var(--text);">'+bodyHtml+'</div></div>';
+      return '<div style="background:linear-gradient(135deg,'+st.color+'12,rgba(255,255,255,.01));border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:14px;">'+
+        '<div style="display:flex;align-items:center;gap:11px;margin-bottom:'+(alert?'10px':'12px')+';">'+
+          '<div style="width:38px;height:38px;border-radius:11px;background:'+st.color+'22;display:flex;align-items:center;justify-content:center;font-size:19px;flex:0 0 auto;">'+st.icon+'</div>'+
+          '<div style="font-size:16px;font-weight:800;color:'+st.color+';">'+vEsc(sec.title)+'</div>'+
+        '</div>'+(alert?'<div>'+alert+'</div>':'')+
+        '<div style="font-size:14px;line-height:1.65;">'+bodyHtml+'</div></div>';
     }).join('');
   }
   function aiExtractScore(text){
