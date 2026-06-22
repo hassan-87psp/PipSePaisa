@@ -1597,7 +1597,17 @@ select option{background:#0f1729;color:#e8eaf0}
           </div>
         </div>
         
-        <div class="stats-grid" style="margin-top: 14px;">
+        <div class="card" style="margin-top:14px;border:1px solid var(--gold);">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div>
+              <div class="card-title">🤖 AI Trade Report</div>
+              <div class="card-meta" style="margin-top:4px;">AI aapki trade history dekh kar batayega kya sahi, kya improve karein</div>
+            </div>
+            <button id="aiReportBtn" onclick="generateAIReport()" style="padding:11px 22px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;">✨ Generate Report</button>
+          </div>
+          <div id="aiReportBox" style="margin-top:14px;display:none;"></div>
+        </div>
+        
           <div class="stat-card featured">
             <div class="stat-header">
               <div class="stat-icon gold">💰</div>
@@ -6846,6 +6856,94 @@ select option{background:#0f1729;color:#e8eaf0}
     if(b){b.style.background=tab==='direct'?'linear-gradient(135deg,var(--gold),var(--gold-dark))':'transparent';b.style.color=tab==='direct'?'#0a0e1a':'var(--text)';b.style.border=tab==='direct'?'none':'1px solid var(--border)';b.style.fontWeight=tab==='direct'?'800':'700';}
     if(tab==='comm'){if(typeof loadCommunityGroups==='function')loadCommunityGroups();}else{if(typeof loadDMList==='function')loadDMList();}
   }
+  // ============ AI TRADE REPORT ============
+  function computeTradeStats(list){
+    const t=list.filter(function(x){return typeof x.pnl==='number';});
+    const n=t.length;
+    const wins=t.filter(function(x){return x.pnl>0;}), losses=t.filter(function(x){return x.pnl<0;});
+    const totalPnl=t.reduce(function(s,x){return s+x.pnl;},0);
+    const grossWin=wins.reduce(function(s,x){return s+x.pnl;},0), grossLoss=Math.abs(losses.reduce(function(s,x){return s+x.pnl;},0));
+    const winRate=n?Math.round(wins.length/n*100):0;
+    const avgWin=wins.length?grossWin/wins.length:0, avgLoss=losses.length?grossLoss/losses.length:0;
+    const profitFactor=grossLoss?(grossWin/grossLoss):(grossWin>0?99:0);
+    const byPair={};t.forEach(function(x){var p=x.pair||'?';byPair[p]=byPair[p]||{pair:p,n:0,pnl:0};byPair[p].n++;byPair[p].pnl+=x.pnl;});
+    const pairs=Object.keys(byPair).map(function(k){return byPair[k];});
+    const bestPair=pairs.slice().sort(function(a,b){return b.pnl-a.pnl;})[0];
+    const worstPair=pairs.slice().sort(function(a,b){return a.pnl-b.pnl;})[0];
+    const mostTraded=pairs.slice().sort(function(a,b){return b.n-a.n;})[0];
+    const longs=t.filter(function(x){return (x.direction||'').toLowerCase().charAt(0)==='b';});
+    const shorts=t.filter(function(x){return (x.direction||'').toLowerCase().charAt(0)==='s';});
+    const longPnl=longs.reduce(function(s,x){return s+x.pnl;},0), shortPnl=shorts.reduce(function(s,x){return s+x.pnl;},0);
+    var rr=[];t.forEach(function(x){if(x.entry&&x.sl&&x.tp){var risk=Math.abs(x.entry-x.sl),reward=Math.abs(x.tp-x.entry);if(risk>0)rr.push(reward/risk);}});
+    const avgRR=rr.length?(rr.reduce(function(a,b){return a+b;},0)/rr.length):0;
+    const biggestWin=t.length?Math.max.apply(null,t.map(function(x){return x.pnl;}).concat(0)):0;
+    const biggestLoss=t.length?Math.min.apply(null,t.map(function(x){return x.pnl;}).concat(0)):0;
+    return {n:n,wins:wins.length,losses:losses.length,winRate:winRate,totalPnl:totalPnl,avgWin:avgWin,avgLoss:avgLoss,profitFactor:profitFactor,bestPair:bestPair,worstPair:worstPair,mostTraded:mostTraded,longN:longs.length,shortN:shorts.length,longPnl:longPnl,shortPnl:shortPnl,avgRR:avgRR,biggestWin:biggestWin,biggestLoss:biggestLoss,pairs:pairs};
+  }
+  function buildReportPrompt(s){
+    var pairLines=s.pairs.slice(0,8).map(function(p){return p.pair+': '+p.n+' trades, $'+p.pnl.toFixed(2);}).join('; ');
+    return ['You are a professional forex trading coach. Analyse this trader\'s history and write a short, motivating, practical report in simple English.',
+      'Use these exact sections with ## headings: "Summary", "What you are doing right", "What is going wrong", "Action plan (next 10 trades)". Use short bullet points starting with -. Be specific with the numbers. Keep it under 250 words.','','DATA:',
+      'Total trades: '+s.n,'Win rate: '+s.winRate+'%','Total P&L: $'+s.totalPnl.toFixed(2),
+      'Average win: $'+s.avgWin.toFixed(2)+', Average loss: $'+s.avgLoss.toFixed(2),'Profit factor: '+s.profitFactor.toFixed(2),
+      'Average risk:reward: '+(s.avgRR?s.avgRR.toFixed(2)+':1':'n/a'),
+      'Biggest win: $'+s.biggestWin.toFixed(2)+', Biggest loss: $'+s.biggestLoss.toFixed(2),
+      'Long trades: '+s.longN+' ($'+s.longPnl.toFixed(2)+'), Short trades: '+s.shortN+' ($'+s.shortPnl.toFixed(2)+')',
+      'By pair: '+pairLines,'Best pair: '+(s.bestPair?s.bestPair.pair+' ($'+s.bestPair.pnl.toFixed(2)+')':'n/a'),
+      'Worst pair: '+(s.worstPair?s.worstPair.pair+' ($'+s.worstPair.pnl.toFixed(2)+')':'n/a')].join('\n');
+  }
+  function generateRuleReport(s){
+    var L=[];L.push('## Summary');
+    L.push('You have **'+s.n+' trades** with a **'+s.winRate+'% win rate** and total P&L of **$'+s.totalPnl.toFixed(2)+'**.');
+    L.push('## What you are doing right');
+    if(s.winRate>=50)L.push('- Solid win rate ('+s.winRate+'%). Keep following your setups.');
+    if(s.profitFactor>=1.5)L.push('- Profit factor '+s.profitFactor.toFixed(2)+' — winners outweigh losers nicely.');
+    if(s.bestPair&&s.bestPair.pnl>0)L.push('- Best pair: **'+s.bestPair.pair+'** (+$'+s.bestPair.pnl.toFixed(2)+'). You read this pair well.');
+    if(s.avgRR>=1.5)L.push('- Good average risk:reward ('+s.avgRR.toFixed(1)+':1).');
+    L.push('- You keep a trade journal — that alone puts you ahead of most traders.');
+    L.push('## What is going wrong');
+    if(s.winRate<45)L.push('- Win rate is low ('+s.winRate+'%). Be more selective — wait for A+ setups only.');
+    if(s.avgWin>0&&s.avgLoss>s.avgWin)L.push('- Average loss ($'+s.avgLoss.toFixed(1)+') is bigger than average win ($'+s.avgWin.toFixed(1)+'). Cut losers faster, let winners run.');
+    if(s.profitFactor<1)L.push('- Profit factor below 1 — overall losing. Reduce lot size and focus on your best pair.');
+    if(s.worstPair&&s.worstPair.pnl<0)L.push('- Worst pair: **'+s.worstPair.pair+'** ($'+s.worstPair.pnl.toFixed(2)+'). Avoid it or review those setups.');
+    if(s.avgRR&&s.avgRR<1)L.push('- Average R:R under 1:1 ('+s.avgRR.toFixed(1)+'). Aim for at least 1.5:1.');
+    if(Math.abs(s.biggestLoss)>3*Math.abs(s.avgLoss||1))L.push('- One very big loss ($'+s.biggestLoss.toFixed(0)+') suggests a missing stop-loss. Always set an SL.');
+    L.push('## Action plan (next 10 trades)');
+    L.push('- Trade only your best pair ('+(s.bestPair?s.bestPair.pair:'your top pair')+') until consistency improves.');
+    L.push('- Keep risk per trade small and fixed.');
+    L.push('- Target a minimum 1.5:1 reward-to-risk on every trade.');
+    return L.join('\n');
+  }
+  function aiMdToHtml(t){
+    function inl(x){return vEsc(x).replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--gold)">$1</strong>');}
+    return t.split('\n').map(function(line){
+      var l=line.trim();if(!l)return '';
+      if(l.indexOf('## ')===0)return '<div style="color:var(--gold);font-weight:800;margin:14px 0 6px;font-size:15px;">'+inl(l.slice(3))+'</div>';
+      if(l.indexOf('# ')===0)return '<div style="color:var(--gold);font-weight:800;margin:14px 0 6px;font-size:15px;">'+inl(l.slice(2))+'</div>';
+      if(/^[-*]\s+/.test(l))return '<div style="margin:3px 0 3px 6px;">• '+inl(l.replace(/^[-*]\s+/,''))+'</div>';
+      return '<div style="margin:5px 0;">'+inl(l)+'</div>';
+    }).join('');
+  }
+  function renderAIReport(box,text,provider,cached){
+    box.innerHTML='<div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:16px;">'+aiMdToHtml(text)+'</div><div style="font-size:11px;color:var(--text-muted);margin-top:8px;">'+(cached?'📁 Saved report':(provider==='rules'?'⚡ Quick analysis':'✨ AI ('+provider+')'))+' · '+new Date().toLocaleString()+' · Educational only, not financial advice.</div>';
+  }
+  async function generateAIReport(){
+    const box=document.getElementById('aiReportBox');const btn=document.getElementById('aiReportBtn');if(!box)return;
+    if(!trades||!trades.length){box.style.display='block';box.innerHTML='<div style="color:var(--text-muted);">Add some trades first, then generate your report.</div>';return;}
+    const s=computeTradeStats(trades);
+    box.style.display='block';
+    const regen=btn&&btn.textContent.indexOf('Regenerate')>=0;
+    if(!regen&&currentProfile&&sb){try{const c=await sb.from('ai_reports').select('*').eq('user_id',currentProfile.id).maybeSingle();if(c.data&&c.data.trades_count===s.n&&c.data.report){renderAIReport(box,c.data.report,c.data.provider,true);if(btn){btn.textContent='🔄 Regenerate';}return;}}catch(e){}}
+    if(btn){btn.disabled=true;btn.textContent='⏳ Analyzing...';}
+    box.innerHTML='<div style="color:var(--text-muted);">🤖 Analyzing your '+s.n+' trades...</div>';
+    let report='',provider='rules';
+    try{const r=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:buildReportPrompt(s)})});if(r.ok){const d=await r.json();if(d.report){report=d.report;provider=d.provider||'ai';}}}catch(e){}
+    if(!report){report=generateRuleReport(s);provider='rules';}
+    renderAIReport(box,report,provider,false);
+    if(btn){btn.disabled=false;btn.textContent='🔄 Regenerate';}
+    if(currentProfile&&sb){try{await sb.from('ai_reports').upsert({user_id:currentProfile.id,report:report,trades_count:s.n,provider:provider,updated_at:new Date().toISOString()});}catch(e){}}
+  }
+
   function closeVipModal(){const h=document.getElementById('vipModalHost');if(h)h.innerHTML='';}
   // INSTANT realtime updates (Supabase Realtime — needs realtime-enable.sql)
   (function rtUser(){
