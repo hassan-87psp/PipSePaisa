@@ -1357,6 +1357,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="menu-item" onclick="openAddTradeModal()" style="background: linear-gradient(135deg, var(--gold-bg), transparent); border: 1px solid rgba(245,158,11,0.3);"><span class="menu-icon">➕</span><strong>Add Trade</strong></div>
       <div class="menu-item" data-page="trades" onclick="showPage('trades', this)"><span class="menu-icon">📈</span>My Trades</div>
       <div class="menu-item" data-page="analysis" onclick="showPage('analysis', this)"><span class="menu-icon">📉</span>Trades Analysis</div>
+      <div class="menu-item" data-page="aireport" onclick="showPage('aireport', this)"><span class="menu-icon">🤖</span>AI Report<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
       <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Member Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
@@ -1580,6 +1581,18 @@ select option{background:#0f1729;color:#e8eaf0}
       </div>
       
       <!-- ========== ANALYSIS ========== -->
+      <div class="page" id="page-aireport">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div>
+              <div class="card-title">🤖 AI Trade Report</div>
+              <div class="card-meta" style="margin-top:4px;">Deep analysis of your trade history — strengths, mistakes, discipline score & action plan</div>
+            </div>
+            <button id="aiReportBtn" onclick="generateAIReport()" style="padding:11px 22px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;white-space:nowrap;">✨ Generate Report</button>
+          </div>
+          <div id="aiReportBox" style="margin-top:16px;"><div style="color:var(--text-muted);font-size:13px;">Click "Generate Report" to analyze your trades. The AI reviews your win rate, profit factor, risk, drawdown, overtrading, revenge-trading and more — then gives a discipline score and an action plan.</div></div>
+        </div>
+      </div>
       <div class="page" id="page-analysis">
         <div class="card">
           <div class="card-header">
@@ -1597,17 +1610,7 @@ select option{background:#0f1729;color:#e8eaf0}
           </div>
         </div>
         
-        <div class="card" style="margin-top:14px;border:1px solid var(--gold);">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
-            <div>
-              <div class="card-title">🤖 AI Trade Report</div>
-              <div class="card-meta" style="margin-top:4px;">AI aapki trade history dekh kar batayega kya sahi, kya improve karein</div>
-            </div>
-            <button id="aiReportBtn" onclick="generateAIReport()" style="padding:11px 22px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;">✨ Generate Report</button>
-          </div>
-          <div id="aiReportBox" style="margin-top:14px;display:none;"></div>
-        </div>
-        
+        <div class="stats-grid" style="margin-top: 14px;">
           <div class="stat-card featured">
             <div class="stat-header">
               <div class="stat-icon gold">💰</div>
@@ -3419,7 +3422,7 @@ select option{background:#0f1729;color:#e8eaf0}
     
     const titles = {
       dashboard: 'Dashboard', trades: 'My Trades',
-      analysis: 'Trades Analysis', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
+      analysis: 'Trades Analysis', aireport: 'AI Report', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex',
       signals: 'Signals', articles: 'Articles', vipplans: 'VIP Plans',
       support: 'Support', announce: 'Announcements',
@@ -3439,6 +3442,7 @@ select option{background:#0f1729;color:#e8eaf0}
     if (page === 'support') loadSupport();
     if (page === 'community') { showPage('chats', document.querySelector('[data-page=chats]')); return; }
     if (page === 'chats') uTabSwitch(_uTab||'comm');
+    if (page === 'aireport') loadCachedAIReport();
     if (page === 'announce') loadAnnouncements();
     if (page === 'signals') loadSignalsFromDB();
     if (page === 'articles') loadArticlesFromDB();
@@ -6856,9 +6860,9 @@ select option{background:#0f1729;color:#e8eaf0}
     if(b){b.style.background=tab==='direct'?'linear-gradient(135deg,var(--gold),var(--gold-dark))':'transparent';b.style.color=tab==='direct'?'#0a0e1a':'var(--text)';b.style.border=tab==='direct'?'none':'1px solid var(--border)';b.style.fontWeight=tab==='direct'?'800':'700';}
     if(tab==='comm'){if(typeof loadCommunityGroups==='function')loadCommunityGroups();}else{if(typeof loadDMList==='function')loadDMList();}
   }
-  // ============ AI TRADE REPORT ============
+  // ============ AI TRADE REPORT (Coaching Report) ============
   function computeTradeStats(list){
-    const t=list.filter(function(x){return typeof x.pnl==='number';});
+    const t=list.filter(function(x){return typeof x.pnl==='number';}).slice().sort(function(a,b){return new Date(a.date)-new Date(b.date);});
     const n=t.length;
     const wins=t.filter(function(x){return x.pnl>0;}), losses=t.filter(function(x){return x.pnl<0;});
     const totalPnl=t.reduce(function(s,x){return s+x.pnl;},0);
@@ -6866,84 +6870,160 @@ select option{background:#0f1729;color:#e8eaf0}
     const winRate=n?Math.round(wins.length/n*100):0;
     const avgWin=wins.length?grossWin/wins.length:0, avgLoss=losses.length?grossLoss/losses.length:0;
     const profitFactor=grossLoss?(grossWin/grossLoss):(grossWin>0?99:0);
-    const byPair={};t.forEach(function(x){var p=x.pair||'?';byPair[p]=byPair[p]||{pair:p,n:0,pnl:0};byPair[p].n++;byPair[p].pnl+=x.pnl;});
+    // by pair
+    const byPair={};t.forEach(function(x){var p=x.pair||'?';byPair[p]=byPair[p]||{pair:p,n:0,pnl:0,w:0};byPair[p].n++;byPair[p].pnl+=x.pnl;if(x.pnl>0)byPair[p].w++;});
     const pairs=Object.keys(byPair).map(function(k){return byPair[k];});
     const bestPair=pairs.slice().sort(function(a,b){return b.pnl-a.pnl;})[0];
     const worstPair=pairs.slice().sort(function(a,b){return a.pnl-b.pnl;})[0];
     const mostTraded=pairs.slice().sort(function(a,b){return b.n-a.n;})[0];
+    // direction
     const longs=t.filter(function(x){return (x.direction||'').toLowerCase().charAt(0)==='b';});
     const shorts=t.filter(function(x){return (x.direction||'').toLowerCase().charAt(0)==='s';});
-    const longPnl=longs.reduce(function(s,x){return s+x.pnl;},0), shortPnl=shorts.reduce(function(s,x){return s+x.pnl;},0);
+    // realized R:R
     var rr=[];t.forEach(function(x){if(x.entry&&x.sl&&x.tp){var risk=Math.abs(x.entry-x.sl),reward=Math.abs(x.tp-x.entry);if(risk>0)rr.push(reward/risk);}});
     const avgRR=rr.length?(rr.reduce(function(a,b){return a+b;},0)/rr.length):0;
-    const biggestWin=t.length?Math.max.apply(null,t.map(function(x){return x.pnl;}).concat(0)):0;
-    const biggestLoss=t.length?Math.min.apply(null,t.map(function(x){return x.pnl;}).concat(0)):0;
-    return {n:n,wins:wins.length,losses:losses.length,winRate:winRate,totalPnl:totalPnl,avgWin:avgWin,avgLoss:avgLoss,profitFactor:profitFactor,bestPair:bestPair,worstPair:worstPair,mostTraded:mostTraded,longN:longs.length,shortN:shorts.length,longPnl:longPnl,shortPnl:shortPnl,avgRR:avgRR,biggestWin:biggestWin,biggestLoss:biggestLoss,pairs:pairs};
+    const biggestWin=n?Math.max.apply(null,t.map(function(x){return x.pnl;}).concat(0)):0;
+    const biggestLoss=n?Math.min.apply(null,t.map(function(x){return x.pnl;}).concat(0)):0;
+    // equity curve + max drawdown
+    var eq=0,peak=0,maxDD=0;t.forEach(function(x){eq+=x.pnl;if(eq>peak)peak=eq;var dd=peak-eq;if(dd>maxDD)maxDD=dd;});
+    // consecutive losses (max streak)
+    var curL=0,maxL=0,curW=0,maxW=0;t.forEach(function(x){if(x.pnl<0){curL++;maxL=Math.max(maxL,curL);curW=0;}else if(x.pnl>0){curW++;maxW=Math.max(maxW,curW);curL=0;}});
+    // trades per day (overtrading)
+    var byDay={};t.forEach(function(x){var d=(x.date||'').slice(0,10);byDay[d]=(byDay[d]||0)+1;});
+    var daysArr=Object.keys(byDay);var maxPerDay=daysArr.length?Math.max.apply(null,daysArr.map(function(d){return byDay[d];})):0;
+    var avgPerDay=daysArr.length?(n/daysArr.length):0;
+    var heavyDays=daysArr.filter(function(d){return byDay[d]>=5;}).length;
+    // day of week
+    var dow=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];var byDow={};t.forEach(function(x){var dt=new Date(x.date);if(!isNaN(dt)){var k=dow[dt.getDay()];byDow[k]=byDow[k]||{pnl:0,n:0};byDow[k].pnl+=x.pnl;byDow[k].n++;}});
+    // revenge trading: trade right after a loss with bigger lot than that loss
+    var revenge=0;for(var i=1;i<t.length;i++){if(t[i-1].pnl<0&&t[i].lot&&t[i-1].lot&&t[i].lot>t[i-1].lot*1.5)revenge++;}
+    // lot size consistency
+    var lots=t.map(function(x){return Number(x.lot)||0;}).filter(function(v){return v>0;});
+    var lotAvg=lots.length?lots.reduce(function(a,b){return a+b;},0)/lots.length:0;
+    var lotVar=lots.length?Math.sqrt(lots.reduce(function(a,b){return a+(b-lotAvg)*(b-lotAvg);},0)/lots.length):0;
+    var lotCV=lotAvg?(lotVar/lotAvg):0; // coefficient of variation
+    // no stop loss
+    var noSL=t.filter(function(x){return !x.sl;}).length;
+    return {n:n,wins:wins.length,losses:losses.length,winRate:winRate,totalPnl:totalPnl,avgWin:avgWin,avgLoss:avgLoss,profitFactor:profitFactor,
+      bestPair:bestPair,worstPair:worstPair,mostTraded:mostTraded,longN:longs.length,shortN:shorts.length,
+      longPnl:longs.reduce(function(s,x){return s+x.pnl;},0),shortPnl:shorts.reduce(function(s,x){return s+x.pnl;},0),
+      avgRR:avgRR,biggestWin:biggestWin,biggestLoss:biggestLoss,maxDD:maxDD,maxLossStreak:maxL,maxWinStreak:maxW,
+      maxPerDay:maxPerDay,avgPerDay:avgPerDay,heavyDays:heavyDays,tradingDays:daysArr.length,byDow:byDow,revenge:revenge,lotCV:lotCV,noSL:noSL,pairs:pairs};
   }
-  function buildReportPrompt(s){
-    var pairLines=s.pairs.slice(0,8).map(function(p){return p.pair+': '+p.n+' trades, $'+p.pnl.toFixed(2);}).join('; ');
-    return ['You are a professional forex trading coach. Analyse this trader\'s history and write a short, motivating, practical report in simple English.',
-      'Use these exact sections with ## headings: "Summary", "What you are doing right", "What is going wrong", "Action plan (next 10 trades)". Use short bullet points starting with -. Be specific with the numbers. Keep it under 250 words.','','DATA:',
-      'Total trades: '+s.n,'Win rate: '+s.winRate+'%','Total P&L: $'+s.totalPnl.toFixed(2),
-      'Average win: $'+s.avgWin.toFixed(2)+', Average loss: $'+s.avgLoss.toFixed(2),'Profit factor: '+s.profitFactor.toFixed(2),
-      'Average risk:reward: '+(s.avgRR?s.avgRR.toFixed(2)+':1':'n/a'),
+  function buildReportPrompt(s,sample){
+    var pairLines=s.pairs.slice(0,10).map(function(p){return p.pair+': '+p.n+' trades, win '+(p.n?Math.round(p.w/p.n*100):0)+'%, $'+p.pnl.toFixed(2);}).join('; ');
+    var dowLines=Object.keys(s.byDow).map(function(k){return k+': '+s.byDow[k].n+' trades $'+s.byDow[k].pnl.toFixed(2);}).join('; ');
+    var data=['DATA (use ONLY this; conclusions must be evidence-based):',
+      'Total trades: '+s.n+' over '+s.tradingDays+' trading days',
+      'Win rate: '+s.winRate+'% ('+s.wins+'W / '+s.losses+'L)',
+      'Total P&L: $'+s.totalPnl.toFixed(2),
+      'Average win: $'+s.avgWin.toFixed(2)+', Average loss: $'+s.avgLoss.toFixed(2),
+      'Profit factor: '+s.profitFactor.toFixed(2),
+      'Average planned R:R: '+(s.avgRR?s.avgRR.toFixed(2)+':1':'n/a'),
       'Biggest win: $'+s.biggestWin.toFixed(2)+', Biggest loss: $'+s.biggestLoss.toFixed(2),
-      'Long trades: '+s.longN+' ($'+s.longPnl.toFixed(2)+'), Short trades: '+s.shortN+' ($'+s.shortPnl.toFixed(2)+')',
-      'By pair: '+pairLines,'Best pair: '+(s.bestPair?s.bestPair.pair+' ($'+s.bestPair.pnl.toFixed(2)+')':'n/a'),
-      'Worst pair: '+(s.worstPair?s.worstPair.pair+' ($'+s.worstPair.pnl.toFixed(2)+')':'n/a')].join('\n');
+      'Max drawdown: $'+s.maxDD.toFixed(2),
+      'Max consecutive losses: '+s.maxLossStreak+', Max consecutive wins: '+s.maxWinStreak,
+      'Trades per day: avg '+s.avgPerDay.toFixed(1)+', max '+s.maxPerDay+', days with 5+ trades: '+s.heavyDays,
+      'Possible revenge trades (bigger size right after a loss): '+s.revenge,
+      'Lot-size consistency (0=perfectly consistent, higher=erratic): '+s.lotCV.toFixed(2),
+      'Trades with NO stop-loss recorded: '+s.noSL,
+      'Long: '+s.longN+' ($'+s.longPnl.toFixed(2)+'), Short: '+s.shortN+' ($'+s.shortPnl.toFixed(2)+')',
+      'By pair: '+pairLines,
+      'By day of week: '+dowLines,
+      'NOTE: only trade DATE is recorded, not time-of-day. So intraday session/hour analysis is NOT possible — state that clearly and skip hourly/session claims.',
+      '',
+      'Recent trades (date | pair | dir | lot | pnl | sl | tp | emotion):',
+      sample
+    ].join('\n');
+    var instr='You are an elite forex trading coach. Your job is NOT only to calculate statistics — your primary goal is to identify strengths, weaknesses, behavioral patterns, discipline issues, risk-management mistakes, and opportunities for improvement from the trader\'s history.\n\n'+
+'Analyze the trade history and produce a detailed coaching report using EXACTLY this structure with ## headings:\n'+
+'## Trading Coach Report\n'+
+'## Overall Assessment\n(Honest level: Beginner / Developing / Intermediate / Advanced / Professional.)\n'+
+'## Performance Score\n(Give 0-100 for each: Discipline, Risk Management, Consistency, Execution, Psychology, and an Overall Trader Score.)\n'+
+'## Strengths\n## Weaknesses\n'+
+'## Behavioral Analysis\n(Overtrading, revenge trading, FOMO, impulsive entries, inconsistent lot sizing, cutting winners early, letting losers run, excessive frequency. Give the EVIDENCE/numbers behind each conclusion.)\n'+
+'## Risk Management Review\n(Position sizing, drawdowns, consecutive losses, risk exposure. State clearly: healthy or dangerous.)\n'+
+'## Profitability Analysis\n(Best/worst symbols, best/worst days of week. If time-of-day data is missing, say so and skip hourly/session claims.)\n'+
+'## Coaching Feedback\n(What to CONTINUE doing; what to STOP immediately.)\n'+
+'## Top 5 Improvements\n(Highest-impact, specific.)\n'+
+'## Next 30-Day Development Plan\n(Practical, measurable goals.)\n'+
+'## Final Coach Verdict\n(Concise, speak directly to the trader.)\n\n'+
+'Be objective, evidence-based and constructive. Do NOT give generic advice. Base ALL conclusions strictly on the data below. Use short bullet points (start with -). Bold key numbers with **.\n\n';
+    return instr+data;
+  }
+  function tradeSample(list){
+    var t=list.slice().sort(function(a,b){return new Date(b.date)-new Date(a.date);}).slice(0,80);
+    return t.map(function(x){return (x.date||'').slice(0,10)+' | '+(x.pair||'?')+' | '+(x.direction||'?')+' | '+(x.lot||'?')+' | $'+(typeof x.pnl==='number'?x.pnl.toFixed(2):'?')+' | sl '+(x.sl||'-')+' | tp '+(x.tp||'-')+' | '+(x.emotion||'-');}).join('\n');
   }
   function generateRuleReport(s){
-    var L=[];L.push('## Summary');
-    L.push('You have **'+s.n+' trades** with a **'+s.winRate+'% win rate** and total P&L of **$'+s.totalPnl.toFixed(2)+'**.');
-    L.push('## What you are doing right');
-    if(s.winRate>=50)L.push('- Solid win rate ('+s.winRate+'%). Keep following your setups.');
-    if(s.profitFactor>=1.5)L.push('- Profit factor '+s.profitFactor.toFixed(2)+' — winners outweigh losers nicely.');
-    if(s.bestPair&&s.bestPair.pnl>0)L.push('- Best pair: **'+s.bestPair.pair+'** (+$'+s.bestPair.pnl.toFixed(2)+'). You read this pair well.');
-    if(s.avgRR>=1.5)L.push('- Good average risk:reward ('+s.avgRR.toFixed(1)+':1).');
-    L.push('- You keep a trade journal — that alone puts you ahead of most traders.');
-    L.push('## What is going wrong');
-    if(s.winRate<45)L.push('- Win rate is low ('+s.winRate+'%). Be more selective — wait for A+ setups only.');
-    if(s.avgWin>0&&s.avgLoss>s.avgWin)L.push('- Average loss ($'+s.avgLoss.toFixed(1)+') is bigger than average win ($'+s.avgWin.toFixed(1)+'). Cut losers faster, let winners run.');
-    if(s.profitFactor<1)L.push('- Profit factor below 1 — overall losing. Reduce lot size and focus on your best pair.');
-    if(s.worstPair&&s.worstPair.pnl<0)L.push('- Worst pair: **'+s.worstPair.pair+'** ($'+s.worstPair.pnl.toFixed(2)+'). Avoid it or review those setups.');
-    if(s.avgRR&&s.avgRR<1)L.push('- Average R:R under 1:1 ('+s.avgRR.toFixed(1)+'). Aim for at least 1.5:1.');
-    if(Math.abs(s.biggestLoss)>3*Math.abs(s.avgLoss||1))L.push('- One very big loss ($'+s.biggestLoss.toFixed(0)+') suggests a missing stop-loss. Always set an SL.');
-    L.push('## Action plan (next 10 trades)');
-    L.push('- Trade only your best pair ('+(s.bestPair?s.bestPair.pair:'your top pair')+') until consistency improves.');
-    L.push('- Keep risk per trade small and fixed.');
-    L.push('- Target a minimum 1.5:1 reward-to-risk on every trade.');
+    var L=[];L.push('## Trading Coach Report');L.push('## Overall Assessment');
+    var lvl=s.profitFactor>=1.8&&s.winRate>=55?'Advanced':s.profitFactor>=1.2?'Intermediate':s.profitFactor>=0.9?'Developing':'Beginner';
+    L.push('Based on '+s.n+' trades, current level looks **'+lvl+'**.');
+    L.push('## Performance Score');
+    var risk=Math.max(0,100-(s.noSL*3)-(s.maxDD>Math.abs(s.totalPnl)?20:0)-(s.maxLossStreak*4));
+    var disc=Math.max(0,100-(s.heavyDays*5)-(s.revenge*6)-(s.lotCV>0.6?15:0));
+    var cons=Math.max(0,Math.min(100,s.winRate+ (s.profitFactor>=1?20:-10)));
+    var overall=Math.round((risk+disc+cons)/3);
+    L.push('- Discipline: **'+Math.round(disc)+'/100**');
+    L.push('- Risk Management: **'+Math.round(risk)+'/100**');
+    L.push('- Consistency: **'+Math.round(cons)+'/100**');
+    L.push('- Overall Trader Score: **'+overall+'/100**');
+    L.push('## Strengths');
+    if(s.winRate>=50)L.push('- Solid win rate ('+s.winRate+'%).');
+    if(s.profitFactor>=1.3)L.push('- Profit factor '+s.profitFactor.toFixed(2)+' — winners outweigh losers.');
+    if(s.bestPair&&s.bestPair.pnl>0)L.push('- Strong on **'+s.bestPair.pair+'** (+$'+s.bestPair.pnl.toFixed(2)+').');
+    if(s.lotCV<0.4)L.push('- Consistent position sizing.');
+    L.push('- Maintaining a trade journal.');
+    L.push('## Weaknesses');
+    if(s.noSL>0)L.push('- **'+s.noSL+'** trades had no stop-loss — major risk.');
+    if(s.avgWin>0&&s.avgLoss>s.avgWin)L.push('- Losers ($'+s.avgLoss.toFixed(1)+') bigger than winners ($'+s.avgWin.toFixed(1)+') — cutting winners / letting losers run.');
+    if(s.heavyDays>0)L.push('- '+s.heavyDays+' day(s) with 5+ trades — possible overtrading.');
+    if(s.revenge>0)L.push('- '+s.revenge+' possible revenge trade(s) (size up after a loss).');
+    if(s.worstPair&&s.worstPair.pnl<0)L.push('- Losing on **'+s.worstPair.pair+'** ($'+s.worstPair.pnl.toFixed(2)+').');
+    L.push('## Risk Management Review');
+    L.push('- Max drawdown **$'+s.maxDD.toFixed(2)+'**, max losing streak **'+s.maxLossStreak+'**. '+(s.noSL>0||s.maxDD>Math.abs(s.totalPnl)?'Risk looks **dangerous** — fix stops and sizing.':'Risk looks **manageable** — keep it tight.'));
+    L.push('## Top 5 Improvements');
+    L.push('- Always set a stop-loss on every trade.');
+    L.push('- Fix lot size to a small % of account.');
+    L.push('- Target at least 1.5:1 reward-to-risk.');
+    L.push('- Cap trades per day to avoid overtrading.');
+    L.push('- Focus on your best pair ('+(s.bestPair?s.bestPair.pair:'top pair')+').');
+    L.push('## Final Coach Verdict');
+    L.push('You have a workable base. Tighten risk, stop overtrading, and let winners run — consistency will follow.');
     return L.join('\n');
   }
   function aiMdToHtml(t){
     function inl(x){return vEsc(x).replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--gold)">$1</strong>');}
     return t.split('\n').map(function(line){
       var l=line.trim();if(!l)return '';
-      if(l.indexOf('## ')===0)return '<div style="color:var(--gold);font-weight:800;margin:14px 0 6px;font-size:15px;">'+inl(l.slice(3))+'</div>';
-      if(l.indexOf('# ')===0)return '<div style="color:var(--gold);font-weight:800;margin:14px 0 6px;font-size:15px;">'+inl(l.slice(2))+'</div>';
+      if(l.indexOf('## ')===0)return '<div style="color:var(--gold);font-weight:800;margin:16px 0 6px;font-size:15px;border-bottom:1px solid var(--border);padding-bottom:4px;">'+inl(l.slice(3))+'</div>';
+      if(l.indexOf('# ')===0)return '<div style="color:var(--gold);font-weight:800;margin:16px 0 6px;font-size:16px;">'+inl(l.slice(2))+'</div>';
       if(/^[-*]\s+/.test(l))return '<div style="margin:3px 0 3px 6px;">• '+inl(l.replace(/^[-*]\s+/,''))+'</div>';
       return '<div style="margin:5px 0;">'+inl(l)+'</div>';
     }).join('');
   }
   function renderAIReport(box,text,provider,cached){
-    box.innerHTML='<div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:16px;">'+aiMdToHtml(text)+'</div><div style="font-size:11px;color:var(--text-muted);margin-top:8px;">'+(cached?'📁 Saved report':(provider==='rules'?'⚡ Quick analysis':'✨ AI ('+provider+')'))+' · '+new Date().toLocaleString()+' · Educational only, not financial advice.</div>';
+    box.innerHTML='<div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:16px;line-height:1.65;font-size:14px;">'+aiMdToHtml(text)+'</div><div style="font-size:11px;color:var(--text-muted);margin-top:8px;">'+(cached?'📁 Saved report':(provider==='rules'?'⚡ Quick analysis (AI offline)':'✨ AI ('+provider+')'))+' · '+new Date().toLocaleString()+' · Educational only, not financial advice.</div>';
+  }
+  async function loadCachedAIReport(){
+    const box=document.getElementById('aiReportBox');const btn=document.getElementById('aiReportBtn');if(!box)return;
+    if(currentProfile&&sb){try{const c=await sb.from('ai_reports').select('*').eq('user_id',currentProfile.id).maybeSingle();if(c.data&&c.data.report){renderAIReport(box,c.data.report,c.data.provider,true);if(btn)btn.textContent='🔄 Regenerate';}}catch(e){}}
   }
   async function generateAIReport(){
     const box=document.getElementById('aiReportBox');const btn=document.getElementById('aiReportBtn');if(!box)return;
-    if(!trades||!trades.length){box.style.display='block';box.innerHTML='<div style="color:var(--text-muted);">Add some trades first, then generate your report.</div>';return;}
+    if(!trades||!trades.length){box.innerHTML='<div style="color:var(--text-muted);">Add some trades first, then generate your report.</div>';return;}
     const s=computeTradeStats(trades);
-    box.style.display='block';
     const regen=btn&&btn.textContent.indexOf('Regenerate')>=0;
-    if(!regen&&currentProfile&&sb){try{const c=await sb.from('ai_reports').select('*').eq('user_id',currentProfile.id).maybeSingle();if(c.data&&c.data.trades_count===s.n&&c.data.report){renderAIReport(box,c.data.report,c.data.provider,true);if(btn){btn.textContent='🔄 Regenerate';}return;}}catch(e){}}
+    if(!regen&&currentProfile&&sb){try{const c=await sb.from('ai_reports').select('*').eq('user_id',currentProfile.id).maybeSingle();if(c.data&&c.data.trades_count===s.n&&c.data.report){renderAIReport(box,c.data.report,c.data.provider,true);if(btn)btn.textContent='🔄 Regenerate';return;}}catch(e){}}
     if(btn){btn.disabled=true;btn.textContent='⏳ Analyzing...';}
-    box.innerHTML='<div style="color:var(--text-muted);">🤖 Analyzing your '+s.n+' trades...</div>';
+    box.innerHTML='<div style="color:var(--text-muted);">🤖 Analyzing your '+s.n+' trades in depth... (10-20 sec)</div>';
     let report='',provider='rules';
-    try{const r=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:buildReportPrompt(s)})});if(r.ok){const d=await r.json();if(d.report){report=d.report;provider=d.provider||'ai';}}}catch(e){}
+    try{const r=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:buildReportPrompt(s,tradeSample(trades))})});if(r.ok){const d=await r.json();if(d.report){report=d.report;provider=d.provider||'ai';}}}catch(e){}
     if(!report){report=generateRuleReport(s);provider='rules';}
     renderAIReport(box,report,provider,false);
     if(btn){btn.disabled=false;btn.textContent='🔄 Regenerate';}
     if(currentProfile&&sb){try{await sb.from('ai_reports').upsert({user_id:currentProfile.id,report:report,trades_count:s.n,provider:provider,updated_at:new Date().toISOString()});}catch(e){}}
   }
-
   function closeVipModal(){const h=document.getElementById('vipModalHost');if(h)h.innerHTML='';}
   // INSTANT realtime updates (Supabase Realtime — needs realtime-enable.sql)
   (function rtUser(){
