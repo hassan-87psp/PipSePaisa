@@ -5280,9 +5280,9 @@ select option{background:#0f1729;color:#e8eaf0}
       'Last candles (open,high,low,close), oldest to newest:',
       s.last,
       '',
-      'Write the analysis in EXACTLY this structure with ## headings:',
+      'Write the analysis in EXACTLY this structure with ## headings (keep this order):',
       '## Market Bias',
-      '(One short line: BULLISH / BEARISH / RANGING for '+meta.name+', with a 1-line reason from market structure — higher-highs/higher-lows or lower-highs/lower-lows.)',
+      '(First line: BULLISH / BEARISH / RANGING for '+meta.name+'. Second line: a clear directional call — "Look for BUY setups", "Look for SELL setups", or "Stay flat / wait" — plus a 1-line reason from market structure: higher-highs/higher-lows or lower-highs/lower-lows.)',
       '## Demand Zones (Buy areas)',
       '- List 2-3 support/demand price ZONES as ranges (e.g. '+price+' area), strongest first. Base them on real swing lows / consolidation in the data.',
       '## Supply Zones (Sell areas)',
@@ -5327,6 +5327,13 @@ select option{background:#0f1729;color:#e8eaf0}
   }
   function paintAIChart(box,report,cached){
     var b=chartBiasBadge(report);
+    // update the old price-card trend/recommendation fields so they don't stay "Analyzing..."
+    var trEl=document.getElementById('analyzeTrend'); if(trEl) trEl.textContent=b.ic+' '+b.word;
+    var trD=document.getElementById('analyzeTrendDesc'); if(trD) trD.textContent='AI market structure read';
+    var recEl=document.getElementById('analyzeRecommendation');
+    var recD=document.getElementById('analyzeConfidence');
+    if(recEl){ recEl.textContent = b.word==='BULLISH'?'🟢 Watch for BUY':(b.word==='BEARISH'?'🔴 Watch for SELL':'⚖️ Range Trade'); }
+    if(recD) recD.textContent='AI-based bias';
     var head='<div class="card ai-sec" style="background:linear-gradient(135deg,'+b.c+'18,transparent);border:1px solid '+b.c+'55;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">'+
       '<div style="width:50px;height:50px;border-radius:13px;background:'+b.c+'22;display:flex;align-items:center;justify-content:center;font-size:26px;">'+b.ic+'</div>'+
       '<div style="flex:1;min-width:160px;"><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">AI Market Bias</div><div style="font-size:22px;font-weight:900;color:'+b.c+';">'+b.word+'</div></div></div>';
