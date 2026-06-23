@@ -2398,7 +2398,6 @@ select option{background:#0f1729;color:#e8eaf0}
         <div id="vipPlansGrid" style="display:flex;flex-wrap:wrap;gap:16px;align-items:stretch;"><div class="empty-state"><div>Loading plans...</div></div></div>
         <div id="myVipReqs" style="margin-top:18px"></div>
         <div id="vipModalHost"></div>
-        <div id="eventAIHost"></div>
       </div>
       <style>.commSkel{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 37%,rgba(255,255,255,.04) 63%);background-size:400% 100%;animation:commShimmer 1.4s ease infinite;}@keyframes commShimmer{0%{background-position:100% 0}100%{background-position:0 0}}</style>
       <div class="page" id="page-community"></div>
@@ -4616,6 +4615,10 @@ select option{background:#0f1729;color:#e8eaf0}
     }
     
     const now = new Date();
+    const TZ = newsState.timezone || 'Asia/Karachi';
+    const nzKey = (dt)=>{ try{ return new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(dt); }catch(e){ return dt.toISOString().slice(0,10); } };
+    const todayKey = nzKey(now);
+    const tomorrowKey = nzKey(new Date(now.getTime()+86400000));
     const todayStr = now.toDateString();
     const tomorrow = new Date(now.getTime() + 86400000);
     const tomorrowStr = tomorrow.toDateString();
@@ -4653,14 +4656,14 @@ select option{background:#0f1729;color:#e8eaf0}
     
     let filtered = newsRawData.filter(n => {
       const eventDate = new Date(n.date);
-      const eventStr = eventDate.toDateString();
+      const evKey = nzKey(eventDate);
       
-      // Hide all past events except for custom range
-      if (newsState.time !== 'custom' && eventDate < todayStart) return false;
+      // Hide all past events except for custom range (timezone-consistent)
+      if (newsState.time !== 'custom' && evKey < todayKey) return false;
       
       // Time filter
-      if (newsState.time === 'today' && eventStr !== todayStr) return false;
-      if (newsState.time === 'tomorrow' && eventStr !== tomorrowStr) return false;
+      if (newsState.time === 'today' && evKey !== todayKey) return false;
+      if (newsState.time === 'tomorrow' && evKey !== tomorrowKey) return false;
       if (newsState.time === 'week' && eventDate > thisWeekSunday) return false;
       // 'all' shows everything from today onwards (handled by past filter above)
       if (newsState.time === 'custom' && newsState.customFrom && newsState.customTo) {
@@ -4701,16 +4704,15 @@ select option{background:#0f1729;color:#e8eaf0}
     // Group by date
     const grouped = {};
     filtered.forEach(n => {
-      const d = new Date(n.date);
-      const key = d.toDateString();
+      const key = nzKey(new Date(n.date));
       if (!grouped[key]) grouped[key] = [];
       grouped[key].push(n);
     });
     
-    Object.keys(grouped).forEach(dateKey => {
-      const d = new Date(dateKey);
-      const isToday = dateKey === todayStr;
-      const isTomorrow = dateKey === tomorrowStr;
+    Object.keys(grouped).sort().forEach(dateKey => {
+      const isToday = dateKey === todayKey;
+      const isTomorrow = dateKey === tomorrowKey;
+      const d = new Date(dateKey + 'T12:00:00');
       const dateLabel = isToday ? '📅 Today' : (isTomorrow ? '📅 Tomorrow' : '📅 ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }));
       
       html += `<div style="margin-top: 16px; margin-bottom: 8px; padding: 8px 12px; background: var(--bg-elevated); border-left: 3px solid var(--gold); border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--gold);">${dateLabel}</div>`;
@@ -4722,7 +4724,7 @@ select option{background:#0f1729;color:#e8eaf0}
         const flag = FLAG_MAP[n.country] || '🌐';
         
         html += `<div class="news-item">
-          <div class="news-time">${timeStr}</div>
+          <div class="news-time">${timeStr}<span class="evcd" data-evt="${eventTime.getTime()}" data-act="${n.actual ? 1 : 0}" style="display:block;font-size:9px;font-weight:800;margin-top:2px;"></span></div>
           <div class="news-flag">${flag}</div>
           <div class="news-currency">${n.country}</div>
           <div class="news-title">
@@ -4738,6 +4740,29 @@ select option{background:#0f1729;color:#e8eaf0}
     });
     
     container.innerHTML = html;
+    updateNewsCountdowns();
+    if(!window._newsCdTimer) window._newsCdTimer=setInterval(updateNewsCountdowns,30000);
+  }
+  function fmtNewsCd(ms,hasActual){
+    if(hasActual)return ['✓ Out','var(--green)'];
+    if(ms<=-3600000)return ['',''];
+    if(ms<=0)return ['● LIVE','#ef4444'];
+    if(ms<60000)return ['<1m','#ef4444'];
+    if(ms<1800000)return [Math.round(ms/60000)+'m','#ef4444'];
+    if(ms<3600000)return [Math.round(ms/60000)+'m','var(--gold)'];
+    if(ms<86400000)return [Math.round(ms/3600000)+'h','var(--text-muted)'];
+    return [Math.round(ms/86400000)+'d','var(--text-muted)'];
+  }
+  function updateNewsCountdowns(){
+    var now=Date.now();
+    document.querySelectorAll('#newsListContainer .evcd').forEach(function(el){
+      var t=parseInt(el.getAttribute('data-evt'))||0;
+      var act=el.getAttribute('data-act')==='1';
+      var r=fmtNewsCd(t-now,act);
+      el.textContent=r[0];el.style.color=r[1];
+      var row=el.closest('.news-item');
+      if(row){var soon=!act&&(t-now)>0&&(t-now)<3600000;row.style.borderLeft=soon?'3px solid #ef4444':'';row.style.paddingLeft=soon?'9px':'';}
+    });
   }
   
   function setNewsTime(time, btn) {
@@ -7842,5 +7867,6 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 </script>
 <script>(function(){var b=document.createElement('div');b.id='announceBanner';b.style.cssText='display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(560px,92vw);';function mount(){if(document.body&&!document.getElementById('announceBanner'))document.body.appendChild(b);}if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);function active(id){var p=document.getElementById(id);return p&&p.classList.contains('active');}function tick(){try{if(typeof checkAnnounceBanner==='function')checkAnnounceBanner();}catch(e){}}function poll(){try{if(active('page-support')&&typeof loadSupport==='function')loadSupport(true);if(active('page-announce')&&typeof loadAnnouncements==='function')loadAnnouncements();}catch(e){}}setTimeout(tick,4500);setInterval(tick,20000);setInterval(poll,3000);})();</script>
 <script>(function(){function hide(){var b=document.getElementById('pipBoot');if(b){b.classList.add('gone');setTimeout(function(){if(b)b.remove();},700);}}if(document.readyState==='complete'){setTimeout(hide,450);}else{window.addEventListener('load',function(){setTimeout(hide,450);});}setTimeout(hide,3500);})();</script>
+<div id="eventAIHost"></div>
 </body>
 </html>
