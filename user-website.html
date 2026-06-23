@@ -5200,6 +5200,7 @@ select option{background:#0f1729;color:#e8eaf0}
     
     // Show loading state
     const btn = document.getElementById('analyzeBtnText');
+    const wasReanalyze = btn && /Re-Analyze/.test(btn.textContent);
     if (btn) btn.textContent = '⏳ Analyzing...';
     
     // Hide prompt, show result section with loading
@@ -5250,7 +5251,7 @@ select option{background:#0f1729;color:#e8eaf0}
     } catch (e) {}
 
     if (candles) {
-      await renderAIChart(meta, tf, currentPrice, symbolKey, candles);
+      await renderAIChart(meta, tf, currentPrice, symbolKey, candles, wasReanalyze);
       if (btn) btn.textContent = '🔄 Re-Analyze';
       return;
     }
@@ -5304,7 +5305,7 @@ select option{background:#0f1729;color:#e8eaf0}
     var word=t.indexOf('bull')>=0?'BULLISH':t.indexOf('bear')>=0?'BEARISH':'RANGING';
     return {c:c,ic:ic,word:word,line:line.replace(/[*#]/g,'').trim()};
   }
-  async function renderAIChart(meta,tf,price,symbolKey,candles){
+  async function renderAIChart(meta,tf,price,symbolKey,candles,force){
     aiInjectStyles();
     const staticBlk=document.getElementById('staticZonesBlock'); if(staticBlk) staticBlk.style.display='none';
     const box=document.getElementById('aiChartBox'); if(!box) return;
@@ -5316,7 +5317,7 @@ select option{background:#0f1729;color:#e8eaf0}
     // cache (15 min) per symbol+tf
     var ckey='aichart:'+symbolKey+'|'+tf;
     var cached=null;
-    try{var raw=localStorage.getItem(ckey);if(raw){var o=JSON.parse(raw);if(o&&o.report&&(Date.now()-o.time)<900000)cached=o;}}catch(e){}
+    if(!force){ try{var raw=localStorage.getItem(ckey);if(raw){var o=JSON.parse(raw);if(o&&o.report&&(Date.now()-o.time)<900000)cached=o;}}catch(e){} }
     if(cached){ paintAIChart(box,cached.report,true); return; }
     box.innerHTML='<div class="card" style="text-align:center;padding:34px;color:var(--text-muted);">🤖 AI is reading '+candles.length+' real candles and mapping zones... (10-20 sec)</div>';
     var report='';
