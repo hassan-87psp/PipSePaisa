@@ -7083,7 +7083,7 @@ select option{background:#0f1729;color:#e8eaf0}
   function aiGauge(score){
     var col=score>=70?'#10b981':score>=45?'#f59e0b':'#ef4444';
     var r=46,c=2*Math.PI*r,off=c*(1-score/100);
-    return '<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'" transform="rotate(-90 60 60)"/><text x="60" y="56" text-anchor="middle" font-size="30" font-weight="800" fill="'+col+'">'+score+'</text><text x="60" y="76" text-anchor="middle" font-size="11" fill="var(--text-muted)">/ 100</text></svg>';
+    return '<svg width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="10"/><circle cx="60" cy="60" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'" transform="rotate(-90 60 60)" style="filter:drop-shadow(0 0 6px '+col+'88);"/><text x="60" y="56" text-anchor="middle" font-size="30" font-weight="800" fill="'+col+'">'+score+'</text><text x="60" y="76" text-anchor="middle" font-size="11" fill="var(--text-muted)">/ 100</text></svg>';
   }
   function aiTile(label,value,color){
     return '<div style="flex:1;min-width:120px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:12px 14px;"><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">'+label+'</div><div style="font-size:20px;font-weight:800;margin-top:3px;color:'+(color||'var(--text)')+';">'+value+'</div></div>';
@@ -7145,7 +7145,12 @@ select option{background:#0f1729;color:#e8eaf0}
   function renderAIReport(box,text,provider,cached,stats){
     aiInjectStyles();
     var pBadge=cached?'<span style="background:rgba(148,160,184,.18);color:#94a0b8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">📁 Saved</span>':(provider==='rules'?'<span style="background:rgba(148,160,184,.18);color:#94a0b8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">⚡ Quick analysis</span>':'<span style="background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800;">✨ AI Powered</span>');
+    var cover='<div style="background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(217,119,6,.04));border:1px solid var(--gold);border-radius:16px;padding:18px 20px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden;">'+
+      '<div style="position:absolute;inset:0;background:radial-gradient(circle at 80% 0%,rgba(245,158,11,.18),transparent 60%);"></div>'+
+      '<div style="position:relative;"><div style="font-size:22px;font-weight:900;color:var(--gold);letter-spacing:.5px;">📋 Trading Performance Report</div>'+
+      '<div style="font-size:12px;color:var(--text-muted);margin-top:4px;">'+vEsc((currentProfile&&(currentProfile.full_name||currentProfile.email))||'Trader')+' · '+new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'})+'</div></div></div>';
     box.innerHTML='<div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap;"><div style="display:flex;gap:8px;align-items:center;">'+pBadge+'<span style="font-size:11px;color:var(--text-muted);">'+new Date().toLocaleString()+'</span></div><button onclick="downloadAIReport()" style="background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;">⬇️ Save / Print</button></div>'+
+      cover+
       aiHero(text,stats)+
       aiPatternChips(stats)+
       aiMdToHtml(text)+
@@ -7193,44 +7198,80 @@ select option{background:#0f1729;color:#e8eaf0}
       '- Neutral: NN%',
       '- Bearish: NN%',
       '(The three MUST add up to 100.)',
+      '## Why This Forecast (Fundamentals)',
+      '(Explain the reasoning in 4-6 bullets. Reference: how the PREVIOUS reading ('+(ev.previous||'n/a')+') compares to the forecast ('+(ev.forecast||'n/a')+') and the recent trend of this indicator; the wider inflation / growth backdrop; the central bank ('+ev.country+') policy stance — hawkish or dovish, recent rate decisions or statements; and related data like employment, retail sales, PPI, oil prices. Make it a clear chain: "because X happened, this data is likely Y".)',
       '## Expected Range',
       '(If the forecast is a number: give the most likely range, a bullish-surprise scenario, and a bearish-surprise scenario. If there is no numeric forecast, write "Not applicable".)',
-      '## Key Reasons',
-      '- (3-5 short bullets, evidence-based)',
-      '## Risks',
-      '- (2-4 short bullets — what could go the other way)',
+      '## Key Reasons (Bullish case)',
+      '- (2-4 short bullets)',
+      '## Risks (Bearish case)',
+      '- (2-4 short bullets)',
       '## Trading Impact',
-      '- Strong result -> '+ev.country+' likely strengthens',
+      '- Strong result -> '+ev.country+' likely strengthens (and which pairs/gold react)',
       '- Weak result -> '+ev.country+' likely weakens',
       '',
       'End with one line: "This is probability-based analysis, not a guarantee."'
     ].join('\n');
   }
-  async function aiEventAnalyze(idx){
-    var ev=(newsRawData||[])[idx];if(!ev)return;
-    var host=document.getElementById('eventAIHost');if(!host)return;
-    host.innerHTML='<div style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeEventAI()"><div style="background:var(--bg-card);border:1px solid var(--gold);border-radius:18px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;padding:20px;">'+
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;"><div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">'+(FLAG_MAP[ev.country]||'🌐')+' '+vEsc(ev.country)+' · '+vEsc(ev.impact)+' impact</div><div style="font-size:17px;font-weight:800;margin-top:2px;">'+vEsc(ev.title)+'</div></div><button onclick="closeEventAI()" style="background:rgba(255,255,255,.06);border:none;color:var(--text);width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:16px;flex:0 0 auto;">✕</button></div>'+
+  function evCacheKey(ev){return 'evai:'+(ev.country||'')+'|'+(ev.title||'')+'|'+(ev.date||'');}
+  function aiEventOutcomeColor(txt){var t=(txt||'').toLowerCase();if(t.indexOf('bull')>=0)return '#10b981';if(t.indexOf('bear')>=0)return '#ef4444';return '#94a0b8';}
+  function aiEventHero(report){
+    // extract probabilities + outcome
+    function grab(re){var m=report.match(re);return m?parseInt(m[1]):null;}
+    var bull=grab(/bullish[^\d]*(\d{1,3})\s*%/i),neu=grab(/neutral[^\d]*(\d{1,3})\s*%/i),bear=grab(/bearish[^\d]*(\d{1,3})\s*%/i);
+    var om=report.match(/##\s*Expected Outcome\s*\n+\s*([^\n]+)/i);var outcome=om?om[1].replace(/[*#]/g,'').trim():'';
+    var bar='';
+    if(bull!=null&&bear!=null){neu=neu!=null?neu:Math.max(0,100-bull-bear);var tot=bull+neu+bear||1;
+      bar='<div style="display:flex;height:14px;border-radius:8px;overflow:hidden;margin:8px 0 6px;">'+
+        '<div style="width:'+(bull/tot*100)+'%;background:#10b981;"></div>'+
+        '<div style="width:'+(neu/tot*100)+'%;background:#5b6472;"></div>'+
+        '<div style="width:'+(bear/tot*100)+'%;background:#ef4444;"></div></div>'+
+        '<div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;margin-bottom:4px;"><span style="color:#10b981;">▲ Bull '+bull+'%</span><span style="color:#94a0b8;">Neutral '+neu+'%</span><span style="color:#ef4444;">▼ Bear '+bear+'%</span></div>';
+    }
+    var badge=outcome?'<div style="display:inline-block;background:'+aiEventOutcomeColor(outcome)+';color:#0a0e1a;font-weight:800;font-size:14px;padding:7px 18px;border-radius:22px;margin-bottom:10px;">'+vEsc(outcome)+'</div>':'';
+    if(!badge&&!bar)return '';
+    return '<div class="card ai-sec" style="background:linear-gradient(135deg,rgba(245,158,11,.1),transparent);margin-bottom:14px;text-align:center;">'+badge+bar+'</div>';
+  }
+  function renderEventReport(body,report,ev,fromCache){
+    body.innerHTML=aiEventHero(report)+aiMdToHtml(report)+
+      '<div style="font-size:11px;color:var(--text-muted);margin-top:10px;text-align:center;border-top:1px solid var(--border);padding-top:8px;">'+(fromCache?'📁 Saved analysis · ':'')+'⚠️ AI cannot predict the future — probability-based fundamental analysis, not financial advice.</div>';
+  }
+  function eventModalShell(ev,cached){
+    return '<div style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeEventAI()"><div style="background:var(--bg-card);border:1px solid var(--gold);border-radius:18px;max-width:660px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;"><div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">'+(FLAG_MAP[ev.country]||'🌐')+' '+vEsc(ev.country)+' · '+vEsc(ev.impact)+' impact</div><div style="font-size:17px;font-weight:800;margin-top:2px;">'+vEsc(ev.title)+'</div></div><div style="display:flex;gap:6px;flex:0 0 auto;">'+(cached?'<button onclick="aiEventAnalyze('+(newsRawData.indexOf(ev))+',true)" title="Regenerate" style="background:rgba(255,255,255,.06);border:none;color:var(--text);height:32px;padding:0 12px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;">🔄</button>':'')+'<button onclick="closeEventAI()" style="background:rgba(255,255,255,.06);border:none;color:var(--text);width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:16px;">✕</button></div></div>'+
       '<div style="display:flex;gap:8px;margin:10px 0 14px;flex-wrap:wrap;">'+
         '<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:7px 12px;"><span style="font-size:10px;color:var(--text-muted);">FORECAST</span><div style="font-weight:800;color:var(--gold);">'+(ev.forecast||'-')+'</div></div>'+
         '<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:7px 12px;"><span style="font-size:10px;color:var(--text-muted);">PREVIOUS</span><div style="font-weight:800;">'+(ev.previous||'-')+'</div></div>'+
         '<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:7px 12px;"><span style="font-size:10px;color:var(--text-muted);">ACTUAL</span><div style="font-weight:800;color:'+(ev.actual?'var(--gold)':'var(--text-muted)')+';">'+(ev.actual||'-')+'</div></div>'+
       '</div>'+
-      '<div id="eventAIBody"><div style="text-align:center;padding:30px;color:var(--text-muted);">🤖 Analyzing fundamentals... (10-20 sec)</div></div>'+
-      '</div></div>';
+      '<div id="eventAIBody"></div></div></div>';
+  }
+  async function aiEventAnalyze(idx,force){
+    var ev=(newsRawData||[])[idx];if(!ev)return;
+    var host=document.getElementById('eventAIHost');if(!host)return;
     aiInjectStyles();
-    // gather recent related news headlines
+    // check cache (12h TTL)
+    var cached=null;
+    try{var raw=localStorage.getItem(evCacheKey(ev));if(raw){var obj=JSON.parse(raw);if(obj&&obj.report&&(Date.now()-obj.time)<43200000)cached=obj;}}catch(e){}
+    if(cached&&!force){
+      host.innerHTML=eventModalShell(ev,true);
+      renderEventReport(document.getElementById('eventAIBody'),cached.report,ev,true);
+      return;
+    }
+    host.innerHTML=eventModalShell(ev,false);
+    document.getElementById('eventAIBody').innerHTML='<div style="text-align:center;padding:30px;color:var(--text-muted);">🤖 Analyzing fundamentals... (10-20 sec)</div>';
     var heads=[];
     try{var r=await fetch('https://pipsepaisa-api.vercel.app/api/news',{signal:AbortSignal.timeout(8000)});var d=await r.json();
       if(d&&d.items){var key=(ev.title||'').toLowerCase().split(/[^a-z]+/).filter(function(w){return w.length>3;});
-        heads=d.items.filter(function(it){var t=((it.title||'')+' '+(it.desc||'')).toLowerCase();return t.indexOf(ev.country.toLowerCase())>=0||key.some(function(k){return t.indexOf(k)>=0;});}).slice(0,6).map(function(it){return it.title;});
+        heads=d.items.filter(function(it){var t=((it.title||'')+' '+(it.desc||'')).toLowerCase();return t.indexOf((ev.country||'').toLowerCase())>=0||key.some(function(k){return t.indexOf(k)>=0;});}).slice(0,6).map(function(it){return it.title;});
         if(!heads.length)heads=d.items.slice(0,5).map(function(it){return it.title;});
       }}catch(e){}
     var body=document.getElementById('eventAIBody');if(!body)return;
     var report='';
     try{var rr=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:buildEventPrompt(ev,heads)})});if(rr.ok){var dd=await rr.json();if(dd.report)report=dd.report;}}catch(e){}
     if(!report){body.innerHTML='<div style="text-align:center;padding:24px;color:#ef4444;">AI is busy right now. Please try again in a moment.</div>';return;}
-    body.innerHTML=aiMdToHtml(report)+'<div style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center;">⚠️ AI cannot predict the future — this is probability-based fundamental analysis, not financial advice.</div>';
+    try{localStorage.setItem(evCacheKey(ev),JSON.stringify({report:report,time:Date.now()}));}catch(e){}
+    renderEventReport(body,report,ev,false);
   }
   function closeEventAI(){var h=document.getElementById('eventAIHost');if(h)h.innerHTML='';}
 
