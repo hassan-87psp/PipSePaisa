@@ -2237,8 +2237,8 @@ select option{background:#0f1729;color:#e8eaf0}
         <div class="card" style="margin-bottom: 14px;">
           <div class="card-header" style="margin-bottom: 0;">
             <div>
-              <div class="card-title">📊 Live Trading Chart</div>
-              <div class="card-meta" style="margin-top: 4px;">Real-time chart with Smart Zone Analysis</div>
+              <div class="card-title">📊 Live Trading Chart <span style="font-size:11px;font-weight:700;color:var(--green);margin-left:6px;"><span style="display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;"></span> LIVE</span></div>
+              <div class="card-meta" style="margin-top: 4px;">Real-time candles + AI Smart Zone lines · <span id="chartLivePrice" style="color:var(--gold);font-weight:700;">—</span></div>
             </div>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <select id="chartSymbol" onchange="loadChart()" style="padding: 9px 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 12px; font-family: inherit; cursor: pointer;">
@@ -5061,117 +5061,56 @@ select option{background:#0f1729;color:#e8eaf0}
   }
   // =============================================
 
-  // ============ TRADINGVIEW CHART ============
-  function loadChart() {
-    const symbol = document.getElementById('chartSymbol').value;
-    const tfEl = document.getElementById('chartTimeframe');
-    const interval = tfEl ? tfEl.value : '60';
-    const container = document.getElementById('tradingview-chart');
-    if (!container) return;
-    
-    container.innerHTML = '';
-    const uniqueId = 'tv_chart_' + Date.now();
-    const innerDiv = document.createElement('div');
-    innerDiv.id = uniqueId;
-    innerDiv.style.cssText = 'width: 100%; height: 100%;';
-    container.appendChild(innerDiv);
-    
-    const script = document.createElement('script');
-    script.src = 'https://s3.tradingview.com/tv.js';
-    script.async = true;
-    script.onload = function() {
-      try {
-        new TradingView.widget({
-          autosize: true,
-          symbol: symbol,
-          interval: interval,
-          timezone: 'Asia/Karachi',
-          theme: currentTheme === 'dark' ? 'dark' : 'light',
-          style: '1',
-          locale: 'en',
-          toolbar_bg: '#0a0e1a',
-          enable_publishing: false,
-          withdateranges: true,
-          hide_side_toolbar: false,
-          allow_symbol_change: true,
-          container_id: uniqueId,
-          show_popup_button: true,
-          popup_width: '1200',
-          popup_height: '800',
-          client_id: 'pipsepaisa.app',
-          user_id: currentUser ? currentUser.id : 'guest',
-          charts_storage_url: 'https://saveload.tradingview.com',
-          charts_storage_api_version: '1.1',
-          load_last_chart: true,
-          studies: [],
-          drawings_access: { 
-            type: 'black', 
-            tools: [ 
-              { name: 'Trend Line' },
-              { name: 'Horizontal Line' },
-              { name: 'Vertical Line' },
-              { name: 'Fib Retracement' },
-              { name: 'Fib Extension' },
-              { name: 'Fib Time Zone' },
-              { name: 'Rectangle' },
-              { name: 'Ellipse' },
-              { name: 'Triangle' },
-              { name: 'Arrow' },
-              { name: 'Brush' },
-              { name: 'Path' },
-              { name: 'Text' },
-              { name: 'Note' },
-              { name: 'Price Note' },
-              { name: 'Pitchfork' },
-              { name: 'Cross Line' },
-              { name: 'Long Position' },
-              { name: 'Short Position' }
-            ]
-          },
-          enabled_features: [
-            'header_widget',
-            'header_symbol_search',
-            'header_resolutions',
-            'header_chart_type',
-            'header_indicators',
-            'header_compare',
-            'header_undo_redo',
-            'header_screenshot',
-            'header_fullscreen_button',
-            'header_settings',
-            'left_toolbar',
-            'control_bar',
-            'timeframes_toolbar',
-            'edit_buttons_in_legend',
-            'context_menus',
-            'show_chart_property_page',
-            'chart_property_page_style',
-            'chart_property_page_scales',
-            'chart_property_page_background',
-            'chart_property_page_timezone_sessions',
-            'chart_property_page_trading',
-            'side_toolbar_in_fullscreen_mode',
-            'use_localstorage_for_settings',
-            'save_chart_properties_to_local_storage'
-          ],
-          disabled_features: [
-            'header_saveload'
-          ]
-        });
-      } catch(e) {
-        console.error('TV widget error:', e);
-        container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Chart loading failed. Please refresh.</div>';
-      }
-    };
-    script.onerror = function() {
-      container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Could not load TradingView. Please check your internet.</div>';
-    };
-    document.head.appendChild(script);
-    
-    const result = document.getElementById('analysisResultSection');
-    const prompt = document.getElementById('analyzePromptSection');
-    if (result) result.style.display = 'none';
-    if (prompt) prompt.style.display = 'block';
+  // ============ OWN LIVE CHART (Lightweight Charts) ============
+  var _mainChart=null,_mainSeries=null,_mainZoneLines=[],_mainPollTimer=null,_mainSymbol='OANDA:XAUUSD',_mainTf='60',_mainZones=null;
+  function loadChart(){
+    var symEl=document.getElementById('chartSymbol'); var tfEl=document.getElementById('chartTimeframe');
+    var symbol=symEl?symEl.value:'OANDA:XAUUSD'; var tf=tfEl?tfEl.value:'60';
+    var container=document.getElementById('tradingview-chart'); if(!container)return;
+    // symbol/timeframe change => clear old zones + analysis
+    _mainSymbol=symbol; _mainTf=tf; _mainZones=null;
+    container.innerHTML='<div style="padding:60px;text-align:center;color:var(--text-muted);">Loading live chart...</div>';
+    var result=document.getElementById('analysisResultSection'); var prompt=document.getElementById('analyzePromptSection');
+    if(result)result.style.display='none'; if(prompt)prompt.style.display='block';
+    var abtn=document.getElementById('analyzeBtnText'); if(abtn)abtn.textContent='🎯 Analyze Now';
+    ensureLW(function(){
+      if(!window.LightweightCharts){container.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-muted);">Chart library failed to load. Check internet & refresh.</div>';return;}
+      container.innerHTML='';
+      if(_mainChart){try{_mainChart.remove();}catch(e){} _mainChart=null;}
+      _mainZoneLines=[];
+      _mainChart=LightweightCharts.createChart(container,{
+        width:container.clientWidth||800, height:container.clientHeight||550,
+        layout:{background:{color:'transparent'},textColor:'#cbd3e1',fontFamily:'inherit'},
+        grid:{vertLines:{color:'rgba(255,255,255,.04)'},horzLines:{color:'rgba(255,255,255,.04)'}},
+        timeScale:{timeVisible:true,secondsVisible:false,borderColor:'rgba(255,255,255,.1)'},
+        rightPriceScale:{borderColor:'rgba(255,255,255,.1)'},
+        crosshair:{mode:1}
+      });
+      _mainSeries=_mainChart.addCandlestickSeries({upColor:'#10b981',downColor:'#ef4444',borderVisible:false,wickUpColor:'#10b981',wickDownColor:'#ef4444'});
+      if(!window._mainResizeBound){window._mainResizeBound=true;window.addEventListener('resize',function(){var c=document.getElementById('tradingview-chart');if(c&&_mainChart){try{_mainChart.applyOptions({width:c.clientWidth});}catch(x){}}});}
+      refreshMainCandles(true);
+      if(_mainPollTimer)clearInterval(_mainPollTimer);
+      _mainPollTimer=setInterval(function(){var p=document.getElementById('page-charts');if(p&&p.classList.contains('active'))refreshMainCandles(false);},20000);
+    });
+  }
+  async function refreshMainCandles(fit){
+    if(!_mainSeries)return;
+    try{
+      var r=await fetch('https://pipsepaisa-api.vercel.app/api/candles?symbol='+encodeURIComponent(_mainSymbol)+'&interval='+encodeURIComponent(_mainTf),{signal:AbortSignal.timeout(9000)});
+      if(!r.ok)return; var d=await r.json(); if(!d||!d.candles||!d.candles.length)return;
+      var seen={}; var data=d.candles.map(function(c){return {time:c.t,open:c.o,high:c.h,low:c.l,close:c.c};}).filter(function(x){if(seen[x.time])return false;seen[x.time]=1;return true;});
+      _mainSeries.setData(data); window._lastCandles=d.candles;
+      if(_mainZones)drawZonesOnMain(_mainZones);
+      if(fit)_mainChart.timeScale().fitContent();
+      var lc=d.candles[d.candles.length-1];
+      var lp=document.getElementById('chartLivePrice'); if(lp){lp.textContent=(lc.c>1000?lc.c.toFixed(2):lc.c.toFixed(5));}
+    }catch(e){}
+  }
+  function clearMainZones(){ if(_mainSeries&&_mainZoneLines){_mainZoneLines.forEach(function(l){try{_mainSeries.removePriceLine(l);}catch(e){}});} _mainZoneLines=[]; }
+  function drawZonesOnMain(zones){
+    if(!_mainSeries||!zones)return; clearMainZones();
+    function add(arr,color,label){(arr||[]).forEach(function(pair){pair.forEach(function(price,j){if(!price)return;var ln=_mainSeries.createPriceLine({price:price,color:color,lineWidth:2,lineStyle:2,axisLabelVisible:true,title:((j===1||pair.length===1)?label:'')});_mainZoneLines.push(ln);});});}
+    add(zones.demand,'#10b981','Demand'); add(zones.supply,'#ef4444','Supply'); _mainZones=zones;
   }
   
   // ============ SMART ZONE ANALYSIS (Demand & Supply Detection) ============
@@ -5407,12 +5346,12 @@ select option{background:#0f1729;color:#e8eaf0}
     if(recD) recD.textContent='AI-based bias';
     var head='<div class="card ai-sec" style="background:linear-gradient(135deg,'+b.c+'18,transparent);border:1px solid '+b.c+'55;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">'+
       '<div style="width:50px;height:50px;border-radius:13px;background:'+b.c+'22;display:flex;align-items:center;justify-content:center;font-size:26px;">'+b.ic+'</div>'+
-      '<div style="flex:1;min-width:160px;"><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">AI Market Bias</div><div style="font-size:22px;font-weight:900;color:'+b.c+';">'+b.word+'</div></div></div>';
-    var chartCard=(zones&&((zones.demand&&zones.demand.length)||(zones.supply&&zones.supply.length)))?
-      '<div class="card ai-sec" style="margin-bottom:14px;"><div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:8px;">📊 Zone Map <span style="font-weight:500;color:var(--text-muted);font-size:11px;">— green = demand (buy), red = supply (sell)</span></div><div id="zoneChart" style="width:100%;height:340px;"></div></div>':'';
-    box.innerHTML=head+chartCard+aiMdToHtml(cleanReport)+
+      '<div style="flex:1;min-width:160px;"><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">AI Market Bias</div><div style="font-size:22px;font-weight:900;color:'+b.c+';">'+b.word+'</div></div>'+
+      ((zones&&((zones.demand&&zones.demand.length)||(zones.supply&&zones.supply.length)))?'<div style="font-size:11px;color:var(--text-muted);text-align:right;">🟢 Demand &amp; 🔴 Supply lines<br>drawn on the chart above ⬆️</div>':'')+'</div>';
+    box.innerHTML=head+aiMdToHtml(cleanReport)+
       '<div style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center;border-top:1px solid var(--border);padding-top:8px;">'+(cached?'📁 Saved analysis · ':'✨ AI analysis on real candles · ')+'Not financial advice — always confirm with your own analysis.</div>';
-    if(chartCard){ensureLW(function(){renderZoneChart(window._lastCandles,zones);});}
+    // draw the zones as horizontal lines on the MAIN live chart
+    if(zones){ drawZonesOnMain(zones); var ch=document.getElementById('tradingview-chart'); if(ch&&ch.scrollIntoView){setTimeout(function(){ch.scrollIntoView({behavior:'smooth',block:'start'});},200);} }
   }
   
   function calculateZones(price, symbolKey, tf) {
