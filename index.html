@@ -5295,7 +5295,10 @@ select option{background:#0f1729;color:#e8eaf0}
       '## Risks',
       '- (2-3 short bullets: what would make this view wrong.)',
       '',
-      'Use real numbers from the data. Use "likely / possible / watch for" language — never guarantees. End with: "Not financial advice — always confirm with your own analysis."'
+      'Use real numbers from the data. Use "likely / possible / watch for" language — never guarantees. End with: "Not financial advice — always confirm with your own analysis."',
+      '',
+      'After everything above, output ONE final line in EXACTLY this machine format (numbers only, NO $ signs, NO words in between), using the same zones you described:',
+      'ZONES: demand LOW-HIGH, LOW-HIGH | supply LOW-HIGH, LOW-HIGH'
     ].join('\n');
   }
   function chartBiasBadge(report){
@@ -5307,6 +5310,7 @@ select option{background:#0f1729;color:#e8eaf0}
   }
   async function renderAIChart(meta,tf,price,symbolKey,candles,force){
     aiInjectStyles();
+    window._lastCandles=candles;
     const staticBlk=document.getElementById('staticZonesBlock'); if(staticBlk) staticBlk.style.display='none';
     const box=document.getElementById('aiChartBox'); if(!box) return;
     box.style.display='block';
@@ -5326,8 +5330,43 @@ select option{background:#0f1729;color:#e8eaf0}
     try{localStorage.setItem(ckey,JSON.stringify({report:report,time:Date.now()}));}catch(e){}
     paintAIChart(box,report,false);
   }
+  function parseZones(report){
+    var m=report.match(/ZONES:\s*(.+)/i);if(!m)return null;
+    var line=m[1];
+    function grab(side){
+      var re=new RegExp(side+'\\s*([0-9.,\\s\\-]+?)(?:\\||$)','i');var mm=line.match(re);if(!mm)return [];
+      return mm[1].split(',').map(function(s){var p=s.trim().match(/([0-9.]+)\s*-\s*([0-9.]+)/);return p?[parseFloat(p[1]),parseFloat(p[2])]:null;}).filter(Boolean);
+    }
+    return {demand:grab('demand'),supply:grab('supply')};
+  }
+  function ensureLW(cb){
+    if(window.LightweightCharts)return cb();
+    if(window._lwLoading){var t=setInterval(function(){if(window.LightweightCharts){clearInterval(t);cb();}},150);return;}
+    window._lwLoading=true;var s=document.createElement('script');
+    s.src='https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js';
+    s.onload=function(){cb();};s.onerror=function(){cb();};document.head.appendChild(s);
+  }
+  function renderZoneChart(candles,zones){
+    var el=document.getElementById('zoneChart');if(!el||!window.LightweightCharts||!candles)return;
+    el.innerHTML='';if(window._zoneChartObj){try{window._zoneChartObj.remove();}catch(e){}}
+    var chart=LightweightCharts.createChart(el,{width:el.clientWidth||el.offsetWidth||600,height:340,
+      layout:{background:{color:'transparent'},textColor:'#94a0b8',fontFamily:'inherit'},
+      grid:{vertLines:{color:'rgba(255,255,255,.04)'},horzLines:{color:'rgba(255,255,255,.04)'}},
+      timeScale:{timeVisible:true,borderColor:'rgba(255,255,255,.1)'},rightPriceScale:{borderColor:'rgba(255,255,255,.1)'},
+      crosshair:{mode:0}});
+    window._zoneChartObj=chart;
+    var series=chart.addCandlestickSeries({upColor:'#10b981',downColor:'#ef4444',borderVisible:false,wickUpColor:'#10b981',wickDownColor:'#ef4444'});
+    var seen={};var data=candles.map(function(c){return {time:c.t,open:c.o,high:c.h,low:c.l,close:c.c};}).filter(function(d){if(seen[d.time])return false;seen[d.time]=1;return true;});
+    series.setData(data);
+    function lines(arr,color,label){(arr||[]).forEach(function(pair){pair.forEach(function(price,j){if(!price)return;series.createPriceLine({price:price,color:color,lineWidth:1,lineStyle:2,axisLabelVisible:true,title:(j===1?label:'')});});});}
+    if(zones){lines(zones.demand,'#10b981','Demand');lines(zones.supply,'#ef4444','Supply');}
+    chart.timeScale().fitContent();
+    if(!window._zoneResizeBound){window._zoneResizeBound=true;window.addEventListener('resize',function(){var e=document.getElementById('zoneChart');if(e&&window._zoneChartObj){try{window._zoneChartObj.applyOptions({width:e.clientWidth});}catch(x){}}});}
+  }
   function paintAIChart(box,report,cached){
     var b=chartBiasBadge(report);
+    var zones=parseZones(report);
+    var cleanReport=report.replace(/\n?ZONES:.*$/i,'').trim();
     // update the old price-card trend/recommendation fields so they don't stay "Analyzing..."
     var trEl=document.getElementById('analyzeTrend'); if(trEl) trEl.textContent=b.ic+' '+b.word;
     var trD=document.getElementById('analyzeTrendDesc'); if(trD) trD.textContent='AI market structure read';
@@ -5338,8 +5377,11 @@ select option{background:#0f1729;color:#e8eaf0}
     var head='<div class="card ai-sec" style="background:linear-gradient(135deg,'+b.c+'18,transparent);border:1px solid '+b.c+'55;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;">'+
       '<div style="width:50px;height:50px;border-radius:13px;background:'+b.c+'22;display:flex;align-items:center;justify-content:center;font-size:26px;">'+b.ic+'</div>'+
       '<div style="flex:1;min-width:160px;"><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">AI Market Bias</div><div style="font-size:22px;font-weight:900;color:'+b.c+';">'+b.word+'</div></div></div>';
-    box.innerHTML=head+aiMdToHtml(report)+
+    var chartCard=(zones&&((zones.demand&&zones.demand.length)||(zones.supply&&zones.supply.length)))?
+      '<div class="card ai-sec" style="margin-bottom:14px;"><div style="font-size:13px;font-weight:800;color:var(--gold);margin-bottom:8px;">📊 Zone Map <span style="font-weight:500;color:var(--text-muted);font-size:11px;">— green = demand (buy), red = supply (sell)</span></div><div id="zoneChart" style="width:100%;height:340px;"></div></div>':'';
+    box.innerHTML=head+chartCard+aiMdToHtml(cleanReport)+
       '<div style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center;border-top:1px solid var(--border);padding-top:8px;">'+(cached?'📁 Saved analysis · ':'✨ AI analysis on real candles · ')+'Not financial advice — always confirm with your own analysis.</div>';
+    if(chartCard){ensureLW(function(){renderZoneChart(window._lastCandles,zones);});}
   }
   
   function calculateZones(price, symbolKey, tf) {
