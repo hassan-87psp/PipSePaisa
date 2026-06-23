@@ -5337,7 +5337,38 @@ select option{background:#0f1729;color:#e8eaf0}
       var re=new RegExp(side+'\\s*([0-9.,\\s\\-]+?)(?:\\||$)','i');var mm=line.match(re);if(!mm)return [];
       return mm[1].split(',').map(function(s){var p=s.trim().match(/([0-9.]+)\s*-\s*([0-9.]+)/);return p?[parseFloat(p[1]),parseFloat(p[2])]:null;}).filter(Boolean);
     }
-    return {demand:grab('demand'),supply:grab('supply')};
+    var z={demand:grab('demand'),supply:grab('supply')};
+    if((z.demand&&z.demand.length)||(z.supply&&z.supply.length))return z;
+    return null;
+  }
+  function sectionText(report,re){var m=report.match(re);return m?m[1]:'';}
+  function numRanges(text){
+    var out=[];var re=/([0-9][0-9,]*\.?[0-9]*)\s*(?:-|–|—|to)\s*([0-9][0-9,]*\.?[0-9]*)/g;var mm;
+    while((mm=re.exec(text))){var a=parseFloat(mm[1].replace(/,/g,'')),b=parseFloat(mm[2].replace(/,/g,''));if(a&&b)out.push([Math.min(a,b),Math.max(a,b)]);}
+    if(!out.length){var re2=/([0-9][0-9,]*\.?[0-9]{0,5})/g;var seen={};while((mm=re2.exec(text))){var v=parseFloat(mm[1].replace(/,/g,''));if(v>1&&!seen[v]){seen[v]=1;out.push([v]);}}}
+    return out.slice(0,3);
+  }
+  function parseZonesFromText(report){
+    var dText=sectionText(report,/##\s*Demand[^\n]*([\s\S]*?)(?:##|$)/i);
+    var sText=sectionText(report,/##\s*Supply[^\n]*([\s\S]*?)(?:##|$)/i);
+    var z={demand:numRanges(dText),supply:numRanges(sText)};
+    if((z.demand&&z.demand.length)||(z.supply&&z.supply.length))return z;
+    return null;
+  }
+  function computeSwingZones(candles){
+    if(!candles||candles.length<10)return null;
+    var price=candles[candles.length-1].c;var k=3;
+    var highs=[],lows=[];
+    for(var i=k;i<candles.length-k;i++){
+      var isH=true,isL=true;
+      for(var j=1;j<=k;j++){if(candles[i].h<candles[i-j].h||candles[i].h<candles[i+j].h)isH=false;if(candles[i].l>candles[i-j].l||candles[i].l>candles[i+j].l)isL=false;}
+      if(isH)highs.push(candles[i].h);if(isL)lows.push(candles[i].l);
+    }
+    function band(v){var w=v*0.0009;return [+(v-w).toFixed(5),+(v+w).toFixed(5)];}
+    var supply=highs.filter(function(h){return h>price;}).sort(function(a,b){return a-b;}).slice(0,3).map(band);
+    var demand=lows.filter(function(l){return l<price;}).sort(function(a,b){return b-a;}).slice(0,3).map(band);
+    if(!supply.length&&!demand.length)return null;
+    return {demand:demand,supply:supply};
   }
   function ensureLW(cb){
     if(window.LightweightCharts)return cb();
@@ -5365,7 +5396,7 @@ select option{background:#0f1729;color:#e8eaf0}
   }
   function paintAIChart(box,report,cached){
     var b=chartBiasBadge(report);
-    var zones=parseZones(report);
+    var zones=parseZones(report)||parseZonesFromText(report)||computeSwingZones(window._lastCandles);
     var cleanReport=report.replace(/\n?ZONES:.*$/i,'').trim();
     // update the old price-card trend/recommendation fields so they don't stay "Analyzing..."
     var trEl=document.getElementById('analyzeTrend'); if(trEl) trEl.textContent=b.ic+' '+b.word;
