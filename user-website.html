@@ -6924,6 +6924,27 @@ select option{background:#0f1729;color:#e8eaf0}
       return '<div onclick="openDM(\''+c.prof.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;margin-bottom:4px;background:'+(sel?'rgba(245,158,11,.08)':'transparent')+';border:1px solid '+(sel?'var(--gold)':'transparent')+';"><div style="position:relative;">'+avatarHTML(c.prof,40)+onlineDot(c.prof.last_seen)+'</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:6px"><strong style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+commName(c.prof)+'</strong>'+(c.unread?'<span style="background:var(--red);color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;">'+c.unread+'</span>':'')+'</div><div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+vEsc(prev.slice(0,38))+'</div></div></div>';
     }).join('');
   }
+  function dmTimeShort(ts){try{return new Date(ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});}catch(e){return '';}}
+  function dmDateLabel(ts){var d=new Date(ts),now=new Date();var dk=d.toDateString(),tk=now.toDateString(),yk=new Date(now.getTime()-86400000).toDateString();if(dk===tk)return 'Today';if(dk===yk)return 'Yesterday';return d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+  function dmBubble(m,mine,seen){
+    var t=dmTimeShort(m.created_at);
+    var ticks=mine?('<span style="font-size:12px;margin-left:3px;color:'+(seen?'#53bdeb':'rgba(233,237,239,.55)')+';">✓✓</span>'):'';
+    var meta='<span style="font-size:10px;opacity:.65;margin-left:8px;white-space:nowrap;vertical-align:bottom;">'+t+ticks+'</span>';
+    var radius=mine?'15px 15px 5px 15px':'15px 15px 15px 5px';
+    var bg=mine?'background:#056162;':'background:#202c33;';
+    return '<div style="align-self:'+(mine?'flex-end':'flex-start')+';max-width:80%;margin:1px 0;"><div style="padding:6px 10px 6px 11px;border-radius:'+radius+';font-size:14px;line-height:1.4;'+bg+'color:#e9edef;box-shadow:0 1px 1px rgba(0,0,0,.25);">'+vEsc(m.body||'')+meta+'</div></div>';
+  }
+  function buildDMBody(msgs,me){
+    if(!msgs.length)return '<div class="empty-state" style="margin:auto;color:var(--text-muted);">Say hi 👋</div>';
+    var lastMine=null;msgs.forEach(function(m){if(m.sender_id===me)lastMine=m;});
+    var html='',lastDate='';
+    msgs.forEach(function(m){
+      var dl=dmDateLabel(m.created_at);
+      if(dl!==lastDate){html+='<div style="align-self:center;background:rgba(255,255,255,.07);color:var(--text-muted);font-size:11px;font-weight:600;padding:3px 12px;border-radius:10px;margin:10px 0 6px;">'+dl+'</div>';lastDate=dl;}
+      html+=dmBubble(m,m.sender_id===me,m.sender_id===me&&m===lastMine&&!!m.read_at);
+    });
+    return html;
+  }
   async function openDM(peerId,peerObj,silent){
     if(!currentProfile||!sb)return;
     const me=currentProfile.id;
@@ -6938,13 +6959,11 @@ select option{background:#0f1729;color:#e8eaf0}
     document.getElementById('dmComposer').style.display='flex';
     let msgs=[];try{const r=await sb.from('dm_messages').select('*').or('and(sender_id.eq.'+me+',recipient_id.eq.'+peerId+'),and(sender_id.eq.'+peerId+',recipient_id.eq.'+me+')').order('created_at',{ascending:true}).limit(500);msgs=r.data||[];}catch(e){}
     const body=document.getElementById('dmThreadBody');
+    body.style.background='#0b141a';
+    body.style.padding='10px 8px';
+    body.style.gap='2px';
     const atBottom=body.scrollHeight-body.scrollTop-body.clientHeight<80;
-    var lastMine=null;msgs.forEach(function(m){if(m.sender_id===me)lastMine=m;});
-    body.innerHTML=msgs.map(function(m){
-      var mine=m.sender_id===me;
-      var seen=(mine&&m===lastMine&&m.read_at)?'<div style="font-size:10px;color:var(--text-muted);text-align:right;margin-top:2px;">Seen</div>':'';
-      return '<div style="align-self:'+(mine?'flex-end':'flex-start')+';max-width:72%;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px;'+(mine?'text-align:right':'')+';">'+(mine?'You':commName(_dmPeer))+'</div><div style="padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;background:'+(mine?'linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a':'rgba(255,255,255,.06);color:var(--text)')+';">'+vEsc(m.body||'')+'</div><div style="font-size:9px;color:var(--text-muted);'+(mine?'text-align:right':'')+';margin-top:2px;">'+commTimeAgo(m.created_at)+'</div>'+seen+'</div>';
-    }).join('')||'<div class="empty-state" style="margin:auto;color:var(--text-muted);">Say hi 👋</div>';
+    body.innerHTML=buildDMBody(msgs,me);
     if(atBottom||!silent)body.scrollTop=body.scrollHeight;
     // mark incoming read
     var unread=msgs.filter(function(m){return m.recipient_id===me&&!m.read_at;});
@@ -6967,7 +6986,7 @@ select option{background:#0f1729;color:#e8eaf0}
     const inp=document.getElementById('dmInput');const txt=(inp.value||'').trim();if(!txt)return;
     inp.value='';
     const body=document.getElementById('dmThreadBody');
-    if(body){if(body.querySelector('.empty-state'))body.innerHTML='';body.insertAdjacentHTML('beforeend','<div style="align-self:flex-end;max-width:72%;"><div style="font-size:10px;color:var(--text-muted);margin-bottom:2px;text-align:right;">You</div><div style="padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;">'+vEsc(txt)+'</div></div>');body.scrollTop=body.scrollHeight;}
+    if(body){if(body.querySelector('.empty-state'))body.innerHTML='';body.insertAdjacentHTML('beforeend',dmBubble({body:txt,created_at:new Date().toISOString()},true,false));body.scrollTop=body.scrollHeight;}
     const r=await sb.from('dm_messages').insert({sender_id:currentProfile.id,recipient_id:_dmPeer.id,body:txt});
     if(r.error){alert('Error: '+r.error.message);return;}
     loadDMList(true);
