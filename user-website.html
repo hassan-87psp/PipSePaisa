@@ -7919,6 +7919,8 @@ window.addEventListener('appinstalled', () => {
 .sigdash .tile .lab{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:6px}
 .sigdash .tile .val{font-size:24px;font-weight:900}
 @media(max-width:760px){.sigdash{grid-template-columns:1fr 1fr}}
+.perf-donut{animation:donutIn .6s ease both}
+@keyframes donutIn{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
 .sig-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
 .st-active{background:var(--green-bg);color:var(--green)}
 .st-tp{background:var(--blue-bg);color:var(--blue)}
@@ -7992,25 +7994,41 @@ function renderSigResultDash(rows,elId){
   var now=new Date();
   var weekAgo=new Date(now.getTime()-7*86400000);
   var monthStart=new Date(now.getFullYear(),now.getMonth(),1);
-  var total=0,week=0,month=0,wins=0,count=0;
+  var total=0,week=0,month=0,wins=0,losses=0,count=0,bestPair='',bestPips=-1e9,pairAgg={};
   (rows||[]).forEach(function(s){
     if(s.result_pips==null)return;
     var p=Number(s.result_pips);if(isNaN(p))return;
     var d=new Date(s.closed_at||s.created_at);
-    total+=p;count++;if(p>=0)wins++;
+    total+=p;count++;if(p>=0)wins++;else losses++;
     if(d>=weekAgo)week+=p;
     if(d>=monthStart)month+=p;
+    pairAgg[s.pair]=(pairAgg[s.pair]||0)+p;
   });
   if(!count){el.innerHTML='';return;}
+  Object.keys(pairAgg).forEach(function(k){if(pairAgg[k]>bestPips){bestPips=pairAgg[k];bestPair=k;}});
   var fmt=function(v){return (v>=0?'+':'')+(Math.round(v*10)/10);};
   var col=function(v){return v>=0?'#10b981':'#ef4444';};
   var wr=Math.round(wins/count*100);
-  el.innerHTML='<div class="card" style="margin-bottom:14px;"><div class="card-title" style="margin-bottom:12px;">🏆 Signal Results <span style="font-size:11px;font-weight:500;color:var(--text-muted);">('+count+' closed signals)</span></div>'+
-    '<div class="sigdash">'+
-      '<div class="tile"><div class="lab">Total Pips</div><div class="val" style="color:'+col(total)+'">'+fmt(total)+'</div></div>'+
-      '<div class="tile"><div class="lab">This Week</div><div class="val" style="color:'+col(week)+'">'+fmt(week)+'</div></div>'+
-      '<div class="tile"><div class="lab">This Month</div><div class="val" style="color:'+col(month)+'">'+fmt(month)+'</div></div>'+
-      '<div class="tile"><div class="lab">Win Rate</div><div class="val" style="color:var(--gold)">'+wr+'%</div></div>'+
+  var tile=function(lab,val,c){return '<div class="tile"><div class="lab">'+lab+'</div><div class="val" style="color:'+c+'">'+val+'</div></div>';};
+  var donut='<div style="position:relative;width:150px;height:150px;flex:0 0 auto;">'+
+      '<div class="perf-donut" style="width:150px;height:150px;border-radius:50%;background:conic-gradient(#10b981 0 '+wr+'%, #ef4444 '+wr+'% 100%);box-shadow:0 0 0 1px var(--border);"></div>'+
+      '<div style="position:absolute;inset:20px;border-radius:50%;background:var(--bg-card);display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px var(--border);">'+
+        '<div style="font-size:28px;font-weight:900;color:var(--gold);line-height:1;">'+wr+'%</div>'+
+        '<div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;">Win Rate</div>'+
+      '</div></div>';
+  var legend='<div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;justify-content:center;">'+
+      '<span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;"><span style="width:10px;height:10px;border-radius:3px;background:#10b981;"></span>'+wins+' Wins</span>'+
+      '<span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;"><span style="width:10px;height:10px;border-radius:3px;background:#ef4444;"></span>'+losses+' Losses</span></div>';
+  el.innerHTML='<div class="card" style="margin-bottom:18px;background:linear-gradient(135deg,rgba(245,158,11,.05),transparent);">'+
+    '<div class="card-title" style="margin-bottom:4px;display:flex;align-items:center;gap:8px;">🏆 Signal Results <span style="font-size:11px;font-weight:500;color:var(--text-muted);">· '+count+' closed</span></div>'+
+    '<div style="display:flex;gap:26px;align-items:center;flex-wrap:wrap;margin-top:14px;">'+
+      '<div style="display:flex;flex-direction:column;align-items:center;">'+donut+legend+'</div>'+
+      '<div style="flex:1;min-width:250px;"><div class="sigdash" style="grid-template-columns:1fr 1fr;">'+
+        tile('Total Pips',fmt(total),col(total))+
+        tile('This Week',fmt(week),col(week))+
+        tile('This Month',fmt(month),col(month))+
+        tile('Best Pair',bestPair?(bestPair+' '+fmt(bestPips)):'-','var(--gold)')+
+      '</div></div>'+
     '</div></div>';
 }
 function sigWAtext(s){
@@ -8116,7 +8134,7 @@ function renderSignals(){
         </div>
       </div>
       ${prog}
-      <div class="sig-foot"><span>${src}${acc}${pipsBadge}</span><span style="display:flex;gap:8px;align-items:center;">${s.locked?'':waBtn(s.id)}<span class="sig-status ${sc}">${st}</span></span><span>🕐 ${s.time}</span></div>
+      <div class="sig-foot"><span>${src}${acc}</span><span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">${s.pips!=null?`<span style="color:${s.pips>=0?'#10b981':'#ef4444'};font-weight:800;font-size:12px;">${s.pips>=0?'+':''}${s.pips} pips</span>`:''}<span class="sig-status ${sc}">${st}</span>${s.locked?'':waBtn(s.id)}</span><span style="white-space:nowrap;">🕐 ${s.time}</span></div>
     </div>`;
   }).join('')||'<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No signals yet. Once your mentor (or PipSePaisa) posts a signal, it will appear here.</div>';
 }
