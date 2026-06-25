@@ -1354,7 +1354,7 @@ select option{background:#0f1729;color:#e8eaf0}
     
     <nav class="menu">
       <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">📊</span>Dashboard</div>
-      <div class="menu-item" onclick="openAddTradeModal()" style="background: linear-gradient(135deg, var(--gold-bg), transparent); border: 1px solid rgba(245,158,11,0.3);"><span class="menu-icon">➕</span><strong>Add Trade</strong></div>
+      <div class="menu-item" data-tabkey="addtrade" onclick="openAddTradeModal()" style="background: linear-gradient(135deg, var(--gold-bg), transparent); border: 1px solid rgba(245,158,11,0.3);"><span class="menu-icon">➕</span><strong>Add Trade</strong></div>
       <div class="menu-item" data-page="trades" onclick="showPage('trades', this)"><span class="menu-icon">📈</span>My Trades</div>
       <div class="menu-item" data-page="analysis" onclick="showPage('analysis', this)"><span class="menu-icon">📉</span>Trades Analysis</div>
       <div class="menu-item" data-page="aireport" onclick="showPage('aireport', this)"><span class="menu-icon">🤖</span>AI Report<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:700;">NEW</span></div>
@@ -1371,12 +1371,12 @@ select option{background:#0f1729;color:#e8eaf0}
       
       <div class="menu-item" data-page="learn" onclick="showPage('learn', this)"><span class="menu-icon">🎓</span>Learn Forex</div>
       
-      <div class="menu-item" onclick="alert('🚀 VIP Indicators launching soon!\nStay tuned for premium trading indicators.')" style="cursor: pointer;">
+      <div class="menu-item" data-tabkey="vipindicators" onclick="alert('🚀 VIP Indicators launching soon!\nStay tuned for premium trading indicators.')" style="cursor: pointer;">
         <span class="menu-icon">⭐</span>VIP Indicators
         <span style="margin-left: auto; font-size: 9px; padding: 2px 6px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0a0e1a; border-radius: 10px; font-weight: 700;">SOON</span>
       </div>
       
-      <div class="menu-item" onclick="alert('🤖 VIP EAs launching soon!\nAutomated trading systems coming your way.')" style="cursor: pointer;">
+      <div class="menu-item" data-tabkey="vipea" onclick="alert('🤖 VIP EAs launching soon!\nAutomated trading systems coming your way.')" style="cursor: pointer;">
         <span class="menu-icon">🤖</span>VIP EAs
         <span style="margin-left: auto; font-size: 9px; padding: 2px 6px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0a0e1a; border-radius: 10px; font-weight: 700;">SOON</span>
       </div>
@@ -2844,6 +2844,7 @@ select option{background:#0f1729;color:#e8eaf0}
             </div>
           </div>
         </div>
+        <div id="sigResultDash"></div>
         <div id="signalsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;"></div>
       </div>
 
@@ -3407,6 +3408,10 @@ select option{background:#0f1729;color:#e8eaf0}
   function applyTabVisibility(){
     document.querySelectorAll('.menu-item[data-page]').forEach(function(m){
       var pg=m.getAttribute('data-page');
+      m.style.display=_disabledTabs[pg]?'none':'';
+    });
+    document.querySelectorAll('.menu-item[data-tabkey]').forEach(function(m){
+      var pg=m.getAttribute('data-tabkey');
       m.style.display=_disabledTabs[pg]?'none':'';
     });
   }
@@ -7879,6 +7884,15 @@ window.addEventListener('appinstalled', () => {
 .sig-lv .l{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
 .sig-lv .v{font-size:14px;font-weight:700;color:var(--text-primary);font-family:'Courier New',monospace}
 .sig-foot{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-muted);border-top:1px solid var(--border);padding-top:10px}
+.sig-prog{height:7px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;position:relative}
+.sig-prog>span{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#10b981,#34d399);box-shadow:0 0 12px rgba(16,185,129,.6);animation:sigGrow 1.3s cubic-bezier(.2,.8,.2,1) both}
+.sig-prog.loss>span{background:linear-gradient(90deg,#ef4444,#f87171);box-shadow:0 0 12px rgba(239,68,68,.6)}
+@keyframes sigGrow{from{width:0}to{width:var(--w,0%)}}
+.sigdash{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.sigdash .tile{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.sigdash .tile .lab{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:6px}
+.sigdash .tile .val{font-size:24px;font-weight:900}
+@media(max-width:760px){.sigdash{grid-template-columns:1fr 1fr}}
 .sig-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
 .st-active{background:var(--green-bg);color:var(--green)}
 .st-tp{background:var(--blue-bg);color:var(--blue)}
@@ -7938,11 +7952,39 @@ async function loadSignalsFromDB(){
     access:s.access_level||'free', plan:s.plan_name||'',
     locked:!canAccessContent('signal',audStr),
     entry:s.entry_price==null?'-':s.entry_price, sl:s.stop_loss==null?'-':s.stop_loss,
-    tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2,
-    status:(s.status==='tp_hit')?'tp':(s.status==='active'?'active':'closed'),
+    tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2, tp3:s.take_profit3==null?'-':s.take_profit3,
+    tpHit:s.tp_hit||0, rawStatus:(s.status||'active'), pips:(s.result_pips==null?null:s.result_pips),
+    status:(s.status==='active'?'active':((s.status==='sl'||s.status==='closed')?'closed':'tp')),
     cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:timeAgo(s.created_at)
   };});
+  renderSigResultDash(data||[]);
   renderSignals();
+}
+function renderSigResultDash(rows){
+  var el=document.getElementById('sigResultDash');if(!el)return;
+  var now=new Date();
+  var weekAgo=new Date(now.getTime()-7*86400000);
+  var monthStart=new Date(now.getFullYear(),now.getMonth(),1);
+  var total=0,week=0,month=0,wins=0,count=0;
+  (rows||[]).forEach(function(s){
+    if(s.result_pips==null)return;
+    var p=Number(s.result_pips);if(isNaN(p))return;
+    var d=new Date(s.closed_at||s.created_at);
+    total+=p;count++;if(p>=0)wins++;
+    if(d>=weekAgo)week+=p;
+    if(d>=monthStart)month+=p;
+  });
+  if(!count){el.innerHTML='';return;}
+  var fmt=function(v){return (v>=0?'+':'')+(Math.round(v*10)/10);};
+  var col=function(v){return v>=0?'#10b981':'#ef4444';};
+  var wr=Math.round(wins/count*100);
+  el.innerHTML='<div class="card" style="margin-bottom:14px;"><div class="card-title" style="margin-bottom:12px;">🏆 Signal Results <span style="font-size:11px;font-weight:500;color:var(--text-muted);">('+count+' closed signals)</span></div>'+
+    '<div class="sigdash">'+
+      '<div class="tile"><div class="lab">Total Pips</div><div class="val" style="color:'+col(total)+'">'+fmt(total)+'</div></div>'+
+      '<div class="tile"><div class="lab">This Week</div><div class="val" style="color:'+col(week)+'">'+fmt(week)+'</div></div>'+
+      '<div class="tile"><div class="lab">This Month</div><div class="val" style="color:'+col(month)+'">'+fmt(month)+'</div></div>'+
+      '<div class="tile"><div class="lab">Win Rate</div><div class="val" style="color:var(--gold)">'+wr+'%</div></div>'+
+    '</div></div>';
 }
 function renderSignals(){
   const g=document.getElementById('signalsGrid');if(!g)return;
@@ -7952,6 +7994,17 @@ function renderSignals(){
     const a=stMap[s.status]||stMap.active;const sc=a[0],st=a[1];
     const src=s.official?'<span class="sig-status st-tp" style="margin-left:6px">PipSePaisa</span>':'<span class="sig-status st-active" style="margin-left:6px">Mentor</span>';
     const acc=s.access==='vip'?`<span class="sig-status st-tp" style="margin-left:6px;background:var(--gold);color:#0a0e1a">👑 VIP${s.plan?(' · '+s.plan):''}</span>`:'';
+    const pct=s.rawStatus==='sl'?100:(s.tpHit>=3?100:s.tpHit===2?66:s.tpHit===1?33:0);
+    const loss=s.rawStatus==='sl';
+    const pipsBadge=(s.pips!=null)?`<span class="sig-status ${s.pips>=0?'st-tp':'st-closed'}" style="margin-left:6px;background:${s.pips>=0?'rgba(16,185,129,.2)':'rgba(239,68,68,.2)'};color:${s.pips>=0?'#10b981':'#ef4444'}">${s.pips>=0?'+':''}${s.pips} pips</span>`:'';
+    const prog=`<div style="margin-top:12px;">
+      <div class="sig-prog ${loss?'loss':''}" style="--w:${pct}%"><span></span></div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:9px;color:var(--text-muted);font-weight:700;">
+        <span style="color:${s.tpHit>=1&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=1&&!loss?'✓ ':''}TP1</span>
+        <span style="color:${s.tpHit>=2&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=2&&!loss?'✓ ':''}TP2</span>
+        <span style="color:${s.tpHit>=3&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=3&&!loss?'✓ ':''}TP3</span>
+      </div>
+    </div>`;
     const lockOv=s.locked?'<div onclick="showPage(\'vipplans\', document.querySelector(\'[data-page=vipplans]\'))" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2;cursor:pointer">\
 <div style="font-size:14px;font-weight:800;color:var(--gold)">🔒 VIP Signal</div>\
 <div style="font-size:11px;color:var(--text-muted)">Tap to upgrade &amp; unlock Entry, SL &amp; TP</div>\
@@ -7965,9 +8018,11 @@ function renderSignals(){
           <div class="sig-lv"><div class="l">Stop Loss</div><div class="v" style="color:var(--red)">${s.sl}</div></div>
           <div class="sig-lv"><div class="l">Take Profit 1</div><div class="v" style="color:var(--green)">${s.tp1}</div></div>
           <div class="sig-lv"><div class="l">Take Profit 2</div><div class="v" style="color:var(--green)">${s.tp2}</div></div>
+          <div class="sig-lv"><div class="l">Take Profit 3</div><div class="v" style="color:var(--green)">${s.tp3}</div></div>
         </div>
       </div>
-      <div class="sig-foot"><span>${src}${acc}</span><span class="sig-status ${sc}">${st}</span><span>🕐 ${s.time}</span></div>
+      ${prog}
+      <div class="sig-foot"><span>${src}${acc}${pipsBadge}</span><span class="sig-status ${sc}">${st}</span><span>🕐 ${s.time}</span></div>
     </div>`;
   }).join('')||'<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No signals yet. Once your mentor (or PipSePaisa) posts a signal, it will appear here.</div>';
 }

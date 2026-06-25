@@ -1835,6 +1835,7 @@ function loadAdSignals(){
       '<input id="as-sl" type="number" step="any" placeholder="Stop Loss" style="'+APMS+'">'+
       '<input id="as-tp1" type="number" step="any" placeholder="Take Profit 1" style="'+APMS+'">'+
       '<input id="as-tp2" type="number" step="any" placeholder="Take Profit 2 (optional)" style="'+APMS+'">'+
+      '<input id="as-tp3" type="number" step="any" placeholder="Take Profit 3 (optional)" style="'+APMS+'">'+
       '<input id="as-notes" placeholder="Notes (optional)" style="'+APMS+'">'+
       '<div><div style="font-size:11.5px;color:#94a0b8;margin-bottom:7px">👁️ Who can see this signal? (tick one or more)</div>'+adAudTicks('as-aud')+'</div>'+
       '<input id="as-plan" placeholder="VIP package name (optional)" style="'+APMS+'">'+
@@ -1849,12 +1850,12 @@ async function createAdSignal(){
   var aud=Array.prototype.slice.call(document.querySelectorAll('.as-aud:checked')).map(function(c){return c.value;});if(!aud.length)aud.push('free');
   var entry=parseFloat(v('as-entry'));
   var obj={owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('as-pair').value,direction:adSigDir.toUpperCase(),
-    entry_price:isNaN(entry)?null:entry,stop_loss:parseFloat(v('as-sl'))||null,take_profit1:parseFloat(v('as-tp1'))||null,take_profit2:parseFloat(v('as-tp2'))||null,
+    entry_price:isNaN(entry)?null:entry,stop_loss:parseFloat(v('as-sl'))||null,take_profit1:parseFloat(v('as-tp1'))||null,take_profit2:parseFloat(v('as-tp2'))||null,take_profit3:parseFloat(v('as-tp3'))||null,
     notes:v('as-notes')||null,audience:aud.join(','),access_level:aud.indexOf('free')>=0?'free':'vip',
-    plan_name:(!(aud.length===1&&aud[0]==='free'))?(v('as-plan')||null):null,status:'active'};
+    plan_name:(!(aud.length===1&&aud[0]==='free'))?(v('as-plan')||null):null,status:'active',tp_hit:0};
   var r=await sb.from('signals').insert(obj);
   if(r.error){alert('Error: '+r.error.message);return;}
-  ['as-entry','as-sl','as-tp1','as-tp2','as-notes','as-plan'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
+  ['as-entry','as-sl','as-tp1','as-tp2','as-tp3','as-notes','as-plan'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
   loadAdSigList();
 }
 async function loadAdSigList(){
@@ -1866,8 +1867,27 @@ async function loadAdSigList(){
     var buy=(s.direction||'').toUpperCase()!=='SELL';var aud=(s.audience||(s.access_level==='vip'?'premium,vip':'free'));
     var parts=aud.split(',').map(function(x){return x.trim();}).filter(Boolean);var lbl={free:'🆓',premium:'💎',vip:'👑'};
     var ab=parts.map(function(p){return '<span style="font-size:9px;padding:1px 6px;border-radius:10px;background:'+(p==='free'?'rgba(16,185,129,.18);color:#10b981':'rgba(245,158,11,.18);color:#f59e0b')+'">'+(lbl[p]||p)+'</span>';}).join(' ');
-    return '<div style="padding:11px 0;border-bottom:1px solid var(--border,#1f2937)"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>'+aEsc(s.pair)+'</strong> <span style="font-size:10px;padding:1px 7px;border-radius:10px;background:'+(buy?'rgba(16,185,129,.18);color:#10b981':'rgba(239,68,68,.18);color:#ef4444')+'">'+(buy?'BUY':'SELL')+'</span> '+ab+'</div><button onclick="delAdSig(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div><div style="font-size:12px;color:#94a0b8;margin-top:3px">Entry '+(s.entry_price||'-')+' · SL '+(s.stop_loss||'-')+' · TP '+(s.take_profit1||'-')+'</div></div>';
+    var st=(s.status||'active');var stMap={active:['● Active','#10b981'],tp1:['✅ TP1 Hit','#10b981'],tp2:['✅ TP2 Hit','#10b981'],tp3:['🏆 TP3 Hit','#10b981'],sl:['🛑 SL Hit','#ef4444'],closed:['🔒 Closed','#94a0b8']};
+    var stInfo=stMap[st]||stMap.active;
+    var pipsTxt=(s.result_pips!=null)?(' · <b style="color:'+(s.result_pips>=0?'#10b981':'#ef4444')+'">'+(s.result_pips>=0?'+':'')+s.result_pips+' pips</b>'):'';
+    var btn=function(k,label,col){return '<button onclick="updateSigStatus(\''+s.id+'\',\''+k+'\')" style="padding:5px 9px;border-radius:7px;border:1px solid var(--border,#1f2937);background:'+col+';color:#fff;cursor:pointer;font-size:11px;font-weight:700">'+label+'</button>';};
+    return '<div style="padding:11px 0;border-bottom:1px solid var(--border,#1f2937)"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>'+aEsc(s.pair)+'</strong> <span style="font-size:10px;padding:1px 7px;border-radius:10px;background:'+(buy?'rgba(16,185,129,.18);color:#10b981':'rgba(239,68,68,.18);color:#ef4444')+'">'+(buy?'BUY':'SELL')+'</span> '+ab+'</div><button onclick="delAdSig(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div>'+
+      '<div style="font-size:12px;color:#94a0b8;margin-top:3px">Entry '+(s.entry_price||'-')+' · SL '+(s.stop_loss||'-')+' · TP1 '+(s.take_profit1||'-')+' · TP2 '+(s.take_profit2||'-')+' · TP3 '+(s.take_profit3||'-')+'</div>'+
+      '<div style="font-size:12px;margin-top:5px"><span style="color:'+stInfo[1]+';font-weight:700">'+stInfo[0]+'</span>'+pipsTxt+'</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px"><input id="pips-'+s.id+'" type="number" step="any" placeholder="pips" value="'+(s.result_pips!=null?s.result_pips:'')+'" style="width:80px;padding:5px 8px;border-radius:7px;border:1px solid var(--border,#1f2937);background:var(--bg-elevated,#1a2235);color:var(--text,#e8eaf0);font-size:12px">'+
+      btn('tp1','TP1 Hit','rgba(16,185,129,.5)')+btn('tp2','TP2 Hit','rgba(16,185,129,.5)')+btn('tp3','TP3 Hit','rgba(16,185,129,.7)')+btn('sl','SL Hit','rgba(239,68,68,.6)')+btn('closed','Close','rgba(148,160,184,.4)')+'</div></div>';
   }).join('');
+}
+async function updateSigStatus(id,kind){
+  var pi=document.getElementById('pips-'+id);
+  var pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;
+  var map={tp1:1,tp2:2,tp3:3};
+  var obj={status:kind,closed_at:new Date().toISOString()};
+  if(kind in map)obj.tp_hit=map[kind];
+  if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
+  var r=await sb.from('signals').update(obj).eq('id',id);
+  if(r.error){alert('Error: '+r.error.message);return;}
+  loadAdSigList();
 }
 async function delAdSig(id){if(!confirm('Delete this signal?'))return;await sb.from('signals').delete().eq('id',id);loadAdSigList();}
 
@@ -2325,12 +2345,12 @@ function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
 }
 const SITE_TAB_DEFS=[
- ['dashboard','📊 Dashboard'],['trades','📈 My Trades'],['analysis','📉 Trades Analysis'],
+ ['dashboard','📊 Dashboard'],['addtrade','➕ Add Trade'],['trades','📈 My Trades'],['analysis','📉 Trades Analysis'],
  ['aireport','🤖 AI Report'],['charts','📊 Live Charts'],['chats','💬 Member Chats'],
  ['signals','📶 Signals'],['articles','📝 Articles'],['vipplans','💎 VIP Plans'],
  ['news','📰 Economic News'],['newshub','📡 World News Hub'],['strength','💪 Currency Strength'],
- ['tools','🔧 Tools'],['learn','🎓 Learn Forex'],['settings','⚙️ Settings'],
- ['about','ℹ️ About'],['announce','📢 Announcements'],['support','💬 Support']
+ ['tools','🔧 Tools'],['learn','🎓 Learn Forex'],['vipindicators','⭐ VIP Indicators'],['vipea','🤖 VIP EAs'],
+ ['settings','⚙️ Settings'],['about','ℹ️ About'],['announce','📢 Announcements'],['support','💬 Support']
 ];
 async function loadSiteTabs(){
   var box=document.getElementById('siteTabsList');if(!box)return;
