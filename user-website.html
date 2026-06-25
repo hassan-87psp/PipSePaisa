@@ -3724,9 +3724,8 @@ select option{background:#0f1729;color:#e8eaf0}
     // Set today's date
     const today = new Date().toISOString().split('T')[0];
     if (document.getElementById('t_date')) document.getElementById('t_date').value = today;
-    // Reset optional fields collapsed
-    document.getElementById('optionalFields').style.display = 'none';
-    document.getElementById('optArrow').textContent = '▶';
+    // Optional fields are always visible now
+    var _of=document.getElementById('optionalFields'); if(_of) _of.style.display = 'block';
     updateLivePnl();
     openModal('addTrade');
   }
@@ -3752,12 +3751,13 @@ select option{background:#0f1729;color:#e8eaf0}
   function toggleOptionalFields() {
     const opt = document.getElementById('optionalFields');
     const arr = document.getElementById('optArrow');
+    if (!opt) return;
     if (opt.style.display === 'none') {
       opt.style.display = 'block';
-      arr.textContent = '▼';
+      if (arr) arr.textContent = '▼';
     } else {
       opt.style.display = 'none';
-      arr.textContent = '▶';
+      if (arr) arr.textContent = '▶';
     }
   }
   
