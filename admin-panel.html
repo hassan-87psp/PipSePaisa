@@ -481,6 +481,7 @@ select option{background:#0f1729;color:#e8eaf0}
       
       <div class="menu-label">System</div>
       <div class="menu-item" data-page="settings" onclick="showPage('settings', this)"><span class="menu-icon">⚙️</span>Settings</div>
+      <div class="menu-item" data-page="sitetabs" onclick="showPage('sitetabs', this)"><span class="menu-icon">🧩</span>Site Tabs</div>
       <div class="menu-item" data-page="logs" onclick="showPage('logs', this)"><span class="menu-icon">📋</span>Activity Logs</div>
       <div class="menu-item" data-page="profile" onclick="showPage('profile', this)"><span class="menu-icon">👤</span>Admin Profile</div>
     </nav>
@@ -1453,6 +1454,15 @@ select option{background:#0f1729;color:#e8eaf0}
         </div>
       </div>
       
+      <!-- ========== SITE TABS ========== -->
+      <div class="page" id="page-sitetabs">
+        <div class="card">
+          <div class="card-header"><h3 style="margin:0">🧩 User Website Tabs</h3></div>
+          <p class="card-meta" style="margin:6px 0 14px">Toggle which tabs your users see in the left menu. OFF = hidden for everyone instantly.</p>
+          <div id="siteTabsList"><div class="list-empty">Loading...</div></div>
+        </div>
+      </div>
+
       <!-- ========== ACTIVITY LOGS ========== -->
       <div class="page" id="page-logs">
         <div class="card">
@@ -2279,6 +2289,7 @@ function showPage(page, el) {
     notifications: ['Push Notifications', 'Send notifications to users'],
     emails: ['Email Campaigns', 'Send mass emails and newsletters'],
     settings: ['Platform Settings', 'Configure your platform'],
+    sitetabs: ['Site Tabs', 'Turn user-website tabs ON / OFF for everyone'],
     logs: ['Activity Logs', 'System and user activity history'],
     profile: ['Admin Profile', 'Your account settings']
   };
@@ -2307,10 +2318,33 @@ function showPage(page, el) {
   if (page === 'paymentreqs') loadAdminPaymentReqs();
   if (page === 'subscriptions') loadAdminSubs();
   if (page === 'newshub' && window.anhInitLoad) window.anhInitLoad();
+  if (page === 'sitetabs') loadSiteTabs();
 }
 
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
+}
+const SITE_TAB_DEFS=[
+ ['dashboard','📊 Dashboard'],['trades','📈 My Trades'],['analysis','📉 Trades Analysis'],
+ ['aireport','🤖 AI Report'],['charts','📊 Live Charts'],['chats','💬 Member Chats'],
+ ['signals','📶 Signals'],['articles','📝 Articles'],['vipplans','💎 VIP Plans'],
+ ['news','📰 Economic News'],['newshub','📡 World News Hub'],['strength','💪 Currency Strength'],
+ ['tools','🔧 Tools'],['learn','🎓 Learn Forex'],['settings','⚙️ Settings'],
+ ['about','ℹ️ About'],['announce','📢 Announcements'],['support','💬 Support']
+];
+async function loadSiteTabs(){
+  var box=document.getElementById('siteTabsList');if(!box)return;
+  var disabled={};
+  try{var r=await sb.from('site_settings').select('key,enabled');(r.data||[]).forEach(function(s){disabled[s.key]=s.enabled===false;});}catch(e){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(e.message||'Error')+'</div>';return;}
+  box.innerHTML='<div style="display:grid;gap:8px">'+SITE_TAB_DEFS.map(function(t){
+    var off=disabled[t[0]]===true;
+    return '<div class="sigc" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>'+t[1]+'</strong><button class="btn" onclick="toggleSiteTab(\''+t[0]+'\','+(!off)+')" style="padding:6px 18px;font-size:13px;border:none;border-radius:8px;cursor:pointer;font-weight:800;background:'+(off?'rgba(239,68,68,.18)':'linear-gradient(135deg,#10b981,#059669)')+';color:'+(off?'#ef4444':'#fff')+'">'+(off?'OFF':'ON')+'</button></div>';
+  }).join('')+'</div>';
+}
+async function toggleSiteTab(key,enabled){
+  var res=await sb.from('site_settings').upsert({key:key,enabled:enabled,updated_at:new Date().toISOString()},{onConflict:'key'});
+  if(res.error){alert('Error: '+res.error.message);return;}
+  loadSiteTabs();
 }
 
 function toggleTheme() {

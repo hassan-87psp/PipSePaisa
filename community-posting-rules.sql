@@ -26,6 +26,10 @@ as $$
     when public.is_admin() then true
     -- Official community: only admin (handled above) -> everyone else read-only
     when coalesce((select is_official from public.groups where id = gid), false) then false
+    -- Any group OWNED BY AN ADMIN (e.g. PipSePaisa Community) -> only admin posts
+    when coalesce((select (p.role = 'admin' or p.is_admin)
+                   from public.profiles p
+                   where p.id = (select owner_id from public.groups where id = gid)), false) then false
     -- The mentor who owns this group can always post
     when (select owner_id from public.groups where id = gid) = auth.uid() then true
     -- Students: only if "Everyone can post" is ON, they belong to THIS mentor, and tier matches

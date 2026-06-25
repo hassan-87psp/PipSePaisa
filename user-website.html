@@ -3398,7 +3398,20 @@ select option{background:#0f1729;color:#e8eaf0}
   }
   
   // ============ NAVIGATION ============
+  var _disabledTabs={};
+  async function loadTabSettings(){
+    if(!sb)return;
+    try{const r=await sb.from('site_settings').select('key,enabled').eq('enabled',false);_disabledTabs={};(r.data||[]).forEach(function(s){_disabledTabs[s.key]=true;});}catch(e){_disabledTabs={};}
+    applyTabVisibility();
+  }
+  function applyTabVisibility(){
+    document.querySelectorAll('.menu-item[data-page]').forEach(function(m){
+      var pg=m.getAttribute('data-page');
+      m.style.display=_disabledTabs[pg]?'none':'';
+    });
+  }
   function showPage(page, el) {
+    if(_disabledTabs[page] && page!=='dashboard'){ page='dashboard'; el=document.querySelector('.menu-item[data-page="dashboard"]'); }
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const pageEl = document.getElementById('page-' + page);
     if (pageEl) pageEl.classList.add('active');
@@ -6095,6 +6108,7 @@ select option{background:#0f1729;color:#e8eaf0}
     if (window.supabase && window.supabase.createClient) {
       sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-user-auth",persistSession:true,autoRefreshToken:true}});
       console.log('✅ Supabase initialized');
+      try{loadTabSettings();}catch(e){}
     } else {
       console.warn('⚠️ Supabase library not loaded - auth disabled');
     }
@@ -6627,7 +6641,7 @@ select option{background:#0f1729;color:#e8eaf0}
   }
   async function loadCommunityGroups(){
     const box=document.getElementById('commGroups');if(!box||!sb)return;
-    let data=[];try{const r=await sb.from('groups').select('*').order('is_official',{ascending:false}).order('created_at',{ascending:true});data=r.data||[];}catch(e){box.innerHTML='<div style="font-size:12px;color:var(--red)">'+vEsc(e.message||'Error')+'</div>';return;}
+    let data=[];try{const r=await sb.from('groups').select('*, owner:owner_id(role,is_admin)').order('is_official',{ascending:false}).order('created_at',{ascending:true});data=r.data||[];}catch(e){box.innerHTML='<div style="font-size:12px;color:var(--red)">'+vEsc(e.message||'Error')+'</div>';return;}
     _commGroups=data;
     if(!data.length){box.innerHTML='<div style="font-size:12px;color:var(--text-muted)">No groups yet.</div>';return;}
     box.innerHTML=data.map(function(g){
@@ -6639,8 +6653,10 @@ select option{background:#0f1729;color:#e8eaf0}
   }
   function canPostHere(g){
     if(!g||!currentProfile)return false;
-    if(currentProfile.role==='admin'||currentProfile.is_admin)return true;
+    var meAdmin=(currentProfile.role==='admin'||currentProfile.is_admin);
+    if(meAdmin)return true;
     if(g.is_official)return false;              // official: only admin posts
+    if(g.owner&&(g.owner.role==='admin'||g.owner.is_admin))return false; // admin-owned (PipSePaisa) = admin only
     if(g.owner_id===currentProfile.id)return true; // mentor owns this group
     return g.members_can_post!==false;          // students post only if allowed
   }
