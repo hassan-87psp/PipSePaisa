@@ -2338,7 +2338,7 @@ async function loadSiteTabs(){
   try{var r=await sb.from('site_settings').select('key,enabled');(r.data||[]).forEach(function(s){disabled[s.key]=s.enabled===false;});}catch(e){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(e.message||'Error')+'</div>';return;}
   box.innerHTML='<div style="display:grid;gap:8px">'+SITE_TAB_DEFS.map(function(t){
     var off=disabled[t[0]]===true;
-    return '<div class="sigc" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>'+t[1]+'</strong><button class="btn" onclick="toggleSiteTab(\''+t[0]+'\','+(!off)+')" style="padding:6px 18px;font-size:13px;border:none;border-radius:8px;cursor:pointer;font-weight:800;background:'+(off?'rgba(239,68,68,.18)':'linear-gradient(135deg,#10b981,#059669)')+';color:'+(off?'#ef4444':'#fff')+'">'+(off?'OFF':'ON')+'</button></div>';
+    return '<div class="sigc" style="display:flex;justify-content:space-between;align-items:center;gap:10px"><strong>'+t[1]+'</strong><button class="btn" onclick="toggleSiteTab(\''+t[0]+'\','+off+')" style="padding:6px 18px;font-size:13px;border:none;border-radius:8px;cursor:pointer;font-weight:800;background:'+(off?'rgba(239,68,68,.18)':'linear-gradient(135deg,#10b981,#059669)')+';color:'+(off?'#ef4444':'#fff')+'">'+(off?'OFF':'ON')+'</button></div>';
   }).join('')+'</div>';
 }
 async function toggleSiteTab(key,enabled){
