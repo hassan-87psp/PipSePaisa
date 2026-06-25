@@ -753,6 +753,10 @@ function renderMentorCommunity(){
           <select class="inp" id="gp-aud"><option value="all">All my members</option><option value="premium">Premium + VIP</option><option value="vip">VIP only</option></select>
         </div>
         <select class="inp" id="gp-slow"><option value="0">Slow mode: Off</option><option value="30">1 post / 30s</option><option value="60">1 post / 1 min</option><option value="300">1 post / 5 min</option></select>
+        <label style="display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer;padding:8px 0">
+          <input type="checkbox" id="gp-canpost" checked style="width:17px;height:17px;cursor:pointer">
+          <span><strong>Everyone can post</strong> — students can post &amp; comment. <span class="muted">Uncheck = announcement only (students read).</span></span>
+        </label>
         <button class="btn" onclick="createMentorGroup()">➕ Create Group</button>
         <p class="muted" style="font-size:11.5px">Your students automatically see groups that match their tier. Posting, likes & comments happen on the user site Community tab.</p>
       </div></div>
@@ -762,7 +766,7 @@ function renderMentorCommunity(){
 }
 async function createMentorGroup(){
   const name=val('gp-name');if(!name){alert('Group name required');return;}
-  const obj={owner_id:ME.id,is_official:false,name:name,description:val('gp-desc')||null,icon:val('gp-icon')||'👥',audience:document.getElementById('gp-aud').value,slow_mode_seconds:parseInt(document.getElementById('gp-slow').value||'0')};
+  const obj={owner_id:ME.id,is_official:false,name:name,description:val('gp-desc')||null,icon:val('gp-icon')||'👥',audience:document.getElementById('gp-aud').value,slow_mode_seconds:parseInt(document.getElementById('gp-slow').value||'0'),members_can_post:document.getElementById('gp-canpost').checked};
   const {error}=await sb.from('groups').insert(obj);
   if(error){alert('Error: '+error.message);return;}
   document.getElementById('gp-name').value='';document.getElementById('gp-desc').value='';document.getElementById('gp-icon').value='👥';
@@ -774,7 +778,12 @@ async function loadMentorGroups(){
   if(error){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}
   if(!data||!data.length){box.innerHTML='<div class="list-empty">No groups yet.</div>';return;}
   const lbl={all:'All members',premium:'Premium + VIP',vip:'VIP only'};
-  box.innerHTML='<div style="display:grid;gap:10px">'+data.map(g=>`<div class="sigc"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><strong>${esc(g.icon||'👥')} ${esc(g.name)}</strong><div class="muted" style="font-size:12px">${esc(g.description||'')}</div><span class="badge gold" style="font-size:9px;margin-top:3px">${lbl[g.audience]||g.audience}</span></div><button class="del" style="padding:5px 9px;border-radius:7px" onclick="delMentorGroup('${g.id}')">🗑️</button></div></div>`).join('')+'</div>';
+  box.innerHTML='<div style="display:grid;gap:10px">'+data.map(g=>{var cp=g.members_can_post!==false;return `<div class="sigc"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><div><strong>${esc(g.icon||'👥')} ${esc(g.name)}</strong><div class="muted" style="font-size:12px">${esc(g.description||'')}</div><span class="badge gold" style="font-size:9px;margin-top:3px">${lbl[g.audience]||g.audience}</span> <span class="badge ${cp?'green':''}" style="font-size:9px;margin-top:3px;${cp?'':'background:rgba(239,68,68,.15);color:#ef4444'}">${cp?'💬 Everyone can post':'📢 Announcement only'}</span></div><button class="del" style="padding:5px 9px;border-radius:7px" onclick="delMentorGroup('${g.id}')">🗑️</button></div><button class="btn" style="margin-top:8px;padding:6px 12px;font-size:12px;background:rgba(255,255,255,.06)" onclick="toggleGroupPost('${g.id}',${cp})">${cp?'🔒 Switch to Announcement only':'💬 Allow everyone to post'}</button></div>`;}).join('')+'</div>';
+}
+async function toggleGroupPost(id,cur){
+  const {error}=await sb.from('groups').update({members_can_post:!cur}).eq('id',id);
+  if(error){alert('Error: '+error.message);return;}
+  loadMentorGroups();
 }
 async function delMentorGroup(id){if(!confirm('Delete this group and all its posts?'))return;await sb.from('groups').delete().eq('id',id);loadMentorGroups();}
 
