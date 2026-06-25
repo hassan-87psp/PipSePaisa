@@ -1353,7 +1353,8 @@ select option{background:#0f1729;color:#e8eaf0}
     <div class="menu-label">Main Menu</div>
     
     <nav class="menu">
-      <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">📊</span>Dashboard</div>
+      <div class="menu-item active" data-page="performance" onclick="showPage('performance', this)"><span class="menu-icon">🏆</span>Performance</div>
+      <div class="menu-item" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">📊</span>Dashboard</div>
       <div class="menu-item" data-tabkey="addtrade" onclick="openAddTradeModal()" style="background: linear-gradient(135deg, var(--gold-bg), transparent); border: 1px solid rgba(245,158,11,0.3);"><span class="menu-icon">➕</span><strong>Add Trade</strong></div>
       <div class="menu-item" data-page="trades" onclick="showPage('trades', this)"><span class="menu-icon">📈</span>My Trades</div>
       <div class="menu-item" data-page="analysis" onclick="showPage('analysis', this)"><span class="menu-icon">📉</span>Trades Analysis</div>
@@ -1441,7 +1442,30 @@ select option{background:#0f1729;color:#e8eaf0}
     <div class="content" id="content">
       
       <!-- ========== DASHBOARD ========== -->
-      <div class="page active" id="page-dashboard">
+      <div class="page active" id="page-performance">
+        <div id="perfHero" style="position:relative;overflow:hidden;border-radius:20px;padding:22px 24px;margin-bottom:18px;background:linear-gradient(135deg,rgba(245,158,11,.16),rgba(16,185,129,.06),transparent);border:1px solid rgba(245,158,11,.25);">
+          <div style="font-size:13px;color:var(--gold);font-weight:800;letter-spacing:.5px;text-transform:uppercase;">PipSePaisa Performance</div>
+          <div id="perfHello" style="font-size:24px;font-weight:900;margin-top:4px;">Welcome back 👋</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:3px;">Your live overview — signals, charts, news & results in one place.</div>
+        </div>
+        <div id="perfResults"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;" id="perfGrid">
+          <div class="card" style="grid-column:1/-1;">
+            <div class="card-header" style="margin-bottom:12px;"><div class="card-title">📶 Recent Signals</div><div class="card-meta" style="cursor:pointer;color:var(--gold);" onclick="document.querySelector('[data-page=signals]').click()">View all →</div></div>
+            <div id="perfSignals"><div style="color:var(--text-muted);padding:14px;">Loading…</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header" style="margin-bottom:12px;"><div class="card-title">📈 Recent Charts</div><div class="card-meta" style="cursor:pointer;color:var(--gold);" onclick="document.querySelector('[data-page=articles]').click()">View all →</div></div>
+            <div id="perfCharts"><div style="color:var(--text-muted);padding:14px;">Loading…</div></div>
+          </div>
+          <div class="card">
+            <div class="card-header" style="margin-bottom:12px;"><div class="card-title">📰 Recent News</div><div class="card-meta" style="cursor:pointer;color:var(--gold);" onclick="document.querySelector('[data-page=news]').click()">View all →</div></div>
+            <div id="perfNews"><div style="color:var(--text-muted);padding:14px;">Loading…</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="page" id="page-dashboard">
         <div class="stats-grid">
           <div class="stat-card featured" style="cursor: pointer;" onclick="document.querySelector('[data-page=trades]').click()" title="Click to view all trades">
             <div class="stat-header">
@@ -3431,7 +3455,7 @@ select option{background:#0f1729;color:#e8eaf0}
     if (el) el.classList.add('active');
     
     const titles = {
-      dashboard: 'Dashboard', trades: 'My Trades',
+      dashboard: 'Dashboard', performance: 'Performance', trades: 'My Trades',
       analysis: 'Trades Analysis', aireport: 'AI Report', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex',
       signals: 'Signals', articles: 'Articles', vipplans: 'VIP Plans',
@@ -3455,6 +3479,7 @@ select option{background:#0f1729;color:#e8eaf0}
     if (page === 'aireport') loadCachedAIReport();
     if (page === 'announce') loadAnnouncements();
     if (page === 'signals') loadSignalsFromDB();
+    if (page === 'performance') loadPerformance();
     if (page === 'articles') loadArticlesFromDB();
     if (page === 'market') { loadGoldPrice(); loadMarketTicker(); }
     if (page === 'settings') updateSettingsProfile();
@@ -6347,6 +6372,7 @@ select option{background:#0f1729;color:#e8eaf0}
       trades = [];
       updateAuthUI();
       updateDashboard();
+      try{loadPerformance();}catch(e){}
       updateTradesTable();
       buildCalendar();
       // Show landing page on logout
@@ -7945,10 +7971,11 @@ async function loadSignalsFromDB(){
   const {data,error}=await sb.from('signals').select('*').order('created_at',{ascending:false});
   if(error){g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">'+error.message+'</div>';return;}
   const _isVip=!!(currentProfile&&currentProfile.is_premium);
+  window._SIGRAW=window._SIGRAW||{};(data||[]).forEach(function(s){window._SIGRAW[s.id]=s;});
   SIGNALS=(data||[]).map(s=>{
     const audStr=s.audience||(((s.access_level||'free')==='vip')?'premium,vip':'free');
     return {
-    pair:s.pair||'', dir:(/sell/i).test(s.direction||'')?'sell':'buy',
+    id:s.id, pair:s.pair||'', dir:(/sell/i).test(s.direction||'')?'sell':'buy',
     access:s.access_level||'free', plan:s.plan_name||'',
     locked:!canAccessContent('signal',audStr),
     entry:s.entry_price==null?'-':s.entry_price, sl:s.stop_loss==null?'-':s.stop_loss,
@@ -7960,8 +7987,8 @@ async function loadSignalsFromDB(){
   renderSigResultDash(data||[]);
   renderSignals();
 }
-function renderSigResultDash(rows){
-  var el=document.getElementById('sigResultDash');if(!el)return;
+function renderSigResultDash(rows,elId){
+  var el=document.getElementById(elId||'sigResultDash');if(!el)return;
   var now=new Date();
   var weekAgo=new Date(now.getTime()-7*86400000);
   var monthStart=new Date(now.getFullYear(),now.getMonth(),1);
@@ -7985,6 +8012,73 @@ function renderSigResultDash(rows){
       '<div class="tile"><div class="lab">This Month</div><div class="val" style="color:'+col(month)+'">'+fmt(month)+'</div></div>'+
       '<div class="tile"><div class="lab">Win Rate</div><div class="val" style="color:var(--gold)">'+wr+'%</div></div>'+
     '</div></div>';
+}
+function sigWAtext(s){
+  var dir=(/sell/i).test(s.direction||'')?'SELL 🔴':'BUY 🟢';
+  var L=['📊 '+(s.pair||'')+' — '+dir];
+  if(s.entry_price!=null)L.push('Entry: '+s.entry_price);
+  if(s.stop_loss!=null)L.push('SL: '+s.stop_loss);
+  if(s.take_profit1!=null)L.push('TP1: '+s.take_profit1);
+  if(s.take_profit2!=null)L.push('TP2: '+s.take_profit2);
+  if(s.take_profit3!=null)L.push('TP3: '+s.take_profit3);
+  if(s.result_pips!=null)L.push((s.result_pips>=0?'✅ Result: +':'❌ Result: ')+s.result_pips+' pips');
+  if(s.notes)L.push('📝 Note: '+s.notes);
+  return L.join('\n');
+}
+function perfToast(msg){
+  try{var t=document.createElement('div');t.textContent=msg;t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;padding:11px 20px;border-radius:12px;font-weight:700;font-size:14px;z-index:99999;box-shadow:0 8px 30px rgba(0,0,0,.3);';document.body.appendChild(t);setTimeout(function(){t.style.opacity='0';t.style.transition='opacity .4s';setTimeout(function(){t.remove();},400);},1600);}catch(e){}
+}
+function copySignalWA(id){
+  var s=(window._SIGRAW||{})[id];if(!s)return;
+  var txt=sigWAtext(s);
+  function done(){perfToast('✅ Signal copied — paste in WhatsApp');}
+  function fb(){try{var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done();}catch(e){alert(txt);}}
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(fb);}else fb();}catch(e){fb();}
+}
+function waBtn(id){return '<button onclick="event.stopPropagation();copySignalWA(\''+id+'\')" title="Copy for WhatsApp" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border:none;border-radius:9px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-weight:800;font-size:12px;cursor:pointer;">📲 Copy</button>';}
+async function loadPerformance(){
+  if(!sb)return;
+  var hi=document.getElementById('perfHello');if(hi&&currentProfile){var nm=((currentProfile.full_name||currentProfile.email||'Trader')+'').split(' ')[0];hi.textContent='Welcome back, '+nm+' 👋';}
+  try{
+    var sr=await sb.from('signals').select('*').order('created_at',{ascending:false});
+    var rows=sr.data||[];
+    window._SIGRAW=window._SIGRAW||{};rows.forEach(function(s){window._SIGRAW[s.id]=s;});
+    renderSigResultDash(rows,'perfResults');
+    renderPerfSignals(rows);
+  }catch(e){}
+  try{var cr=await sb.from('charts').select('*').order('created_at',{ascending:false}).limit(6);renderPerfCharts(cr.data||[]);}catch(e){var pc=document.getElementById('perfCharts');if(pc)pc.innerHTML='<div style="color:var(--text-muted);padding:14px;">No charts yet.</div>';}
+  try{var nr=await sb.from('news_posts').select('*').order('created_at',{ascending:false}).limit(6);renderPerfNews(nr.data||[]);}catch(e){var pn=document.getElementById('perfNews');if(pn)pn.innerHTML='<div style="color:var(--text-muted);padding:14px;">No news yet.</div>';}
+}
+function renderPerfSignals(rows){
+  var box=document.getElementById('perfSignals');if(!box)return;
+  var list=(rows||[]).slice(0,5);
+  if(!list.length){box.innerHTML='<div style="color:var(--text-muted);padding:14px;">No signals yet.</div>';return;}
+  box.innerHTML='<div style="display:grid;gap:10px;">'+list.map(function(s){
+    var audStr=s.audience||(((s.access_level||'free')==='vip')?'premium,vip':'free');
+    var locked=!canAccessContent('signal',audStr);
+    var buy=!(/sell/i).test(s.direction||'');
+    var st=(s.status||'active');var stTxt={active:'● Active',tp1:'✓ TP1',tp2:'✓ TP2',tp3:'🏆 TP3',sl:'🛑 SL',closed:'🔒 Closed'}[st]||'● Active';
+    var pips=(s.result_pips!=null)?'<span style="color:'+(s.result_pips>=0?'#10b981':'#ef4444')+';font-weight:800;">'+(s.result_pips>=0?'+':'')+s.result_pips+' pips</span>':'';
+    var lvls=locked?'<span style="color:var(--gold);font-weight:700;">🔒 VIP — unlock to view</span>':('Entry '+(s.entry_price||'-')+' · SL '+(s.stop_loss||'-')+' · TP1 '+(s.take_profit1||'-')+(s.take_profit2!=null?(' · TP2 '+s.take_profit2):'')+(s.take_profit3!=null?(' · TP3 '+s.take_profit3):''));
+    return '<div style="border:1px solid var(--border);border-radius:12px;padding:11px 13px;background:rgba(255,255,255,.02);"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;"><div style="font-weight:800;">'+sigIco(s.pair)+' '+vEsc(s.pair||'')+' <span style="font-size:10px;padding:1px 7px;border-radius:9px;background:'+(buy?'rgba(16,185,129,.18);color:#10b981':'rgba(239,68,68,.18);color:#ef4444')+';">'+(buy?'BUY':'SELL')+'</span></div><div style="display:flex;gap:8px;align-items:center;">'+pips+'<span style="font-size:11px;color:var(--text-muted);">'+stTxt+'</span>'+(locked?'':waBtn(s.id))+'</div></div><div style="font-size:12px;color:var(--text-muted);margin-top:5px;">'+lvls+'</div></div>';
+  }).join('')+'</div>';
+}
+function renderPerfCharts(rows){
+  var box=document.getElementById('perfCharts');if(!box)return;
+  var list=(rows||[]).slice(0,5);
+  if(!list.length){box.innerHTML='<div style="color:var(--text-muted);padding:14px;">No charts yet.</div>';return;}
+  box.innerHTML='<div style="display:grid;gap:10px;">'+list.map(function(c){
+    var audStr=c.audience||'all';var locked=!canAccessContent('chart',audStr);
+    return '<div onclick="document.querySelector(\'[data-page=articles]\').click()" style="border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:rgba(255,255,255,.02);cursor:pointer;display:flex;gap:10px;align-items:center;">'+(c.image_url&&!locked?'<img src="'+vEsc(c.image_url)+'" style="width:54px;height:42px;object-fit:cover;border-radius:8px;flex:0 0 auto;">':'<div style="width:54px;height:42px;border-radius:8px;background:rgba(245,158,11,.12);display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 auto;">📈</div>')+'<div style="min-width:0;"><div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+vEsc(c.title||c.pair||'Chart Analysis')+'</div><div style="font-size:11px;color:var(--text-muted);">'+(locked?'🔒 Members only':vEsc((c.notes||'').slice(0,50)))+'</div></div></div>';
+  }).join('')+'</div>';
+}
+function renderPerfNews(rows){
+  var box=document.getElementById('perfNews');if(!box)return;
+  var list=(rows||[]).slice(0,5);
+  if(!list.length){box.innerHTML='<div style="color:var(--text-muted);padding:14px;">No news yet.</div>';return;}
+  box.innerHTML='<div style="display:grid;gap:10px;">'+list.map(function(n){
+    return '<div onclick="document.querySelector(\'[data-page=news]\').click()" style="border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:rgba(255,255,255,.02);cursor:pointer;"><div style="font-weight:700;font-size:13px;">'+vEsc(n.title||'(untitled)')+'</div><div style="font-size:11px;color:var(--text-muted);margin-top:3px;">'+vEsc((n.content||n.body||'').slice(0,70))+'</div></div>';
+  }).join('')+'</div>';
 }
 function renderSignals(){
   const g=document.getElementById('signalsGrid');if(!g)return;
@@ -8022,7 +8116,7 @@ function renderSignals(){
         </div>
       </div>
       ${prog}
-      <div class="sig-foot"><span>${src}${acc}${pipsBadge}</span><span class="sig-status ${sc}">${st}</span><span>🕐 ${s.time}</span></div>
+      <div class="sig-foot"><span>${src}${acc}${pipsBadge}</span><span style="display:flex;gap:8px;align-items:center;">${s.locked?'':waBtn(s.id)}<span class="sig-status ${sc}">${st}</span></span><span>🕐 ${s.time}</span></div>
     </div>`;
   }).join('')||'<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No signals yet. Once your mentor (or PipSePaisa) posts a signal, it will appear here.</div>';
 }

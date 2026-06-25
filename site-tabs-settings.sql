@@ -25,7 +25,7 @@ create policy ss_write on public.site_settings
 
 -- Seed all user-site tabs as enabled (safe to re-run)
 insert into public.site_settings(key, enabled) values
-  ('dashboard',true),('addtrade',true),('trades',true),('analysis',true),('aireport',true),
+  ('performance',true),('dashboard',true),('addtrade',true),('trades',true),('analysis',true),('aireport',true),
   ('charts',true),('chats',true),('signals',true),('articles',true),
   ('vipplans',true),('news',true),('newshub',true),('strength',true),
   ('tools',true),('learn',true),('vipindicators',true),('vipea',true),('settings',true),('about',true),
