@@ -7487,11 +7487,22 @@ select option{background:#0f1729;color:#e8eaf0}
 </div>
 
 <script>
-// Service Worker Registration
+// Kill any stale Service Worker + caches so new versions ALWAYS load fresh
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  });
+  navigator.serviceWorker.getRegistrations().then(rs => {
+    var had = rs.length > 0 || navigator.serviceWorker.controller;
+    rs.forEach(r => r.unregister());
+    if (window.caches && caches.keys) {
+      caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(() => {});
+    }
+    // if a stale SW was controlling this page, reload once to drop it
+    if (had && !sessionStorage.getItem('pp_sw_cleared')) {
+      sessionStorage.setItem('pp_sw_cleared', '1');
+      setTimeout(() => location.reload(), 300);
+    }
+  }).catch(() => {});
+} else if (window.caches && caches.keys) {
+  caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
 }
 
 // PWA Install Prompt
