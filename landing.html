@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -305,12 +305,12 @@
 
 <nav>
   <div class="wrap">
-    <div class="brand"><span class="logo"></span><span class="brand-text"><span class="gold">Pip</span><span style="color:var(--text)">Se</span><span class="gold">Paisa</span></span></div>
+    <div class="brand" onclick="goHome()" style="cursor:pointer" title="Home"><span class="logo"></span><span class="brand-text"><span class="gold">Pip</span><span style="color:var(--text)">Se</span><span class="gold">Paisa</span></span></div>
     <div class="nav-links">
       <a href="#guide">Guide</a>
       <a href="#services">Services</a>
       <a href="#help">Support</a>
-      <button class="toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span class="knob" id="knob">🌙</span></button>
+      <button class="toggle" onclick="toggleTheme()" aria-label="Toggle theme"><span class="knob" id="knob">☀️</span></button>
       <a href="#" class="btn nav-cta" onclick="openAuth();return false"><span style="color:#000;font-weight:800;">Login</span></a>
     </div>
     <button class="burger" onclick="const n=document.querySelector('.nav-links');n.style.display=n.style.display==='flex'?'none':'flex'">☰</button>
@@ -517,6 +517,13 @@
     const next=html.getAttribute('data-theme')==='dark'?'light':'dark';
     html.setAttribute('data-theme',next);
     document.getElementById('knob').textContent=next==='dark'?'🌙':'☀️';
+  }
+
+  // Logo click -> behave like Home (go to top of landing / hero)
+  function goHome(){
+    const n=document.querySelector('.nav-links'); if(n) n.style.display='';
+    try{ if(window.parent && window.parent!==window && window.parent.goHome){ window.parent.goHome(); return; } }catch(e){}
+    window.scrollTo({top:0,behavior:'smooth'});
   }
 
   function openAuth(){ try{ (window.parent&&window.parent.openAuthModal)?window.parent.openAuthModal():document.getElementById('authModal').classList.add('show'); }catch(e){ document.getElementById('authModal').classList.add('show'); } }
