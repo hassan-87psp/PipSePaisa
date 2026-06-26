@@ -469,6 +469,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>News & Events</div>
       <div class="menu-item" data-page="adsignals" onclick="showPage('adsignals', this)"><span class="menu-icon">📊</span>Signals</div>
       <div class="menu-item" data-page="adcharts" onclick="showPage('adcharts', this)"><span class="menu-icon">📈</span>Charts</div>
+      <div class="menu-item" data-page="adbanners" onclick="showPage('adbanners', this)"><span class="menu-icon">🖼️</span>Banners</div>
       <div class="menu-item" data-page="community" onclick="showPage('community', this)"><span class="menu-icon">👥</span>Community</div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;">LIVE</span></div>
       <div class="menu-item" data-page="quiz" onclick="showPage('quiz', this)"><span class="menu-icon">🎯</span>Quiz Questions</div>
@@ -860,6 +861,27 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="page" id="page-payments"><div id="apmWrap"></div></div>
       <div class="page" id="page-adsignals"><div id="adSigWrap"></div></div>
       <div class="page" id="page-adcharts"><div id="adChartWrap"></div></div>
+      <div class="page" id="page-adbanners">
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header"><h3 style="margin:0">🖼️ Upload Social Media Banner</h3></div>
+          <div style="display:flex;flex-direction:column;gap:12px;max-width:520px;">
+            <div>
+              <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:5px;">Title (optional)</label>
+              <input id="bnTitle" type="text" placeholder="e.g. Weekend Gold Promo" style="width:100%;padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);font-family:inherit;">
+            </div>
+            <div>
+              <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:5px;">Banner Image</label>
+              <input id="bnFile" type="file" accept="image/*" style="width:100%;padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);font-family:inherit;">
+            </div>
+            <button onclick="uploadBanner()" id="bnBtn" style="padding:11px 20px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer;font-family:inherit;align-self:flex-start;">⬆️ Upload Banner</button>
+            <div id="bnMsg" style="font-size:13px;"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3 style="margin:0">All Banners</h3></div>
+          <div id="adBannersGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;"><div style="color:var(--text-muted);padding:20px;">Loading…</div></div>
+        </div>
+      </div>
       <div class="page" id="page-community"><div id="adCommWrap"></div></div>
       <div class="page" id="page-chats"><div id="adChatsWrap"></div></div>
       <div class="page" id="page-paymentreqs"><div id="aprWrap"></div></div>
@@ -2305,6 +2327,7 @@ function showPage(page, el) {
     quiz: ['Quiz Manager', 'Manage daily quiz question bank'],
     adsignals: ['Official Signals', 'Post signals shown to all students'],
     adcharts: ['Official Charts', 'Post chart analysis shown to all students'],
+    adbanners: ['Banners', 'Upload social media banners for users to download'],
     messages: ['Messages / Support', 'User support tickets and inbox'],
     notifications: ['Push Notifications', 'Send notifications to users'],
     emails: ['Email Campaigns', 'Send mass emails and newsletters'],
@@ -2330,6 +2353,7 @@ function showPage(page, el) {
   if (page === 'quiz') loadAdminQuiz();
   if (page === 'adsignals') loadAdSignals();
   if (page === 'adcharts') loadAdCharts();
+  if (page === 'adbanners') loadAdBanners();
   if (page === 'community') loadAdminCommunity();
   if (page === 'chats') renderAdminChats();
   if (page === 'messages') loadAdminMessages();
@@ -2350,8 +2374,50 @@ const SITE_TAB_DEFS=[
  ['signals','📶 Signals'],['articles','📝 Articles'],['vipplans','💎 VIP Plans'],
  ['news','📰 Economic News'],['newshub','📡 World News Hub'],['strength','💪 Currency Strength'],
  ['tools','🔧 Tools'],['learn','🎓 Learn Forex'],['vipindicators','⭐ VIP Indicators'],['vipea','🤖 VIP EAs'],
+ ['banners','🖼️ Banners'],
  ['settings','⚙️ Settings'],['about','ℹ️ About'],['announce','📢 Announcements'],['support','💬 Support']
 ];
+async function uploadBanner(){
+  var f=document.getElementById('bnFile');var t=document.getElementById('bnTitle');var msg=document.getElementById('bnMsg');var btn=document.getElementById('bnBtn');
+  var file=f&&f.files&&f.files[0];
+  if(!file){msg.style.color='var(--red)';msg.textContent='Please choose an image first.';return;}
+  btn.disabled=true;var old=btn.textContent;btn.textContent='⏳ Uploading...';msg.style.color='var(--text-muted)';msg.textContent='Uploading…';
+  try{
+    var ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    var path='banners/'+Date.now()+'.'+ext;
+    var up=await sb.storage.from('charts').upload(path,file,{upsert:true});
+    if(up.error)throw up.error;
+    var url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
+    var ins=await sb.from('banners').insert({title:(t.value||'').trim()||null,image_url:url});
+    if(ins.error)throw ins.error;
+    msg.style.color='var(--green)';msg.textContent='✅ Banner uploaded!';
+    f.value='';t.value='';
+    loadAdBanners();
+  }catch(e){msg.style.color='var(--red)';msg.textContent='Upload failed: '+(e.message||e);}
+  finally{btn.disabled=false;btn.textContent=old;}
+}
+async function loadAdBanners(){
+  var g=document.getElementById('adBannersGrid');if(!g)return;
+  g.innerHTML='<div style="color:var(--text-muted);padding:20px;">Loading…</div>';
+  try{
+    var r=await sb.from('banners').select('*').order('created_at',{ascending:false});
+    var rows=r.data||[];
+    if(!rows.length){g.innerHTML='<div style="color:var(--text-muted);padding:20px;">No banners yet.</div>';return;}
+    g.innerHTML=rows.map(function(b){
+      return '<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg-elevated);">'+
+        '<img src="'+esc(b.image_url)+'" style="width:100%;display:block;object-fit:cover;background:#0a0e1a;">'+
+        '<div style="padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;">'+
+          '<span style="font-size:12px;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(b.title||'Banner')+'</span>'+
+          '<button onclick="deleteBanner(\''+b.id+'\')" style="flex:0 0 auto;padding:6px 12px;border:1px solid var(--red);border-radius:8px;background:transparent;color:var(--red);font-weight:700;font-size:12px;cursor:pointer;">Delete</button>'+
+        '</div></div>';
+    }).join('');
+  }catch(e){g.innerHTML='<div style="color:var(--red);padding:20px;">'+esc(e.message||'Error')+'</div>';}
+}
+async function deleteBanner(id){
+  if(!confirm('Delete this banner?'))return;
+  try{var r=await sb.from('banners').delete().eq('id',id);if(r.error)throw r.error;loadAdBanners();}
+  catch(e){alert('Delete failed: '+(e.message||e));}
+}
 async function loadSiteTabs(){
   var box=document.getElementById('siteTabsList');if(!box)return;
   var disabled={};

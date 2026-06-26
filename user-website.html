@@ -48,14 +48,14 @@
   
   /* ========== LIGHT THEME ========== */
   [data-theme="light"] {
-    --bg-main: #f8fafc;
+    --bg-main: #e9edf3;
     --bg-sidebar: #ffffff;
     --bg-card: #ffffff;
-    --bg-elevated: #f1f5f9;
-    --bg-hover: #e2e8f0;
+    --bg-elevated: #f3f6fa;
+    --bg-hover: #dde3ec;
     --bg-overlay: rgba(0,0,0,0.5);
-    --border: #e2e8f0;
-    --border-light: #cbd5e1;
+    --border: #d8dee8;
+    --border-light: #c2cbd9;
     --text-primary: #0f172a;
     --text-secondary: #475569;
     --text-muted: #94a3b8;
@@ -640,7 +640,12 @@
     .youtube-banner { flex-direction: column; text-align: center; gap: 10px; padding: 16px; }
     .yt-btn { width: 100%; text-align: center; }
     .modal { margin: 10px; width: calc(100% - 20px); max-height: 90vh; overflow-y: auto; }
-    #strengthBarsContainer { overflow-x: auto; }
+    #strengthBarsContainer { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    @media(max-width:820px){
+      #nhLayout{grid-template-columns:1fr !important;}
+      #page-newshub .nh-tabs{overflow-x:auto;flex-wrap:nowrap;white-space:nowrap;-webkit-overflow-scrolling:touch;}
+      .nh-stats{grid-template-columns:repeat(2,1fr) !important;}
+    }
 
     /* Footer 2 columns - full width on mobile */
     #siteFooter { 
@@ -839,6 +844,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Member Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
+      <div class="menu-item" data-page="banners" onclick="showPage('banners', this)"><span class="menu-icon">🖼️</span>Banners</div>
       <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>Economic News<span class="dot"></span></div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;animation:pulse 2s infinite;">LIVE</span></div>
@@ -1445,7 +1451,7 @@ select option{background:#0f1729;color:#e8eaf0}
         </div>
 
         <!-- Stats Row -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+        <div class="nh-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
           <div class="card" style="padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--red)" id="nhSC">0</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;margin-top:2px">Conflict</div></div>
           <div class="card" style="padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--purple)" id="nhSG">0</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;margin-top:2px">Geopolitics</div></div>
           <div class="card" style="padding:12px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--gold)" id="nhSF">0</div><div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;margin-top:2px">Forex</div></div>
@@ -2364,6 +2370,18 @@ select option{background:#0f1729;color:#e8eaf0}
         <div id="articlesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;"></div>
       </div>
 
+      <div class="page" id="page-banners">
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header" style="margin-bottom:0;">
+            <div>
+              <div class="card-title">🖼️ Social Media Banners</div>
+              <div class="card-meta" style="margin-top:4px;">Download ready-made banners to promote on your social media</div>
+            </div>
+          </div>
+        </div>
+        <div id="bannersGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"><div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading…</div></div>
+      </div>
+
   </main>
 </div>
 
@@ -2377,13 +2395,13 @@ select option{background:#0f1729;color:#e8eaf0}
       </div>
       <p style="font-size:12px;color:var(--text-muted);line-height:1.7;max-width:280px;">A complete Forex Partner Ecosystem — professional trading tools, signals and education in one platform.</p>
       <div style="display:flex;gap:10px;margin-top:14px;">
-        <a href="#" target="_blank" title="Facebook" style="width:36px;height:36px;background:#1877F2;border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        <a href="https://www.facebook.com/share/1AUgXGtVYy/" target="_blank" rel="noopener" title="Facebook" style="width:36px;height:36px;background:#1877F2;border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
         </a>
-        <a href="#" target="_blank" title="Instagram" style="width:36px;height:36px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        <a href="https://www.instagram.com/pipsepaisa/" target="_blank" rel="noopener" title="Instagram" style="width:36px;height:36px;background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
         </a>
-        <a href="#" target="_blank" title="WhatsApp Channel" style="width:36px;height:36px;background:#25D366;border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+        <a href="https://wa.me/601156558689" target="_blank" rel="noopener" title="WhatsApp" style="width:36px;height:36px;background:#25D366;border-radius:8px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
         </a>
       </div>
@@ -2925,7 +2943,7 @@ select option{background:#0f1729;color:#e8eaf0}
       dashboard: 'Dashboard', performance: 'Performance', trades: 'My Trades',
       analysis: 'Trades Analysis', aireport: 'AI Report', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex',
-      signals: 'Signals', articles: 'Charts', vipplans: 'VIP Plans',
+      signals: 'Signals', articles: 'Charts', banners: 'Banners', vipplans: 'VIP Plans',
       support: 'Support', announce: 'Announcements',
       settings: 'Settings', about: 'About'
     };
@@ -2948,6 +2966,7 @@ select option{background:#0f1729;color:#e8eaf0}
     if (page === 'signals') loadSignalsFromDB();
     if (page === 'performance') loadPerformance();
     if (page === 'articles') loadArticlesFromDB();
+    if (page === 'banners') loadBanners();
     if (page === 'market') { loadGoldPrice(); loadMarketTicker(); }
     if (page === 'settings') updateSettingsProfile();
     
@@ -5262,7 +5281,7 @@ select option{background:#0f1729;color:#e8eaf0}
     // Vertical cells grid (image 2 style)
     const TOTAL_CELLS = 10; // 10 cells per currency vertical bar
     
-    html += '<div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; padding: 14px; background: var(--bg-elevated); border-radius: 12px;">';
+    html += '<div style="display: flex; gap: 8px; padding: 14px; background: var(--bg-elevated); border-radius: 12px; min-width: max-content;">';
     
     alphabetical.forEach((item) => {
       const s = item.strength;
@@ -5297,11 +5316,11 @@ select option{background:#0f1729;color:#e8eaf0}
         cellsHtml += `<div style="height: 14px; border-radius: 3px; background: ${isFilled ? cellColor : 'var(--bg-card)'}; border: 1px solid ${isFilled ? cellColor : 'var(--border)'};"></div>`;
       }
       
-      html += `<div style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+      html += `<div style="display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 0 0 auto; min-width: 48px;">
         <div style="display: flex; align-items: center; gap: 4px; font-weight: 700; font-size: 12px; color: var(--text-primary);">
           ${c} ${arrow}
         </div>
-        <div style="display: flex; flex-direction: column; gap: 3px; width: 100%; max-width: 36px;">
+        <div style="display: flex; flex-direction: column; gap: 3px; width: 100%; max-width: 40px;">
           ${cellsHtml}
         </div>
         <div style="font-size: 10px; font-weight: 700; color: ${cellColor};">
@@ -7813,6 +7832,35 @@ function openArt(i){
   document.getElementById('artModal').classList.add('open');
 }
 function closeArt(){document.getElementById('artModal').classList.remove('open')}
+async function loadBanners(){
+  var g=document.getElementById('bannersGrid');if(!g)return;
+  if(!sb){g.innerHTML='';return;}
+  g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading…</div>';
+  try{
+    var r=await sb.from('banners').select('*').order('created_at',{ascending:false});
+    var rows=r.data||[];
+    if(!rows.length){g.innerHTML='<div style="color:var(--text-muted);padding:40px;text-align:center;grid-column:1/-1;">No banners yet. Check back soon! 🖼️</div>';return;}
+    g.innerHTML=rows.map(function(b){
+      return '<div class="card" style="padding:0;overflow:hidden;">'+
+        '<div style="position:relative;background:#0a0e1a;"><img src="'+vEsc(b.image_url)+'" alt="banner" style="width:100%;display:block;object-fit:cover;"></div>'+
+        '<div style="padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;">'+
+          '<div style="font-weight:700;font-size:13px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+vEsc(b.title||'Banner')+'</div>'+
+          '<button onclick="downloadBanner(\''+b.image_url.replace(/'/g,"\\'")+'\',\''+((b.title||'banner').replace(/[^a-zA-Z0-9 _-]/g,'').slice(0,40)||'banner')+'\')" style="flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:none;border-radius:9px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;font-size:12px;cursor:pointer;">⬇️ Download</button>'+
+        '</div></div>';
+    }).join('');
+  }catch(e){g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">Could not load banners.</div>';}
+}
+function downloadBanner(url,name){
+  if(!url)return;
+  try{
+    fetch(url).then(function(r){return r.blob();}).then(function(b){
+      var ext=(url.split('.').pop()||'png').split('?')[0].toLowerCase();if(ext.length>4)ext='png';
+      var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(name||'banner')+'.'+ext;document.body.appendChild(a);a.click();a.remove();
+      setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+      if(typeof pipToast==='function')pipToast('✅ Banner downloaded');
+    }).catch(function(){window.open(url,'_blank');});
+  }catch(e){window.open(url,'_blank');}
+}
 function downloadChartImg(url,name){
   if(!url)return;
   try{
