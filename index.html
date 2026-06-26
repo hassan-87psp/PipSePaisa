@@ -641,12 +641,6 @@
     .yt-btn { width: 100%; text-align: center; }
     .modal { margin: 10px; width: calc(100% - 20px); max-height: 90vh; overflow-y: auto; }
     #strengthBarsContainer { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    @media(max-width:820px){
-      #nhLayout{grid-template-columns:1fr !important;}
-      #page-newshub .nh-tabs{overflow-x:auto;flex-wrap:nowrap;white-space:nowrap;-webkit-overflow-scrolling:touch;}
-      .nh-stats{grid-template-columns:repeat(2,1fr) !important;}
-      #nhList{max-height:none !important;overflow-y:visible !important;}
-    }
 
     /* Footer 2 columns - full width on mobile */
     #siteFooter { 
@@ -704,6 +698,54 @@
     .content { padding: 8px; }
     .card { padding: 10px; }
     .calendar { grid-template-columns: repeat(7, 1fr) 36px; }
+  }
+
+  /* ========================================================== */
+  /* ===== MOBILE APP-STYLE UI (≤820px) — Strength + News ===== */
+  /* ========================================================== */
+  @media (max-width: 820px) {
+    /* ---- World News Hub: app layout ---- */
+    #nhLayout { grid-template-columns: 1fr !important; gap: 12px !important; }
+    #page-newshub .nh-tabs {
+      overflow-x: auto; flex-wrap: nowrap; white-space: nowrap;
+      -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity;
+      gap: 6px; padding: 6px; position: sticky; top: 0; z-index: 5;
+    }
+    #page-newshub .nh-tab { scroll-snap-align: start; padding: 9px 16px; font-size: 12px; }
+    .nh-stats { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
+    .nh-stats .card { padding: 14px 10px !important; }
+    /* let the whole page scroll (no nested scroll trap) */
+    #nhList { max-height: none !important; overflow-y: visible !important; }
+    /* app-style news rows: bigger tap target, card feel */
+    #nhList .nh-nitem { padding: 15px 14px !important; }
+    #nhList .nh-nitem:active { background: var(--bg-hover) !important; }
+    /* news titles wrap to 2 lines instead of being cut off the side */
+    #nhList .nh-nitem [style*="white-space:nowrap"],
+    #page-newshub [style*="white-space: nowrap"] {
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+    }
+    /* right panel (impact / forex) becomes stacked cards below feed */
+    #nhDetail, #nhImpact, #nhForex { width: 100% !important; }
+
+    /* ---- Currency Strength: app layout ---- */
+    #page-strength .card-header { flex-direction: column; align-items: stretch !important; gap: 12px; }
+    #page-strength .card-header > div:last-child { display: flex !important; gap: 10px; width: 100%; }
+    #strengthTimeframe { flex: 1; min-height: 44px; font-size: 14px !important; padding: 10px 12px !important; }
+    #page-strength .card-header .btn { min-height: 44px; padding: 10px 18px !important; font-size: 14px !important; white-space: nowrap; }
+    /* meter scroll container, touch + snap */
+    #strengthBarsContainer {
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity; padding-bottom: 4px;
+      border-radius: 12px;
+    }
+    /* taller, more tappable bars on mobile */
+    #strengthBarsContainer > div { padding: 16px 12px !important; }
+
+    /* generic: stop any inline 2-col grids on these two pages squashing */
+    #page-newshub [style*="grid-template-columns:1fr 320px"],
+    #page-newshub #nhLayout { grid-template-columns: 1fr !important; }
   }
 
   /* ============ BOOTSTRAP UTILITIES (responsive helpers only) ============ */
