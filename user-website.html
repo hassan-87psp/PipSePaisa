@@ -5272,7 +5272,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   function renderStrengthFromAPI(strengths, latestDate) {
     const container = document.getElementById('strengthBarsContainer');
     if (!container) return;
-    
+
+    // Only show the currencies we want in the meter (removes CAD, CHF, etc.)
+    strengths = (strengths || []).filter(s => STRENGTH_CURRENCIES.includes(s.currency));
+    if (!strengths.length) { renderStrength(null, null, true); return; }
+
     const flagMap = { USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', JPY: '🇯🇵', AUD: '🇦🇺', CAD: '🇨🇦', CHF: '🇨🇭', NZD: '🇳🇿' };
     
     // Check if data is from today or older (market closed indicator)
@@ -5305,7 +5309,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     const sortedByName = [...strengths].sort((a, b) => a.currency.localeCompare(b.currency));
     
     // Vertical cells layout (like currencystrengthmeter.org)
-    html += '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:8px;padding:16px 8px;background:var(--bg-elevated);border-radius:12px;">';
+    html += `<div style="display:grid;grid-template-columns:repeat(${sortedByName.length},1fr);gap:8px;padding:16px 8px;background:var(--bg-elevated);border-radius:12px;">`;
     
     const TOTAL_CELLS = 10;
     
