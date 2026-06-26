@@ -700,6 +700,11 @@
     .calendar { grid-template-columns: repeat(7, 1fr) 36px; }
   }
 
+  /* desktop: news list is an inner scroll box; mobile: full page flow */
+  @media (min-width: 821px) {
+    #nhList { max-height: 550px; overflow-y: auto; }
+  }
+
   /* ========================================================== */
   /* ===== MOBILE APP-STYLE UI (≤820px) — Strength + News ===== */
   /* ========================================================== */
@@ -708,25 +713,16 @@
     #nhLayout { grid-template-columns: 1fr !important; gap: 12px !important; }
     #page-newshub .nh-tabs {
       overflow-x: auto; flex-wrap: nowrap; white-space: nowrap;
-      -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity;
-      gap: 6px; padding: 6px; position: sticky; top: 0; z-index: 5;
+      -webkit-overflow-scrolling: touch; gap: 6px; padding: 6px;
     }
-    #page-newshub .nh-tab { scroll-snap-align: start; padding: 9px 16px; font-size: 12px; }
+    #page-newshub .nh-tab { padding: 9px 16px; font-size: 12px; }
     .nh-stats { grid-template-columns: repeat(2,1fr) !important; gap: 8px !important; }
     .nh-stats .card { padding: 14px 10px !important; }
-    /* let the whole page scroll (no nested scroll trap) */
-    #nhList { max-height: none !important; overflow-y: visible !important; }
-    /* app-style news rows: bigger tap target, card feel */
+    /* CRITICAL: no inner scroll — whole page scrolls naturally */
+    #nhList { max-height: none !important; overflow: visible !important; height: auto !important; }
+    #page-newshub .card[style*="overflow:hidden"] { overflow: visible !important; }
     #nhList .nh-nitem { padding: 15px 14px !important; }
     #nhList .nh-nitem:active { background: var(--bg-hover) !important; }
-    /* news titles wrap to 2 lines instead of being cut off the side */
-    #nhList .nh-nitem [style*="white-space:nowrap"],
-    #page-newshub [style*="white-space: nowrap"] {
-      white-space: normal !important;
-      overflow: visible !important;
-      text-overflow: clip !important;
-    }
-    /* right panel (impact / forex) becomes stacked cards below feed */
     #nhDetail, #nhImpact, #nhForex { width: 100% !important; }
 
     /* ---- Currency Strength: app layout ---- */
@@ -1521,7 +1517,7 @@ select option{background:#0f1729;color:#e8eaf0}
               <div style="padding:8px 14px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between">
                 <span><b id="nhEC" style="color:var(--gold)">0</b> events</span><span>Auto-refresh: 1min</span>
               </div>
-              <div id="nhList" style="max-height:550px;overflow-y:auto">
+              <div id="nhList">
                 <div class="nh-loading"><div class="nh-spin"></div>Fetching live news...</div>
               </div>
             </div>
