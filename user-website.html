@@ -817,7 +817,7 @@ select option{background:#0f1729;color:#e8eaf0}
       </div>
     </div>
     
-    <div class="user-card" id="userCard" onclick="userCardClick()">
+    <div class="user-card" id="userCard" onclick="userCardClick()" style="display:none;">
       <div class="user-avatar" id="userAvatar">?</div>
       <div class="user-info">
         <h3 id="userName">Guest</h3>
@@ -838,7 +838,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
       <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Member Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
-      <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📝</span>Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
+      <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>Economic News<span class="dot"></span></div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;animation:pulse 2s infinite;">LIVE</span></div>
@@ -910,7 +910,7 @@ select option{background:#0f1729;color:#e8eaf0}
       </div>
       
       <div class="topbar-actions">
-        <button class="icon-btn quiz-btn" onclick="openQuiz()" title="Daily Quiz">🎯</button>
+        <button class="icon-btn quiz-btn" onclick="openQuiz()" title="Daily Quiz" style="display:none;">🎯</button>
         <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
       </div>
     </div>
@@ -925,20 +925,6 @@ select option{background:#0f1729;color:#e8eaf0}
           <div style="font-size:13px;color:var(--text-muted);margin-top:3px;">Your live overview — signals, charts, news & results in one place.</div>
         </div>
         <div id="perfResults"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;" id="perfGrid">
-          <div class="card" style="grid-column:1/-1;">
-            <div class="card-header" style="margin-bottom:12px;"><div class="card-title">📶 Recent Signals</div><div class="card-meta" style="cursor:pointer;color:var(--gold);" onclick="document.querySelector('[data-page=signals]').click()">View all →</div></div>
-            <div id="perfSignals"><div style="color:var(--text-muted);padding:14px;">Loading…</div></div>
-          </div>
-          <div class="card">
-            <div class="card-header" style="margin-bottom:12px;"><div class="card-title">📈 Recent Charts</div><div class="card-meta" style="cursor:pointer;color:var(--gold);" onclick="document.querySelector('[data-page=articles]').click()">View all →</div></div>
-            <div id="perfCharts"><div style="color:var(--text-muted);padding:14px;">Loading…</div></div>
-          </div>
-          <div class="card">
-            <div class="card-header" style="margin-bottom:12px;"><div class="card-title">📰 Recent News</div><div class="card-meta" style="cursor:pointer;color:var(--gold);" onclick="document.querySelector('[data-page=news]').click()">View all →</div></div>
-            <div id="perfNews"><div style="color:var(--text-muted);padding:14px;">Loading…</div></div>
-          </div>
-        </div>
       </div>
 
       <div class="page" id="page-dashboard">
@@ -2224,7 +2210,7 @@ select option{background:#0f1729;color:#e8eaf0}
         
         <div class="settings-tabs">
           <button class="settings-tab active" onclick="showSettingsTab('profile', this)">👤 Profile</button>
-          <button class="settings-tab" onclick="showSettingsTab('preferences', this)">⚙️ Preferences</button>
+          <button class="settings-tab" onclick="showSettingsTab('preferences', this)" style="display:none;">⚙️ Preferences</button>
           <button class="settings-tab" onclick="showSettingsTab('security', this)">🔒 Security</button>
         </div>
         
@@ -2330,17 +2316,28 @@ select option{background:#0f1729;color:#e8eaf0}
       <!-- ===== SIGNALS PAGE ===== -->
       <div class="page" id="page-signals">
         <div class="card" style="margin-bottom:14px;">
-          <div class="card-header" style="margin-bottom:0;">
+          <div class="card-header" style="margin-bottom:12px;">
             <div>
               <div class="card-title">📶 Trading Signals</div>
-              <div class="card-meta" style="margin-top:4px;">Live trade setups from your mentor — entry, stop loss &amp; take profit</div>
+              <div class="card-meta" style="margin-top:4px;">Live trade setups — entry, stop loss &amp; take profit</div>
             </div>
+            <div style="display:flex;gap:8px;">
+              <button id="sigViewActive" class="sig-fbtn active" onclick="sigSetView('active',this)" style="font-weight:800;">⚡ Active</button>
+              <button id="sigViewHistory" class="sig-fbtn" onclick="sigSetView('history',this)" style="font-weight:800;">📜 History</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <div id="sigFilters" style="display:flex;gap:6px;flex-wrap:wrap;">
               <button class="sig-fbtn active" data-f="all" onclick="sigFilter('all',this)">All</button>
               <button class="sig-fbtn" data-f="forex" onclick="sigFilter('forex',this)">Forex</button>
               <button class="sig-fbtn" data-f="gold" onclick="sigFilter('gold',this)">Gold</button>
               <button class="sig-fbtn" data-f="crypto" onclick="sigFilter('crypto',this)">Crypto</button>
-              <button class="sig-fbtn" data-f="active" onclick="sigFilter('active',this)">Active</button>
+            </div>
+            <div id="sigTimeFilters" style="display:none;gap:6px;flex-wrap:wrap;border-left:1px solid var(--border);padding-left:10px;">
+              <button class="sig-fbtn active" data-t="all" onclick="sigSetTime('all',this)">All Time</button>
+              <button class="sig-fbtn" data-t="today" onclick="sigSetTime('today',this)">Today</button>
+              <button class="sig-fbtn" data-t="week" onclick="sigSetTime('week',this)">Last Week</button>
+              <button class="sig-fbtn" data-t="month" onclick="sigSetTime('month',this)">Last Month</button>
             </div>
           </div>
         </div>
@@ -2353,8 +2350,8 @@ select option{background:#0f1729;color:#e8eaf0}
         <div class="card" style="margin-bottom:14px;">
           <div class="card-header" style="margin-bottom:0;">
             <div>
-              <div class="card-title">📝 Articles &amp; Analysis</div>
-              <div class="card-meta" style="margin-top:4px;">Market analysis, strategies &amp; educational reads</div>
+              <div class="card-title">📈 Charts &amp; Analysis</div>
+              <div class="card-meta" style="margin-top:4px;">Trading charts, market analysis &amp; setups</div>
             </div>
             <div id="artFilters" style="display:flex;gap:6px;flex-wrap:wrap;">
               <button class="sig-fbtn active" data-f="all" onclick="artFilter('all',this)">All</button>
@@ -2543,15 +2540,9 @@ select option{background:#0f1729;color:#e8eaf0}
     
     <!-- SIGNUP FORM -->
     <div id="authForm-signup" style="display: none;">
-      <div class="form-row">
-        <div class="form-group">
-          <label>First Name</label>
-          <input type="text" id="signupFirstName" placeholder="Ahmed">
-        </div>
-        <div class="form-group">
-          <label>Last Name</label>
-          <input type="text" id="signupLastName" placeholder="Khan">
-        </div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="signupFirstName" placeholder="Ahmed Khan">
       </div>
       
       <div class="form-group">
@@ -2560,18 +2551,18 @@ select option{background:#0f1729;color:#e8eaf0}
       </div>
       
       <div class="form-group">
-        <label>Phone <span style="color:var(--red);">*</span></label>
+        <label>WhatsApp Number <span style="color:var(--red);">*</span></label>
         <input type="tel" id="signupPhone" placeholder="+92 3XX XXXXXXX" required>
-      </div>
-
-      <div class="form-group">
-        <label>Mentor Code <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
-        <input type="text" id="signupMentorCode" placeholder="Mentor code (if any)" style="text-transform:uppercase;">
       </div>
       
       <div class="form-group">
         <label>Password (min 6 characters)</label>
         <input type="password" id="signupPassword" placeholder="••••••••" autocomplete="new-password">
+      </div>
+
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="signupPassword2" placeholder="••••••••" autocomplete="new-password">
       </div>
       
       <label style="display: flex; align-items: flex-start; gap: 8px; font-size: 11px; color: var(--text-muted); margin-bottom: 16px; cursor: pointer;">
@@ -2934,7 +2925,7 @@ select option{background:#0f1729;color:#e8eaf0}
       dashboard: 'Dashboard', performance: 'Performance', trades: 'My Trades',
       analysis: 'Trades Analysis', aireport: 'AI Report', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex',
-      signals: 'Signals', articles: 'Articles', vipplans: 'VIP Plans',
+      signals: 'Signals', articles: 'Charts', vipplans: 'VIP Plans',
       support: 'Support', announce: 'Announcements',
       settings: 'Settings', about: 'About'
     };
@@ -5381,9 +5372,17 @@ select option{background:#0f1729;color:#e8eaf0}
     document.getElementById('searchPalette').classList.remove('active');
   }
   
+  function paletteEnabled(i){
+    var d=window._disabledTabs||{};
+    if(i.page) return !d[i.page];
+    if(i.action==='addTrade') return !d['addtrade'];
+    if(i.calc) return !d['tools'];
+    return true;
+  }
   function filterPalette() {
     const search = document.getElementById('paletteInput').value.toLowerCase();
-    const filtered = search ? PALETTE_ITEMS.filter(i => i.title.toLowerCase().includes(search) || i.desc.toLowerCase().includes(search) || i.cat.toLowerCase().includes(search)) : PALETTE_ITEMS;
+    const base = PALETTE_ITEMS.filter(paletteEnabled);
+    const filtered = search ? base.filter(i => i.title.toLowerCase().includes(search) || i.desc.toLowerCase().includes(search) || i.cat.toLowerCase().includes(search)) : base;
     
     const grouped = {};
     filtered.forEach(i => { if (!grouped[i.cat]) grouped[i.cat] = []; grouped[i.cat].push(i); });
@@ -5682,26 +5681,28 @@ select option{background:#0f1729;color:#e8eaf0}
   
   // ============ SIGN UP ============
   async function signupUser() {
-    const firstName = document.getElementById('signupFirstName').value.trim();
-    const lastName = document.getElementById('signupLastName').value.trim();
+    const fullName = document.getElementById('signupFirstName').value.trim();
     const email = document.getElementById('signupEmail').value.trim();
     const phone = document.getElementById('signupPhone').value.trim();
-    
-    // Phone is now REQUIRED
-    if (!phone || phone.length < 7) {
-      alert('Phone number is required. Please enter a valid phone number.');
-      return;
-    }
     const password = document.getElementById('signupPassword').value;
+    const password2 = document.getElementById('signupPassword2').value;
     const agreed = document.getElementById('agreeTerms').checked;
     
     // Validation
-    if (!firstName || !email || !password) {
-      showAuthMessage('error', 'Please fill in: First Name, Email, and Password', 'authMessageSignup');
+    if (!fullName || !email || !password) {
+      showAuthMessage('error', 'Please fill in: Full Name, Email, and Password', 'authMessageSignup');
+      return;
+    }
+    if (!phone || phone.length < 7) {
+      showAuthMessage('error', 'WhatsApp number is required. Please enter a valid number.', 'authMessageSignup');
       return;
     }
     if (password.length < 6) {
       showAuthMessage('error', 'Password must be at least 6 characters', 'authMessageSignup');
+      return;
+    }
+    if (password !== password2) {
+      showAuthMessage('error', 'Passwords do not match. Please re-enter.', 'authMessageSignup');
       return;
     }
     if (!agreed) {
@@ -5709,26 +5710,11 @@ select option{background:#0f1729;color:#e8eaf0}
       return;
     }
 
-    const mentorCode = (document.getElementById('signupMentorCode') ? document.getElementById('signupMentorCode').value : '').trim().toUpperCase();
-    if (mentorCode) {
-      try {
-        const { data: mid, error: cErr } = await sb.rpc('mentor_id_for_code', { code: mentorCode });
-        if (cErr || !mid) {
-          showAuthMessage('error', 'Invalid mentor code. Enter a valid code or leave it empty.', 'authMessageSignup');
-          return;
-        }
-      } catch (e) {
-        showAuthMessage('error', 'Could not verify mentor code. Please try again.', 'authMessageSignup');
-        return;
-      }
-    }
-
     const btn = document.getElementById('signupBtn');
     btn.disabled = true;
     btn.textContent = '⏳ Creating account...';
     
     try {
-      const fullName = `${firstName} ${lastName}`.trim();
       const username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
       
       const { data, error } = await sb.auth.signUp({
@@ -5739,8 +5725,7 @@ select option{background:#0f1729;color:#e8eaf0}
             full_name: fullName,
             username: username,
             phone: phone,
-            role: 'student',
-            mentor_code: mentorCode
+            role: 'student'
           }
         }
       });
@@ -5899,6 +5884,9 @@ select option{background:#0f1729;color:#e8eaf0}
     }
     
     updateAuthUI();
+    
+    // Load the Performance dashboard (default page) now that profile is ready
+    try{ loadPerformance(); }catch(e){}
     
     // Load user's trades from database
     loadTradesFromDB();
@@ -6114,15 +6102,21 @@ select option{background:#0f1729;color:#e8eaf0}
     if(!latest)return;
     let seen=null;try{seen=localStorage.getItem('psp_last_announce');}catch(e){}
     if(seen&&new Date(latest.created_at)<=new Date(seen)){var hb=document.getElementById('announceBanner');if(hb)hb.style.display='none';return;}
+    window._lastAnnounceAt=latest.created_at;
     const ico={general:'📢',urgent:'🔴',course:'🎓',signal:'📈',promo:'🎁'};
     const host=document.getElementById('announceBanner');if(!host)return;
     host.style.display='block';
     host.innerHTML='<div style="background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;padding:12px 16px;border-radius:12px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(245,158,11,.3);">'+
       '<span style="font-size:20px">'+(ico[latest.type]||'📢')+'</span>'+
       '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px">'+vEsc(latest.title||'Notification')+'</div><div style="font-size:12px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+vEsc((latest.body||'').slice(0,80))+'</div></div>'+
-      '<button onclick="showPage(\'announce\', document.querySelector(\'[data-page=announce]\'))" style="background:rgba(0,0,0,.15);border:none;color:#0a0e1a;font-weight:800;padding:7px 13px;border-radius:8px;cursor:pointer;font-size:12px;white-space:nowrap">View</button>'+
-      '<button onclick="markAnnounceRead()" style="background:none;border:none;color:#0a0e1a;font-weight:800;font-size:18px;cursor:pointer;padding:0 4px;line-height:1">×</button>'+
+      '<button onclick="dismissAnnounceBanner(true)" style="background:rgba(0,0,0,.15);border:none;color:#0a0e1a;font-weight:800;padding:7px 13px;border-radius:8px;cursor:pointer;font-size:12px;white-space:nowrap">View</button>'+
+      '<button onclick="dismissAnnounceBanner(false)" style="background:none;border:none;color:#0a0e1a;font-weight:800;font-size:18px;cursor:pointer;padding:0 4px;line-height:1">×</button>'+
     '</div>';
+  }
+  function dismissAnnounceBanner(go){
+    try{ if(window._lastAnnounceAt) localStorage.setItem('psp_last_announce', window._lastAnnounceAt); }catch(e){}
+    var b=document.getElementById('announceBanner'); if(b) b.style.display='none';
+    if(go){ showPage('announce', document.querySelector('[data-page=announce]')); }
   }
   // ============ COMMUNITY (reactions, replies, edit, pin, avatars, notifications) ============
   var _commGid=null;var _commGroups=[];var _commImgFile=null;var _commFeedSig='';var _commOpenComments={};
@@ -7387,8 +7381,14 @@ window.addEventListener('appinstalled', () => {
 .sig-lv .v{font-size:14px;font-weight:700;color:var(--text-primary);font-family:'Courier New',monospace}
 .sig-foot{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-muted);border-top:1px solid var(--border);padding-top:10px}
 .sig-prog{height:7px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;position:relative}
-.sig-prog>span{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#10b981,#34d399);box-shadow:0 0 12px rgba(16,185,129,.6);animation:sigGrow 1.3s cubic-bezier(.2,.8,.2,1) both}
-.sig-prog.loss>span{background:linear-gradient(90deg,#ef4444,#f87171);box-shadow:0 0 12px rgba(239,68,68,.6)}
+.sig-prog>span{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#10b981,#34d399);box-shadow:0 0 12px rgba(16,185,129,.6);animation:sigGrow 1.3s cubic-bezier(.2,.8,.2,1) both, sigPulse 1.7s ease-in-out infinite;position:relative;overflow:hidden}
+.sig-prog>span::after{content:"";position:absolute;top:0;left:-40%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:sigShine 2.2s linear infinite}
+.sig-prog.loss>span{background:linear-gradient(90deg,#ef4444,#f87171);box-shadow:0 0 12px rgba(239,68,68,.6);animation:sigGrow 1.3s cubic-bezier(.2,.8,.2,1) both, sigPulseR 1.7s ease-in-out infinite}
+@keyframes sigPulse{0%,100%{box-shadow:0 0 8px rgba(16,185,129,.5)}50%{box-shadow:0 0 20px rgba(16,185,129,.95)}}
+@keyframes sigPulseR{0%,100%{box-shadow:0 0 8px rgba(239,68,68,.5)}50%{box-shadow:0 0 20px rgba(239,68,68,.95)}}
+@keyframes sigShine{0%{left:-40%}60%,100%{left:120%}}
+.tp-on{animation:tpBlink 1.2s ease-in-out infinite}
+@keyframes tpBlink{0%,100%{opacity:1}50%{opacity:.4}}
 @keyframes sigGrow{from{width:0}to{width:var(--w,0%)}}
 .sigdash{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
 .sigdash .tile{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
@@ -7430,6 +7430,16 @@ function sigCat(p){p=(p||'').toUpperCase();if(/BTC|ETH|XRP|SOL|DOGE|BNB|USDT|CRY
 function sigIco(p){const c=sigCat(p);return c==='crypto'?'₿':c==='gold'?'🥇':'💱';}
 function timeAgo(t){if(!t)return '';const d=(Date.now()-new Date(t).getTime())/1000;if(d<3600)return Math.max(1,Math.round(d/60))+'m ago';if(d<86400)return Math.round(d/3600)+'h ago';return Math.round(d/86400)+'d ago';}
 function sigFilter(f,el){sigF=f;document.querySelectorAll('#sigFilters .sig-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderSignals()}
+let sigView='active';let sigTimeF='all';
+function sigSetView(v,el){
+  sigView=v;
+  var a=document.getElementById('sigViewActive'),h=document.getElementById('sigViewHistory');
+  if(a)a.classList.toggle('active',v==='active');if(h)h.classList.toggle('active',v==='history');
+  var tf=document.getElementById('sigTimeFilters');if(tf)tf.style.display=(v==='history')?'flex':'none';
+  var rd=document.getElementById('sigResultDash');if(rd)rd.style.display=(v==='history')?'block':'none';
+  renderSignals();
+}
+function sigSetTime(t,el){sigTimeF=t;document.querySelectorAll('#sigTimeFilters .sig-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderSignals()}
 function memberCat(){ if(!currentProfile||!currentProfile.is_premium) return 'free'; var mt=currentProfile.member_type; if(!mt) return 'vip'; return mt==='vip'?'vip':'premium'; }
 function userServicesList(){ if(!currentProfile) return []; var s=currentProfile.services; if(s==null||s==='') return null; return String(s).split(',').map(function(x){return x.trim();}).filter(Boolean); }
 function canAccessContent(svc,audienceStr){
@@ -7461,7 +7471,8 @@ async function loadSignalsFromDB(){
     tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2, tp3:s.take_profit3==null?'-':s.take_profit3,
     tpHit:s.tp_hit||0, rawStatus:(s.status||'active'), pips:(s.result_pips==null?null:s.result_pips),
     status:(s.status==='active'?'active':((s.status==='sl'||s.status==='closed')?'closed':'tp')),
-    cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:timeAgo(s.created_at)
+    cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:timeAgo(s.created_at),
+    ts:s.created_at, closedTs:(s.closed_at||s.created_at)
   };});
   renderSigResultDash(data||[]);
   renderSignals();
@@ -7539,10 +7550,7 @@ async function loadPerformance(){
     var rows=sr.data||[];
     window._SIGRAW=window._SIGRAW||{};rows.forEach(function(s){window._SIGRAW[s.id]=s;});
     renderPerfDash(rows);
-    renderPerfSignals(rows);
   }catch(e){}
-  try{var cr=await sb.from('charts').select('*').order('created_at',{ascending:false}).limit(6);renderPerfCharts(cr.data||[]);}catch(e){var pc=document.getElementById('perfCharts');if(pc)pc.innerHTML='<div style="color:var(--text-muted);padding:14px;">No charts yet.</div>';}
-  try{var nr=await sb.from('news_posts').select('*').order('created_at',{ascending:false}).limit(6);renderPerfNews(nr.data||[]);}catch(e){var pn=document.getElementById('perfNews');if(pn)pn.innerHTML='<div style="color:var(--text-muted);padding:14px;">No news yet.</div>';}
 }
 function renderPerfSignals(rows){
   var box=document.getElementById('perfSignals');if(!box)return;
@@ -7595,7 +7603,8 @@ function renderPerfDash(rows){
   var slCount=rows.filter(function(s){return s.status==='sl';}).length;
   var wr=closed.length?Math.round(wins/closed.length*100):0;
   var total=0,week=0,month=0;
-  closed.forEach(function(s){var p=Number(s.result_pips)||0;var d=new Date(s.closed_at||s.created_at);total+=p;if(d>=weekAgo)week+=p;if(d>=monthStart)month+=p;});
+  var greenPips=0,redPips=0;
+  closed.forEach(function(s){var p=Number(s.result_pips)||0;var d=new Date(s.closed_at||s.created_at);total+=p;if(p>=0)greenPips+=p;else redPips+=p;if(d>=weekAgo)week+=p;if(d>=monthStart)month+=p;});
   var fmt=function(v){return (v>=0?'+':'')+(Math.round(v*10)/10);};
   var col=function(v){return v>=0?'#10b981':'#ef4444';};
   // last 14 days
@@ -7636,7 +7645,13 @@ function renderPerfDash(rows){
   }).join(''):'<div style="color:var(--text-muted);">No activity yet.</div>';
 
   el.innerHTML=
-    // pips strip
+    // Net / Green / Red pips
+    '<div class="sigdash" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px;">'+
+      '<div class="tile" style="border-color:rgba(245,158,11,.3);"><div class="lab">Total Net Pips</div><div class="val" style="color:'+col(total)+'">'+fmt(total)+'</div></div>'+
+      '<div class="tile" style="border-color:rgba(16,185,129,.3);"><div class="lab">Total Green Pips</div><div class="val" style="color:#10b981">'+fmt(greenPips)+'</div></div>'+
+      '<div class="tile" style="border-color:rgba(239,68,68,.3);"><div class="lab">Total Red Pips</div><div class="val" style="color:#ef4444">'+fmt(redPips)+'</div></div>'+
+    '</div>'+
+    // pips strip (week / month)
     '<div class="sigdash" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px;">'+
       '<div class="tile"><div class="lab">Total Pips</div><div class="val" style="color:'+col(total)+'">'+fmt(total)+'</div></div>'+
       '<div class="tile"><div class="lab">This Week</div><div class="val" style="color:'+col(week)+'">'+fmt(week)+'</div></div>'+
@@ -7661,7 +7676,21 @@ function renderPerfDash(rows){
 }
 function renderSignals(){
   const g=document.getElementById('signalsGrid');if(!g)return;
-  const list=SIGNALS.filter(s=>sigF==='all'?true:sigF==='active'?s.status==='active':s.cat===sigF);
+  var rd=document.getElementById('sigResultDash');if(rd)rd.style.display=(sigView==='history')?'block':'none';
+  var now=Date.now();
+  function inTime(s){
+    if(sigView!=='history'||sigTimeF==='all')return true;
+    var t=new Date(s.closedTs||s.ts).getTime();var d=new Date();
+    if(sigTimeF==='today'){var ds=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();return t>=ds;}
+    if(sigTimeF==='week')return t>=now-7*86400000;
+    if(sigTimeF==='month')return t>=new Date(d.getFullYear(),d.getMonth(),1).getTime();
+    return true;
+  }
+  const list=SIGNALS.filter(function(s){
+    var viewOk=(sigView==='active')?(s.rawStatus==='active'):(s.rawStatus!=='active');
+    var catOk=(sigF==='all')?true:(s.cat===sigF);
+    return viewOk&&catOk&&inTime(s);
+  });
   const stMap={active:['st-active','● Active'],tp:['st-tp','✓ TP Hit'],closed:['st-closed','Closed']};
   g.innerHTML=list.map(s=>{
     const a=stMap[s.status]||stMap.active;const sc=a[0],st=a[1];
@@ -7672,10 +7701,10 @@ function renderSignals(){
     const pipsBadge=(s.pips!=null)?`<span class="sig-status ${s.pips>=0?'st-tp':'st-closed'}" style="margin-left:6px;background:${s.pips>=0?'rgba(16,185,129,.2)':'rgba(239,68,68,.2)'};color:${s.pips>=0?'#10b981':'#ef4444'}">${s.pips>=0?'+':''}${s.pips} pips</span>`:'';
     const prog=`<div style="margin-top:12px;">
       <div class="sig-prog ${loss?'loss':''}" style="--w:${pct}%"><span></span></div>
-      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:9px;color:var(--text-muted);font-weight:700;">
-        <span style="color:${s.tpHit>=1&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=1&&!loss?'✓ ':''}TP1</span>
-        <span style="color:${s.tpHit>=2&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=2&&!loss?'✓ ':''}TP2</span>
-        <span style="color:${s.tpHit>=3&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=3&&!loss?'✓ ':''}TP3</span>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:9px;font-weight:700;">
+        <span class="${s.tpHit>=1&&!loss?'tp-on':''}" style="color:${s.tpHit>=1&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=1&&!loss?'✓ ':''}TP1</span>
+        <span class="${s.tpHit>=2&&!loss?'tp-on':''}" style="color:${s.tpHit>=2&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=2&&!loss?'✓ ':''}TP2</span>
+        <span class="${s.tpHit>=3&&!loss?'tp-on':''}" style="color:${s.tpHit>=3&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=3&&!loss?'✓ ':''}TP3</span>
       </div>
     </div>`;
     const lockOv=s.locked?'<div onclick="showPage(\'vipplans\', document.querySelector(\'[data-page=vipplans]\'))" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2;cursor:pointer">\
@@ -7695,9 +7724,9 @@ function renderSignals(){
         </div>
       </div>
       ${prog}
-      <div class="sig-foot"><span>${src}${acc}</span><span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">${s.pips!=null?`<span style="color:${s.pips>=0?'#10b981':'#ef4444'};font-weight:800;font-size:12px;">${s.pips>=0?'+':''}${s.pips} pips</span>`:''}<span class="sig-status ${sc}">${st}</span>${s.locked?'':waBtn(s.id)}</span><span style="white-space:nowrap;">🕐 ${s.time}</span></div>
+      <div class="sig-foot"><span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">${s.locked?'':waBtn(s.id)}${s.pips!=null?`<span style="color:${s.pips>=0?'#10b981':'#ef4444'};font-weight:800;font-size:12px;">${s.pips>=0?'+':''}${s.pips} pips</span>`:''}<span class="sig-status ${sc}">${st}</span></span><span style="white-space:nowrap;color:var(--text-muted);">🕐 ${s.time}</span></div>
     </div>`;
-  }).join('')||'<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No signals yet. Once your mentor (or PipSePaisa) posts a signal, it will appear here.</div>';
+  }).join('')||('<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">'+(sigView==='history'?'No closed signals'+(sigTimeF!=='all'?' for this period':'')+' yet.':'No active signals right now. Check History for past results.')+'</div>');
 }
 
 // ===== ARTICLES (from DB) =====
@@ -7747,7 +7776,7 @@ function renderArticles(){
     <div class="art-title">${a.title}</div>
     <div class="art-ex">${a.ex}</div>
     <div class="art-meta"><span>✍️ PipSePaisa</span><span>${a.date}</span></div>
-  </div>`).join('')||'<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No articles yet.</div>';
+  </div>`).join('')||'<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No charts yet.</div>';
 }
 function openArt(i){
   const a=ARTICLES[i];if(!a)return;
@@ -7755,7 +7784,11 @@ function openArt(i){
   const hasImg=!!a.image;
   box.style.maxWidth=hasImg?'1040px':'680px';
   box.style.padding=hasImg?'0':'26px';
-  const closeBtn='<button onclick="closeArt()" style="margin-top:20px;padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-weight:600;cursor:pointer;font-family:inherit">Close</button>';
+  const closeBtn='<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">'+
+    '<button onclick="closeArt()" style="padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-weight:600;cursor:pointer;font-family:inherit">Close</button>'+
+    (hasImg?'<button onclick="downloadChartImg(\''+(a.image||'')+'\',\''+((a.title||'chart').replace(/[^a-zA-Z0-9 _-]/g,'').slice(0,40)||'chart')+'\')" style="padding:10px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border:none;border-radius:8px;color:#0a0e1a;font-weight:800;cursor:pointer;font-family:inherit">⬇️ Download</button>':'')+
+    '<button onclick="copyChartText('+i+')" style="padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-weight:700;cursor:pointer;font-family:inherit">📋 Copy</button>'+
+  '</div>';
   const text=`<span class="art-tag">${a.tag}</span><h2 style="margin-top:12px">${a.title}</h2><div class="art-meta" style="border:none;padding:0"><span>✍️ PipSePaisa</span><span>${a.date}</span></div><div class="body"><p>${(a.content||'').replace(/\n/g,'<br>')}</p></div>${closeBtn}`;
   if(hasImg){
     box.innerHTML=`<div style="display:flex;flex-wrap:wrap;align-items:stretch">
@@ -7770,6 +7803,24 @@ function openArt(i){
   document.getElementById('artModal').classList.add('open');
 }
 function closeArt(){document.getElementById('artModal').classList.remove('open')}
+function downloadChartImg(url,name){
+  if(!url)return;
+  try{
+    fetch(url).then(function(r){return r.blob();}).then(function(b){
+      var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(name||'chart')+'.png';document.body.appendChild(a);a.click();a.remove();
+      setTimeout(function(){URL.revokeObjectURL(a.href);},2000);
+      if(typeof pipToast==='function')pipToast('✅ Chart downloaded');
+    }).catch(function(){window.open(url,'_blank');});
+  }catch(e){window.open(url,'_blank');}
+}
+function copyChartText(i){
+  var a=ARTICLES[i];if(!a)return;
+  var parts=[];if(a.title)parts.push(a.title);if(a.content)parts.push(a.content);
+  var txt=parts.join('\n\n');
+  function done(){if(typeof pipToast==='function')pipToast('✅ Copied');}
+  function fb(){try{var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done();}catch(e){alert(txt);}}
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(fb);}else fb();}catch(e){fb();}
+}
 </script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getElementById('landingPage'),f=document.getElementById('siteFooter');if(lp&&f){f.style.marginLeft='0';f.style.width='100%';lp.appendChild(f);}}catch(e){}});
