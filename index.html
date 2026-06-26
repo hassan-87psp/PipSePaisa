@@ -7396,6 +7396,15 @@ window.addEventListener('appinstalled', () => {
 .sigdash .tile .val{font-size:24px;font-weight:900}
 @media(max-width:760px){.sigdash{grid-template-columns:1fr 1fr}}
 .perf-donut{animation:donutIn .6s ease both}
+#perfHero{animation:perfIn .5s ease both}
+#perfResults>.sigdash:nth-of-type(1){animation:perfIn .5s .05s ease both}
+#perfResults>.sigdash:nth-of-type(2){animation:perfIn .5s .12s ease both}
+#perfResults .perf-rowA>.card:nth-child(1){animation:perfIn .55s .18s ease both}
+#perfResults .perf-rowA>.card:nth-child(2){animation:perfIn .55s .26s ease both}
+#perfResults .perf-rowA>.card:nth-child(3){animation:perfIn .55s .34s ease both}
+#perfResults .perf-rowB>.card:nth-child(1){animation:perfIn .55s .42s ease both}
+#perfResults .perf-rowB>.card:nth-child(2){animation:perfIn .55s .5s ease both}
+@keyframes perfIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes donutIn{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
 @media(max-width:880px){.perf-rowA{grid-template-columns:1fr !important}.perf-rowB{grid-template-columns:1fr !important}#perfGrid{grid-template-columns:1fr !important}}
 .sig-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
@@ -7687,7 +7696,8 @@ function renderSignals(){
     return true;
   }
   const list=SIGNALS.filter(function(s){
-    var viewOk=(sigView==='active')?(s.rawStatus==='active'):(s.rawStatus!=='active');
+    var finished=(s.rawStatus==='sl'||s.rawStatus==='closed'||s.rawStatus==='tp3');
+    var viewOk=(sigView==='active')?(!finished):finished;
     var catOk=(sigF==='all')?true:(s.cat===sigF);
     return viewOk&&catOk&&inTime(s);
   });
