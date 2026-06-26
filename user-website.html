@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -890,13 +890,15 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </style>
 </head>
 <body><style id="darkfix-css">
-select{color-scheme:dark}
-select option{background:#0f1729;color:#e8eaf0}
+[data-theme="dark"] select{color-scheme:dark}
+[data-theme="dark"] select option{background:#0f1729;color:#e8eaf0}
+[data-theme="light"] select{color-scheme:light}
+[data-theme="light"] select option{background:#fffdf8;color:#0f172a}
 .tick-chip{display:inline-flex;gap:7px;align-items:center;font-size:12.5px;cursor:pointer;background:linear-gradient(160deg,rgba(245,158,11,.06),rgba(255,255,255,.02));border:1px solid var(--border);padding:7px 13px;border-radius:10px;transition:.15s;font-weight:600;user-select:none}
 .tick-chip:hover{border-color:var(--gold)}
 .tick-chip:has(input:checked){background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(245,158,11,.08));border-color:var(--gold);color:var(--gold)}
 .tick-chip input{accent-color:var(--gold);width:15px;height:15px;cursor:pointer}
-</style><div id="pipBoot"><div class="brand-logo bl"></div><div class="bt">PipSe<span>Paisa</span></div><div class="bar"><i></i></div></div>
+</style><div id="pipBoot"><div class="brand-logo bl"></div><div class="bt"><span>Pip</span>Se<span>Paisa</span></div><div class="bar"><i></i></div></div>
 
 <!-- ========================================================================
      LANDING PAGE - Shows on first visit (sessionStorage check)
@@ -1014,7 +1016,7 @@ select option{background:#0f1729;color:#e8eaf0}
       
       <div class="topbar-actions">
         <button class="icon-btn quiz-btn" onclick="openQuiz()" title="Daily Quiz" style="display:none;">🎯</button>
-        <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">🌙</button>
+        <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">☀️</button>
       </div>
     </div>
     
@@ -1693,6 +1695,17 @@ select option{background:#0f1729;color:#e8eaf0}
             <a href="${n.link}" target="_blank" class="btn btn-primary" style="font-size:13px">Read Full Story ↗</a>`;
         }
 
+        // Mobile inline: headline/badge/location are already shown in the list row above,
+        // so show ONLY the extra info (exact time + description + read link) — no duplication.
+        function nhDetailInlineHTML(n){
+          return `
+            <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap">
+              <span>🕐 ${new Date(n.date).toLocaleString()}</span><span>📰 ${n.source}</span>
+            </div>
+            ${n.desc?`<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px">${n.desc}...</div>`:'<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Open the full story for more details.</div>'}
+            <a href="${n.link}" target="_blank" class="btn btn-primary" style="font-size:13px">Read Full Story ↗</a>`;
+        }
+
         function nhDetail(idx){
           const n=nhNews[idx];if(!n)return;
           const s=NH_CATS[n.cat]||NH_CATS.political;
@@ -1711,7 +1724,7 @@ select option{background:#0f1729;color:#e8eaf0}
             const box=document.createElement('div');
             box.id='nhInlineDetail';box.dataset.idx=idx;box.className='nh-inline-detail';
             box.style.cssText=`border-left:3px solid ${s.c};background:var(--bg-elevated);padding:14px;animation:fadeIn .2s`;
-            box.innerHTML=nhDetailHTML(n,s);
+            box.innerHTML=nhDetailInlineHTML(n);
             item.insertAdjacentElement('afterend',box);
             // keep the tapped headline at the top so the detail is visible right away
             setTimeout(()=>item.scrollIntoView({behavior:'smooth',block:'start'}),30);
@@ -1841,7 +1854,7 @@ select option{background:#0f1729;color:#e8eaf0}
           </div>
           <div style="background: var(--bg-elevated); border-radius: 10px; overflow: hidden;">
             <iframe scrolling="no" allowtransparency="true" frameborder="0"
-              src="https://s.tradingview.com/embed-widget/forex-heat-map/?locale=en#%7B%22currencies%22%3A%5B%22EUR%22%2C%22USD%22%2C%22JPY%22%2C%22GBP%22%2C%22CHF%22%2C%22AUD%22%2C%22CAD%22%2C%22NZD%22%5D%2C%22isTransparent%22%3Atrue%2C%22colorTheme%22%3A%22dark%22%2C%22width%22%3A%22100%25%22%2C%22height%22%3A500%7D"
+              src="https://s.tradingview.com/embed-widget/forex-heat-map/?locale=en#%7B%22currencies%22%3A%5B%22EUR%22%2C%22USD%22%2C%22JPY%22%2C%22GBP%22%2C%22CHF%22%2C%22AUD%22%2C%22CAD%22%2C%22NZD%22%5D%2C%22isTransparent%22%3Atrue%2C%22colorTheme%22%3A%22light%22%2C%22width%22%3A%22100%25%22%2C%22height%22%3A500%7D"
               style="width: 100%; height: 500px;"></iframe>
           </div>
         </div>
@@ -2911,7 +2924,7 @@ select option{background:#0f1729;color:#e8eaf0}
   let equityChart = null;
   let userPoints = 0;
   let userName = 'User';
-  let currentTheme = 'dark';
+  let currentTheme = 'light';
   let newsData = [];
   let newsFilters = { time: 'all', impact: 'all', currency: 'all' };
   
@@ -5208,7 +5221,7 @@ select option{background:#0f1729;color:#e8eaf0}
   // Strength is calculated by averaging the % change of each currency vs all other 7 currencies.
   // Uses real-time forex rates from a free CORS-enabled API (exchangerate.host).
   
-  const STRENGTH_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'NZD'];
+  const STRENGTH_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'NZD'];
   const CURRENCY_FLAGS = { USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', JPY: '🇯🇵', AUD: '🇦🇺', CAD: '🇨🇦', CHF: '🇨🇭', NZD: '🇳🇿' };
   const CURRENCY_NAMES = { USD: 'US Dollar', EUR: 'Euro', GBP: 'British Pound', JPY: 'Japanese Yen', AUD: 'Australian Dollar', CAD: 'Canadian Dollar', CHF: 'Swiss Franc', NZD: 'New Zealand Dollar' };
   
@@ -8043,7 +8056,7 @@ document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getE
 document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getElementById('landingPage');if(!lp)return;var orbs=document.createElement('div');orbs.style.cssText='position:absolute;top:0;left:0;right:0;height:720px;overflow:hidden;pointer-events:none;z-index:-1';orbs.innerHTML='<div class="pip-orb" style="width:240px;height:240px;background:rgba(245,158,11,.45);left:5%;top:90px;animation:pipFloatY 9s ease-in-out infinite"></div><div class="pip-orb" style="width:200px;height:200px;background:rgba(16,185,129,.38);right:7%;top:150px;animation:pipFloatX 12s ease-in-out infinite"></div><div class="pip-orb" style="width:160px;height:160px;background:rgba(245,158,11,.30);left:42%;top:30px;animation:pipFloatY 11s ease-in-out infinite"></div>';lp.insertBefore(orbs,lp.firstChild);var els=lp.querySelectorAll('section, .card, [class*="hero"], [class*="feature"], [class*="stat"]');els.forEach(function(e){e.classList.add('pip-reveal')});var io=new IntersectionObserver(function(ents){ents.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}})},{threshold:.1});els.forEach(function(e){io.observe(e)});setTimeout(function(){els.forEach(function(e){e.classList.add('in')})},1600);}catch(e){}});
 </script>
 <script>
-document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getElementById('landingPage');if(!lp)return;var wrap=document.createElement('div');wrap.style.cssText='border-bottom:1px solid rgba(255,255,255,.06);position:relative;z-index:2';wrap.innerHTML='<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';var s=document.createElement('script');s.src='https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';s.async=true;s.innerHTML=JSON.stringify({symbols:[{description:"Gold",proName:"OANDA:XAUUSD"},{description:"EUR/USD",proName:"OANDA:EURUSD"},{description:"GBP/USD",proName:"OANDA:GBPUSD"},{description:"BTC",proName:"BINANCE:BTCUSDT"},{description:"USD/JPY",proName:"OANDA:USDJPY"}],showSymbolLogo:true,colorTheme:"dark",isTransparent:true,displayMode:"adaptive",locale:"en"});wrap.querySelector('.tradingview-widget-container').appendChild(s);lp.insertBefore(wrap,lp.firstChild);}catch(e){}});
+document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getElementById('landingPage');if(!lp)return;var wrap=document.createElement('div');wrap.style.cssText='border-bottom:1px solid rgba(0,0,0,.08);position:relative;z-index:2';wrap.innerHTML='<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';var s=document.createElement('script');s.src='https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';s.async=true;s.innerHTML=JSON.stringify({symbols:[{description:"Gold",proName:"OANDA:XAUUSD"},{description:"EUR/USD",proName:"OANDA:EURUSD"},{description:"GBP/USD",proName:"OANDA:GBPUSD"},{description:"BTC",proName:"BINANCE:BTCUSDT"},{description:"USD/JPY",proName:"OANDA:USDJPY"}],showSymbolLogo:true,colorTheme:"light",isTransparent:true,displayMode:"adaptive",locale:"en"});wrap.querySelector('.tradingview-widget-container').appendChild(s);lp.insertBefore(wrap,lp.firstChild);}catch(e){}});
 </script>
 <script>
 (function(){var c=document.createElement('div');c.id='pipToasts';function mount(){if(!document.getElementById('pipToasts')&&document.body)document.body.appendChild(c);}document.addEventListener('DOMContentLoaded',mount);
