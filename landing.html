@@ -95,7 +95,11 @@
 
   /* HERO */
   .hero{padding:96px 0 72px}
-  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center}
+  .hero-grid{display:grid;grid-template-columns:minmax(0,0.82fr) minmax(0,1.18fr);gap:44px;align-items:center}
+  .hero-grid .hero-intro{text-align:left;max-width:none;margin:0}
+  .hero-grid .hero-intro h1{font-size:clamp(34px,3.9vw,49px)}
+  .hero-grid .hero-intro .lead{margin:18px 0 26px;max-width:520px}
+  .hero-grid .hero-intro .hero-actions{justify-content:flex-start}
   .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;
     color:var(--gold);text-transform:uppercase;letter-spacing:.12em;
     border:1px solid var(--border);padding:7px 16px;border-radius:999px;background:var(--glass);margin-bottom:22px}
@@ -349,10 +353,18 @@
   }
   .hd-live-dot{fill:#f59e0b;animation:hdDot 1.6s ease-in-out infinite}
   @keyframes hdDot{0%,100%{r:4;opacity:1}50%{r:7.5;opacity:.45}}
+  /* moving shimmer sweep across the chart */
+  .hd-chartbox::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:13px;
+    background:linear-gradient(105deg,transparent 38%,rgba(245,158,11,.12) 50%,transparent 62%);
+    background-size:230% 100%;animation:hdShine 4s ease-in-out infinite}
+  @keyframes hdShine{0%{background-position:135% 0}100%{background-position:-135% 0}}
+  /* price gently glows */
+  .hd-price .v{animation:hdPriceGlow 2.8s ease-in-out infinite}
+  @keyframes hdPriceGlow{0%,100%{text-shadow:0 0 0 transparent}50%{text-shadow:0 0 14px rgba(16,185,129,.5)}}
   .hero-dash::before{content:"";position:absolute;top:-30%;left:50%;width:80%;height:60%;transform:translateX(-50%);
     background:radial-gradient(closest-side,rgba(245,158,11,.10),transparent);pointer-events:none}
-  .hd-grid{position:relative;display:grid;gap:14px;
-    grid-template-columns:215px minmax(0,1fr) 250px;
+  .hd-grid{position:relative;display:grid;gap:9px;
+    grid-template-columns:116px minmax(0,1fr) 136px;
     grid-template-areas:
       "support chart   signals"
       "support news    signals"
@@ -431,7 +443,60 @@
   .hd-trust span{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--d-muted);font-weight:600}
   .hd-trust .ic{color:var(--d-gold)}
 
+  /* === compact dashboard sizing for the 2-column desktop hero (full dashboard in narrow right column) === */
+  @media (min-width:981px){
+    .hero-dash{padding:11px;border-radius:18px}
+    .hd-grid{gap:7px}
+    .hd-card{border-radius:12px}
+    .hd-chart{padding:10px 11px}
+    .hd-chart-top{margin-bottom:7px;gap:6px}
+    .hd-gold-ic{width:25px;height:25px;font-size:12px}
+    .hd-pair b{font-size:13px}
+    .hd-pair .sub{font-size:9.5px}
+    .hd-price .v{font-size:14.5px}
+    .hd-price .pct{font-size:10px}
+    .hd-tf{font-size:9px;padding:3px 7px;margin-top:3px}
+    .hd-chartbox{padding:6px}
+    .hd-chartbox svg{height:112px}
+    .hd-axis{font-size:8px;right:6px;top:6px;bottom:6px}
+    .hd-buy{font-size:9.5px;padding:6px 11px;gap:5px}
+    .hd-support{padding:11px 7px;gap:2px}
+    .hd-headset{width:54px;height:54px;margin-bottom:2px}
+    .hd-headset svg{width:28px;height:28px}
+    .hd-support h4{font-size:12px}
+    .hd-support p{font-size:9.5px}
+    .hd-livechat{margin-top:8px;font-size:10px;padding:6px 11px;gap:6px}
+    .hd-signals{padding:10px 11px}
+    .hd-sig-h{font-size:11.5px;margin-bottom:6px}
+    .hd-sig-row{padding:6px 2px}
+    .hd-sig-row .p{font-size:10.5px}
+    .hd-sig-row .b{font-size:9.5px}
+    .hd-sig-btn{font-size:10.5px;padding:8px;margin-top:9px}
+    .hd-news{padding:7px 10px;gap:9px}
+    .hd-news .tag{font-size:8.5px;padding:4px 8px}
+    .hd-news .txt{font-size:10px}
+    .hd-stats{padding:3px 2px}
+    .hd-stat{gap:8px;padding:9px 8px}
+    .hd-stat .ic{width:29px;height:29px}
+    .hd-stat .v{font-size:14px}
+    .hd-stat .l{font-size:9px;margin-top:2px}
+    .hd-growth{padding:10px;gap:9px}
+    .hd-growth .pct{font-size:16px}
+    .hd-growth .lab{font-size:9.5px}
+    .hd-bars{height:40px;gap:4px}
+    .hd-bars i{width:9px}
+    .hd-trust{margin-top:9px;padding-top:9px;gap:5px 14px}
+    .hd-trust span{font-size:10px;gap:5px}
+  }
+
   @media (max-width:980px){
+    .hero-grid{grid-template-columns:1fr;gap:36px}
+    .hero-grid .hero-intro{text-align:center;max-width:760px;margin:0 auto}
+    .hero-grid .hero-intro .lead{margin:18px auto 24px}
+    .hero-grid .hero-intro .hero-actions{justify-content:center}
+    .hero-grid .hero-intro .checklist{max-width:440px;margin-inline:auto}
+    .hd-news,.hd-support{display:flex}
+    .hd-growth{display:flex}
     .hd-grid{grid-template-columns:1fr 1fr;
       grid-template-areas:"chart chart" "signals support" "news news" "stats stats" "growth growth";}
   }
@@ -503,7 +568,7 @@
       box-shadow:0 8px 22px rgba(245,158,11,.32)}
     .mcb-btn:active{transform:scale(.97)}
   }
-  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.ticker-track,.hero-dash,.hd-buy,.hd-live-dot{animation:none}*{scroll-behavior:auto}}
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.ticker-track,.hero-dash,.hd-buy,.hd-live-dot,.hd-chartbox::after,.hd-price .v{animation:none}*{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -523,11 +588,16 @@
 </nav>
 
 <header class="hero">
-  <div class="wrap">
+  <div class="wrap hero-grid">
     <div class="hero-intro reveal">
       <span class="eyebrow">★ Trusted Trading Partner Platform</span>
       <h1>Grow Your Business with <span class="grad-text">Pip</span><span style="color:var(--text)">Se</span><span class="grad-text">Paisa</span></h1>
       <p class="lead">Professional trading tools, live signals, market insights and premium support — everything you need to grow your partner business, in one platform.</p>
+      <ul class="checklist">
+        <li><span class="check">✓</span> Real-time signals &amp; live market insights</li>
+        <li><span class="check">✓</span> Premium tools to grow your partner business</li>
+        <li><span class="check">✓</span> 24/7 expert support, whenever you need it</li>
+      </ul>
       <div class="hero-actions">
         <a href="#" class="btn" onclick="openAuth();return false">Join Now →</a>
         <a href="#services" class="btn btn-ghost">Explore Services</a>
