@@ -91,6 +91,7 @@
     display:grid;place-items:center;font-size:11px}
   [data-theme="light"] .toggle .knob{left:22px}
   .burger{display:none;background:none;border:none;color:var(--gold);font-size:26px;cursor:pointer}
+  .mobile-cta-bar{display:none}
 
   /* HERO */
   .hero{padding:96px 0 72px}
@@ -294,7 +295,19 @@
   .foot-bottom .legal a{color:var(--text-2);font-size:13.5px;transition:color .2s}
   .foot-bottom .legal a:hover{color:var(--gold)}
   @media (max-width:820px){.foot-grid{grid-template-columns:1fr 1fr;gap:32px}}
-  @media (max-width:520px){.foot-grid{grid-template-columns:1fr;text-align:center}.foot-links a:hover{padding-left:0}.socials,.news-form{justify-content:center}.foot-about{margin-inline:auto}.foot-bottom{justify-content:center;text-align:center}}
+  @media (max-width:640px){
+    footer.site{margin-top:48px}
+    .foot-grid{grid-template-columns:1fr;gap:24px;padding:34px 0 26px;text-align:left}
+    .foot-col h5{margin-bottom:12px}
+    .foot-about{max-width:none;margin-bottom:14px}
+    .foot-links{gap:9px}
+    .foot-links a:hover{padding-left:0}
+    .socials{justify-content:flex-start}
+    .news-form{flex-direction:column;gap:10px}
+    .news-form input,.news-form button{width:100%}
+    .foot-bottom{flex-direction:column;justify-content:center;text-align:center;gap:14px;padding:18px 0 24px}
+    .foot-bottom .legal{gap:18px;flex-wrap:wrap;justify-content:center}
+  }
 
   /* ===================================================== */
   /* ============ PREMIUM HERO DASHBOARD =================== */
@@ -311,11 +324,31 @@
     --d-border:rgba(255,255,255,.07); --d-line:rgba(255,255,255,.05);
     --d-text:#f3f4f6; --d-muted:#94a3b8;
     --d-gold:#f59e0b; --d-green:#10b981; --d-red:#ef4444;
-    position:relative;background:radial-gradient(120% 120% at 50% -10%,#0c1322 0%,var(--d-bg) 60%);
+    position:relative;
     border:1px solid var(--d-border);border-radius:24px;padding:18px;color:var(--d-text);
-    box-shadow:0 50px 120px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);
+    background:radial-gradient(120% 120% at 50% -10%,#0c1322 0%,var(--d-bg) 60%);
+    box-shadow:0 40px 100px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.04);
     overflow:hidden;
   }
+  /* LIGHT THEME — dashboard turns light/cream */
+  [data-theme="light"] .hero-dash{
+    --d-bg:#fffdf8; --d-panel:#fbf7ef; --d-panel2:#f3ecdd;
+    --d-border:#e7ddca; --d-line:#ece3d3;
+    --d-text:#2a2218; --d-muted:#8a7a5e;
+    --d-gold:#c2740a; --d-green:#059669; --d-red:#dc2626;
+    background:radial-gradient(120% 120% at 50% -10%,#fffefb 0%,#f6f0e4 60%);
+    box-shadow:0 28px 64px rgba(120,90,40,.14),inset 0 1px 0 rgba(255,255,255,.7);
+  }
+  /* hero "alive" continuous animations */
+  .hero-dash{animation:hdFloat 7s ease-in-out infinite}
+  @keyframes hdFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  .hd-buy{animation:hdBuyPulse 2.2s ease-in-out infinite}
+  @keyframes hdBuyPulse{
+    0%,100%{box-shadow:0 10px 26px rgba(16,185,129,.45),0 0 0 0 rgba(16,185,129,.40)}
+    50%{box-shadow:0 12px 30px rgba(16,185,129,.6),0 0 0 11px rgba(16,185,129,0)}
+  }
+  .hd-live-dot{fill:#f59e0b;animation:hdDot 1.6s ease-in-out infinite}
+  @keyframes hdDot{0%,100%{r:4;opacity:1}50%{r:7.5;opacity:.45}}
   .hero-dash::before{content:"";position:absolute;top:-30%;left:50%;width:80%;height:60%;transform:translateX(-50%);
     background:radial-gradient(closest-side,rgba(245,158,11,.10),transparent);pointer-events:none}
   .hd-grid{position:relative;display:grid;gap:14px;
@@ -341,7 +374,7 @@
   .hd-chart{grid-area:chart;padding:16px 18px}
   .hd-chart-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
   .hd-pair{display:flex;align-items:center;gap:10px}
-  .hd-gold-ic{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#1b2233,#0d1320);border:1px solid var(--d-border);display:flex;align-items:center;justify-content:center;font-size:15px}
+  .hd-gold-ic{width:34px;height:34px;border-radius:50%;background:var(--d-panel2);border:1px solid var(--d-border);display:flex;align-items:center;justify-content:center;font-size:15px}
   .hd-pair b{font-size:18px;font-weight:800}
   .hd-pair .sub{font-size:13px;color:var(--d-muted)}
   .hd-pair .g-dot{width:7px;height:7px;border-radius:50%;background:var(--d-green);box-shadow:0 0 7px var(--d-green)}
@@ -405,16 +438,72 @@
   @media (max-width:640px){
     .hero-dash{padding:12px;border-radius:18px}
     .hd-grid{grid-template-columns:1fr;
-      grid-template-areas:"chart" "signals" "support" "news" "stats" "growth";}
-    .hd-chartbox svg{height:160px}
-    .hd-stats{grid-template-columns:1fr}
-    .hd-stat+.hd-stat{border-left:none;border-top:1px solid var(--d-line)}
-    .hd-growth{justify-content:center}
+      grid-template-areas:"chart" "signals";gap:12px}
+    .hd-support,.hd-news,.hd-stats,.hd-growth,.hd-trust{display:none}
+    .hd-chartbox svg{height:148px}
   }
 
   @media (max-width:920px){.hero-grid{grid-template-columns:1fr;gap:40px}.services{grid-template-columns:repeat(2,1fr)}.help{grid-template-columns:1fr;text-align:center}}
-  @media (max-width:640px){.nav-links{display:none}.burger{display:block}.steps{grid-template-columns:1fr}.services{grid-template-columns:1fr}.hero{padding:60px 0 40px}.cta{padding:44px 24px}}
-  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.ticker-track{animation:none}*{scroll-behavior:auto}}
+  @media (max-width:640px){
+    nav .wrap{position:relative}
+    .nav-links{
+      display:none; position:absolute; top:calc(100% + 6px); right:0; left:auto;
+      min-width:210px; flex-direction:column; align-items:stretch; gap:4px;
+      background:var(--card); border:1px solid var(--border); border-radius:14px;
+      padding:10px; box-shadow:0 22px 54px rgba(0,0,0,.20); z-index:70;
+    }
+    .nav-links a{padding:12px 14px; border-radius:10px; font-size:15px}
+    .nav-links a:hover{background:var(--glass)}
+    .nav-links .toggle{margin:2px 0 2px 12px}
+    .nav-links .nav-cta{text-align:center; margin-top:4px}
+    .burger{display:block}
+    .steps{grid-template-columns:1fr; gap:10px}
+    .services{grid-template-columns:1fr; gap:12px}
+    .hero{padding:54px 0 30px}
+    .cta{padding:40px 22px}
+
+    /* ===== app-style mobile UI ===== */
+    body{padding-bottom:78px}                 /* room for sticky bottom bar */
+    .wrap{padding:0 16px}
+    section.block{padding:36px 0}
+    .sec-head{text-align:left; margin:0 0 20px}
+    .sec-head h2{font-size:24px; line-height:1.2}
+    .sec-head p{font-size:14px; margin-top:8px}
+    .hero-intro h1{font-size:31px; line-height:1.18}
+    .hero-intro p{font-size:15px}
+    .hero-actions{gap:10px}
+    .hero-actions a{flex:1; text-align:center; padding:14px 16px; border-radius:14px}
+    /* steps -> clean app list rows */
+    .step{padding:15px 16px; border-radius:16px; gap:14px; align-items:center; box-shadow:0 2px 10px rgba(0,0,0,.04)}
+    .step .num{font-size:18px; min-width:30px}
+    .step h4{font-size:15px; margin-bottom:2px}
+    .step p{font-size:12.5px; line-height:1.5}
+    /* services -> tappable app cards with visible arrow */
+    .svc{padding:18px 18px; border-radius:18px; box-shadow:0 2px 12px rgba(0,0,0,.05)}
+    .svc:active{transform:scale(.985)}
+    .svc .ic{width:46px; height:46px; border-radius:13px}
+    .svc .ic svg{width:23px; height:23px}
+    .svc h3{font-size:17px; margin-bottom:6px}
+    .svc p{font-size:13.5px; line-height:1.55}
+    .svc .arrow{opacity:1; transform:none; margin-top:12px}   /* no hover on touch -> always show */
+    .help{margin-top:30px; gap:22px}
+    /* app-style sticky bottom action bar */
+    .mobile-cta-bar{
+      display:flex; align-items:center; gap:12px;
+      position:fixed; left:0; right:0; bottom:0; z-index:95;
+      padding:9px 14px calc(9px + env(safe-area-inset-bottom,0px));
+      background:var(--card); border-top:1px solid var(--border);
+      box-shadow:0 -10px 30px rgba(0,0,0,.12); backdrop-filter:blur(12px);
+    }
+    .mcb-info{display:flex; flex-direction:column; line-height:1.25; flex:1; min-width:0}
+    .mcb-title{font-weight:800; font-size:14px; color:var(--text)}
+    .mcb-sub{font-size:11px; color:var(--text-2)}
+    .mcb-btn{flex-shrink:0; background:linear-gradient(135deg,var(--gold),var(--gold-dark)); color:#0a0e1a;
+      font-weight:800; font-size:14.5px; border:none; border-radius:13px; padding:13px 22px; cursor:pointer;
+      box-shadow:0 8px 22px rgba(245,158,11,.32)}
+    .mcb-btn:active{transform:scale(.97)}
+  }
+  @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}.ticker-track,.hero-dash,.hd-buy,.hd-live-dot{animation:none}*{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -489,7 +578,7 @@
                 </marker>
               </defs>
               <!-- grid -->
-              <g stroke="rgba(255,255,255,.05)" stroke-width="1">
+              <g stroke="var(--d-line)" stroke-width="1">
                 <line x1="0" y1="50" x2="600" y2="50"/><line x1="0" y1="100" x2="600" y2="100"/><line x1="0" y1="150" x2="600" y2="150"/>
               </g>
               <!-- candles -->
@@ -515,6 +604,7 @@
               <!-- trend area + line with arrowhead -->
               <polygon class="price-area" style="fill:url(#hdfill)" points="26,172 60,160 94,164 128,150 162,156 196,138 230,142 264,124 298,128 332,110 366,116 400,96 434,100 468,82 502,88 536,68 575,40 575,200 26,200"/>
               <polyline class="price-line" style="stroke:#f59e0b;stroke-width:3" marker-end="url(#hdArrow)" points="26,172 60,160 94,164 128,150 162,156 196,138 230,142 264,124 298,128 332,110 366,116 400,96 434,100 468,82 502,88 536,68 575,40"/>
+              <circle class="hd-live-dot" cx="575" cy="40" r="4"/>
             </svg>
             <div class="hd-axis"><span>2,360</span><span>2,340</span><span>2,320</span><span>2,300</span><span>2,280</span></div>
             <button class="hd-buy" onclick="openAuth();return false">▲ BUY SIGNAL</button>
@@ -688,6 +778,15 @@
   </div>
 </footer>
 
+<!-- APP-STYLE STICKY BOTTOM BAR (mobile only) -->
+<div class="mobile-cta-bar" id="mobileCtaBar">
+  <div class="mcb-info">
+    <span class="mcb-title">Start growing today</span>
+    <span class="mcb-sub">Free to join · No card needed</span>
+  </div>
+  <button class="mcb-btn" onclick="openAuth()">Join Now →</button>
+</div>
+
 <!-- AUTH MODAL -->
 <div class="modal-ov" id="authModal" onclick="if(event.target===this)closeAuth()">
   <div class="modal">
@@ -717,6 +816,17 @@
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
+  // Mobile: close the dropdown menu after tapping a link / CTA, or tapping outside
+  (function(){
+    const nl=document.querySelector('.nav-links');
+    if(!nl) return;
+    nl.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ if(window.innerWidth<=640) nl.style.display='none'; }));
+    document.addEventListener('click',e=>{
+      if(window.innerWidth>640) return;
+      if(nl.style.display==='flex' && !nl.contains(e.target) && !e.target.closest('.burger')) nl.style.display='none';
+    });
+  })();
+
   function openAuth(){ try{ (window.parent&&window.parent.openAuthModal)?window.parent.openAuthModal():document.getElementById('authModal').classList.add('show'); }catch(e){ document.getElementById('authModal').classList.add('show'); } }
   function closeAuth(){document.getElementById('authModal').classList.remove('show');document.body.style.overflow='';}
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAuth();});
@@ -738,6 +848,15 @@
     });
   },{threshold:.5});
   document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+  // Replay hero chart animation (line draw + candles) whenever it scrolls into view
+  (function(){
+    const dash=document.querySelector('.hero-dash'); if(!dash) return;
+    const targets=dash.querySelectorAll('.price-line,.price-area,.candle');
+    const replay=()=>{ targets.forEach(t=>{ t.style.animation='none'; void t.offsetWidth; t.style.animation=''; }); };
+    const hio=new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting) replay(); }); },{threshold:.35});
+    hio.observe(dash);
+  })();
 </script>
 </body>
 </html>
