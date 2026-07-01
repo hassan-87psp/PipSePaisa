@@ -252,15 +252,15 @@ const MODS={
     fields:[['title','Title','text'],['body','Notification text','area']],
     row:r=>`<strong>${esc(r.title)}</strong> <span class="muted">${esc((r.body||'').slice(0,50))}</span>`},
 };
-const NAV=[['MAIN',[['dashboard','🏠','Dashboard'],['signals','📊','Signals'],['charts','📈','Charts'],['articles','📖','Articles'],['subscriptions','💳','Subscriptions']]],
+const NAV=[['MAIN',[['performance','🏆','Performance'],['signals','📊','Signals'],['charts','📈','Charts'],['articles','📖','Articles'],['banners','🖼️','Banners']]],
   ['CONTENT',[['courses','🎓','Courses'],['news','📰','News'],['quiz','❓','Quiz'],['community','👥','Community']]],
   ['INSIGHTS',[['analytics','📉','Analytics'],['earnings','💰','Earnings'],['students','👥','Students']]],
   ['MONETIZE',[['requests','🧾','Requests']]],
   ['COMMUNICATION',[['chats','✉️','Member Chats'],['messages','💬','Messages'],['notifications','🔔','Notifications']]],
   ['SYSTEM',[['settings','⚙️','Settings']]]];
-const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],articles:['Articles','Create forex learning articles'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members']};
+const TITLES={performance:['Performance','Live overview and results'],dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],articles:['Articles','Create forex learning articles'],banners:['Banners','Upload social media banners'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members']};
 
-let MENTOR_ACCESS={dashboard:true,signals:true,charts:true,articles:true,settings:true};
+let MENTOR_ACCESS={performance:true,dashboard:true,signals:true,charts:true,articles:true,banners:true,settings:true};
 function mentorCan(k){return MENTOR_ACCESS[k]!==false;}
 async function loadMentorAccessSettings(){
   try{
@@ -268,7 +268,7 @@ async function loadMentorAccessSettings(){
     if(r.error)throw r.error;
     (r.data||[]).forEach(x=>{MENTOR_ACCESS[x.key]=x.enabled!==false;});
   }catch(e){
-    MENTOR_ACCESS={dashboard:true,signals:true,charts:true,articles:true,settings:true};
+    MENTOR_ACCESS={performance:true,dashboard:true,signals:true,charts:true,articles:true,banners:true,settings:true};
   }
 }
 function metaOf(k){return MODS[k]?[MODS[k].label,MODS[k].sub]:(TITLES[k]||[k,'']);}
@@ -450,7 +450,7 @@ function showPage(k){
   document.getElementById('pg-'+k).classList.add('active');
   const m=metaOf(k);document.getElementById('pageTitle').textContent=m[0];document.getElementById('pageSub').textContent=m[1];
   document.getElementById('sidebar').classList.remove('open');
-  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,articles:renderMentorArticles,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,courses:renderMentorCourses,community:renderMentorCommunity,chats:renderMentorChats}[k]||(()=>renderModule(k)))();
+  ({performance:renderPerformance,dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,articles:renderMentorArticles,banners:renderMentorBanners,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,courses:renderMentorCourses,community:renderMentorCommunity,chats:renderMentorChats}[k]||(()=>renderModule(k)))();
 }
 
 /* ============ DASHBOARD ============ */
@@ -465,7 +465,7 @@ async function renderDashboard(){
      <div class="vip-hero-actions">
        <button class="btn sm" onclick="showPage('signals')">📊 New Signal</button>
        <button class="btn sm ghost" onclick="showPage('charts')">📈 New Chart</button><button class="btn sm ghost" onclick="showPage('articles')">📖 New Article</button>
-       <button class="btn sm ghost" onclick="showPage('subscriptions')">💎 VIP Plans</button></div>
+       <button class="btn sm ghost" onclick="showPage('banners')">🖼️ New Banner</button></div>
    </div>
    <div class="grid stats" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:16px" id="dStats">${sc('👥','...','Students')}${sc('💎','...','Premium')}${sc('📊','...','Active Signals')}${sc('🎯','...','Win Rate')}${sc('💰','...','Revenue')}${sc('⚡','...','Conversion')}</div>
    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-bottom:16px">
@@ -511,120 +511,120 @@ async function renderDashboard(){
   document.getElementById('dStudents').innerHTML=(list&&list.length)?list.map(u=>`<div class="row"><div><strong>${esc(u.full_name||'Trader')}</strong><div class="muted" style="font-size:12px">${esc(u.email||'')}</div></div><span class="muted" style="font-size:12px">${new Date(u.created_at).toLocaleDateString()}</span></div>`).join(''):'<div class="list-empty">No students yet.</div>';
 }
 function sc(ic,n,l){return `<div class="card stat"><div class="ic">${ic}</div><div class="n">${n}</div><div class="l">${l}</div></div>`;}
+
+async function renderPerformance(){
+  const el=document.getElementById('pg-performance'); if(!el)return;
+  const [sig,ch,art,bn,allSig]=await Promise.all([
+    sb.from('signals').select('id',{count:'exact',head:true}).eq('owner_id',ME.id),
+    sb.from('charts').select('id',{count:'exact',head:true}).eq('owner_id',ME.id),
+    sb.from('articles').select('id',{count:'exact',head:true}).eq('author_id',ME.id),
+    sb.from('banners').select('id',{count:'exact',head:true}),
+    sb.from('signals').select('pair,direction,status,created_at').eq('owner_id',ME.id).order('created_at',{ascending:false})
+  ]);
+  const sigs=allSig.data||[]; const tp=sigs.filter(s=>s.status==='tp_hit').length, sl=sigs.filter(s=>s.status==='sl_hit').length;
+  const wr=(tp+sl)?Math.round(tp/(tp+sl)*100):0;
+  el.innerHTML=`
+    <div class="vip-hero card" style="margin-bottom:16px">
+      <div><div class="vip-chip">📊 MENTOR PERFORMANCE</div>
+        <div style="font-size:23px;font-weight:800;margin-top:10px">Welcome back, ${esc((ME.full_name||'Mentor').split(' ')[0])} 👋</div>
+        <div class="muted" style="font-size:13px">Signals, charts, articles and banners overview</div></div>
+      <div class="vip-hero-actions"><button class="btn sm" onclick="showPage('signals')">📊 New Signal</button><button class="btn sm ghost" onclick="showPage('charts')">📈 New Chart</button><button class="btn sm ghost" onclick="showPage('articles')">📖 New Article</button><button class="btn sm ghost" onclick="showPage('banners')">🖼️ New Banner</button></div>
+    </div>
+    <div class="grid stats" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));margin-bottom:16px">
+      ${sc('📊',sig.count??0,'Total Signals')}${sc('📈',ch.count??0,'Total Charts')}${sc('📖',art.count??0,'Articles')}${sc('🖼️',bn.count??0,'Banners')}${sc('🎯',wr+'%','Win Rate')}${sc('✅',tp,'TP Hits')}
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+      <div class="card"><div class="card-title">⚡ Recent Signals</div><div style="margin-top:10px">${sigs.length?sigs.slice(0,8).map(s=>`<div class="row"><div><strong>${esc(s.pair||'-')}</strong> <span class="badge ${(s.direction||'').toUpperCase()==='SELL'?'red':'green'}">${esc(s.direction||'BUY')}</span></div><span class="badge ${s.status==='tp_hit'?'green':s.status==='sl_hit'?'red':'gold'}">${esc(s.status||'active')}</span></div>`).join(''):'<div class="list-empty">No signals yet.</div>'}</div></div>
+      <div class="card"><div class="card-title">🔑 Mentor Code</div><p class="muted" style="font-size:12.5px;margin:4px 0 12px">Students enter this during signup.</p><div class="codebox"><div class="code">${esc(ME.mentor_code||'-')}</div><button class="btn sm" onclick="copyCode()">Copy</button></div></div>
+    </div>`;
+}
+
 function copyCode(){try{navigator.clipboard.writeText(ME.mentor_code||'');}catch(e){}alert('Copied: '+ME.mentor_code);}
 async function toggleOfficial(v){await sb.from('profiles').update({show_official_signals:v}).eq('id',ME.id);ME.show_official_signals=v;}
 
 /* ============ SIGNALS (smart input + pips/profit) ============ */
 let sigDir='buy';
+function mAudTicks(cls){return '<div style="display:flex;flex-wrap:wrap;gap:8px"><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="free" checked> 🆓 Free</label><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="premium"> 💎 Premium</label><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="vip"> 👑 VIP</label></div>';}
+const MSINP='width:100%;padding:10px 12px;background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none';
 function renderSignals(){
   const el=document.getElementById('pg-signals');
-  el.innerHTML=`<div class="grid" style="grid-template-columns:1fr 1.3fr">
-    <div class="card"><div class="card-title">📊 New Signal</div>
-      <div style="display:grid;gap:11px;margin-top:12px">
-        <select class="inp" id="sgPair">${pairOptions()}</select>
-        <div class="bs"><button class="buy on" id="bsBuy" onclick="setDir('buy')">▲ BUY</button><button class="sell" id="bsSell" onclick="setDir('sell')">▼ SELL</button></div>
-        <input class="inp" id="sgEntry" type="number" step="any" placeholder="Entry price" oninput="updateRR()">
-        <div style="display:flex;gap:8px"><input class="inp" id="sgSL" type="number" step="any" placeholder="Stop Loss" oninput="updateRR()"><button class="btn ghost sm" onclick="suggestSL()">Auto SL</button></div>
-        <input class="inp" id="sgTP1" type="number" step="any" placeholder="Take Profit 1" oninput="updateRR()">
-        <input class="inp" id="sgTP2" type="number" step="any" placeholder="Take Profit 2 (optional)">
-        <div id="rrPrev" class="muted" style="font-size:12px;min-height:16px"></div>
-        <input class="inp" id="sgNotes" placeholder="Notes (optional)">
-        <label class="muted" style="font-size:11.5px;margin-bottom:-5px">👁️ Who can see this signal? (tick one or more)</label>
-        <div style="display:flex;flex-wrap:wrap;gap:8px">
-          <label class="tick-chip"><input type="checkbox" class="sg-aud" value="free" checked> 🆓 Free</label>
-          <label class="tick-chip"><input type="checkbox" class="sg-aud" value="premium"> 💎 Premium</label>
-          <label class="tick-chip"><input type="checkbox" class="sg-aud" value="vip"> 👑 VIP</label>
-        </div>
-        <input class="inp" id="sgPlan" placeholder="VIP package name (optional) e.g. Gold IB">
-        <button class="btn" onclick="createSignal()">🚀 Publish Signal</button>
-        <p class="muted" style="font-size:11.5px">Visible only to your students.</p>
-      </div>
-    </div>
-    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><div class="card-title">📋 Your Signals</div>
-      <div class="seg"><button id="pvPips" class="${pipsView?'on':''}" onclick="setPv(true)">Pips</button><button id="pvMoney" class="${!pipsView?'on':''}" onclick="setPv(false)">$ Profit</button></div></div>
-      <div id="sigList" style="margin-top:12px"><div class="list-empty">Loading...</div></div>
-    </div></div>`;
-  loadSignals();
+  el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1.2fr;gap:18px">
+    <div class="card"><h3 style="margin:0 0 12px">📊 New Official Signal</h3><div style="display:grid;gap:11px">
+      <select id="sgPair" style="${MSINP}">${pairOptions()}</select>
+      <div style="display:flex;gap:8px"><button type="button" id="bsBuy" onclick="setDir('buy')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:rgba(16,185,129,.18);color:#10b981;font-weight:800;cursor:pointer">▲ BUY</button><button type="button" id="bsSell" onclick="setDir('sell')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:#94a0b8;font-weight:800;cursor:pointer">▼ SELL</button></div>
+      <input id="sgEntry" type="number" step="any" placeholder="Entry price" style="${MSINP}">
+      <input id="sgSL" type="number" step="any" placeholder="Stop Loss" style="${MSINP}">
+      <input id="sgTP1" type="number" step="any" placeholder="Take Profit 1" style="${MSINP}">
+      <input id="sgTP2" type="number" step="any" placeholder="Take Profit 2 (optional)" style="${MSINP}">
+      <input id="sgTP3" type="number" step="any" placeholder="Take Profit 3 (optional)" style="${MSINP}">
+      <input id="sgNotes" placeholder="Notes (optional)" style="${MSINP}">
+      <div><div style="font-size:11.5px;color:#94a0b8;margin-bottom:7px">👁️ Who can see this signal? (tick one or more)</div>${mAudTicks('sg-aud')}</div>
+      <input id="sgPlan" placeholder="VIP package name (optional)" style="${MSINP}">
+      <button onclick="createSignal()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">🚀 Publish Official Signal</button>
+    </div></div>
+    <div class="card"><h3 style="margin:0 0 12px">📋 Official Signals</h3><div id="sigList">Loading...</div></div>
+  </div>`;
+  setDir('buy');loadSignals();
 }
-function updateRR(){
-  const p=document.getElementById('sgPair').value;
-  const e=parseFloat(document.getElementById('sgEntry').value);
-  const sl=parseFloat(document.getElementById('sgSL').value);
-  const tp=parseFloat(document.getElementById('sgTP1').value);
-  const pr=document.getElementById('rrPrev');if(!pr)return;
-  if(isNaN(e)){pr.innerHTML='';return;}
-  const slp=calcPips(e,sl,p),tpp=calcPips(e,tp,p);let s=[];
-  if(tpp!=null)s.push('🎯 TP1 '+tpp+' pips');
-  if(slp!=null)s.push('🛑 SL '+slp+' pips');
-  if(slp&&tpp&&slp>0){const rr=(tpp/slp);s.push('<span style="color:'+(rr>=2?'var(--green)':rr>=1?'var(--gold)':'var(--red)')+'">⚖️ R:R 1:'+rr.toFixed(2)+'</span>');}
-  pr.innerHTML=s.join(' · ');
-}
-function startClock(){
-  function upd(){const el=document.getElementById('mktSession');if(!el)return;const h=new Date().getUTCHours();const ses=[];if(h>=22||h<7)ses.push('Sydney');if(h<9)ses.push('Tokyo');if(h>=8&&h<17)ses.push('London');if(h>=13&&h<22)ses.push('New York');const now=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});el.style.display='inline-block';el.textContent='🕐 '+now+(ses.length?(' · '+ses.join(', ')):' · Closed');}
-  upd();setInterval(upd,30000);
-}
-function setDir(d){sigDir=d;document.getElementById('bsBuy').className='buy'+(d==='buy'?' on':'');document.getElementById('bsSell').className='sell'+(d==='sell'?' on':'');}
-function sgAccessChange(){const v=document.getElementById('sgAccess').value;document.getElementById('sgPlan').style.display=v==='vip'?'block':'none';}
-function setPv(v){pipsView=v;document.getElementById('pvPips').className=v?'on':'';document.getElementById('pvMoney').className=v?'':'on';loadSignals();}
-function suggestSL(){const e=parseFloat(document.getElementById('sgEntry').value);const p=document.getElementById('sgPair').value;if(isNaN(e)){alert('Enter the entry price first');return;}const d=pipSize(p)*200;document.getElementById('sgSL').value=(sigDir==='buy'?e-d:e+d).toFixed(p.includes('JPY')?3:5);updateRR();}
+function setDir(d){sigDir=d;var b=document.getElementById('bsBuy'),s=document.getElementById('bsSell');if(b)b.style.cssText='flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);'+(d==='buy'?'background:rgba(16,185,129,.18);color:#10b981':'background:transparent;color:#94a0b8')+';font-weight:800;cursor:pointer';if(s)s.style.cssText='flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);'+(d==='sell'?'background:rgba(239,68,68,.18);color:#ef4444':'background:transparent;color:#94a0b8')+';font-weight:800;cursor:pointer';}
+function setPv(v){pipsView=v;loadSignals();}
 async function createSignal(){
+  const val=id=>{const e=document.getElementById(id);return e?(e.value||'').trim():'';};
   const pair=document.getElementById('sgPair').value;
-  const entry=parseFloat(document.getElementById('sgEntry').value);
-  const audArr=Array.prototype.slice.call(document.querySelectorAll('.sg-aud:checked')).map(function(c){return c.value;});
+  const entry=parseFloat(val('sgEntry'));
+  const audArr=Array.prototype.slice.call(document.querySelectorAll('.sg-aud:checked')).map(c=>c.value);
   if(!audArr.length)audArr.push('free');
   const isFreeOnly=audArr.length===1&&audArr[0]==='free';
-  const obj={owner_id:ME.id,is_official:false,pair,direction:sigDir.toUpperCase(),
+  const obj={owner_id:ME.id,is_official:true,pair:pair,direction:sigDir.toUpperCase(),
     entry_price:isNaN(entry)?null:entry,
-    stop_loss:parseFloat(document.getElementById('sgSL').value)||null,
-    take_profit1:parseFloat(document.getElementById('sgTP1').value)||null,
-    take_profit2:parseFloat(document.getElementById('sgTP2').value)||null,
-    notes:document.getElementById('sgNotes').value.trim()||null,
+    stop_loss:parseFloat(val('sgSL'))||null,
+    take_profit1:parseFloat(val('sgTP1'))||null,
+    take_profit2:parseFloat(val('sgTP2'))||null,
+    take_profit3:parseFloat(val('sgTP3'))||null,
+    notes:val('sgNotes')||null,
     audience:audArr.join(','),
     access_level:audArr.indexOf('free')>=0?'free':'vip',
-    plan_name:(!isFreeOnly)?(document.getElementById('sgPlan').value.trim()||null):null,
-    status:'active'};
+    plan_name:(!isFreeOnly)?(val('sgPlan')||null):null,
+    status:'active',tp_hit:0};
   const {error}=await sb.from('signals').insert(obj);
   if(error){alert('Error: '+error.message);return;}
-  ['sgEntry','sgSL','sgTP1','sgTP2','sgNotes','sgPlan'].forEach(i=>document.getElementById(i).value='');
-  document.getElementById('sgAccess').value='free';document.getElementById('sgPlan').style.display='none';
+  ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgNotes','sgPlan'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   loadSignals();
 }
-function sigCardHTML(s,canDelete){
+function mentorSignalRowHTML(s){
   const buy=(s.direction||'').toUpperCase()!=='SELL';
-  const pp1=calcPips(s.entry_price,s.take_profit1,s.pair), ppsl=calcPips(s.entry_price,s.stop_loss,s.pair);
-  const show=v=>v==null?'-':(pipsView?(v+' pips'):('$'+(v*perPip(s.pair)).toFixed(0)));
-  const stMap={active:['gold','● Active'],tp_hit:['green','✓ TP Hit'],sl_hit:['red','✗ SL Hit'],closed:['muted','Closed']};
-  const stt=stMap[s.status]||stMap.active;
-  return `<div class="sigc">
-    <div class="top"><div class="pair">${esc(s.pair)} <span class="badge ${buy?'green':'red'}">${buy?'BUY':'SELL'}</span> ${s.access_level==='vip'?`<span class="badge gold">👑 VIP${s.plan_name?(' · '+esc(s.plan_name)):''}</span>`:'<span class="badge green">🆓 FREE</span>'}</div>
-      <span class="badge ${s.is_official?'gold':'muted'}">${s.is_official?'PipSePaisa':'Mentor'}</span></div>
-    <div class="lv">
-      <div class="b"><div class="k">Entry</div><div class="v">${s.entry_price??'-'}</div></div>
-      <div class="b"><div class="k">Stop Loss</div><div class="v" style="color:var(--red)">${s.stop_loss??'-'} <span style="font-size:10px">${ppsl!=null?'('+show(ppsl)+')':''}</span></div></div>
-      <div class="b"><div class="k">Take Profit 1</div><div class="v" style="color:var(--green)">${s.take_profit1??'-'} <span style="font-size:10px">${pp1!=null?'('+show(pp1)+')':''}</span></div></div>
-      <div class="b"><div class="k">Take Profit 2</div><div class="v" style="color:var(--green)">${s.take_profit2??'-'}</div></div>
-    </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px">
-      <span class="badge ${stt[0]}">${stt[1]}</span>
-      <div style="display:flex;gap:6px">
-        ${canDelete?`<select class="inp" style="padding:5px 8px;font-size:11px;width:auto" onchange="setSigStatus('${s.id}',this.value)">
-          <option ${s.status==='active'?'selected':''} value="active">Active</option>
-          <option ${s.status==='tp_hit'?'selected':''} value="tp_hit">TP Hit</option>
-          <option ${s.status==='sl_hit'?'selected':''} value="sl_hit">SL Hit</option>
-          <option ${s.status==='closed'?'selected':''} value="closed">Closed</option></select>
-        <button class="del" onclick="delSignal('${s.id}')">🗑️</button>`:''}
-      </div>
-    </div></div>`;
+  const aud=(s.audience||(s.access_level==='vip'?'premium,vip':'free'));
+  const parts=aud.split(',').map(x=>x.trim()).filter(Boolean);const lbl={free:'🆓',premium:'💎',vip:'👑'};
+  const ab=parts.map(p=>'<span style="font-size:9px;padding:1px 6px;border-radius:10px;background:'+(p==='free'?'rgba(16,185,129,.18);color:#10b981':'rgba(245,158,11,.18);color:#f59e0b')+'">'+(lbl[p]||p)+'</span>').join(' ');
+  const st=(s.status||'active');const stMap={active:['● Active','#10b981'],tp1:['✅ TP1 Hit','#10b981'],tp2:['✅ TP2 Hit','#10b981'],tp3:['🏆 TP3 Hit','#10b981'],tp_hit:['✅ TP Hit','#10b981'],sl:['🛑 SL Hit','#ef4444'],sl_hit:['🛑 SL Hit','#ef4444'],closed:['🔒 Closed','#94a0b8']};
+  const stInfo=stMap[st]||stMap.active;
+  const pipsTxt=(s.result_pips!=null)?(' · <b style="color:'+(s.result_pips>=0?'#10b981':'#ef4444')+'">'+(s.result_pips>=0?'+':'')+s.result_pips+' pips</b>'):'';
+  const btn=(k,label,col)=>'<button onclick="updateMentorSigStatus(\''+s.id+'\',\''+k+'\')" style="padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:'+col+';color:#fff;cursor:pointer;font-size:11px;font-weight:700">'+label+'</button>';
+  return '<div style="padding:11px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>'+esc(s.pair)+'</strong> <span style="font-size:10px;padding:1px 7px;border-radius:10px;background:'+(buy?'rgba(16,185,129,.18);color:#10b981':'rgba(239,68,68,.18);color:#ef4444')+'">'+(buy?'BUY':'SELL')+'</span> '+ab+'</div><button onclick="delSignal(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div>'+ 
+    '<div style="font-size:12px;color:#94a0b8;margin-top:3px">Entry '+(s.entry_price||'-')+' · SL '+(s.stop_loss||'-')+' · TP1 '+(s.take_profit1||'-')+' · TP2 '+(s.take_profit2||'-')+' · TP3 '+(s.take_profit3||'-')+'</div>'+ 
+    '<div style="font-size:12px;margin-top:5px"><span style="color:'+stInfo[1]+';font-weight:700">'+stInfo[0]+'</span>'+pipsTxt+'</div>'+ 
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px"><input id="pips-'+s.id+'" type="number" step="any" placeholder="pips" value="'+(s.result_pips!=null?s.result_pips:'')+'" style="width:80px;padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:rgba(0,0,0,.22);color:var(--text);font-size:12px">'+
+    btn('tp1','TP1 Hit','rgba(16,185,129,.5)')+btn('tp2','TP2 Hit','rgba(16,185,129,.5)')+btn('tp3','TP3 Hit','rgba(16,185,129,.7)')+btn('sl','SL Hit','rgba(239,68,68,.6)')+btn('closed','Close','rgba(148,160,184,.4)')+'</div></div>';
 }
+function sigCardHTML(s,canDelete){return mentorSignalRowHTML(s);}
 async function loadSignals(){
   const box=document.getElementById('sigList');if(!box)return;
-  const {data,error}=await sb.from('signals').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false});
-  if(error){box.innerHTML=`<div class="list-empty" style="color:var(--red)">${esc(error.message)}</div>`;return;}
-  if(!data||!data.length){box.innerHTML='<div class="list-empty">No signals yet.</div>';return;}
-  box.innerHTML='<div style="display:grid;gap:12px">'+data.map(s=>sigCardHTML(s,true)).join('')+'</div>';
+  const {data,error}=await sb.from('signals').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false}).limit(30);
+  if(error){box.innerHTML='<div style="color:#ef4444">'+esc(error.message)+'</div>';return;}
+  if(!data||!data.length){box.innerHTML='<div style="color:#94a0b8">No official signals yet.</div>';return;}
+  box.innerHTML=data.map(mentorSignalRowHTML).join('');
+}
+async function updateMentorSigStatus(id,kind){
+  const pi=document.getElementById('pips-'+id);const pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;
+  const map={tp1:1,tp2:2,tp3:3};const obj={status:kind,closed_at:new Date().toISOString()};
+  if(kind in map)obj.tp_hit=map[kind];
+  if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
+  const {error}=await sb.from('signals').update(obj).eq('id',id);
+  if(error){alert('Error: '+error.message);return;}
+  loadSignals();
 }
 async function setSigStatus(id,st){await sb.from('signals').update({status:st}).eq('id',id);loadSignals();}
-async function delSignal(id){if(!confirm('Delete signal?'))return;await sb.from('signals').delete().eq('id',id);loadSignals();}
+async function delSignal(id){if(!confirm('Delete this signal?'))return;await sb.from('signals').delete().eq('id',id);loadSignals();}
 
 /* ============ ADMIN SIGNALS ============ */
 let adF='all';
@@ -741,6 +741,48 @@ async function loadMentorArticles(){
   box.innerHTML='<div style="display:grid;gap:12px">'+data.map(a=>`<div class="sigc"><div class="top"><div class="pair">${esc(a.title||'Article')} <span class="badge gold" style="font-size:9px;margin-left:6px">${esc(a.category||'education')}</span></div><button class="del" onclick="delMentorArticle('${a.id}')">🗑️</button></div>${a.image_url?`<img src="${esc(a.image_url)}" style="width:100%;border-radius:10px;margin:4px 0;max-height:160px;object-fit:cover">`:''}<div class="muted" style="font-size:13px">${esc((a.content||'').slice(0,120))}</div></div>`).join('')+'</div>';
 }
 async function delMentorArticle(id){if(!confirm('Delete article?'))return;await sb.from('articles').delete().eq('id',id);loadMentorArticles();}
+
+
+/* ============ MENTOR BANNERS ============ */
+function renderMentorBanners(){
+  const el=document.getElementById('pg-banners'); if(!el)return;
+  el.innerHTML=`
+    <div class="grid" style="grid-template-columns:1fr 1.2fr;gap:16px">
+      <div class="card">
+        <div class="card-title">🖼️ Upload Social Media Banner</div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:12px;max-width:620px">
+          <input id="mbnTitle" class="inp" type="text" placeholder="Title (optional) e.g. Weekend Gold Promo">
+          <input id="mbnFile" class="inp" type="file" accept="image/*">
+          <button onclick="uploadMentorBanner()" id="mbnBtn" class="btn">⬆️ Upload Banner</button>
+          <div id="mbnMsg" style="font-size:13px"></div>
+          <p class="muted" style="font-size:11.5px">Uploaded banners will be available for users like admin banners.</p>
+        </div>
+      </div>
+      <div class="card"><div class="card-title">🖼️ All Banners</div><div id="mentorBannersGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:12px"><div class="list-empty">Loading...</div></div></div>
+    </div>`;
+  loadMentorBanners();
+}
+async function uploadMentorBanner(){
+  const f=document.getElementById('mbnFile'), t=document.getElementById('mbnTitle'), msg=document.getElementById('mbnMsg'), btn=document.getElementById('mbnBtn');
+  const file=f&&f.files&&f.files[0]; if(!file){msg.style.color='var(--red)';msg.textContent='Please choose an image first.';return;}
+  btn.disabled=true; const old=btn.textContent; btn.textContent='⏳ Uploading...'; msg.style.color='var(--muted)'; msg.textContent='Uploading...';
+  try{
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase(); const path='banners/'+ME.id+'_'+Date.now()+'.'+ext;
+    const up=await sb.storage.from('charts').upload(path,file,{upsert:true}); if(up.error)throw up.error;
+    const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
+    const ins=await sb.from('banners').insert({title:(t.value||'').trim()||null,image_url:url,owner_id:ME.id,is_official:false}); if(ins.error)throw ins.error;
+    msg.style.color='var(--green)';msg.textContent='✅ Banner uploaded!'; f.value=''; t.value=''; loadMentorBanners();
+  }catch(e){msg.style.color='var(--red)';msg.textContent='Upload failed: '+(e.message||e);}
+  finally{btn.disabled=false;btn.textContent=old;}
+}
+async function loadMentorBanners(){
+  const g=document.getElementById('mentorBannersGrid'); if(!g)return; g.innerHTML='<div class="list-empty">Loading...</div>';
+  try{const r=await sb.from('banners').select('*').order('created_at',{ascending:false}); if(r.error)throw r.error; const rows=r.data||[];
+    if(!rows.length){g.innerHTML='<div class="list-empty">No banners yet.</div>';return;}
+    g.innerHTML=rows.map(b=>`<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.03)"><img src="${esc(b.image_url)}" style="width:100%;display:block;object-fit:cover;background:#0a0e1a"><div style="padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:12px;font-weight:700;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(b.title||'Banner')}</span><button class="del" onclick="deleteMentorBanner('${b.id}')">🗑️</button></div></div>`).join('');
+  }catch(e){g.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(e.message||'Error')+'</div>';}
+}
+async function deleteMentorBanner(id){if(!confirm('Delete this banner?'))return;try{const r=await sb.from('banners').delete().eq('id',id);if(r.error)throw r.error;loadMentorBanners();}catch(e){alert('Delete failed: '+(e.message||e));}}
 
 /* ============ MENTOR COURSES (detailed, like admin) ============ */
 function renderMentorCourses(){
