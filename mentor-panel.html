@@ -1504,7 +1504,21 @@ function renderSettings(){
 async function saveProfile(){const full_name=val('seName'),phone=val('sePhone');await sb.from('profiles').update({full_name,phone}).eq('id',ME.id);ME.full_name=full_name;ME.phone=phone;document.getElementById('whoami').textContent='👤 '+(ME.full_name||ME.email)+' · '+ME.mentor_code;alert('Saved');}
 
 /* boot */
-(async()=>{try{const {data:{user}}=await sb.auth.getUser();if(user)await afterLogin();}catch(e){}})();
+async function bootMentorAuth(){
+  try{
+    const ok = await ensureSupabaseClient();
+    if(!ok){
+      console.warn('Supabase SDK not ready on boot');
+      return;
+    }
+    const {data:{user}} = await sb.auth.getUser();
+    if(user) await afterLogin();
+  }catch(e){
+    console.warn('Mentor boot auth skipped:', e && e.message ? e.message : e);
+  }
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootMentorAuth);
+else bootMentorAuth();
 </script>
 <script>
 (function(){var c=document.createElement('div');c.id='pipToasts';function mount(){if(!document.getElementById('pipToasts')&&document.body)document.body.appendChild(c);}document.addEventListener('DOMContentLoaded',mount);
