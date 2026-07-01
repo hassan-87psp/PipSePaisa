@@ -5862,19 +5862,28 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   const SUPABASE_URL = 'https://vjqvoinsspgsrcyhwspy.supabase.co'; // <-- apne NAYE Supabase project ka URL yahan daalo
   const SUPABASE_KEY = 'sb_publishable_pARKqVhdmy3qMg98JAzTkw_1ZAtYW5o'; // <-- apne NAYE project ka anon/publishable key yahan daalo
   
-  // Initialize Supabase client (with safety fallback)
+  // Initialize Supabase client (with safety fallback + mobile CDN delay fix)
   let sb = null;
-  try {
-    if (window.supabase && window.supabase.createClient) {
-      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-user-auth",persistSession:true,autoRefreshToken:true}});
-      console.log('✅ Supabase initialized');
-      try{loadTabSettings();}catch(e){}
-    } else {
-      console.warn('⚠️ Supabase library not loaded - auth disabled');
+  function initSupabaseClient(){
+    try {
+      if (sb) return true;
+      if (window.supabase && window.supabase.createClient) {
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-user-auth",persistSession:true,autoRefreshToken:true}});
+        console.log('✅ Supabase initialized');
+        try{loadTabSettings();}catch(e){}
+        return true;
+      }
+      console.warn('⚠️ Supabase library not loaded yet');
+      return false;
+    } catch (e) {
+      console.error('❌ Supabase init error:', e);
+      sb = null;
+      return false;
     }
-  } catch (e) {
-    console.error('❌ Supabase init error:', e);
   }
+  initSupabaseClient();
+  setTimeout(initSupabaseClient, 700);
+  window.addEventListener('load', initSupabaseClient);
   
   let currentUser = null;
   let currentProfile = null;
@@ -5990,6 +5999,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       return;
     }
 
+    if (!sb && !initSupabaseClient()) {
+      showAuthMessage('error', 'Connection is still loading. Please wait 2 seconds and try again.', 'authMessageSignup');
+      return;
+    }
+
     const btn = document.getElementById('signupBtn');
     btn.disabled = true;
     btn.textContent = '⏳ Creating account...';
@@ -6040,6 +6054,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       return;
     }
     
+    if (!sb && !initSupabaseClient()) {
+      showAuthMessage('error', 'Connection is still loading. Please wait 2 seconds and try again.');
+      return;
+    }
+
     const btn = document.getElementById('loginBtn');
     btn.disabled = true;
     btn.textContent = '⏳ Logging in...';
@@ -6081,6 +6100,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       return;
     }
     
+    if (!sb && !initSupabaseClient()) {
+      showAuthMessage('error', 'Connection is still loading. Please wait 2 seconds and try again.', 'authMessageForgot');
+      return;
+    }
+
     const btn = document.getElementById('forgotBtn');
     btn.disabled = true;
     btn.textContent = '⏳ Sending...';
