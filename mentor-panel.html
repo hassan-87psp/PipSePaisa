@@ -447,6 +447,31 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 }
 </style>
 
+
+<style id="mentorUserPerformanceAndBottomNavFix">
+@media(max-width:880px){
+  #pg-performance #perfHero{padding:18px 16px!important;border-radius:18px!important;margin-bottom:14px!important;}
+  #pg-performance #perfHello{font-size:22px!important;}
+  #pg-performance .sigdash{grid-template-columns:1fr 1fr!important;gap:10px!important;margin-bottom:12px!important;}
+  #pg-performance .sigdash .tile{border-radius:16px!important;padding:13px 12px!important;background:var(--bg-card)!important;border:1px solid var(--border)!important;}
+  #pg-performance .sigdash .tile .lab{font-size:10px!important;color:var(--text-muted)!important;}
+  #pg-performance .sigdash .tile .val{font-size:22px!important;}
+  #pg-performance .perf-rowA,#pg-performance .perf-rowB{grid-template-columns:1fr!important;gap:12px!important;margin-bottom:12px!important;}
+  #pg-performance .card{border-radius:18px!important;padding:15px!important;}
+}
+@media(max-width:700px){
+  html,body{overflow-x:hidden!important;}
+  .main{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))!important;}
+  .sidebar{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;height:calc(68px + env(safe-area-inset-bottom,0px))!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))!important;background:#fffdf8!important;border-top:1px solid #e6dcc8!important;box-shadow:0 -10px 30px rgba(15,23,42,.10)!important;overflow:hidden!important;z-index:999!important;}
+  .sidebar .brand,.sidebar .menu-sep,.sidebar > div:last-child{display:none!important;}
+  #navMenu{height:100%!important;width:100%!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:5px!important;min-width:0!important;}
+  #navMenu .menu-item{display:none!important;}
+  #navMenu .menu-item[data-k="performance"],#navMenu .menu-item[data-k="signals"],#navMenu .menu-item[data-k="charts"],#navMenu .menu-item[data-k="articles"],#navMenu .menu-item[data-k="banners"]{display:flex!important;min-width:0!important;width:100%!important;height:56px!important;margin:0!important;padding:6px 2px!important;border-radius:15px!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;font-size:10px!important;line-height:1.05!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+  #navMenu .menu-item span:first-child{font-size:17px!important;line-height:1!important;}
+  #navMenu .menu-item.active{background:linear-gradient(180deg,#fff7ed,#fffdf8)!important;border:1px solid #fed7aa!important;color:#d97706!important;box-shadow:0 5px 14px rgba(217,119,6,.12)!important;}
+}
+</style>
+
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
@@ -853,54 +878,75 @@ function sc(ic,n,l){return `<div class="card stat"><div class="ic">${ic}</div><d
 
 async function renderPerformance(){
   const el=document.getElementById('pg-performance'); if(!el)return;
-  const [allSig,ch,art,bn]=await Promise.all([
-    sb.from('signals').select('pair,direction,status,result_pips,created_at').eq('owner_id',ME.id).order('created_at',{ascending:false}),
-    sb.from('charts').select('id',{count:'exact',head:true}).eq('owner_id',ME.id),
-    sb.from('articles').select('id',{count:'exact',head:true}).eq('author_id',ME.id),
-    sb.from('banners').select('id',{count:'exact',head:true})
-  ]);
-  const sigs=allSig.data||[];
-  const totalPips=sigs.reduce((a,s)=>a+(Number(s.result_pips)||0),0);
-  const greenPips=sigs.reduce((a,s)=>a+(Number(s.result_pips)>0?Number(s.result_pips):0),0);
-  const redPips=sigs.reduce((a,s)=>a+(Number(s.result_pips)<0?Math.abs(Number(s.result_pips)):0),0);
-  const now=new Date();
-  const weekAgo=new Date(now); weekAgo.setDate(now.getDate()-7);
-  const monthStart=new Date(now.getFullYear(), now.getMonth(), 1);
-  const weekPips=sigs.filter(s=>new Date(s.created_at)>=weekAgo).reduce((a,s)=>a+(Number(s.result_pips)||0),0);
-  const monthPips=sigs.filter(s=>new Date(s.created_at)>=monthStart).reduce((a,s)=>a+(Number(s.result_pips)||0),0);
-  const tp=sigs.filter(s=>String(s.status||'').includes('tp')).length;
-  const sl=sigs.filter(s=>String(s.status||'').includes('sl')).length;
-  const wr=(tp+sl)?Math.round(tp/(tp+sl)*100):100;
-  const pairs={}; sigs.forEach(s=>{pairs[s.pair]=(pairs[s.pair]||0)+1});
-  const pairRows=Object.entries(pairs).sort((a,b)=>b[1]-a[1]).slice(0,4);
-  const days=[]; for(let i=13;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i); const key=d.toISOString().slice(0,10); const count=sigs.filter(s=>(s.created_at||'').slice(0,10)===key).length; days.push({label:String(d.getDate()),count});}
-  const max=Math.max(1,...days.map(d=>d.count));
-  const first=(ME.full_name||'Hassan').split(' ')[0];
-  el.innerHTML=`<div id="mentorPerfUser">
-    <div class="perf-hero">
-      <div class="perf-kicker">PIPSEPAISA PERFORMANCE</div>
-      <h2>Welcome back, ${esc(first)} 👋</h2>
-      <p>Your live overview — signals, charts, articles, banners & results in one place.</p>
+  el.innerHTML=`
+    <div id="perfHero" style="position:relative;overflow:hidden;border-radius:20px;padding:22px 24px;margin-bottom:18px;background:linear-gradient(135deg,rgba(245,158,11,.16),rgba(16,185,129,.06),transparent);border:1px solid rgba(245,158,11,.25);">
+      <div style="font-size:13px;color:var(--gold);font-weight:800;letter-spacing:.5px;text-transform:uppercase;">PipSePaisa Performance</div>
+      <div id="perfHello" style="font-size:24px;font-weight:900;margin-top:4px;">Welcome back 👋</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-top:3px;">Your live overview — signals, charts, articles, banners & results in one place.</div>
     </div>
-    <div class="stats-grid-user">
-      <div class="stat-card-user"><div class="stat-label-user">Total Net Pips</div><div class="stat-value-user">${totalPips>=0?'+':''}${totalPips}</div></div>
-      <div class="stat-card-user good"><div class="stat-label-user">Total Green Pips</div><div class="stat-value-user">+${greenPips}</div></div>
-      <div class="stat-card-user bad"><div class="stat-label-user">Total Red Pips</div><div class="stat-value-user red">+${redPips}</div></div>
-      <div class="stat-card-user"><div class="stat-label-user">Total Pips</div><div class="stat-value-user">${totalPips>=0?'+':''}${totalPips}</div></div>
-      <div class="stat-card-user"><div class="stat-label-user">This Week</div><div class="stat-value-user">${weekPips>=0?'+':''}${weekPips}</div></div>
-      <div class="stat-card-user"><div class="stat-label-user">This Month</div><div class="stat-value-user">${monthPips>=0?'+':''}${monthPips}</div></div>
-    </div>
-    <div class="three-col-user">
-      <div class="perf-card"><h3>🏆 Monthly Pips Goal</h3><div class="muted">+${monthPips} earned <span style="float:right;color:var(--gold);font-weight:800">0%</span></div><div class="goal-row"><input value="2000"><button>Save</button></div></div>
-      <div class="perf-card"><h3>📊 Signals — last 14 days</h3><div class="bars">${days.map(d=>`<div class="bar" style="height:${Math.max(3,Math.round(d.count/max*105))}px"></div>`).join('')}</div><div class="bar-labels">${days.map(d=>`<span>${d.label}</span>`).join('')}</div></div>
-      <div class="perf-card"><h3>🎯 Win Rate</h3><div class="win-circle"><b>${wr}%</b><span class="muted">win</span></div><div class="muted" style="text-align:center">${tp} TP · ${sl} SL · ${tp+sl} total</div></div>
-    </div>
-    <div class="two-col-user">
-      <div class="perf-card"><h3>🔥 Top Traded Pairs</h3>${pairRows.length?pairRows.map(([p,c])=>`<div style="margin-bottom:14px"><div class="list-line"><b>${esc(p)}</b><span class="muted">${c} signals</span></div><div class="progress-line"><span style="width:${Math.min(100,c/Math.max(...pairRows.map(x=>x[1]))*100)}%"></span></div></div>`).join(''):'<div class="list-empty">No pairs yet.</div>'}</div>
-      <div class="perf-card"><h3>⚡ Recent Activity</h3>${sigs.slice(0,6).map(s=>`<div class="list-line"><div><b>${esc(s.pair||'-')}</b> <span class="badge ${String(s.direction).toUpperCase()==='SELL'?'red':'green'}">${esc(s.direction||'BUY')}</span></div><span style="color:var(--green);font-weight:800">${esc(s.status||'Active')}</span></div>`).join('')||'<div class="list-empty">No activity yet.</div>'}</div>
-    </div>
-  </div>`;
+    <div id="perfResults"><div class="list-empty">Loading performance...</div></div>`;
+  var hi=document.getElementById('perfHello');
+  if(hi&&ME){var nm=((ME.full_name||ME.email||'Mentor')+'').split(' ')[0];hi.textContent='Welcome back, '+esc(nm)+' 👋';}
+  try{
+    var sr=await sb.from('signals').select('*').order('created_at',{ascending:false});
+    renderMentorPerfDash(sr.data||[]);
+  }catch(e){
+    document.getElementById('perfResults').innerHTML='<div class="card"><div class="list-empty">Performance load failed.</div></div>';
+  }
 }
+function renderMentorPerfDash(rows){
+  var el=document.getElementById('perfResults');if(!el)return;
+  var now=new Date();
+  var weekAgo=new Date(now.getTime()-7*86400000);
+  var monthStart=new Date(now.getFullYear(),now.getMonth(),1);
+  var closed=(rows||[]).filter(function(s){return s.result_pips!=null;});
+  var wins=closed.filter(function(s){return Number(s.result_pips)>=0;}).length;
+  var losses=closed.length-wins;
+  var tpCount=(rows||[]).filter(function(s){return ['tp1','tp2','tp3'].indexOf(s.status)>=0;}).length;
+  var slCount=(rows||[]).filter(function(s){return s.status==='sl';}).length;
+  var wr=closed.length?Math.round(wins/closed.length*100):0;
+  var total=0,week=0,month=0,greenPips=0,redPips=0;
+  closed.forEach(function(s){var p=Number(s.result_pips)||0;var d=new Date(s.closed_at||s.created_at);total+=p;if(p>=0)greenPips+=p;else redPips+=p;if(d>=weekAgo)week+=p;if(d>=monthStart)month+=p;});
+  var fmt=function(v){return (v>=0?'+':'')+(Math.round(v*10)/10);};
+  var col=function(v){return v>=0?'#10b981':'#ef4444';};
+  var days=[];for(var i=13;i>=0;i--){var d=new Date(now);d.setDate(d.getDate()-i);days.push({key:d.toISOString().slice(0,10),label:d.getDate(),count:0});}
+  (rows||[]).forEach(function(s){try{var k=new Date(s.created_at).toISOString().slice(0,10);var dd=days.find(function(x){return x.key===k;});if(dd)dd.count++;}catch(e){}});
+  var maxC=Math.max.apply(null,[1].concat(days.map(function(d){return d.count;})));
+  var pc={};(rows||[]).forEach(function(s){if(s.pair)pc[s.pair]=(pc[s.pair]||0)+1;});
+  var pairs=Object.keys(pc).map(function(k){return {pair:k,n:pc[k]};}).sort(function(a,b){return b.n-a.n;}).slice(0,5);
+  var maxP=Math.max.apply(null,[1].concat(pairs.map(function(p){return p.n;})));
+  var recent=(rows||[]).slice(0,6);
+  var goal=parseFloat((function(){try{return localStorage.getItem('psp_month_goal_mentor');}catch(e){return null;}})()||'2000')||2000;
+  var earned=Math.max(0,month);var gpct=goal>0?Math.min(100,Math.round(earned/goal*100)):0;
+  var R=52,C=2*Math.PI*R,off=C*(1-wr/100);
+  var ring='<svg width="130" height="130" viewBox="0 0 130 130"><circle cx="65" cy="65" r="52" fill="none" stroke="rgba(15,23,42,.08)" stroke-width="12"/><circle cx="65" cy="65" r="52" fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+off+'" transform="rotate(-90 65 65)" style="transition:stroke-dashoffset 1s"/><text x="65" y="62" text-anchor="middle" font-size="27" font-weight="800" fill="#f59e0b">'+wr+'%</text><text x="65" y="82" text-anchor="middle" font-size="11" fill="#9ca3af">win</text></svg>';
+  var bars='<div style="display:flex;align-items:flex-end;gap:4px;height:120px;">'+days.map(function(d){var h=Math.round(d.count/maxC*100);return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;"><div title="'+d.count+' signals" style="width:100%;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#f59e0b,#d97706);height:'+(d.count?Math.max(h,6):2)+'%;'+(d.count?'':'opacity:.3;')+'transition:height .8s;"></div><div style="font-size:9px;color:var(--text-muted);">'+d.label+'</div></div>';}).join('')+'</div>';
+  var topPairs=pairs.length?pairs.map(function(p){return '<div style="margin-bottom:11px;"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><b>'+esc(p.pair)+'</b><span style="color:var(--text-muted);">'+p.n+' signal'+(p.n>1?'s':'')+'</span></div><div style="height:7px;border-radius:5px;background:rgba(15,23,42,.06);overflow:hidden;"><div style="height:100%;width:'+Math.round(p.n/maxP*100)+'%;background:linear-gradient(90deg,#f59e0b,#d97706);border-radius:5px;transition:width .9s;"></div></div></div>';}).join(''):'<div style="color:var(--text-muted);">No signals yet.</div>';
+  var stMap={active:['Active','#10b981'],tp1:['TP1 hit','#10b981'],tp2:['TP2 hit','#10b981'],tp3:['TP3 hit','#10b981'],sl:['SL hit','#ef4444'],closed:['Closed','#94a0b8']};
+  var act=recent.length?recent.map(function(s){var buy=!(/sell/i).test(s.direction||'');var stv=stMap[s.status||'active']||stMap.active;return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);"><div style="font-weight:700;font-size:13px;">'+esc(s.pair||'')+' <span style="font-size:9px;padding:1px 6px;border-radius:8px;background:'+(buy?'rgba(16,185,129,.18);color:#10b981':'rgba(239,68,68,.18);color:#ef4444')+';">'+(buy?'BUY':'SELL')+'</span></div><span style="font-size:11px;font-weight:700;color:'+stv[1]+';">'+stv[0]+'</span></div>';}).join(''):'<div style="color:var(--text-muted);">No activity yet.</div>';
+  el.innerHTML=
+    '<div class="sigdash" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px;">'+
+      '<div class="tile" style="border-color:rgba(245,158,11,.3);"><div class="lab">Total Net Pips</div><div class="val" style="color:'+col(total)+'">'+fmt(total)+'</div></div>'+
+      '<div class="tile" style="border-color:rgba(16,185,129,.3);"><div class="lab">Total Green Pips</div><div class="val" style="color:#10b981">'+fmt(greenPips)+'</div></div>'+
+      '<div class="tile" style="border-color:rgba(239,68,68,.3);"><div class="lab">Total Red Pips</div><div class="val" style="color:#ef4444">'+fmt(redPips)+'</div></div>'+
+    '</div>'+
+    '<div class="sigdash" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px;">'+
+      '<div class="tile"><div class="lab">Total Pips</div><div class="val" style="color:'+col(total)+'">'+fmt(total)+'</div></div>'+
+      '<div class="tile"><div class="lab">This Week</div><div class="val" style="color:'+col(week)+'">'+fmt(week)+'</div></div>'+
+      '<div class="tile"><div class="lab">This Month</div><div class="val" style="color:'+col(month)+'">'+fmt(month)+'</div></div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;" class="perf-rowA">'+
+      '<div class="card"><div class="card-title" style="margin-bottom:12px;">🏆 Monthly Pips Goal</div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--text-muted);">'+fmt(earned)+' earned</span><b style="color:var(--gold);">'+gpct+'%</b></div><div style="height:9px;border-radius:6px;background:rgba(15,23,42,.07);overflow:hidden;margin-bottom:12px;"><div style="height:100%;width:'+gpct+'%;background:linear-gradient(90deg,#f59e0b,#10b981);border-radius:6px;transition:width 1s;"></div></div><div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">Target (pips)</div><div style="display:flex;gap:8px;"><input id="perfGoalInput" type="number" value="'+goal+'" style="flex:1;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);font-size:13px;"><button onclick="saveMentorPerfGoal()" style="padding:9px 18px;border:none;border-radius:9px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;">Save</button></div></div>'+
+      '<div class="card"><div class="card-title" style="margin-bottom:12px;">📊 Signals — last 14 days</div>'+bars+'</div>'+
+      '<div class="card"><div class="card-title" style="margin-bottom:8px;">🎯 Win Rate</div><div style="display:flex;flex-direction:column;align-items:center;">'+ring+'<div style="font-size:12px;color:var(--text-muted);margin-top:6px;">'+tpCount+' TP · '+slCount+' SL · '+closed.length+' total</div></div></div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="perf-rowB">'+
+      '<div class="card"><div class="card-title" style="margin-bottom:12px;">🔥 Top Traded Pairs</div>'+topPairs+'</div>'+
+      '<div class="card"><div class="card-title" style="margin-bottom:6px;">⚡ Recent Activity</div>'+act+'</div>'+
+    '</div>';
+}
+function saveMentorPerfGoal(){var i=document.getElementById('perfGoalInput');if(!i)return;try{localStorage.setItem('psp_month_goal_mentor',String(parseFloat(i.value)||0));}catch(e){}renderPerformance();}
+
 
 function copyCode(){try{navigator.clipboard.writeText(ME.mentor_code||'');}catch(e){}alert('Copied: '+ME.mentor_code);}
 async function toggleOfficial(v){await sb.from('profiles').update({show_official_signals:v}).eq('id',ME.id);ME.show_official_signals=v;}
