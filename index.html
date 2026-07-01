@@ -7976,6 +7976,18 @@ function renderPerfDash(rows){
       '<div class="card"><div class="card-title" style="margin-bottom:6px;">⚡ Recent Activity</div>'+act+'</div>'+
     '</div>';
 }
+function sigDateKey(ts){
+  const d=new Date(ts); d.setHours(0,0,0,0); return d.getTime();
+}
+function sigGroupLabel(ts){
+  const d=new Date(ts);
+  const today=new Date(); today.setHours(0,0,0,0);
+  const y=new Date(today); y.setDate(today.getDate()-1);
+  const dk=sigDateKey(ts);
+  if(dk===today.getTime()) return 'Today Signals';
+  if(dk===y.getTime()) return 'Yesterday Signals';
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+}
 function renderSignals(){
   const g=document.getElementById('signalsGrid');if(!g)return;
   var rd=document.getElementById('sigResultDash');if(rd)rd.style.display=(sigView==='history')?'block':'none';
@@ -7995,7 +8007,22 @@ function renderSignals(){
     return viewOk&&catOk&&inTime(s);
   });
   const stMap={active:['st-active','● Active'],tp:['st-tp','✓ TP Hit'],closed:['st-closed','Closed']};
-  g.innerHTML=list.map(s=>{
+  if(!list.length){
+    g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">'+(sigView==='history'?'No closed signals'+(sigTimeF!=='all'?' for this period':'')+' yet.':'No active signals right now. Check History for past results.')+'</div>';
+    return;
+  }
+  let lastSigKey=null;
+  let sigHtml='';
+  list.forEach(s=>{
+    const groupTs=new Date(s.closedTs||s.ts).getTime();
+    const sigKey=sigDateKey(groupTs);
+    if(sigKey!==lastSigKey){
+      lastSigKey=sigKey;
+      sigHtml+=`<div class="signal-date-heading" style="grid-column:1/-1;margin:6px 0 -2px;display:flex;align-items:center;gap:12px;">
+        <div style="font-size:18px;font-weight:800;color:var(--text-primary);white-space:nowrap;">${sigGroupLabel(groupTs)}</div>
+        <div style="height:1px;background:var(--border);flex:1;"></div>
+      </div>`;
+    }
     const a=stMap[s.status]||stMap.active;const sc=a[0],st=a[1];
     const src=s.official?'<span class="sig-status st-tp" style="margin-left:6px">PipSePaisa</span>':'<span class="sig-status st-active" style="margin-left:6px">Mentor</span>';
     const acc=s.access==='vip'?`<span class="sig-status st-tp" style="margin-left:6px;background:var(--gold);color:#0a0e1a">👑 VIP${s.plan?(' · '+s.plan):''}</span>`:'';
@@ -8014,7 +8041,7 @@ function renderSignals(){
 <div style="font-size:14px;font-weight:800;color:var(--gold)">🔒 VIP Signal</div>\
 <div style="font-size:11px;color:var(--text-muted)">Tap to upgrade &amp; unlock Entry, SL &amp; TP</div>\
 <div style="margin-top:4px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;font-size:11px;padding:6px 14px;border-radius:8px">View VIP Plans →</div></div>':'';
-    return `<div class="card sig-card">
+    sigHtml+=`<div class="card sig-card">
       <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}</span></div>
       <div style="position:relative">
         ${lockOv}
@@ -8029,7 +8056,8 @@ function renderSignals(){
       ${prog}
       <div class="sig-foot"><span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">${s.locked?'':waBtn(s.id)}${s.pips!=null?`<span style="color:${s.pips>=0?'#10b981':'#ef4444'};font-weight:800;font-size:12px;">${s.pips>=0?'+':''}${s.pips} pips</span>`:''}<span class="sig-status ${sc}">${st}</span></span><span style="white-space:nowrap;color:var(--text-muted);">🕐 ${s.time}</span></div>
     </div>`;
-  }).join('')||('<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">'+(sigView==='history'?'No closed signals'+(sigTimeF!=='all'?' for this period':'')+' yet.':'No active signals right now. Check History for past results.')+'</div>');
+  });
+  g.innerHTML=sigHtml;
 }
 
 // ===== ARTICLES (from DB) =====
