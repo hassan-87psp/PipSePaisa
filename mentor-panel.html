@@ -472,6 +472,79 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 }
 </style>
 
+
+<style id="mentor-final-mobile-performance-fix">
+@media (max-width:640px){
+  /* Mentor Performance mobile: same 3-column stats grid as user app */
+  #pg-performance #perfResults .sigdash{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:10px!important;
+    margin-bottom:12px!important;
+  }
+  #pg-performance #perfResults .sigdash .tile{
+    min-width:0!important;
+    min-height:88px!important;
+    border-radius:16px!important;
+    padding:13px 10px!important;
+    background:#fffdf8!important;
+    border:1px solid #e6dcc8!important;
+    box-shadow:0 5px 15px rgba(15,23,42,.045)!important;
+  }
+  #pg-performance #perfResults .sigdash .tile .lab{
+    font-size:10px!important;
+    line-height:1.15!important;
+    letter-spacing:.25px!important;
+    color:#94a3b8!important;
+    font-weight:800!important;
+    text-transform:uppercase!important;
+  }
+  #pg-performance #perfResults .sigdash .tile .val{
+    font-size:24px!important;
+    line-height:1.1!important;
+    margin-top:10px!important;
+    font-weight:900!important;
+  }
+  #pg-performance #perfHero{
+    border-radius:18px!important;
+    padding:22px 18px!important;
+    margin-bottom:16px!important;
+  }
+  #pg-performance #perfHello{font-size:25px!important;line-height:1.15!important;}
+  #pg-performance .perf-rowA,#pg-performance .perf-rowB{grid-template-columns:1fr!important;gap:14px!important;}
+
+  /* Bottom nav: always show exact 5 mentor tabs including Banners */
+  #navMenu{
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    gap:4px!important;
+    width:100%!important;
+    overflow:visible!important;
+  }
+  #navMenu .menu-sep{display:none!important;}
+  #navMenu .menu-item{display:none!important;}
+  #navMenu .menu-item[data-k="performance"],
+  #navMenu .menu-item[data-k="signals"],
+  #navMenu .menu-item[data-k="charts"],
+  #navMenu .menu-item[data-k="articles"],
+  #navMenu .menu-item[data-k="banners"]{
+    display:flex!important;
+    width:100%!important;
+    min-width:0!important;
+    height:54px!important;
+    padding:6px 2px!important;
+    margin:0!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex-direction:column!important;
+    gap:3px!important;
+    border-radius:14px!important;
+    font-size:10px!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+  }
+}
+</style>
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
