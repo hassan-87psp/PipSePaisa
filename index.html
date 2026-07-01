@@ -5881,6 +5881,35 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       return false;
     }
   }
+  let supabaseLoadPromise = null;
+  function loadSupabaseSdk(){
+    if (window.supabase && window.supabase.createClient) return Promise.resolve(true);
+    if (supabaseLoadPromise) return supabaseLoadPromise;
+    supabaseLoadPromise = new Promise((resolve) => {
+      const urls = [
+        'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+        'https://unpkg.com/@supabase/supabase-js@2'
+      ];
+      let i = 0;
+      function tryNext(){
+        if (window.supabase && window.supabase.createClient) return resolve(true);
+        if (i >= urls.length) return resolve(false);
+        const sc = document.createElement('script');
+        sc.src = urls[i++];
+        sc.onload = () => resolve(!!(window.supabase && window.supabase.createClient));
+        sc.onerror = tryNext;
+        document.head.appendChild(sc);
+      }
+      tryNext();
+    });
+    return supabaseLoadPromise;
+  }
+  async function ensureSupabaseClient(){
+    if (sb) return true;
+    if (initSupabaseClient()) return true;
+    await loadSupabaseSdk();
+    return initSupabaseClient();
+  }
   initSupabaseClient();
   setTimeout(initSupabaseClient, 700);
   window.addEventListener('load', initSupabaseClient);
@@ -5999,8 +6028,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       return;
     }
 
-    if (!sb && !initSupabaseClient()) {
-      showAuthMessage('error', 'Connection is still loading. Please wait 2 seconds and try again.', 'authMessageSignup');
+    if (!(await ensureSupabaseClient())) {
+      showAuthMessage('error', 'Connection problem. Please check internet and reload the page.', 'authMessageSignup');
       return;
     }
 
@@ -6054,8 +6083,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       return;
     }
     
-    if (!sb && !initSupabaseClient()) {
-      showAuthMessage('error', 'Connection is still loading. Please wait 2 seconds and try again.');
+    if (!(await ensureSupabaseClient())) {
+      showAuthMessage('error', 'Connection problem. Please check internet and reload the page.');
       return;
     }
 
@@ -6100,8 +6129,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       return;
     }
     
-    if (!sb && !initSupabaseClient()) {
-      showAuthMessage('error', 'Connection is still loading. Please wait 2 seconds and try again.', 'authMessageForgot');
+    if (!(await ensureSupabaseClient())) {
+      showAuthMessage('error', 'Connection problem. Please check internet and reload the page.', 'authMessageForgot');
       return;
     }
 

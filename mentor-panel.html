@@ -250,7 +250,46 @@ select option,select optgroup{background:#0f1729!important;color:#e8eaf0!importa
 const SUPABASE_URL='https://vjqvoinsspgsrcyhwspy.supabase.co';
 const SUPABASE_KEY='sb_publishable_pARKqVhdmy3qMg98JAzTkw_1ZAtYW5o';
 let ME=null, authMode='login', pipsView=false;
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:"pipsepaisa-mentor-auth",persistSession:true,autoRefreshToken:true}});
+let sb=null;
+let supabaseLoadPromise=null;
+function initSupabaseClient(){
+  try{
+    if(sb) return true;
+    if(window.supabase && window.supabase.createClient){
+      sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:"pipsepaisa-mentor-auth",persistSession:true,autoRefreshToken:true}});
+      return true;
+    }
+  }catch(e){console.error('Supabase init error',e); sb=null;}
+  return false;
+}
+function loadSupabaseSdk(){
+  if(window.supabase && window.supabase.createClient) return Promise.resolve(true);
+  if(supabaseLoadPromise) return supabaseLoadPromise;
+  supabaseLoadPromise=new Promise((resolve)=>{
+    const urls=['https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2','https://unpkg.com/@supabase/supabase-js@2'];
+    let i=0;
+    function tryNext(){
+      if(window.supabase && window.supabase.createClient) return resolve(true);
+      if(i>=urls.length) return resolve(false);
+      const sc=document.createElement('script');
+      sc.src=urls[i++];
+      sc.onload=()=>resolve(!!(window.supabase&&window.supabase.createClient));
+      sc.onerror=tryNext;
+      document.head.appendChild(sc);
+    }
+    tryNext();
+  });
+  return supabaseLoadPromise;
+}
+async function ensureSupabaseClient(){
+  if(sb) return true;
+  if(initSupabaseClient()) return true;
+  await loadSupabaseSdk();
+  return initSupabaseClient();
+}
+initSupabaseClient();
+setTimeout(initSupabaseClient,700);
+window.addEventListener('load',initSupabaseClient);
 
 /* ---- trading pairs ---- */
 const PAIRS={Gold:['XAU/USD','XAG/USD'],
@@ -327,6 +366,7 @@ function hideMsg(){document.getElementById('authErr').style.display='none';docum
 async function doAuth(){
   hideMsg();const email=document.getElementById('auEmail').value.trim();const pass=document.getElementById('auPass').value;const btn=document.getElementById('authBtn');
   if(!email||!pass){showErr('Email and password required');return;}
+  if(!(await ensureSupabaseClient())){showErr('Connection problem. Please check internet and reload the page.');return;}
   btn.disabled=true;btn.textContent='⏳ Please wait...';
   try{
     if(authMode==='signup'){
