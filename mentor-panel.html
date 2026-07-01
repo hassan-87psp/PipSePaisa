@@ -239,6 +239,140 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @keyframes pipBootPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 @keyframes pipBootBar{0%{margin-left:-40%}100%{margin-left:150%}}
 </style>
+
+<style id="mentorMobilePremiumUI">
+@media (max-width: 700px){
+  :root{--mobile-nav-h:78px;}
+  html,body{background:#f4eee2!important;color:#0f172a!important;-webkit-tap-highlight-color:transparent;}
+  body::before{display:none!important;}
+  .app.show{display:block!important;min-height:100dvh!important;background:#f4eee2!important;}
+  .main{margin-left:0!important;width:100%!important;min-height:100dvh!important;padding-bottom:calc(var(--mobile-nav-h) + env(safe-area-inset-bottom,0px) + 14px)!important;}
+  .content{padding:12px 12px 18px!important;}
+
+  /* Top mobile app bar */
+  .topbar{position:sticky!important;top:0!important;z-index:80!important;background:rgba(251,247,239,.96)!important;backdrop-filter:blur(14px)!important;border-bottom:1px solid #e6dcc8!important;padding:10px 12px!important;min-height:62px!important;box-shadow:0 4px 18px rgba(15,23,42,.06)!important;}
+  .topbar h1{font-size:20px!important;font-weight:800!important;color:#0f172a!important;letter-spacing:-.02em!important;}
+  .topbar .sub{font-size:11px!important;color:#94a3b8!important;margin-top:2px!important;}
+  .menu-toggle{display:none!important;}
+  #whoami{display:none!important;}
+  #mktSession{max-width:132px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;background:#fff7ed!important;border:1px solid #fed7aa!important;color:#d97706!important;padding:6px 9px!important;font-size:10.5px!important;}
+  .bell{width:40px!important;height:40px!important;border-radius:14px!important;background:#fffdf8!important;border:1px solid #e6dcc8!important;color:#d97706!important;box-shadow:0 3px 10px rgba(15,23,42,.04)!important;}
+
+  /* Bottom navigation instead of drawer */
+  .sidebar{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;transform:none!important;width:100%!important;max-width:none!important;height:calc(var(--mobile-nav-h) + env(safe-area-inset-bottom,0px))!important;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px))!important;background:rgba(255,253,248,.98)!important;border-top:1px solid #e6dcc8!important;border-right:0!important;box-shadow:0 -10px 30px rgba(15,23,42,.10)!important;z-index:120!important;overflow-x:auto!important;overflow-y:hidden!important;backdrop-filter:blur(18px)!important;}
+  .sidebar .brand,.sidebar > div:last-child,.menu-sep{display:none!important;}
+  #navMenu{display:flex!important;gap:8px!important;align-items:center!important;min-width:max-content!important;height:100%!important;}
+  .menu-item{min-width:74px!important;height:58px!important;margin:0!important;padding:7px 8px!important;border-radius:18px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;font-size:11px!important;line-height:1.1!important;color:#64748b!important;background:transparent!important;border:1px solid transparent!important;white-space:nowrap!important;}
+  .menu-item span:first-child{font-size:18px!important;line-height:1!important;}
+  .menu-item.active{background:linear-gradient(180deg,#fff7ed,#fffdf8)!important;border-color:#fed7aa!important;color:#d97706!important;box-shadow:0 5px 14px rgba(217,119,6,.13)!important;}
+
+  /* Shared cards */
+  .card{background:#fffdf8!important;border:1px solid #e6dcc8!important;border-radius:22px!important;padding:16px!important;box-shadow:0 8px 24px rgba(15,23,42,.055)!important;backdrop-filter:none!important;}
+  .card + .card{margin-top:14px!important;}
+  .card-title,.card h3{font-size:17px!important;color:#0f172a!important;font-weight:800!important;letter-spacing:-.02em!important;}
+  .muted{color:#94a3b8!important;}
+  .btn,button.btn{min-height:48px!important;border-radius:16px!important;font-size:15px!important;font-weight:800!important;background:linear-gradient(135deg,#f59e0b,#d97706)!important;color:#0a0e1a!important;box-shadow:0 8px 20px rgba(217,119,6,.20)!important;}
+
+  /* Inputs */
+  .inp,#pg-signals select,#pg-signals input,#pg-signals textarea,#pg-charts input,#pg-charts select,#pg-charts textarea,#pg-articles input,#pg-articles select,#pg-articles textarea,#pg-banners input,#pg-banners select,#pg-banners textarea{background:#fffaf1!important;border:1px solid #e6dcc8!important;color:#0f172a!important;border-radius:16px!important;min-height:50px!important;padding:13px 15px!important;font-size:16px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.65)!important;}
+  textarea{min-height:118px!important;}
+  select{appearance:auto!important;color-scheme:light!important;}
+  select option{background:#0f172a!important;color:#f8fafc!important;}
+
+  /* Signal form premium */
+  #pg-signals > div{grid-template-columns:1fr!important;gap:14px!important;}
+  #pg-signals .card:first-child{border-color:#f3c477!important;background:linear-gradient(180deg,#fffdf8,#fff9ef)!important;}
+  #pg-signals .card:first-child h3::after{content:'Create a clean setup for all users';display:block;font-size:11px;font-weight:500;color:#94a3b8;margin-top:3px;}
+  #pg-signals .card:first-child > div[style*="display:grid"]{gap:12px!important;}
+  #pg-signals div[style*="display:flex;gap:8px"]{gap:10px!important;}
+  #bsBuy,#bsSell{height:52px!important;border-radius:18px!important;font-size:15px!important;box-shadow:none!important;}
+  #bsBuy{background:linear-gradient(180deg,rgba(5,150,105,.16),rgba(5,150,105,.08))!important;border:1px solid rgba(5,150,105,.35)!important;color:#059669!important;}
+  #bsSell{background:#fffdf8!important;border:1px solid #e6dcc8!important;color:#64748b!important;}
+  .tick-chip{background:#fffdf8!important;border:1px solid #e6dcc8!important;border-radius:16px!important;min-height:46px!important;padding:10px 11px!important;color:#0f172a!important;font-weight:700!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:7px!important;flex:1 1 31%!important;box-shadow:0 2px 8px rgba(15,23,42,.035)!important;}
+  .tick-chip input{width:18px!important;height:18px!important;accent-color:#d97706!important;min-height:18px!important;padding:0!important;}
+
+  /* Signal list as modern cards */
+  #sigList{display:grid!important;gap:12px!important;}
+  #sigList > div{background:#fffdf8!important;border:1px solid #e6dcc8!important;border-radius:20px!important;padding:15px!important;box-shadow:0 7px 22px rgba(15,23,42,.06)!important;position:relative!important;overflow:hidden!important;}
+  #sigList > div::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#f59e0b,#d97706);}
+  #sigList > div > div:first-child{align-items:flex-start!important;gap:10px!important;}
+  #sigList > div > div:first-child strong{font-size:19px!important;line-height:1.2!important;color:#0f172a!important;}
+  #sigList span[style*="border-radius:10px"]{font-weight:800!important;font-size:10px!important;padding:3px 8px!important;border-radius:999px!important;}
+  #sigList div[style*="font-size:12px;color"]{background:#fffaf1!important;border:1px solid #efe1c7!important;border-radius:14px!important;padding:10px 12px!important;margin-top:10px!important;color:#475569!important;line-height:1.55!important;}
+  #sigList input[id^="pips-"]{width:100%!important;flex:1 1 100%!important;background:#fffaf1!important;border:1px solid #e6dcc8!important;color:#0f172a!important;min-height:42px!important;border-radius:13px!important;}
+  #sigList div[style*="display:flex;gap:6px"]{gap:8px!important;margin-top:12px!important;}
+  #sigList div[style*="display:flex;gap:6px"] button{flex:1 1 calc(50% - 8px)!important;min-height:38px!important;border-radius:12px!important;font-size:11px!important;box-shadow:none!important;}
+  #sigList button[onclick*="delSignal"]{width:38px!important;height:38px!important;border-radius:13px!important;background:#fee2e2!important;color:#dc2626!important;}
+
+  /* Performance mobile */
+  #mentorPerfUser .stats-grid-user,#mentorPerfUser .three-col-user,#mentorPerfUser .two-col-user{grid-template-columns:1fr!important;gap:12px!important;}
+  #mentorPerfUser .stat-card-user,#mentorPerfUser .perf-card{border-radius:20px!important;box-shadow:0 7px 22px rgba(15,23,42,.055)!important;}
+  #mentorPerfUser .stat-value-user{font-size:30px!important;}
+
+  /* Media pages */
+  #pg-charts > .grid,#pg-banners > .grid{grid-template-columns:1fr!important;}
+  #pg-charts img,#pg-articles img,#pg-banners img{width:100%!important;max-height:230px!important;object-fit:cover!important;border-radius:16px!important;}
+  #pg-articles .card:first-child > div[style*="max-width"]{max-width:none!important;}
+}
+</style>
+
+
+<style id="mentor-performance-user-mobile-fix">
+/* Mentor Performance mobile UI: same behavior as user website performance page */
+@media (max-width: 768px){
+  #mentorPerfUser{width:100%!important;max-width:100%!important;overflow-x:hidden!important;}
+  #mentorPerfUser .perf-hero{
+    border-radius:20px!important;
+    padding:22px 24px!important;
+    margin-bottom:18px!important;
+    background:linear-gradient(135deg,rgba(245,158,11,.16),rgba(16,185,129,.06),transparent)!important;
+    border:1px solid rgba(245,158,11,.25)!important;
+  }
+  #mentorPerfUser .perf-kicker{font-size:13px!important;}
+  #mentorPerfUser .perf-hero h2{font-size:24px!important;font-weight:900!important;}
+  #mentorPerfUser .perf-hero p{font-size:13px!important;}
+  #mentorPerfUser .stats-grid-user{grid-template-columns:1fr 1fr!important;gap:14px!important;margin-bottom:20px!important;}
+  #mentorPerfUser .three-col-user,#mentorPerfUser .two-col-user{grid-template-columns:1fr!important;gap:14px!important;margin-bottom:20px!important;}
+}
+@media (max-width: 480px){
+  #pg-performance .content,#mentorPerfUser{max-width:100%!important;overflow-x:hidden!important;}
+  #mentorPerfUser .perf-hero{padding:18px 16px!important;margin-bottom:14px!important;}
+  #mentorPerfUser .perf-kicker{font-size:11px!important;letter-spacing:.5px!important;}
+  #mentorPerfUser .perf-hero h2{font-size:22px!important;margin-top:4px!important;}
+  #mentorPerfUser .perf-hero p{font-size:12px!important;line-height:1.45!important;}
+  #mentorPerfUser .stats-grid-user{
+    grid-template-columns:calc(50% - 5px) calc(50% - 5px)!important;
+    gap:10px!important;
+    margin-bottom:12px!important;
+  }
+  #mentorPerfUser .stat-card-user{
+    min-width:0!important;
+    padding:12px!important;
+    border-radius:14px!important;
+    box-sizing:border-box!important;
+    min-height:88px!important;
+  }
+  #mentorPerfUser .stat-label-user{font-size:10px!important;line-height:1.2!important;margin-bottom:6px!important;}
+  #mentorPerfUser .stat-value-user{font-size:20px!important;line-height:1.15!important;}
+  #mentorPerfUser .three-col-user,#mentorPerfUser .two-col-user{grid-template-columns:1fr!important;gap:10px!important;margin-bottom:10px!important;}
+  #mentorPerfUser .perf-card{padding:14px!important;border-radius:14px!important;min-height:auto!important;overflow:hidden!important;}
+  #mentorPerfUser .perf-card h3{font-size:14px!important;margin-bottom:12px!important;}
+  #mentorPerfUser .goal-row{margin-top:20px!important;gap:8px!important;}
+  #mentorPerfUser .goal-row input{height:42px!important;font-size:15px!important;}
+  #mentorPerfUser .goal-row button{height:42px!important;padding:0 16px!important;}
+  #mentorPerfUser .bars{height:112px!important;gap:6px!important;overflow:hidden!important;}
+  #mentorPerfUser .bar{width:18px!important;}
+  #mentorPerfUser .bar-labels{gap:6px!important;font-size:9px!important;justify-content:space-between!important;}
+  #mentorPerfUser .win-circle{width:118px!important;height:118px!important;border-width:12px!important;}
+  #mentorPerfUser .win-circle b{font-size:28px!important;}
+  #mentorPerfUser .list-line{font-size:13px!important;padding:9px 0!important;}
+}
+@media (max-width: 360px){
+  #mentorPerfUser .stats-grid-user{grid-template-columns:calc(50% - 4px) calc(50% - 4px)!important;gap:8px!important;}
+  #mentorPerfUser .stat-card-user{padding:10px!important;}
+  #mentorPerfUser .stat-value-user{font-size:17px!important;}
+}
+</style>
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
