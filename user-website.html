@@ -5807,7 +5807,26 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   let currentProfile = null;
   
   // ============ AUTH MODAL ============
+  function resetAuthButtons() {
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+      loginBtn.disabled = false;
+      loginBtn.textContent = '🔐 Login to Account';
+    }
+    const signupBtn = document.getElementById('signupBtn');
+    if (signupBtn) {
+      signupBtn.disabled = false;
+      signupBtn.textContent = '✨ Create Free Account';
+    }
+    const forgotBtn = document.getElementById('forgotBtn');
+    if (forgotBtn) {
+      forgotBtn.disabled = false;
+      forgotBtn.textContent = '📧 Send Reset Link';
+    }
+  }
+
   function openAuthModal() {
+    resetAuthButtons();
     switchAuthTab('login');
     openModal('auth');
   }
@@ -5957,9 +5976,12 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       if (data.user) {
         showAuthMessage('success', 'Welcome back! Loading your dashboard...');
         setTimeout(() => {
+          resetAuthButtons();
           closeModal('auth');
           loadUserProfile();
         }, 1000);
+      } else {
+        resetAuthButtons();
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -5967,8 +5989,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       if (msg.includes('Invalid')) msg = 'Wrong email or password. Try again.';
       if (msg.includes('confirmed')) msg = 'Please verify your email first. Check your inbox.';
       showAuthMessage('error', msg);
-      btn.disabled = false;
-      btn.textContent = '🔐 Login to Account';
+      resetAuthButtons();
     }
   }
   
@@ -6014,6 +6035,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       currentProfile = null;
       trades = [];
       updateAuthUI();
+      resetAuthButtons();
       updateDashboard();
       try{loadPerformance();}catch(e){}
       updateTradesTable();
@@ -7307,6 +7329,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         currentUser = null;
         currentProfile = null;
         updateAuthUI();
+        resetAuthButtons();
         // Show landing page on logout
         showLandingPage();
       }
