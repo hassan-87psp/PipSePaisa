@@ -2479,49 +2479,86 @@ const MENTOR_ACCESS_DEFS=[
  ['settings','⚙️ Settings','Profile and preferences']
 ];
 const MENTOR_DEFAULT_ON={dashboard:true,signals:true,charts:true,articles:true,settings:true};
+window.mentorAccessState = window.mentorAccessState || {};
+function getMentorAccessState(settings){
+  var state={};
+  MENTOR_ACCESS_DEFS.forEach(function(t){
+    var key=t[0];
+    state[key]=(settings && key in settings)?(settings[key]!==false):(MENTOR_DEFAULT_ON[key]===true);
+  });
+  return state;
+}
 function renderMentorAccess(settings){
-  var box=document.getElementById('mentorAccessList');if(!box)return;
-  settings=settings||{};
+  var box=document.getElementById('mentorAccessList'); if(!box) return;
+  window.mentorAccessState = getMentorAccessState(settings || window.mentorAccessState || {});
   box.innerHTML='<div style="display:grid;gap:8px">'+MENTOR_ACCESS_DEFS.map(function(t){
-    var key=t[0];var on=(key in settings)?settings[key]:(MENTOR_DEFAULT_ON[key]===true);
+    var key=t[0]; var on=window.mentorAccessState[key]===true;
     return '<div class="sigc" style="display:flex;justify-content:space-between;align-items:center;gap:12px">'+
       '<div><strong>'+t[1]+'</strong><div style="font-size:11.5px;color:var(--text-muted);margin-top:3px">'+esc(t[2])+'</div></div>'+
-      '<button class="btn" onclick="toggleMentorAccess(\''+key+'\','+(!on)+')" style="padding:6px 18px;font-size:13px;border:none;border-radius:8px;cursor:pointer;font-weight:800;background:'+(on?'linear-gradient(135deg,#10b981,#059669)':'rgba(239,68,68,.18)')+';color:'+(on?'#fff':'#ef4444')+'">'+(on?'ON':'OFF')+'</button></div>';
+      '<button type="button" class="btn mentor-access-btn" data-key="'+key+'" data-enabled="'+on+'" onclick="window.toggleMentorAccess(\''+key+'\','+(!on)+')" style="padding:6px 18px;font-size:13px;border:none;border-radius:8px;cursor:pointer;font-weight:800;background:'+(on?'linear-gradient(135deg,#10b981,#059669)':'rgba(239,68,68,.18)')+';color:'+(on?'#fff':'#ef4444')+'">'+(on?'ON':'OFF')+'</button></div>';
   }).join('')+'</div>';
 }
 async function loadMentorAccess(){
-  var box=document.getElementById('mentorAccessList');if(!box)return;
-  // Show default switches immediately, so this page never stays on Loading.
-  renderMentorAccess({});
-  if(typeof sb==='undefined' || !sb || !sb.from){console.warn('Supabase client not ready for mentor access');return;}
+  var box=document.getElementById('mentorAccessList'); if(!box) return;
+  renderMentorAccess(window.mentorAccessState && Object.keys(window.mentorAccessState).length ? window.mentorAccessState : {});
+  if(typeof sb==='undefined' || !sb || !sb.from){ console.warn('Supabase client not ready for mentor access'); return; }
   try{
     var query=sb.from('mentor_access_settings').select('key,enabled').order('key',{ascending:true});
-    var timeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('Supabase request timeout'));},6000);});
+    var timeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('Supabase request timeout'));},8000);});
     var r=await Promise.race([query,timeout]);
-    if(r.error)throw r.error;
+    if(r.error) throw r.error;
     var settings={};
-    (r.data||[]).forEach(function(s){settings[s.key]=s.enabled!==false;});
+    (r.data||[]).forEach(function(s){ settings[s.key]=s.enabled!==false; });
     renderMentorAccess(settings);
   }catch(e){
-    console.error('Mentor access load error:',e);
-    // Keep default switches visible instead of replacing them with Loading/Error.
+    console.error('Mentor access load error:', e);
+    renderMentorAccess(window.mentorAccessState && Object.keys(window.mentorAccessState).length ? window.mentorAccessState : {});
   }
 }
-async function toggleMentorAccess(key,enabled){
-  var res=await sb.from('mentor_access_settings').upsert({key:key,enabled:enabled,updated_at:new Date().toISOString()},{onConflict:'key'});
-  if(res.error){alert('Error: '+res.error.message);return;}
-  loadMentorAccess();
-}
-async function setMentorAccessPreset(type){
+window.toggleMentorAccess = async function(key, enabled){
+  if(!window.mentorAccessState) window.mentorAccessState=getMentorAccessState({});
+  var previous=window.mentorAccessState[key];
+  window.mentorAccessState[key]=enabled===true;
+  renderMentorAccess(window.mentorAccessState);
+  if(typeof sb==='undefined' || !sb || !sb.from){
+    alert('Supabase client ready nahi. Page refresh karke dobara try karo.');
+    window.mentorAccessState[key]=previous;
+    renderMentorAccess(window.mentorAccessState);
+    return;
+  }
+  try{
+    // Update first; if row does not exist, upsert will create it.
+    var res=await sb.from('mentor_access_settings').upsert({key:key,enabled:enabled===true,updated_at:new Date().toISOString()},{onConflict:'key'}).select('key,enabled').single();
+    if(res.error) throw res.error;
+    window.mentorAccessState[key]=res.data.enabled!==false;
+    renderMentorAccess(window.mentorAccessState);
+  }catch(e){
+    console.error('Mentor access save error:', e);
+    alert('Save error: '+(e.message||'Unknown error'));
+    window.mentorAccessState[key]=previous;
+    renderMentorAccess(window.mentorAccessState);
+  }
+};
+window.setMentorAccessPreset = async function(type){
   var onKeys=[];
-  if(type==='all') onKeys=MENTOR_ACCESS_DEFS.map(x=>x[0]);
+  if(type==='all') onKeys=MENTOR_ACCESS_DEFS.map(function(x){return x[0];});
   else if(type==='basic') onKeys=['dashboard','signals','charts','articles','settings'];
   else onKeys=['dashboard','signals','charts','articles','settings'];
-  var rows=MENTOR_ACCESS_DEFS.map(function(t){return {key:t[0],enabled:onKeys.indexOf(t[0])>-1,updated_at:new Date().toISOString()};});
-  var res=await sb.from('mentor_access_settings').upsert(rows,{onConflict:'key'});
-  if(res.error){alert('Error: '+res.error.message);return;}
-  loadMentorAccess();
-}
+  var next={}; MENTOR_ACCESS_DEFS.forEach(function(t){next[t[0]]=onKeys.indexOf(t[0])>-1;});
+  var previous=Object.assign({}, window.mentorAccessState||{});
+  window.mentorAccessState=next; renderMentorAccess(next);
+  if(typeof sb==='undefined' || !sb || !sb.from){alert('Supabase client ready nahi. Page refresh karke dobara try karo.'); return;}
+  try{
+    var rows=MENTOR_ACCESS_DEFS.map(function(t){return {key:t[0],enabled:onKeys.indexOf(t[0])>-1,updated_at:new Date().toISOString()};});
+    var res=await sb.from('mentor_access_settings').upsert(rows,{onConflict:'key'});
+    if(res.error) throw res.error;
+    await loadMentorAccess();
+  }catch(e){
+    console.error('Mentor access preset save error:', e);
+    alert('Save error: '+(e.message||'Unknown error'));
+    window.mentorAccessState=previous; renderMentorAccess(previous);
+  }
+};
 
 function toggleTheme() {
   const html = document.documentElement;
