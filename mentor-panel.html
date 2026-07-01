@@ -252,13 +252,13 @@ const MODS={
     fields:[['title','Title','text'],['body','Notification text','area']],
     row:r=>`<strong>${esc(r.title)}</strong> <span class="muted">${esc((r.body||'').slice(0,50))}</span>`},
 };
-const NAV=[['MAIN',[['dashboard','🏠','Dashboard'],['signals','📊','Signals'],['charts','📈','Charts'],['subscriptions','💳','Subscriptions']]],
+const NAV=[['MAIN',[['dashboard','🏠','Dashboard'],['signals','📊','Signals'],['charts','📈','Charts'],['articles','📖','Articles'],['subscriptions','💳','Subscriptions']]],
   ['CONTENT',[['courses','🎓','Courses'],['news','📰','News'],['quiz','❓','Quiz'],['community','👥','Community']]],
   ['INSIGHTS',[['analytics','📉','Analytics'],['earnings','💰','Earnings'],['students','👥','Students']]],
   ['MONETIZE',[['requests','🧾','Requests']]],
   ['COMMUNICATION',[['chats','✉️','Member Chats'],['messages','💬','Messages'],['notifications','🔔','Notifications']]],
   ['SYSTEM',[['settings','⚙️','Settings']]]];
-const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members']};
+const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],articles:['Articles','Create forex learning articles'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members']};
 function metaOf(k){return MODS[k]?[MODS[k].label,MODS[k].sub]:(TITLES[k]||[k,'']);}
 
 /* ============ AUTH ============ */
@@ -426,7 +426,7 @@ function showPage(k){
   document.getElementById('pg-'+k).classList.add('active');
   const m=metaOf(k);document.getElementById('pageTitle').textContent=m[0];document.getElementById('pageSub').textContent=m[1];
   document.getElementById('sidebar').classList.remove('open');
-  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,courses:renderMentorCourses,community:renderMentorCommunity,chats:renderMentorChats}[k]||(()=>renderModule(k)))();
+  ({dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,articles:renderMentorArticles,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,courses:renderMentorCourses,community:renderMentorCommunity,chats:renderMentorChats}[k]||(()=>renderModule(k)))();
 }
 
 /* ============ DASHBOARD ============ */
@@ -440,7 +440,7 @@ async function renderDashboard(){
        <div class="muted" style="font-size:13px">Here's your premium community overview</div></div>
      <div class="vip-hero-actions">
        <button class="btn sm" onclick="showPage('signals')">📊 New Signal</button>
-       <button class="btn sm ghost" onclick="showPage('charts')">📈 New Chart</button>
+       <button class="btn sm ghost" onclick="showPage('charts')">📈 New Chart</button><button class="btn sm ghost" onclick="showPage('articles')">📖 New Article</button>
        <button class="btn sm ghost" onclick="showPage('subscriptions')">💎 VIP Plans</button></div>
    </div>
    <div class="grid stats" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:16px" id="dStats">${sc('👥','...','Students')}${sc('💎','...','Premium')}${sc('📊','...','Active Signals')}${sc('🎯','...','Win Rate')}${sc('💰','...','Revenue')}${sc('⚡','...','Conversion')}</div>
@@ -677,6 +677,46 @@ async function loadCharts(){
   box.innerHTML='<div style="display:grid;gap:12px">'+data.map(c=>{var aud=(c.audience||'all');var parts=(aud==='all')?['free','premium','vip']:aud.split(',').map(x=>x.trim()).filter(Boolean);var lbl={free:'🆓 Free',premium:'💎 Premium',vip:'👑 VIP'};var ab=parts.map(function(p){return '<span class="badge '+(p==='free'?'green':'gold')+'" style="font-size:9px;margin-left:4px">'+(lbl[p]||p)+'</span>';}).join('');return `<div class="sigc"><div class="top"><div class="pair">${esc(c.title)} <span class="muted" style="font-size:12px">${esc(c.pair||'')}</span> ${ab}</div><button class="del" onclick="delChart('${c.id}')">🗑️</button></div>${c.image_url?`<img src="${esc(c.image_url)}" style="width:100%;border-radius:10px;margin:4px 0">`:''}${c.notes?`<div class="muted" style="font-size:13px">${esc(c.notes)}</div>`:''}</div>`;}).join('')+'</div>';
 }
 async function delChart(id){if(!confirm('Delete chart?'))return;await sb.from('charts').delete().eq('id',id);loadCharts();}
+
+
+/* ============ MENTOR ARTICLES ============ */
+function renderMentorArticles(){
+  const el=document.getElementById('pg-articles');
+  if(!el)return;
+  el.innerHTML=`<div class="grid" style="grid-template-columns:1fr 1.2fr">
+    <div class="card"><div class="card-title">📖 New Article</div>
+      <div style="display:grid;gap:11px;margin-top:12px">
+        <input class="inp" id="maTitle" placeholder="Article title">
+        <select class="inp" id="maCategory"><option value="analysis">Analysis</option><option value="strategy">Strategy</option><option value="education">Education</option></select>
+        <input class="inp" id="maImage" placeholder="Image URL (optional)">
+        <input class="inp" id="maFile" type="file" accept="image/*" onchange="mentorArticleUpload(this)">
+        <div id="maPreview"></div>
+        <textarea class="inp" id="maContent" rows="7" placeholder="Article content"></textarea>
+        <label class="muted" style="font-size:12px"><input type="checkbox" id="maPublish" checked> Publish now</label>
+        <button class="btn" id="maBtn" onclick="createMentorArticle()">➕ Publish Article</button>
+        <p class="muted" style="font-size:11.5px">Category will work as user-side article filter: Analysis, Strategy or Education.</p>
+      </div></div>
+    <div class="card"><div class="card-title">📚 Your Articles</div><div id="maList" style="margin-top:12px"><div class="list-empty">Loading...</div></div></div>
+  </div>`;
+  loadMentorArticles();
+}
+async function mentorArticleUpload(inp){
+  const file=inp.files&&inp.files[0]; if(!file||!sb)return;
+  const prev=document.getElementById('maPreview'); if(prev)prev.innerHTML='<span class="muted" style="font-size:12px">Uploading...</span>';
+  try{const ext=(file.name.split('.').pop()||'jpg').toLowerCase();const path='articles/'+ME.id+'_'+Date.now()+'.'+ext;const up=await sb.storage.from('charts').upload(path,file,{upsert:true});if(up.error){if(prev)prev.innerHTML='<span style="color:var(--red);font-size:12px">Upload failed: '+up.error.message+'</span>';return;}const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;document.getElementById('maImage').value=url;if(prev)prev.innerHTML='<img src="'+url+'" style="max-width:180px;border-radius:10px;border:1px solid var(--border)">';}catch(e){if(prev)prev.innerHTML='<span style="color:var(--red);font-size:12px">'+e.message+'</span>';}
+}
+async function createMentorArticle(){
+  const btn=document.getElementById('maBtn');btn.disabled=true;btn.textContent='⏳ Saving...';
+  try{const title=document.getElementById('maTitle').value.trim();const category=document.getElementById('maCategory').value;const image_url=document.getElementById('maImage').value.trim();const content=document.getElementById('maContent').value.trim();const is_published=document.getElementById('maPublish').checked;if(!title){alert('Title is required');btn.disabled=false;btn.textContent='➕ Publish Article';return;}const {error}=await sb.from('articles').insert({author_id:ME.id,type:'single',title,category,image_url,content,is_published,is_official:false});if(error){alert('Error: '+error.message);}else{document.getElementById('maTitle').value='';document.getElementById('maImage').value='';document.getElementById('maFile').value='';document.getElementById('maContent').value='';var p=document.getElementById('maPreview');if(p)p.innerHTML='';loadMentorArticles();}}catch(e){alert(e.message);}btn.disabled=false;btn.textContent='➕ Publish Article';
+}
+async function loadMentorArticles(){
+  const box=document.getElementById('maList');if(!box)return;
+  const {data,error}=await sb.from('articles').select('*').eq('author_id',ME.id).order('created_at',{ascending:false});
+  if(error){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}
+  if(!data||!data.length){box.innerHTML='<div class="list-empty">No articles yet.</div>';return;}
+  box.innerHTML='<div style="display:grid;gap:12px">'+data.map(a=>`<div class="sigc"><div class="top"><div class="pair">${esc(a.title||'Article')} <span class="badge gold" style="font-size:9px;margin-left:6px">${esc(a.category||'education')}</span></div><button class="del" onclick="delMentorArticle('${a.id}')">🗑️</button></div>${a.image_url?`<img src="${esc(a.image_url)}" style="width:100%;border-radius:10px;margin:4px 0;max-height:160px;object-fit:cover">`:''}<div class="muted" style="font-size:13px">${esc((a.content||'').slice(0,120))}</div></div>`).join('')+'</div>';
+}
+async function delMentorArticle(id){if(!confirm('Delete article?'))return;await sb.from('articles').delete().eq('id',id);loadMentorArticles();}
 
 /* ============ MENTOR COURSES (detailed, like admin) ============ */
 function renderMentorCourses(){

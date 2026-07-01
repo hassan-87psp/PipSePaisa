@@ -941,7 +941,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
       <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Member Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
-      <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
+      <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts &amp; Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>Economic News<span class="dot"></span></div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;animation:pulse 2s infinite;">LIVE</span></div>
@@ -2509,15 +2509,19 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         <div id="signalsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;"></div>
       </div>
 
-      <!-- ===== ARTICLES PAGE ===== -->
+      <!-- ===== CHARTS & ARTICLES PAGE ===== -->
       <div class="page" id="page-articles">
         <div class="card" style="margin-bottom:14px;">
-          <div class="card-header" style="margin-bottom:0;">
-            <div>
-              <div class="card-title">📈 Charts &amp; Analysis</div>
-              <div class="card-meta" style="margin-top:4px;">Trading charts, market analysis &amp; setups</div>
+          <div class="card-header" style="margin-bottom:0;align-items:flex-start;">
+            <div style="min-width:260px;">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+                <button id="artModeCharts" class="sig-fbtn active" onclick="setArtMode('charts',this)" style="font-weight:800;">📈 Charts</button>
+                <button id="artModeArticles" class="sig-fbtn" onclick="setArtMode('articles',this)" style="font-weight:800;">📖 Articles</button>
+              </div>
+              <div class="card-title" id="artPageTitle">📈 Charts &amp; Analysis</div>
+              <div class="card-meta" id="artPageMeta" style="margin-top:4px;">Trading charts, market analysis &amp; setups</div>
             </div>
-            <div id="artFilters" style="display:flex;gap:6px;flex-wrap:wrap;">
+            <div id="artFilters" style="display:none;gap:6px;flex-wrap:wrap;">
               <button class="sig-fbtn active" data-f="all" onclick="artFilter('all',this)">All</button>
               <button class="sig-fbtn" data-f="analysis" onclick="artFilter('analysis',this)">Analysis</button>
               <button class="sig-fbtn" data-f="strategy" onclick="artFilter('strategy',this)">Strategy</button>
@@ -3101,7 +3105,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       dashboard: 'Dashboard', performance: 'Performance', trades: 'My Trades',
       analysis: 'Trades Analysis', aireport: 'AI Report', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex',
-      signals: 'Signals', articles: 'Charts', banners: 'Banners', vipplans: 'VIP Plans',
+      signals: 'Signals', articles: 'Charts & Articles', banners: 'Banners', vipplans: 'VIP Plans',
       support: 'Support', announce: 'Announcements',
       settings: 'Settings', about: 'About'
     };
@@ -8060,14 +8064,35 @@ function renderSignals(){
   g.innerHTML=sigHtml;
 }
 
-// ===== ARTICLES (from DB) =====
+// ===== CHARTS & ARTICLES (from DB) =====
 let ARTICLES=[];
+let CHART_ITEMS=[];
+let ARTICLE_ITEMS=[];
 let artF='all';
-function artFilter(f,el){artF=f;document.querySelectorAll('#artFilters .sig-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderArticles()}
+let artMode='charts';
+function setArtMode(mode,el){
+  artMode=mode;
+  document.querySelectorAll('#artModeCharts,#artModeArticles').forEach(b=>b.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const filters=document.getElementById('artFilters');
+  const title=document.getElementById('artPageTitle');
+  const meta=document.getElementById('artPageMeta');
+  if(mode==='articles'){
+    if(filters) filters.style.display='flex';
+    if(title) title.innerHTML='📖 Articles';
+    if(meta) meta.textContent='Forex learning, strategies & educational content';
+  }else{
+    if(filters) filters.style.display='none';
+    if(title) title.innerHTML='📈 Charts & Analysis';
+    if(meta) meta.textContent='Trading charts, market analysis & setups';
+  }
+  renderArticles();
+}
+function artFilter(f,el){artF=f;document.querySelectorAll('#artFilters .sig-fbtn').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');renderArticles()}
 async function loadArticlesFromDB(){
   const g=document.getElementById('articlesGrid');if(!g)return;
   if(!sb){g.innerHTML='';return;}
-  g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading articles...</div>';
+  g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading...</div>';
   const res=await Promise.all([
     sb.from('articles').select('*').eq('is_published',true).order('created_at',{ascending:false}),
     sb.from('charts').select('*').order('created_at',{ascending:false})
@@ -8075,19 +8100,16 @@ async function loadArticlesFromDB(){
   const ares=res[0], cres=res[1];
   if(ares.error){g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">'+ares.error.message+'</div>';return;}
   const grad='linear-gradient(135deg,#3a2f1e,#1f0f33)';
-  const arts=(ares.data||[]).map(a=>({
-    cat:(a.type==='chart'?'analysis':(a.category||'education')),
-    tag:(a.type==='chart'?'Chart':(a.category||'Article')),
-    ico:(a.type==='chart'?'📈':'📝'), grad:grad,
+  ARTICLE_ITEMS=(ares.data||[]).filter(a=>a.type!=='chart').map(a=>({
+    kind:'article', cat:(a.category||'education'), tag:(a.category||'Article'), ico:'📝', grad:grad,
     title:a.title||'(untitled)', ex:(a.content||'').slice(0,140), content:a.content||'',
     image:a.image_url||'', date:new Date(a.created_at).toLocaleDateString(), ts:new Date(a.created_at).getTime()
   }));
-  const _isPrem=!!(currentProfile&&currentProfile.is_premium);
-  const charts=(cres&&cres.error)?[]:((cres&&cres.data)||[]).map(c=>{
+  CHART_ITEMS=(cres&&cres.error)?[]:((cres&&cres.data)||[]).map(c=>{
     const audStr=c.audience||'all';
     const locked=!canAccessContent('chart',audStr);
     return {
-      cat:'analysis', tag:(c.is_official?'PipSePaisa Chart':'Mentor Chart'), ico:'📈', grad:grad,
+      kind:'chart', cat:'chart', tag:'Chart', ico:'📈', grad:grad,
       title:c.title||'Chart Analysis',
       ex:locked?('🔒 Members-only chart — unlock to view'):(c.notes||'').slice(0,140),
       content:locked?('🔒 This chart is shared with selected members only.\n\nUpgrade from the VIP Plans page to unlock mentor charts & analysis.'):(c.notes||''),
@@ -8095,8 +8117,8 @@ async function loadArticlesFromDB(){
       date:new Date(c.created_at).toLocaleDateString(), ts:new Date(c.created_at).getTime()
     };
   });
-  ARTICLES=arts.concat(charts).sort((a,b)=>b.ts-a.ts);
-  renderArticles();
+  ARTICLES=CHART_ITEMS.concat(ARTICLE_ITEMS).sort((a,b)=>b.ts-a.ts);
+  setArtMode(artMode, document.getElementById(artMode==='articles'?'artModeArticles':'artModeCharts'));
 }
 function artDateKey(ts){
   const d=new Date(ts); d.setHours(0,0,0,0); return d.getTime();
@@ -8106,14 +8128,17 @@ function artGroupLabel(ts){
   const today=new Date(); today.setHours(0,0,0,0);
   const y=new Date(today); y.setDate(today.getDate()-1);
   const dk=artDateKey(ts);
-  if(dk===today.getTime()) return 'Today charts';
-  if(dk===y.getTime()) return 'Yesterday charts';
+  const suffix=artMode==='articles'?'Articles':'Charts';
+  if(dk===today.getTime()) return 'Today '+suffix.toLowerCase();
+  if(dk===y.getTime()) return 'Yesterday '+suffix.toLowerCase();
   return d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 }
 function renderArticles(){
   const g=document.getElementById('articlesGrid');if(!g)return;
-  const list=ARTICLES.filter(a=>artF==='all'||a.cat===artF);
-  if(!list.length){g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No charts yet.</div>';return;}
+  let list=artMode==='articles'?ARTICLE_ITEMS:CHART_ITEMS;
+  if(artMode==='articles') list=list.filter(a=>artF==='all'||a.cat===artF);
+  list=list.slice().sort((a,b)=>b.ts-a.ts);
+  if(!list.length){g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No '+(artMode==='articles'?'articles':'charts')+' yet.</div>';return;}
   let lastKey=null;
   let html='';
   list.forEach((a)=>{
@@ -8125,12 +8150,12 @@ function renderArticles(){
         <div style="height:1px;background:var(--border);flex:1;"></div>
       </div>`;
     }
-    html+=`<div class="card art-card" onclick="openArt(${ARTICLES.indexOf(a)})">
+    const idx=ARTICLES.indexOf(a);
+    html+=`<div class="card art-card" onclick="openArt(${idx})">
       <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover'):a.grad}">${a.image?'':a.ico}${a.locked?'<span style="position:absolute;top:10px;right:10px;background:var(--gold);color:#0a0e1a;font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px">🔒 LOCKED</span>':''}</div>
-      <span class="art-tag">${a.tag}</span>
       <div class="art-title">${a.title}</div>
       <div class="art-ex">${a.ex}</div>
-      <div class="art-meta"><span>✍️ PipSePaisa</span><span>${a.date}</span></div>
+      <div class="art-meta"><span></span><span>${a.date}</span></div>
     </div>`;
   });
   g.innerHTML=html;
@@ -8146,7 +8171,7 @@ function openArt(i){
     (hasImg?'<button onclick="downloadChartImg(\''+(a.image||'')+'\',\''+((a.title||'chart').replace(/[^a-zA-Z0-9 _-]/g,'').slice(0,40)||'chart')+'\')" style="padding:10px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border:none;border-radius:8px;color:#0a0e1a;font-weight:800;cursor:pointer;font-family:inherit">⬇️ Download</button>':'')+
     '<button onclick="copyChartText('+i+')" style="padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-weight:700;cursor:pointer;font-family:inherit">📋 Copy</button>'+
   '</div>';
-  const text=`<span class="art-tag">${a.tag}</span><h2 style="margin-top:12px">${a.title}</h2><div class="art-meta" style="border:none;padding:0"><span>✍️ PipSePaisa</span><span>${a.date}</span></div><div class="body"><p>${(a.content||'').replace(/\n/g,'<br>')}</p></div>${closeBtn}`;
+  const text=`<h2 style="margin-top:0">${a.title}</h2><div class="art-meta" style="border:none;padding:0"><span></span><span>${a.date}</span></div><div class="body"><p>${(a.content||'').replace(/\n/g,'<br>')}</p></div>${closeBtn}`;
   if(hasImg){
     box.innerHTML=`<div style="display:flex;flex-wrap:wrap;align-items:stretch">
       <div style="flex:1 1 440px;min-width:300px;background:#0a0e1a;display:flex;align-items:center;justify-content:center;padding:14px">

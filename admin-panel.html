@@ -469,6 +469,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>News & Events</div>
       <div class="menu-item" data-page="adsignals" onclick="showPage('adsignals', this)"><span class="menu-icon">📊</span>Signals</div>
       <div class="menu-item" data-page="adcharts" onclick="showPage('adcharts', this)"><span class="menu-icon">📈</span>Charts</div>
+      <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📖</span>Articles</div>
       <div class="menu-item" data-page="adbanners" onclick="showPage('adbanners', this)"><span class="menu-icon">🖼️</span>Banners</div>
       <div class="menu-item" data-page="community" onclick="showPage('community', this)"><span class="menu-icon">👥</span>Community</div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;">LIVE</span></div>
@@ -1435,10 +1436,16 @@ select option{background:#0f1729;color:#e8eaf0}
         <div class="card">
           <div class="card-title">📝 Create Article</div>
           <div style="display:grid;gap:12px;margin-top:14px;max-width:640px">
-            <select id="artType" class="search-input"><option value="single">📝 Single Article</option><option value="chart">📈 Chart Article</option></select>
             <input id="artTitle" class="search-input" type="text" placeholder="Article title">
-            <input id="artImage" class="search-input" type="text" placeholder="Image / chart URL (optional)">
-            <textarea id="artContent" class="search-input" rows="5" placeholder="Article content..." style="resize:vertical;font-family:inherit"></textarea>
+            <select id="artCategory" class="search-input">
+              <option value="analysis">Analysis</option>
+              <option value="strategy">Strategy</option>
+              <option value="education">Education</option>
+            </select>
+            <input id="artImage" class="search-input" type="text" placeholder="Image URL (optional)">
+            <input id="artFile" class="search-input" type="file" accept="image/*" onchange="adminArticleUpload(this)">
+            <div id="artImgPreview"></div>
+            <textarea id="artContent" class="search-input" rows="7" placeholder="Article content..." style="resize:vertical;font-family:inherit"></textarea>
             <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input id="artPublish" type="checkbox" checked> Publish now</label>
             <button class="btn" id="artBtn" onclick="createArticle()">➕ Create Article</button>
           </div>
@@ -2327,6 +2334,7 @@ function showPage(page, el) {
     quiz: ['Quiz Manager', 'Manage daily quiz question bank'],
     adsignals: ['Official Signals', 'Post signals shown to all students'],
     adcharts: ['Official Charts', 'Post chart analysis shown to all students'],
+    articles: ['Articles', 'Create and manage learning articles'],
     adbanners: ['Banners', 'Upload social media banners for users to download'],
     messages: ['Messages / Support', 'User support tickets and inbox'],
     notifications: ['Push Notifications', 'Send notifications to users'],
@@ -2353,6 +2361,7 @@ function showPage(page, el) {
   if (page === 'quiz') loadAdminQuiz();
   if (page === 'adsignals') loadAdSignals();
   if (page === 'adcharts') loadAdCharts();
+  if (page === 'articles') loadAdminArticles();
   if (page === 'adbanners') loadAdBanners();
   if (page === 'community') loadAdminCommunity();
   if (page === 'chats') renderAdminChats();
@@ -3414,32 +3423,46 @@ async function loadAdminArticles(){
   const {data,error}=await sb.from('articles').select('*').order('created_at',{ascending:false});
   if(error){list.innerHTML='<div style="padding:16px;color:var(--red)">Error: '+error.message+'</div>';return;}
   if(!data||!data.length){list.innerHTML='<div style="padding:16px;color:var(--text-muted)">No articles yet. Create one above.</div>';return;}
-  list.innerHTML=data.map(a=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)"><div style="font-size:20px">${a.type==='chart'?'📈':'📝'}</div><div style="flex:1;min-width:0"><div style="font-weight:700">${(a.title||'(untitled)')}</div><div style="font-size:12px;color:var(--text-muted)">${a.type||'single'} · ${a.is_published?'<span style="color:var(--green)">Published</span>':'<span style="color:var(--gold)">Draft</span>'} · ${new Date(a.created_at).toLocaleDateString()}</div></div><button class="action-btn" title="${a.is_published?'Unpublish':'Publish'}" onclick="toggleArticle('${a.id}',${a.is_published?'true':'false'})">${a.is_published?'🙈':'🌐'}</button><button class="action-btn" title="Edit" onclick="editArticle('${a.id}')">✏️</button><button class="action-btn delete" title="Delete" onclick="deleteArticle('${a.id}')">🗑️</button></div>`).join('');
+  list.innerHTML=data.map(a=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)"><div style="font-size:20px">📝</div><div style="flex:1;min-width:0"><div style="font-weight:700">${(a.title||'(untitled)')}</div><div style="font-size:12px;color:var(--text-muted)">${a.category||'education'} · ${a.is_published?'<span style="color:var(--green)">Published</span>':'<span style="color:var(--gold)">Draft</span>'} · ${new Date(a.created_at).toLocaleDateString()}</div></div><button class="action-btn" title="${a.is_published?'Unpublish':'Publish'}" onclick="toggleArticle('${a.id}',${a.is_published?'true':'false'})">${a.is_published?'🙈':'🌐'}</button><button class="action-btn" title="Edit" onclick="editArticle('${a.id}')">✏️</button><button class="action-btn delete" title="Delete" onclick="deleteArticle('${a.id}')">🗑️</button></div>`).join('');
+}
+async function adminArticleUpload(inp){
+  const file=inp.files&&inp.files[0]; if(!file||!sb)return;
+  const prev=document.getElementById('artImgPreview'); if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--text-muted)">Uploading...</span>';
+  try{
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const path='articles/admin_'+Date.now()+'.'+ext;
+    const up=await sb.storage.from('charts').upload(path,file,{upsert:true});
+    if(up.error){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">Upload failed: '+up.error.message+'</span>';return;}
+    const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
+    document.getElementById('artImage').value=url;
+    if(prev)prev.innerHTML='<img src="'+url+'" style="max-width:180px;border-radius:10px;border:1px solid var(--border)">';
+  }catch(e){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">'+e.message+'</span>';}
 }
 async function createArticle(){
   if(!sb){alert('Supabase not connected');return;}
-  const type=document.getElementById('artType').value;
+  const type='single';
+  const category=document.getElementById('artCategory').value;
   const title=document.getElementById('artTitle').value.trim();
   const image_url=document.getElementById('artImage').value.trim();
   const content=document.getElementById('artContent').value.trim();
   const is_published=document.getElementById('artPublish').checked;
   if(!title){alert('Title is required');return;}
   if(editingArticleId){
-    const {error}=await sb.from('articles').update({type,title,image_url,content,is_published}).eq('id',editingArticleId);
+    const {error}=await sb.from('articles').update({type,title,category,image_url,content,is_published}).eq('id',editingArticleId);
     if(error){alert('Error: '+error.message);return;}
     editingArticleId=null;const b=document.getElementById('artBtn');if(b)b.textContent='➕ Create Article';
   }else{
     const {data:{user}}=await sb.auth.getUser();
-    const {error}=await sb.from('articles').insert({type,title,image_url,content,is_published,is_official:true,author_id:user?user.id:null});
+    const {error}=await sb.from('articles').insert({type,title,category,image_url,content,is_published,is_official:true,author_id:user?user.id:null});
     if(error){alert('Error: '+error.message);return;}
   }
-  document.getElementById('artTitle').value='';document.getElementById('artImage').value='';document.getElementById('artContent').value='';
+  document.getElementById('artTitle').value='';document.getElementById('artImage').value='';document.getElementById('artContent').value='';document.getElementById('artFile').value='';var ap=document.getElementById('artImgPreview');if(ap)ap.innerHTML='';
   loadAdminArticles();
 }
 async function editArticle(id){
   const {data,error}=await sb.from('articles').select('*').eq('id',id).single();
   if(error||!data){alert('Could not load article');return;}
-  document.getElementById('artType').value=data.type||'single';
+  if(document.getElementById('artCategory'))document.getElementById('artCategory').value=data.category||'education';
   document.getElementById('artTitle').value=data.title||'';
   document.getElementById('artImage').value=data.image_url||'';
   document.getElementById('artContent').value=data.content||'';
