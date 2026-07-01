@@ -8070,16 +8070,42 @@ async function loadArticlesFromDB(){
   ARTICLES=arts.concat(charts).sort((a,b)=>b.ts-a.ts);
   renderArticles();
 }
+function artDateKey(ts){
+  const d=new Date(ts); d.setHours(0,0,0,0); return d.getTime();
+}
+function artGroupLabel(ts){
+  const d=new Date(ts);
+  const today=new Date(); today.setHours(0,0,0,0);
+  const y=new Date(today); y.setDate(today.getDate()-1);
+  const dk=artDateKey(ts);
+  if(dk===today.getTime()) return 'Today charts';
+  if(dk===y.getTime()) return 'Yesterday charts';
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+}
 function renderArticles(){
   const g=document.getElementById('articlesGrid');if(!g)return;
   const list=ARTICLES.filter(a=>artF==='all'||a.cat===artF);
-  g.innerHTML=list.map((a)=>`<div class="card art-card" onclick="openArt(${ARTICLES.indexOf(a)})">
-    <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover'):a.grad}">${a.image?'':a.ico}${a.locked?'<span style="position:absolute;top:10px;right:10px;background:var(--gold);color:#0a0e1a;font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px">🔒 LOCKED</span>':''}</div>
-    <span class="art-tag">${a.tag}</span>
-    <div class="art-title">${a.title}</div>
-    <div class="art-ex">${a.ex}</div>
-    <div class="art-meta"><span>✍️ PipSePaisa</span><span>${a.date}</span></div>
-  </div>`).join('')||'<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No charts yet.</div>';
+  if(!list.length){g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No charts yet.</div>';return;}
+  let lastKey=null;
+  let html='';
+  list.forEach((a)=>{
+    const key=artDateKey(a.ts);
+    if(key!==lastKey){
+      lastKey=key;
+      html+=`<div class="chart-date-heading" style="grid-column:1/-1;margin:8px 0 2px;display:flex;align-items:center;gap:12px;">
+        <div style="font-size:18px;font-weight:800;color:var(--text-primary);white-space:nowrap;">${artGroupLabel(a.ts)}</div>
+        <div style="height:1px;background:var(--border);flex:1;"></div>
+      </div>`;
+    }
+    html+=`<div class="card art-card" onclick="openArt(${ARTICLES.indexOf(a)})">
+      <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover'):a.grad}">${a.image?'':a.ico}${a.locked?'<span style="position:absolute;top:10px;right:10px;background:var(--gold);color:#0a0e1a;font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px">🔒 LOCKED</span>':''}</div>
+      <span class="art-tag">${a.tag}</span>
+      <div class="art-title">${a.title}</div>
+      <div class="art-ex">${a.ex}</div>
+      <div class="art-meta"><span>✍️ PipSePaisa</span><span>${a.date}</span></div>
+    </div>`;
+  });
+  g.innerHTML=html;
 }
 function openArt(i){
   const a=ARTICLES[i];if(!a)return;
