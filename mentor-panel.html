@@ -720,43 +720,104 @@ async function delChart(id){if(!confirm('Delete chart?'))return;await sb.from('c
 
 
 /* ============ MENTOR ARTICLES ============ */
+let mentorEditingArticleId=null;
 function renderMentorArticles(){
   const el=document.getElementById('pg-articles');
   if(!el)return;
-  el.innerHTML=`<div class="grid" style="grid-template-columns:1fr 1.2fr">
-    <div class="card"><div class="card-title">📖 New Article</div>
-      <div style="display:grid;gap:11px;margin-top:12px">
-        <input class="inp" id="maTitle" placeholder="Article title">
-        <select class="inp" id="maCategory"><option value="analysis">Analysis</option><option value="strategy">Strategy</option><option value="education">Education</option></select>
-        <input class="inp" id="maImage" placeholder="Image URL (optional)">
-        <input class="inp" id="maFile" type="file" accept="image/*" onchange="mentorArticleUpload(this)">
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-title">📝 Create Article</div>
+      <div style="display:grid;gap:12px;margin-top:14px;max-width:640px">
+        <input id="maTitle" class="inp" type="text" placeholder="Article title">
+        <select id="maCategory" class="inp">
+          <option value="analysis">Analysis</option>
+          <option value="strategy">Strategy</option>
+          <option value="education">Education</option>
+        </select>
+        <input id="maImage" class="inp" type="text" placeholder="Image URL (optional)">
+        <input id="maFile" class="inp" type="file" accept="image/*" onchange="mentorArticleUpload(this)">
         <div id="maPreview"></div>
-        <textarea class="inp" id="maContent" rows="7" placeholder="Article content"></textarea>
-        <label class="muted" style="font-size:12px"><input type="checkbox" id="maPublish" checked> Publish now</label>
-        <button class="btn" id="maBtn" onclick="createMentorArticle()">➕ Publish Article</button>
-        <p class="muted" style="font-size:11.5px">Category will work as user-side article filter: Analysis, Strategy or Education.</p>
-      </div></div>
-    <div class="card"><div class="card-title">📚 Your Articles</div><div id="maList" style="margin-top:12px"><div class="list-empty">Loading...</div></div></div>
-  </div>`;
+        <textarea id="maContent" class="inp" rows="7" placeholder="Article content..." style="resize:vertical;font-family:inherit"></textarea>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)"><input id="maPublish" type="checkbox" checked> Publish now</label>
+        <button class="btn" id="maBtn" onclick="createMentorArticle()">➕ Create Article</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:18px">
+      <div class="card-title">📚 All Articles</div>
+      <div id="maList" style="margin-top:10px">Loading...</div>
+    </div>`;
   loadMentorArticles();
 }
 async function mentorArticleUpload(inp){
   const file=inp.files&&inp.files[0]; if(!file||!sb)return;
-  const prev=document.getElementById('maPreview'); if(prev)prev.innerHTML='<span class="muted" style="font-size:12px">Uploading...</span>';
-  try{const ext=(file.name.split('.').pop()||'jpg').toLowerCase();const path='articles/'+ME.id+'_'+Date.now()+'.'+ext;const up=await sb.storage.from('charts').upload(path,file,{upsert:true});if(up.error){if(prev)prev.innerHTML='<span style="color:var(--red);font-size:12px">Upload failed: '+up.error.message+'</span>';return;}const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;document.getElementById('maImage').value=url;if(prev)prev.innerHTML='<img src="'+url+'" style="max-width:180px;border-radius:10px;border:1px solid var(--border)">';}catch(e){if(prev)prev.innerHTML='<span style="color:var(--red);font-size:12px">'+e.message+'</span>';}
+  const prev=document.getElementById('maPreview'); if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--muted)">Uploading...</span>';
+  try{
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const path='articles/mentor_'+Date.now()+'.'+ext;
+    const up=await sb.storage.from('charts').upload(path,file,{upsert:true});
+    if(up.error){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">Upload failed: '+up.error.message+'</span>';return;}
+    const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
+    document.getElementById('maImage').value=url;
+    if(prev)prev.innerHTML='<img src="'+url+'" style="max-width:180px;border-radius:10px;border:1px solid var(--border)">';
+  }catch(e){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">'+e.message+'</span>';}
 }
 async function createMentorArticle(){
-  const btn=document.getElementById('maBtn');btn.disabled=true;btn.textContent='⏳ Saving...';
-  try{const title=document.getElementById('maTitle').value.trim();const category=document.getElementById('maCategory').value;const image_url=document.getElementById('maImage').value.trim();const content=document.getElementById('maContent').value.trim();const is_published=document.getElementById('maPublish').checked;if(!title){alert('Title is required');btn.disabled=false;btn.textContent='➕ Publish Article';return;}const {error}=await sb.from('articles').insert({author_id:ME.id,type:'single',title,category,image_url,content,is_published,is_official:false});if(error){alert('Error: '+error.message);}else{document.getElementById('maTitle').value='';document.getElementById('maImage').value='';document.getElementById('maFile').value='';document.getElementById('maContent').value='';var p=document.getElementById('maPreview');if(p)p.innerHTML='';loadMentorArticles();}}catch(e){alert(e.message);}btn.disabled=false;btn.textContent='➕ Publish Article';
+  if(!sb){alert('Supabase not connected');return;}
+  const btn=document.getElementById('maBtn'); if(btn){btn.disabled=true;btn.textContent=mentorEditingArticleId?'⏳ Updating...':'⏳ Saving...';}
+  try{
+    const type='single';
+    const category=document.getElementById('maCategory').value;
+    const title=document.getElementById('maTitle').value.trim();
+    const image_url=document.getElementById('maImage').value.trim();
+    const content=document.getElementById('maContent').value.trim();
+    const is_published=document.getElementById('maPublish').checked;
+    if(!title){alert('Title is required');if(btn){btn.disabled=false;btn.textContent=mentorEditingArticleId?'💾 Update Article':'➕ Create Article';}return;}
+    if(mentorEditingArticleId){
+      const {error}=await sb.from('articles').update({type,title,category,image_url,content,is_published}).eq('id',mentorEditingArticleId);
+      if(error){alert('Error: '+error.message);return;}
+      mentorEditingArticleId=null;
+    }else{
+      const {error}=await sb.from('articles').insert({type,title,category,image_url,content,is_published,is_official:true,author_id:ME.id});
+      if(error){alert('Error: '+error.message);return;}
+    }
+    document.getElementById('maTitle').value='';document.getElementById('maImage').value='';document.getElementById('maContent').value='';
+    const f=document.getElementById('maFile');if(f)f.value='';const p=document.getElementById('maPreview');if(p)p.innerHTML='';
+    if(btn)btn.textContent='➕ Create Article';
+    loadMentorArticles();
+  }catch(e){alert(e.message)}
+  if(btn){btn.disabled=false;btn.textContent=mentorEditingArticleId?'💾 Update Article':'➕ Create Article';}
 }
 async function loadMentorArticles(){
   const box=document.getElementById('maList');if(!box)return;
-  const {data,error}=await sb.from('articles').select('*').eq('author_id',ME.id).order('created_at',{ascending:false});
-  if(error){box.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}
-  if(!data||!data.length){box.innerHTML='<div class="list-empty">No articles yet.</div>';return;}
-  box.innerHTML='<div style="display:grid;gap:12px">'+data.map(a=>`<div class="sigc"><div class="top"><div class="pair">${esc(a.title||'Article')} <span class="badge gold" style="font-size:9px;margin-left:6px">${esc(a.category||'education')}</span></div><button class="del" onclick="delMentorArticle('${a.id}')">🗑️</button></div>${a.image_url?`<img src="${esc(a.image_url)}" style="width:100%;border-radius:10px;margin:4px 0;max-height:160px;object-fit:cover">`:''}<div class="muted" style="font-size:13px">${esc((a.content||'').slice(0,120))}</div></div>`).join('')+'</div>';
+  box.innerHTML='<div style="padding:16px;color:var(--muted)">Loading...</div>';
+  const {data,error}=await sb.from('articles').select('*').order('created_at',{ascending:false});
+  if(error){box.innerHTML='<div style="padding:16px;color:var(--red)">Error: '+esc(error.message)+'</div>';return;}
+  if(!data||!data.length){box.innerHTML='<div style="padding:16px;color:var(--muted)">No articles yet. Create one above.</div>';return;}
+  box.innerHTML=data.map(a=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)"><div style="font-size:20px">📝</div><div style="flex:1;min-width:0"><div style="font-weight:700">${esc(a.title||'(untitled)')}</div><div style="font-size:12px;color:var(--muted)">${esc(a.category||'education')} · ${a.is_published?'<span style="color:var(--green)">Published</span>':'<span style="color:var(--gold)">Draft</span>'} · ${a.created_at?new Date(a.created_at).toLocaleDateString():''}</div></div><button class="action-btn" title="${a.is_published?'Unpublish':'Publish'}" onclick="toggleMentorArticle('${a.id}',${a.is_published?'true':'false'})">${a.is_published?'🙈':'🌐'}</button><button class="action-btn" title="Edit" onclick="editMentorArticle('${a.id}')">✏️</button><button class="action-btn delete" title="Delete" onclick="delMentorArticle('${a.id}')">🗑️</button></div>`).join('');
 }
-async function delMentorArticle(id){if(!confirm('Delete article?'))return;await sb.from('articles').delete().eq('id',id);loadMentorArticles();}
+async function editMentorArticle(id){
+  const {data,error}=await sb.from('articles').select('*').eq('id',id).single();
+  if(error||!data){alert('Could not load article');return;}
+  if(document.getElementById('maCategory'))document.getElementById('maCategory').value=data.category||'education';
+  document.getElementById('maTitle').value=data.title||'';
+  document.getElementById('maImage').value=data.image_url||'';
+  document.getElementById('maContent').value=data.content||'';
+  document.getElementById('maPublish').checked=!!data.is_published;
+  mentorEditingArticleId=id;
+  const b=document.getElementById('maBtn');if(b)b.textContent='💾 Update Article';
+  window.scrollTo(0,0);
+}
+async function toggleMentorArticle(id,pub){
+  const {error}=await sb.from('articles').update({is_published:!pub}).eq('id',id);
+  if(error){alert('Error: '+error.message);return;}
+  loadMentorArticles();
+}
+async function delMentorArticle(id){
+  if(!confirm('Delete this article?'))return;
+  const {error}=await sb.from('articles').delete().eq('id',id);
+  if(error){alert('Error: '+error.message);return;}
+  loadMentorArticles();
+}
 
 
 /* ============ MENTOR BANNERS ============ */
