@@ -259,6 +259,18 @@ const NAV=[['MAIN',[['dashboard','🏠','Dashboard'],['signals','📊','Signals'
   ['COMMUNICATION',[['chats','✉️','Member Chats'],['messages','💬','Messages'],['notifications','🔔','Notifications']]],
   ['SYSTEM',[['settings','⚙️','Settings']]]];
 const TITLES={dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],articles:['Articles','Create forex learning articles'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members']};
+
+let MENTOR_ACCESS={dashboard:true,signals:true,charts:true,articles:true,settings:true};
+function mentorCan(k){return MENTOR_ACCESS[k]!==false;}
+async function loadMentorAccessSettings(){
+  try{
+    const r=await sb.from('mentor_access_settings').select('key,enabled');
+    if(r.error)throw r.error;
+    (r.data||[]).forEach(x=>{MENTOR_ACCESS[x.key]=x.enabled!==false;});
+  }catch(e){
+    MENTOR_ACCESS={dashboard:true,signals:true,charts:true,articles:true,settings:true};
+  }
+}
 function metaOf(k){return MODS[k]?[MODS[k].label,MODS[k].sub]:(TITLES[k]||[k,'']);}
 
 /* ============ AUTH ============ */
@@ -292,9 +304,10 @@ async function afterLogin(){
   if(prof.role!=='mentor' && !(prof.role==='admin'||prof.is_admin)){await sb.auth.signOut();showErr('This account is not a mentor. Please use "Sign Up as Mentor".');resetBtn();return;}
   if(!prof.mentor_code){const code=(user.id.replace(/[^a-z0-9]/gi,'').slice(0,7)).toUpperCase();await sb.from('profiles').update({mentor_code:code,role:'mentor'}).eq('id',user.id);prof.mentor_code=code;}
   ME=prof;
+  await loadMentorAccessSettings();
   document.getElementById('authOverlay').classList.add('hidden');document.getElementById('app').classList.add('show');
   document.getElementById('whoami').textContent='👤 '+(ME.full_name||ME.email)+' · '+ME.mentor_code;
-  buildNav();showPage('dashboard');startClock();initBell();
+  buildNav();showPage(firstMentorPage());startClock();initBell();
 }
 async function logout(){await sb.auth.signOut();location.reload();}
 let BELL=[];
@@ -325,10 +338,20 @@ document.addEventListener('click',function(e){const w=e.target.closest&&e.target
 
 /* ============ UI ============ */
 function buildNav(){
-  let h='';NAV.forEach(([g,items])=>{h+=`<div class="menu-sep">${g}</div>`;items.forEach(([k,ic,lb])=>{h+=`<div class="menu-item" data-k="${k}" onclick="showPage('${k}')"><span>${ic}</span> ${lb}</div>`;});});
+  let h='';
+  NAV.forEach(([g,items])=>{
+    const allowed=items.filter(i=>mentorCan(i[0]));
+    if(!allowed.length)return;
+    h+=`<div class="menu-sep">${g}</div>`;
+    allowed.forEach(([k,ic,lb])=>{h+=`<div class="menu-item" data-k="${k}" onclick="showPage('${k}')"><span>${ic}</span> ${lb}</div>`;});
+  });
   document.getElementById('navMenu').innerHTML=h;
-  const all=[].concat(...NAV.map(x=>x[1].map(i=>i[0])));
+  const all=[].concat(...NAV.map(x=>x[1].map(i=>i[0]))).filter(mentorCan);
   document.getElementById('pages').innerHTML=all.map(k=>`<div class="page" id="pg-${k}"></div>`).join('');
+}
+function firstMentorPage(){
+  const all=[].concat(...NAV.map(x=>x[1].map(i=>i[0]))).filter(mentorCan);
+  return all[0]||'dashboard';
 }
 async function renderPayments(){
   const el=document.getElementById('pg-payments');
@@ -421,6 +444,7 @@ async function rejectReq(id){if(!confirm('Reject this request? If it was approve
 
 
 function showPage(k){
+  if(!mentorCan(k)){k=firstMentorPage();}
   document.querySelectorAll('.menu-item[data-k]').forEach(e=>e.classList.toggle('active',e.dataset.k===k));
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
   document.getElementById('pg-'+k).classList.add('active');

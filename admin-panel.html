@@ -484,6 +484,7 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="menu-label">System</div>
       <div class="menu-item" data-page="settings" onclick="showPage('settings', this)"><span class="menu-icon">⚙️</span>Settings</div>
       <div class="menu-item" data-page="sitetabs" onclick="showPage('sitetabs', this)"><span class="menu-icon">🧩</span>Site Tabs</div>
+      <div class="menu-item" data-page="mentoraccess" onclick="showPage('mentoraccess', this)"><span class="menu-icon">🔐</span>Mentor Access</div>
       <div class="menu-item" data-page="logs" onclick="showPage('logs', this)"><span class="menu-icon">📋</span>Activity Logs</div>
       <div class="menu-item" data-page="profile" onclick="showPage('profile', this)"><span class="menu-icon">👤</span>Admin Profile</div>
     </nav>
@@ -1492,6 +1493,20 @@ select option{background:#0f1729;color:#e8eaf0}
         </div>
       </div>
 
+      <!-- ========== MENTOR ACCESS ========== -->
+      <div class="page" id="page-mentoraccess">
+        <div class="card">
+          <div class="card-header"><h3 style="margin:0">🔐 Mentor Access Control</h3></div>
+          <p class="card-meta" style="margin:6px 0 14px">Toggle which tabs mentors can see in the Mentor Panel. OFF = hidden from mentor panel instantly.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+            <button class="btn btn-sm" onclick="setMentorAccessPreset('content')">Recommended: Signals + Charts + Articles</button>
+            <button class="btn btn-secondary btn-sm" onclick="setMentorAccessPreset('all')">Turn All ON</button>
+            <button class="btn btn-secondary btn-sm" onclick="setMentorAccessPreset('basic')">Basic Only</button>
+          </div>
+          <div id="mentorAccessList"><div class="list-empty">Loading...</div></div>
+        </div>
+      </div>
+
       <!-- ========== ACTIVITY LOGS ========== -->
       <div class="page" id="page-logs">
         <div class="card">
@@ -2341,6 +2356,7 @@ function showPage(page, el) {
     emails: ['Email Campaigns', 'Send mass emails and newsletters'],
     settings: ['Platform Settings', 'Configure your platform'],
     sitetabs: ['Site Tabs', 'Turn user-website tabs ON / OFF for everyone'],
+    mentoraccess: ['Mentor Access', 'Turn mentor panel tabs ON / OFF'],
     logs: ['Activity Logs', 'System and user activity history'],
     profile: ['Admin Profile', 'Your account settings']
   };
@@ -2372,6 +2388,7 @@ function showPage(page, el) {
   if (page === 'subscriptions') loadAdminSubs();
   if (page === 'newshub' && window.anhInitLoad) window.anhInitLoad();
   if (page === 'sitetabs') loadSiteTabs();
+  if (page === 'mentoraccess') loadMentorAccess();
 }
 
 function toggleSidebar() {
@@ -2440,6 +2457,57 @@ async function toggleSiteTab(key,enabled){
   var res=await sb.from('site_settings').upsert({key:key,enabled:enabled,updated_at:new Date().toISOString()},{onConflict:'key'});
   if(res.error){alert('Error: '+res.error.message);return;}
   loadSiteTabs();
+}
+
+const MENTOR_ACCESS_DEFS=[
+ ['dashboard','🏠 Dashboard','Basic overview page'],
+ ['signals','📊 Signals','Create and manage signals shown to all users'],
+ ['charts','📈 Charts','Upload chart analysis shown to all users'],
+ ['articles','📖 Articles','Create learning articles shown to all users'],
+ ['subscriptions','💳 Subscriptions','VIP plans and subscribers'],
+ ['courses','🎓 Courses','Course content'],
+ ['news','📰 News','News and events'],
+ ['quiz','❓ Quiz','Quiz question bank'],
+ ['community','👥 Community','Community groups'],
+ ['analytics','📉 Analytics','Mentor analytics'],
+ ['earnings','💰 Earnings','Commission and payouts'],
+ ['students','👥 Students','Student list'],
+ ['requests','🧾 Requests','Payment requests'],
+ ['chats','✉️ Member Chats','Direct member chats'],
+ ['messages','💬 Messages','Broadcast messages'],
+ ['notifications','🔔 Notifications','Mentor notifications'],
+ ['settings','⚙️ Settings','Profile and preferences']
+];
+const MENTOR_DEFAULT_ON={dashboard:true,signals:true,charts:true,articles:true,settings:true};
+async function loadMentorAccess(){
+  var box=document.getElementById('mentorAccessList');if(!box)return;
+  var settings={};
+  try{
+    var r=await sb.from('mentor_access_settings').select('key,enabled');
+    if(r.error)throw r.error;
+    (r.data||[]).forEach(function(s){settings[s.key]=s.enabled!==false;});
+  }catch(e){box.innerHTML='<div class="list-empty" style="color:var(--red)">Table missing or error: '+esc(e.message||'Error')+'<br><br>Run the SQL file: mentor-access-settings.sql</div>';return;}
+  box.innerHTML='<div style="display:grid;gap:8px">'+MENTOR_ACCESS_DEFS.map(function(t){
+    var key=t[0];var on=(key in settings)?settings[key]:(MENTOR_DEFAULT_ON[key]===true);
+    return '<div class="sigc" style="display:flex;justify-content:space-between;align-items:center;gap:12px">'+
+      '<div><strong>'+t[1]+'</strong><div style="font-size:11.5px;color:var(--text-muted);margin-top:3px">'+esc(t[2])+'</div></div>'+
+      '<button class="btn" onclick="toggleMentorAccess(\''+key+'\','+(!on)+')" style="padding:6px 18px;font-size:13px;border:none;border-radius:8px;cursor:pointer;font-weight:800;background:'+(on?'linear-gradient(135deg,#10b981,#059669)':'rgba(239,68,68,.18)')+';color:'+(on?'#fff':'#ef4444')+'">'+(on?'ON':'OFF')+'</button></div>';
+  }).join('')+'</div>';
+}
+async function toggleMentorAccess(key,enabled){
+  var res=await sb.from('mentor_access_settings').upsert({key:key,enabled:enabled,updated_at:new Date().toISOString()},{onConflict:'key'});
+  if(res.error){alert('Error: '+res.error.message);return;}
+  loadMentorAccess();
+}
+async function setMentorAccessPreset(type){
+  var onKeys=[];
+  if(type==='all') onKeys=MENTOR_ACCESS_DEFS.map(x=>x[0]);
+  else if(type==='basic') onKeys=['dashboard','signals','charts','articles','settings'];
+  else onKeys=['dashboard','signals','charts','articles','settings'];
+  var rows=MENTOR_ACCESS_DEFS.map(function(t){return {key:t[0],enabled:onKeys.indexOf(t[0])>-1,updated_at:new Date().toISOString()};});
+  var res=await sb.from('mentor_access_settings').upsert(rows,{onConflict:'key'});
+  if(res.error){alert('Error: '+res.error.message);return;}
+  loadMentorAccess();
 }
 
 function toggleTheme() {
