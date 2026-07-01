@@ -398,6 +398,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
+select option,select optgroup{background:#0f1729!important;color:#e8eaf0!important}
 select option{background:#0f1729;color:#e8eaf0}
 .tick-chip{display:inline-flex;gap:7px;align-items:center;font-size:12.5px;cursor:pointer;background:linear-gradient(160deg,rgba(245,158,11,.06),rgba(255,255,255,.02));border:1px solid var(--border);padding:7px 13px;border-radius:10px;transition:.15s;font-weight:600;user-select:none}
 .tick-chip:hover{border-color:var(--gold)}
@@ -1867,6 +1868,21 @@ async function delOfficialPlan(id){if(!confirm('Delete this official plan?'))ret
 // ============ OFFICIAL SIGNALS & CHARTS (admin) ============
 var ADPAIRS=['XAU/USD','XAG/USD','EUR/USD','GBP/USD','USD/JPY','USD/CHF','AUD/USD','USD/CAD','NZD/USD','EUR/JPY','GBP/JPY','BTC/USD','ETH/USD'];
 function adPairOpts(){return ADPAIRS.map(function(p){return '<option value="'+p+'">'+p+'</option>';}).join('');}
+
+const SIGNAL_NOTE_TEMPLATES = [
+"📌 Mentor's Note\n\n• Wait for candle confirmation before entering the trade.\n• Do not chase the market if the entry zone is missed.\n• Always follow the provided entry, stop loss, and take profit levels.\n• Risk only 1–2% of your account on a single trade.\n• Never trade without a stop loss.\n• Adjust your lot size according to your account balance.\n• Protect your capital before thinking about profits.\n• Book partial profits at TP1 whenever possible.\n• Move your Stop Loss to Breakeven after TP1 is hit.\n• Trail your Stop Loss as the trade moves in your favor.\n• Do not panic if price retraces before moving in the expected direction.\n• Avoid emotional trading and stick to the trading plan.\n• Wait for a confirmed breakout before entering breakout trades.\n• Beware of false breakouts and fake market moves.\n• Market structure is more important than emotions.\n• Trade with the trend whenever possible.\n• Avoid overtrading. Quality trades always beat quantity.\n• Stay away from the market during high-impact news unless the setup is planned.\n• Be patient. The market will always provide another opportunity.\n• Don't increase your lot size after a losing trade.\n• Don't revenge trade after a loss.\n• Respect support and resistance zones.\n• If the setup becomes invalid, skip the trade.\n• Capital preservation is the first priority.\n• Consistency is built through discipline, not luck.\n• No trade is better than a bad trade.\n• Every signal carries risk. There are no guaranteed profits.\n• Always perform your own analysis before placing any trade.\n• Follow proper money management at all times.\n• Trade responsibly and stay disciplined.\n\n⚠️ Disclaimer:\nThese trading signals are shared for educational and informational purposes only. Financial markets involve significant risk, and profits are never guaranteed. Trade at your own risk and use proper risk management.",
+"Wait for candle confirmation before entering the trade.",
+"Do not chase the market if the entry zone is missed.",
+"Risk only 1–2% of your account on a single trade.",
+"Move your Stop Loss to Breakeven after TP1 is hit.",
+"Book partial profits at TP1 whenever possible.",
+"Avoid high-impact news unless the setup is planned.",
+"No trade is better than a bad trade.",
+"Trade responsibly and stay disciplined."
+];
+function adSignalNoteOptions(){return '<option value="">Select mentor note template (optional)</option>'+SIGNAL_NOTE_TEMPLATES.map(function(n,i){var label=i===0?'Full mentor note + disclaimer':n.replace(/^[•📌⚠️\s]+/,'').slice(0,70);return '<option value="'+aEsc(n)+'">'+aEsc(label)+'</option>';}).join('');}
+function applyAdSignalNote(selId,targetId){var s=document.getElementById(selId),t=document.getElementById(targetId);if(!s||!t||!s.value)return; t.value = t.value.trim() ? (t.value.trim()+"\n\n"+s.value) : s.value; s.value=''; t.focus();}
+
 var adSigDir='buy';
 function adAudTicks(cls){return '<div style="display:flex;flex-wrap:wrap;gap:8px"><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="free" checked> 🆓 Free</label><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="premium"> 💎 Premium</label><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="vip"> 👑 VIP</label></div>';}
 function loadAdSignals(){
@@ -1880,7 +1896,8 @@ function loadAdSignals(){
       '<input id="as-tp1" type="number" step="any" placeholder="Take Profit 1" style="'+APMS+'">'+
       '<input id="as-tp2" type="number" step="any" placeholder="Take Profit 2 (optional)" style="'+APMS+'">'+
       '<input id="as-tp3" type="number" step="any" placeholder="Take Profit 3 (optional)" style="'+APMS+'">'+
-      '<input id="as-notes" placeholder="Notes (optional)" style="'+APMS+'">'+
+      '<select id="as-note-tpl" onchange="applyAdSignalNote(\'as-note-tpl\',\'as-notes\')" style="'+APMS+'">'+adSignalNoteOptions()+'</select>'+
+      '<textarea id="as-notes" rows="5" placeholder="Notes (optional) — select template or type custom note" style="'+APMS+';resize:vertical"></textarea>'+
       '<div><div style="font-size:11.5px;color:#94a0b8;margin-bottom:7px">👁️ Who can see this signal? (tick one or more)</div>'+adAudTicks('as-aud')+'</div>'+
       '<input id="as-plan" placeholder="VIP package name (optional)" style="'+APMS+'">'+
       '<button onclick="createAdSignal()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">🚀 Publish Official Signal</button>'+
