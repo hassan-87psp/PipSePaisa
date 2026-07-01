@@ -2479,20 +2479,29 @@ const MENTOR_ACCESS_DEFS=[
  ['settings','⚙️ Settings','Profile and preferences']
 ];
 const MENTOR_DEFAULT_ON={dashboard:true,signals:true,charts:true,articles:true,settings:true};
-async function loadMentorAccess(){
+function renderMentorAccess(settings){
   var box=document.getElementById('mentorAccessList');if(!box)return;
-  var settings={};
-  try{
-    var r=await sb.from('mentor_access_settings').select('key,enabled');
-    if(r.error)throw r.error;
-    (r.data||[]).forEach(function(s){settings[s.key]=s.enabled!==false;});
-  }catch(e){box.innerHTML='<div class="list-empty" style="color:var(--red)">Table missing or error: '+esc(e.message||'Error')+'<br><br>Run the SQL file: mentor-access-settings.sql</div>';return;}
+  settings=settings||{};
   box.innerHTML='<div style="display:grid;gap:8px">'+MENTOR_ACCESS_DEFS.map(function(t){
     var key=t[0];var on=(key in settings)?settings[key]:(MENTOR_DEFAULT_ON[key]===true);
     return '<div class="sigc" style="display:flex;justify-content:space-between;align-items:center;gap:12px">'+
       '<div><strong>'+t[1]+'</strong><div style="font-size:11.5px;color:var(--text-muted);margin-top:3px">'+esc(t[2])+'</div></div>'+
       '<button class="btn" onclick="toggleMentorAccess(\''+key+'\','+(!on)+')" style="padding:6px 18px;font-size:13px;border:none;border-radius:8px;cursor:pointer;font-weight:800;background:'+(on?'linear-gradient(135deg,#10b981,#059669)':'rgba(239,68,68,.18)')+';color:'+(on?'#fff':'#ef4444')+'">'+(on?'ON':'OFF')+'</button></div>';
   }).join('')+'</div>';
+}
+async function loadMentorAccess(){
+  var box=document.getElementById('mentorAccessList');if(!box)return;
+  renderMentorAccess({});
+  if(typeof sb==='undefined' || !sb || !sb.from){box.innerHTML='<div class="list-empty" style="color:var(--red)">Supabase client not ready. Refresh the page.</div>';return;}
+  try{
+    var query=sb.from('mentor_access_settings').select('key,enabled');
+    var timeout=new Promise(function(_,reject){setTimeout(function(){reject(new Error('Supabase request timeout. Check internet / project URL / anon key.'));},8000);});
+    var r=await Promise.race([query,timeout]);
+    if(r.error)throw r.error;
+    var settings={};
+    (r.data||[]).forEach(function(s){settings[s.key]=s.enabled!==false;});
+    renderMentorAccess(settings);
+  }catch(e){box.innerHTML='<div class="list-empty" style="color:var(--red)">Mentor access load error: '+esc(e.message||'Error')+'<br><br>Table exists, so check browser Console if this still appears.</div>';return;}
 }
 async function toggleMentorAccess(key,enabled){
   var res=await sb.from('mentor_access_settings').upsert({key:key,enabled:enabled,updated_at:new Date().toISOString()},{onConflict:'key'});
