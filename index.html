@@ -5807,7 +5807,35 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   let currentProfile = null;
   
   // ============ AUTH MODAL ============
+  function resetAuthModalState() {
+    // Fix: after successful login then logout, the old login button state was staying
+    // disabled with "Logging in..." because the modal DOM is reused.
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+      loginBtn.disabled = false;
+      loginBtn.textContent = '🔐 Login to Account';
+    }
+    const signupBtn = document.getElementById('signupBtn');
+    if (signupBtn) {
+      signupBtn.disabled = false;
+      signupBtn.textContent = '✨ Create Free Account';
+    }
+    const forgotBtn = document.getElementById('forgotBtn');
+    if (forgotBtn) {
+      forgotBtn.disabled = false;
+      forgotBtn.textContent = '📧 Send Reset Link';
+    }
+    ['authMessage', 'authMessageSignup', 'authMessageForgot'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.style.display = 'none';
+        el.innerHTML = '';
+      }
+    });
+  }
+
   function openAuthModal() {
+    resetAuthModalState();
     switchAuthTab('login');
     openModal('auth');
   }
@@ -5839,11 +5867,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     document.getElementById('authTitle').textContent = titles[tab][0];
     document.getElementById('authSubtitle').textContent = titles[tab][1];
     
-    // Clear messages
-    ['authMessage', 'authMessageSignup', 'authMessageForgot'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.style.display = 'none';
-    });
+    // Clear messages and reset any loading/disabled button state
+    resetAuthModalState();
   }
   
   function showAuthMessage(type, message, container = 'authMessage') {
@@ -5959,6 +5984,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         setTimeout(() => {
           closeModal('auth');
           loadUserProfile();
+          resetAuthModalState();
         }, 1000);
       }
     } catch (error) {
@@ -5967,6 +5993,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       if (msg.includes('Invalid')) msg = 'Wrong email or password. Try again.';
       if (msg.includes('confirmed')) msg = 'Please verify your email first. Check your inbox.';
       showAuthMessage('error', msg);
+    } finally {
       btn.disabled = false;
       btn.textContent = '🔐 Login to Account';
     }
@@ -6018,7 +6045,9 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       try{loadPerformance();}catch(e){}
       updateTradesTable();
       buildCalendar();
-      // Show landing page on logout
+      // Show landing page on logout and clear stale auth modal state
+      try { closeModal('auth'); } catch(e) {}
+      resetAuthModalState();
       showLandingPage();
     } catch (error) {
       console.error('Logout error:', error);
@@ -7307,7 +7336,9 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         currentUser = null;
         currentProfile = null;
         updateAuthUI();
-        // Show landing page on logout
+        // Show landing page on logout and clear stale auth modal state
+        try { closeModal('auth'); } catch(e) {}
+        resetAuthModalState();
         showLandingPage();
       }
     });
