@@ -679,25 +679,19 @@ select option{background:#0f1729;color:#e8eaf0}
           </div>
           
           <div class="table-controls">
-            <div class="search-wrap"><input type="text" class="search-input" placeholder="Search by name or email..."></div>
+            <div class="search-wrap"><input type="text" class="search-input" placeholder="Search by name, email or WhatsApp..."></div>
             <select style="padding: 9px 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 12px;">
-              <option>All Status</option><option>Active</option><option>Pending</option><option>Banned</option>
-            </select>
-            <select style="padding: 9px 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 12px;">
-              <option>All Plans</option><option>Free</option><option>Premium</option>
-            </select>
-            <select style="padding: 9px 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 12px;">
-              <option>All Countries</option><option>🇵🇰 Pakistan</option><option>🇮🇳 India</option><option>🇦🇪 UAE</option><option>🇸🇦 Saudi Arabia</option>
+              <option>All Countries</option><option>🇵🇰 Pakistan</option><option>🇮🇳 India</option><option>🇦🇪 UAE</option><option>🇸🇦 Saudi Arabia</option><option>🇲🇾 Malaysia</option>
             </select>
           </div>
           
           <div style="overflow-x: auto;">
             <table class="data-table">
               <thead>
-                <tr><th><input type="checkbox"></th><th>User</th><th>Country</th><th>Joined</th><th>Trades</th><th>P&L</th><th>Plan</th><th>Status</th><th>Actions</th></tr>
+                <tr><th>Name</th><th>Email</th><th>WhatsApp</th><th>Country</th><th>Joined Date</th></tr>
               </thead>
               <tbody>
-                <tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--text-muted);">Loading users...</td></tr>
+                <tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">Loading users...</td></tr>
               </tbody>
             </table>
           </div>
@@ -2736,7 +2730,7 @@ async function loadAdminUsers() {
   if (!tbody) return;
   
   if (users.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: var(--text-muted);">No users yet</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">No users yet</td></tr>';
     return;
   }
   
@@ -2760,16 +2754,14 @@ async function loadAdminUsers() {
       mentorLine = '<div style="font-size:10.5px;color:var(--text-muted);margin-top:2px">'+(mn ? ('🎓 Under: '+mn) : '🌐 No mentor (PipSePaisa)')+'</div>';
     }
 
+    const whatsapp = u.whatsapp || u.whatsapp_number || u.phone || u.mobile || '-';
+    const country = u.country || '🌐 Unknown';
     return `<tr>
-      <td><input type="checkbox"></td>
-      <td><div class="user-cell"><div class="user-cell-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">${initials}</div><div><div class="user-cell-name">${u.full_name || 'No name'}${roleBadge}</div><div class="user-cell-email">${u.email || ''}</div>${mentorLine}</div></div></td>
-      <td>${u.country || '🌐 Unknown'}</td>
+      <td><div class="user-cell"><div class="user-cell-avatar" style="background: linear-gradient(135deg, #f59e0b, #d97706);">${initials}</div><div><div class="user-cell-name">${u.full_name || 'No name'}${roleBadge}</div></div></div></td>
+      <td>${u.email || '-'}</td>
+      <td>${whatsapp}</td>
+      <td>${country}</td>
       <td>${date}</td>
-      <td>-</td>
-      <td>-</td>
-      <td>${plan}</td>
-      <td>${status}</td>
-      <td><button class="action-btn" title="View">👁️</button><button class="action-btn" title="Edit">✏️</button><button class="action-btn delete" title="Ban">🚫</button></td>
     </tr>`;
   }).join('');
   
