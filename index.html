@@ -571,7 +571,7 @@
   #page-tools .card .btn { padding: 9px 14px; font-size: 12px; }
   
   @media (max-width: 1280px) {
-    #page-tools > div:last-child { grid-template-columns: repeat(2, 1fr) !important; }
+    #toolsCalculatorsPanel > div { grid-template-columns: repeat(2, 1fr) !important; }
   }
   
   @media (max-width: 1024px) {
@@ -593,7 +593,7 @@
     .content { padding: 14px; }
     .youtube-banner { flex-direction: column; text-align: center; }
     .news-item { grid-template-columns: 1fr; gap: 6px; }
-    #page-tools > div:last-child { grid-template-columns: 1fr !important; }
+    #toolsCalculatorsPanel > div { grid-template-columns: 1fr !important; }
     .three-col { grid-template-columns: 1fr; }
     .analysis-stats { grid-template-columns: 1fr; }
   }
@@ -961,7 +961,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         <span style="margin-left: auto; font-size: 9px; padding: 2px 6px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0a0e1a; border-radius: 10px; font-weight: 700;">SOON</span>
       </div>
 
-      <div class="menu-item" data-page="banners" onclick="showPage('banners', this)"><span class="menu-icon">🖼️</span>Banners</div>
     </nav>
     
     <div class="sidebar-footer">
@@ -2123,14 +2122,19 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       </div>
       <div class="page" id="page-tools">
         <div class="card" style="margin-bottom: 14px;">
-          <div class="card-header">
+          <div class="card-header" style="margin-bottom:12px;">
             <div>
-              <div class="card-title">🔧 Trading Tools & Calculators</div>
-              <div class="card-meta" style="margin-top: 4px;">All 6 calculators ready to use — fill in values and click Calculate</div>
+              <div class="card-title">🔧 Tools</div>
+              <div class="card-meta" id="toolsPageMeta" style="margin-top: 4px;">All 6 calculators ready to use — fill in values and click Calculate</div>
             </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button id="toolsTabCalc" class="sig-fbtn active" onclick="setToolsTab('calculators',this)" style="font-weight:800;">🧮 Calculators</button>
+            <button id="toolsTabBanners" class="sig-fbtn" onclick="setToolsTab('banners',this)" style="font-weight:800;">🖼️ Banners</button>
           </div>
         </div>
         
+        <div id="toolsCalculatorsPanel">
         <!-- 3-column grid: 3 calculators per row, compact + uniform -->
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
           
@@ -2325,6 +2329,18 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
           </div>
           
         </div>
+        </div>
+        <div id="toolsBannersPanel" style="display:none;">
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-header" style="margin-bottom:0;">
+              <div>
+                <div class="card-title">🖼️ Social Media Banners</div>
+                <div class="card-meta" style="margin-top:4px;">Download ready-made banners to promote on your social media</div>
+              </div>
+            </div>
+          </div>
+          <div id="bannersGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"><div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading…</div></div>
+        </div>
       </div>
       
       <div class="page" id="page-learn">
@@ -2485,23 +2501,23 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
               <div class="card-title">📶 Trading Signals</div>
               <div class="card-meta" style="margin-top:4px;">Live trade setups — entry, stop loss &amp; take profit</div>
             </div>
-            <div style="display:flex;gap:8px;">
-              <button id="sigViewActive" class="sig-fbtn active" onclick="sigSetView('active',this)" style="font-weight:800;">⚡ Active</button>
-              <button id="sigViewHistory" class="sig-fbtn" onclick="sigSetView('history',this)" style="font-weight:800;">📜 History</button>
-            </div>
           </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <div class="sig-filter-row" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
             <div id="sigFilters" style="display:flex;gap:6px;flex-wrap:wrap;">
               <button class="sig-fbtn active" data-f="all" onclick="sigFilter('all',this)">All</button>
               <button class="sig-fbtn" data-f="forex" onclick="sigFilter('forex',this)">Forex</button>
               <button class="sig-fbtn" data-f="gold" onclick="sigFilter('gold',this)">Gold</button>
               <button class="sig-fbtn" data-f="crypto" onclick="sigFilter('crypto',this)">Crypto</button>
             </div>
-            <div id="sigTimeFilters" style="display:none;gap:6px;flex-wrap:wrap;border-left:1px solid var(--border);padding-left:10px;">
+            <div id="sigTimeFilters" style="display:none;gap:6px;flex-wrap:wrap;">
               <button class="sig-fbtn active" data-t="all" onclick="sigSetTime('all',this)">All Time</button>
               <button class="sig-fbtn" data-t="today" onclick="sigSetTime('today',this)">Today</button>
               <button class="sig-fbtn" data-t="week" onclick="sigSetTime('week',this)">Last Week</button>
               <button class="sig-fbtn" data-t="month" onclick="sigSetTime('month',this)">Last Month</button>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;border-left:1px solid var(--border);padding-left:10px;margin-left:2px;">
+              <button id="sigViewActive" class="sig-fbtn active" onclick="sigSetView('active',this)" style="font-weight:800;">⚡ Active</button>
+              <button id="sigViewHistory" class="sig-fbtn" onclick="sigSetView('history',this)" style="font-weight:800;">📜 History</button>
             </div>
           </div>
         </div>
@@ -2530,18 +2546,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
           </div>
         </div>
         <div id="articlesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;"></div>
-      </div>
-
-      <div class="page" id="page-banners">
-        <div class="card" style="margin-bottom:14px;">
-          <div class="card-header" style="margin-bottom:0;">
-            <div>
-              <div class="card-title">🖼️ Social Media Banners</div>
-              <div class="card-meta" style="margin-top:4px;">Download ready-made banners to promote on your social media</div>
-            </div>
-          </div>
-        </div>
-        <div id="bannersGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"><div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading…</div></div>
       </div>
 
   </main>
@@ -3105,7 +3109,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       dashboard: 'Dashboard', performance: 'Performance', trades: 'My Trades',
       analysis: 'Trades Analysis', aireport: 'AI Report', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex',
-      signals: 'Signals', articles: 'Charts & Articles', banners: 'Banners', vipplans: 'VIP Plans',
+      signals: 'Signals', articles: 'Charts & Articles', vipplans: 'VIP Plans',
       support: 'Support', announce: 'Announcements',
       settings: 'Settings', about: 'About'
     };
@@ -3128,7 +3132,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if (page === 'signals') loadSignalsFromDB();
     if (page === 'performance') loadPerformance();
     if (page === 'articles') loadArticlesFromDB();
-    if (page === 'banners') loadBanners();
+    if (page === 'tools' && window.currentToolsTab === 'banners') loadBanners();
     if (page === 'market') { loadGoldPrice(); loadMarketTicker(); }
     if (page === 'settings') updateSettingsProfile();
     
@@ -3142,7 +3146,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     let isSwitchingTab = false;
     const SCROLL_EDGE_OFFSET = 4;
 
-    const SCROLL_TAB_PAGES = ['performance', 'signals', 'articles', 'newshub', 'strength', 'tools', 'banners'];
+    const SCROLL_TAB_PAGES = ['performance', 'signals', 'articles', 'newshub', 'strength', 'tools'];
 
     function getVisiblePageItems(){
       return SCROLL_TAB_PAGES.map(function(page){
@@ -8332,6 +8336,21 @@ function openArt(i){
   document.getElementById('artModal').classList.add('open');
 }
 function closeArt(){document.getElementById('artModal').classList.remove('open')}
+let currentToolsTab='calculators';
+window.currentToolsTab=currentToolsTab;
+function setToolsTab(tab,el){
+  currentToolsTab=tab;
+  window.currentToolsTab=tab;
+  var calc=document.getElementById('toolsCalculatorsPanel');
+  var ban=document.getElementById('toolsBannersPanel');
+  var meta=document.getElementById('toolsPageMeta');
+  document.querySelectorAll('#toolsTabCalc,#toolsTabBanners').forEach(function(b){b.classList.remove('active')});
+  if(el)el.classList.add('active');
+  if(calc)calc.style.display=(tab==='calculators')?'block':'none';
+  if(ban)ban.style.display=(tab==='banners')?'block':'none';
+  if(meta)meta.textContent=(tab==='banners')?'Ready-made promotional banners for social media':'All 6 calculators ready to use — fill in values and click Calculate';
+  if(tab==='banners' && typeof loadBanners==='function')loadBanners();
+}
 async function loadBanners(){
   var g=document.getElementById('bannersGrid');if(!g)return;
   if(!sb){g.innerHTML='';return;}
