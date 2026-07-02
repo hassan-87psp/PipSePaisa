@@ -7175,7 +7175,41 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     var box=document.getElementById('aiReportBox');if(!box)return;
     var w=window.open('','_blank');if(!w)return;
     var name=(currentProfile&&(currentProfile.full_name||currentProfile.email))||'Trader';
-    w.document.write('<html><head><title>AI Trade Report</title><style>body{font-family:system-ui,Arial,sans-serif;background:#0a0e1a;color:#e8eaf0;padding:24px;max-width:820px;margin:auto;}h1{color:#f59e0b}</style></head><body><h1>🤖 AI Trade Report</h1><p style="color:#94a0b8">'+vEsc(name)+' · '+new Date().toLocaleString()+'</p>'+box.innerHTML+'<script>setTimeout(function(){window.print()},400)<\/script></body></html>');
+    w.document.write('<html><head><title>AI Trade Report</title><style>body{font-family:system-ui,Arial,sans-serif;background:#0a0e1a;color:#e8eaf0;padding:24px;max-width:820px;margin:auto;}h1{color:#f59e0b}</style></head><body><h1>🤖 AI Trade Report</h1><p style="color:#94a0b8">'+vEsc(name)+' · '+new Date().toLocaleString()+'</p>'+box.innerHTML+'<script>setTimeout(function(){window.print()},400)<\/script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+(function(){
+  window.PIPSEPAISA_ONESIGNAL_APP_ID = "18a97e55-9d93-4193-b60b-fe8e621f5d12";
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    try {
+      await OneSignal.init({
+        appId: window.PIPSEPAISA_ONESIGNAL_APP_ID,
+        serviceWorkerPath: "OneSignalSDKWorker.js",
+        serviceWorkerParam: { scope: "/" },
+        notifyButton: { enable: false },
+        autoResubscribe: true
+      });
+      window.PipOneSignal = OneSignal;
+      window.pipAskPushNotifications = async function() {
+        try {
+          if (!("Notification" in window)) return false;
+          if (Notification.permission === "granted") return true;
+          if (Notification.permission === "denied") return false;
+          await OneSignal.Notifications.requestPermission();
+          return Notification.permission === "granted";
+        } catch(e) { console.warn("OneSignal permission failed", e); return false; }
+      };
+      // Ask shortly after app load. Browser will only show prompt if user has not decided yet.
+      setTimeout(function() {
+        try { if (Notification.permission === "default") window.pipAskPushNotifications(); } catch(e) {}
+      }, 2500);
+    } catch(e) { console.warn("OneSignal init failed", e); }
+  });
+})();
+</script>
+
+</body></html>');
     w.document.close();
   }
   function renderAIReport(box,text,provider,cached,stats){
@@ -8462,44 +8496,37 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 <script>(function(){function hide(){var b=document.getElementById('pipBoot');if(b){b.classList.add('gone');setTimeout(function(){if(b)b.remove();},700);}}if(document.readyState==='complete'){setTimeout(hide,450);}else{window.addEventListener('load',function(){setTimeout(hide,450);});}setTimeout(hide,3500);})();</script>
 <div id="eventAIHost"></div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-messaging-compat.js"></script>
+
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
 (function(){
-  var FCM_CFG={apiKey:"AIzaSyBVH34jN4y2dI1rTgWPvfkkkDxZPF_rifg",authDomain:"pipsepaisa-notifications.firebaseapp.com",projectId:"pipsepaisa-notifications",storageBucket:"pipsepaisa-notifications.firebasestorage.app",messagingSenderId:"620866460110",appId:"1:620866460110:web:bd3d9291448614daec339f",measurementId:"G-5M0NKERDHF"};
-  var VAPID_KEY="BIl0rzmUIu79PDXELtLy8pggz5aZbiecd8NY-og1jBDobJYkOqtVpy6fnv4j4EDg00pDzMHjgmiJs0x02vZwMm4";
-  window.PSP_FCM={ready:false};
-  function getSB(){return window.sb || (typeof sb!=='undefined'?sb:null);} 
-  function uaBrowser(){var u=navigator.userAgent;return /Edg/i.test(u)?'Edge':/OPR|Opera/i.test(u)?'Opera':/Firefox/i.test(u)?'Firefox':/Chrome/i.test(u)?'Chrome':/Safari/i.test(u)?'Safari':'Browser';}
-  async function currentUser(){try{var s=getSB(); if(!s||!s.auth) return null; var r=await s.auth.getUser(); return r&&r.data?r.data.user:null;}catch(e){return null;}}
-  window.PSP_FCM.register=async function(){
-    try{
-      var s=getSB(); if(!s||!s.from||!('Notification' in window)||!('serviceWorker' in navigator)||!window.firebase) return false;
-      if(Notification.permission==='default'){
-        var ask=confirm('Allow PipSePaisa notifications for new signals, charts, articles and banners?');
-        if(!ask) return false;
-      }
-      var perm=await Notification.requestPermission(); if(perm!=='granted') return false;
-      if(!firebase.apps.length) firebase.initializeApp(FCM_CFG);
-      var reg=await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-      var messaging=firebase.messaging();
-      var token=await messaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:reg});
-      if(!token) return false;
-      var user=await currentUser();
-      await s.from('push_subscriptions').upsert({user_id:user?user.id:null,token:token,browser:uaBrowser(),platform:navigator.platform||'web',device:/Android/i.test(navigator.userAgent)?'Android':(/iPhone|iPad/i.test(navigator.userAgent)?'iOS':'Desktop'),enabled:true,updated_at:new Date().toISOString()},{onConflict:'token'});
-      window.PSP_FCM.ready=true;
-      try{messaging.onMessage(function(payload){
-        var n=payload.notification||{}, d=payload.data||{};
-        if(window.showPushToast) window.showPushToast(n.title||d.title||'PipSePaisa', n.body||d.body||'', d.url||d.action_link||'/');
-        else if(Notification.permission==='granted') new Notification(n.title||d.title||'PipSePaisa',{body:n.body||d.body||'',icon:'/icon-192.png'});
-      });}catch(e){}
-      return true;
-    }catch(e){console.warn('FCM register failed',e);return false;}
-  };
-  window.PSP_FCM.send=async function(title,body,type,url,audience){
-    try{var s=getSB(); if(!s||!s.functions) return; await s.functions.invoke('send-push',{body:{title:title,body:body,type:type||'general',url:url||'/',audience:audience||'all'}});}catch(e){console.warn('Push send failed',e);}
-  };
-  setTimeout(function(){window.PSP_FCM.register();},2500);
+  window.PIPSEPAISA_ONESIGNAL_APP_ID = "18a97e55-9d93-4193-b60b-fe8e621f5d12";
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    try {
+      await OneSignal.init({
+        appId: window.PIPSEPAISA_ONESIGNAL_APP_ID,
+        serviceWorkerPath: "OneSignalSDKWorker.js",
+        serviceWorkerParam: { scope: "/" },
+        notifyButton: { enable: false },
+        autoResubscribe: true
+      });
+      window.PipOneSignal = OneSignal;
+      window.pipAskPushNotifications = async function() {
+        try {
+          if (!("Notification" in window)) return false;
+          if (Notification.permission === "granted") return true;
+          if (Notification.permission === "denied") return false;
+          await OneSignal.Notifications.requestPermission();
+          return Notification.permission === "granted";
+        } catch(e) { console.warn("OneSignal permission failed", e); return false; }
+      };
+      // Ask shortly after app load. Browser will only show prompt if user has not decided yet.
+      setTimeout(function() {
+        try { if (Notification.permission === "default") window.pipAskPushNotifications(); } catch(e) {}
+      }, 2500);
+    } catch(e) { console.warn("OneSignal init failed", e); }
+  });
 })();
 </script>
 
