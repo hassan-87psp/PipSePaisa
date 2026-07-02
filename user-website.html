@@ -7757,6 +7757,20 @@ window.addEventListener('appinstalled', () => {
 @keyframes perfIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:none}}
 @keyframes donutIn{from{transform:scale(.82);opacity:0}to{transform:scale(1);opacity:1}}
 @media(max-width:880px){.perf-rowA{grid-template-columns:1fr !important}.perf-rowB{grid-template-columns:1fr !important}#perfGrid{grid-template-columns:1fr !important}}
+
+.sig-history-table-wrap{display:block;grid-column:1/-1;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:10px}
+.sig-history-table{width:100%;border-collapse:collapse;font-size:13px}
+.sig-history-table th{padding:12px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);background:var(--bg-elevated);border-bottom:1px solid var(--border);white-space:nowrap}
+.sig-history-table td{padding:12px 10px;border-bottom:1px solid var(--border);color:var(--text-secondary);white-space:nowrap}
+.sig-history-table tr:last-child td{border-bottom:none}
+.sig-history-table .pair{font-weight:800;color:var(--text-primary)}
+.sig-history-table .buy{color:var(--green);font-weight:800}
+.sig-history-table .sell{color:var(--red);font-weight:800}
+.sig-history-table .pips-pos{color:var(--green);font-weight:900}
+.sig-history-table .pips-neg{color:var(--red);font-weight:900}
+.sig-history-mobile-card{display:none}
+@media(max-width:760px){.sig-history-table-wrap{display:none}.sig-history-mobile-card{display:block}.sig-history-mobile-card.card{display:block}}
+
 .sig-status{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
 .st-active{background:var(--green-bg);color:var(--green)}
 .st-tp{background:var(--blue-bg);color:var(--blue)}
@@ -8045,6 +8059,37 @@ function sigGroupLabel(ts){
   if(dk===y.getTime()) return 'Yesterday Signals';
   return d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 }
+
+function sigHistoryResultLabel(s){
+  if(s.rawStatus==='sl') return 'SL Hit';
+  if(s.tpHit>=3 || s.rawStatus==='tp3') return 'TP3 Hit';
+  if(s.tpHit===2 || s.rawStatus==='tp2') return 'TP2 Hit';
+  if(s.tpHit===1 || s.rawStatus==='tp1') return 'TP1 Hit';
+  return 'Closed';
+}
+function sigHistoryStatusLabel(s){
+  return (s.rawStatus==='sl'||s.rawStatus==='closed'||s.rawStatus==='tp3')?'Closed':'Active';
+}
+function sigHistoryRow(s){
+  var d=new Date(s.closedTs||s.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  var dir=(s.dir||'').toUpperCase();
+  var p=(s.pips!=null)?((s.pips>=0?'+':'')+s.pips):'-';
+  var pCls=(s.pips||0)>=0?'pips-pos':'pips-neg';
+  return '<tr>'+
+    '<td>'+vEsc(d)+'</td>'+
+    '<td class="pair">'+vEsc(s.pair||'-')+'</td>'+
+    '<td class="'+(dir==='SELL'?'sell':'buy')+'">'+vEsc(dir||'-')+'</td>'+
+    '<td>'+vEsc(s.entry||'-')+'</td>'+
+    '<td>'+vEsc(s.sl||'-')+'</td>'+
+    '<td>'+vEsc(s.tp1||'-')+'</td>'+
+    '<td>'+vEsc(s.tp2||'-')+'</td>'+
+    '<td>'+vEsc(s.tp3||'-')+'</td>'+
+    '<td><span class="sig-status st-tp">'+vEsc(sigHistoryResultLabel(s))+'</span></td>'+
+    '<td class="'+pCls+'">'+vEsc(p)+'</td>'+
+    '<td><span class="sig-status st-closed">'+vEsc(sigHistoryStatusLabel(s))+'</span></td>'+
+  '</tr>';
+}
+
 function renderSignals(){
   const g=document.getElementById('signalsGrid');if(!g)return;
   var rd=document.getElementById('sigResultDash');if(rd)rd.style.display=(sigView==='history')?'block':'none';
@@ -8070,50 +8115,99 @@ function renderSignals(){
   }
   let lastSigKey=null;
   let sigHtml='';
-  list.forEach(s=>{
-    const groupTs=new Date(s.closedTs||s.ts).getTime();
-    const sigKey=sigDateKey(groupTs);
-    if(sigKey!==lastSigKey){
-      lastSigKey=sigKey;
-      sigHtml+=`<div class="signal-date-heading" style="grid-column:1/-1;margin:6px 0 -2px;display:flex;align-items:center;gap:12px;">
-        <div style="font-size:18px;font-weight:800;color:var(--text-primary);white-space:nowrap;">${sigGroupLabel(groupTs)}</div>
-        <div style="height:1px;background:var(--border);flex:1;"></div>
-      </div>`;
+
+  if(sigView==='history'){
+    let currentRows='';
+    function flushTable(){
+      if(currentRows){
+        sigHtml+=`<div class="sig-history-table-wrap"><table class="sig-history-table">
+          <thead><tr><th>Date</th><th>Pair</th><th>Type</th><th>Entry</th><th>SL</th><th>TP1</th><th>TP2</th><th>TP3</th><th>Result</th><th>Pips</th><th>Status</th></tr></thead>
+          <tbody>${currentRows}</tbody>
+        </table></div>`;
+        currentRows='';
+      }
     }
-    const a=stMap[s.status]||stMap.active;const sc=a[0],st=a[1];
-    const src=s.official?'<span class="sig-status st-tp" style="margin-left:6px">PipSePaisa</span>':'<span class="sig-status st-active" style="margin-left:6px">Mentor</span>';
-    const acc=s.access==='vip'?`<span class="sig-status st-tp" style="margin-left:6px;background:var(--gold);color:#0a0e1a">👑 VIP${s.plan?(' · '+s.plan):''}</span>`:'';
-    const pct=s.rawStatus==='sl'?100:(s.tpHit>=3?100:s.tpHit===2?66:s.tpHit===1?33:0);
-    const loss=s.rawStatus==='sl';
-    const pipsBadge=(s.pips!=null)?`<span class="sig-status ${s.pips>=0?'st-tp':'st-closed'}" style="margin-left:6px;background:${s.pips>=0?'rgba(16,185,129,.2)':'rgba(239,68,68,.2)'};color:${s.pips>=0?'#10b981':'#ef4444'}">${s.pips>=0?'+':''}${s.pips} pips</span>`:'';
-    const prog=`<div style="margin-top:12px;">
-      <div class="sig-prog ${loss?'loss':''}" style="--w:${pct}%"><span></span></div>
-      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:9px;font-weight:700;">
-        <span class="${s.tpHit>=1&&!loss?'tp-on':''}" style="color:${s.tpHit>=1&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=1&&!loss?'✓ ':''}TP1</span>
-        <span class="${s.tpHit>=2&&!loss?'tp-on':''}" style="color:${s.tpHit>=2&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=2&&!loss?'✓ ':''}TP2</span>
-        <span class="${s.tpHit>=3&&!loss?'tp-on':''}" style="color:${s.tpHit>=3&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=3&&!loss?'✓ ':''}TP3</span>
-      </div>
-    </div>`;
-    const lockOv=s.locked?'<div onclick="showPage(\'vipplans\', document.querySelector(\'[data-page=vipplans]\'))" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2;cursor:pointer">\
-<div style="font-size:14px;font-weight:800;color:var(--gold)">🔒 VIP Signal</div>\
-<div style="font-size:11px;color:var(--text-muted)">Tap to upgrade &amp; unlock Entry, SL &amp; TP</div>\
-<div style="margin-top:4px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;font-size:11px;padding:6px 14px;border-radius:8px">View VIP Plans →</div></div>':'';
-    sigHtml+=`<div class="card sig-card">
-      <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}</span></div>
-      <div style="position:relative">
-        ${lockOv}
-        <div class="sig-levels" style="${s.locked?'filter:blur(7px);pointer-events:none;user-select:none':''}">
+    list.forEach(s=>{
+      const groupTs=new Date(s.closedTs||s.ts).getTime();
+      const sigKey=sigDateKey(groupTs);
+      if(sigKey!==lastSigKey){
+        flushTable();
+        lastSigKey=sigKey;
+        sigHtml+=`<div class="signal-date-heading" style="grid-column:1/-1;margin:6px 0 -2px;display:flex;align-items:center;gap:12px;">
+          <div style="font-size:18px;font-weight:800;color:var(--text-primary);white-space:nowrap;">${sigGroupLabel(groupTs)}</div>
+          <div style="height:1px;background:var(--border);flex:1;"></div>
+        </div>`;
+      }
+      currentRows+=sigHistoryRow(s);
+
+      const a=stMap[s.status]||stMap.active;const sc=a[0],st=a[1];
+      const pct=s.rawStatus==='sl'?100:(s.tpHit>=3?100:s.tpHit===2?66:s.tpHit===1?33:0);
+      const loss=s.rawStatus==='sl';
+      const prog=`<div style="margin-top:12px;">
+        <div class="sig-prog ${loss?'loss':''}" style="--w:${pct}%"><span></span></div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:9px;font-weight:700;">
+          <span style="color:${s.tpHit>=1&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=1&&!loss?'✓ ':''}TP1</span>
+          <span style="color:${s.tpHit>=2&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=2&&!loss?'✓ ':''}TP2</span>
+          <span style="color:${s.tpHit>=3&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=3&&!loss?'✓ ':''}TP3</span>
+        </div>
+      </div>`;
+      sigHtml+=`<div class="card sig-card sig-history-mobile-card">
+        <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}</span></div>
+        <div class="sig-levels">
           <div class="sig-lv"><div class="l">Entry</div><div class="v">${s.entry}</div></div>
           <div class="sig-lv"><div class="l">Stop Loss</div><div class="v" style="color:var(--red)">${s.sl}</div></div>
           <div class="sig-lv"><div class="l">Take Profit 1</div><div class="v" style="color:var(--green)">${s.tp1}</div></div>
           <div class="sig-lv"><div class="l">Take Profit 2</div><div class="v" style="color:var(--green)">${s.tp2}</div></div>
           <div class="sig-lv"><div class="l">Take Profit 3</div><div class="v" style="color:var(--green)">${s.tp3}</div></div>
         </div>
-      </div>
-      ${prog}
-      <div class="sig-foot"><span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">${s.locked?'':waBtn(s.id)}${s.pips!=null?`<span style="color:${s.pips>=0?'#10b981':'#ef4444'};font-weight:800;font-size:12px;">${s.pips>=0?'+':''}${s.pips} pips</span>`:''}<span class="sig-status ${sc}">${st}</span></span><span style="white-space:nowrap;color:var(--text-muted);">🕐 ${s.time}</span></div>
-    </div>`;
-  });
+        ${prog}
+        <div class="sig-foot"><span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">${s.locked?'':waBtn(s.id)}${s.pips!=null?`<span style="color:${s.pips>=0?'#10b981':'#ef4444'};font-weight:800;font-size:12px;">${s.pips>=0?'+':''}${s.pips} pips</span>`:''}<span class="sig-status ${sc}">${st}</span></span><span style="white-space:nowrap;color:var(--text-muted);">🕐 ${s.time}</span></div>
+      </div>`;
+    });
+    flushTable();
+  } else {
+    list.forEach(s=>{
+      const groupTs=new Date(s.closedTs||s.ts).getTime();
+      const sigKey=sigDateKey(groupTs);
+      if(sigKey!==lastSigKey){
+        lastSigKey=sigKey;
+        sigHtml+=`<div class="signal-date-heading" style="grid-column:1/-1;margin:6px 0 -2px;display:flex;align-items:center;gap:12px;">
+          <div style="font-size:18px;font-weight:800;color:var(--text-primary);white-space:nowrap;">${sigGroupLabel(groupTs)}</div>
+          <div style="height:1px;background:var(--border);flex:1;"></div>
+        </div>`;
+      }
+      const a=stMap[s.status]||stMap.active;const sc=a[0],st=a[1];
+      const pct=s.rawStatus==='sl'?100:(s.tpHit>=3?100:s.tpHit===2?66:s.tpHit===1?33:0);
+      const loss=s.rawStatus==='sl';
+      const prog=`<div style="margin-top:12px;">
+        <div class="sig-prog ${loss?'loss':''}" style="--w:${pct}%"><span></span></div>
+        <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:9px;font-weight:700;">
+          <span class="${s.tpHit>=1&&!loss?'tp-on':''}" style="color:${s.tpHit>=1&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=1&&!loss?'✓ ':''}TP1</span>
+          <span class="${s.tpHit>=2&&!loss?'tp-on':''}" style="color:${s.tpHit>=2&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=2&&!loss?'✓ ':''}TP2</span>
+          <span class="${s.tpHit>=3&&!loss?'tp-on':''}" style="color:${s.tpHit>=3&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=3&&!loss?'✓ ':''}TP3</span>
+        </div>
+      </div>`;
+      const lockOv=s.locked?'<div onclick="showPage(\'vipplans\', document.querySelector(\'[data-page=vipplans]\'))" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;z-index:2;cursor:pointer">\
+<div style="font-size:14px;font-weight:800;color:var(--gold)">🔒 VIP Signal</div>\
+<div style="font-size:11px;color:var(--text-muted)">Tap to upgrade &amp; unlock Entry, SL &amp; TP</div>\
+<div style="margin-top:4px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;font-size:11px;padding:6px 14px;border-radius:8px">View VIP Plans →</div></div>':'';
+      sigHtml+=`<div class="card sig-card">
+        <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}</span></div>
+        <div style="position:relative">
+          ${lockOv}
+          <div class="sig-levels" style="${s.locked?'filter:blur(7px);pointer-events:none;user-select:none':''}">
+            <div class="sig-lv"><div class="l">Entry</div><div class="v">${s.entry}</div></div>
+            <div class="sig-lv"><div class="l">Stop Loss</div><div class="v" style="color:var(--red)">${s.sl}</div></div>
+            <div class="sig-lv"><div class="l">Take Profit 1</div><div class="v" style="color:var(--green)">${s.tp1}</div></div>
+            <div class="sig-lv"><div class="l">Take Profit 2</div><div class="v" style="color:var(--green)">${s.tp2}</div></div>
+            <div class="sig-lv"><div class="l">Take Profit 3</div><div class="v" style="color:var(--green)">${s.tp3}</div></div>
+          </div>
+        </div>
+        ${prog}
+        <div class="sig-foot"><span style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">${s.locked?'':waBtn(s.id)}${s.pips!=null?`<span style="color:${s.pips>=0?'#10b981':'#ef4444'};font-weight:800;font-size:12px;">${s.pips>=0?'+':''}${s.pips} pips</span>`:''}<span class="sig-status ${sc}">${st}</span></span><span style="white-space:nowrap;color:var(--text-muted);">🕐 ${s.time}</span></div>
+      </div>`;
+    });
+  }
   g.innerHTML=sigHtml;
 }
 
