@@ -1053,7 +1053,7 @@ function renderSignals(){
       <input id="sgPlan" placeholder="VIP package name (optional)" style="${MSINP}">
       <button onclick="createSignal()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">🚀 Publish Official Signal</button>
     </div></div>
-    <div class="card"><h3 style="margin:0 0 12px">📋 Official Signals</h3><div id="sigList">Loading...</div></div>
+    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px"><h3 style="margin:0">📋 Official Signals</h3><div style="display:flex;gap:6px"><button id="mSigTabA" onclick="mSigSetView('active')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--gold,#f59e0b);color:#0a0e1a;font-weight:800;font-size:12px;cursor:pointer">⚡ Active</button><button id="mSigTabH" onclick="mSigSetView('history')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text,#e8eaf0);font-weight:800;font-size:12px;cursor:pointer">📜 History</button></div></div><div id="sigList">Loading...</div></div>
   </div>`;
   setDir('buy');loadSignals();
 }
@@ -1099,12 +1099,29 @@ function mentorSignalRowHTML(s){
     btn('tp1','TP1 Hit','rgba(16,185,129,.5)')+btn('tp2','TP2 Hit','rgba(16,185,129,.5)')+btn('tp3','TP3 Hit','rgba(16,185,129,.7)')+btn('sl','SL Hit','rgba(239,68,68,.6)')+btn('closed','Close','rgba(148,160,184,.4)')+'</div></div>';
 }
 function sigCardHTML(s,canDelete){return mentorSignalRowHTML(s);}
+let mSigView='active';
+function mSigSetView(v){
+  mSigView=v;
+  const a=document.getElementById('mSigTabA'),h=document.getElementById('mSigTabH');
+  if(a&&h){
+    a.style.background=(v==='active')?'var(--gold,#f59e0b)':'transparent';a.style.color=(v==='active')?'#0a0e1a':'var(--text,#e8eaf0)';
+    h.style.background=(v==='history')?'var(--gold,#f59e0b)':'transparent';h.style.color=(v==='history')?'#0a0e1a':'var(--text,#e8eaf0)';
+  }
+  loadSignals();
+}
 async function loadSignals(){
   const box=document.getElementById('sigList');if(!box)return;
-  const {data,error}=await sb.from('signals').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false}).limit(30);
+  const {data,error}=await sb.from('signals').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false}).limit(60);
   if(error){box.innerHTML='<div style="color:#ef4444">'+esc(error.message)+'</div>';return;}
-  if(!data||!data.length){box.innerHTML='<div style="color:#94a0b8">No official signals yet.</div>';return;}
-  box.innerHTML=data.map(mentorSignalRowHTML).join('');
+  // user panel jaisa rule: finished = SL / Closed / TP3
+  const list=(data||[]).filter(s=>{
+    const st=(s.status||'active');
+    const finished=(st==='sl'||st==='sl_hit'||st==='closed'||st==='tp3');
+    return (mSigView==='active')?(!finished):finished;
+  });
+  if(!list.length){box.innerHTML='<div style="color:#94a0b8">'+(mSigView==='active'?'No active signals right now. Check History for past results.':'No closed signals yet.')+'</div>';return;}
+  box.innerHTML=list.map(mentorSignalRowHTML).join('');
+}
 }
 async function updateMentorSigStatus(id,kind){
   const pi=document.getElementById('pips-'+id);const pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;
