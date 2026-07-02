@@ -1079,6 +1079,7 @@ async function createSignal(){
     status:'active',tp_hit:0};
   const {error}=await sb.from('signals').insert(obj);
   if(error){alert('Error: '+error.message);return;}
+  await pspCreateNotificationAndPush('📊 New Signal Published', obj.pair+' '+obj.direction+' signal is now available.', 'signal', '/?tab=signals', obj.audience||'all');
   ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgNotes','sgPlan'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   loadSignals();
 }
@@ -1323,7 +1324,7 @@ async function uploadMentorBanner(){
     const ext=(file.name.split('.').pop()||'jpg').toLowerCase(); const path='banners/'+ME.id+'_'+Date.now()+'.'+ext;
     const up=await sb.storage.from('charts').upload(path,file,{upsert:true}); if(up.error)throw up.error;
     const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
-    const ins=await sb.from('banners').insert({title:(t.value||'').trim()||null,description:(d&&d.value||'').trim()||null,image_url:url,owner_id:ME.id,is_official:false}); if(ins.error)throw ins.error;
+    const bannerObj={title:(t.value||'').trim()||null,description:(d&&d.value||'').trim()||null,image_url:url,owner_id:ME.id,is_official:true}; const ins=await sb.from('banners').insert(bannerObj); if(ins.error)throw ins.error; await pspCreateNotificationAndPush('🖼️ New Banner Added', (bannerObj.title||'A new banner')+' is now available.', 'banner', '/?tab=tools&tool=banners', 'all');
     msg.style.color='var(--green)';msg.textContent='✅ Banner uploaded!'; f.value=''; t.value=''; if(d)d.value=''; loadMentorBanners();
   }catch(e){msg.style.color='var(--red)';msg.textContent='Upload failed: '+(e.message||e);}
   finally{btn.disabled=false;btn.textContent=old;}
@@ -1909,5 +1910,16 @@ function scan(){document.querySelectorAll('.stat .n, .stat-value').forEach(funct
 var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=setTimeout(scan,150)});document.addEventListener('DOMContentLoaded',function(){try{mo.observe(document.body,{subtree:true,childList:true,characterData:true});}catch(e){}setTimeout(scan,500)});})();
 </script>
 <script>(function(){function hide(){var b=document.getElementById('pipBoot');if(b){b.classList.add('gone');setTimeout(function(){if(b)b.remove();},700);}}if(document.readyState==='complete'){setTimeout(hide,450);}else{window.addEventListener('load',function(){setTimeout(hide,450);});}setTimeout(hide,3500);})();</script>
+
+<script>
+async function pspCreateNotificationAndPush(title, body, type, actionLink, audience){
+  try{
+    var owner=(typeof ME!=='undefined'&&ME&&ME.id)?ME.id:null;
+    var obj={owner_id:owner,is_official:true,title:title,body:body,type:type||'general',audience:audience||'all',action_link:actionLink||null};
+    if(typeof sb!=='undefined'&&sb){await sb.from('notifications').insert(obj); try{await sb.functions.invoke('send-push',{body:{title:title,body:body,type:type||'general',url:actionLink||'/',audience:audience||'all'}});}catch(e){console.warn('Push function not deployed yet',e);}}
+  }catch(e){console.warn('Notification failed',e);}
+}
+</script>
+
 </body>
 </html>

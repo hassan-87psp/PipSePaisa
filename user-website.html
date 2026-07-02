@@ -8461,5 +8461,47 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 <script>(function(){var b=document.createElement('div');b.id='announceBanner';b.style.cssText='display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(560px,92vw);';function mount(){if(document.body&&!document.getElementById('announceBanner'))document.body.appendChild(b);}if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);function active(id){var p=document.getElementById(id);return p&&p.classList.contains('active');}function tick(){try{if(typeof checkAnnounceBanner==='function')checkAnnounceBanner();}catch(e){}}function poll(){try{if(active('page-support')&&typeof loadSupport==='function')loadSupport(true);if(active('page-announce')&&typeof loadAnnouncements==='function')loadAnnouncements();}catch(e){}}setTimeout(tick,4500);setInterval(tick,20000);setInterval(poll,3000);})();</script>
 <script>(function(){function hide(){var b=document.getElementById('pipBoot');if(b){b.classList.add('gone');setTimeout(function(){if(b)b.remove();},700);}}if(document.readyState==='complete'){setTimeout(hide,450);}else{window.addEventListener('load',function(){setTimeout(hide,450);});}setTimeout(hide,3500);})();</script>
 <div id="eventAIHost"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-messaging-compat.js"></script>
+<script>
+(function(){
+  var FCM_CFG={apiKey:"AIzaSyBVH34jN4y2dI1rTgWPvfkkkDxZPF_rifg",authDomain:"pipsepaisa-notifications.firebaseapp.com",projectId:"pipsepaisa-notifications",storageBucket:"pipsepaisa-notifications.firebasestorage.app",messagingSenderId:"620866460110",appId:"1:620866460110:web:bd3d9291448614daec339f",measurementId:"G-5M0NKERDHF"};
+  var VAPID_KEY="BIl0rzmUIu79PDXELtLy8pggz5aZbiecd8NY-og1jBDobJYkOqtVpy6fnv4j4EDg00pDzMHjgmiJs0x02vZwMm4";
+  window.PSP_FCM={ready:false};
+  function getSB(){return window.sb || (typeof sb!=='undefined'?sb:null);} 
+  function uaBrowser(){var u=navigator.userAgent;return /Edg/i.test(u)?'Edge':/OPR|Opera/i.test(u)?'Opera':/Firefox/i.test(u)?'Firefox':/Chrome/i.test(u)?'Chrome':/Safari/i.test(u)?'Safari':'Browser';}
+  async function currentUser(){try{var s=getSB(); if(!s||!s.auth) return null; var r=await s.auth.getUser(); return r&&r.data?r.data.user:null;}catch(e){return null;}}
+  window.PSP_FCM.register=async function(){
+    try{
+      var s=getSB(); if(!s||!s.from||!('Notification' in window)||!('serviceWorker' in navigator)||!window.firebase) return false;
+      if(Notification.permission==='default'){
+        var ask=confirm('Allow PipSePaisa notifications for new signals, charts, articles and banners?');
+        if(!ask) return false;
+      }
+      var perm=await Notification.requestPermission(); if(perm!=='granted') return false;
+      if(!firebase.apps.length) firebase.initializeApp(FCM_CFG);
+      var reg=await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+      var messaging=firebase.messaging();
+      var token=await messaging.getToken({vapidKey:VAPID_KEY,serviceWorkerRegistration:reg});
+      if(!token) return false;
+      var user=await currentUser();
+      await s.from('push_subscriptions').upsert({user_id:user?user.id:null,token:token,browser:uaBrowser(),platform:navigator.platform||'web',device:/Android/i.test(navigator.userAgent)?'Android':(/iPhone|iPad/i.test(navigator.userAgent)?'iOS':'Desktop'),enabled:true,updated_at:new Date().toISOString()},{onConflict:'token'});
+      window.PSP_FCM.ready=true;
+      try{messaging.onMessage(function(payload){
+        var n=payload.notification||{}, d=payload.data||{};
+        if(window.showPushToast) window.showPushToast(n.title||d.title||'PipSePaisa', n.body||d.body||'', d.url||d.action_link||'/');
+        else if(Notification.permission==='granted') new Notification(n.title||d.title||'PipSePaisa',{body:n.body||d.body||'',icon:'/icon-192.png'});
+      });}catch(e){}
+      return true;
+    }catch(e){console.warn('FCM register failed',e);return false;}
+  };
+  window.PSP_FCM.send=async function(title,body,type,url,audience){
+    try{var s=getSB(); if(!s||!s.functions) return; await s.functions.invoke('send-push',{body:{title:title,body:body,type:type||'general',url:url||'/',audience:audience||'all'}});}catch(e){console.warn('Push send failed',e);}
+  };
+  setTimeout(function(){window.PSP_FCM.register();},2500);
+})();
+</script>
+
 </body>
 </html>

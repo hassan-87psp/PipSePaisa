@@ -1914,6 +1914,7 @@ async function createAdSignal(){
     plan_name:(!(aud.length===1&&aud[0]==='free'))?(v('as-plan')||null):null,status:'active',tp_hit:0};
   var r=await sb.from('signals').insert(obj);
   if(r.error){alert('Error: '+r.error.message);return;}
+  await pspCreateNotificationAndPush('📊 New Signal Published', obj.pair+' '+obj.direction+' signal is now available.', 'signal', '/?tab=signals', obj.audience||'all');
   ['as-entry','as-sl','as-tp1','as-tp2','as-tp3','as-notes','as-plan'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
   loadAdSigList();
 }
@@ -1969,8 +1970,10 @@ async function createAdChart(){
   var aud=Array.prototype.slice.call(document.querySelectorAll('.ac-aud:checked')).map(function(c){return c.value;});if(!aud.length)aud.push('free');
   var image_url='';var file=document.getElementById('ac-file').files[0];
   if(file){var ext=(file.name.split('.').pop()||'jpg').toLowerCase();var path='official/'+Date.now()+'.'+ext;var up=await sb.storage.from('charts').upload(path,file,{upsert:true});if(up.error){alert('Upload failed: '+up.error.message);return;}image_url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}
-  var r=await sb.from('charts').insert({owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('ac-pair').value,title:title,image_url:image_url,audience:aud.join(','),notes:(document.getElementById('ac-notes').value||'').trim()||null});
+  var chartObj={owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('ac-pair').value,title:title,image_url:image_url,audience:aud.join(','),notes:(document.getElementById('ac-notes').value||'').trim()||null};
+  var r=await sb.from('charts').insert(chartObj);
   if(r.error){alert('Error: '+r.error.message);return;}
+  await pspCreateNotificationAndPush('📈 New Chart Published', (chartObj.title||chartObj.pair+' chart')+' is now available.', 'chart', '/?tab=charts', chartObj.audience||'all');
   document.getElementById('ac-title').value='';document.getElementById('ac-file').value='';document.getElementById('ac-notes').value='';
   loadAdChartList();
 }
@@ -2320,6 +2323,7 @@ async function sendAdminNotif(){
   var obj={owner_id:currentAdmin.id,is_official:true,title:title,body:body,type:document.getElementById('ntfType').value,audience:document.getElementById('ntfAudience').value,action_link:(document.getElementById('ntfLink').value||'').trim()||null};
   var r=await sb.from('notifications').insert(obj);
   if(r.error){alert('Error: '+r.error.message);return;}
+  try{await sb.functions.invoke('send-push',{body:{title:title,body:body,type:obj.type||'general',url:obj.action_link||'/',audience:obj.audience||'all'}});}catch(e){console.warn('Push function not deployed yet',e);}
   document.getElementById('ntfTitle').value='';document.getElementById('ntfBody').value='';document.getElementById('ntfLink').value='';
   alert('✅ Notification sent to users');loadRecentNotifs();
 }
@@ -2429,8 +2433,10 @@ async function uploadBanner(){
     var up=await sb.storage.from('charts').upload(path,file,{upsert:true});
     if(up.error)throw up.error;
     var url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
-    var ins=await sb.from('banners').insert({title:(t.value||'').trim()||null,description:(d&&d.value||'').trim()||null,image_url:url});
+    var bannerObj={title:(t.value||'').trim()||null,description:(d&&d.value||'').trim()||null,image_url:url};
+    var ins=await sb.from('banners').insert(bannerObj);
     if(ins.error)throw ins.error;
+    await pspCreateNotificationAndPush('🖼️ New Banner Added', (bannerObj.title||'A new banner')+' is now available.', 'banner', '/?tab=tools&tool=banners', 'all');
     msg.style.color='var(--green)';msg.textContent='✅ Banner uploaded!';
     f.value='';t.value='';if(d)d.value='';
     loadAdBanners();
@@ -3600,8 +3606,10 @@ async function createArticle(){
     editingArticleId=null;const b=document.getElementById('artBtn');if(b)b.textContent='➕ Create Article';
   }else{
     const {data:{user}}=await sb.auth.getUser();
-    const {error}=await sb.from('articles').insert({type,title,category,image_url,content,is_published,is_official:true,author_id:user?user.id:null});
+    const articleObj={type,title,category,image_url,content,is_published,is_official:true,author_id:user?user.id:null};
+    const {error}=await sb.from('articles').insert(articleObj);
     if(error){alert('Error: '+error.message);return;}
+    if(is_published) await pspCreateNotificationAndPush('📖 New Article Published', title+' is now available.', 'article', '/?tab=charts&sub=articles', 'all');
   }
   document.getElementById('artTitle').value='';document.getElementById('artImage').value='';document.getElementById('artContent').value='';document.getElementById('artFile').value='';var ap=document.getElementById('artImgPreview');if(ap)ap.innerHTML='';
   loadAdminArticles();
@@ -3638,5 +3646,16 @@ function scan(){document.querySelectorAll('.stat .n, .stat-value').forEach(funct
 var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=setTimeout(scan,150)});document.addEventListener('DOMContentLoaded',function(){try{mo.observe(document.body,{subtree:true,childList:true,characterData:true});}catch(e){}setTimeout(scan,500)});})();
 </script>
 <script>(function(){function hide(){var b=document.getElementById('pipBoot');if(b){b.classList.add('gone');setTimeout(function(){if(b)b.remove();},700);}}if(document.readyState==='complete'){setTimeout(hide,450);}else{window.addEventListener('load',function(){setTimeout(hide,450);});}setTimeout(hide,3500);})();</script>
+
+<script>
+async function pspCreateNotificationAndPush(title, body, type, actionLink, audience){
+  try{
+    var owner=(typeof currentAdmin!=='undefined'&&currentAdmin&&currentAdmin.id)?currentAdmin.id:null;
+    var obj={owner_id:owner,is_official:true,title:title,body:body,type:type||'general',audience:audience||'all',action_link:actionLink||null};
+    if(typeof sb!=='undefined'&&sb){await sb.from('notifications').insert(obj); try{await sb.functions.invoke('send-push',{body:{title:title,body:body,type:type||'general',url:actionLink||'/',audience:audience||'all'}});}catch(e){console.warn('Push function not deployed yet',e);}}
+  }catch(e){console.warn('Notification failed',e);}
+}
+</script>
+
 </body>
 </html>
