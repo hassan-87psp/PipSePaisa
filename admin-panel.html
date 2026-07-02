@@ -1586,7 +1586,7 @@ const SUPABASE_KEY = 'sb_publishable_pARKqVhdmy3qMg98JAzTkw_1ZAtYW5o'; // <-- na
 let sb = null;
 try {
   if (window.supabase && window.supabase.createClient) {
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: "pipsepaisa-admin-auth", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage } });
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-admin-auth",persistSession:true,autoRefreshToken:true}});
     console.log('✅ Supabase initialized');
   }
 } catch (e) {
@@ -1595,22 +1595,6 @@ try {
 
 let currentAdmin = null;
 let isLoggedIn = false;
-
-async function createPublishNotification(type,title,body,actionLink,audience){
-  try{
-    if(!sb) return;
-    await sb.from('notifications').insert({
-      owner_id:(currentAdmin&&currentAdmin.id)||null,
-      is_official:true,
-      title:title||'New Update',
-      body:body||'',
-      type:type||'general',
-      action_link:actionLink||null,
-      audience:audience||'all'
-    });
-  }catch(e){console.warn('Notification insert failed',e);}
-}
-
 
 // On load, check if already logged in
 window.addEventListener('load', async () => {
@@ -1930,7 +1914,6 @@ async function createAdSignal(){
     plan_name:(!(aud.length===1&&aud[0]==='free'))?(v('as-plan')||null):null,status:'active',tp_hit:0};
   var r=await sb.from('signals').insert(obj);
   if(r.error){alert('Error: '+r.error.message);return;}
-  await createPublishNotification('signal','📊 New Signal Published',obj.pair+' '+obj.direction+' signal is now available.','#signals',obj.audience||'all');
   ['as-entry','as-sl','as-tp1','as-tp2','as-tp3','as-notes','as-plan'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
   loadAdSigList();
 }
@@ -1986,10 +1969,8 @@ async function createAdChart(){
   var aud=Array.prototype.slice.call(document.querySelectorAll('.ac-aud:checked')).map(function(c){return c.value;});if(!aud.length)aud.push('free');
   var image_url='';var file=document.getElementById('ac-file').files[0];
   if(file){var ext=(file.name.split('.').pop()||'jpg').toLowerCase();var path='official/'+Date.now()+'.'+ext;var up=await sb.storage.from('charts').upload(path,file,{upsert:true});if(up.error){alert('Upload failed: '+up.error.message);return;}image_url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}
-  var chartObj={owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('ac-pair').value,title:title,image_url:image_url,audience:aud.join(','),notes:(document.getElementById('ac-notes').value||'').trim()||null};
-  var r=await sb.from('charts').insert(chartObj);
+  var r=await sb.from('charts').insert({owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('ac-pair').value,title:title,image_url:image_url,audience:aud.join(','),notes:(document.getElementById('ac-notes').value||'').trim()||null});
   if(r.error){alert('Error: '+r.error.message);return;}
-  await createPublishNotification('chart','📈 New Chart Analysis',chartObj.pair+' chart analysis: '+title,'#charts',chartObj.audience||'all');
   document.getElementById('ac-title').value='';document.getElementById('ac-file').value='';document.getElementById('ac-notes').value='';
   loadAdChartList();
 }

@@ -5872,7 +5872,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     try {
       if (sb) return true;
       if (window.supabase && window.supabase.createClient) {
-        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: "pipsepaisa-user-auth", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage } });
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-user-auth",persistSession:true,autoRefreshToken:true}});
         console.log('✅ Supabase initialized');
         try{loadTabSettings();}catch(e){}
         return true;
@@ -6437,27 +6437,68 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     const m=document.getElementById('supMsg');
     alert('✓ All notifications marked as read');
   }
+  function pspNotificationPage(n){
+    const t=String((n&&n.type)||'').toLowerCase();
+    const l=String((n&&n.action_link)||'').toLowerCase();
+    if(l.indexOf('signal')>-1||t.indexOf('signal')>-1) return 'signals';
+    if(l.indexOf('chart')>-1||l.indexOf('article')>-1||t.indexOf('chart')>-1||t.indexOf('article')>-1) return 'articles';
+    if(l.indexOf('banner')>-1||t.indexOf('banner')>-1) return 'tools';
+    if(l.indexOf('news')>-1||t.indexOf('news')>-1) return 'newshub';
+    if(l.indexOf('strength')>-1||t.indexOf('strength')>-1) return 'strength';
+    return null;
+  }
+  function pspCanOpenPage(page){
+    if(!page) return false;
+    const pg=document.getElementById('page-'+page);
+    const nav=document.querySelector('[data-page="'+page+'"]');
+    return !!(pg && nav && nav.offsetParent !== null);
+  }
+  function pspPlayNotifySound(){
+    try{
+      const A=window.AudioContext||window.webkitAudioContext;if(!A)return;
+      const ctx=new A();
+      const now=ctx.currentTime;
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.type='sine';osc.frequency.setValueAtTime(880,now);osc.frequency.exponentialRampToValueAtTime(1320,now+.16);
+      gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.22,now+.02);gain.gain.exponentialRampToValueAtTime(.0001,now+.42);
+      osc.connect(gain);gain.connect(ctx.destination);osc.start(now);osc.stop(now+.45);
+      setTimeout(function(){try{ctx.close();}catch(e){}},700);
+    }catch(e){}
+  }
+  function pspBrowserNotify(n){
+    try{
+      if(!('Notification' in window))return;
+      if(Notification.permission==='granted'){new Notification(n.title||'PipSePaisa Notification',{body:n.body||'',icon:'icon-192.png',tag:n.id||n.created_at||'psp'});}
+    }catch(e){}
+  }
   async function checkAnnounceBanner(){
     if(!sb)return;
     let latest=null;try{const r=await sb.from('notifications').select('*').eq('is_official',true).order('created_at',{ascending:false}).limit(1);latest=(r.data||[])[0];}catch(e){return;}
     if(!latest)return;
     let seen=null;try{seen=localStorage.getItem('psp_last_announce');}catch(e){}
     if(seen&&new Date(latest.created_at)<=new Date(seen)){var hb=document.getElementById('announceBanner');if(hb)hb.style.display='none';return;}
-    window._lastAnnounceAt=latest.created_at;
-    const ico={general:'📢',urgent:'🔴',course:'🎓',signal:'📈',promo:'🎁'};
+    window._lastAnnounceAt=latest.created_at;window._lastAnnounceObj=latest;
+    try{const lastSound=localStorage.getItem('psp_last_notify_sound');if(lastSound!==latest.created_at){pspPlayNotifySound();pspBrowserNotify(latest);localStorage.setItem('psp_last_notify_sound',latest.created_at);}}catch(e){}
+    const ico={general:'📢',urgent:'🔴',course:'🎓',signal:'📈',chart:'📊',article:'📖',banner:'🖼️',promo:'🎁'};
     const host=document.getElementById('announceBanner');if(!host)return;
+    const targetPage=pspNotificationPage(latest);
+    const canView=pspCanOpenPage(targetPage);
     host.style.display='block';
     host.innerHTML='<div style="background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;padding:12px 16px;border-radius:12px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px rgba(245,158,11,.3);">'+
-      '<span style="font-size:20px">'+(ico[latest.type]||'📢')+'</span>'+
+      '<span style="font-size:20px">'+(ico[latest.type]||'🔔')+'</span>'+
       '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px">'+vEsc(latest.title||'Notification')+'</div><div style="font-size:12px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+vEsc((latest.body||'').slice(0,80))+'</div></div>'+
-      '<button onclick="dismissAnnounceBanner(true)" style="background:rgba(0,0,0,.15);border:none;color:#0a0e1a;font-weight:800;padding:7px 13px;border-radius:8px;cursor:pointer;font-size:12px;white-space:nowrap">View</button>'+
+      (canView?'<button onclick="dismissAnnounceBanner(true)" style="background:rgba(0,0,0,.15);border:none;color:#0a0e1a;font-weight:800;padding:7px 13px;border-radius:8px;cursor:pointer;font-size:12px;white-space:nowrap">View</button>':'')+
       '<button onclick="dismissAnnounceBanner(false)" style="background:none;border:none;color:#0a0e1a;font-weight:800;font-size:18px;cursor:pointer;padding:0 4px;line-height:1">×</button>'+
     '</div>';
   }
   function dismissAnnounceBanner(go){
     try{ if(window._lastAnnounceAt) localStorage.setItem('psp_last_announce', window._lastAnnounceAt); }catch(e){}
     var b=document.getElementById('announceBanner'); if(b) b.style.display='none';
-    if(go){ showPage('announce', document.querySelector('[data-page=announce]')); }
+    if(go){
+      const page=pspNotificationPage(window._lastAnnounceObj||{});
+      if(pspCanOpenPage(page)){ showPage(page, document.querySelector('[data-page="'+page+'"]')); }
+    }
   }
   // ============ COMMUNITY (reactions, replies, edit, pin, avatars, notifications) ============
   var _commGid=null;var _commGroups=[];var _commImgFile=null;var _commFeedSig='';var _commOpenComments={};
