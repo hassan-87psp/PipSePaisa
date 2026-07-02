@@ -1916,7 +1916,7 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
   try{
     var owner=(typeof ME!=='undefined'&&ME&&ME.id)?ME.id:null;
     var obj={owner_id:owner,is_official:true,title:title,body:body,type:type||'general',audience:audience||'all',action_link:actionLink||null};
-    if(typeof sb!=='undefined'&&sb){await sb.from('notifications').insert(obj); try{await sb.functions.invoke('send-push',{body:{title:title,body:body,type:type||'general',url:actionLink||'/',audience:audience||'all'}});}catch(e){console.warn('Push function not deployed yet',e);}}
+    if(typeof sb!=='undefined'&&sb){await sb.from('notifications').insert(obj); try{await fetch('/api/send-push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:title,body:body,type:type||'general',url:actionLink||'/',audience:audience||'all'})});}catch(e){console.warn('Push API not deployed yet',e);}}
   }catch(e){console.warn('Notification failed',e);}
 }
 </script>

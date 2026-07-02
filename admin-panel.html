@@ -2323,7 +2323,7 @@ async function sendAdminNotif(){
   var obj={owner_id:currentAdmin.id,is_official:true,title:title,body:body,type:document.getElementById('ntfType').value,audience:document.getElementById('ntfAudience').value,action_link:(document.getElementById('ntfLink').value||'').trim()||null};
   var r=await sb.from('notifications').insert(obj);
   if(r.error){alert('Error: '+r.error.message);return;}
-  try{await sb.functions.invoke('send-push',{body:{title:title,body:body,type:obj.type||'general',url:obj.action_link||'/',audience:obj.audience||'all'}});}catch(e){console.warn('Push function not deployed yet',e);}
+  try{await fetch('/api/send-push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:title,body:body,type:obj.type||'general',url:obj.action_link||'/',audience:obj.audience||'all'})});}catch(e){console.warn('Push API not deployed yet',e);}
   document.getElementById('ntfTitle').value='';document.getElementById('ntfBody').value='';document.getElementById('ntfLink').value='';
   alert('✅ Notification sent to users');loadRecentNotifs();
 }
@@ -3652,7 +3652,7 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
   try{
     var owner=(typeof currentAdmin!=='undefined'&&currentAdmin&&currentAdmin.id)?currentAdmin.id:null;
     var obj={owner_id:owner,is_official:true,title:title,body:body,type:type||'general',audience:audience||'all',action_link:actionLink||null};
-    if(typeof sb!=='undefined'&&sb){await sb.from('notifications').insert(obj); try{await sb.functions.invoke('send-push',{body:{title:title,body:body,type:type||'general',url:actionLink||'/',audience:audience||'all'}});}catch(e){console.warn('Push function not deployed yet',e);}}
+    if(typeof sb!=='undefined'&&sb){await sb.from('notifications').insert(obj); try{await fetch('/api/send-push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:title,body:body,type:type||'general',url:actionLink||'/',audience:audience||'all'})});}catch(e){console.warn('Push API not deployed yet',e);}}
   }catch(e){console.warn('Notification failed',e);}
 }
 </script>

@@ -1,0 +1,19 @@
+PipSePaisa OneSignal Setup
+
+OneSignal App ID:
+18a97e55-9d93-4193-b60b-fe8e621f5d12
+
+Files added to root:
+- OneSignalSDKWorker.js
+- OneSignalSDKUpdaterWorker.js
+
+Upload all files to GitHub root, same place as index.html.
+Then open https://www.pipsepaisa.com and allow notifications.
+
+SQL update:
+No new Supabase SQL is required for OneSignal subscriber registration.
+OneSignal manages browser/device subscriptions in its own Audience section.
+
+Important:
+This GitHub Pages setup can subscribe users and receive notifications sent from OneSignal dashboard.
+For fully automatic push when Admin/Mentor publishes Signal/Chart/Article/Banner, OneSignal REST API key + backend/secure trigger is required. Do not put the REST API key inside public HTML/JS.
