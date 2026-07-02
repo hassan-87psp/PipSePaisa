@@ -609,13 +609,29 @@ select option,select optgroup{background:#0f1729!important;color:#e8eaf0!importa
 const SUPABASE_URL='https://vjqvoinsspgsrcyhwspy.supabase.co';
 const SUPABASE_KEY='sb_publishable_pARKqVhdmy3qMg98JAzTkw_1ZAtYW5o';
 let ME=null, authMode='login', pipsView=false;
+
+async function createMentorPublishNotification(type,title,body,actionLink,audience){
+  try{
+    if(!sb||!ME) return;
+    await sb.from('notifications').insert({
+      owner_id:ME.id,
+      is_official:true,
+      title:title||'New Update',
+      body:body||'',
+      type:type||'general',
+      action_link:actionLink||null,
+      audience:audience||'all'
+    });
+  }catch(e){console.warn('Notification insert failed',e);}
+}
+
 let sb=null;
 let supabaseLoadPromise=null;
 function initSupabaseClient(){
   try{
     if(sb) return true;
     if(window.supabase && window.supabase.createClient){
-      sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:"pipsepaisa-mentor-auth",persistSession:true,autoRefreshToken:true}});
+      sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{ auth: { storageKey: "pipsepaisa-mentor-auth", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage } });
       return true;
     }
   }catch(e){console.error('Supabase init error',e); sb=null;}
@@ -1079,6 +1095,7 @@ async function createSignal(){
     status:'active',tp_hit:0};
   const {error}=await sb.from('signals').insert(obj);
   if(error){alert('Error: '+error.message);return;}
+  await createMentorPublishNotification('signal','📊 New Signal Published',obj.pair+' '+obj.direction+' signal is now available.','#signals',obj.audience||'all');
   ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgNotes','sgPlan'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   loadSignals();
 }
@@ -1178,9 +1195,10 @@ async function createChart(){
     }
     const chAud=Array.prototype.slice.call(document.querySelectorAll('.ch-aud:checked')).map(function(c){return c.value;});
     if(!chAud.length)chAud.push('free');
-    const {error}=await sb.from('charts').insert({owner_id:ME.id,is_official:false,pair,title,image_url,audience:chAud.join(','),notes:document.getElementById('chNotes').value.trim()||null});
+    const chartObj={owner_id:ME.id,is_official:true,pair,title,image_url,audience:chAud.join(','),notes:document.getElementById('chNotes').value.trim()||null};
+    const {error}=await sb.from('charts').insert(chartObj);
     if(error){alert('Error: '+error.message);}
-    else{document.getElementById('chTitle').value='';document.getElementById('chFile').value='';document.getElementById('chNotes').value='';loadCharts();}
+    else{await createMentorPublishNotification('chart','📈 New Chart Analysis',pair+' chart analysis: '+title,'#charts',chartObj.audience||'all');document.getElementById('chTitle').value='';document.getElementById('chFile').value='';document.getElementById('chNotes').value='';loadCharts();}
   }catch(e){alert(e.message);}
   btn.disabled=false;btn.textContent='📊 Publish Chart';
 }
@@ -1254,6 +1272,7 @@ async function createMentorArticle(){
     }else{
       const {error}=await sb.from('articles').insert({type,title,category,image_url,content,is_published,is_official:true,author_id:ME.id});
       if(error){alert('Error: '+error.message);return;}
+      if(is_published){await createMentorPublishNotification('article','📖 New Article Published',title,'#articles','all');}
     }
     document.getElementById('maTitle').value='';document.getElementById('maImage').value='';document.getElementById('maContent').value='';
     const f=document.getElementById('maFile');if(f)f.value='';const p=document.getElementById('maPreview');if(p)p.innerHTML='';
@@ -1323,7 +1342,9 @@ async function uploadMentorBanner(){
     const ext=(file.name.split('.').pop()||'jpg').toLowerCase(); const path='banners/'+ME.id+'_'+Date.now()+'.'+ext;
     const up=await sb.storage.from('charts').upload(path,file,{upsert:true}); if(up.error)throw up.error;
     const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
-    const ins=await sb.from('banners').insert({title:(t.value||'').trim()||null,description:(d&&d.value||'').trim()||null,image_url:url,owner_id:ME.id,is_official:false}); if(ins.error)throw ins.error;
+    const bannerTitle=(t.value||'').trim()||'New Banner';
+    const ins=await sb.from('banners').insert({title:bannerTitle,description:(d&&d.value||'').trim()||null,image_url:url,owner_id:ME.id,is_official:true}); if(ins.error)throw ins.error;
+    await createMentorPublishNotification('banner','🖼️ New Banner Added',bannerTitle+' is now available.','#tools','all');
     msg.style.color='var(--green)';msg.textContent='✅ Banner uploaded!'; f.value=''; t.value=''; if(d)d.value=''; loadMentorBanners();
   }catch(e){msg.style.color='var(--red)';msg.textContent='Upload failed: '+(e.message||e);}
   finally{btn.disabled=false;btn.textContent=old;}

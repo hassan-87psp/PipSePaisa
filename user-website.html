@@ -5872,7 +5872,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     try {
       if (sb) return true;
       if (window.supabase && window.supabase.createClient) {
-        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-user-auth",persistSession:true,autoRefreshToken:true}});
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { storageKey: "pipsepaisa-user-auth", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage } });
         console.log('✅ Supabase initialized');
         try{loadTabSettings();}catch(e){}
         return true;
