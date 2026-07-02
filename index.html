@@ -916,7 +916,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="brand-logo" style="background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;font-size:18px;width:36px;height:36px;border-radius:8px;">P</div>
       <div class="brand-text">
         <h1>PipSePaisa</h1>
-        <p>Trading Platform</p>
+        <p>Mentor Panel</p>
       </div>
     </div>
     
@@ -1025,7 +1025,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="page active" id="page-performance">
         <div id="perfHero" style="position:relative;overflow:hidden;border-radius:20px;padding:22px 24px;margin-bottom:18px;background:linear-gradient(135deg,rgba(245,158,11,.16),rgba(16,185,129,.06),transparent);border:1px solid rgba(245,158,11,.25);">
           <div style="font-size:13px;color:var(--gold);font-weight:800;letter-spacing:.5px;text-transform:uppercase;">PipSePaisa Performance</div>
-          <div id="perfHello" style="font-size:24px;font-weight:900;margin-top:4px;">Welcome back 👋</div>
+          <div id="perfHello" style="font-size:24px;font-weight:900;margin-top:4px;">Welcome 👋</div>
           <div style="font-size:13px;color:var(--text-muted);margin-top:3px;">Your live overview — signals, charts, news & results in one place.</div>
         </div>
         <div id="perfResults"></div>
@@ -1641,18 +1641,29 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         }
 
         function nhUpdateImpact(){
-          const cc=nhNews.filter(n=>n.cat==='conflict').length;
-          const me=nhNews.some(n=>['iran','israel','gaza','saudi','yemen'].some(w=>n.title.toLowerCase().includes(w)));
-          const tr=nhNews.some(n=>['tariff','trade war'].some(w=>n.title.toLowerCase().includes(w)));
-          const uk=nhNews.some(n=>['ukraine','russia'].some(w=>n.title.toLowerCase().includes(w)));
-          const fed=nhNews.some(n=>['federal reserve','fomc','rate hike','rate cut'].some(w=>n.title.toLowerCase().includes(w)));
+          const T=(nhNews||[]).map(n=>((n.title||'')+' '+(n.desc||'')).toLowerCase());
+          const hits=w=>T.filter(t=>t.includes(w)).length;
+          const sum=ws=>ws.reduce((a,w)=>a+hits(w),0);
+          const conflict=sum(['war','strike','attack','missile','airstrike','conflict','military','troops']);
+          const mideast=sum(['iran','israel','gaza','saudi','yemen','hormuz','hezbollah']);
+          const ukr=sum(['ukraine','russia','kremlin']);
+          const fedUp=sum(['rate hike','hawkish','hot inflation','inflation rises','strong jobs','jobs beat','yields rise']);
+          const fedDown=sum(['rate cut','dovish','inflation cools','cooling inflation','weak jobs','recession','jobless claims rise']);
+          const trade=sum(['tariff','trade war','sanction','export ban']);
+          const oilSup=sum(['opec','oil supply','pipeline','embargo','output cut']);
+          const goldS=conflict+mideast+ukr+fedDown-fedUp;
+          const eurS=fedDown-(trade+fedUp);
+          const jpyS=-(conflict+mideast+ukr);
+          const dxyS=fedUp+trade+Math.floor((conflict+mideast)/3)-fedDown;
+          const oilS=mideast+ukr+oilSup;
+          const row=(pair,sc,bw,brw)=>{const cls=sc>1?'nh-bull':(sc<-1?'nh-bear':'nh-neut');const txt=sc>1?('▲ Bullish — '+bw):(sc<-1?('▼ Bearish — '+brw):'— Neutral');return '<div class="nh-impact-row"><span style="font-weight:700;color:var(--text-secondary)">'+pair+'</span><span class="'+cls+'">'+txt+'</span></div>';};
           const el=document.getElementById('nhImpact');if(!el)return;
-          el.innerHTML=`
-            <div class="nh-impact-row"><span style="font-weight:700;color:var(--text-secondary)">XAU/USD</span><span class="${cc>4||me?'nh-bull':'nh-neut'}">${cc>4||me?'▲ Bullish — Risk-off':'— Neutral'}</span></div>
-            <div class="nh-impact-row"><span style="font-weight:700;color:var(--text-secondary)">EUR/USD</span><span class="${tr?'nh-bear':fed?'nh-bull':'nh-neut'}">${tr?'▼ Bearish — Trade war':fed?'▲ Watch Fed signals':'— Neutral'}</span></div>
-            <div class="nh-impact-row"><span style="font-weight:700;color:var(--text-secondary)">USD/JPY</span><span class="${cc>3||uk?'nh-bear':'nh-neut'}">${cc>3||uk?'▼ Bearish — Safe haven JPY':'— Neutral'}</span></div>
-            <div class="nh-impact-row"><span style="font-weight:700;color:var(--text-secondary)">USD Index</span><span class="${me||cc>5?'nh-bull':'nh-neut'}">${me||cc>5?'▲ Bullish — Geopolitical':'— Neutral'}</span></div>
-            <div class="nh-impact-row"><span style="font-weight:700;color:var(--text-secondary)">Oil (WTI)</span><span class="${me||uk?'nh-bull':'nh-neut'}">${me||uk?'▲ Bullish — Supply risk':'— Neutral'}</span></div>`;
+          el.innerHTML=
+            row('XAU/USD',goldS,'Risk-off / safe haven','Hawkish Fed')+
+            row('EUR/USD',eurS,'Dovish Fed','Trade war / strong USD')+
+            row('USD/JPY',jpyS,'Risk-on flows','Safe haven JPY')+
+            row('USD Index',dxyS,'Hawkish Fed / geopolitics','Dovish Fed')+
+            row('Oil (WTI)',oilS,'Supply risk','Demand worries');
         }
 
         function nhRender(){
@@ -2363,7 +2374,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         <div class="profile-card">
           <div class="profile-avatar" id="settingsAvatar">U</div>
           <div class="profile-info">
-            <h2><span id="settingsName">User</span> <span class="free-badge">FREE</span></h2>
+            <h2><span id="settingsName">User</span></h2>
             <div class="username">@<span id="settingsUsername">trader</span></div>
             <div class="joined">Joined April 2026</div>
             <div class="profile-stats" style="display:none;">
@@ -2530,9 +2541,10 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         <div class="card" style="margin-bottom:14px;">
           <div class="card-header" style="margin-bottom:0;align-items:flex-start;">
             <div style="min-width:260px;">
-              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;align-items:center;">
                 <button id="artModeCharts" class="sig-fbtn active" onclick="setArtMode('charts',this)" style="font-weight:800;">📈 Charts</button>
                 <button id="artModeArticles" class="sig-fbtn" onclick="setArtMode('articles',this)" style="font-weight:800;">📖 Articles</button>
+                <span id="artFiltersSlot" style="display:flex;gap:6px;flex-wrap:wrap;border-left:1px solid var(--border);padding-left:10px;margin-left:2px;"></span>
               </div>
               <div class="card-title" id="artPageTitle">📈 Charts &amp; Analysis</div>
               <div class="card-meta" id="artPageMeta" style="margin-top:4px;">Trading charts, market analysis &amp; setups</div>
@@ -3201,6 +3213,23 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         switchPageByScroll(-1);
       }
     }, { passive:false });
+
+    // Touch swipe (mobile): swipe up at page bottom -> next tab, swipe down at top -> prev tab
+    var _tY=null;
+    window.addEventListener('touchstart', function(e){ _tY=e.touches[0].clientY; }, { passive:true });
+    window.addEventListener('touchend', function(e){
+      if(_tY==null) return;
+      var dy=_tY - e.changedTouches[0].clientY; _tY=null;
+      var target=e.target;
+      if(target && target.closest && target.closest('input, textarea, select, .modal, .overlay, .pair-dropdown, .search-palette')) return;
+      var scrollTop=window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      var viewport=window.innerHeight || document.documentElement.clientHeight;
+      var docHeight=Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+      var atBottom=scrollTop + viewport >= docHeight - SCROLL_EDGE_OFFSET;
+      var atTop=scrollTop <= SCROLL_EDGE_OFFSET;
+      if(dy > 70 && atBottom) switchPageByScroll(1);
+      else if(dy < -70 && atTop) switchPageByScroll(-1);
+    }, { passive:true });
   })();
 
   function goPerformanceHome() {
@@ -6105,7 +6134,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       if (error) throw error;
       
       if (data.user) {
-        showAuthMessage('success', 'Welcome back! Loading your dashboard...');
+        showAuthMessage('success', 'Welcome! Loading your dashboard...');
         setTimeout(() => {
           closeModal('auth');
           loadUserProfile();
@@ -6191,9 +6220,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       updateAuthUI();
       return;
     }
-    const { data: { user }, error } = await sb.auth.getUser();
-    
-    if (error || !user) {
+    let user = null;
+    try { const sres = await sb.auth.getSession(); user = (sres && sres.data && sres.data.session) ? sres.data.session.user : null; } catch(e) {}
+    if (!user) { try { const ur = await sb.auth.getUser(); user = (ur && ur.data) ? ur.data.user : null; } catch(e) {} }
+
+    if (!user) {
       currentUser = null;
       currentProfile = null;
       updateAuthUI();
@@ -7423,7 +7454,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       
       if (userAvatar) userAvatar.textContent = initial;
       if (userName) userName.textContent = name;
-      if (userStatus) userStatus.textContent = currentProfile.email || 'Welcome back';
+      if (userStatus) userStatus.textContent = currentProfile.email || 'Welcome';
       if (userBadge) {
         userBadge.textContent = currentProfile.is_premium ? (currentProfile.member_type==='vip'?'👑 VIP':'💎 PREMIUM') : 'FREE';
         userBadge.style.background = currentProfile.is_premium ? 'rgba(139, 92, 246, 0.15)' : '';
@@ -7635,6 +7666,14 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       if (app) app.style.display = 'flex';
       document.body.style.overflow = '';
       try { sessionStorage.setItem('hasEnteredApp', 'true'); } catch(e) {}
+      try {
+        var pp = new URLSearchParams(location.search).get('page');
+        if (pp && !window._ppOpened) {
+          window._ppOpened = true;
+          var it = document.querySelector('.menu-item[data-page="' + pp + '"]');
+          if (it) showPage(pp, it);
+        }
+      } catch(e) {}
     }
   }
   
@@ -7723,7 +7762,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 // Kill any stale Service Worker + caches so new versions ALWAYS load fresh
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(rs => {
-    var had = rs.length > 0 || navigator.serviceWorker.controller;
+    rs = rs.filter(function(r){ var u=((r.active&&r.active.scriptURL)||(r.installing&&r.installing.scriptURL)||(r.waiting&&r.waiting.scriptURL)||'')+''; return u.indexOf('OneSignal') === -1; });
+    var had = rs.length > 0;
     rs.forEach(r => r.unregister());
     if (window.caches && caches.keys) {
       caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(() => {});
@@ -7962,7 +8002,7 @@ function copySignalWA(id){
 function waBtn(id){return '<button onclick="event.stopPropagation();copySignalWA(\''+id+'\')" title="Copy for WhatsApp" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border:none;border-radius:9px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-weight:800;font-size:12px;cursor:pointer;">📲 Copy</button>';}
 async function loadPerformance(){
   if(!sb)return;
-  var hi=document.getElementById('perfHello');if(hi&&currentProfile){var nm=((currentProfile.full_name||currentProfile.email||'Trader')+'').split(' ')[0];hi.textContent='Welcome back, '+nm+' 👋';}
+  var hi=document.getElementById('perfHello');if(hi&&currentProfile){var nm=((currentProfile.full_name||currentProfile.email||'Trader')+'').split(' ')[0];hi.textContent='Welcome 👋';}
   try{
     var sr=await sb.from('signals').select('*').order('created_at',{ascending:false});
     var rows=sr.data||[];
@@ -8447,7 +8487,7 @@ document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getE
 document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getElementById('landingPage');if(!lp)return;var orbs=document.createElement('div');orbs.style.cssText='position:absolute;top:0;left:0;right:0;height:720px;overflow:hidden;pointer-events:none;z-index:-1';orbs.innerHTML='<div class="pip-orb" style="width:240px;height:240px;background:rgba(245,158,11,.45);left:5%;top:90px;animation:pipFloatY 9s ease-in-out infinite"></div><div class="pip-orb" style="width:200px;height:200px;background:rgba(16,185,129,.38);right:7%;top:150px;animation:pipFloatX 12s ease-in-out infinite"></div><div class="pip-orb" style="width:160px;height:160px;background:rgba(245,158,11,.30);left:42%;top:30px;animation:pipFloatY 11s ease-in-out infinite"></div>';lp.insertBefore(orbs,lp.firstChild);var els=lp.querySelectorAll('section, .card, [class*="hero"], [class*="feature"], [class*="stat"]');els.forEach(function(e){e.classList.add('pip-reveal')});var io=new IntersectionObserver(function(ents){ents.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}})},{threshold:.1});els.forEach(function(e){io.observe(e)});setTimeout(function(){els.forEach(function(e){e.classList.add('in')})},1600);}catch(e){}});
 </script>
 <script>
-function renderPipTickerTape(){try{var lp=document.getElementById('landingPage');if(!lp)return;var old=document.getElementById('pipTickerTapeWrap');if(old)old.remove();var isDark=document.documentElement.getAttribute('data-theme')==='dark';var wrap=document.createElement('div');wrap.id='pipTickerTapeWrap';wrap.style.cssText='border-bottom:1px solid '+(isDark?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)')+';background:'+(isDark?'#0a0e1a':'#fffaf0')+';position:relative;z-index:2;overflow:hidden';wrap.innerHTML='<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';var sc=document.createElement('script');sc.src='https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';sc.async=true;sc.innerHTML=JSON.stringify({symbols:[{description:"Gold",proName:"OANDA:XAUUSD"},{description:"EUR/USD",proName:"OANDA:EURUSD"},{description:"GBP/USD",proName:"OANDA:GBPUSD"},{description:"BTC",proName:"BINANCE:BTCUSDT"},{description:"USD/JPY",proName:"OANDA:USDJPY"}],showSymbolLogo:true,colorTheme:isDark?"dark":"light",isTransparent:false,displayMode:"adaptive",locale:"en"});wrap.querySelector('.tradingview-widget-container').appendChild(sc);lp.insertBefore(wrap,lp.firstChild);}catch(e){}}
+function renderPipTickerTape(){try{var lp=document.getElementById('landingPage');if(!lp)return;if(window.innerWidth<=768){var o=document.getElementById('pipTickerTapeWrap');if(o)o.remove();return;}var old=document.getElementById('pipTickerTapeWrap');if(old)old.remove();var isDark=document.documentElement.getAttribute('data-theme')==='dark';var wrap=document.createElement('div');wrap.id='pipTickerTapeWrap';wrap.style.cssText='border-bottom:1px solid '+(isDark?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)')+';background:'+(isDark?'#0a0e1a':'#fffaf0')+';position:relative;z-index:2;overflow:hidden';wrap.innerHTML='<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';var sc=document.createElement('script');sc.src='https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';sc.async=true;sc.innerHTML=JSON.stringify({symbols:[{description:"Gold",proName:"OANDA:XAUUSD"},{description:"EUR/USD",proName:"OANDA:EURUSD"},{description:"GBP/USD",proName:"OANDA:GBPUSD"},{description:"BTC",proName:"BINANCE:BTCUSDT"},{description:"USD/JPY",proName:"OANDA:USDJPY"}],showSymbolLogo:true,colorTheme:isDark?"dark":"light",isTransparent:false,displayMode:"adaptive",locale:"en"});wrap.querySelector('.tradingview-widget-container').appendChild(sc);lp.insertBefore(wrap,lp.firstChild);}catch(e){}}
 document.addEventListener('DOMContentLoaded',renderPipTickerTape);
 </script>
 <script>
@@ -8496,5 +8536,7 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 })();
 </script>
 
+<script>document.addEventListener('DOMContentLoaded',function(){try{var f=document.getElementById('artFilters'),sl=document.getElementById('artFiltersSlot');if(f&&sl){sl.appendChild(f);f.style.display='flex';}}catch(e){}});</script>
+<style>@media(max-width:768px){#pipTickerTapeWrap{display:none!important}}</style>
 </body>
 </html>

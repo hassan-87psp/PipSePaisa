@@ -1446,7 +1446,6 @@ select option{background:#0f1729;color:#e8eaf0}
             <input id="artFile" class="search-input" type="file" accept="image/*" onchange="adminArticleUpload(this)">
             <div id="artImgPreview"></div>
             <textarea id="artContent" class="search-input" rows="7" placeholder="Article content..." style="resize:vertical;font-family:inherit"></textarea>
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px"><input id="artPublish" type="checkbox" checked> Publish now</label>
             <button class="btn" id="artBtn" onclick="createArticle()">➕ Create Article</button>
           </div>
         </div>
@@ -1600,7 +1599,9 @@ let isLoggedIn = false;
 window.addEventListener('load', async () => {
   // Check for an existing admin session; otherwise show the login screen
   try {
-    const { data: { user } } = await sb.auth.getUser();
+    let user=null;
+      try{const sr=await sb.auth.getSession();user=(sr&&sr.data&&sr.data.session)?sr.data.session.user:null;}catch(e){}
+      if(!user){try{const ur=await sb.auth.getUser();user=(ur&&ur.data)?ur.data.user:null;}catch(e){}}
     if (user) {
       const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
       if (profile && profile.is_admin) {
@@ -1896,17 +1897,17 @@ function loadAdSignals(){
       '<input id="as-tp3" type="number" step="any" placeholder="Take Profit 3 (optional)" style="'+APMS+'">'+
       '<select id="as-note-tpl" onchange="applyAdSignalNote(\'as-note-tpl\',\'as-notes\')" style="'+APMS+'">'+adSignalNoteOptions()+'</select>'+
       '<textarea id="as-notes" rows="5" placeholder="Notes (optional) — select template or type custom note" style="'+APMS+';resize:vertical"></textarea>'+
-      '<div><div style="font-size:11.5px;color:#94a0b8;margin-bottom:7px">👁️ Who can see this signal? (tick one or more)</div>'+adAudTicks('as-aud')+'</div>'+
+      ''+
       '<input id="as-plan" placeholder="VIP package name (optional)" style="'+APMS+'">'+
       '<button onclick="createAdSignal()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">🚀 Publish Official Signal</button>'+
     '</div></div>'+
-    '<div class="card"><h3 style="margin:0 0 12px">📋 Official Signals</h3><div id="asList">Loading...</div></div></div>';
+    '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px"><h3 style="margin:0">📋 Official Signals</h3><div style="display:flex;gap:6px"><button id="aSigTabA" onclick="aSigSetView(\'active\')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border,#1f2937);background:#f59e0b;color:#0a0e1a;font-weight:800;font-size:12px;cursor:pointer">⚡ Active</button><button id="aSigTabH" onclick="aSigSetView(\'history\')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border,#1f2937);background:transparent;color:inherit;font-weight:800;font-size:12px;cursor:pointer">📜 History</button></div></div><div id="asList">Loading...</div></div></div>';
   adSigSetDir('buy');loadAdSigList();
 }
 function adSigSetDir(d){adSigDir=d;var b=document.getElementById('as-buy'),s=document.getElementById('as-sell');if(b)b.style.cssText='flex:1;padding:9px;border-radius:8px;border:1px solid var(--border,#1f2937);'+(d==='buy'?'background:rgba(16,185,129,.18);color:#10b981':'background:transparent;color:#94a0b8')+';font-weight:800;cursor:pointer';if(s)s.style.cssText='flex:1;padding:9px;border-radius:8px;border:1px solid var(--border,#1f2937);'+(d==='sell'?'background:rgba(239,68,68,.18);color:#ef4444':'background:transparent;color:#94a0b8')+';font-weight:800;cursor:pointer';}
 async function createAdSignal(){
   var v=function(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';};
-  var aud=Array.prototype.slice.call(document.querySelectorAll('.as-aud:checked')).map(function(c){return c.value;});if(!aud.length)aud.push('free');
+  var aud=['free','premium','vip'];
   var entry=parseFloat(v('as-entry'));
   var obj={owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('as-pair').value,direction:adSigDir.toUpperCase(),
     entry_price:isNaN(entry)?null:entry,stop_loss:parseFloat(v('as-sl'))||null,take_profit1:parseFloat(v('as-tp1'))||null,take_profit2:parseFloat(v('as-tp2'))||null,take_profit3:parseFloat(v('as-tp3'))||null,
@@ -1918,11 +1919,16 @@ async function createAdSignal(){
   ['as-entry','as-sl','as-tp1','as-tp2','as-tp3','as-notes','as-plan'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
   loadAdSigList();
 }
+var aSigView='active';
+function aSigSetView(v){aSigView=v;var A=document.getElementById('aSigTabA'),H=document.getElementById('aSigTabH');
+  if(A&&H){A.style.background=(v==='active')?'#f59e0b':'transparent';A.style.color=(v==='active')?'#0a0e1a':'inherit';H.style.background=(v==='history')?'#f59e0b':'transparent';H.style.color=(v==='history')?'#0a0e1a':'inherit';}
+  loadAdSigList();}
 async function loadAdSigList(){
   var box=document.getElementById('asList');if(!box)return;
-  var r=await sb.from('signals').select('*').eq('is_official',true).order('created_at',{ascending:false}).limit(30);
+  var r=await sb.from('signals').select('*').eq('is_official',true).order('created_at',{ascending:false}).limit(60);
   if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}
-  var data=r.data||[];if(!data.length){box.innerHTML='<div style="color:#94a0b8">No official signals yet.</div>';return;}
+  var data=(r.data||[]).filter(function(s){var st=(s.status||'active');var fin=(st==='sl'||st==='sl_hit'||st==='closed'||st==='tp3');return (aSigView==='active')?(!fin):fin;});
+  if(!data.length){box.innerHTML='<div style="color:#94a0b8">'+(aSigView==='active'?'No active signals right now. Check History for past results.':'No closed signals yet.')+'</div>';return;}
   box.innerHTML=data.map(function(s){
     var buy=(s.direction||'').toUpperCase()!=='SELL';var aud=(s.audience||(s.access_level==='vip'?'premium,vip':'free'));
     var parts=aud.split(',').map(function(x){return x.trim();}).filter(Boolean);var lbl={free:'🆓',premium:'💎',vip:'👑'};
@@ -1957,7 +1963,7 @@ function loadAdCharts(){
     '<div class="card"><h3 style="margin:0 0 12px">📈 New Official Chart</h3><div style="display:grid;gap:11px">'+
       '<select id="ac-pair" style="'+APMS+'">'+adPairOpts()+'</select>'+
       '<input id="ac-title" placeholder="Title e.g. XAU 4H breakout" style="'+APMS+'">'+
-      '<div><div style="font-size:11.5px;color:#94a0b8;margin-bottom:7px">👁️ Send to (tick one or more)</div>'+adAudTicks('ac-aud')+'</div>'+
+      ''+
       '<input id="ac-file" type="file" accept="image/*" style="'+APMS+'">'+
       '<textarea id="ac-notes" rows="3" placeholder="Analysis notes" style="'+APMS+'"></textarea>'+
       '<button onclick="createAdChart()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">📊 Publish Official Chart</button>'+
@@ -1967,7 +1973,7 @@ function loadAdCharts(){
 }
 async function createAdChart(){
   var title=(document.getElementById('ac-title').value||'').trim();if(!title){alert('Title required');return;}
-  var aud=Array.prototype.slice.call(document.querySelectorAll('.ac-aud:checked')).map(function(c){return c.value;});if(!aud.length)aud.push('free');
+  var aud=['free','premium','vip'];
   var image_url='';var file=document.getElementById('ac-file').files[0];
   if(file){var ext=(file.name.split('.').pop()||'jpg').toLowerCase();var path='official/'+Date.now()+'.'+ext;var up=await sb.storage.from('charts').upload(path,file,{upsert:true});if(up.error){alert('Upload failed: '+up.error.message);return;}image_url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}
   var chartObj={owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('ac-pair').value,title:title,image_url:image_url,audience:aud.join(','),notes:(document.getElementById('ac-notes').value||'').trim()||null};
@@ -3598,7 +3604,7 @@ async function createArticle(){
   const title=document.getElementById('artTitle').value.trim();
   const image_url=document.getElementById('artImage').value.trim();
   const content=document.getElementById('artContent').value.trim();
-  const is_published=document.getElementById('artPublish').checked;
+  const is_published=true;
   if(!title){alert('Title is required');return;}
   if(editingArticleId){
     const {error}=await sb.from('articles').update({type,title,category,image_url,content,is_published}).eq('id',editingArticleId);
@@ -3621,7 +3627,7 @@ async function editArticle(id){
   document.getElementById('artTitle').value=data.title||'';
   document.getElementById('artImage').value=data.image_url||'';
   document.getElementById('artContent').value=data.content||'';
-  document.getElementById('artPublish').checked=!!data.is_published;
+  
   editingArticleId=id;const b=document.getElementById('artBtn');if(b)b.textContent='💾 Update Article';
   window.scrollTo(0,0);
 }

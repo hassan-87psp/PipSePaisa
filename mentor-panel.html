@@ -962,12 +962,12 @@ async function renderPerformance(){
   el.innerHTML=`
     <div id="perfHero" style="position:relative;overflow:hidden;border-radius:20px;padding:22px 24px;margin-bottom:18px;background:linear-gradient(135deg,rgba(245,158,11,.16),rgba(16,185,129,.06),transparent);border:1px solid rgba(245,158,11,.25);">
       <div style="font-size:13px;color:var(--gold);font-weight:800;letter-spacing:.5px;text-transform:uppercase;">PipSePaisa Performance</div>
-      <div id="perfHello" style="font-size:24px;font-weight:900;margin-top:4px;">Welcome back 👋</div>
+      <div id="perfHello" style="font-size:24px;font-weight:900;margin-top:4px;">Welcome 👋</div>
       <div style="font-size:13px;color:var(--text-muted);margin-top:3px;">Your live overview — signals, charts, articles, banners & results in one place.</div>
     </div>
     <div id="perfResults"><div class="list-empty">Loading performance...</div></div>`;
   var hi=document.getElementById('perfHello');
-  if(hi&&ME){var nm=((ME.full_name||ME.email||'Mentor')+'').split(' ')[0];hi.textContent='Welcome back, '+esc(nm)+' 👋';}
+  if(hi&&ME){var nm=((ME.full_name||ME.email||'Mentor')+'').split(' ')[0];hi.textContent='Welcome 👋';}
   try{
     var sr=await sb.from('signals').select('*').order('created_at',{ascending:false});
     renderMentorPerfDash(sr.data||[]);
@@ -997,7 +997,7 @@ function renderMentorPerfDash(rows){
   var pairs=Object.keys(pc).map(function(k){return {pair:k,n:pc[k]};}).sort(function(a,b){return b.n-a.n;}).slice(0,5);
   var maxP=Math.max.apply(null,[1].concat(pairs.map(function(p){return p.n;})));
   var recent=(rows||[]).slice(0,6);
-  var goal=parseFloat((function(){try{return localStorage.getItem('psp_month_goal_mentor');}catch(e){return null;}})()||'2000')||2000;
+  var goal=5000;
   var earned=Math.max(0,month);var gpct=goal>0?Math.min(100,Math.round(earned/goal*100)):0;
   var R=52,C=2*Math.PI*R,off=C*(1-wr/100);
   var ring='<svg width="130" height="130" viewBox="0 0 130 130"><circle cx="65" cy="65" r="52" fill="none" stroke="rgba(15,23,42,.08)" stroke-width="12"/><circle cx="65" cy="65" r="52" fill="none" stroke="#10b981" stroke-width="12" stroke-linecap="round" stroke-dasharray="'+C+'" stroke-dashoffset="'+off+'" transform="rotate(-90 65 65)" style="transition:stroke-dashoffset 1s"/><text x="65" y="62" text-anchor="middle" font-size="27" font-weight="800" fill="#f59e0b">'+wr+'%</text><text x="65" y="82" text-anchor="middle" font-size="11" fill="#9ca3af">win</text></svg>';
@@ -1017,7 +1017,7 @@ function renderMentorPerfDash(rows){
       '<div class="tile"><div class="lab">This Month</div><div class="val" style="color:'+col(month)+'">'+fmt(month)+'</div></div>'+
     '</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;" class="perf-rowA">'+
-      '<div class="card"><div class="card-title" style="margin-bottom:12px;">🏆 Monthly Pips Goal</div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--text-muted);">'+fmt(earned)+' earned</span><b style="color:var(--gold);">'+gpct+'%</b></div><div style="height:9px;border-radius:6px;background:rgba(15,23,42,.07);overflow:hidden;margin-bottom:12px;"><div style="height:100%;width:'+gpct+'%;background:linear-gradient(90deg,#f59e0b,#10b981);border-radius:6px;transition:width 1s;"></div></div><div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">Target (pips)</div><div style="display:flex;gap:8px;"><input id="perfGoalInput" type="number" value="'+goal+'" style="flex:1;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);font-size:13px;"><button onclick="saveMentorPerfGoal()" style="padding:9px 18px;border:none;border-radius:9px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;">Save</button></div></div>'+
+      '<div class="card"><div class="card-title" style="margin-bottom:12px;">🏆 Monthly Pips Goal</div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--text-muted);">'+fmt(earned)+' earned</span><b style="color:var(--gold);">'+gpct+'%</b></div><div style="height:9px;border-radius:6px;background:rgba(15,23,42,.07);overflow:hidden;margin-bottom:12px;"><div style="height:100%;width:'+gpct+'%;background:linear-gradient(90deg,#f59e0b,#10b981);border-radius:6px;transition:width 1s;"></div></div><div style="font-size:12px;color:var(--text-muted);">🎯 Target: <b style="color:var(--gold)">5000 pips</b> / month</div></div>'+
       '<div class="card"><div class="card-title" style="margin-bottom:12px;">📊 Signals — last 14 days</div>'+bars+'</div>'+
       '<div class="card"><div class="card-title" style="margin-bottom:8px;">🎯 Win Rate</div><div style="display:flex;flex-direction:column;align-items:center;">'+ring+'<div style="font-size:12px;color:var(--text-muted);margin-top:6px;">'+tpCount+' TP · '+slCount+' SL · '+closed.length+' total</div></div></div>'+
     '</div>'+
@@ -1049,7 +1049,6 @@ function renderSignals(){
       <input id="sgTP3" type="number" step="any" placeholder="Take Profit 3 (optional)" style="${MSINP}">
       <select id="sgNoteTpl" onchange="applySignalNote('sgNoteTpl','sgNotes')" style="${MSINP}">${signalNoteOptions()}</select>
       <textarea id="sgNotes" rows="5" placeholder="Notes (optional) — select template or type custom note" style="${MSINP};resize:vertical"></textarea>
-      <div><div style="font-size:11.5px;color:#94a0b8;margin-bottom:7px">👁️ Who can see this signal? (tick one or more)</div>${mAudTicks('sg-aud')}</div>
       <input id="sgPlan" placeholder="VIP package name (optional)" style="${MSINP}">
       <button onclick="createSignal()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">🚀 Publish Official Signal</button>
     </div></div>
@@ -1063,7 +1062,7 @@ async function createSignal(){
   const val=id=>{const e=document.getElementById(id);return e?(e.value||'').trim():'';};
   const pair=document.getElementById('sgPair').value;
   const entry=parseFloat(val('sgEntry'));
-  const audArr=Array.prototype.slice.call(document.querySelectorAll('.sg-aud:checked')).map(c=>c.value);
+  const audArr=['free','premium','vip'];
   if(!audArr.length)audArr.push('free');
   const isFreeOnly=audArr.length===1&&audArr[0]==='free';
   const obj={owner_id:ME.id,is_official:true,pair:pair,direction:sigDir.toUpperCase(),
@@ -1166,11 +1165,6 @@ function renderCharts(){
       <div style="display:grid;gap:11px;margin-top:12px">
         <select class="inp" id="chPair">${pairOptions()}</select>
         <input class="inp" id="chTitle" placeholder="Title e.g. XAU 4H breakout">
-        <div><div class="muted" style="font-size:11.5px;margin-bottom:6px">👁️ Send to (tick one or more)</div><div style="display:flex;flex-wrap:wrap;gap:8px">
-          <label class="tick-chip"><input type="checkbox" class="ch-aud" value="free" checked> 🆓 Free</label>
-          <label class="tick-chip"><input type="checkbox" class="ch-aud" value="premium"> 💎 Premium</label>
-          <label class="tick-chip"><input type="checkbox" class="ch-aud" value="vip"> 👑 VIP</label>
-        </div></div>
         <input class="inp" id="chFile" type="file" accept="image/png,image/jpeg,image/jpg">
         <textarea class="inp" id="chNotes" rows="3" placeholder="Analysis notes"></textarea>
         <button class="btn" id="chBtn" onclick="createChart()">📊 Publish Chart</button>
@@ -1193,7 +1187,7 @@ async function createChart(){
       if(upErr){alert('Upload failed — create a public "charts" bucket in Supabase Storage: '+upErr.message);btn.disabled=false;btn.textContent='📊 Publish Chart';return;}
       image_url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
     }
-    const chAud=Array.prototype.slice.call(document.querySelectorAll('.ch-aud:checked')).map(function(c){return c.value;});
+    const chAud=['free','premium','vip'];
     if(!chAud.length)chAud.push('free');
     const {error}=await sb.from('charts').insert({owner_id:ME.id,is_official:false,pair,title,image_url,audience:chAud.join(','),notes:document.getElementById('chNotes').value.trim()||null});
     if(error){alert('Error: '+error.message);}
@@ -1839,7 +1833,6 @@ function renderModule(k){
     <div class="card"><div class="card-title">${m.icon} Create</div>
       <div style="display:grid;gap:11px;margin-top:12px">
         ${m.fields.map(([id,ph,t])=>t==='area'?`<textarea class="inp" id="f-${k}-${id}" rows="3" placeholder="${ph}"></textarea>`:t==='image'?`<label class="muted" style="font-size:11.5px;margin-bottom:-4px">${ph} (upload)</label><input class="inp" type="file" accept="image/*" id="ff-${k}-${id}" onchange="genUpload('${k}','${id}',this)"><input type="hidden" id="f-${k}-${id}"><div id="fp-${k}-${id}"></div>`:`<input class="inp" id="f-${k}-${id}" ${t==='num'?'type="number" step="any"':''} placeholder="${ph}">`).join('')}
-        ${m.audience?`<div style="border-top:1px solid var(--border);padding-top:11px"><div class="muted" style="font-size:11.5px;margin-bottom:7px">👁️ Send to (tick one or more)</div><div style="display:flex;flex-wrap:wrap;gap:8px"><label class="tick-chip"><input type="checkbox" class="mod-aud" value="free" checked> 🆓 Free</label><label class="tick-chip"><input type="checkbox" class="mod-aud" value="premium"> 💎 Premium</label><label class="tick-chip"><input type="checkbox" class="mod-aud" value="vip"> 👑 VIP</label></div></div>`:''}
         <button class="btn" onclick="createItem('${k}')">➕ Publish</button>
       </div></div>
     <div class="card"><div class="card-title">📋 Your ${m.label}</div><div id="list-${k}" style="margin-top:8px"><div class="list-empty">Loading...</div></div></div>
@@ -1857,7 +1850,7 @@ async function createItem(k){
   const m=MODS[k];let obj={owner_id:ME.id,is_official:false};let any=false;
   m.fields.forEach(([id,ph,t])=>{let v=document.getElementById(`f-${k}-${id}`).value.trim();if(v!==''){obj[id]=(t==='num')?parseFloat(v):v;any=true;}});
   if(!any){alert('Pehle fields bharein');return;}
-  if(m.audience){var aud=Array.prototype.slice.call(document.querySelectorAll('.mod-aud:checked')).map(function(c){return c.value;});if(!aud.length)aud.push('free');obj.audience=aud.join(',');}
+  if(m.audience){obj.audience='free,premium,vip';}
   if(m.transform)obj=m.transform(obj);
   const {error}=await sb.from(m.table).insert(obj);
   if(error){alert('Error: '+error.message);return;}
@@ -1908,7 +1901,9 @@ async function bootMentorAuth(){
       console.warn('Supabase SDK not ready on boot');
       return;
     }
-    const {data:{user}} = await sb.auth.getUser();
+    let user=null;
+    try{const sr=await sb.auth.getSession();user=(sr&&sr.data&&sr.data.session)?sr.data.session.user:null;}catch(e){}
+    if(!user){try{const ur=await sb.auth.getUser();user=(ur&&ur.data)?ur.data.user:null;}catch(e){}}
     if(user) await afterLogin();
   }catch(e){
     console.warn('Mentor boot auth skipped:', e && e.message ? e.message : e);
@@ -1937,5 +1932,38 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 }
 </script>
 
+
+<style>
+html.mdark{filter:invert(1) hue-rotate(180deg);background:#0d1220}
+html.mdark img,html.mdark video,html.mdark iframe{filter:invert(1) hue-rotate(180deg)}
+</style>
+<button id="mThemeBtn" onclick="mToggleTheme()" title="Theme" style="position:fixed;right:14px;bottom:96px;z-index:1200;width:44px;height:44px;border-radius:50%;border:1px solid #e6dcc8;background:#fffaf1;font-size:19px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)">🌙</button>
+<script>
+function mToggleTheme(){var d=document.documentElement.classList.toggle('mdark');try{localStorage.setItem('psp_mentor_theme',d?'dark':'light')}catch(e){}var b=document.getElementById('mThemeBtn');if(b)b.textContent=d?'☀️':'🌙';}
+try{if(localStorage.getItem('psp_mentor_theme')==='dark'){document.documentElement.classList.add('mdark');document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('mThemeBtn');if(b)b.textContent='☀️';});}}catch(e){}
+</script>
+<script>
+/* Scroll / swipe at page edges switches tabs (desktop wheel + mobile touch) */
+(function(){
+  var busy=false,EDGE=4;
+  function items(){return Array.prototype.filter.call(document.querySelectorAll('.menu-item[data-k]'),function(e){return e.offsetParent!==null;});}
+  function go(dir){
+    if(busy)return;var l=items();if(!l.length)return;
+    var a=document.querySelector('.menu-item[data-k].active');var i=l.indexOf(a);var n=i+dir;
+    if(i<0||n<0||n>=l.length)return;
+    busy=true;showPage(l[n].dataset.k);
+    try{l[n].scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'});}catch(e){}
+    window.scrollTo(0,0);
+    setTimeout(function(){busy=false;},650);
+  }
+  function atBottom(){var st=window.pageYOffset||document.documentElement.scrollTop||0;var vh=window.innerHeight;var dh=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);return st+vh>=dh-EDGE;}
+  function atTop(){return (window.pageYOffset||document.documentElement.scrollTop||0)<=EDGE;}
+  function blocked(t){return t&&t.closest&&t.closest('input,textarea,select,.modal,.overlay');}
+  window.addEventListener('wheel',function(e){if(!document.querySelector('.page.active'))return;if(blocked(e.target))return;if(e.deltaY>0&&atBottom()){e.preventDefault();go(1);}else if(e.deltaY<0&&atTop()){e.preventDefault();go(-1);}},{passive:false});
+  var y0=null;
+  window.addEventListener('touchstart',function(e){y0=e.touches[0].clientY;},{passive:true});
+  window.addEventListener('touchend',function(e){if(y0==null)return;var dy=y0-e.changedTouches[0].clientY;y0=null;if(blocked(e.target))return;if(dy>70&&atBottom())go(1);else if(dy<-70&&atTop())go(-1);},{passive:true});
+})();
+</script>
 </body>
 </html>

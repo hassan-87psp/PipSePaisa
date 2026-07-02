@@ -87,13 +87,25 @@ serve(async (req) => {
       return new Response(JSON.stringify({ skipped: true }), { status: 200 });
     }
 
+    // Direct page open on click
+    const pageMap: Record<string, string> = {
+      signals: "/?page=signals",
+      charts: "/?page=articles",
+      articles: "/?page=articles",
+      banners: "/?page=performance",
+    };
+    const clickUrl = SITE_URL + (pageMap[table] || "/");
+
     const body = {
       app_id: ONESIGNAL_APP_ID,
       included_segments: ["Total Subscriptions"],
       headings: { en: msg.heading },
       contents: { en: msg.content },
-      url: SITE_URL,
+      url: clickUrl,
       chrome_web_icon: `${SITE_URL}/icon-192.png`,
+      chrome_web_badge: `${SITE_URL}/icon-192.png`,
+      // unique topic => notifications STACK instead of replacing each other
+      web_push_topic: `${table}-${type}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     };
 
     const r = await fetch("https://onesignal.com/api/v1/notifications", {
