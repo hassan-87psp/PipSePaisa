@@ -788,11 +788,11 @@ function buildNav(){
     const allowed=items.filter(i=>mentorCan(i[0]));
     if(!allowed.length)return;
     h+=`<div class="menu-sep">${g}</div>`;
-    allowed.forEach(([k,ic,lb])=>{h+=`<div class="menu-item" data-k="${k}" onclick="showPage('${k}')"><span>${ic}</span> ${lb}</div>`;});
+    allowed.forEach(([k,ic,lb])=>{const core=['performance','signals','charts','articles','banners'].indexOf(k)>=0?' nav-core':'';h+=`<div class="menu-item${core}" data-k="${k}" onclick="showPage('${k}')"><span>${ic}</span> ${lb}</div>`;});
   });
   // Mobile bottom nav: Settings + Logout hamesha available
   if(h.indexOf('data-k="settings"')===-1){h+=`<div class="menu-item" data-k="settings" onclick="showPage('settings')"><span>⚙️</span> Settings</div>`;}
-  h+=`<div class="menu-item nav-logout-m" onclick="logout()"><span>🚪</span> Logout</div>`;
+  h+=`<div class="menu-item nav-more" onclick="mDrawerOpen()"><span>☰</span> More</div>`;
   document.getElementById('navMenu').innerHTML=h;
   let all=[].concat(...NAV.map(x=>x[1].map(i=>i[0]))).filter(mentorCan);
   if(all.indexOf('settings')===-1)all.push('settings');
@@ -1970,14 +1970,48 @@ try{if(localStorage.getItem('psp_mentor_theme')==='dark'){document.documentEleme
 })();
 </script>
 <style>
-.nav-logout-m{display:none}
+.nav-more{display:none}
 @media(max-width:768px){
-  .nav-logout-m{display:flex!important;color:#ef4444!important}
-  /* sab 7 buttons ek screen me fit — Logout scroll me na chhupe */
-  .menu-item{min-width:52px!important;padding:6px 3px!important;font-size:9px!important;height:54px!important;gap:3px!important}
+  /* bottom nav: sirf 5 main + More */
+  .menu-item:not(.nav-core):not(.nav-more){display:none!important}
+  .nav-more{display:flex!important;color:#d97706!important}
+  .menu-item{min-width:54px!important;padding:6px 3px!important;font-size:9.5px!important;height:56px!important;gap:3px!important}
   .menu-item span:first-child{font-size:17px!important}
   #navMenu{gap:2px!important;justify-content:space-around!important;width:100%!important;min-width:0!important}
 }
+#mDrawerOv{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1998}
+#mDrawer{position:fixed;top:0;right:-300px;width:280px;max-width:82vw;height:100%;background:#fffdf8;z-index:1999;transition:right .25s ease;box-shadow:-10px 0 34px rgba(0,0,0,.22);padding:20px 14px calc(96px + env(safe-area-inset-bottom,0px));overflow-y:auto;border-left:1px solid #e6dcc8}
+#mDrawer.open{right:0}
+.drw-item{display:flex;align-items:center;gap:12px;padding:13px 12px;border-radius:12px;font-weight:700;font-size:14px;color:#334155;cursor:pointer;margin-bottom:2px}
+.drw-item:active{background:#fff7ed}
+.drw-sep{font-size:10px;font-weight:800;letter-spacing:1px;color:#94a3b8;margin:14px 6px 6px}
 </style>
+<div id="mDrawerOv" onclick="mDrawerClose()"></div>
+<div id="mDrawer">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <b style="font-size:16px;color:#0f172a">☰ Menu</b>
+    <button onclick="mDrawerClose()" style="border:none;background:transparent;font-size:20px;cursor:pointer;color:#64748b">✕</button>
+  </div>
+  <div id="mDrawerList"></div>
+</div>
+<script>
+function mDrawerBuild(){
+  var h='';
+  try{
+    NAV.forEach(function(g){
+      var items=g[1].filter(function(i){return mentorCan(i[0]);});
+      if(!items.length)return;
+      h+='<div class="drw-sep">'+g[0]+'</div>';
+      items.forEach(function(i){h+='<div class="drw-item" onclick="mDrawerGo(\''+i[0]+'\')"><span>'+i[1]+'</span> '+i[2]+'</div>';});
+    });
+  }catch(e){}
+  if(h.indexOf("mDrawerGo('settings')")===-1){h+='<div class="drw-sep">SYSTEM</div><div class="drw-item" onclick="mDrawerGo(\'settings\')"><span>⚙️</span> Settings</div>';}
+  h+='<div class="drw-item" style="color:#ef4444" onclick="logout()"><span>🚪</span> Logout</div>';
+  var el=document.getElementById('mDrawerList');if(el)el.innerHTML=h;
+}
+function mDrawerOpen(){mDrawerBuild();document.getElementById('mDrawerOv').style.display='block';document.getElementById('mDrawer').classList.add('open');}
+function mDrawerClose(){document.getElementById('mDrawerOv').style.display='none';document.getElementById('mDrawer').classList.remove('open');}
+function mDrawerGo(k){mDrawerClose();showPage(k);}
+</script>
 </body>
 </html>
