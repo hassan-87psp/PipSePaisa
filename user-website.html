@@ -8594,7 +8594,12 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 .ubn-item.active{color:var(--gold);background:var(--gold-bg,rgba(245,158,11,.12));border-color:rgba(245,158,11,.3)}
 @media(max-width:768px){
   body.ubn-on #userBottomNav{display:flex}
-  body.ubn-on #mainApp{padding-bottom:74px}
+  body.ubn-on #mainApp{padding-bottom:84px}
+  /* sidebar khule to wo bottom nav ke UPAR aaye, aur Logout tak sab buttons nav se upar dikhen */
+  .sidebar.open{z-index:1600!important}
+  #sidebarOverlay{z-index:1550!important}
+  .sidebar{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important}
+  .page{padding-bottom:14px}
 }
 </style>
 <script>
