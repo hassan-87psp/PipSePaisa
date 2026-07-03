@@ -1640,7 +1640,43 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
           });
         }
 
-        function nhUpdateImpact(){
+        async function nhUpdateImpact(){
+          // 1) AI-analyzed impact (shared cache in Supabase, 30 min fresh) — fallback: keyword scoring
+          try{
+            const db=(typeof sb!=='undefined'&&sb)?sb:null;
+            let cached=null;
+            if(db){
+              const r=await db.from('nh_impact_cache').select('data,updated_at').eq('id',1).maybeSingle();
+              if(r&&r.data&&r.data.data&&r.data.updated_at&&(Date.now()-new Date(r.data.updated_at).getTime())<30*60*1000){cached=r.data.data;}
+            }
+            if(!cached){
+              const heads=(nhNews||[]).slice(0,15).map(n=>'- '+(n.title||'')).join('\n');
+              if(heads.length>40){
+                const prompt='You are a forex analyst. Based ONLY on these news headlines, give the likely impact on each instrument. Reply with STRICT JSON only, no markdown, exactly this shape: {"XAU/USD":{"bias":"bullish|bearish|neutral","why":"2-4 words"},"EUR/USD":{...},"USD/JPY":{...},"USD Index":{...},"Oil (WTI)":{...}}\nHeadlines:\n'+heads;
+                const rr=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt}),signal:AbortSignal.timeout(15000)});
+                if(rr.ok){
+                  const dd=await rr.json();
+                  let txt=(dd.report||'').replace(/```json|```/g,'').trim();
+                  const m=txt.match(/\{[\s\S]*\}/);
+                  if(m){cached=JSON.parse(m[0]);
+                    if(db){try{await db.from('nh_impact_cache').upsert({id:1,data:cached,updated_at:new Date().toISOString()});}catch(e){}}
+                  }
+                }
+              }
+            }
+            if(cached){
+              const el2=document.getElementById('nhImpact');if(!el2)return;
+              const ic={bullish:'▲ Bullish',bearish:'▼ Bearish',neutral:'— Neutral'};
+              const cl={bullish:'nh-bull',bearish:'nh-bear',neutral:'nh-neut'};
+              el2.innerHTML=['XAU/USD','EUR/USD','USD/JPY','USD Index','Oil (WTI)'].map(function(pr){
+                const o=cached[pr]||{};const b=(o.bias||'neutral').toLowerCase();
+                const why=(o.why&&b!=='neutral')?(' — '+o.why):'';
+                return '<div class="nh-impact-row"><span style="font-weight:700;color:var(--text-secondary)">'+pr+'</span><span class="'+(cl[b]||'nh-neut')+'">'+((ic[b]||'— Neutral')+why)+'</span></div>';
+              }).join('');
+              return;
+            }
+          }catch(e){console.warn('AI impact fallback:',e);}
+          // 2) Fallback: keyword scoring
           const T=(nhNews||[]).map(n=>((n.title||'')+' '+(n.desc||'')).toLowerCase());
           const hits=w=>T.filter(t=>t.includes(w)).length;
           const sum=ws=>ws.reduce((a,w)=>a+hits(w),0);
@@ -7932,7 +7968,6 @@ async function loadSignalsFromDB(){
     cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:timeAgo(s.created_at),
     ts:s.created_at, closedTs:(s.closed_at||s.created_at)
   };});
-  renderSigResultDash(data||[]);
   renderSignals();
 }
 function renderSigResultDash(rows,elId){
@@ -7940,17 +7975,19 @@ function renderSigResultDash(rows,elId){
   var now=new Date();
   var weekAgo=new Date(now.getTime()-7*86400000);
   var monthStart=new Date(now.getFullYear(),now.getMonth(),1);
+  var tF=(typeof sigTimeF!=='undefined')?sigTimeF:'all';
   var total=0,week=0,month=0,wins=0,losses=0,count=0,bestPair='',bestPips=-1e9,pairAgg={};
   (rows||[]).forEach(function(s){
-    if(s.result_pips==null)return;
-    var p=Number(s.result_pips);if(isNaN(p))return;
-    var d=new Date(s.closed_at||s.created_at);
+    var pv=(s.result_pips!=null)?s.result_pips:s.pips;
+    if(pv==null)return;
+    var p=Number(pv);if(isNaN(p))return;
+    var d=new Date(s.closed_at||s.closedTs||s.created_at||s.ts);
     total+=p;count++;if(p>=0)wins++;else losses++;
     if(d>=weekAgo)week+=p;
     if(d>=monthStart)month+=p;
     pairAgg[s.pair]=(pairAgg[s.pair]||0)+p;
   });
-  if(!count){el.innerHTML='';return;}
+  if(!count){el.innerHTML='<div class="card" style="margin-bottom:18px;text-align:center;color:var(--text-muted);padding:22px;">🏆 No closed trades'+(tF!=='all'?' for this period':' yet')+'.</div>';return;}
   Object.keys(pairAgg).forEach(function(k){if(pairAgg[k]>bestPips){bestPips=pairAgg[k];bestPair=k;}});
   var fmt=function(v){return (v>=0?'+':'')+(Math.round(v*10)/10);};
   var col=function(v){return v>=0?'#10b981':'#ef4444';};
@@ -7970,9 +8007,9 @@ function renderSigResultDash(rows,elId){
     '<div style="display:flex;gap:26px;align-items:center;flex-wrap:wrap;margin-top:14px;">'+
       '<div style="display:flex;flex-direction:column;align-items:center;">'+donut+legend+'</div>'+
       '<div style="flex:1;min-width:250px;"><div class="sigdash" style="grid-template-columns:1fr 1fr;">'+
-        tile('Total Pips',fmt(total),col(total))+
-        tile('This Week',fmt(week),col(week))+
-        tile('This Month',fmt(month),col(month))+
+        (tF==='all'
+          ? tile('Total Pips',fmt(total),col(total))+tile('This Week',fmt(week),col(week))+tile('This Month',fmt(month),col(month))
+          : tile(tF==='today'?'Today Pips':(tF==='week'?'Last Week Pips':'This Month Pips'),fmt(total),col(total)))+
         tile('Best Pair',bestPair?(bestPair+' '+fmt(bestPips)):'-','var(--gold)')+
       '</div></div>'+
     '</div></div>';
@@ -8193,6 +8230,7 @@ function renderSignals(){
     var catOk=(sigF==='all')?true:(s.cat===sigF);
     return viewOk&&catOk&&inTime(s);
   });
+  if(sigView==='history'){try{renderSigResultDash(list);}catch(e){}}
   const stMap={active:['st-active','● Active'],tp:['st-tp','✓ TP Hit'],closed:['st-closed','Closed']};
   if(!list.length){
     g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">'+(sigView==='history'?'No closed signals'+(sigTimeF!=='all'?' for this period':'')+' yet.':'No active signals right now. Check History for past results.')+'</div>';
@@ -8538,5 +8576,54 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 
 <script>document.addEventListener('DOMContentLoaded',function(){try{var f=document.getElementById('artFilters'),sl=document.getElementById('artFiltersSlot');if(f&&sl){sl.appendChild(f);f.style.display='flex';}}catch(e){}});</script>
 <style>@media(max-width:768px){#pipTickerTapeWrap{display:none!important}}</style>
+
+<!-- Mobile Bottom Nav (user) -->
+<div id="userBottomNav" style="display:none">
+  <div class="ubn-item" data-page="performance" onclick="ubnGo('performance',this)"><span>🏆</span><b>Perform</b></div>
+  <div class="ubn-item" data-page="signals" onclick="ubnGo('signals',this)"><span>📶</span><b>Signals</b></div>
+  <div class="ubn-item" data-page="articles" onclick="ubnGo('articles',this)"><span>📈</span><b>Charts</b></div>
+  <div class="ubn-item" data-page="newshub" onclick="ubnGo('newshub',this)"><span>📡</span><b>News</b></div>
+  <div class="ubn-item" data-page="strength" onclick="ubnGo('strength',this)"><span>💪</span><b>Strength</b></div>
+  <div class="ubn-item" onclick="toggleSidebar()"><span>☰</span><b>More</b></div>
+</div>
+<style>
+#userBottomNav{position:fixed;left:0;right:0;bottom:0;z-index:1500;background:var(--bg-card);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,.12);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));display:none;justify-content:space-around;align-items:center}
+.ubn-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:14px;cursor:pointer;color:var(--text-muted);min-width:52px;border:1px solid transparent}
+.ubn-item span{font-size:18px;line-height:1}
+.ubn-item b{font-size:9.5px;font-weight:700}
+.ubn-item.active{color:var(--gold);background:var(--gold-bg,rgba(245,158,11,.12));border-color:rgba(245,158,11,.3)}
+@media(max-width:768px){
+  body.ubn-on #userBottomNav{display:flex}
+  body.ubn-on #mainApp{padding-bottom:74px}
+}
+</style>
+<script>
+function ubnGo(p,el){var it=document.querySelector('.menu-item[data-page="'+p+'"]');if(typeof showPage==='function')showPage(p,it||undefined);}
+function ubnSync(p){document.querySelectorAll('#userBottomNav .ubn-item[data-page]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-page')===p);});}
+(function(){
+  // wrap showPage to sync bottom nav highlight
+  var t=setInterval(function(){
+    if(typeof window.showPage==='function' && !window._ubnWrapped){
+      window._ubnWrapped=true;clearInterval(t);
+      var _sp=window.showPage;
+      window.showPage=function(p,el){_sp(p,el);ubnSync(p);};
+    }
+  },200);
+  // show nav only when app visible (logged in)
+  setInterval(function(){
+    var app=document.getElementById('mainApp');
+    var on=app && app.style.display!=='none' && app.offsetParent!==null;
+    document.body.classList.toggle('ubn-on',!!on);
+  },600);
+})();
+</script>
+<script>
+document.addEventListener('click',function(e){
+  var ov=document.getElementById('modal-auth');
+  if(ov && getComputedStyle(ov).display!=='none' && e.target===ov){
+    try{closeModal('auth');}catch(err){ov.style.display='none';}
+  }
+},true);
+</script>
 </body>
 </html>
