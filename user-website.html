@@ -8578,7 +8578,7 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 <style>@media(max-width:768px){#pipTickerTapeWrap{display:none!important}}</style>
 
 <!-- Mobile Bottom Nav (user) -->
-<div id="userBottomNav" style="display:none">
+<div id="userBottomNav">
   <div class="ubn-item" data-page="performance" onclick="ubnGo('performance',this)"><span>🏆</span><b>Perform</b></div>
   <div class="ubn-item" data-page="signals" onclick="ubnGo('signals',this)"><span>📶</span><b>Signals</b></div>
   <div class="ubn-item" data-page="articles" onclick="ubnGo('articles',this)"><span>📈</span><b>Charts</b></div>
@@ -8587,7 +8587,7 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
   <div class="ubn-item" onclick="toggleSidebar()"><span>☰</span><b>More</b></div>
 </div>
 <style>
-#userBottomNav{position:fixed;left:0;right:0;bottom:0;z-index:1500;background:var(--bg-card);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,.12);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));display:none;justify-content:space-around;align-items:center}
+#userBottomNav{display:none;position:fixed;left:0;right:0;bottom:0;z-index:1500;background:var(--bg-card);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,.12);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));justify-content:space-around;align-items:center}
 .ubn-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:14px;cursor:pointer;color:var(--text-muted);min-width:52px;border:1px solid transparent}
 .ubn-item span{font-size:18px;line-height:1}
 .ubn-item b{font-size:9.5px;font-weight:700}
@@ -8612,7 +8612,9 @@ function ubnSync(p){document.querySelectorAll('#userBottomNav .ubn-item[data-pag
   // show nav only when app visible (logged in)
   setInterval(function(){
     var app=document.getElementById('mainApp');
-    var on=app && app.style.display!=='none' && app.offsetParent!==null;
+    var on=app && getComputedStyle(app).display!=='none';
+    var lp=document.getElementById('landingPage');
+    if(lp && getComputedStyle(lp).display!=='none') on=false;
     document.body.classList.toggle('ubn-on',!!on);
   },600);
 })();
