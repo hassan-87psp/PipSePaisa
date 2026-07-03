@@ -1989,7 +1989,7 @@ try{if(localStorage.getItem('psp_mentor_theme')==='dark'){document.documentEleme
 <div id="mDrawerOv" onclick="mDrawerClose()"></div>
 <div id="mDrawer">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <b style="font-size:16px;color:#0f172a">☰ Menu</b>
+    <b style="font-size:16px;color:#0f172a">☰ Menu <span style="font-size:9px;color:#94a3b8">v2</span></b>
     <button onclick="mDrawerClose()" style="border:none;background:transparent;font-size:20px;cursor:pointer;color:#64748b">✕</button>
   </div>
   <div id="mDrawerList"></div>
@@ -2012,6 +2012,20 @@ function mDrawerBuild(){
 function mDrawerOpen(){mDrawerBuild();document.getElementById('mDrawerOv').style.display='block';document.getElementById('mDrawer').classList.add('open');}
 function mDrawerClose(){document.getElementById('mDrawerOv').style.display='none';document.getElementById('mDrawer').classList.remove('open');}
 function mDrawerGo(k){mDrawerClose();showPage(k);}
+// Guarantee: More button hamesha nav me ho (login ke baad nav banta hai, isliye interval)
+setInterval(function(){
+  try{
+    var nm=document.getElementById('navMenu');
+    if(nm && nm.children.length && !nm.querySelector('.nav-more')){
+      var d=document.createElement('div');
+      d.className='menu-item nav-more';
+      d.setAttribute('onclick','mDrawerOpen()');
+      d.innerHTML='<span>☰</span> More';
+      nm.appendChild(d);
+    }
+  }catch(e){}
+},800);
+console.log('PSP mentor v2 — More/drawer active');
 </script>
 </body>
 </html>
