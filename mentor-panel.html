@@ -1989,7 +1989,7 @@ try{if(localStorage.getItem('psp_mentor_theme')==='dark'){document.documentEleme
 <div id="mDrawerOv" onclick="mDrawerClose()"></div>
 <div id="mDrawer">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <b style="font-size:16px;color:#0f172a">☰ Menu <span style="font-size:9px;color:#94a3b8">v2</span></b>
+    <b style="font-size:16px;color:#0f172a">☰ Menu <span style="font-size:9px;color:#94a3b8">v3</span></b>
     <button onclick="mDrawerClose()" style="border:none;background:transparent;font-size:20px;cursor:pointer;color:#64748b">✕</button>
   </div>
   <div id="mDrawerList"></div>
@@ -2025,7 +2025,10 @@ setInterval(function(){
     }
   }catch(e){}
 },800);
-console.log('PSP mentor v2 — More/drawer active');
+console.log('PSP mentor v3 — More/drawer active');
 </script>
+<!-- Mobile top-right hamburger (3 lines) — hamesha dikhega mobile me -->
+<button id="mHamb" onclick="mDrawerOpen()" title="Menu" style="display:none;position:fixed;top:10px;right:10px;z-index:1400;width:42px;height:42px;border-radius:12px;border:1px solid #e6dcc8;background:#fffaf1;font-size:19px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.14)">☰</button>
+<style>@media(max-width:768px){#mHamb{display:block!important}}</style>
 </body>
 </html>
