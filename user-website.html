@@ -8325,6 +8325,7 @@ function renderSignals(){
             <div class="sig-lv"><div class="l">Take Profit 1</div><div class="v" style="color:var(--green)">${s.tp1}</div></div>
             <div class="sig-lv"><div class="l">Take Profit 2</div><div class="v" style="color:var(--green)">${s.tp2}</div></div>
             <div class="sig-lv"><div class="l">Take Profit 3</div><div class="v" style="color:var(--green)">${s.tp3}</div></div>
+            ${s.beMoved?`<div class="sig-lv" style="border:1px solid rgba(14,165,233,.5);background:rgba(14,165,233,.10)"><div class="l" style="color:#0ea5e9">Breakeven</div><div class="v" style="color:#0ea5e9">🔒 ACTIVE</div></div>`:''}
           </div>
         </div>
         ${prog}

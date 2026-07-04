@@ -4,11 +4,8 @@
 //           UPDATE on signals (TP1/TP2/TP3 hit, SL hit, closed)
 // ============================================================
 
-import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-
 const ONESIGNAL_APP_ID = "18a97e55-9d93-4193-b60b-fe8e621f5d12";
 const REST_KEY   = Deno.env.get("ONESIGNAL_REST_API_KEY") ?? "";
-const HOOK_SECRET = Deno.env.get("HOOK_SECRET") ?? "";
 const SITE_URL   = "https://www.pipsepaisa.com";
 
 const AUTH_SCHEME = REST_KEY.startsWith("os_v2") ? "Key" : "Basic";
@@ -72,13 +69,10 @@ function buildMessage(table: string, type: string, r: Record<string, unknown>, o
   }
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   try {
     if (req.method !== "POST") return new Response("ok", { status: 200 });
 
-    if (HOOK_SECRET && (req.headers.get("x-hook-secret") ?? "") !== HOOK_SECRET) {
-      return new Response("unauthorized", { status: 401 });
-    }
     if (!REST_KEY) {
       return new Response(JSON.stringify({ error: "ONESIGNAL_REST_API_KEY not set" }), { status: 500 });
     }

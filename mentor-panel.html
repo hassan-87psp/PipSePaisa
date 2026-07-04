@@ -1953,8 +1953,18 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 html.mdark{filter:invert(1) hue-rotate(180deg);background:#0d1220}
 html.mdark img,html.mdark video,html.mdark iframe{filter:invert(1) hue-rotate(180deg)}
 </style>
-<button id="mThemeBtn" onclick="mToggleTheme()" title="Theme" style="position:fixed;right:14px;bottom:96px;z-index:1200;width:44px;height:44px;border-radius:50%;border:1px solid #e6dcc8;background:#fffaf1;font-size:19px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)">🌙</button>
+<button id="mThemeBtn" onclick="mToggleTheme()" title="Theme" style="width:40px;height:40px;border-radius:14px;border:1px solid #e6dcc8;background:#fffdf8;color:#d97706;font-size:17px;cursor:pointer;box-shadow:0 3px 10px rgba(15,23,42,.04);flex:0 0 auto">🌙</button>
 <script>
+(function placeThemeBtn(){
+  var t=setInterval(function(){
+    var b=document.getElementById('mThemeBtn');if(!b)return;
+    var bw=document.querySelector('.bell-wrap');
+    if(bw&&bw.parentElement){bw.parentElement.insertBefore(b,bw);clearInterval(t);}
+  },500);
+  setTimeout(function(){clearInterval(t);var b=document.getElementById('mThemeBtn');
+    if(b&&!b.closest('.topbar')&&!document.querySelector('.bell')){b.style.position='fixed';b.style.top='10px';b.style.right='60px';b.style.zIndex='500';}
+  },6000);
+})();
 function mToggleTheme(){var d=document.documentElement.classList.toggle('mdark');try{localStorage.setItem('psp_mentor_theme',d?'dark':'light')}catch(e){}var b=document.getElementById('mThemeBtn');if(b)b.textContent=d?'☀️':'🌙';}
 try{if(localStorage.getItem('psp_mentor_theme')==='dark'){document.documentElement.classList.add('mdark');document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('mThemeBtn');if(b)b.textContent='☀️';});}}catch(e){}
 </script>
@@ -2037,8 +2047,6 @@ setInterval(function(){
 },800);
 console.log('PSP mentor v4 — More/drawer active');
 </script>
-<!-- Mobile top-right hamburger (3 lines) — hamesha dikhega mobile me -->
-<button id="mHamb" onclick="mDrawerOpen()" title="Menu" style="display:none;position:fixed;top:10px;right:10px;z-index:1400;width:42px;height:42px;border-radius:12px;border:1px solid #e6dcc8;background:#fffaf1;font-size:19px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.14)">☰</button>
-<style>@media(max-width:768px){#mHamb{display:block!important}}</style>
+
 </body>
 </html>
