@@ -330,10 +330,10 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   :root{--mobile-nav-h:64px!important;}
   .main{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px) + 8px)!important;}
   .sidebar{height:calc(64px + env(safe-area-inset-bottom,0px))!important;padding:5px 7px calc(5px + env(safe-area-inset-bottom,0px))!important;overflow-x:hidden!important;}
-  #navMenu{width:100%!important;min-width:0!important;display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:4px!important;}
+  #navMenu{width:100%!important;min-width:0!important;display:grid!important;grid-template-columns:repeat(6,1fr)!important;gap:4px!important;}
   .menu-item{min-width:0!important;width:100%!important;height:52px!important;padding:5px 3px!important;border-radius:14px!important;font-size:9.5px!important;gap:3px!important;line-height:1.05!important;overflow:hidden!important;text-overflow:ellipsis!important;}
   .menu-item span:first-child{font-size:16px!important;}
-  .menu-item:nth-child(n+6){display:none!important;}
+  
   .menu-item.active{box-shadow:0 4px 10px rgba(217,119,6,.10)!important;}
   .content{padding-bottom:12px!important;}
 }
@@ -360,7 +360,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   }
   .sidebar .brand,.sidebar .menu-sep,.sidebar > div:last-child{display:none!important;}
   #navMenu{
-    display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;
     gap:3px!important;width:100%!important;min-width:0!important;max-width:100%!important;height:100%!important;
     padding:0!important;margin:0!important;overflow:hidden!important;align-items:center!important;
   }
@@ -373,7 +373,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   }
   #navMenu .menu-item span:first-child{font-size:15px!important;line-height:1!important;display:block!important;height:16px!important;}
   #navMenu .menu-item.active{background:#fff7ed!important;border-color:#fed7aa!important;color:#d97706!important;box-shadow:0 2px 8px rgba(217,119,6,.10)!important;}
-  #navMenu .menu-item:nth-child(n+6){display:none!important;}
+  
 }
 @media (max-width:360px){
   #navMenu .menu-item{font-size:8px!important;height:48px!important;border-radius:10px!important;}
@@ -403,11 +403,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   /* Fixed bottom nav like user app */
   .sidebar{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;z-index:9999!important;transform:none!important;width:100%!important;height:calc(var(--mobile-nav-h) + env(safe-area-inset-bottom,0px))!important;margin:0!important;padding:7px 10px calc(7px + env(safe-area-inset-bottom,0px))!important;background:#fffdf8!important;border-top:1px solid #e6dcc8!important;border-right:none!important;box-shadow:0 -9px 24px rgba(15,23,42,.12)!important;overflow:hidden!important;backdrop-filter:blur(16px)!important;}
   .sidebar .brand,.sidebar .menu-sep,.sidebar > div:last-child{display:none!important;}
-  #navMenu{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:5px!important;width:100%!important;height:100%!important;min-width:0!important;max-width:100%!important;padding:0!important;margin:0!important;overflow:hidden!important;}
+  #navMenu{display:grid!important;grid-template-columns:repeat(6,1fr)!important;gap:5px!important;width:100%!important;height:100%!important;min-width:0!important;max-width:100%!important;padding:0!important;margin:0!important;overflow:hidden!important;}
   #navMenu .menu-item{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;min-width:0!important;width:100%!important;height:58px!important;margin:0!important;padding:6px 3px!important;border-radius:17px!important;background:transparent!important;border:1px solid transparent!important;color:#64748b!important;font-size:10px!important;font-weight:600!important;line-height:1.05!important;text-align:center!important;white-space:nowrap!important;overflow:hidden!important;box-shadow:none!important;}
   #navMenu .menu-item span:first-child{font-size:18px!important;line-height:1!important;display:block!important;}
   #navMenu .menu-item.active{background:#fff7ed!important;border-color:#fed7aa!important;color:#d97706!important;box-shadow:0 5px 14px rgba(217,119,6,.12)!important;}
-  #navMenu .menu-item:nth-child(n+6){display:none!important;}
+  
 
   /* Cards and layout: same soft light user style */
   .grid,.stats,.two-col,.three-col,.price-grid,#pg-signals>div,#pg-charts>.grid,#pg-banners>.grid{grid-template-columns:1fr!important;gap:14px!important;}
@@ -472,7 +472,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   .main{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))!important;}
   .sidebar{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;height:calc(68px + env(safe-area-inset-bottom,0px))!important;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))!important;background:#fffdf8!important;border-top:1px solid #e6dcc8!important;box-shadow:0 -10px 30px rgba(15,23,42,.10)!important;overflow:hidden!important;z-index:999!important;}
   .sidebar .brand,.sidebar .menu-sep,.sidebar > div:last-child{display:none!important;}
-  #navMenu{height:100%!important;width:100%!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:5px!important;min-width:0!important;}
+  #navMenu{height:100%!important;width:100%!important;display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:5px!important;min-width:0!important;}
   #navMenu .menu-item{display:none!important;}
   #navMenu .menu-item[data-k="performance"],#navMenu .menu-item[data-k="signals"],#navMenu .menu-item[data-k="charts"],#navMenu .menu-item[data-k="articles"],#navMenu .menu-item[data-k="banners"]{display:flex!important;min-width:0!important;width:100%!important;height:56px!important;margin:0!important;padding:6px 2px!important;border-radius:15px!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;font-size:10px!important;line-height:1.05!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
   #navMenu .menu-item span:first-child{font-size:17px!important;line-height:1!important;}
@@ -524,7 +524,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   /* Bottom nav: always show exact 5 mentor tabs including Banners */
   #navMenu{
     display:grid!important;
-    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
     gap:4px!important;
     width:100%!important;
     overflow:visible!important;
@@ -657,17 +657,20 @@ const PAIRS={Gold:['XAU/USD','XAG/USD'],
 function pairOptions(){let out=[];for(const g in PAIRS){out=out.concat(PAIRS[g]);}return out.map(p=>`<option value="${p}">${p}</option>`).join('');}
 
 const SIGNAL_NOTE_TEMPLATES = [
-"📌 Mentor's Note\n\n• Wait for candle confirmation before entering the trade.\n• Do not chase the market if the entry zone is missed.\n• Always follow the provided entry, stop loss, and take profit levels.\n• Risk only 1–2% of your account on a single trade.\n• Never trade without a stop loss.\n• Adjust your lot size according to your account balance.\n• Protect your capital before thinking about profits.\n• Book partial profits at TP1 whenever possible.\n• Move your Stop Loss to Breakeven after TP1 is hit.\n• Trail your Stop Loss as the trade moves in your favor.\n• Do not panic if price retraces before moving in the expected direction.\n• Avoid emotional trading and stick to the trading plan.\n• Wait for a confirmed breakout before entering breakout trades.\n• Beware of false breakouts and fake market moves.\n• Market structure is more important than emotions.\n• Trade with the trend whenever possible.\n• Avoid overtrading. Quality trades always beat quantity.\n• Stay away from the market during high-impact news unless the setup is planned.\n• Be patient. The market will always provide another opportunity.\n• Don't increase your lot size after a losing trade.\n• Don't revenge trade after a loss.\n• Respect support and resistance zones.\n• If the setup becomes invalid, skip the trade.\n• Capital preservation is the first priority.\n• Consistency is built through discipline, not luck.\n• No trade is better than a bad trade.\n• Every signal carries risk. There are no guaranteed profits.\n• Always perform your own analysis before placing any trade.\n• Follow proper money management at all times.\n• Trade responsibly and stay disciplined.\n\n⚠️ Disclaimer:\nThese trading signals are shared for educational and informational purposes only. Financial markets involve significant risk, and profits are never guaranteed. Trade at your own risk and use proper risk management.",
 "Wait for candle confirmation before entering the trade.",
+"Enter only in the given entry zone, don't chase.",
 "Do not chase the market if the entry zone is missed.",
 "Risk only 1–2% of your account on a single trade.",
+"Use minimum lot size.",
 "Move your Stop Loss to Breakeven after TP1 is hit.",
 "Book partial profits at TP1 whenever possible.",
+"Hold till TP3 if momentum is strong.",
+"Best entry during London/NY session.",
 "Avoid high-impact news unless the setup is planned.",
 "No trade is better than a bad trade.",
 "Trade responsibly and stay disciplined."
 ];
-function signalNoteOptions(){return '<option value="">Select mentor note template (optional)</option>'+SIGNAL_NOTE_TEMPLATES.map(function(n,i){var label=i===0?'Full mentor note + disclaimer':n.replace(/^[•📌⚠️\s]+/,'').slice(0,70);return '<option value="'+esc(n)+'">'+esc(label)+'</option>';}).join('');}
+function signalNoteOptions(){return '<option value="">Select mentor note template (optional)</option>'+SIGNAL_NOTE_TEMPLATES.map(function(n,i){var label=n.replace(/^[•📌⚠️\s]+/,'').slice(0,70);return '<option value="'+esc(n)+'">'+esc(label)+'</option>';}).join('');}
 function applySignalNote(selId,targetId){var s=document.getElementById(selId),t=document.getElementById(targetId);if(!s||!t||!s.value)return; t.value = t.value.trim() ? (t.value.trim()+"\n\n"+s.value) : s.value; s.value=''; t.focus();}
 
 function pipSize(p){p=(p||'').toUpperCase();if(p.includes('JPY'))return 0.01;if(/XAU|GOLD/.test(p))return 0.1;if(/XAG|SILVER/.test(p))return 0.01;if(/BTC|ETH|SOL|BNB|XRP|DOGE/.test(p))return 1;return 0.0001;}
@@ -1066,6 +1069,9 @@ async function createSignal(){
   const val=id=>{const e=document.getElementById(id);return e?(e.value||'').trim():'';};
   const pair=document.getElementById('sgPair').value;
   const entry=parseFloat(val('sgEntry'));
+  const slv=parseFloat(val('sgSL'));
+  const tp1v=parseFloat(val('sgTP1'));
+  if(isNaN(entry)||isNaN(slv)||isNaN(tp1v)){alert('⚠️ Entry price, Stop Loss aur TP1 dena LAZMI hai — inke baghair signal publish nahi hoga.');return;}
   const audArr=['free','premium','vip'];
   if(!audArr.length)audArr.push('free');
   const isFreeOnly=audArr.length===1&&audArr[0]==='free';
@@ -1091,7 +1097,7 @@ function mentorSignalRowHTML(s){
   const aud=(s.audience||(s.access_level==='vip'?'premium,vip':'free'));
   const parts=aud.split(',').map(x=>x.trim()).filter(Boolean);const lbl={free:'🆓',premium:'💎',vip:'👑'};
   const ab=parts.map(p=>'<span style="font-size:9px;padding:1px 6px;border-radius:10px;background:'+(p==='free'?'rgba(16,185,129,.18);color:#10b981':'rgba(245,158,11,.18);color:#f59e0b')+'">'+(lbl[p]||p)+'</span>').join(' ');
-  const st=(s.status||'active');const stMap={active:['● Active','#10b981'],tp1:['✅ TP1 Hit','#10b981'],tp2:['✅ TP2 Hit','#10b981'],tp3:['🏆 TP3 Hit','#10b981'],tp_hit:['✅ TP Hit','#10b981'],sl:['🛑 SL Hit','#ef4444'],sl_hit:['🛑 SL Hit','#ef4444'],closed:['🔒 Closed','#94a0b8']};
+  const st=(s.status||'active');const stMap={active:['● Active','#10b981'],tp1:['✅ TP1 Hit','#10b981'],tp2:['✅ TP2 Hit','#10b981'],tp3:['🏆 TP3 Hit','#10b981'],tp_hit:['✅ TP Hit','#10b981'],sl:['🛑 SL Hit','#ef4444'],sl_hit:['🛑 SL Hit','#ef4444'],be:['🔒 BE Hit','#8b5cf6'],closed:['🔒 Closed','#94a0b8']};
   const stInfo=stMap[st]||stMap.active;
   const pipsTxt=(s.result_pips!=null)?(' · <b style="color:'+(s.result_pips>=0?'#10b981':'#ef4444')+'">'+(s.result_pips>=0?'+':'')+s.result_pips+' pips</b>'):'';
   const btn=(k,label,col)=>'<button onclick="updateMentorSigStatus(\''+s.id+'\',\''+k+'\')" style="padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:'+col+';color:#fff;cursor:pointer;font-size:11px;font-weight:700">'+label+'</button>';
@@ -1099,7 +1105,7 @@ function mentorSignalRowHTML(s){
     '<div style="font-size:12px;color:#94a0b8;margin-top:3px">Entry '+(s.entry_price||'-')+' · SL '+(s.stop_loss||'-')+' · TP1 '+(s.take_profit1||'-')+' · TP2 '+(s.take_profit2||'-')+' · TP3 '+(s.take_profit3||'-')+'</div>'+ 
     '<div style="font-size:12px;margin-top:5px"><span style="color:'+stInfo[1]+';font-weight:700">'+stInfo[0]+'</span>'+pipsTxt+'</div>'+ 
     '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px"><input id="pips-'+s.id+'" type="number" step="any" placeholder="pips" value="'+(s.result_pips!=null?s.result_pips:'')+'" style="width:80px;padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:rgba(0,0,0,.22);color:var(--text);font-size:12px">'+
-    btn('tp1','TP1 Hit','rgba(16,185,129,.5)')+btn('tp2','TP2 Hit','rgba(16,185,129,.5)')+btn('tp3','TP3 Hit','rgba(16,185,129,.7)')+btn('sl','SL Hit','rgba(239,68,68,.6)')+btn('closed','Close','rgba(148,160,184,.4)')+'</div></div>';
+    (s.be_moved?'<span style="font-size:10px;font-weight:800;padding:4px 9px;border-radius:999px;background:rgba(14,165,233,.15);color:#0ea5e9;border:1px solid rgba(14,165,233,.4)">🔒 SL @ BE</span>':'')+btn('tp1','TP1 Hit','#10b981')+btn('tp2','TP2 Hit','#10b981')+btn('tp3','TP3 Hit','#059669')+btn('be_move','SL → BE','#0ea5e9')+btn('be','BE Hit','#8b5cf6')+btn('sl','SL Hit','#ef4444')+btn('closed','Close','#64748b')+'</div></div>';
 }
 function sigCardHTML(s,canDelete){return mentorSignalRowHTML(s);}
 let mSigView='active';
@@ -1119,7 +1125,7 @@ async function loadSignals(){
   // user panel jaisa rule: finished = SL / Closed / TP3
   const list=(data||[]).filter(s=>{
     const st=(s.status||'active');
-    const finished=(st==='sl'||st==='sl_hit'||st==='closed'||st==='tp3');
+    const finished=(st==='sl'||st==='sl_hit'||st==='closed'||st==='tp3'||st==='be');
     return (mSigView==='active')?(!finished):finished;
   });
   if(!list.length){box.innerHTML='<div style="color:#94a0b8">'+(mSigView==='active'?'No active signals right now. Check History for past results.':'No closed signals yet.')+'</div>';return;}
@@ -1127,9 +1133,15 @@ async function loadSignals(){
 }
 async function updateMentorSigStatus(id,kind){
   const pi=document.getElementById('pips-'+id);const pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;
-  const map={tp1:1,tp2:2,tp3:3};const obj={status:kind,closed_at:new Date().toISOString()};
-  if(kind in map)obj.tp_hit=map[kind];
-  if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
+  let obj;
+  if(kind==='be_move'){
+    // SL ko breakeven pe move — trade active rehta hai, sirf tag + users ko notification
+    obj={be_moved:true};
+  }else{
+    const map={tp1:1,tp2:2,tp3:3};obj={status:kind,closed_at:new Date().toISOString()};
+    if(kind in map)obj.tp_hit=map[kind];
+    if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
+  }
   const {error}=await sb.from('signals').update(obj).eq('id',id);
   if(error){alert('Error: '+error.message);return;}
   loadSignals();
@@ -1971,17 +1983,15 @@ try{if(localStorage.getItem('psp_mentor_theme')==='dark'){document.documentEleme
 </script>
 <style>
 .nav-more{display:none}
-@media(max-width:768px){
-  /* bottom nav: sirf 5 main + More */
-  .menu-item:not(.nav-core):not(.nav-more){display:none!important}
-  .nav-more{display:flex!important;color:#d97706!important}
-  .menu-item{min-width:54px!important;padding:6px 3px!important;font-size:9.5px!important;height:56px!important;gap:3px!important}
-  .menu-item span:first-child{font-size:17px!important}
-  #navMenu{gap:2px!important;justify-content:space-around!important;width:100%!important;min-width:0!important}
+@media(max-width:700px){
+  /* bottom nav: sirf 5 main + More — ID specificity se purane rules override */
+  #navMenu .menu-item{display:none!important}
+  #navMenu .menu-item.nav-core,#navMenu .menu-item.nav-more{display:flex!important}
+  #navMenu .menu-item.nav-more{color:#d97706!important}
 }
-#mDrawerOv{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1998}
-#mDrawer{position:fixed;top:0;right:-300px;width:280px;max-width:82vw;height:100%;background:#fffdf8;z-index:1999;transition:right .25s ease;box-shadow:-10px 0 34px rgba(0,0,0,.22);padding:20px 14px calc(96px + env(safe-area-inset-bottom,0px));overflow-y:auto;border-left:1px solid #e6dcc8}
-#mDrawer.open{right:0}
+#mDrawerOv{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10998}
+#mDrawer{position:fixed;top:0;left:-300px;width:280px;max-width:82vw;height:100%;background:#fffdf8;z-index:10999;transition:left .25s ease;box-shadow:10px 0 34px rgba(0,0,0,.22);padding:20px 14px calc(96px + env(safe-area-inset-bottom,0px));overflow-y:auto;border-right:1px solid #e6dcc8}
+#mDrawer.open{left:0}
 .drw-item{display:flex;align-items:center;gap:12px;padding:13px 12px;border-radius:12px;font-weight:700;font-size:14px;color:#334155;cursor:pointer;margin-bottom:2px}
 .drw-item:active{background:#fff7ed}
 .drw-sep{font-size:10px;font-weight:800;letter-spacing:1px;color:#94a3b8;margin:14px 6px 6px}
@@ -1989,7 +1999,7 @@ try{if(localStorage.getItem('psp_mentor_theme')==='dark'){document.documentEleme
 <div id="mDrawerOv" onclick="mDrawerClose()"></div>
 <div id="mDrawer">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-    <b style="font-size:16px;color:#0f172a">☰ Menu <span style="font-size:9px;color:#94a3b8">v3</span></b>
+    <b style="font-size:16px;color:#0f172a">☰ Menu <span style="font-size:9px;color:#94a3b8">v4</span></b>
     <button onclick="mDrawerClose()" style="border:none;background:transparent;font-size:20px;cursor:pointer;color:#64748b">✕</button>
   </div>
   <div id="mDrawerList"></div>
@@ -2025,7 +2035,7 @@ setInterval(function(){
     }
   }catch(e){}
 },800);
-console.log('PSP mentor v3 — More/drawer active');
+console.log('PSP mentor v4 — More/drawer active');
 </script>
 <!-- Mobile top-right hamburger (3 lines) — hamesha dikhega mobile me -->
 <button id="mHamb" onclick="mDrawerOpen()" title="Menu" style="display:none;position:fixed;top:10px;right:10px;z-index:1400;width:42px;height:42px;border-radius:12px;border:1px solid #e6dcc8;background:#fffaf1;font-size:19px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.14)">☰</button>

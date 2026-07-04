@@ -1869,17 +1869,20 @@ var ADPAIRS=['XAU/USD','XAG/USD','EUR/USD','GBP/USD','USD/JPY','USD/CHF','AUD/US
 function adPairOpts(){return ADPAIRS.map(function(p){return '<option value="'+p+'">'+p+'</option>';}).join('');}
 
 const SIGNAL_NOTE_TEMPLATES = [
-"📌 Mentor's Note\n\n• Wait for candle confirmation before entering the trade.\n• Do not chase the market if the entry zone is missed.\n• Always follow the provided entry, stop loss, and take profit levels.\n• Risk only 1–2% of your account on a single trade.\n• Never trade without a stop loss.\n• Adjust your lot size according to your account balance.\n• Protect your capital before thinking about profits.\n• Book partial profits at TP1 whenever possible.\n• Move your Stop Loss to Breakeven after TP1 is hit.\n• Trail your Stop Loss as the trade moves in your favor.\n• Do not panic if price retraces before moving in the expected direction.\n• Avoid emotional trading and stick to the trading plan.\n• Wait for a confirmed breakout before entering breakout trades.\n• Beware of false breakouts and fake market moves.\n• Market structure is more important than emotions.\n• Trade with the trend whenever possible.\n• Avoid overtrading. Quality trades always beat quantity.\n• Stay away from the market during high-impact news unless the setup is planned.\n• Be patient. The market will always provide another opportunity.\n• Don't increase your lot size after a losing trade.\n• Don't revenge trade after a loss.\n• Respect support and resistance zones.\n• If the setup becomes invalid, skip the trade.\n• Capital preservation is the first priority.\n• Consistency is built through discipline, not luck.\n• No trade is better than a bad trade.\n• Every signal carries risk. There are no guaranteed profits.\n• Always perform your own analysis before placing any trade.\n• Follow proper money management at all times.\n• Trade responsibly and stay disciplined.\n\n⚠️ Disclaimer:\nThese trading signals are shared for educational and informational purposes only. Financial markets involve significant risk, and profits are never guaranteed. Trade at your own risk and use proper risk management.",
 "Wait for candle confirmation before entering the trade.",
+"Enter only in the given entry zone, don't chase.",
 "Do not chase the market if the entry zone is missed.",
 "Risk only 1–2% of your account on a single trade.",
+"Use minimum lot size.",
 "Move your Stop Loss to Breakeven after TP1 is hit.",
 "Book partial profits at TP1 whenever possible.",
+"Hold till TP3 if momentum is strong.",
+"Best entry during London/NY session.",
 "Avoid high-impact news unless the setup is planned.",
 "No trade is better than a bad trade.",
 "Trade responsibly and stay disciplined."
 ];
-function adSignalNoteOptions(){return '<option value="">Select mentor note template (optional)</option>'+SIGNAL_NOTE_TEMPLATES.map(function(n,i){var label=i===0?'Full mentor note + disclaimer':n.replace(/^[•📌⚠️\s]+/,'').slice(0,70);return '<option value="'+aEsc(n)+'">'+aEsc(label)+'</option>';}).join('');}
+function adSignalNoteOptions(){return '<option value="">Select mentor note template (optional)</option>'+SIGNAL_NOTE_TEMPLATES.map(function(n,i){var label=n.replace(/^[•📌⚠️\s]+/,'').slice(0,70);return '<option value="'+aEsc(n)+'">'+aEsc(label)+'</option>';}).join('');}
 function applyAdSignalNote(selId,targetId){var s=document.getElementById(selId),t=document.getElementById(targetId);if(!s||!t||!s.value)return; t.value = t.value.trim() ? (t.value.trim()+"\n\n"+s.value) : s.value; s.value=''; t.focus();}
 
 var adSigDir='buy';
@@ -1909,6 +1912,9 @@ async function createAdSignal(){
   var v=function(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';};
   var aud=['free','premium','vip'];
   var entry=parseFloat(v('as-entry'));
+  var slv=parseFloat(v('as-sl'));
+  var tp1v=parseFloat(v('as-tp1'));
+  if(isNaN(entry)||isNaN(slv)||isNaN(tp1v)){alert('⚠️ Entry price, Stop Loss aur TP1 dena LAZMI hai — inke baghair signal publish nahi hoga.');return;}
   var obj={owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('as-pair').value,direction:adSigDir.toUpperCase(),
     entry_price:isNaN(entry)?null:entry,stop_loss:parseFloat(v('as-sl'))||null,take_profit1:parseFloat(v('as-tp1'))||null,take_profit2:parseFloat(v('as-tp2'))||null,take_profit3:parseFloat(v('as-tp3'))||null,
     notes:v('as-notes')||null,audience:aud.join(','),access_level:aud.indexOf('free')>=0?'free':'vip',
@@ -1927,13 +1933,13 @@ async function loadAdSigList(){
   var box=document.getElementById('asList');if(!box)return;
   var r=await sb.from('signals').select('*').eq('is_official',true).order('created_at',{ascending:false}).limit(60);
   if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}
-  var data=(r.data||[]).filter(function(s){var st=(s.status||'active');var fin=(st==='sl'||st==='sl_hit'||st==='closed'||st==='tp3');return (aSigView==='active')?(!fin):fin;});
+  var data=(r.data||[]).filter(function(s){var st=(s.status||'active');var fin=(st==='sl'||st==='sl_hit'||st==='closed'||st==='tp3'||st==='be');return (aSigView==='active')?(!fin):fin;});
   if(!data.length){box.innerHTML='<div style="color:#94a0b8">'+(aSigView==='active'?'No active signals right now. Check History for past results.':'No closed signals yet.')+'</div>';return;}
   box.innerHTML=data.map(function(s){
     var buy=(s.direction||'').toUpperCase()!=='SELL';var aud=(s.audience||(s.access_level==='vip'?'premium,vip':'free'));
     var parts=aud.split(',').map(function(x){return x.trim();}).filter(Boolean);var lbl={free:'🆓',premium:'💎',vip:'👑'};
     var ab=parts.map(function(p){return '<span style="font-size:9px;padding:1px 6px;border-radius:10px;background:'+(p==='free'?'rgba(16,185,129,.18);color:#10b981':'rgba(245,158,11,.18);color:#f59e0b')+'">'+(lbl[p]||p)+'</span>';}).join(' ');
-    var st=(s.status||'active');var stMap={active:['● Active','#10b981'],tp1:['✅ TP1 Hit','#10b981'],tp2:['✅ TP2 Hit','#10b981'],tp3:['🏆 TP3 Hit','#10b981'],sl:['🛑 SL Hit','#ef4444'],closed:['🔒 Closed','#94a0b8']};
+    var st=(s.status||'active');var stMap={active:['● Active','#10b981'],tp1:['✅ TP1 Hit','#10b981'],tp2:['✅ TP2 Hit','#10b981'],tp3:['🏆 TP3 Hit','#10b981'],sl:['🛑 SL Hit','#ef4444'],be:['🔒 BE Hit','#8b5cf6'],closed:['🔒 Closed','#94a0b8']};
     var stInfo=stMap[st]||stMap.active;
     var pipsTxt=(s.result_pips!=null)?(' · <b style="color:'+(s.result_pips>=0?'#10b981':'#ef4444')+'">'+(s.result_pips>=0?'+':'')+s.result_pips+' pips</b>'):'';
     var btn=function(k,label,col){return '<button onclick="updateSigStatus(\''+s.id+'\',\''+k+'\')" style="padding:5px 9px;border-radius:7px;border:1px solid var(--border,#1f2937);background:'+col+';color:#fff;cursor:pointer;font-size:11px;font-weight:700">'+label+'</button>';};
@@ -1941,16 +1947,21 @@ async function loadAdSigList(){
       '<div style="font-size:12px;color:#94a0b8;margin-top:3px">Entry '+(s.entry_price||'-')+' · SL '+(s.stop_loss||'-')+' · TP1 '+(s.take_profit1||'-')+' · TP2 '+(s.take_profit2||'-')+' · TP3 '+(s.take_profit3||'-')+'</div>'+
       '<div style="font-size:12px;margin-top:5px"><span style="color:'+stInfo[1]+';font-weight:700">'+stInfo[0]+'</span>'+pipsTxt+'</div>'+
       '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px"><input id="pips-'+s.id+'" type="number" step="any" placeholder="pips" value="'+(s.result_pips!=null?s.result_pips:'')+'" style="width:80px;padding:5px 8px;border-radius:7px;border:1px solid var(--border,#1f2937);background:var(--bg-elevated,#1a2235);color:var(--text,#e8eaf0);font-size:12px">'+
-      btn('tp1','TP1 Hit','rgba(16,185,129,.5)')+btn('tp2','TP2 Hit','rgba(16,185,129,.5)')+btn('tp3','TP3 Hit','rgba(16,185,129,.7)')+btn('sl','SL Hit','rgba(239,68,68,.6)')+btn('closed','Close','rgba(148,160,184,.4)')+'</div></div>';
+      (s.be_moved?'<span style="font-size:10px;font-weight:800;padding:4px 9px;border-radius:999px;background:rgba(14,165,233,.15);color:#0ea5e9;border:1px solid rgba(14,165,233,.4)">🔒 SL @ BE</span>':'')+btn('tp1','TP1 Hit','#10b981')+btn('tp2','TP2 Hit','#10b981')+btn('tp3','TP3 Hit','#059669')+btn('be_move','SL → BE','#0ea5e9')+btn('be','BE Hit','#8b5cf6')+btn('sl','SL Hit','#ef4444')+btn('closed','Close','#64748b')+'</div></div>';
   }).join('');
 }
 async function updateSigStatus(id,kind){
   var pi=document.getElementById('pips-'+id);
   var pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;
-  var map={tp1:1,tp2:2,tp3:3};
-  var obj={status:kind,closed_at:new Date().toISOString()};
-  if(kind in map)obj.tp_hit=map[kind];
-  if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
+  var obj;
+  if(kind==='be_move'){
+    obj={be_moved:true};
+  }else{
+    var map={tp1:1,tp2:2,tp3:3};
+    obj={status:kind,closed_at:new Date().toISOString()};
+    if(kind in map)obj.tp_hit=map[kind];
+    if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
+  }
   var r=await sb.from('signals').update(obj).eq('id',id);
   if(r.error){alert('Error: '+r.error.message);return;}
   loadAdSigList();

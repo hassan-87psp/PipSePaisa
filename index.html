@@ -7385,7 +7385,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     function act(id){var p=document.getElementById(id);return p&&p.classList.contains('active');}
     function rtContent(){
       try{
-        if(act('page-signals')&&typeof loadSignalsFromDB==='function')loadSignalsFromDB();
+        if(typeof loadSignalsFromDB==='function')loadSignalsFromDB();
         if(act('page-articles')&&typeof loadArticlesFromDB==='function')loadArticlesFromDB();
         if(act('page-learn')&&typeof loadCourses==='function')loadCourses();
         if(act('page-news')&&typeof loadAdminNews==='function')loadAdminNews();
@@ -7963,8 +7963,8 @@ async function loadSignalsFromDB(){
     locked:!canAccessContent('signal',audStr),
     entry:s.entry_price==null?'-':s.entry_price, sl:s.stop_loss==null?'-':s.stop_loss,
     tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2, tp3:s.take_profit3==null?'-':s.take_profit3,
-    tpHit:s.tp_hit||0, rawStatus:(s.status||'active'), pips:(s.result_pips==null?null:s.result_pips),
-    status:(s.status==='active'?'active':((s.status==='sl'||s.status==='closed')?'closed':'tp')),
+    tpHit:s.tp_hit||0, rawStatus:(s.status||'active'), beMoved:!!s.be_moved, pips:(s.result_pips==null?null:s.result_pips),
+    status:(s.status==='active'?'active':((s.status==='sl'||s.status==='closed'||s.status==='be')?'closed':'tp')),
     cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:timeAgo(s.created_at),
     ts:s.created_at, closedTs:(s.closed_at||s.created_at)
   };});
@@ -8183,6 +8183,7 @@ function sigGroupLabel(ts){
 }
 
 function sigHistoryResultLabel(s){
+  if(s.rawStatus==='be') return 'BE Hit';
   if(s.rawStatus==='sl') return 'SL Hit';
   if(s.tpHit>=3 || s.rawStatus==='tp3') return 'TP3 Hit';
   if(s.tpHit===2 || s.rawStatus==='tp2') return 'TP2 Hit';
@@ -8190,7 +8191,7 @@ function sigHistoryResultLabel(s){
   return 'Closed';
 }
 function sigHistoryStatusLabel(s){
-  return (s.rawStatus==='sl'||s.rawStatus==='closed'||s.rawStatus==='tp3')?'Closed':'Active';
+  return (s.rawStatus==='sl'||s.rawStatus==='closed'||s.rawStatus==='tp3'||s.rawStatus==='be')?'Closed':(s.beMoved?'Active · 🔒SL@BE':'Active');
 }
 function sigHistoryRow(s){
   var d=new Date(s.closedTs||s.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
@@ -8225,7 +8226,7 @@ function renderSignals(){
     return true;
   }
   const list=SIGNALS.filter(function(s){
-    var finished=(s.rawStatus==='sl'||s.rawStatus==='closed'||s.rawStatus==='tp3');
+    var finished=(s.rawStatus==='sl'||s.rawStatus==='closed'||s.rawStatus==='tp3'||s.rawStatus==='be');
     var viewOk=(sigView==='active')?(!finished):finished;
     var catOk=(sigF==='all')?true:(s.cat===sigF);
     return viewOk&&catOk&&inTime(s);

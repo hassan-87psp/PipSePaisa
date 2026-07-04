@@ -25,6 +25,7 @@ function statusMessage(r: Record<string, unknown>) {
     case "tp3": return { heading: `🏆 TP3 Hit — ${pair}`, content: `${pair} ${dir} ne TP3 hit kar liya! Full target!${pips}` };
     case "sl":  return { heading: `🛑 SL Hit — ${pair}`,  content: `${pair} ${dir} SL par close hua.${pips}` };
     case "closed": return { heading: `🔒 Trade Closed — ${pair}`, content: `${pair} ${dir} trade close kar diya gaya.${pips}` };
+    case "be": return { heading: `🔒 Breakeven Hit — ${pair}`, content: `${pair} ${dir} breakeven par close hua — capital secure!${pips}` };
     default: return null; // active / unknown => no push
   }
 }
@@ -41,6 +42,12 @@ function buildMessage(table: string, type: string, r: Record<string, unknown>, o
     const newStatus = ((r.status as string) || "").toLowerCase();
     if (newStatus && newStatus !== oldStatus) {
       return statusMessage(r); // null if status not push-worthy
+    }
+    // SL moved to Breakeven (status same, be_moved false -> true)
+    const oldBe = !!(oldR && (oldR as Record<string, unknown>).be_moved);
+    const newBe = !!(r as Record<string, unknown>).be_moved;
+    if (newBe && !oldBe) {
+      return { heading: `⚠️ Move SL to Breakeven — ${pair}`, content: `${pair} ${dir}: apna Stop Loss entry${entry} par le jao — profit secure karo!` };
     }
     return null; // other edits (typo fix etc.) => no push
   }
