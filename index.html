@@ -8113,7 +8113,7 @@ function renderPerfDash(rows){
   // recent activity
   var recent=rows.slice(0,6);
   // monthly goal
-  var goal=parseFloat((function(){try{return localStorage.getItem('psp_month_goal');}catch(e){return null;}})()||'2000')||2000;
+  var goal=5000;
   var earned=Math.max(0,month);
   var gpct=goal>0?Math.min(100,Math.round(earned/goal*100)):0;
 
@@ -8157,8 +8157,7 @@ function renderPerfDash(rows){
       '<div class="card"><div class="card-title" style="margin-bottom:12px;">🏆 Monthly Pips Goal</div>'+
         '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--text-muted);">'+fmt(earned)+' earned</span><b style="color:var(--gold);">'+gpct+'%</b></div>'+
         '<div style="height:9px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;margin-bottom:12px;"><div style="height:100%;width:'+gpct+'%;background:linear-gradient(90deg,#f59e0b,#10b981);border-radius:6px;transition:width 1s;"></div></div>'+
-        '<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">Target (pips)</div>'+
-        '<div style="display:flex;gap:8px;"><input id="perfGoalInput" type="number" value="'+goal+'" style="flex:1;padding:9px 11px;border-radius:9px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:13px;"><button onclick="savePerfGoal()" style="padding:9px 18px;border:none;border-radius:9px;background:var(--gold);color:#0a0e1a;font-weight:800;cursor:pointer;">Save</button></div>'+
+        '<div style="font-size:12px;color:var(--text-muted);">🎯 Target: <b style="color:var(--gold)">5000 pips</b> / month</div>'+
       '</div>'+
       '<div class="card"><div class="card-title" style="margin-bottom:12px;">📊 Signals — last 14 days</div>'+bars+'</div>'+
       '<div class="card"><div class="card-title" style="margin-bottom:8px;">🎯 Win Rate</div><div style="display:flex;flex-direction:column;align-items:center;">'+ring+'<div style="font-size:12px;color:var(--text-muted);margin-top:6px;">'+tpCount+' TP · '+slCount+' SL · '+closed.length+' total</div></div></div>'+
