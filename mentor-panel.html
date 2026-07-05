@@ -1240,7 +1240,6 @@ function renderMentorArticles(){
         <input id="maFile" class="inp" type="file" accept="image/*" onchange="mentorArticleUpload(this)">
         <div id="maPreview"></div>
         <textarea id="maContent" class="inp" rows="7" placeholder="Article content..." style="resize:vertical;font-family:inherit"></textarea>
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)"><input id="maPublish" type="checkbox" checked> Publish now</label>
         <button class="btn" id="maBtn" onclick="createMentorArticle()">➕ Create Article</button>
       </div>
     </div>
@@ -1272,7 +1271,7 @@ async function createMentorArticle(){
     const title=document.getElementById('maTitle').value.trim();
     const image_url=document.getElementById('maImage').value.trim();
     const content=document.getElementById('maContent').value.trim();
-    const is_published=document.getElementById('maPublish').checked;
+    const is_published=true;
     if(!title){alert('Title is required');if(btn){btn.disabled=false;btn.textContent=mentorEditingArticleId?'💾 Update Article':'➕ Create Article';}return;}
     if(mentorEditingArticleId){
       const {error}=await sb.from('articles').update({type,title,category,image_url,content,is_published}).eq('id',mentorEditingArticleId);
@@ -1304,7 +1303,7 @@ async function editMentorArticle(id){
   document.getElementById('maTitle').value=data.title||'';
   document.getElementById('maImage').value=data.image_url||'';
   document.getElementById('maContent').value=data.content||'';
-  document.getElementById('maPublish').checked=!!data.is_published;
+  
   mentorEditingArticleId=id;
   const b=document.getElementById('maBtn');if(b)b.textContent='💾 Update Article';
   window.scrollTo(0,0);
