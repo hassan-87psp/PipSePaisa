@@ -7923,6 +7923,8 @@ let sigF='all';
 function sigCat(p){p=(p||'').toUpperCase();if(/BTC|ETH|XRP|SOL|DOGE|BNB|USDT|CRYPTO/.test(p))return 'crypto';if(/XAU|GOLD|XAG|SILVER/.test(p))return 'gold';return 'forex';}
 function sigIco(p){const c=sigCat(p);return c==='crypto'?'₿':c==='gold'?'🥇':'💱';}
 function timeAgo(t){if(!t)return '';const d=(Date.now()-new Date(t).getTime())/1000;if(d<3600)return Math.max(1,Math.round(d/60))+'m ago';if(d<86400)return Math.round(d/3600)+'h ago';return Math.round(d/86400)+'d ago';}
+function pspFmtTime(t){if(!t)return '';var d=new Date(t);var tm=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});if(d.toDateString()===new Date().toDateString())return tm;return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+', '+tm;}
+function pspFmtDateTime(t){if(!t)return '';var d=new Date(t);return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
 function sigFilter(f,el){sigF=f;document.querySelectorAll('#sigFilters .sig-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderSignals()}
 let sigView='active';let sigTimeF='all';
 function sigSetView(v,el){
@@ -7965,7 +7967,7 @@ async function loadSignalsFromDB(){
     tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2, tp3:s.take_profit3==null?'-':s.take_profit3,
     tpHit:s.tp_hit||0, rawStatus:(s.status||'active'), beMoved:!!s.be_moved, pips:(s.result_pips==null?null:s.result_pips),
     status:(s.status==='active'?'active':((s.status==='sl'||s.status==='closed'||s.status==='be')?'closed':'tp')),
-    cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:timeAgo(s.created_at),
+    cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:pspFmtTime(s.created_at),
     ts:s.created_at, closedTs:(s.closed_at||s.created_at)
   };});
   renderSignals();
@@ -8193,7 +8195,7 @@ function sigHistoryStatusLabel(s){
   return (s.rawStatus==='sl'||s.rawStatus==='closed'||s.rawStatus==='tp3'||s.rawStatus==='be')?'Closed':(s.beMoved?'Active · 🔒SL@BE':'Active');
 }
 function sigHistoryRow(s){
-  var d=new Date(s.closedTs||s.ts).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  var d=pspFmtDateTime(s.ts);
   var dir=(s.dir||'').toUpperCase();
   var p=(s.pips!=null)?((s.pips>=0?'+':'')+s.pips):'-';
   var pCls=(s.pips||0)>=0?'pips-pos':'pips-neg';
@@ -8374,7 +8376,7 @@ async function loadArticlesFromDB(){
   ARTICLE_ITEMS=(ares.data||[]).filter(a=>a.type!=='chart').map(a=>({
     kind:'article', cat:(a.category||'education'), tag:(a.category||'Article'), ico:'📝', grad:grad,
     title:a.title||'(untitled)', ex:(a.content||'').slice(0,140), content:a.content||'',
-    image:a.image_url||'', date:new Date(a.created_at).toLocaleDateString(), ts:new Date(a.created_at).getTime()
+    image:a.image_url||'', date:pspFmtDateTime(a.created_at), ts:new Date(a.created_at).getTime()
   }));
   CHART_ITEMS=(cres&&cres.error)?[]:((cres&&cres.data)||[]).map(c=>{
     const audStr=c.audience||'all';
@@ -8385,7 +8387,7 @@ async function loadArticlesFromDB(){
       ex:locked?('🔒 Members-only chart — unlock to view'):(c.notes||'').slice(0,140),
       content:locked?('🔒 This chart is shared with selected members only.\n\nUpgrade from the VIP Plans page to unlock mentor charts & analysis.'):(c.notes||''),
       image:locked?'':(c.image_url||''), locked:locked,
-      date:new Date(c.created_at).toLocaleDateString(), ts:new Date(c.created_at).getTime()
+      date:pspFmtDateTime(c.created_at), ts:new Date(c.created_at).getTime()
     };
   });
   ARTICLES=CHART_ITEMS.concat(ARTICLE_ITEMS).sort((a,b)=>b.ts-a.ts);
