@@ -7967,7 +7967,7 @@ async function loadSignalsFromDB(){
     tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2, tp3:s.take_profit3==null?'-':s.take_profit3,
     tpHit:s.tp_hit||0, rawStatus:(s.status||'active'), beMoved:!!s.be_moved, pips:(s.result_pips==null?null:s.result_pips),
     status:(s.status==='active'?'active':((s.status==='sl'||s.status==='closed'||s.status==='be')?'closed':'tp')),
-    cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:pspFmtTime(s.created_at),
+    cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:pspFmtDateTime(s.created_at),
     ts:s.created_at, closedTs:(s.closed_at||s.created_at)
   };});
   renderSignals();
