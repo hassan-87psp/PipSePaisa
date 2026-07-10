@@ -1049,6 +1049,11 @@ function renderSignals(){
     <div class="card"><h3 style="margin:0 0 12px">📊 New Official Signal</h3><div style="display:grid;gap:11px">
       <select id="sgPair" style="${MSINP}">${pairOptions()}</select>
       <div style="display:flex;gap:8px"><button type="button" id="bsBuy" onclick="setDir('buy')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:rgba(16,185,129,.18);color:#10b981;font-weight:800;cursor:pointer">▲ BUY</button><button type="button" id="bsSell" onclick="setDir('sell')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:#94a0b8;font-weight:800;cursor:pointer">▼ SELL</button></div>
+      <select id="sgOrderType" style="${MSINP}">
+        <option value="market">⚡ Market Execution</option>
+        <option value="limit">📍 Limit Order (Buy Limit / Sell Limit)</option>
+        <option value="stop">🚀 Stop Order (Buy Stop / Sell Stop)</option>
+      </select>
       <input id="sgEntry" type="number" step="any" placeholder="Entry price" style="${MSINP}">
       <input id="sgSL" type="number" step="any" placeholder="Stop Loss" style="${MSINP}">
       <input id="sgTP1" type="number" step="any" placeholder="Take Profit 1" style="${MSINP}">
@@ -1085,7 +1090,7 @@ async function createSignal(){
     audience:audArr.join(','),
     access_level:audArr.indexOf('free')>=0?'free':'vip',
     plan_name:(!isFreeOnly)?(val('sgPlan')||null):null,
-    status:'active',tp_hit:0};
+    status:'active',tp_hit:0,order_type:((document.getElementById('sgOrderType')||{}).value)||'market'};
   const {error}=await sb.from('signals').insert(obj);
   if(error){alert('Error: '+error.message);return;}
   await pspCreateNotificationAndPush('📊 New Signal Published', obj.pair+' '+obj.direction+' signal is now available.', 'signal', '/?tab=signals', obj.audience||'all');
@@ -1101,7 +1106,7 @@ function mentorSignalRowHTML(s){
   const stInfo=stMap[st]||stMap.active;
   const pipsTxt=(s.result_pips!=null)?(' · <b style="color:'+(s.result_pips>=0?'#10b981':'#ef4444')+'">'+(s.result_pips>=0?'+':'')+s.result_pips+' pips</b>'):'';
   const btn=(k,label,col)=>'<button onclick="updateMentorSigStatus(\''+s.id+'\',\''+k+'\')" style="padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:'+col+';color:#fff;cursor:pointer;font-size:11px;font-weight:700">'+label+'</button>';
-  return '<div style="padding:11px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>'+esc(s.pair)+'</strong> <span style="font-size:10px;padding:1px 7px;border-radius:10px;background:'+(buy?'rgba(16,185,129,.18);color:#10b981':'rgba(239,68,68,.18);color:#ef4444')+'">'+(buy?'BUY':'SELL')+'</span> '+ab+'</div><button onclick="delSignal(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div>'+ 
+  return '<div style="padding:11px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>'+esc(s.pair)+'</strong> <span style="font-size:10px;padding:1px 7px;border-radius:10px;background:'+(buy?'rgba(16,185,129,.18);color:#10b981':'rgba(239,68,68,.18);color:#ef4444')+'">'+(buy?'BUY':'SELL')+'</span>'+((s.order_type&&s.order_type!=='market')?' <span style="font-size:9px;padding:1px 6px;border-radius:10px;background:rgba(14,165,233,.18);color:#0ea5e9;font-weight:800">'+s.order_type.toUpperCase()+'</span>':'')+' '+ab+'</div><button onclick="delSignal(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div>'+ 
     '<div style="font-size:12px;color:#94a0b8;margin-top:3px">Entry '+(s.entry_price||'-')+' · SL '+(s.stop_loss||'-')+' · TP1 '+(s.take_profit1||'-')+' · TP2 '+(s.take_profit2||'-')+' · TP3 '+(s.take_profit3||'-')+'</div>'+ 
     '<div style="font-size:12px;margin-top:5px"><span style="color:'+stInfo[1]+';font-weight:700">'+stInfo[0]+'</span>'+pipsTxt+'</div>'+ 
     '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px"><input id="pips-'+s.id+'" type="number" step="any" placeholder="pips" value="'+(s.result_pips!=null?s.result_pips:'')+'" style="width:80px;padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:rgba(0,0,0,.22);color:var(--text);font-size:12px">'+
@@ -1967,29 +1972,7 @@ html.mdark img,html.mdark video,html.mdark iframe{filter:invert(1) hue-rotate(18
 function mToggleTheme(){var d=document.documentElement.classList.toggle('mdark');try{localStorage.setItem('psp_mentor_theme',d?'dark':'light')}catch(e){}var b=document.getElementById('mThemeBtn');if(b)b.textContent=d?'☀️':'🌙';}
 try{if(localStorage.getItem('psp_mentor_theme')==='dark'){document.documentElement.classList.add('mdark');document.addEventListener('DOMContentLoaded',function(){var b=document.getElementById('mThemeBtn');if(b)b.textContent='☀️';});}}catch(e){}
 </script>
-<script>
-/* Scroll / swipe at page edges switches tabs (desktop wheel + mobile touch) */
-(function(){
-  var busy=false,EDGE=4;
-  function items(){return Array.prototype.filter.call(document.querySelectorAll('.menu-item[data-k]'),function(e){return e.offsetParent!==null;});}
-  function go(dir){
-    if(busy)return;var l=items();if(!l.length)return;
-    var a=document.querySelector('.menu-item[data-k].active');var i=l.indexOf(a);var n=i+dir;
-    if(i<0||n<0||n>=l.length)return;
-    busy=true;showPage(l[n].dataset.k);
-    try{l[n].scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'});}catch(e){}
-    window.scrollTo(0,0);
-    setTimeout(function(){busy=false;},650);
-  }
-  function atBottom(){var st=window.pageYOffset||document.documentElement.scrollTop||0;var vh=window.innerHeight;var dh=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);return st+vh>=dh-EDGE;}
-  function atTop(){return (window.pageYOffset||document.documentElement.scrollTop||0)<=EDGE;}
-  function blocked(t){return t&&t.closest&&t.closest('input,textarea,select,.modal,.overlay');}
-  window.addEventListener('wheel',function(e){if(!document.querySelector('.page.active'))return;if(blocked(e.target))return;if(e.deltaY>0&&atBottom()){e.preventDefault();go(1);}else if(e.deltaY<0&&atTop()){e.preventDefault();go(-1);}},{passive:false});
-  var y0=null;
-  window.addEventListener('touchstart',function(e){y0=e.touches[0].clientY;},{passive:true});
-  window.addEventListener('touchend',function(e){if(y0==null)return;var dy=y0-e.changedTouches[0].clientY;y0=null;if(blocked(e.target))return;if(dy>70&&atBottom())go(1);else if(dy<-70&&atTop())go(-1);},{passive:true});
-})();
-</script>
+
 <style>
 .nav-more{display:none}
 @media(max-width:700px){

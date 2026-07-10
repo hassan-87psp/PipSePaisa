@@ -1893,6 +1893,7 @@ function loadAdSignals(){
     '<div class="card"><h3 style="margin:0 0 12px">📊 New Official Signal</h3><div style="display:grid;gap:11px">'+
       '<select id="as-pair" style="'+APMS+'">'+adPairOpts()+'</select>'+
       '<div style="display:flex;gap:8px"><button type="button" id="as-buy" onclick="adSigSetDir(\'buy\')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border,#1f2937);background:rgba(16,185,129,.18);color:#10b981;font-weight:800;cursor:pointer">▲ BUY</button><button type="button" id="as-sell" onclick="adSigSetDir(\'sell\')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border,#1f2937);background:transparent;color:#94a0b8;font-weight:800;cursor:pointer">▼ SELL</button></div>'+
+      '<select id="as-ordertype" style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--border,#1f2937);background:rgba(0,0,0,.18);color:inherit;font-size:13px;margin-bottom:8px"><option value="market">⚡ Market Execution</option><option value="limit">📍 Limit Order</option><option value="stop">🚀 Stop Order</option></select>'+
       '<input id="as-entry" type="number" step="any" placeholder="Entry price" style="'+APMS+'">'+
       '<input id="as-sl" type="number" step="any" placeholder="Stop Loss" style="'+APMS+'">'+
       '<input id="as-tp1" type="number" step="any" placeholder="Take Profit 1" style="'+APMS+'">'+
@@ -1918,7 +1919,7 @@ async function createAdSignal(){
   var obj={owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('as-pair').value,direction:adSigDir.toUpperCase(),
     entry_price:isNaN(entry)?null:entry,stop_loss:parseFloat(v('as-sl'))||null,take_profit1:parseFloat(v('as-tp1'))||null,take_profit2:parseFloat(v('as-tp2'))||null,take_profit3:parseFloat(v('as-tp3'))||null,
     notes:v('as-notes')||null,audience:aud.join(','),access_level:aud.indexOf('free')>=0?'free':'vip',
-    plan_name:(!(aud.length===1&&aud[0]==='free'))?(v('as-plan')||null):null,status:'active',tp_hit:0};
+    plan_name:(!(aud.length===1&&aud[0]==='free'))?(v('as-plan')||null):null,status:'active',tp_hit:0,order_type:((document.getElementById('as-ordertype')||{}).value)||'market'};
   var r=await sb.from('signals').insert(obj);
   if(r.error){alert('Error: '+r.error.message);return;}
   await pspCreateNotificationAndPush('📊 New Signal Published', obj.pair+' '+obj.direction+' signal is now available.', 'signal', '/?tab=signals', obj.audience||'all');

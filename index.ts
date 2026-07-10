@@ -17,19 +17,20 @@ function statusMessage(r: Record<string, unknown>) {
   const st   = ((r.status as string) || "").toLowerCase();
 
   switch (st) {
-    case "tp1": return { heading: `✅ TP1 Hit — ${pair}`, content: `${pair} ${dir} ne TP1 hit kar liya!${pips}` };
-    case "tp2": return { heading: `✅ TP2 Hit — ${pair}`, content: `${pair} ${dir} ne TP2 hit kar liya!${pips}` };
-    case "tp3": return { heading: `🏆 TP3 Hit — ${pair}`, content: `${pair} ${dir} ne TP3 hit kar liya! Full target!${pips}` };
-    case "sl":  return { heading: `🛑 SL Hit — ${pair}`,  content: `${pair} ${dir} SL par close hua.${pips}` };
-    case "closed": return { heading: `🔒 Trade Closed — ${pair}`, content: `${pair} ${dir} trade close kar diya gaya.${pips}` };
-    case "be": return { heading: `🔒 Breakeven Hit — ${pair}`, content: `${pair} ${dir} breakeven par close hua — capital secure!${pips}` };
+    case "tp1": return { heading: `✅ TP1 Hit — ${pair}`, content: `${pair} ${dir} has hit Take Profit 1!${pips}` };
+    case "tp2": return { heading: `✅ TP2 Hit — ${pair}`, content: `${pair} ${dir} has hit Take Profit 2!${pips}` };
+    case "tp3": return { heading: `🏆 TP3 Hit — ${pair}`, content: `${pair} ${dir} has hit Take Profit 3 — full target reached!${pips}` };
+    case "sl":  return { heading: `🛑 SL Hit — ${pair}`,  content: `${pair} ${dir} closed at Stop Loss.${pips}` };
+    case "closed": return { heading: `🔒 Trade Closed — ${pair}`, content: `${pair} ${dir} trade has been closed.${pips}` };
+    case "be": return { heading: `🔒 Breakeven Hit — ${pair}`, content: `${pair} ${dir} closed at breakeven — capital secured!${pips}` };
     default: return null; // active / unknown => no push
   }
 }
 
 function buildMessage(table: string, type: string, r: Record<string, unknown>, oldR: Record<string, unknown> | null) {
   const pair = (r.pair as string) || "";
-  const dir  = ((r.direction as string) || "").toUpperCase();
+  const ot   = (((r.order_type as string) || "market") + "").toLowerCase();
+  const dir  = ((r.direction as string) || "").toUpperCase() + (ot !== "market" ? ` ${ot.toUpperCase()}` : "");
   const entry = r.entry_price != null ? ` @ ${r.entry_price}` : "";
   const title = (r.title as string) || "";
 
@@ -44,7 +45,7 @@ function buildMessage(table: string, type: string, r: Record<string, unknown>, o
     const oldBe = !!(oldR && (oldR as Record<string, unknown>).be_moved);
     const newBe = !!(r as Record<string, unknown>).be_moved;
     if (newBe && !oldBe) {
-      return { heading: `⚠️ Move SL to Breakeven — ${pair}`, content: `${pair} ${dir}: apna Stop Loss entry${entry} par le jao — profit secure karo!` };
+      return { heading: `⚠️ Move SL to Breakeven — ${pair}`, content: `${pair} ${dir}: Move your Stop Loss to entry${entry} to secure your profit!` };
     }
     return null; // other edits (typo fix etc.) => no push
   }
