@@ -8200,7 +8200,7 @@ function renderSignals(){
         </div>
       </div>`;
       sigHtml+=`<div class="card sig-card sig-history-mobile-card">
-        <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}${s.orderType&&s.orderType!=='market'?' '+s.orderType.toUpperCase():''}</span></div>
+        <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}</span>${s.orderType&&s.orderType!=='market'?`<span style="font-size:11.5px;font-weight:900;padding:5px 11px;border-radius:999px;background:rgba(14,165,233,.14);color:#0ea5e9;border:1.5px solid rgba(14,165,233,.55);letter-spacing:.4px;white-space:nowrap;margin-left:6px">${s.orderType==='limit'?'📍':'🚀'} ${s.dir.toUpperCase()} ${s.orderType.toUpperCase()}</span>`:''}</div>
         <div class="sig-levels">
           <div class="sig-lv"><div class="l">Entry</div><div class="v">${s.entry}</div></div>
           <div class="sig-lv"><div class="l">Stop Loss</div><div class="v" style="color:var(--red)">${s.sl}</div></div>
@@ -8240,7 +8240,7 @@ function renderSignals(){
 <div style="font-size:11px;color:var(--text-muted)">Tap to upgrade &amp; unlock Entry, SL &amp; TP</div>\
 <div style="margin-top:4px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;font-size:11px;padding:6px 14px;border-radius:8px">View VIP Plans →</div></div>':'';
       sigHtml+=`<div class="card sig-card">
-        <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}${s.orderType&&s.orderType!=='market'?' '+s.orderType.toUpperCase():''}</span></div>
+        <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}</span>${s.orderType&&s.orderType!=='market'?`<span style="font-size:11.5px;font-weight:900;padding:5px 11px;border-radius:999px;background:rgba(14,165,233,.14);color:#0ea5e9;border:1.5px solid rgba(14,165,233,.55);letter-spacing:.4px;white-space:nowrap;margin-left:6px">${s.orderType==='limit'?'📍':'🚀'} ${s.dir.toUpperCase()} ${s.orderType.toUpperCase()}</span>`:''}</div>
         <div style="position:relative">
           ${lockOv}
           <div class="sig-levels" style="${s.locked?'filter:blur(7px);pointer-events:none;user-select:none':''}">
