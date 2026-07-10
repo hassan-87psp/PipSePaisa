@@ -1050,9 +1050,11 @@ function renderSignals(){
       <select id="sgPair" style="${MSINP}">${pairOptions()}</select>
       <div style="display:flex;gap:8px"><button type="button" id="bsBuy" onclick="setDir('buy')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:rgba(16,185,129,.18);color:#10b981;font-weight:800;cursor:pointer">▲ BUY</button><button type="button" id="bsSell" onclick="setDir('sell')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:#94a0b8;font-weight:800;cursor:pointer">▼ SELL</button></div>
       <select id="sgOrderType" style="${MSINP}">
-        <option value="market">⚡ Market Execution</option>
-        <option value="limit">📍 Limit Order (Buy Limit / Sell Limit)</option>
-        <option value="stop">🚀 Stop Order (Buy Stop / Sell Stop)</option>
+        <option value="market">⚡ Market Execution (Buy/Sell)</option>
+        <option value="buy_limit">📍 Buy Limit</option>
+        <option value="sell_limit">📍 Sell Limit</option>
+        <option value="buy_stop">🚀 Buy Stop</option>
+        <option value="sell_stop">🚀 Sell Stop</option>
       </select>
       <input id="sgEntry" type="number" step="any" placeholder="Entry price" style="${MSINP}">
       <input id="sgSL" type="number" step="any" placeholder="Stop Loss" style="${MSINP}">
@@ -1080,7 +1082,10 @@ async function createSignal(){
   const audArr=['free','premium','vip'];
   if(!audArr.length)audArr.push('free');
   const isFreeOnly=audArr.length===1&&audArr[0]==='free';
-  const obj={owner_id:ME.id,is_official:true,pair:pair,direction:sigDir.toUpperCase(),
+  const _otv=((document.getElementById('sgOrderType')||{}).value)||'market';
+  const _dirO=(_otv!=='market')?_otv.split('_')[0]:sigDir;
+  const _otype=(_otv!=='market')?_otv.split('_')[1]:'market';
+  const obj={owner_id:ME.id,is_official:true,pair:pair,direction:_dirO.toUpperCase(),
     entry_price:isNaN(entry)?null:entry,
     stop_loss:parseFloat(val('sgSL'))||null,
     take_profit1:parseFloat(val('sgTP1'))||null,
@@ -1090,7 +1095,7 @@ async function createSignal(){
     audience:audArr.join(','),
     access_level:audArr.indexOf('free')>=0?'free':'vip',
     plan_name:(!isFreeOnly)?(val('sgPlan')||null):null,
-    status:'active',tp_hit:0,order_type:((document.getElementById('sgOrderType')||{}).value)||'market'};
+    status:'active',tp_hit:0,order_type:_otype};
   const {error}=await sb.from('signals').insert(obj);
   if(error){alert('Error: '+error.message);return;}
   await pspCreateNotificationAndPush('📊 New Signal Published', obj.pair+' '+obj.direction+' signal is now available.', 'signal', '/?tab=signals', obj.audience||'all');
