@@ -896,6 +896,23 @@
 </style>
 </head>
 <body>
+<!-- ===== Broker Banners ===== -->
+<style>
+.pip-bnr{display:block;line-height:0}
+.pip-bnr img{border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.10);width:100%;height:auto;display:block}
+#bnrTop{max-width:1200px;margin:10px auto 0;padding:0 14px}
+.bnr-side{position:fixed;top:50%;transform:translateY(-50%);width:160px;z-index:60;display:none}
+#bnrLeft{left:12px}#bnrRight{right:12px}
+@media(min-width:1330px){.bnr-side{display:block}}
+</style>
+<div id="bnrTop"><a class="pip-bnr" href="#" data-bnr="exness" target="_blank" rel="noopener"><img src="banner-exness.png" alt="Exness" loading="lazy"></a></div>
+<div id="bnrLeft" class="bnr-side"><a class="pip-bnr" href="#" data-bnr="xm" target="_blank" rel="noopener"><img src="banner-xm.png" alt="XM" loading="lazy"></a></div>
+<div id="bnrRight" class="bnr-side"><a class="pip-bnr" href="#" data-bnr="dprime" target="_blank" rel="noopener"><img src="banner-dprime.png" alt="DPrime" loading="lazy"></a></div>
+<script>
+// >>> YAHAN APNE PARTNER LINKS DALO <<<
+var BROKER_LINKS={exness:'#',xm:'#',dprime:'#'};
+document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-bnr]').forEach(function(a){var u=BROKER_LINKS[a.getAttribute('data-bnr')];if(u&&u!=='#'){a.href=u;}else{a.style.pointerEvents='none';}});});
+</script>
 
 <nav>
   <div class="wrap">
