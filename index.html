@@ -7887,7 +7887,7 @@ async function loadSignalsFromDB(){
     access:s.access_level||'free', plan:s.plan_name||'',
     locked:!canAccessContent('signal',audStr),
     entry:s.entry_price==null?'-':s.entry_price, sl:s.stop_loss==null?'-':s.stop_loss,
-    tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2, tp3:s.take_profit3==null?'-':s.take_profit3,
+    tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2, tp3:s.take_profit3==null?'-':s.take_profit3, tp4:(s.take_profit4||''),
     tpHit:s.tp_hit||0, rawStatus:(s.status||'active'), beMoved:!!s.be_moved, orderType:((s.order_type||'market')+'').toLowerCase(), pips:(s.result_pips==null?null:s.result_pips),
     status:(s.status==='active'?'active':((s.status==='sl'||s.status==='closed'||s.status==='be')?'closed':'tp')),
     cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:pspFmtDateTime(s.created_at),
@@ -8249,6 +8249,7 @@ function renderSignals(){
             <div class="sig-lv"><div class="l">Take Profit 1</div><div class="v" style="color:var(--green)">${s.tp1}</div></div>
             <div class="sig-lv"><div class="l">Take Profit 2</div><div class="v" style="color:var(--green)">${s.tp2}</div></div>
             <div class="sig-lv"><div class="l">Take Profit 3</div><div class="v" style="color:var(--green)">${s.tp3}</div></div>
+            ${s.tp4?`<div class="sig-lv"><div class="l">Take Profit 4</div><div class="v" style="color:${(s.tp4+'').toLowerCase()==='open'?'#f59e0b':'var(--green)'}">${(s.tp4+'').toLowerCase()==='open'?'🔓 OPEN — let it run':s.tp4}</div></div>`:''}
             ${s.beMoved?`<div class="sig-lv" style="border:1px solid rgba(14,165,233,.5);background:rgba(14,165,233,.10)"><div class="l" style="color:#0ea5e9">Breakeven</div><div class="v" style="color:#0ea5e9">🔒 ACTIVE</div></div>`:''}
           </div>
         </div>
@@ -8298,7 +8299,7 @@ async function loadArticlesFromDB(){
   const grad='linear-gradient(135deg,#3a2f1e,#1f0f33)';
   ARTICLE_ITEMS=(ares.data||[]).filter(a=>a.type!=='chart').map(a=>({
     kind:'article', cat:(a.category||'education'), tag:(a.category||'Article'), ico:'📝', grad:grad,
-    title:a.title||'(untitled)', ex:(a.content||'').slice(0,140), content:a.content||'',
+    title:a.title||'(untitled)', ex:(a.content||'').slice(0,140), content:a.content||'', contentUr:a.content_ur||'',
     image:a.image_url||'', date:pspFmtDateTime(a.created_at), ts:new Date(a.created_at).getTime()
   }));
   CHART_ITEMS=(cres&&cres.error)?[]:((cres&&cres.data)||[]).map(c=>{
@@ -8367,7 +8368,15 @@ function openArt(i){
     (hasImg?'<button onclick="downloadChartImg(\''+(a.image||'')+'\',\''+((a.title||'chart').replace(/[^a-zA-Z0-9 _-]/g,'').slice(0,40)||'chart')+'\')" style="padding:10px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border:none;border-radius:8px;color:#0a0e1a;font-weight:800;cursor:pointer;font-family:inherit">⬇️ Download</button>':'')+
     '<button onclick="copyChartText('+i+')" style="padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-weight:700;cursor:pointer;font-family:inherit">📋 Copy</button>'+
   '</div>';
-  const text=`<h2 style="margin-top:0">${a.title}</h2><div class="art-meta" style="border:none;padding:0"><span></span><span>${a.date}</span></div><div class="body"><p>${(a.content||'').replace(/\n/g,'<br>')}</p></div>${closeBtn}`;
+  // Language: dono languages hon to toggle dikhao
+  const hasBoth=!!(a.content&&a.contentUr);
+  let lang='en';
+  try{lang=localStorage.getItem('psp_art_lang')||'en';}catch(e){}
+  if(!hasBoth)lang=a.contentUr?'ur':'en';
+  const activeContent=(lang==='ur'&&a.contentUr)?a.contentUr:(a.content||a.contentUr||'');
+  const langBtn=(v,lb)=>`<button onclick="setArtLang(${i},'${v}')" style="padding:7px 14px;border-radius:999px;border:1.5px solid ${lang===v?'var(--gold)':'var(--border)'};background:${lang===v?'var(--gold)':'transparent'};color:${lang===v?'#0a0e1a':'var(--text-muted)'};font-weight:800;font-size:12px;cursor:pointer;font-family:inherit">${lb}</button>`;
+  const langBar=hasBoth?`<div style="display:flex;gap:8px;margin:4px 0 12px">${langBtn('en','🇬🇧 English')}${langBtn('ur','🇵🇰 Roman Urdu')}</div>`:'';
+  const text=`<h2 style="margin-top:0">${a.title}</h2><div class="art-meta" style="border:none;padding:0"><span></span><span>${a.date}</span></div>${langBar}<div class="body"><p>${(activeContent||'').replace(/\n/g,'<br>')}</p></div>${closeBtn}`;
   if(hasImg){
     box.innerHTML=`<div style="display:flex;flex-wrap:wrap;align-items:stretch">
       <div style="flex:1 1 440px;min-width:300px;background:#0a0e1a;display:flex;align-items:center;justify-content:center;padding:14px">
@@ -8381,6 +8390,7 @@ function openArt(i){
   document.getElementById('artModal').classList.add('open');
 }
 function closeArt(){document.getElementById('artModal').classList.remove('open')}
+function setArtLang(i,v){try{localStorage.setItem('psp_art_lang',v);}catch(e){}openArt(i);}
 let currentToolsTab='calculators';
 window.currentToolsTab=currentToolsTab;
 function setToolsTab(tab,el){

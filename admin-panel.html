@@ -1445,7 +1445,8 @@ select option{background:#0f1729;color:#e8eaf0}
             <input id="artImage" class="search-input" type="text" placeholder="Image URL (optional)">
             <input id="artFile" class="search-input" type="file" accept="image/*" onchange="adminArticleUpload(this)">
             <div id="artImgPreview"></div>
-            <textarea id="artContent" class="search-input" rows="7" placeholder="Article content..." style="resize:vertical;font-family:inherit"></textarea>
+            <textarea id="artContent" class="search-input" rows="7" placeholder="Content in English..." style="resize:vertical;font-family:inherit"></textarea>
+            <textarea id="artContentUr" class="search-input" rows="7" placeholder="Content in Roman Urdu... (optional)" style="resize:vertical;font-family:inherit"></textarea>
             <button class="btn" id="artBtn" onclick="createArticle()">➕ Create Article</button>
           </div>
         </div>
@@ -1899,6 +1900,7 @@ function loadAdSignals(){
       '<input id="as-tp1" type="number" step="any" placeholder="Take Profit 1" style="'+APMS+'">'+
       '<input id="as-tp2" type="number" step="any" placeholder="Take Profit 2 (optional)" style="'+APMS+'">'+
       '<input id="as-tp3" type="number" step="any" placeholder="Take Profit 3 (optional)" style="'+APMS+'">'+
+      '<input id="as-tp4" type="text" placeholder="TP4 / Runner (optional — number ya \'Open\')" style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--border,#1f2937);background:rgba(0,0,0,.18);color:inherit;font-size:13px;margin-bottom:8px">'+
       '<select id="as-note-tpl" onchange="applyAdSignalNote(\'as-note-tpl\',\'as-notes\')" style="'+APMS+'">'+adSignalNoteOptions()+'</select>'+
       '<textarea id="as-notes" rows="5" placeholder="Notes (optional) — select template or type custom note" style="'+APMS+';resize:vertical"></textarea>'+
       ''+
@@ -1920,7 +1922,7 @@ async function createAdSignal(){
   var _dirO=(_otv!=='market')?_otv.split('_')[0]:adSigDir;
   var _otype=(_otv!=='market')?_otv.split('_')[1]:'market';
   var obj={owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('as-pair').value,direction:_dirO.toUpperCase(),
-    entry_price:isNaN(entry)?null:entry,stop_loss:parseFloat(v('as-sl'))||null,take_profit1:parseFloat(v('as-tp1'))||null,take_profit2:parseFloat(v('as-tp2'))||null,take_profit3:parseFloat(v('as-tp3'))||null,
+    entry_price:isNaN(entry)?null:entry,stop_loss:parseFloat(v('as-sl'))||null,take_profit1:parseFloat(v('as-tp1'))||null,take_profit2:parseFloat(v('as-tp2'))||null,take_profit3:parseFloat(v('as-tp3'))||null,take_profit4:(v('as-tp4')||'').trim()||null,
     notes:v('as-notes')||null,audience:aud.join(','),access_level:aud.indexOf('free')>=0?'free':'vip',
     plan_name:(!(aud.length===1&&aud[0]==='free'))?(v('as-plan')||null):null,status:'active',tp_hit:0,order_type:_otype};
   var r=await sb.from('signals').insert(obj);
@@ -3619,20 +3621,21 @@ async function createArticle(){
   const title=document.getElementById('artTitle').value.trim();
   const image_url=document.getElementById('artImage').value.trim();
   const content=document.getElementById('artContent').value.trim();
+  const content_ur=(document.getElementById('artContentUr')||{value:''}).value.trim()||null;
   const is_published=true;
   if(!title){alert('Title is required');return;}
   if(editingArticleId){
-    const {error}=await sb.from('articles').update({type,title,category,image_url,content,is_published}).eq('id',editingArticleId);
+    const {error}=await sb.from('articles').update({type,title,category,image_url,content,content_ur,is_published}).eq('id',editingArticleId);
     if(error){alert('Error: '+error.message);return;}
     editingArticleId=null;const b=document.getElementById('artBtn');if(b)b.textContent='➕ Create Article';
   }else{
     const {data:{user}}=await sb.auth.getUser();
-    const articleObj={type,title,category,image_url,content,is_published,is_official:true,author_id:user?user.id:null};
+    const articleObj={type,title,category,image_url,content,content_ur,is_published,is_official:true,author_id:user?user.id:null};
     const {error}=await sb.from('articles').insert(articleObj);
     if(error){alert('Error: '+error.message);return;}
     if(is_published) await pspCreateNotificationAndPush('📖 New Article Published', title+' is now available.', 'article', '/?tab=charts&sub=articles', 'all');
   }
-  document.getElementById('artTitle').value='';document.getElementById('artImage').value='';document.getElementById('artContent').value='';document.getElementById('artFile').value='';var ap=document.getElementById('artImgPreview');if(ap)ap.innerHTML='';
+  document.getElementById('artTitle').value='';document.getElementById('artImage').value='';document.getElementById('artContent').value='';var acu=document.getElementById('artContentUr');if(acu)acu.value='';document.getElementById('artFile').value='';var ap=document.getElementById('artImgPreview');if(ap)ap.innerHTML='';
   loadAdminArticles();
 }
 async function editArticle(id){
@@ -3642,6 +3645,7 @@ async function editArticle(id){
   document.getElementById('artTitle').value=data.title||'';
   document.getElementById('artImage').value=data.image_url||'';
   document.getElementById('artContent').value=data.content||'';
+  var _acu=document.getElementById('artContentUr');if(_acu)_acu.value=data.content_ur||'';
   
   editingArticleId=id;const b=document.getElementById('artBtn');if(b)b.textContent='💾 Update Article';
   window.scrollTo(0,0);

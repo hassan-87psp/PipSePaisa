@@ -1061,10 +1061,12 @@ function renderSignals(){
       <input id="sgTP1" type="number" step="any" placeholder="Take Profit 1" style="${MSINP}">
       <input id="sgTP2" type="number" step="any" placeholder="Take Profit 2 (optional)" style="${MSINP}">
       <input id="sgTP3" type="number" step="any" placeholder="Take Profit 3 (optional)" style="${MSINP}">
+      <input id="sgTP4" type="text" placeholder="TP4 / Runner (optional — number ya 'Open')" style="${MSINP}">
       <select id="sgNoteTpl" onchange="applySignalNote('sgNoteTpl','sgNotes')" style="${MSINP}">${signalNoteOptions()}</select>
       <textarea id="sgNotes" rows="5" placeholder="Notes (optional) — select template or type custom note" style="${MSINP};resize:vertical"></textarea>
       <input id="sgPlan" placeholder="VIP package name (optional)" style="${MSINP}">
       <button onclick="createSignal()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">🚀 Publish Official Signal</button>
+      <button onclick="cancelSigEdit()" id="sgCancelEdit" style="padding:8px;border:none;border-radius:8px;background:transparent;color:#94a0b8;font-size:12px;cursor:pointer;text-decoration:underline">Cancel edit</button>
     </div></div>
     <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px"><h3 style="margin:0">📋 Official Signals</h3><div style="display:flex;gap:6px"><button id="mSigTabA" onclick="mSigSetView('active')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--gold,#f59e0b);color:#0a0e1a;font-weight:800;font-size:12px;cursor:pointer">⚡ Active</button><button id="mSigTabH" onclick="mSigSetView('history')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text,#e8eaf0);font-weight:800;font-size:12px;cursor:pointer">📜 History</button></div></div><div id="sigList">Loading...</div></div>
   </div>`;
@@ -1091,15 +1093,28 @@ async function createSignal(){
     take_profit1:parseFloat(val('sgTP1'))||null,
     take_profit2:parseFloat(val('sgTP2'))||null,
     take_profit3:parseFloat(val('sgTP3'))||null,
+    take_profit4:(val('sgTP4')||'').trim()||null,
     notes:val('sgNotes')||null,
     audience:audArr.join(','),
     access_level:audArr.indexOf('free')>=0?'free':'vip',
     plan_name:(!isFreeOnly)?(val('sgPlan')||null):null,
     status:'active',tp_hit:0,order_type:_otype};
-  const {error}=await sb.from('signals').insert(obj);
+  let error=null;
+  if(editingSigId){
+    // EDIT MODE: update, insert nahi (koi push notification nahi jati kyunke status/be_moved change nahi hote)
+    delete obj.status;delete obj.tp_hit;delete obj.owner_id;delete obj.is_official;
+    const pe=document.getElementById('sgEditPips');
+    if(pe&&pe.value!==''&&!isNaN(parseFloat(pe.value)))obj.result_pips=parseFloat(pe.value);
+    const r=await sb.from('signals').update(obj).eq('id',editingSigId);
+    error=r.error;
+    if(!error){toast('💾 Signal update ho gaya','ok');cancelSigEdit();}
+  }else{
+    const r=await sb.from('signals').insert(obj);
+    error=r.error;
+  }
   if(error){alert('Error: '+error.message);return;}
   await pspCreateNotificationAndPush('📊 New Signal Published', obj.pair+' '+obj.direction+' signal is now available.', 'signal', '/?tab=signals', obj.audience||'all');
-  ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgNotes','sgPlan'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+  ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   loadSignals();
 }
 function mentorSignalRowHTML(s){
@@ -1111,8 +1126,8 @@ function mentorSignalRowHTML(s){
   const stInfo=stMap[st]||stMap.active;
   const pipsTxt=(s.result_pips!=null)?(' · <b style="color:'+(s.result_pips>=0?'#10b981':'#ef4444')+'">'+(s.result_pips>=0?'+':'')+s.result_pips+' pips</b>'):'';
   const btn=(k,label,col)=>'<button onclick="updateMentorSigStatus(\''+s.id+'\',\''+k+'\')" style="padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:'+col+';color:#fff;cursor:pointer;font-size:11px;font-weight:700">'+label+'</button>';
-  return '<div style="padding:11px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>'+esc(s.pair)+'</strong> <span style="font-size:10px;padding:1px 7px;border-radius:10px;background:'+(buy?'rgba(16,185,129,.18);color:#10b981':'rgba(239,68,68,.18);color:#ef4444')+'">'+(buy?'BUY':'SELL')+'</span>'+((s.order_type&&s.order_type!=='market')?' <span style="font-size:9px;padding:1px 6px;border-radius:10px;background:rgba(14,165,233,.18);color:#0ea5e9;font-weight:800">'+s.order_type.toUpperCase()+'</span>':'')+' '+ab+'</div><button onclick="delSignal(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div>'+ 
-    '<div style="font-size:12px;color:#94a0b8;margin-top:3px">Entry '+(s.entry_price||'-')+' · SL '+(s.stop_loss||'-')+' · TP1 '+(s.take_profit1||'-')+' · TP2 '+(s.take_profit2||'-')+' · TP3 '+(s.take_profit3||'-')+'</div>'+ 
+  return '<div style="padding:11px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>'+esc(s.pair)+'</strong> <span style="font-size:10px;padding:1px 7px;border-radius:10px;background:'+(buy?'rgba(16,185,129,.18);color:#10b981':'rgba(239,68,68,.18);color:#ef4444')+'">'+(buy?'BUY':'SELL')+'</span>'+((s.order_type&&s.order_type!=='market')?' <span style="font-size:9px;padding:1px 6px;border-radius:10px;background:rgba(14,165,233,.18);color:#0ea5e9;font-weight:800">'+s.order_type.toUpperCase()+'</span>':'')+' '+ab+'</div><span><button onclick="editMentorSignal(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(245,158,11,.15);border:none;color:#f59e0b;cursor:pointer;margin-right:4px">✏️</button><button onclick="delSignal(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></span></div>'+ 
+    '<div style="font-size:12px;color:#94a0b8;margin-top:3px">Entry '+(s.entry_price||'-')+' · SL '+(s.stop_loss||'-')+' · TP1 '+(s.take_profit1||'-')+' · TP2 '+(s.take_profit2||'-')+' · TP3 '+(s.take_profit3||'-')+(s.take_profit4?(' · TP4 '+s.take_profit4):'')+'</div>'+ 
     '<div style="font-size:12px;margin-top:5px"><span style="color:'+stInfo[1]+';font-weight:700">'+stInfo[0]+'</span>'+pipsTxt+'</div>'+ 
     '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px"><input id="pips-'+s.id+'" type="number" step="any" placeholder="pips" value="'+(s.result_pips!=null?s.result_pips:'')+'" style="width:80px;padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:rgba(0,0,0,.22);color:var(--text);font-size:12px">'+
     (s.be_moved?'<span style="font-size:10px;font-weight:800;padding:4px 9px;border-radius:999px;background:rgba(14,165,233,.15);color:#0ea5e9;border:1px solid rgba(14,165,233,.4)">🔒 SL @ BE</span>':'')+btn('tp1','TP1 Hit','#10b981')+btn('tp2','TP2 Hit','#10b981')+btn('tp3','TP3 Hit','#059669')+btn('be_move','SL → BE','#0ea5e9')+btn('be','BE Hit','#8b5cf6')+btn('sl','SL Hit','#ef4444')+btn('closed','Close','#64748b')+'</div></div>';
@@ -1131,6 +1146,7 @@ function mSigSetView(v){
 async function loadSignals(){
   const box=document.getElementById('sigList');if(!box)return;
   const {data,error}=await sb.from('signals').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false}).limit(60);
+  window._mSigCache=data||[];
   if(error){box.innerHTML='<div style="color:#ef4444">'+esc(error.message)+'</div>';return;}
   // user panel jaisa rule: finished = SL / Closed / TP3
   const list=(data||[]).filter(s=>{
@@ -1140,6 +1156,39 @@ async function loadSignals(){
   });
   if(!list.length){box.innerHTML='<div style="color:#94a0b8">'+(mSigView==='active'?'No active signals right now. Check History for past results.':'No closed signals yet.')+'</div>';return;}
   box.innerHTML=list.map(mentorSignalRowHTML).join('');
+}
+let editingSigId=null;
+function editMentorSignal(id){
+  const sg=(window._mSigCache||[]).find(x=>String(x.id)===String(id));
+  if(!sg){alert('Signal load nahi hua — list refresh karke dobara try karo');return;}
+  editingSigId=id;
+  const set=(i,v)=>{const e=document.getElementById(i);if(e)e.value=(v==null?'':v);};
+  set('sgPair',sg.pair);set('sgEntry',sg.entry_price);set('sgSL',sg.stop_loss);
+  set('sgTP1',sg.take_profit1);set('sgTP2',sg.take_profit2);set('sgTP3',sg.take_profit3);set('sgTP4',sg.take_profit4);
+  set('sgNotes',sg.notes);
+  const ot=document.getElementById('sgOrderType');
+  if(ot){const d=(sg.direction||'buy').toLowerCase();const t=(sg.order_type||'market').toLowerCase();ot.value=(t==='market')?'market':(d+'_'+t);}
+  if(typeof setDir==='function')setDir((sg.direction||'BUY').toUpperCase()==='SELL'?'sell':'buy');
+  // pips edit field (closed signal ki pips theek karne ke liye)
+  let pe=document.getElementById('sgEditPips');
+  if(!pe){
+    const notes=document.getElementById('sgNotes');
+    pe=document.createElement('input');pe.id='sgEditPips';pe.type='number';pe.step='any';
+    pe.placeholder='Result pips (sirf edit — khali chhodo to change nahi hoga)';
+    pe.style.cssText='width:100%;padding:10px 12px;border-radius:9px;border:1px solid rgba(245,158,11,.5);background:rgba(245,158,11,.07);color:var(--text-primary,#333);font-size:13px;margin-top:8px';
+    notes.parentElement.insertBefore(pe,notes.nextSibling);
+  }
+  pe.style.display='block';pe.value=(sg.result_pips!=null?sg.result_pips:'');
+  const b=document.getElementById('sgPostBtn')||document.querySelector('#pg-signals button[onclick*="createSignal"]');
+  if(b){b.textContent='💾 Update Signal';b.dataset.editing='1';}
+  window.scrollTo({top:0,behavior:'smooth'});
+  toast&&toast('✏️ Edit mode — changes karke Update dabao');
+}
+function cancelSigEdit(){
+  editingSigId=null;
+  const pe=document.getElementById('sgEditPips');if(pe)pe.style.display='none';
+  const b=document.querySelector('#pg-signals button[onclick*="createSignal"]');
+  if(b){b.textContent='🚀 Publish Official Signal';}
 }
 async function updateMentorSigStatus(id,kind){
   const pi=document.getElementById('pips-'+id);const pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;
@@ -1249,7 +1298,8 @@ function renderMentorArticles(){
         <input id="maImage" class="inp" type="text" placeholder="Image URL (optional)">
         <input id="maFile" class="inp" type="file" accept="image/*" onchange="mentorArticleUpload(this)">
         <div id="maPreview"></div>
-        <textarea id="maContent" class="inp" rows="7" placeholder="Article content..." style="resize:vertical;font-family:inherit"></textarea>
+        <textarea id="maContent" class="inp" rows="7" placeholder="Content in English..." style="resize:vertical;font-family:inherit"></textarea>
+        <textarea id="maContentUr" class="inp" rows="7" placeholder="Content in Roman Urdu... (optional)" style="resize:vertical;font-family:inherit"></textarea>
         <button class="btn" id="maBtn" onclick="createMentorArticle()">➕ Create Article</button>
       </div>
     </div>
@@ -1281,17 +1331,18 @@ async function createMentorArticle(){
     const title=document.getElementById('maTitle').value.trim();
     const image_url=document.getElementById('maImage').value.trim();
     const content=document.getElementById('maContent').value.trim();
+    const content_ur=(document.getElementById('maContentUr')||{value:''}).value.trim()||null;
     const is_published=true;
     if(!title){alert('Title is required');if(btn){btn.disabled=false;btn.textContent=mentorEditingArticleId?'💾 Update Article':'➕ Create Article';}return;}
     if(mentorEditingArticleId){
-      const {error}=await sb.from('articles').update({type,title,category,image_url,content,is_published}).eq('id',mentorEditingArticleId);
+      const {error}=await sb.from('articles').update({type,title,category,image_url,content,content_ur,is_published}).eq('id',mentorEditingArticleId);
       if(error){alert('Error: '+error.message);return;}
       mentorEditingArticleId=null;
     }else{
-      const {error}=await sb.from('articles').insert({type,title,category,image_url,content,is_published,is_official:true,author_id:ME.id});
+      const {error}=await sb.from('articles').insert({type,title,category,image_url,content,content_ur,is_published,is_official:true,author_id:ME.id});
       if(error){alert('Error: '+error.message);return;}
     }
-    document.getElementById('maTitle').value='';document.getElementById('maImage').value='';document.getElementById('maContent').value='';
+    document.getElementById('maTitle').value='';document.getElementById('maImage').value='';document.getElementById('maContent').value='';var mcu=document.getElementById('maContentUr');if(mcu)mcu.value='';
     const f=document.getElementById('maFile');if(f)f.value='';const p=document.getElementById('maPreview');if(p)p.innerHTML='';
     if(btn)btn.textContent='➕ Create Article';
     loadMentorArticles();
@@ -1313,6 +1364,7 @@ async function editMentorArticle(id){
   document.getElementById('maTitle').value=data.title||'';
   document.getElementById('maImage').value=data.image_url||'';
   document.getElementById('maContent').value=data.content||'';
+  var _mcu=document.getElementById('maContentUr');if(_mcu)_mcu.value=data.content_ur||'';
   
   mentorEditingArticleId=id;
   const b=document.getElementById('maBtn');if(b)b.textContent='💾 Update Article';
