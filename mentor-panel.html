@@ -1117,6 +1117,7 @@ async function createSignal(){
   ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   loadSignals();
 }
+function pspFmtDT(t){if(!t)return '';var d=new Date(t);return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
 function mentorSignalRowHTML(s){
   const buy=(s.direction||'').toUpperCase()!=='SELL';
   const aud=(s.audience||(s.access_level==='vip'?'premium,vip':'free'));
@@ -1991,7 +1992,6 @@ else bootMentorAuth();
 </script>
 <script>
 (function(){var c=document.createElement('div');c.id='pipToasts';function mount(){if(!document.getElementById('pipToasts')&&document.body)document.body.appendChild(c);}document.addEventListener('DOMContentLoaded',mount);
-function pspFmtDT(t){if(!t)return '';var d=new Date(t);return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
 function toast(msg,type){mount();var t=document.createElement('div');t.className='pip-toast'+(type?(' '+type):'');var icon=type==='ok'?'✅':type==='err'?'⚠️':'🔔';t.innerHTML='<span>'+icon+'</span><span></span>';t.lastChild.textContent=String(msg);(document.getElementById('pipToasts')||c).appendChild(t);setTimeout(function(){t.classList.add('out');setTimeout(function(){t.remove()},300)},3500);}
 window.pipToast=toast;window.alert=function(m){m=String(m);var err=/error|fail|invalid|wrong|required|not found|denied/i.test(m);toast(m,err?'err':'ok');};
 function animateNum(el){if(el.dataset.cu)return;var raw=(el.textContent||'').trim();var m=raw.match(/^([^0-9-]*)(-?[\d,]+\.?\d*)(.*)$/);if(!m)return;var pre=m[1],num=parseFloat(m[2].replace(/,/g,'')),suf=m[3];if(isNaN(num)||num===0)return;el.dataset.cu='1';var dur=900,t0=performance.now();function step(t){var p=Math.min(1,(t-t0)/dur);var v=Math.round(num*(0.5-Math.cos(p*Math.PI)/2));el.textContent=pre+v.toLocaleString()+suf;if(p<1)requestAnimationFrame(step);else el.textContent=pre+num.toLocaleString()+suf;}requestAnimationFrame(step);}
