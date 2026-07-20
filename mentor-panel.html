@@ -725,7 +725,7 @@ function metaOf(k){return MODS[k]?[MODS[k].label,MODS[k].sub]:(TITLES[k]||[k,'']
 
 /* ============ AUTH ============ */
 function setTab(m){authMode=m;document.getElementById('tabLogin').classList.toggle('active',m==='login');document.getElementById('tabSignup').classList.toggle('active',m==='signup');document.getElementById('signupFields').style.display=m==='signup'?'block':'none';document.getElementById('authBtn').textContent=m==='signup'?'Create Mentor Account':'Login';hideMsg();}
-function showErr(t){const e=document.getElementById('authErr');e.textContent='❌ '+t;e.style.display='block';document.getElementById('authOk').style.display='none';}
+function showErr(t){if(t&&typeof t==='object')t=t.message||JSON.stringify(t);const e=document.getElementById('authErr');e.textContent='❌ '+String(t||'Unknown error');e.style.display='block';document.getElementById('authOk').style.display='none';}
 function showOk(t){const e=document.getElementById('authOk');e.textContent='✅ '+t;e.style.display='block';document.getElementById('authErr').style.display='none';}
 function hideMsg(){document.getElementById('authErr').style.display='none';document.getElementById('authOk').style.display='none';}
 async function doAuth(){
@@ -736,15 +736,48 @@ async function doAuth(){
   try{
     if(authMode==='signup'){
       const full_name=document.getElementById('suName').value.trim();const phone=document.getElementById('suPhone').value.trim();
-      const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name,phone,username:email.split('@')[0],role:'mentor'}}});
+      const {data,error}=await sb.auth.signUp({
+        email,
+        password:pass,
+        options:{
+          data:{
+            full_name,
+            phone,
+            username:(email.split('@')[0]+'_'+Date.now().toString().slice(-5)),
+            role:'mentor'
+          }
+        }
+      });
+
       if(error){
-    let m=error.message||'Login failed';
-    if(/invalid login credentials/i.test(m)) m='Wrong email or password.';
-    if(/email not confirmed/i.test(m)) m='Please verify your email first.';
-    showErr(m);resetBtn();return;
-  }
-  if(!data || !data.session || !data.user){showErr('Mentor session was not created.');resetBtn();return;}
-      if(!data.session){showOk('Account created! If email confirmation is ON, verify your email then log in.');setTab('login');resetBtn();return;}
+        let m = error.message || 'Mentor signup failed.';
+        if(/database error creating new user/i.test(m)){
+          m = 'Database profile trigger error. Run SQL file 17_SIGNUP_TRIGGER_FINAL_FIX.sql, then try again.';
+        } else if(/already registered|already exists/i.test(m)){
+          m = 'This email is already registered. Use Login instead.';
+        } else if(/password/i.test(m) && /least/i.test(m)){
+          m = 'Password must be at least 6 characters.';
+        }
+        showErr(m);
+        resetBtn();
+        return;
+      }
+
+      if(!data || !data.user){
+        showErr('Mentor account was not created. Please try again.');
+        resetBtn();
+        return;
+      }
+
+      // Supabase returns no session when Email Confirmation is enabled.
+      if(!data.session){
+        showOk('Mentor account created. Please verify your email, then login.');
+        setTab('login');
+        document.getElementById('auEmail').value=email;
+        resetBtn();
+        return;
+      }
+
       await afterLogin();
     }else{
       const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
