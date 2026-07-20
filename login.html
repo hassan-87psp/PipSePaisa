@@ -176,9 +176,22 @@ document.getElementById('loginBtn').addEventListener('click',async()=>{
 
   const email=document.getElementById('loginEmail').value.trim();
   const password=document.getElementById('loginPassword').value;
-  const {error}=await sb.auth.signInWithPassword({email,password});
+  const {data,error}=await sb.auth.signInWithPassword({email,password});
   if(error){msg('loginMessage',error.message);return;}
-  window.location.href='user.html';
+  try {
+    const user = data && data.user;
+    const result = user ? await sb.from('profiles').select('role,is_active').eq('id',user.id).maybeSingle() : null;
+    const profile = result && result.data;
+    if (profile && profile.is_active === false) {
+      await sb.auth.signOut();
+      msg('loginMessage','Your account is currently inactive. Please contact support.');
+      return;
+    }
+    const role = profile && profile.role ? profile.role : 'user';
+    window.location.href = role === 'admin' ? 'admin.html' : role === 'mentor' ? 'mentor.html' : 'user.html';
+  } catch (e) {
+    window.location.href='user.html';
+  }
 });
 
 document.getElementById('signupBtn').addEventListener('click',async()=>{
@@ -209,5 +222,20 @@ document.getElementById('forgotBtn').addEventListener('click',async()=>{
 
 if(location.hash==='#signup') showTab('signup');
 </script>
+
+<script id="psp-existing-session-route">
+(async function(){
+  try {
+    const sessionResult = await sb.auth.getSession();
+    const session = sessionResult && sessionResult.data && sessionResult.data.session;
+    if (!session || !session.user) return;
+    const r = await sb.from('profiles').select('role,is_active').eq('id',session.user.id).maybeSingle();
+    if (r.data && r.data.is_active === false) return;
+    const role = r.data && r.data.role || 'user';
+    location.replace(role === 'admin' ? 'admin.html' : role === 'mentor' ? 'mentor.html' : 'user.html');
+  } catch(e) {}
+})();
+</script>
+
 </body>
 </html>
