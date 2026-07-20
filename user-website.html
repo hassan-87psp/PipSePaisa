@@ -5867,7 +5867,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     try {
       if (sb) return true;
       if (window.supabase && window.supabase.createClient) {
-        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-user-auth",persistSession:true,autoRefreshToken:true}});
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-user-auth-v2",persistSession:true,autoRefreshToken:true}});
         console.log('✅ Supabase initialized');
         try{loadTabSettings();}catch(e){}
         return true;
@@ -5944,10 +5944,24 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     });
   }
 
+
+  function showLocalFileWarning() {
+    if (location.protocol !== 'file:') return;
+    const box = document.getElementById('authMessage');
+    if (box && box.style.display !== 'block') {
+      showAuthMessage(
+        'info',
+        'You opened this page as a local File. Login should be tested after uploading to GitHub Pages/custom domain.',
+        'authMessage'
+      );
+    }
+  }
+
   function openAuthModal() {
     resetAuthModalState();
     switchAuthTab('login');
     openModal('auth');
+    showLocalFileWarning();
   }
   
   function setAuthRole(r){
@@ -6076,49 +6090,61 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   async function loginUser() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
-    
+
     if (!email || !password) {
       showAuthMessage('error', 'Please enter email and password');
       return;
     }
-    
+
     if (!(await ensureSupabaseClient())) {
-      showAuthMessage('error', 'Connection problem. Please check internet and reload the page.');
+      showAuthMessage('error', 'Supabase connection failed. Please reload and try again.');
       return;
     }
 
     const btn = document.getElementById('loginBtn');
     btn.disabled = true;
     btn.textContent = '⏳ Logging in...';
-    
+
     try {
-      const { data, error } = await sb.auth.signInWithPassword({
-        email: email,
-        password: password
-      });
-      
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      
-      if (data.user) {
-        showAuthMessage('success', 'Welcome! Loading your dashboard...');
-        setTimeout(() => {
-          closeModal('auth');
-          loadUserProfile();
-          resetAuthModalState();
-        }, 1000);
+      if (!data || !data.user || !data.session) {
+        throw new Error('Login session was not created. Please verify your email and try again.');
       }
+
+      currentUser = data.user;
+      showAuthMessage('success', 'Welcome! Opening your dashboard...');
+
+      // Load profile using the authenticated user from this exact login response.
+      await loadUserProfile(data.user);
+
+      // Landing login always opens the original USER panel.
+      closeModal('auth');
+      enterApp();
+      resetAuthModalState();
+
+      // Open Performance as the default original user page.
+      try {
+        const perfItem = document.querySelector('.menu-item[data-page="performance"]');
+        if (perfItem) showPage('performance', perfItem);
+      } catch (e) {}
     } catch (error) {
       console.error('Login error:', error);
-      let msg = error.message || 'Login failed';
-      if (msg.includes('Invalid')) msg = 'Wrong email or password. Try again.';
-      if (msg.includes('confirmed')) msg = 'Please verify your email first. Check your inbox.';
+      let msg = error && error.message ? error.message : 'Login failed';
+      if (/invalid login credentials/i.test(msg) || /invalid/i.test(msg)) {
+        msg = 'Wrong email or password.';
+      } else if (/email not confirmed|confirmed/i.test(msg)) {
+        msg = 'Please verify your email first. Check Inbox and Spam.';
+      } else if (/fetch|network/i.test(msg)) {
+        msg = 'Network/Supabase connection error. Test on your live website, not only a local File URL.';
+      }
       showAuthMessage('error', msg);
     } finally {
       btn.disabled = false;
       btn.textContent = '🔐 Login to Account';
     }
   }
-  
+
   // ============ FORGOT PASSWORD ============
   async function forgotPassword() {
     const email = document.getElementById('forgotEmail').value.trim();
@@ -6181,13 +6207,13 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   }
   
   // ============ LOAD USER PROFILE ============
-  async function loadUserProfile() {
+  async function loadUserProfile(explicitUser = null) {
     if (!sb) {
       updateAuthUI();
       return;
     }
-    let user = null;
-    try { const sres = await sb.auth.getSession(); user = (sres && sres.data && sres.data.session) ? sres.data.session.user : null; } catch(e) {}
+    let user = explicitUser || null;
+    if (!user) try { const sres = await sb.auth.getSession(); user = (sres && sres.data && sres.data.session) ? sres.data.session.user : null; } catch(e) {}
     if (!user) { try { const ur = await sb.auth.getUser(); user = (ur && ur.data) ? ur.data.user : null; } catch(e) {} }
 
     if (!user) {
@@ -7512,18 +7538,18 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   function bindUserAuthListener() {
     if (_authListenerBound || !sb) return;
     _authListenerBound = true;
-    sb.auth.onAuthStateChange((event, session) => {
+    sb.auth.onAuthStateChange(async (event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
         showPasswordResetForm();
-      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        loadUserProfile();
-        // Hide landing page on login
-        hideLandingAfterLogin();
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+        if (session && session.user) {
+          await loadUserProfile(session.user);
+          enterApp();
+        }
       } else if (event === 'SIGNED_OUT') {
         currentUser = null;
         currentProfile = null;
         updateAuthUI();
-        // Show landing page on logout and clear stale auth modal state
         try { closeModal('auth'); } catch(e) {}
         resetAuthModalState();
         showLandingPage();

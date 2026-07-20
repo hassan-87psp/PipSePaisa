@@ -618,7 +618,7 @@ function initSupabaseClient(){
   try{
     if(sb) return true;
     if(window.supabase && window.supabase.createClient){
-      sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:"pipsepaisa-mentor-auth",persistSession:true,autoRefreshToken:true}});
+      sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:"pipsepaisa-mentor-auth-v2",persistSession:true,autoRefreshToken:true}});
       return true;
     }
   }catch(e){console.error('Supabase init error',e); sb=null;}
@@ -737,11 +737,17 @@ async function doAuth(){
     if(authMode==='signup'){
       const full_name=document.getElementById('suName').value.trim();const phone=document.getElementById('suPhone').value.trim();
       const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{full_name,phone,username:email.split('@')[0],role:'mentor'}}});
-      if(error){showErr(error.message);resetBtn();return;}
+      if(error){
+    let m=error.message||'Login failed';
+    if(/invalid login credentials/i.test(m)) m='Wrong email or password.';
+    if(/email not confirmed/i.test(m)) m='Please verify your email first.';
+    showErr(m);resetBtn();return;
+  }
+  if(!data || !data.session || !data.user){showErr('Mentor session was not created.');resetBtn();return;}
       if(!data.session){showOk('Account created! If email confirmation is ON, verify your email then log in.');setTab('login');resetBtn();return;}
       await afterLogin();
     }else{
-      const {error}=await sb.auth.signInWithPassword({email,password:pass});
+      const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
       if(error){showErr(error.message);resetBtn();return;}
       await afterLogin();
     }
@@ -760,8 +766,10 @@ async function afterLogin(){
     prof=cr.data||fallback;
   }
   if(requestedRole==='mentor' && prof.role!=='mentor' && !(prof.role==='admin'||prof.is_admin)){
-    const rr=await sb.from('profiles').update({role:'mentor'}).eq('id',user.id).select('*').maybeSingle();
-    if(rr.data)prof=rr.data; else prof.role='mentor';
+    showErr('This account is not approved as a mentor. Ask Super Admin to set role = mentor.');
+    await sb.auth.signOut();
+    resetBtn();
+    return;
   }
   if(prof.role!=='mentor' && !(prof.role==='admin'||prof.is_admin)){
     showErr('This account is not a mentor. Please use "Sign Up as Mentor".');resetBtn();return;
