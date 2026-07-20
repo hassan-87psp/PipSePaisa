@@ -1,6 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PipSePaisa Login</title>
@@ -170,10 +173,7 @@ document.getElementById('forgotLink').addEventListener('click',()=>showTab('forg
 document.getElementById('forgotBack').addEventListener('click',()=>showTab('login'));
 
 document.getElementById('loginBtn').addEventListener('click',async()=>{
-  if(SUPABASE_ANON_KEY.startsWith('REPLACE_')){
-    msg('loginMessage','Add your new Supabase publishable/anon key in login.html first.');
-    return;
-  }
+
   const email=document.getElementById('loginEmail').value.trim();
   const password=document.getElementById('loginPassword').value;
   const {error}=await sb.auth.signInWithPassword({email,password});
@@ -182,10 +182,7 @@ document.getElementById('loginBtn').addEventListener('click',async()=>{
 });
 
 document.getElementById('signupBtn').addEventListener('click',async()=>{
-  if(SUPABASE_ANON_KEY.startsWith('REPLACE_')){
-    msg('signupMessage','Add your new Supabase publishable/anon key in login.html first.');
-    return;
-  }
+
   const full_name=document.getElementById('signupName').value.trim();
   const phone=document.getElementById('signupPhone').value.trim();
   const email=document.getElementById('signupEmail').value.trim();
@@ -201,10 +198,7 @@ document.getElementById('signupBtn').addEventListener('click',async()=>{
 });
 
 document.getElementById('forgotBtn').addEventListener('click',async()=>{
-  if(SUPABASE_ANON_KEY.startsWith('REPLACE_')){
-    msg('forgotMessage','Add your new Supabase publishable/anon key in login.html first.');
-    return;
-  }
+
   const email=document.getElementById('forgotEmail').value.trim();
   const {error}=await sb.auth.resetPasswordForEmail(email,{
     redirectTo:location.origin + location.pathname.replace('login.html','index.html')
