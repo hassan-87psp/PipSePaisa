@@ -6,9 +6,6 @@ The new login page contains:
 - Forgot Password
 - User-style interface matching the Mentor Panel design
 
-Before live use:
-Open login.html and replace:
-REPLACE_WITH_YOUR_PUBLISHABLE_ANON_KEY
-with your new Supabase project's publishable/anon key.
+The new Supabase project URL and publishable key are already added in login.html.
 
 Do not use the service-role key in HTML.
