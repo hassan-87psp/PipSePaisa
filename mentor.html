@@ -615,7 +615,7 @@ function initSupabaseClient(){
   try{
     if(sb) return true;
     if(window.supabase && window.supabase.createClient){
-      sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:"pipsepaisa-mentor-auth",persistSession:true,autoRefreshToken:true}});
+      sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:"pipsepaisa-auth",persistSession:true,autoRefreshToken:true}});
       return true;
     }
   }catch(e){console.error('Supabase init error',e); sb=null;}
@@ -749,7 +749,12 @@ async function afterLogin(){
   const {data:{user}}=await sb.auth.getUser();if(!user){showErr('Session error');resetBtn();return;}
   let {data:prof}=await sb.from('profiles').select('*').eq('id',user.id).single();
   if(!prof){showErr('Profile not found, try again.');resetBtn();return;}
-  if(prof.role!=='mentor' && !(prof.role==='admin'||prof.is_admin)){await sb.auth.signOut();showErr('This account is not a mentor. Please use "Sign Up as Mentor".');resetBtn();return;}
+  if(prof.role!=='mentor' && !(prof.role==='admin'||prof.is_admin)){
+    showErr('This account is not a mentor. Please use a mentor account or return to the user panel.');
+    resetBtn();
+    return;
+  }
+  if(prof.role==='admin'||prof.is_admin){window.location.replace('admin.html');return;}
   if(!prof.mentor_code){const code=(user.id.replace(/[^a-z0-9]/gi,'').slice(0,7)).toUpperCase();await sb.from('profiles').update({mentor_code:code,role:'mentor'}).eq('id',user.id);prof.mentor_code=code;}
   ME=prof;
   await loadMentorAccessSettings();

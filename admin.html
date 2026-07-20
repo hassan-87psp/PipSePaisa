@@ -1586,7 +1586,7 @@ const SUPABASE_KEY = 'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw'; // <-- na
 let sb = null;
 try {
   if (window.supabase && window.supabase.createClient) {
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-admin-auth",persistSession:true,autoRefreshToken:true}});
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-auth",persistSession:true,autoRefreshToken:true}});
     console.log('✅ Supabase initialized');
   }
 } catch (e) {
@@ -1605,7 +1605,7 @@ window.addEventListener('load', async () => {
       if(!user){try{const ur=await sb.auth.getUser();user=(ur&&ur.data)?ur.data.user:null;}catch(e){}}
     if (user) {
       const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
-      if (profile && profile.is_admin) {
+      if (profile && (profile.is_admin || profile.role === 'admin')) {
         currentAdmin = profile;
         isLoggedIn = true;
         const ov = document.getElementById('loginOverlay');
@@ -1652,7 +1652,7 @@ async function loginAdmin() {
     // Check if user is admin
     const { data: profile } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
     
-    if (!profile || !profile.is_admin) {
+    if (!profile || !(profile.is_admin || profile.role === 'admin')) {
       // Not an admin — sign out and reject
       await sb.auth.signOut();
       errorEl.textContent = '❌ You do not have admin access. Only authorized admins can login here.';

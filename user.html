@@ -5864,7 +5864,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     try {
       if (sb) return true;
       if (window.supabase && window.supabase.createClient) {
-        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-user-auth",persistSession:true,autoRefreshToken:true}});
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-auth",persistSession:true,autoRefreshToken:true}});
         console.log('✅ Supabase initialized');
         try{loadTabSettings();}catch(e){}
         return true;
@@ -5948,7 +5948,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   }
   
   function setAuthRole(r){
-    if(r==='mentor'){ window.location.href='mentor-panel.html'; return; }
+    if(r==='mentor'){ window.location.href='mentor.html'; return; }
     var s=document.getElementById('roleStudent'), m=document.getElementById('roleMentor');
     if(s){s.style.background='var(--gold)';s.style.color='#0a0e1a';s.style.fontWeight='700';}
     if(m){m.style.background='transparent';m.style.color='var(--text-muted)';m.style.fontWeight='600';}
@@ -6208,6 +6208,16 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     
     if (profile) {
       currentProfile = profile;
+
+      // Route staff accounts to their correct panels.
+      if (profile.is_admin || profile.role === 'admin') {
+        window.location.replace('admin.html');
+        return;
+      }
+      if (profile.role === 'mentor') {
+        window.location.replace('mentor.html');
+        return;
+      }
     } else {
       // Profile doesn't exist yet (rare case) - create from user metadata
       currentProfile = {

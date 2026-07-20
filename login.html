@@ -138,7 +138,18 @@ input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(229,125,0,.12)}
 <script>
 const SUPABASE_URL = 'https://etfolhinohgmskbfjoyh.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  {
+    auth: {
+      storageKey: 'pipsepaisa-auth',
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  }
+);
 
 const loginTab = document.getElementById('loginTab');
 const signupTab = document.getElementById('signupTab');
@@ -180,14 +191,14 @@ document.getElementById('loginBtn').addEventListener('click',async()=>{
   if(error){msg('loginMessage',error.message);return;}
   try {
     const user = data && data.user;
-    const result = user ? await sb.from('profiles').select('role,is_active').eq('id',user.id).maybeSingle() : null;
+    const result = user ? await sb.from('profiles').select('role,is_admin,is_active').eq('id',user.id).maybeSingle() : null;
     const profile = result && result.data;
     if (profile && profile.is_active === false) {
       await sb.auth.signOut();
       msg('loginMessage','Your account is currently inactive. Please contact support.');
       return;
     }
-    const role = profile && profile.role ? profile.role : 'user';
+    const role = profile && (profile.is_admin || profile.role === 'admin') ? 'admin' : (profile && profile.role ? profile.role : 'user');
     window.location.href = role === 'admin' ? 'admin.html' : role === 'mentor' ? 'mentor.html' : 'user.html';
   } catch (e) {
     window.location.href='user.html';
@@ -229,9 +240,9 @@ if(location.hash==='#signup') showTab('signup');
     const sessionResult = await sb.auth.getSession();
     const session = sessionResult && sessionResult.data && sessionResult.data.session;
     if (!session || !session.user) return;
-    const r = await sb.from('profiles').select('role,is_active').eq('id',session.user.id).maybeSingle();
+    const r = await sb.from('profiles').select('role,is_admin,is_active').eq('id',session.user.id).maybeSingle();
     if (r.data && r.data.is_active === false) return;
-    const role = r.data && r.data.role || 'user';
+    const role = r.data && (r.data.is_admin || r.data.role === 'admin') ? 'admin' : (r.data && r.data.role || 'user');
     location.replace(role === 'admin' ? 'admin.html' : role === 'mentor' ? 'mentor.html' : 'user.html');
   } catch(e) {}
 })();
