@@ -507,9 +507,6 @@ body.dark-theme .broker-card-footer span{color:#f6a51c}
   margin-bottom:14px;
   box-shadow:0 14px 28px rgba(0,0,0,.16);
 }
-
-.social-icon svg{width:38px;height:38px;display:block}
-
 .social-platform h3{margin:0 0 5px;font-size:20px;color:#262626}
 .social-platform p{margin:0;font-size:13px;font-weight:750}
 .youtube .social-icon{background:linear-gradient(135deg,#ff1548,#ff0030)}
@@ -523,7 +520,7 @@ body.dark-theme .broker-card-footer span{color:#f6a51c}
 
 /* DARK THEME */
 body.dark-theme .hero-overlay-banner{
-  background-image:url('hero-bg-dark-final.png');
+  background-image:url('hero-bg-dark.png');
 }
 body.dark-theme .hero-eyebrow{
   background:rgba(8,18,34,.68);
@@ -627,7 +624,304 @@ body.dark-theme .hero-overlay-banner{
   .hero-overlay-banner{background-size:auto 100% !important;background-position:73% top !important}
 }
 
+
+/* ADMIN-DRIVEN BROKERS + PREMIUM SERVICES */
+.social-grid-three{grid-template-columns:repeat(3,1fr);max-width:980px;margin-inline:auto}
+.social-icon svg{width:42px;height:42px;display:block}
+.services-premium{padding:70px 0;background:linear-gradient(180deg,#fffaf1 0%,#fff 100%)}
+.services-heading{margin-bottom:32px}
+.services-premium-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.service-premium-card{position:relative;overflow:hidden;padding:30px 27px 27px;border:1px solid #eadcc8;border-radius:24px;background:rgba(255,255,255,.9);box-shadow:0 18px 45px rgba(73,45,5,.08);transition:.3s ease}
+.service-premium-card:before{content:"";position:absolute;inset:0 0 auto;height:5px;background:linear-gradient(90deg,#f6a21a,#d96a00)}
+.service-premium-card:hover{transform:translateY(-8px);box-shadow:0 28px 60px rgba(73,45,5,.14)}
+.service-number{position:absolute;right:22px;top:18px;font-size:48px;font-weight:900;color:rgba(223,123,0,.08);line-height:1}
+.service-premium-icon{width:62px;height:62px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(145deg,#fff4df,#ffe4b5);font-size:28px;border:1px solid #f0c57f}
+.service-premium-card h3{font-size:24px;margin:22px 0 10px}.service-premium-card p{color:var(--muted);line-height:1.65;margin:0 0 18px}
+.service-premium-card ul{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:9px}.service-premium-card li{font-size:13px;font-weight:700;color:#3f3a32}.service-premium-card li:before{content:"✓";color:#e67f00;margin-right:9px;font-weight:900}
+.service-premium-card button{width:100%;border:0;border-radius:12px;padding:12px 15px;background:#121a2a;color:#fff;font-weight:850;cursor:pointer;display:flex;justify-content:space-between;transition:.25s}.service-premium-card button:hover{background:#e67f00}
+body.dark-theme .services-premium{background:linear-gradient(180deg,#07101f,#0b1424)}
+body.dark-theme .service-premium-card{background:linear-gradient(145deg,#111b2d,#0e1727);border-color:#263650;box-shadow:0 18px 45px rgba(0,0,0,.25)}
+body.dark-theme .service-premium-card h3,body.dark-theme .service-premium-card li{color:#fff}body.dark-theme .service-premium-icon{background:#18243a;border-color:#a96d16}
+@media(max-width:900px){.social-grid-three,.services-premium-grid{grid-template-columns:1fr}.service-premium-card{max-width:620px;width:100%;margin:auto}}
+
+
+/* SERVICE BUTTON ALIGNMENT + THEME COLOR */
+.services-premium-grid{align-items:stretch}
+.service-premium-card{display:flex;flex-direction:column;height:100%}
+.service-premium-card button{margin-top:auto;background:linear-gradient(135deg,#f59a00,#df7300)!important;color:#111!important;border:none!important;box-shadow:0 10px 24px rgba(229,126,0,.22)}
+.service-premium-card button:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(229,126,0,.3)}
+
+/* PARTNER PROMO BANNER CARDS */
+.partner-promo-section{background:linear-gradient(180deg,#fffaf3,#fff)}
+.partner-section-heading{margin-bottom:26px}
+.partner-promo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;align-items:stretch}
+.partner-promo-card{position:relative;display:block;min-width:0;border-radius:24px;overflow:hidden;text-decoration:none;transition:transform .28s ease,box-shadow .28s ease}
+.partner-promo-card:hover{transform:translateY(-7px)}
+.visual-promo-card{background:#fff;border:1px solid rgba(224,132,18,.36);box-shadow:0 18px 44px rgba(86,51,8,.12)}
+.visual-promo-card picture,.visual-promo-card img{display:block;width:100%;height:100%}
+.visual-promo-card{aspect-ratio:12/7;border-radius:24px;overflow:hidden}
+.visual-promo-card img{object-fit:cover;object-position:center;border-radius:24px;transform:scale(1.012)}
+.coded-promo-card{aspect-ratio:12/7;padding:26px;background:linear-gradient(145deg,#fff,#fff6e7);border:1px solid #f0cf9b;box-shadow:0 18px 44px rgba(86,51,8,.09);color:#151923}
+.coded-promo-card .promo-number{position:absolute;right:22px;top:16px;font-size:44px;font-weight:900;color:rgba(231,139,18,.12)}
+.coded-promo-card .promo-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:16px;background:#ffefd0;border:1px solid #efb654;font-size:28px;margin-bottom:20px}
+.coded-promo-card h3{font-size:26px;line-height:1.05;margin:0 0 12px;max-width:90%}
+.coded-promo-card p{font-size:14px;line-height:1.6;color:#667085;margin:0 0 18px}
+.promo-points{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:22px}
+.promo-points span{font-size:11px;font-weight:800;padding:6px 9px;border-radius:999px;background:#fff;border:1px solid #efd5ad;color:#8a4d00}
+.coded-promo-card>strong{position:absolute;left:26px;right:26px;bottom:22px;display:flex;align-items:center;justify-content:space-between;padding:12px 15px;border-radius:12px;background:linear-gradient(135deg,#f59a00,#df7300);color:#111;font-size:14px}
+body.dark-theme .partner-promo-section{background:#07101f}
+body.dark-theme .coded-promo-card{background:linear-gradient(145deg,#111b2d,#0b1424);border-color:#a96200;color:#fff}
+body.dark-theme .coded-promo-card p{color:#b9c3d3}
+body.dark-theme .promo-points span{background:#101b2d;border-color:#65420c;color:#f4b64d}
+body.dark-theme .visual-promo-card{background:#07101f;border-color:#a96200;box-shadow:0 18px 44px rgba(0,0,0,.3)}
+@media(max-width:1000px){.partner-promo-grid{grid-template-columns:1fr 1fr}.visual-promo-card{grid-column:1/-1;max-width:700px;width:100%;justify-self:center}}
+@media(max-width:680px){.partner-promo-grid{grid-template-columns:1fr}.visual-promo-card{grid-column:auto}.partner-promo-card{border-radius:18px}.visual-promo-card img{border-radius:18px}.coded-promo-card{aspect-ratio:auto;min-height:350px}}
+
+
+
+/* ===== FINAL CONSOLIDATED LANDING REFINEMENTS ===== */
+/* Taller premium hero; preserve face and crop from lower area */
+.hero{padding:20px 0 24px}
+.hero-overlay-banner{
+  min-height:500px!important;
+  border:1px solid rgba(224,132,18,.42);
+  border-radius:22px;
+  box-shadow:0 22px 58px rgba(77,43,4,.14),0 0 0 1px rgba(255,196,92,.12) inset;
+  background-size:100% auto!important;
+  background-position:center top!important;
+}
+.hero-text-layer{width:59%;padding:46px 42px 34px!important}
+.hero-overlay-banner h1{font-size:clamp(42px,4.1vw,61px)!important;line-height:.99!important;margin-bottom:15px!important}
+.hero-eyebrow{margin-bottom:16px!important}
+.hero-course{font-size:15px!important;padding:9px 15px!important;margin-bottom:14px!important}
+.hero-quote{padding:14px 16px!important;max-width:720px!important}
+.hero-quote p{font-size:12px!important;line-height:1.5!important}
+.hero-features{margin-top:18px!important;gap:14px!important}
+.hero-feature>span{width:42px!important;height:42px!important}
+.hero-feature b{font-size:12px!important}.hero-feature small{font-size:10.5px!important}
+body.dark-theme .hero-overlay-banner{box-shadow:0 24px 64px rgba(0,0,0,.38),0 0 0 1px rgba(245,165,39,.18) inset}
+
+/* Premium services */
+.services-premium{padding:82px 0;background:radial-gradient(circle at 50% 0,rgba(255,177,50,.12),transparent 34%),linear-gradient(180deg,#fffaf1 0%,#fff 100%)}
+.services-heading{margin-bottom:38px}
+.services-premium-grid{gap:26px;align-items:stretch}
+.service-premium-card{
+  min-height:455px;
+  padding:32px 29px 28px;
+  border-radius:26px;
+  border:1px solid rgba(226,145,33,.28);
+  background:linear-gradient(155deg,rgba(255,255,255,.98),rgba(255,249,240,.92));
+  box-shadow:0 22px 54px rgba(82,48,5,.10);
+}
+.service-premium-card:after{content:"";position:absolute;right:-70px;bottom:-80px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(245,154,0,.14),transparent 68%);pointer-events:none}
+.service-premium-card:hover{transform:translateY(-10px);border-color:rgba(230,127,0,.58);box-shadow:0 32px 68px rgba(82,48,5,.16)}
+.service-premium-icon{width:68px;height:68px;border-radius:20px;background:linear-gradient(145deg,#fff8eb,#ffe5b3);box-shadow:0 12px 26px rgba(226,128,0,.14)}
+.service-premium-icon svg{width:32px;height:32px;fill:none;stroke:#d97000;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.service-premium-card h3{font-size:25px;margin-top:24px}
+.service-premium-card p{font-size:15px;line-height:1.7}
+.service-premium-card ul{margin-bottom:26px}.service-premium-card li{font-size:13.5px}
+.service-premium-card button{min-height:48px;border-radius:14px!important;font-size:14px;letter-spacing:.01em;padding:13px 17px!important}
+body.dark-theme .services-premium{background:radial-gradient(circle at 50% 0,rgba(245,154,0,.10),transparent 34%),linear-gradient(180deg,#07101f,#0b1424)}
+body.dark-theme .service-premium-card{background:linear-gradient(155deg,#121d30,#0d1626);border-color:rgba(211,132,24,.35)}
+body.dark-theme .service-premium-icon{background:linear-gradient(145deg,#1a2942,#121d30);box-shadow:none}
+
+/* Partner cards: identical geometry in both themes, no white strips */
+.partner-promo-section{padding:78px 0 76px}
+.partner-promo-grid{align-items:start}
+.partner-promo-item{display:flex;flex-direction:column;min-width:0;height:100%}
+.partner-promo-card.visual-promo-card{
+  width:100%;
+  aspect-ratio:12/7;
+  border-radius:22px!important;
+  border:1.5px solid rgba(224,132,18,.72)!important;
+  background:transparent!important;
+  box-shadow:0 18px 44px rgba(76,44,5,.12)!important;
+  line-height:0;
+}
+.partner-promo-card picture{display:block;width:100%;height:100%;line-height:0;background:transparent}
+.partner-promo-card img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  transform:scale(1.018)!important;
+  border-radius:20px!important;
+  background:transparent!important;
+}
+.partner-cta{
+  width:100%;min-height:48px;margin-top:15px;padding:13px 17px;border:0;border-radius:14px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:linear-gradient(135deg,#f6a000,#df7300);color:#111;font-weight:900;font-size:14px;
+  box-shadow:0 11px 26px rgba(224,121,0,.22);cursor:pointer;transition:.24s ease;
+}
+.partner-cta:hover{transform:translateY(-3px);box-shadow:0 16px 34px rgba(224,121,0,.31)}
+.partner-cta b{font-size:19px}
+body.dark-theme .partner-promo-card.visual-promo-card{border-color:#d98712!important;box-shadow:0 20px 48px rgba(0,0,0,.34)!important}
+body.dark-theme .partner-cta{background:linear-gradient(135deg,#f6b338,#db8200);color:#0a101c}
+
+/* Refined comparison table */
+.broker-comparison-section{padding:82px 0;background:linear-gradient(180deg,#fff8ed,#f8f0e4)}
+.broker-compare-heading{margin-bottom:32px}
+.broker-table-wrap{
+  border-radius:24px;
+  border:1px solid rgba(218,142,40,.24);
+  box-shadow:0 24px 62px rgba(63,37,4,.10);
+  background:#fff;
+  overflow:hidden;
+}
+.broker-comparison-table{
+  width:100%;
+  min-width:0;
+  table-layout:fixed;
+  border-collapse:separate;
+  border-spacing:0;
+}
+.broker-comparison-table th,
+.broker-comparison-table td{
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+.broker-comparison-table thead th{
+  background:linear-gradient(90deg,#0d1b32,#0a162a);
+  color:#fff;
+  padding:16px 8px;
+  font-size:11.5px;
+  line-height:1.2;
+  text-align:center;
+  white-space:normal;
+}
+.broker-comparison-table tbody td{
+  padding:17px 8px;
+  border-bottom:1px solid #eee1d1;
+  font-size:11.5px;
+  line-height:1.35;
+  vertical-align:middle;
+  text-align:center;
+}
+.broker-comparison-table tbody tr:last-child td{border-bottom:0}
+.broker-comparison-table tbody tr:hover{background:#fff9f0}
+.broker-name{
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  gap:8px;
+  min-width:0;
+}
+.broker-name img{
+  width:64px;
+  height:36px;
+  object-fit:contain;
+  object-position:left center;
+  border-radius:7px;
+  background:transparent;
+  flex:none;
+}
+.broker-name strong{
+  font-size:12px;
+  white-space:normal;
+}
+.broker-comparison-table .badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  max-width:100%;
+  padding:7px 8px;
+  border-radius:999px;
+  line-height:1.15;
+  white-space:normal;
+  text-align:center;
+  font-size:10.5px;
+}
+.broker-data-note{margin:15px 4px 0;color:#756b5d;font-size:12px;line-height:1.6}
+body.dark-theme .broker-comparison-section{background:linear-gradient(180deg,#08111f,#0b1424)}
+body.dark-theme .broker-table-wrap{background:#0f192a;border-color:#273750;box-shadow:0 24px 62px rgba(0,0,0,.30)}
+body.dark-theme .broker-comparison-table tbody td{color:#dce4ef;border-color:#223149}
+body.dark-theme .broker-comparison-table tbody tr:hover{background:#142038}
+body.dark-theme .broker-data-note{color:#9facbd}
+
+@media(max-width:980px){
+  .hero-overlay-banner{min-height:540px!important;background-size:auto 100%!important;background-position:62% top!important}
+  .hero-text-layer{width:66%;padding:36px 26px!important}
+  .partner-promo-grid{grid-template-columns:1fr 1fr}
+  .partner-promo-item:last-child{grid-column:1/-1;max-width:680px;width:100%;justify-self:center}
+}
+@media(max-width:680px){
+  .hero-overlay-banner{min-height:790px!important;background-size:auto 100%!important;background-position:74% bottom!important;border-radius:18px}
+  .hero-text-layer{width:100%;padding:25px 19px!important}
+  .hero-overlay-banner h1{font-size:37px!important}
+  .services-premium{padding:60px 0}.service-premium-card{min-height:auto}
+  .partner-promo-grid{grid-template-columns:1fr}.partner-promo-item:last-child{grid-column:auto;max-width:none}
+}
+
+
+@media(max-width:1100px){
+  .broker-comparison-table thead th{font-size:10.5px;padding:14px 6px}
+  .broker-comparison-table tbody td{font-size:10.5px;padding:15px 6px}
+  .broker-name{flex-direction:column;justify-content:center;gap:5px}
+  .broker-name img{width:58px;height:31px}
+  .broker-name strong{font-size:11px}
+  .broker-comparison-table .badge{font-size:9.5px;padding:6px}
+}
+@media(max-width:760px){
+  .broker-table-wrap{
+    border:0;
+    box-shadow:none;
+    background:transparent;
+    overflow:visible;
+  }
+  .broker-comparison-table,
+  .broker-comparison-table tbody,
+  .broker-comparison-table tr,
+  .broker-comparison-table td{
+    display:block;
+    width:100%;
+  }
+  .broker-comparison-table colgroup,
+  .broker-comparison-table thead{display:none}
+  .broker-comparison-table tbody{
+    display:grid;
+    gap:18px;
+  }
+  .broker-comparison-table tbody tr{
+    overflow:hidden;
+    border:1px solid rgba(218,142,40,.28);
+    border-radius:18px;
+    background:#fff;
+    box-shadow:0 14px 34px rgba(63,37,4,.08);
+  }
+  .broker-comparison-table tbody td{
+    display:grid;
+    grid-template-columns:42% 58%;
+    align-items:center;
+    gap:10px;
+    padding:12px 15px;
+    border-bottom:1px solid #eee1d1;
+    text-align:right;
+    font-size:12px;
+  }
+  .broker-comparison-table tbody td::before{
+    content:attr(data-label);
+    color:#0d1b32;
+    font-weight:850;
+    text-align:left;
+  }
+  .broker-comparison-table tbody td:last-child{border-bottom:0}
+  .broker-name{
+    flex-direction:row;
+    justify-content:flex-end;
+    gap:8px;
+  }
+  .broker-name img{width:72px;height:36px}
+  body.dark-theme .broker-comparison-table tbody tr{
+    background:#0f192a;
+    border-color:#273750;
+  }
+  body.dark-theme .broker-comparison-table tbody td::before{color:#fff}
+}
+
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <header class="topbar">
@@ -681,29 +975,18 @@ body.dark-theme .hero-overlay-banner{
         <p>Explore leading broker options and select the platform that best matches your trading requirements.</p>
       </div>
 
-      <div class="broker-logo-grid">
-        <a class="broker-logo-card" href="#" onclick="return false">
-          <picture class="theme-picture">
-            <source class="dark-source" media="(prefers-color-scheme: dark)" srcset="dprime-dark.png">
-            <img src="dprime-light.png" alt="DPrime broker">
-          </picture>
-          <div class="broker-card-footer"><strong>DPrime</strong><span>View Broker Details →</span></div>
+      <div class="broker-logo-grid" id="landingBrokerGrid">
+        <a class="broker-logo-card" href="#" data-fallback="true">
+          <picture class="theme-picture"><img src="dprime-light.png" data-light="dprime-light.png" data-dark="dprime-dark.png" alt="DPrime broker"></picture>
+          <div class="broker-card-footer"><strong>DPrime</strong><span>Open Account →</span></div>
         </a>
-
-        <a class="broker-logo-card" href="#" onclick="return false">
-          <picture class="theme-picture">
-            <source class="dark-source" media="(prefers-color-scheme: dark)" srcset="xm-dark.png">
-            <img src="xm-light.png" alt="XM broker">
-          </picture>
-          <div class="broker-card-footer"><strong>XM</strong><span>View Broker Details →</span></div>
+        <a class="broker-logo-card" href="#" data-fallback="true">
+          <picture class="theme-picture"><img src="xm-light.png" data-light="xm-light.png" data-dark="xm-dark.png" alt="XM broker"></picture>
+          <div class="broker-card-footer"><strong>XM</strong><span>Open Account →</span></div>
         </a>
-
-        <a class="broker-logo-card" href="#" onclick="return false">
-          <picture class="theme-picture">
-            <source class="dark-source" media="(prefers-color-scheme: dark)" srcset="exness-dark.png">
-            <img src="exness-light.png" alt="Exness broker">
-          </picture>
-          <div class="broker-card-footer"><strong>Exness</strong><span>View Broker Details →</span></div>
+        <a class="broker-logo-card" href="#" data-fallback="true">
+          <picture class="theme-picture"><img src="exness-light.png" data-light="exness-light.png" data-dark="exness-dark.png" alt="Exness broker"></picture>
+          <div class="broker-card-footer"><strong>Exness</strong><span>Open Account →</span></div>
         </a>
       </div>
     </div>
@@ -713,107 +996,154 @@ body.dark-theme .hero-overlay-banner{
     <div class="container">
       <div class="section-heading social-heading">
         <div class="small">JOIN THE COMMUNITY</div>
-        <h2>Connect With Us</h2>
-        <p>Daily updates, live analysis, educational content and direct interaction across all platforms.</p>
+        <h2>Connect With PipSePaisa</h2>
+        <p>Follow our official social channels for educational content, market updates and community announcements.</p>
       </div>
-
-      <div class="social-grid">
-        <a class="social-platform youtube" href="#" onclick="return false">
-          <div class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4L15.8 12l-6.2 3.6Z"/></svg></div>
-          <h3>YouTube</h3>
-          <p>35K+ Subscribers</p>
+      <div class="social-grid social-grid-three">
+        <a class="social-platform facebook" id="socialFacebook" href="#" target="_blank" rel="noopener">
+          <div class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06C2 17.08 5.66 21.24 10.44 22v-7.03H7.9v-2.91h2.54V9.84c0-2.52 1.5-3.91 3.8-3.91 1.1 0 2.25.2 2.25.2v2.48h-1.27c-1.25 0-1.64.78-1.64 1.57v1.88h2.79l-.45 2.91h-2.34V22C18.34 21.24 22 17.08 22 12.06Z"/></svg></div>
+          <h3>Facebook</h3><p>Daily Posts & Updates</p>
         </a>
-        <a class="social-platform whatsapp" href="#" onclick="return false">
-          <div class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 3.5A11.7 11.7 0 0 0 12.1 0C5.5 0 .2 5.3.2 11.9c0 2.1.6 4.2 1.6 6L0 24l6.3-1.7a12 12 0 0 0 5.8 1.5h.1c6.6 0 11.8-5.3 11.8-11.9 0-3.2-1.2-6.2-3.5-8.4Zm-8.3 18.3h-.1a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4a9.7 9.7 0 1 1 8.4 4.6Zm5.4-7.3c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.2-.2.3-.8.9-1 1.1-.2.2-.4.2-.7.1-1.8-.9-3-1.6-4.2-3.7-.3-.5.3-.5.9-1.7.1-.2 0-.4 0-.6l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.9s1.3 3.4 1.4 3.6c.2.2 2.5 3.8 6 5.3.8.4 1.5.6 2 .7.8.3 1.6.2 2.2.1.7-.1 1.7-.7 1.9-1.3.2-.6.2-1.2.2-1.3-.1-.1-.3-.2-.6-.3Z"/></svg></div>
-          <h3>WhatsApp</h3>
-          <p>Daily Channel Updates</p>
+        <a class="social-platform instagram" id="socialInstagram" href="#" target="_blank" rel="noopener">
+          <div class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.75 2h8.5A5.76 5.76 0 0 1 22 7.75v8.5A5.76 5.76 0 0 1 16.25 22h-8.5A5.76 5.76 0 0 1 2 16.25v-8.5A5.76 5.76 0 0 1 7.75 2Zm0 2A3.76 3.76 0 0 0 4 7.75v8.5A3.76 3.76 0 0 0 7.75 20h8.5A3.76 3.76 0 0 0 20 16.25v-8.5A3.76 3.76 0 0 0 16.25 4h-8.5Zm8.75 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg></div>
+          <h3>Instagram</h3><p>Stories, Reels & Education</p>
         </a>
-        <a class="social-platform facebook" href="#" onclick="return false">
-          <div class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.3c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12Z"/></svg></div>
-          <h3>Facebook</h3>
-          <p>Daily Posts</p>
-        </a>
-        <a class="social-platform instagram" href="#" onclick="return false">
-          <div class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2Zm-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6Zm9.2 1.5a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg></div>
-          <h3>Instagram</h3>
-          <p>Stories & Reels</p>
+        <a class="social-platform whatsapp" id="socialWhatsapp" href="#" target="_blank" rel="noopener">
+          <div class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2a9.84 9.84 0 0 0-8.42 14.93L2 22l5.22-1.58A9.94 9.94 0 1 0 12.04 2Zm0 17.97a8.02 8.02 0 0 1-4.09-1.12l-.29-.17-3.1.94.95-3.02-.19-.31a7.91 7.91 0 1 1 6.72 3.68Zm4.34-5.92c-.24-.12-1.4-.69-1.62-.77-.22-.08-.38-.12-.54.12-.16.24-.62.77-.76.93-.14.16-.28.18-.52.06-.24-.12-1.01-.37-1.92-1.18-.71-.63-1.19-1.41-1.33-1.65-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.39-.41-.54-.42h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.09 3.62.57.25 1.02.39 1.37.5.58.18 1.1.16 1.51.1.46-.07 1.4-.57 1.6-1.12.2-.55.2-1.02.14-1.12-.06-.1-.22-.16-.46-.28Z"/></svg></div>
+          <h3>WhatsApp Channel</h3><p>Direct Channel Updates</p>
         </a>
       </div>
     </div>
   </section>
 
-  <section class="section soft" id="services">
+  <section class="section services-premium" id="services">
     <div class="container">
-      <div class="section-heading">
-        <div class="small">OUR SERVICES</div>
-        <h2>Everything traders need in one platform</h2>
-        <p>Education, market support and trading tools designed for learners, active traders and growing partner teams.</p>
+      <div class="section-heading services-heading">
+        <div class="small">WHAT WE OFFER</div>
+        <h2>Our Services</h2>
+        <p>Everything you need to learn, analyze and grow with a structured trading ecosystem.</p>
       </div>
-      <div class="service-grid">
-        <article class="service-card">
-          <div class="service-icon">📈</div>
-          <h3>Daily Trading Signals</h3>
-          <p>View carefully structured trading ideas with entry, stop loss, take profit levels and clear market context.</p>
-          <button type="button" class="service-link" onclick="openAuth();">Open Signals →</button>
+      <div class="services-premium-grid">
+        <article class="service-premium-card service-signals">
+          <div class="service-number">01</div><div class="service-premium-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 18.5a2.5 2.5 0 1 0 0 .01M4 13a8 8 0 0 1 8 8M4 7a14 14 0 0 1 14 14M17 3l4 4-4 4M21 7h-9"/></svg></div>
+          <h3>Live Trading Signals</h3><p>Receive structured market setups with clear levels, risk guidance and educational context.</p>
+          <ul><li>Real-time updates</li><li>Clear analysis</li><li>Risk-focused approach</li></ul>
+          <button onclick="openAuth()">Explore Signals <span>→</span></button>
         </article>
-        <article class="service-card" id="courses">
-          <div class="service-icon">🎓</div>
-          <h3>Pakistan’s Top Forex Courses</h3>
-          <p>Learn market structure, price action, risk management and practical trading strategies step by step.</p>
-          <button type="button" class="service-link" onclick="openAuth();">View Courses →</button>
+        <article class="service-premium-card service-learning" id="courses">
+          <div class="service-number">02</div><div class="service-premium-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m3 8 9-5 9 5-9 5-9-5Zm4 3v5c3 2 7 2 10 0v-5M21 8v6"/></svg></div>
+          <h3>Forex Education</h3><p>Build strong trading foundations through practical courses, mentorship and step-by-step learning.</p>
+          <ul><li>Beginner to advanced</li><li>Practical strategies</li><li>Mentor guidance</li></ul>
+          <button onclick="openAuth()">View Courses <span>→</span></button>
         </article>
-        <article class="service-card" id="tools">
-          <div class="service-icon">🛠️</div>
-          <h3>Professional Trading Tools</h3>
-          <p>Access charts, calculators, market updates, educational resources and tools that support better decisions.</p>
-          <button type="button" class="service-link" onclick="openAuth();">Explore Tools →</button>
+        <article class="service-premium-card service-tools" id="tools">
+          <div class="service-number">03</div><div class="service-premium-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.1A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.1A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.2.36.5.7.9.9.3.2.7.3 1.1.3h.1v4h-.1c-.4 0-.8.1-1.1.3-.4.2-.7.5-.9.9Z"/></svg></div>
+          <h3>Trading Tools</h3><p>Access helpful calculators, market resources and intelligent tools designed for better decisions.</p>
+          <ul><li>Market resources</li><li>Smart calculators</li><li>Trading support</li></ul>
+          <button onclick="openAuth()">Explore Tools <span>→</span></button>
         </article>
       </div>
     </div>
   </section>
 
-  <section class="section" id="partner">
+  <section class="section partner-promo-section" id="partner">
     <div class="container">
-      <div class="partner-wrap">
-        <div class="partner-main">
-          <div class="eyebrow">BECOME OUR PARTNER</div>
-          <h2>Grow your own Forex business with PipSePaisa</h2>
-          <p>Build your client network with education, trading tools, team support and a professional platform designed to help partners grow.</p>
-          <button type="button" class="btn" onclick="openAuth();">Become a Partner →</button>
+      <div class="section-heading partner-section-heading">
+        <div class="small">BECOME OUR PARTNER</div>
+        <h2>Grow With PipSePaisa</h2>
+        <p>Build your IB business with competitive commissions, free team training and practical AI tools.</p>
+      </div>
+
+      <div class="partner-promo-grid">
+        <div class="partner-promo-item">
+          <a class="partner-promo-card visual-promo-card" href="#" onclick="openAuth();return false">
+            <picture>
+              <img class="theme-card-image" src="ib-growth-light.jpg" data-light="ib-growth-light.jpg" data-dark="ib-growth-dark.jpg" alt="Grow Your IB Business — up to $25 per lot">
+            </picture>
+          </a>
+          <button class="partner-cta" type="button" onclick="openAuth()"><span>Explore IB Program</span><b>→</b></button>
         </div>
-        <div class="partner-benefits">
-          <article class="benefit"><div class="n">01</div><h3>Competitive IB Commission</h3><p>Grow your income through competitive partner commission structures, subject to broker terms.</p></article>
-          <article class="benefit"><div class="n">02</div><h3>Free Team Training</h3><p>Give your team structured learning support, market education and practical guidance.</p></article>
-          <article class="benefit"><div class="n">03</div><h3>AI Content Tools</h3><p>Use content scripts, banner ideas and planning tools to improve your social media presence.</p></article>
-          <article class="benefit"><div class="n">04</div><h3>Business Support</h3><p>Get assistance with platform onboarding, client management and partner growth strategies.</p></article>
+        <div class="partner-promo-item">
+          <a class="partner-promo-card visual-promo-card" href="#" onclick="openAuth();return false">
+            <picture>
+              <img class="theme-card-image" src="team-training-light.png" data-light="team-training-light.png" data-dark="team-training-dark.png" alt="Free Team Training for you and your team">
+            </picture>
+          </a>
+          <button class="partner-cta" type="button" onclick="openAuth()"><span>Start Learning</span><b>→</b></button>
+        </div>
+        <div class="partner-promo-item">
+          <a class="partner-promo-card visual-promo-card" href="#" onclick="openAuth();return false">
+            <picture>
+              <img class="theme-card-image" src="ai-tools-light.png" data-light="ai-tools-light.png" data-dark="ai-tools-dark.png" alt="AI tools for social media growth">
+            </picture>
+          </a>
+          <button class="partner-cta" type="button" onclick="openAuth()"><span>Explore AI Tools</span><b>→</b></button>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section soft">
+  <section class="section soft broker-comparison-section" id="broker-comparison">
     <div class="container">
-      <div class="section-heading">
+      <div class="section-heading broker-compare-heading">
         <div class="small">BROKER COMPARISON</div>
-        <h2>Compare popular trading brokers</h2>
-        <p>This first draft uses editable sample information. Final values and links can be updated after review.</p>
+        <h2>Compare Our Featured Brokers</h2>
+        <p>Review key account conditions at a glance. Availability, leverage and payment options can vary by region and account type.</p>
       </div>
-      <div class="table-wrap">
-        <table>
+      <div class="table-wrap broker-table-wrap">
+        <table class="broker-comparison-table">
+          <colgroup>
+            <col style="width:14%">
+            <col style="width:10%">
+            <col style="width:14%">
+            <col style="width:13%">
+            <col style="width:11%">
+            <col style="width:10%">
+            <col style="width:11%">
+            <col style="width:8%">
+            <col style="width:9%">
+          </colgroup>
           <thead>
             <tr>
-              <th>Name</th><th>Bonus</th><th>Regulation</th><th>ECN / Cent</th><th>Local Deposit</th><th>Gold / FX Spread</th><th>Leverage</th><th>Min Trade</th><th>Instant Withdrawal</th>
+              <th>Broker</th><th>Promotions</th><th>Regulatory Coverage</th><th>Account Options</th><th>Minimum Deposit</th><th>Spreads</th><th>Maximum Leverage</th><th>Minimum Trade</th><th>Withdrawals</th>
             </tr>
           </thead>
-          <tbody>
-            <tr><td><div class="broker-name"><img src="banner-dprime.png" alt=""><span>DPrime</span></div></td><td><span class="badge">Offers Available</span></td><td>Multi-jurisdiction</td><td class="yes">Available</td><td class="yes">Supported</td><td>Variable</td><td>Up to 1:1000*</td><td>0.01 lot</td><td class="note">Fast processing</td></tr>
-            <tr><td><div class="broker-name"><img src="banner-xm.png" alt=""><span>XM</span></div></td><td><span class="badge">Region Based</span></td><td>Multi-jurisdiction</td><td class="yes">Available</td><td>Region based</td><td>Variable</td><td>Up to 1:1000*</td><td>0.01 lot</td><td>Standard processing</td></tr>
-            <tr><td><div class="broker-name"><img src="banner-exness.png" alt=""><span>Exness</span></div></td><td>Promotions vary</td><td>Multi-jurisdiction</td><td class="yes">Cent available</td><td class="yes">Supported</td><td>Variable</td><td>Flexible*</td><td>0.01 lot</td><td class="yes">Fast withdrawals</td></tr>
-            <tr><td><div class="broker-name"><span>HFM</span></div></td><td>Region based</td><td>Multi-jurisdiction</td><td class="yes">Available</td><td>Region based</td><td>Variable</td><td>Up to 1:2000*</td><td>0.01 lot</td><td>Standard processing</td></tr>
-            <tr><td><div class="broker-name"><span>Vantage</span></div></td><td>Promotions vary</td><td>Multi-jurisdiction</td><td class="yes">ECN available</td><td>Region based</td><td>Variable</td><td>Up to 1:500*</td><td>0.01 lot</td><td>Standard processing</td></tr>
-          </tbody>
+          <tbody><tr>
+              <td data-label="Broker"><div class="broker-name"><img src="dprime-light.png" alt="DPrime logo"><strong>DPrime</strong></div></td>
+              <td data-label="Promotions"><span class="badge">Offers may vary</span></td>
+              <td data-label="Regulatory Coverage">Multi-regulated group</td>
+              <td class="yes" data-label="Account Options">Multiple account types</td>
+              <td data-label="Minimum Deposit">From $0–$100*</td>
+              <td data-label="Spreads">From 0.0 pips*</td>
+              <td data-label="Maximum Leverage">Up to 1:1000*</td>
+              <td data-label="Minimum Trade">0.01 lot</td>
+              <td data-label="Withdrawals">Method dependent</td>
+            </tr>
+            <tr>
+              <td data-label="Broker"><div class="broker-name"><img src="xm-light.png" alt="XM logo"><strong>XM</strong></div></td>
+              <td data-label="Promotions"><span class="badge">Region dependent</span></td>
+              <td data-label="Regulatory Coverage">Multi-regulated group</td>
+              <td class="yes" data-label="Account Options">Multiple account types</td>
+              <td data-label="Minimum Deposit">From $5*</td>
+              <td data-label="Spreads">Variable by instrument</td>
+              <td data-label="Maximum Leverage">Up to 1:1000*</td>
+              <td data-label="Minimum Trade">0.01 lot*</td>
+              <td data-label="Withdrawals">Method dependent</td>
+            </tr>
+            <tr>
+              <td data-label="Broker"><div class="broker-name"><img src="exness-light.png" alt="Exness logo"><strong>Exness</strong></div></td>
+              <td data-label="Promotions"><span class="badge">Region dependent</span></td>
+              <td data-label="Regulatory Coverage">Multi-regulated group</td>
+              <td class="yes" data-label="Account Options">Standard & Cent options*</td>
+              <td data-label="Minimum Deposit">From $10*</td>
+              <td data-label="Spreads">From 0.2 pips*</td>
+              <td data-label="Maximum Leverage">Up to unlimited*</td>
+              <td data-label="Minimum Trade">0.01 lot</td>
+              <td class="yes" data-label="Withdrawals">Automated / instant where available*</td>
+            </tr></tbody>
         </table>
       </div>
+      <p class="broker-data-note">*Conditions depend on jurisdiction, account type, instrument, equity and payment method. Confirm current terms on the broker’s official website before opening or funding an account.</p>
       <div class="cta">
         <div><h3>Ready to start your learning journey?</h3><p>Create your account and explore signals, charts, courses and trading tools.</p></div>
         <button type="button" class="btn" onclick="openAuth();">Create Free Account →</button>
@@ -850,15 +1180,39 @@ function applyLandingTheme(isDark){
   document.body.classList.toggle('dark-theme',isDark);
   localStorage.setItem('psp_theme',isDark?'dark':'light');
   if(themeButton) themeButton.textContent=isDark?'☀️':'🌙';
-  document.querySelectorAll('.broker-logo-card .theme-picture').forEach((picture,index)=>{
-    const img=picture.querySelector('img');
-    if(!img || !themePairs[index]) return;
-    img.src=isDark?themePairs[index][1]:themePairs[index][0];
+  document.querySelectorAll('.broker-logo-card img').forEach((img,index)=>{
+    const light=img.dataset.light||(themePairs[index]&&themePairs[index][0]);
+    const dark=img.dataset.dark||(themePairs[index]&&themePairs[index][1]);
+    if(light&&dark)img.src=isDark?dark:light;
   });
 }
 const savedTheme=localStorage.getItem('psp_theme');
 applyLandingTheme(savedTheme==='dark');
 themeButton?.addEventListener('click',()=>applyLandingTheme(!document.body.classList.contains('dark-theme')));
+
+
+const LANDING_SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
+const LANDING_SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
+const landingSb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(LANDING_SUPABASE_URL,LANDING_SUPABASE_KEY,{auth:{persistSession:false}}):null;
+function safeJson(v){try{return JSON.parse(v||'{}')}catch(e){return {}}}
+async function loadLandingAdminContent(){
+  if(!landingSb)return;
+  try{
+    const r=await landingSb.from('banners').select('id,title,description,image_url,created_at').order('created_at',{ascending:true});
+    if(r.error)throw r.error;
+    const rows=r.data||[];
+    const brokers=rows.filter(x=>(x.title||'').startsWith('LANDING_BROKER|'));
+    if(brokers.length){
+      const grid=document.getElementById('landingBrokerGrid');
+      grid.innerHTML=brokers.map(b=>{const name=(b.title||'').split('|').slice(1).join('|')||'Broker';const meta=safeJson(b.description);const light=b.image_url||'';const dark=meta.dark_url||light;const link=meta.link||'#';return `<a class="broker-logo-card" href="${link}" target="_blank" rel="noopener"><picture class="theme-picture"><img src="${document.body.classList.contains('dark-theme')?dark:light}" data-light="${light}" data-dark="${dark}" alt="${name} broker"></picture><div class="broker-card-footer"><strong>${name}</strong><span>Open Account →</span></div></a>`}).join('');
+    }
+    const social={};rows.filter(x=>(x.title||'').startsWith('LANDING_SOCIAL|')).forEach(x=>social[(x.title||'').split('|')[1]]=x.description||'#');
+    if(social.facebook)document.getElementById('socialFacebook').href=social.facebook;
+    if(social.instagram)document.getElementById('socialInstagram').href=social.instagram;
+    if(social.whatsapp)document.getElementById('socialWhatsapp').href=social.whatsapp;
+  }catch(e){console.warn('Landing admin content load failed',e)}
+}
+loadLandingAdminContent();
 
 function openAuth(){
   try{
@@ -879,6 +1233,14 @@ document.querySelector('.mobile-menu')?.addEventListener('click',()=>{
     menu.style.boxShadow='0 18px 45px rgba(58,38,8,.12)';
   }
 });
+</script>
+<script>
+function syncPartnerPromoTheme(){
+  document.querySelectorAll('.theme-card-image').forEach(img=>{img.src=document.body.classList.contains('dark-theme')?img.dataset.dark:img.dataset.light;});
+}
+document.addEventListener('DOMContentLoaded',syncPartnerPromoTheme);
+const partnerThemeObserver=new MutationObserver(syncPartnerPromoTheme);
+partnerThemeObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
 </script>
 </body>
 </html>

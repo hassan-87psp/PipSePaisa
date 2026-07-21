@@ -862,6 +862,30 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="page" id="page-adsignals"><div id="adSigWrap"></div></div>
       <div class="page" id="page-adcharts"><div id="adChartWrap"></div></div>
       <div class="page" id="page-adbanners">
+
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header"><h3 style="margin:0">🏦 Landing Page Broker Cards</h3></div>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:760px;">
+            <input id="lbName" placeholder="Broker name, e.g. XM" style="padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text)">
+            <input id="lbLink" placeholder="Broker registration link" style="padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text)">
+            <label style="font-size:12px;color:var(--text-muted)">Light Banner<input id="lbLight" type="file" accept="image/*" style="display:block;width:100%;margin-top:6px;padding:9px;border:1px solid var(--border);border-radius:9px"></label>
+            <label style="font-size:12px;color:var(--text-muted)">Dark Banner<input id="lbDark" type="file" accept="image/*" style="display:block;width:100%;margin-top:6px;padding:9px;border:1px solid var(--border);border-radius:9px"></label>
+          </div>
+          <button id="lbBtn" onclick="saveLandingBroker()" style="margin-top:14px;padding:11px 20px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));font-weight:850;cursor:pointer">Save Broker Card</button>
+          <div id="lbMsg" style="margin-top:9px;font-size:13px"></div>
+          <div id="lbList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:18px"></div>
+        </div>
+        <div class="card" style="margin-bottom:16px;">
+          <div class="card-header"><h3 style="margin:0">🔗 Landing Social Links</h3></div>
+          <div style="display:grid;gap:10px;max-width:680px">
+            <input id="lsFacebook" placeholder="Facebook page link" style="padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text)">
+            <input id="lsInstagram" placeholder="Instagram profile link" style="padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text)">
+            <input id="lsWhatsapp" placeholder="WhatsApp Channel link" style="padding:10px 12px;border-radius:9px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text)">
+          </div>
+          <button onclick="saveLandingSocialLinks()" style="margin-top:14px;padding:11px 20px;border:0;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));font-weight:850;cursor:pointer">Save Social Links</button>
+          <div id="lsMsg" style="margin-top:9px;font-size:13px"></div>
+        </div>
+
         <div class="card" style="margin-bottom:16px;">
           <div class="card-header"><h3 style="margin:0">🖼️ Upload Social Media Banner</h3></div>
           <div style="display:flex;flex-direction:column;gap:12px;max-width:520px;">
@@ -2423,7 +2447,7 @@ function showPage(page, el) {
   if (page === 'adsignals') loadAdSignals();
   if (page === 'adcharts') loadAdCharts();
   if (page === 'articles') loadAdminArticles();
-  if (page === 'adbanners') loadAdBanners();
+  if (page === 'adbanners'){loadAdBanners();loadLandingBrokers();loadLandingSocialLinks();}
   if (page === 'community') loadAdminCommunity();
   if (page === 'chats') renderAdminChats();
   if (page === 'messages') loadAdminMessages();
@@ -2448,6 +2472,36 @@ const SITE_TAB_DEFS=[
  ['banners','🖼️ Banners'],
  ['settings','⚙️ Settings'],['about','ℹ️ About'],['announce','📢 Announcements'],['support','💬 Support']
 ];
+
+async function uploadLandingAsset(file,prefix){
+  var ext=(file.name.split('.').pop()||'png').toLowerCase();
+  var path='landing/'+prefix+'-'+Date.now()+'.'+ext;
+  var up=await sb.storage.from('charts').upload(path,file,{upsert:true});
+  if(up.error)throw up.error;
+  return sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
+}
+async function saveLandingBroker(){
+  var name=(document.getElementById('lbName').value||'').trim();var link=(document.getElementById('lbLink').value||'').trim();
+  var lf=document.getElementById('lbLight').files[0],df=document.getElementById('lbDark').files[0],msg=document.getElementById('lbMsg'),btn=document.getElementById('lbBtn');
+  if(!name||!lf){msg.style.color='var(--red)';msg.textContent='Broker name and light banner are required.';return}
+  btn.disabled=true;btn.textContent='Uploading…';
+  try{var light=await uploadLandingAsset(lf,name+'-light');var dark=df?await uploadLandingAsset(df,name+'-dark'):light;
+    await sb.from('banners').delete().eq('title','LANDING_BROKER|'+name);
+    var ins=await sb.from('banners').insert({title:'LANDING_BROKER|'+name,description:JSON.stringify({link:link||'#',dark_url:dark}),image_url:light});if(ins.error)throw ins.error;
+    msg.style.color='var(--green)';msg.textContent='✅ Broker card saved.';document.getElementById('lbName').value='';document.getElementById('lbLink').value='';document.getElementById('lbLight').value='';document.getElementById('lbDark').value='';loadLandingBrokers();
+  }catch(e){msg.style.color='var(--red)';msg.textContent='Failed: '+(e.message||e)}finally{btn.disabled=false;btn.textContent='Save Broker Card'}
+}
+async function loadLandingBrokers(){
+  var box=document.getElementById('lbList');if(!box)return;var r=await sb.from('banners').select('*').like('title','LANDING_BROKER|%').order('created_at');var rows=r.data||[];
+  box.innerHTML=rows.length?rows.map(b=>{var n=(b.title||'').split('|').slice(1).join('|');return '<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden"><img src="'+esc(b.image_url)+'" style="width:100%;aspect-ratio:2/1;object-fit:cover"><div style="padding:10px;display:flex;justify-content:space-between;align-items:center"><b>'+esc(n)+'</b><button onclick="deleteLandingBroker(''+b.id+'')" style="border:1px solid var(--red);background:transparent;color:var(--red);border-radius:7px;padding:5px 9px">Delete</button></div></div>'}).join(''):'<div style="color:var(--text-muted)">No landing brokers added yet.</div>';
+}
+async function deleteLandingBroker(id){if(!confirm('Delete this landing broker card?'))return;await sb.from('banners').delete().eq('id',id);loadLandingBrokers()}
+async function saveLandingSocialLinks(){
+  var vals={facebook:document.getElementById('lsFacebook').value.trim(),instagram:document.getElementById('lsInstagram').value.trim(),whatsapp:document.getElementById('lsWhatsapp').value.trim()};var msg=document.getElementById('lsMsg');
+  try{for(const k of Object.keys(vals)){await sb.from('banners').delete().eq('title','LANDING_SOCIAL|'+k);if(vals[k]){var r=await sb.from('banners').insert({title:'LANDING_SOCIAL|'+k,description:vals[k],image_url:'social-link'});if(r.error)throw r.error}}msg.style.color='var(--green)';msg.textContent='✅ Social links saved.';}catch(e){msg.style.color='var(--red)';msg.textContent='Failed: '+(e.message||e)}
+}
+async function loadLandingSocialLinks(){var r=await sb.from('banners').select('title,description').like('title','LANDING_SOCIAL|%');(r.data||[]).forEach(x=>{var k=x.title.split('|')[1];var id=k==='facebook'?'lsFacebook':k==='instagram'?'lsInstagram':'lsWhatsapp';var el=document.getElementById(id);if(el)el.value=x.description||''})}
+
 async function uploadBanner(){
   var f=document.getElementById('bnFile');var t=document.getElementById('bnTitle');var d=document.getElementById('bnDesc');var msg=document.getElementById('bnMsg');var btn=document.getElementById('bnBtn');
   var file=f&&f.files&&f.files[0];
