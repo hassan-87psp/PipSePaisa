@@ -745,9 +745,10 @@ body.dark-theme .service-premium-icon{background:linear-gradient(145deg,#1a2942,
   height:100%!important;
   object-fit:cover!important;
   object-position:center!important;
-  transform:scale(1.018)!important;
+  transform:scale(1.035)!important;
   border-radius:20px!important;
   background:transparent!important;
+  object-position:center center!important;
 }
 .partner-cta{
   width:100%;min-height:48px;margin-top:15px;padding:13px 17px;border:0;border-radius:14px;
@@ -920,6 +921,356 @@ body.dark-theme .broker-data-note{color:#9facbd}
   body.dark-theme .broker-comparison-table tbody td::before{color:#fff}
 }
 
+
+/* ===== FINAL CARD FIT + BROKER PROMO FIX ===== */
+.broker-logo-card{
+  border:1.5px solid rgba(222,126,10,.62)!important;
+  border-radius:20px!important;
+  background:#08111f!important;
+  box-shadow:0 18px 42px rgba(43,28,5,.16)!important;
+}
+.broker-logo-card picture{
+  display:block!important;
+  width:100%!important;
+  aspect-ratio:2/1!important;
+  overflow:hidden!important;
+  background:#08111f!important;
+}
+.broker-logo-card picture img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  aspect-ratio:auto!important;
+  object-fit:cover!important;
+  object-position:center!important;
+  transform:scale(1.012);
+}
+.broker-card-footer{
+  background:var(--card)!important;
+  border-top:1px solid rgba(222,126,10,.28)!important;
+}
+body.dark-theme .broker-logo-card{
+  border-color:#d98712!important;
+  background:#07101f!important;
+  box-shadow:0 20px 48px rgba(0,0,0,.34)!important;
+}
+body.dark-theme .broker-card-footer{background:#101a2b!important}
+
+.partner-promo-card.visual-promo-card{
+  background:#08111f!important;
+  isolation:isolate;
+}
+.partner-promo-card.visual-promo-card picture{
+  overflow:hidden!important;
+  border-radius:20px!important;
+  background:#08111f!important;
+}
+.partner-promo-card.visual-promo-card img{
+  clip-path:inset(0 round 20px)!important;
+  transform:scale(1.04)!important;
+  transform-origin:center!important;
+}
+.partner-promo-item:nth-child(2) .partner-promo-card.visual-promo-card img{transform:scale(1.055)!important;transform-origin:center top!important;}
+.partner-promo-item:nth-child(3) .partner-promo-card.visual-promo-card img{transform:scale(1.045)!important;transform-origin:center top!important;}
+body:not(.dark-theme) .partner-promo-card.visual-promo-card picture{
+  background:#fffaf3!important;
+}
+
+@media(max-width:680px){
+  .broker-logo-card picture{aspect-ratio:2/1!important}
+  .partner-promo-card.visual-promo-card img{transform:scale(1.03)!important}
+  .partner-promo-item:nth-child(2) .partner-promo-card.visual-promo-card img{transform:scale(1.04)!important}
+  .partner-promo-item:nth-child(3) .partner-promo-card.visual-promo-card img{transform:scale(1.035)!important}
+}
+
+
+
+/* ===== USER REQUESTED COMPACT LAYOUT FIX ===== */
+/* Compact hero while preserving face and complete content */
+.hero{padding:14px 0 16px!important}
+.hero-overlay-banner{
+  min-height:445px!important;
+  background-size:100% auto!important;
+  background-position:center top!important;
+}
+.hero-text-layer{padding:34px 38px 24px!important}
+.hero-overlay-banner h1{font-size:clamp(39px,3.7vw,55px)!important;margin-bottom:12px!important}
+.hero-eyebrow{margin-bottom:12px!important}
+.hero-course{font-size:14px!important;padding:8px 14px!important;margin-bottom:11px!important}
+.hero-quote{padding:11px 14px!important}
+.hero-quote p{font-size:11px!important;line-height:1.42!important}
+.hero-features{margin-top:13px!important;gap:10px!important}
+.hero-feature>span{width:36px!important;height:36px!important}
+.hero-feature b{font-size:11px!important}.hero-feature small{font-size:9.5px!important}
+
+/* Shorter top broker cards */
+.broker-showcase{padding:28px 0 30px!important}
+.broker-heading{margin-bottom:18px!important}
+.broker-logo-grid{gap:18px!important}
+.broker-logo-card picture{aspect-ratio:2.75/1!important}
+.broker-logo-card picture img{object-fit:cover!important;object-position:center!important;transform:none!important}
+.broker-card-footer{padding:10px 15px!important;min-height:42px!important}
+.broker-card-footer strong{font-size:15px!important}
+.broker-card-footer span{font-size:11px!important}
+
+/* Compact social cards and icons */
+.social-showcase{padding:28px 0 30px!important}
+.social-heading{margin-bottom:18px!important}
+.social-grid{gap:16px!important}
+.social-platform{min-height:112px!important;border-radius:18px!important;padding:14px 10px!important}
+.social-icon{width:48px!important;height:48px!important;border-radius:15px!important;margin-bottom:8px!important;box-shadow:0 9px 20px rgba(0,0,0,.14)!important}
+.social-icon svg{width:27px!important;height:27px!important}
+.social-platform h3{font-size:16px!important;margin-bottom:2px!important}
+.social-platform p{font-size:11px!important}
+
+/* Remove excess gaps around services and partner section */
+.services-premium{padding:48px 0 52px!important}
+.services-heading{margin-bottom:26px!important}
+.partner-promo-section{padding:48px 0 44px!important}
+.partner-section-heading{margin-bottom:22px!important}
+.partner-promo-grid{gap:20px!important}
+.partner-cta{margin-top:12px!important}
+
+/* Light theme: show complete partner artwork without side cropping */
+body:not(.dark-theme) .partner-promo-card.visual-promo-card img{
+  object-fit:contain!important;
+  object-position:center center!important;
+  transform:none!important;
+  clip-path:inset(0 round 20px)!important;
+}
+body:not(.dark-theme) .partner-promo-card.visual-promo-card picture{
+  background:#fffaf3!important;
+}
+/* Dark theme keeps the existing edge-to-edge fill */
+body.dark-theme .partner-promo-card.visual-promo-card img{
+  object-fit:cover!important;
+  object-position:center center!important;
+}
+
+@media(max-width:980px){
+  .hero-overlay-banner{min-height:500px!important}
+  .broker-logo-card picture{aspect-ratio:2.35/1!important}
+}
+@media(max-width:680px){
+  .hero-overlay-banner{min-height:720px!important}
+  .hero-text-layer{padding:24px 18px!important}
+  .broker-logo-card picture{aspect-ratio:2/1!important}
+  .social-platform{min-height:105px!important}
+  .services-premium{padding:42px 0!important}
+  .partner-promo-section{padding:42px 0 36px!important}
+}
+
+
+
+/* ===== FINAL USER FIXES JUL21 ===== */
+.hero{padding:12px 0 8px !important}
+.hero-overlay-banner{
+  min-height:370px !important;
+  background-size:auto 100% !important;
+  background-position:right top !important;
+  background-repeat:no-repeat !important;
+  border-radius:26px !important;
+}
+.hero-text-layer{
+  width:57% !important;
+  padding:22px 28px 14px !important;
+}
+.hero-eyebrow{
+  padding:5px 10px !important;
+  font-size:10.5px !important;
+  margin-bottom:10px !important;
+}
+.hero-overlay-banner h1{
+  font-size:clamp(32px,3.2vw,46px) !important;
+  margin:0 0 8px !important;
+}
+.hero-course{
+  margin:0 0 8px !important;
+  padding:6px 12px !important;
+  font-size:12.5px !important;
+}
+.hero-quote{
+  max-width:620px !important;
+  padding:9px 12px !important;
+}
+.hero-quote strong{
+  font-size:10px !important;
+  padding:4px 9px !important;
+  margin-bottom:4px !important;
+}
+.hero-quote p{
+  font-size:10.5px !important;
+  line-height:1.38 !important;
+}
+.hero-features{
+  margin-top:9px !important;
+  gap:8px !important;
+}
+.hero-feature{gap:7px !important}
+.hero-feature > span{
+  width:32px !important;
+  height:32px !important;
+  font-size:15px !important;
+}
+.hero-feature b{font-size:10px !important}
+.hero-feature small{font-size:8.8px !important}
+
+.broker-showcase{padding:14px 0 24px !important}
+.broker-heading{margin-bottom:12px !important}
+.broker-logo-grid{gap:18px !important}
+.broker-logo-card{
+  border-radius:22px !important;
+  background:transparent !important;
+  overflow:hidden !important;
+}
+.broker-logo-card picture{
+  display:block !important;
+  width:100% !important;
+  aspect-ratio:auto !important;
+  overflow:hidden !important;
+  background:transparent !important;
+}
+.broker-logo-card picture img{
+  display:block !important;
+  width:100% !important;
+  height:auto !important;
+  aspect-ratio:auto !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:none !important;
+  border-radius:22px !important;
+}
+.broker-card-footer{display:none !important}
+
+.social-showcase{padding:14px 0 24px !important}
+.social-heading{margin-bottom:14px !important}
+.social-grid{gap:16px !important}
+.social-platform{
+  min-height:150px !important;
+  padding:16px 12px !important;
+  border-radius:20px !important;
+}
+.social-icon{
+  width:58px !important;
+  height:58px !important;
+  border-radius:18px !important;
+  margin-bottom:10px !important;
+}
+.social-icon svg{width:31px !important;height:31px !important}
+.social-platform h3{font-size:17px !important;margin-bottom:4px !important}
+.social-platform p{font-size:12px !important}
+
+.services-premium{padding:34px 0 38px !important}
+.services-heading{margin-bottom:20px !important}
+.partner-promo-section{padding:30px 0 24px !important}
+.partner-section-heading{margin-bottom:18px !important}
+.partner-promo-grid{gap:20px !important}
+.partner-promo-item{display:block !important}
+.partner-promo-card.visual-promo-card{
+  border-radius:22px !important;
+  box-shadow:0 14px 34px rgba(43,28,5,.10) !important;
+}
+.partner-promo-card.visual-promo-card picture{
+  border-radius:22px !important;
+}
+body:not(.dark-theme) .partner-promo-card.visual-promo-card picture{background:#fffaf3 !important}
+body:not(.dark-theme) .partner-promo-card.visual-promo-card img{
+  object-fit:contain !important;
+  object-position:center center !important;
+  transform:none !important;
+  clip-path:inset(0 round 22px) !important;
+}
+body.dark-theme .partner-promo-card.visual-promo-card img{
+  object-fit:cover !important;
+  object-position:center center !important;
+  transform:none !important;
+}
+.partner-cta{display:none !important}
+
+@media (max-width:980px){
+  .hero-overlay-banner{min-height:430px !important;background-size:auto 100% !important;background-position:66% top !important}
+  .hero-text-layer{width:100% !important;padding:24px 22px 14px !important}
+}
+@media (max-width:680px){
+  .hero-overlay-banner{min-height:640px !important;background-size:auto 100% !important;background-position:70% top !important}
+  .hero-text-layer{padding:20px 16px 12px !important}
+  .hero-overlay-banner h1{font-size:34px !important}
+  .broker-showcase,.social-showcase,.services-premium,.partner-promo-section{padding-top:22px !important}
+  .social-platform{min-height:136px !important}
+}
+
+
+/* FINAL HERO CROP FIX: keep original gold-divider position, crop only from bottom */
+.hero-overlay-banner{
+  background-size:cover !important;
+  background-position:center top !important;
+}
+body.dark-theme .hero-overlay-banner{
+  background-size:cover !important;
+  background-position:center top !important;
+}
+@media (max-width:980px){
+  .hero-overlay-banner,body.dark-theme .hero-overlay-banner{
+    background-size:cover !important;
+    background-position:center top !important;
+  }
+}
+@media (max-width:680px){
+  .hero-overlay-banner,body.dark-theme .hero-overlay-banner{
+    background-size:auto 100% !important;
+    background-position:70% top !important;
+  }
+}
+
+
+
+/* ===== FINAL 3:1 BROKER CARD FIT ===== */
+.broker-showcase{padding:12px 0 22px !important;}
+.broker-heading{margin-bottom:12px !important;}
+.broker-logo-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:18px !important;
+  align-items:start !important;
+}
+.broker-logo-card{
+  display:block !important;
+  width:100% !important;
+  border-radius:18px !important;
+  overflow:hidden !important;
+  background:transparent !important;
+  border:1px solid rgba(217,120,0,.55) !important;
+  box-shadow:0 12px 28px rgba(49,31,5,.10) !important;
+}
+.broker-logo-card picture{
+  display:block !important;
+  width:100% !important;
+  aspect-ratio:3/1 !important;
+  overflow:hidden !important;
+  background:transparent !important;
+}
+.broker-logo-card picture img{
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  aspect-ratio:3/1 !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  transform:none !important;
+  border-radius:0 !important;
+}
+.broker-card-footer{display:none !important;}
+body.dark-theme .broker-logo-card{
+  border-color:rgba(243,165,25,.72) !important;
+  box-shadow:0 14px 30px rgba(0,0,0,.28) !important;
+}
+@media(max-width:900px){
+  .broker-logo-grid{grid-template-columns:1fr 1fr !important;}
+}
+@media(max-width:620px){
+  .broker-logo-grid{grid-template-columns:1fr !important;}
+  .broker-logo-card picture,.broker-logo-card picture img{aspect-ratio:3/1 !important;}
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -977,15 +1328,15 @@ body.dark-theme .broker-data-note{color:#9facbd}
 
       <div class="broker-logo-grid" id="landingBrokerGrid">
         <a class="broker-logo-card" href="#" data-fallback="true">
-          <picture class="theme-picture"><img src="dprime-light.png" data-light="dprime-light.png" data-dark="dprime-dark.png" alt="DPrime broker"></picture>
+          <picture class="theme-picture"><img src="broker-promo-assets/dprime-promo-light.png" data-light="broker-promo-assets/dprime-promo-light.png" data-dark="broker-promo-assets/dprime-promo-dark.png" alt="DPrime broker"></picture>
           <div class="broker-card-footer"><strong>DPrime</strong><span>Open Account →</span></div>
         </a>
         <a class="broker-logo-card" href="#" data-fallback="true">
-          <picture class="theme-picture"><img src="xm-light.png" data-light="xm-light.png" data-dark="xm-dark.png" alt="XM broker"></picture>
+          <picture class="theme-picture"><img src="broker-promo-assets/xm-promo-light.png" data-light="broker-promo-assets/xm-promo-light.png" data-dark="broker-promo-assets/xm-promo-dark.png" alt="XM broker"></picture>
           <div class="broker-card-footer"><strong>XM</strong><span>Open Account →</span></div>
         </a>
         <a class="broker-logo-card" href="#" data-fallback="true">
-          <picture class="theme-picture"><img src="exness-light.png" data-light="exness-light.png" data-dark="exness-dark.png" alt="Exness broker"></picture>
+          <picture class="theme-picture"><img src="broker-promo-assets/exness-promo-light.png" data-light="broker-promo-assets/exness-promo-light.png" data-dark="broker-promo-assets/exness-promo-dark.png" alt="Exness broker"></picture>
           <div class="broker-card-footer"><strong>Exness</strong><span>Open Account →</span></div>
         </a>
       </div>
@@ -1061,24 +1412,21 @@ body.dark-theme .broker-data-note{color:#9facbd}
               <img class="theme-card-image" src="ib-growth-light.jpg" data-light="ib-growth-light.jpg" data-dark="ib-growth-dark.jpg" alt="Grow Your IB Business — up to $25 per lot">
             </picture>
           </a>
-          <button class="partner-cta" type="button" onclick="openAuth()"><span>Explore IB Program</span><b>→</b></button>
-        </div>
+</div>
         <div class="partner-promo-item">
           <a class="partner-promo-card visual-promo-card" href="#" onclick="openAuth();return false">
             <picture>
               <img class="theme-card-image" src="team-training-light.png" data-light="team-training-light.png" data-dark="team-training-dark.png" alt="Free Team Training for you and your team">
             </picture>
           </a>
-          <button class="partner-cta" type="button" onclick="openAuth()"><span>Start Learning</span><b>→</b></button>
-        </div>
+</div>
         <div class="partner-promo-item">
           <a class="partner-promo-card visual-promo-card" href="#" onclick="openAuth();return false">
             <picture>
               <img class="theme-card-image" src="ai-tools-light.png" data-light="ai-tools-light.png" data-dark="ai-tools-dark.png" alt="AI tools for social media growth">
             </picture>
           </a>
-          <button class="partner-cta" type="button" onclick="openAuth()"><span>Explore AI Tools</span><b>→</b></button>
-        </div>
+</div>
       </div>
     </div>
   </section>
@@ -1109,7 +1457,7 @@ body.dark-theme .broker-data-note{color:#9facbd}
             </tr>
           </thead>
           <tbody><tr>
-              <td data-label="Broker"><div class="broker-name"><img src="dprime-light.png" alt="DPrime logo"><strong>DPrime</strong></div></td>
+              <td data-label="Broker"><div class="broker-name"><img src="dprime-logo.svg" alt="DPrime logo"><strong>DPrime</strong></div></td>
               <td data-label="Promotions"><span class="badge">Offers may vary</span></td>
               <td data-label="Regulatory Coverage">Multi-regulated group</td>
               <td class="yes" data-label="Account Options">Multiple account types</td>
@@ -1120,7 +1468,7 @@ body.dark-theme .broker-data-note{color:#9facbd}
               <td data-label="Withdrawals">Method dependent</td>
             </tr>
             <tr>
-              <td data-label="Broker"><div class="broker-name"><img src="xm-light.png" alt="XM logo"><strong>XM</strong></div></td>
+              <td data-label="Broker"><div class="broker-name"><img src="xm-logo.svg" alt="XM logo"><strong>XM</strong></div></td>
               <td data-label="Promotions"><span class="badge">Region dependent</span></td>
               <td data-label="Regulatory Coverage">Multi-regulated group</td>
               <td class="yes" data-label="Account Options">Multiple account types</td>
@@ -1131,7 +1479,7 @@ body.dark-theme .broker-data-note{color:#9facbd}
               <td data-label="Withdrawals">Method dependent</td>
             </tr>
             <tr>
-              <td data-label="Broker"><div class="broker-name"><img src="exness-light.png" alt="Exness logo"><strong>Exness</strong></div></td>
+              <td data-label="Broker"><div class="broker-name"><img src="exness-logo.svg" alt="Exness logo"><strong>Exness</strong></div></td>
               <td data-label="Promotions"><span class="badge">Region dependent</span></td>
               <td data-label="Regulatory Coverage">Multi-regulated group</td>
               <td class="yes" data-label="Account Options">Standard & Cent options*</td>
@@ -1140,6 +1488,28 @@ body.dark-theme .broker-data-note{color:#9facbd}
               <td data-label="Maximum Leverage">Up to unlimited*</td>
               <td data-label="Minimum Trade">0.01 lot</td>
               <td class="yes" data-label="Withdrawals">Automated / instant where available*</td>
+            </tr>
+            <tr>
+              <td data-label="Broker"><div class="broker-name"><img src="hfm-logo.svg" alt="HFM logo"><strong>HFM</strong></div></td>
+              <td data-label="Promotions"><span class="badge">Region dependent</span></td>
+              <td data-label="Regulatory Coverage">Multi-regulated group</td>
+              <td class="yes" data-label="Account Options">Standard, Cent & Pro types*</td>
+              <td data-label="Minimum Deposit">From $0*</td>
+              <td data-label="Spreads">Variable by account</td>
+              <td data-label="Maximum Leverage">Up to 1:2000*</td>
+              <td data-label="Minimum Trade">0.01 lot</td>
+              <td data-label="Withdrawals">Method dependent</td>
+            </tr>
+            <tr>
+              <td data-label="Broker"><div class="broker-name"><img src="vantage-logo.svg" alt="Vantage logo"><strong>Vantage</strong></div></td>
+              <td data-label="Promotions"><span class="badge">Promotions may vary</span></td>
+              <td data-label="Regulatory Coverage">Multi-regulated group</td>
+              <td class="yes" data-label="Account Options">Standard, Raw & ECN options*</td>
+              <td data-label="Minimum Deposit">From $50*</td>
+              <td data-label="Spreads">From 0.0 pips*</td>
+              <td data-label="Maximum Leverage">Up to 1:500*</td>
+              <td data-label="Minimum Trade">0.01 lot</td>
+              <td data-label="Withdrawals">Method dependent</td>
             </tr></tbody>
         </table>
       </div>
@@ -1172,9 +1542,9 @@ body.dark-theme .broker-data-note{color:#9facbd}
 
 const themeButton=document.querySelector('.theme-btn');
 const themePairs=[
-  ['dprime-light.png','dprime-dark.png'],
-  ['xm-light.png','xm-dark.png'],
-  ['exness-light.png','exness-dark.png']
+  ['broker-promo-assets/dprime-promo-light.png','broker-promo-assets/dprime-promo-dark.png'],
+  ['broker-promo-assets/xm-promo-light.png','broker-promo-assets/xm-promo-dark.png'],
+  ['broker-promo-assets/exness-promo-light.png','broker-promo-assets/exness-promo-dark.png']
 ];
 function applyLandingTheme(isDark){
   document.body.classList.toggle('dark-theme',isDark);
@@ -1183,7 +1553,12 @@ function applyLandingTheme(isDark){
   document.querySelectorAll('.broker-logo-card img').forEach((img,index)=>{
     const light=img.dataset.light||(themePairs[index]&&themePairs[index][0]);
     const dark=img.dataset.dark||(themePairs[index]&&themePairs[index][1]);
-    if(light&&dark)img.src=isDark?dark:light;
+    if(light&&dark) img.src=isDark?dark:light;
+  });
+  document.querySelectorAll('.theme-card-image').forEach(img=>{
+    const light=img.dataset.light;
+    const dark=img.dataset.dark;
+    if(light&&dark) img.src=isDark?dark:light;
   });
 }
 const savedTheme=localStorage.getItem('psp_theme');

@@ -2493,7 +2493,8 @@ async function saveLandingBroker(){
 }
 async function loadLandingBrokers(){
   var box=document.getElementById('lbList');if(!box)return;var r=await sb.from('banners').select('*').like('title','LANDING_BROKER|%').order('created_at');var rows=r.data||[];
-  box.innerHTML=rows.length?rows.map(b=>{var n=(b.title||'').split('|').slice(1).join('|');return '<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden"><img src="'+esc(b.image_url)+'" style="width:100%;aspect-ratio:2/1;object-fit:cover"><div style="padding:10px;display:flex;justify-content:space-between;align-items:center"><b>'+esc(n)+'</b><button onclick="deleteLandingBroker(''+b.id+'')" style="border:1px solid var(--red);background:transparent;color:var(--red);border-radius:7px;padding:5px 9px">Delete</button></div></div>'}).join(''):'<div style="color:var(--text-muted)">No landing brokers added yet.</div>';
+  box.innerHTML=rows.length?rows.map(b=>{var n=(b.title||'').split('|').slice(1).join('|');return `<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden"><img src="${esc(b.image_url)}" style="width:100%;aspect-ratio:2/1;object-fit:cover"><div style="padding:10px;display:flex;justify-content:space-between;align-items:center"><b>${esc(n)}</b><button type="button" data-broker-id="${esc(b.id)}" class="landing-broker-delete" style="border:1px solid var(--red);background:transparent;color:var(--red);border-radius:7px;padding:5px 9px">Delete</button></div></div>`}).join(''):'<div style="color:var(--text-muted)">No landing brokers added yet.</div>';
+  box.querySelectorAll('.landing-broker-delete').forEach(btn=>btn.addEventListener('click',()=>deleteLandingBroker(btn.dataset.brokerId)));
 }
 async function deleteLandingBroker(id){if(!confirm('Delete this landing broker card?'))return;await sb.from('banners').delete().eq('id',id);loadLandingBrokers()}
 async function saveLandingSocialLinks(){
