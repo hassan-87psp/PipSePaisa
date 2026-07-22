@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" role="img" aria-label="COMPETITIVE COMMISSION">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071426"/><stop offset="1" stop-color="#102746"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd46c"/><stop offset=".48" stop-color="#ff9f0b"/><stop offset="1" stop-color="#db6200"/></linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#ffb019"/><stop offset="1" stop-color="#ff7a00"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="12" stdDeviation="13" flood-color="#8a4600" flood-opacity=".28"/></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+    <clipPath id="clip"><rect x="4" y="4" width="592" height="312" rx="27"/></clipPath>
+  </defs>
+  <rect x="4" y="4" width="592" height="312" rx="27" fill="url(#bg)" stroke="url(#gold)" stroke-width="3"/>
+  <g clip-path="url(#clip)">
+    <circle cx="522" cy="42" r="142" fill="#ff9f0b" opacity=".10"/>
+    <circle cx="424" cy="271" r="120" fill="#ffb11a" opacity=".07" filter="url(#soft)"/>
+    <g opacity=".11" stroke="#7a96b6" stroke-width="1"><path d="M20 55H580M20 105H580M20 155H580M20 205H580M20 255H580"/><path d="M70 20V295M140 20V295M210 20V295M280 20V295M350 20V295M420 20V295M490 20V295M560 20V295"/></g>
+    <path d="M0 272C92 238 162 285 251 253s173-11 349-89v156H0Z" fill="#ff9e0a" opacity=".08"/>
+  </g>
+  <rect x="26" y="25" width="128" height="26" rx="13" fill="url(#gold)"/>
+  <text x="90" y="43" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="900" letter-spacing="1.6" fill="#08172e">PARTNER BENEFIT</text>
+  <text x="27" y="76" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="800" letter-spacing="1.6" fill="#e87900">EARN MORE. GROW FASTER.</text>
+  <text x="27" y="119" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="900" fill="#ffffff">COMPETITIVE</text>
+  <text x="27" y="154" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="900" fill="url(#line)">COMMISSION</text>
+  <rect x="27" y="170" width="282" height="2" rx="1" fill="url(#line)"/>
+  <text x="27" y="195" font-family="Arial,Helvetica,sans-serif" font-size="13.5" font-weight="600" fill="#cbd6e6">Better rewards built for growing partners.</text>
+  <g transform="translate(27 224)">
+    <g transform="translate(0 0)"><rect width="94" height="34" rx="17" fill="#142b49" stroke="#6d5731"/><circle cx="15" cy="17" r="6" fill="url(#gold)"/><path d="m12 17 2 2 5-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="27" y="21" font-family="Arial,Helvetica,sans-serif" font-size="8.8" font-weight="800" fill="#ffffff">BETTER VALUE</text></g><g transform="translate(101 0)"><rect width="94" height="34" rx="17" fill="#142b49" stroke="#6d5731"/><circle cx="15" cy="17" r="6" fill="url(#gold)"/><path d="m12 17 2 2 5-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="27" y="21" font-family="Arial,Helvetica,sans-serif" font-size="8.8" font-weight="800" fill="#ffffff">CLEAR REWARDS</text></g><g transform="translate(202 0)"><rect width="94" height="34" rx="17" fill="#142b49" stroke="#6d5731"/><circle cx="15" cy="17" r="6" fill="url(#gold)"/><path d="m12 17 2 2 5-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="27" y="21" font-family="Arial,Helvetica,sans-serif" font-size="8.8" font-weight="800" fill="#ffffff">GROWTH READY</text></g>
+  </g>
+  <g filter="url(#shadow)">
+    <circle cx="454" cy="145" r="112" fill="#132b4b" stroke="url(#gold)" stroke-width="3"/>
+    <circle cx="454" cy="145" r="94" fill="#0b1b32" opacity=".72"/>
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="405" y="142" width="30" height="70" rx="7" fill="url(#gold)" stroke="#ffcb62" stroke-width="3"/>
+      <rect x="449" y="111" width="30" height="101" rx="7" fill="url(#gold)" stroke="#ffcb62" stroke-width="3"/>
+      <rect x="493" y="75" width="30" height="137" rx="7" fill="url(#gold)" stroke="#ffcb62" stroke-width="3"/>
+      <path d="M401 119l42-41 32 19 54-57" stroke="#fff" stroke-width="12"/>
+      <path d="M504 41h27v28" stroke="#fff" stroke-width="12"/>
+      <circle cx="416" cy="76" r="19" fill="#ffb31a" stroke="#ffe2a3" stroke-width="4"/>
+      <path d="M416 65v22M408 70h12c8 0 8 9 0 9h-8c-8 0-8 9 0 9h12" stroke="#14233c" stroke-width="3.5"/>
+    </g>
+  </g>
+  <rect x="365" y="271" width="178" height="30" rx="15" fill="#08182f" stroke="#ffaf17" stroke-width="1.5"/>
+  <text x="454" y="291" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="900" letter-spacing="1.2" fill="#fff">PIPSEPAISA PARTNER</text>
+</svg>

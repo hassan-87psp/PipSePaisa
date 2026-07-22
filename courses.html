@@ -1,0 +1,569 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Forex Courses | PipSePaisa</title>
+    <meta
+      name="description"
+      content="Structured Forex courses from beginner to advanced."
+    />
+    <link rel="icon" href="favicon.png" />
+    <link rel="stylesheet" href="public-pages.css" />
+    <link
+      rel="stylesheet"
+      href="public-upgrades.css?v=20260722-brand-dark-hero-v3"
+    />
+    <style>
+      .course-section {
+        background: linear-gradient(180deg, #fff5e8, #fffaf2);
+      }
+      .course-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+      }
+      .course-card {
+        border-radius: 25px;
+        padding: 26px;
+        border: 1px solid var(--line);
+        background: #fff;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+        transition: 0.3s;
+      }
+      .course-card:hover {
+        transform: translateY(-7px);
+      }
+      .course-card.advanced {
+        background: #081427;
+        color: #fff;
+        border-color: #d98b16;
+      }
+      .ribbon {
+        position: absolute;
+        right: -42px;
+        top: 22px;
+        transform: rotate(39deg);
+        padding: 7px 48px;
+        background: linear-gradient(90deg, #e98100, #ffbf31);
+        font-size: 10px;
+        font-weight: 900;
+        color: #111;
+      }
+      .course-card h3 {
+        font-size: 29px;
+        margin: 16px 0 8px;
+      }
+      .course-card p {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .advanced p {
+        color: #c4cfdf;
+      }
+      .price {
+        font-size: 40px;
+        font-weight: 950;
+        color: #df7900;
+        margin: 18px 0;
+      }
+      .advanced .price {
+        color: #ffb326;
+      }
+      .old {
+        font-size: 14px;
+        text-decoration: line-through;
+        color: #9ca7ba;
+      }
+      .save {
+        display: inline-block;
+        background: #15a96e;
+        color: #fff;
+        padding: 6px 11px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 900;
+      }
+      .topics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 18px;
+        margin: 20px 0;
+      }
+      .topic {
+        display: flex;
+        gap: 8px;
+        align-items: flex-start;
+        font-size: 12px;
+        line-height: 1.35;
+        padding: 5px;
+        border-radius: 8px;
+        transition: 0.2s;
+      }
+      .topic:hover {
+        background: rgba(240, 145, 0, 0.09);
+      }
+      .check {
+        flex: 0 0 19px;
+        width: 19px;
+        height: 19px;
+        border-radius: 50%;
+        background: #fff0d2;
+        color: #d66c00;
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+      }
+      .advanced .check {
+        background: #14233a;
+        color: #ff9d00;
+      }
+      .course-btn {
+        display: flex;
+        justify-content: center;
+        background: linear-gradient(90deg, #f5a000, #df7300);
+        padding: 13px;
+        border-radius: 12px;
+        font-weight: 900;
+        margin-top: 18px;
+      }
+      .advanced .course-btn {
+        background: linear-gradient(90deg, #ffc656, #ee9200);
+        color: #111;
+      }
+      .why-section {
+        background: radial-gradient(
+          circle at 50% 0,
+          rgba(240, 145, 0, 0.1),
+          transparent 36%
+        );
+      }
+      @media (max-width: 850px) {
+        .course-grid {
+          grid-template-columns: 1fr;
+        }
+        .topics {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container nav">
+        <a class="brand" href="landing.html"
+          ><img alt="PipSePaisa visual" src="favicon.png" /><span
+            >PipSePaisa</span
+          ></a
+        >
+        <nav class="menu">
+          <a class="" href="landing.html">Home</a
+          ><a class="broker-reviews-link" href="landing.html#broker-comparison">Broker Reviews</a
+          ><a class="" href="partner.html">Become Partner</a
+          ><a class="active" href="courses.html">Courses</a
+          ><a class="" href="tools-services.html">Trading Tools & Services</a>
+        </nav>
+        <div class="actions">
+          <button class="theme-btn" id="themeBtn">🌙</button
+          ><a class="login" href="index.html#auth-login">Login</a>
+        </div>
+      </div>
+    </header>
+    <main>
+      <section class="hero course-hero">
+        <div class="container">
+          <div class="hero-box course-hero-box">
+            <div class="hero-copy course-hero-copy stagger">
+              <span class="course-academy-label">
+                <img src="icon-192.png" alt="" aria-hidden="true" />
+                <span>PIPSEPAISA FOREX ACADEMY</span>
+              </span>
+              <h1>
+                Structured Forex Education<br /><span>for Every Level</span>
+              </h1>
+              <p>
+                Build a strong foundation through practical lessons in market
+                structure, technical analysis, risk management and disciplined
+                decision-making.
+              </p>
+              <div class="pills">
+                <span class="pill">Beginner Friendly</span
+                ><span class="pill">Practical Learning</span
+                ><span class="pill">Risk-Focused</span>
+              </div>
+              <div class="course-hero-actions">
+                <a class="login" href="#courses"
+                  >Explore Courses <span aria-hidden="true">→</span></a
+                >
+                <a class="course-roadmap-btn" href="#learning-process"
+                  >View Learning Roadmap</a
+                >
+              </div>
+            </div>
+            <div
+              class="course-hero-art"
+              aria-label="Sir Sajid Ghori, Forex Educator and Mentor"
+            >
+              <div class="course-chart-grid" aria-hidden="true"></div>
+              <svg
+                class="course-gold-curve"
+                viewBox="0 0 120 460"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path
+                  class="course-curve-halo"
+                  d="M96 -8 C34 72 105 145 59 226 C19 297 38 386 94 468"
+                ></path>
+                <path
+                  class="course-curve-line"
+                  d="M96 -8 C34 72 105 145 59 226 C19 297 38 386 94 468"
+                ></path>
+              </svg>
+              <div class="course-portrait-glow" aria-hidden="true"></div>
+              <img
+                class="course-mentor-portrait"
+                src="sajid-ghori.webp"
+                alt="Sir Sajid Ghori, Forex Educator and Mentor"
+              />
+              <div class="course-mentor-badge">
+                <strong>Sir Sajid Ghori</strong
+                ><span>Forex Educator &amp; Mentor</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container">
+          <div class="section-head">
+            <span class="mini">TRUSTED TRADING PARTNERS</span>
+            <h2>Choose Your Preferred Broker</h2>
+            <p>
+              Select a trusted trading platform that matches your account type,
+              trading preferences and regional requirements.
+            </p>
+          </div>
+          <div class="broker-grid stagger">
+            <a class="broker-card" href="landing.html"
+              ><img
+                alt="PipSePaisa visual"
+                data-light="broker-promo-assets/dprime-promo-light.webp"
+                data-dark="broker-promo-assets/dprime-promo-dark.webp"
+                src="broker-promo-assets/dprime-promo-light.webp" /></a
+            ><a class="broker-card" href="landing.html"
+              ><img
+                alt="PipSePaisa visual"
+                data-light="broker-promo-assets/xm-promo-light.webp"
+                data-dark="broker-promo-assets/xm-promo-dark.webp"
+                src="broker-promo-assets/xm-promo-light.webp" /></a
+            ><a class="broker-card" href="landing.html"
+              ><img
+                alt="PipSePaisa visual"
+                data-light="broker-promo-assets/exness-promo-light.webp"
+                data-dark="broker-promo-assets/exness-promo-dark.webp"
+                src="broker-promo-assets/exness-promo-light.webp"
+            /></a>
+          </div>
+        </div>
+      </section>
+      <section class="section course-section" id="courses">
+        <div class="container">
+          <div class="section-head">
+            <span class="mini">CHOOSE YOUR LEARNING PATH</span>
+            <h2>Choose the Right Course for Your Trading Journey</h2>
+            <p>
+              Build your foundation for free, then advance to professional-level
+              market analysis, strategy and risk management when you are ready.
+            </p>
+          </div>
+          <div class="course-grid">
+            <article class="course-card reveal left">
+              <span class="mini">FREE BASIC COURSE</span>
+              <div class="ribbon">START HERE</div>
+              <h3>Basic Forex Course</h3>
+              <p>
+                Build a strong foundation in Forex trading, technical analysis,
+                market sentiment, risk management and beginner-level strategies.
+              </p>
+              <div class="price">100% Free</div>
+              <div class="topics">
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Introduction to Forex Trading</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Foundations of Technical Analysis</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Candlestick Patterns and Price Behaviour</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Understanding Technical Indicators</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Market Sentiment Analysis</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Fundamentals of Fundamental Analysis</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Trading Psychology and Risk Management</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Trading Strategies — Part 1</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Trading Strategies — Part 2</span>
+                </div>
+              </div>
+              <div class="highlight">
+                NO COST • BEGINNER FRIENDLY • 9 STRUCTURED MODULES
+              </div>
+              <a class="course-btn" href="landing.html">Start Free Course →</a>
+            </article>
+            <article class="course-card advanced reveal right">
+              <span class="mini">ADVANCED PROFESSIONAL COURSE</span>
+              <div class="ribbon">BEST FOR SERIOUS TRADERS</div>
+              <h3>Advanced Forex Course</h3>
+              <p>
+                Develop a professional trading mindset and study advanced market
+                behaviour, session timing, currency indices, correlations,
+                fundamental analysis and strategy development.
+              </p>
+              <div>
+                <span class="old">Original Price $500</span>
+                <span class="price">$200</span>
+              </div>
+              <span class="save">Save $300 — Limited-Time Offer</span>
+              <div class="topics">
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Professional Trader Mindset and Best Practices</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Understanding Global Trading Sessions</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Identifying Market Trends with Currency Indices</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Building Confluence Through Market Correlations</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Understanding Market Microstructure</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Advanced Fundamental Analysis — Part 1</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Advanced Fundamental Analysis — Part 2</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Advanced Trading Strategies — Part 1</span>
+                </div>
+                <div class="topic">
+                  <span class="check">✓</span
+                  ><span>Advanced Trading Strategies — Part 2</span>
+                </div>
+              </div>
+              <div class="highlight">
+                PROFESSIONAL LEARNING • ADVANCED CONCEPTS • LIMITED-TIME PRICE
+              </div>
+              <a class="course-btn" href="landing.html"
+                >Enroll in Advanced Course — $200 →</a
+              >
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="section why-section" id="learning-process">
+        <div class="container">
+          <div class="section-head">
+            <span class="mini">WHY LEARN WITH US</span>
+            <h2>Learn Through a Clear and Practical Process</h2>
+            <p>
+              Every lesson is designed to build knowledge, improve discipline
+              and support responsible decision-making.
+            </p>
+          </div>
+          <div class="grid-4">
+            <article class="feature-card reveal">
+              <span class="num">01</span>
+              <div class="iconbox">📘</div>
+              <h3>Beginner-Friendly Lessons</h3>
+              <p>
+                Learn complex trading concepts through clear, structured and
+                easy-to-follow lessons.
+              </p>
+              <div class="highlight">CLEAR STEP-BY-STEP LEARNING</div>
+            </article>
+            <article class="feature-card reveal">
+              <span class="num">02</span>
+              <div class="iconbox">📈</div>
+              <h3>Practical Market Education</h3>
+              <p>
+                Apply each concept to real charts, market behaviour and
+                practical trading scenarios.
+              </p>
+              <div class="highlight">LEARN THROUGH APPLICATION</div>
+            </article>
+            <article class="feature-card reveal">
+              <span class="num">03</span>
+              <div class="iconbox">🛡️</div>
+              <h3>Risk-Focused Learning</h3>
+              <p>
+                Build strong risk-management habits before focusing on profits
+                and performance.
+              </p>
+              <div class="highlight">CAPITAL PROTECTION FIRST</div>
+            </article>
+            <article class="feature-card reveal">
+              <span class="num">04</span>
+              <div class="iconbox">🎓</div>
+              <h3>Professional Guidance</h3>
+              <p>
+                Follow a clear learning roadmap supported by practical
+                mentorship and expert direction.
+              </p>
+              <div class="highlight">STRUCTURED MENTOR SUPPORT</div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="social-section">
+        <div class="container">
+          <div class="section-head">
+            <span class="mini">JOIN THE COMMUNITY</span>
+            <h2>Continue Learning With PipSePaisa</h2>
+            <p>
+              Follow our official channels for market education, course updates
+              and community announcements.
+            </p>
+          </div>
+          <div class="social-grid">
+            <a class="social-card facebook" href="landing.html"
+              ><div class="social-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M14 8h3V4h-3c-3.3 0-5 2-5 5v2H6v4h3v9h4v-9h3.2l.8-4H13V9c0-.7.3-1 1-1z"
+                  />
+                </svg>
+              </div>
+              <h3>Facebook</h3>
+              <p>Daily Posts & Updates</p></a
+            >
+            <a class="social-card instagram" href="landing.html"
+              ><div class="social-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5zM17.8 6.7a1.1 1.1 0 1 1-1.1-1.1 1.1 1.1 0 0 1 1.1 1.1z"
+                  />
+                </svg>
+              </div>
+              <h3>Instagram</h3>
+              <p>Education, Stories & Reels</p></a
+            >
+            <a class="social-card whatsapp" href="landing.html"
+              ><div class="social-icon">
+                <svg viewBox="0 0 24 24">
+                  <path
+                    d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.6 0 .3 5.3.3 11.8c0 2.1.6 4.1 1.6 5.9L0 24l6.5-1.7a11.8 11.8 0 0 0 5.6 1.4h.1C18.7 23.7 24 18.4 24 11.9c0-3.2-1.2-6.2-3.5-8.4zM12.2 21.7h-.1a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.8 1 1-3.7-.2-.4A9.8 9.8 0 1 1 12.2 21.7zm5.4-7.3c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-4-3.4-.3-.5.3-.5.8-1.6.1-.2 0-.4 0-.6-.1-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.4-1.2 1.2-1.2 2.9s1.2 3.3 1.4 3.5c.2.2 2.4 3.7 5.8 5.2 2.2.9 3 .9 4.1.8.7-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.2-.3-.2-.6-.4z"
+                  />
+                </svg>
+              </div>
+              <h3>WhatsApp Channel</h3>
+              <p>Direct Channel Updates</p></a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <div class="container">
+        <div class="footer-grid">
+          <div>
+            <div class="footer-brand">PipSePaisa</div>
+            <p>
+              Forex education, professional learning, practical trading tools
+              and business support designed to help traders and partners grow
+              with knowledge and discipline.
+            </p>
+          </div>
+          <div>
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="landing.html">Home</a></li>
+              <li><a href="partner.html">Become Partner</a></li>
+              <li><a href="courses.html">Courses</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Resources</h4>
+            <ul>
+              <li>
+                <a href="tools-services.html">Trading Tools & Services</a>
+              </li>
+              <li><a href="courses.html#courses">Course Enrollment</a></li>
+              <li><a href="index.html">Login</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Connect</h4>
+            <ul>
+              <li>Facebook</li>
+              <li>Instagram</li>
+              <li>WhatsApp Channel</li>
+            </ul>
+          </div>
+        </div>
+        <div class="disclaimer">
+          Educational content only. Trading involves risk and results may vary.
+          Broker conditions, commissions and promotions depend on region,
+          account type and official terms.
+        </div>
+      </div>
+    </footer>
+    <script>
+      const b = document.body,
+        t = document.getElementById("themeBtn");
+      function apply(d) {
+        b.classList.toggle("dark", d);
+        t.textContent = d ? "☀️" : "🌙";
+        document
+          .querySelectorAll("[data-light]")
+          .forEach((i) => (i.src = d ? i.dataset.dark : i.dataset.light));
+        localStorage.setItem("psp-theme", d ? "dark" : "light");
+      }
+      apply(localStorage.getItem("psp-theme") === "dark");
+      t.onclick = () => apply(!b.classList.contains("dark"));
+      const o = new IntersectionObserver(
+        (es) =>
+          es.forEach((e) => {
+            if (e.isIntersecting) e.target.classList.add("is-visible");
+          }),
+        { threshold: 0.12 },
+      );
+      document.querySelectorAll(".reveal").forEach((x) => o.observe(x));
+    </script>
+    <script src="public-upgrades.js?v=20260722-brand-dark-hero-v3"></script>
+  </body>
+</html>

@@ -1,10 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PipSePaisa — Forex Education & Trading Tools</title>
-<link rel="icon" href="favicon.png">
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>PipSePaisa — Forex Education &amp; Trading Tools</title>
+<link href="favicon.png" rel="icon"/>
+<link href="public-upgrades.css?v=20260722-brand-dark-hero-v3" rel="stylesheet"/>
 <style>
 :root{
   --bg:#fffaf1;
@@ -387,7 +389,7 @@ body.dark-theme .broker-card-footer span{color:#f6a51c}
   position:relative;
   min-height:400px;
   overflow:hidden;
-  background-image:url('hero-bg-light.png');
+  background-image:url('hero-bg-light.webp');
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
@@ -520,7 +522,7 @@ body.dark-theme .broker-card-footer span{color:#f6a51c}
 
 /* DARK THEME */
 body.dark-theme .hero-overlay-banner{
-  background-image:url('hero-bg-dark.png');
+  background-image:url('hero-bg-dark-face-matched.webp');
 }
 body.dark-theme .hero-eyebrow{
   background:rgba(8,18,34,.68);
@@ -810,14 +812,18 @@ body.dark-theme .partner-cta{background:linear-gradient(135deg,#f6b338,#db8200);
   min-width:0;
 }
 .broker-name img{
-  width:64px;
-  height:36px;
+  width:76px;
+  height:42px;
   object-fit:contain;
-  object-position:left center;
-  border-radius:7px;
-  background:transparent;
+  object-position:center;
+  box-sizing:border-box;
+  padding:7px 8px;
+  border:1px solid #e8e8e8;
+  border-radius:9px;
+  background:#fff;
   flex:none;
 }
+.broker-name img.broker-logo-icon{padding:6px 21px}
 .broker-name strong{
   font-size:12px;
   white-space:normal;
@@ -1277,9 +1283,48 @@ body.dark-theme .broker-logo-card{
 .services-banner-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start!important}
 .service-banner-card{display:block;width:100%;border:1px solid rgba(218,126,0,.55);border-radius:22px;overflow:hidden;background:#fff;box-shadow:0 14px 34px rgba(55,35,5,.10);transition:transform .22s ease,box-shadow .22s ease}
 .service-banner-card:hover{transform:translateY(-5px);box-shadow:0 22px 44px rgba(55,35,5,.16)}
-.service-banner-card img{display:block;width:100%!important;height:auto!important;object-fit:contain!important;object-position:center!important;transform:none!important;border-radius:0!important}
+.service-banner-card img{display:block;width:100%!important;height:auto!important;object-fit:contain!important;object-position:center!important;transform:none!important;border-radius:0!important;transition:filter .22s ease}
 body.dark-theme .service-banner-card{background:#07101f;border-color:rgba(246,165,28,.65);box-shadow:0 16px 38px rgba(0,0,0,.35)}
+body.dark-theme .service-banner-card img{filter:brightness(1.08) contrast(1.10) saturate(1.05)}
+body.dark-theme .service-banner-card:hover img{filter:brightness(1.14) contrast(1.12) saturate(1.08)}
 @media(max-width:900px){.services-banner-grid{grid-template-columns:1fr}.service-banner-card{max-width:620px;width:100%;margin:auto}}
+
+/* Meet Sajid Ghori — premium mentor spotlight */
+.mentor-spotlight-section{padding:22px 0 34px;background:linear-gradient(180deg,#fff 0%,#fff8ed 100%)}
+.mentor-spotlight{
+  position:relative;height:460px;display:grid;grid-template-columns:44% 56%;overflow:hidden;
+  border:1px solid rgba(220,128,10,.34);border-radius:30px;
+  background:linear-gradient(115deg,#fff8ec 0%,#fff 55%,#fff9f0 100%);
+  box-shadow:0 28px 70px rgba(88,50,0,.14);isolation:isolate
+}
+.mentor-spotlight:before{content:"";position:absolute;inset:0;z-index:-2;background-image:linear-gradient(rgba(216,122,0,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(216,122,0,.055) 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(90deg,#000,transparent 76%)}
+.mentor-spotlight:after{content:"";position:absolute;width:380px;height:380px;left:3%;top:8%;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(255,185,60,.40),rgba(242,139,0,.18) 46%,transparent 70%);filter:blur(2px);animation:mentorGlow 4.8s ease-in-out infinite}
+.mentor-portrait{position:relative;min-width:0;height:100%;overflow:hidden}
+.mentor-orbit{position:absolute;width:330px;height:330px;left:50%;top:52%;transform:translate(-50%,-50%);border:1px solid rgba(226,129,0,.35);border-radius:50%}
+.mentor-orbit:before,.mentor-orbit:after{content:"";position:absolute;inset:26px;border:1px dashed rgba(226,129,0,.28);border-radius:50%}.mentor-orbit:after{inset:66px;border-style:solid}
+.mentor-chart{position:absolute;inset:17% 3% 10% 5%;opacity:.26;filter:drop-shadow(0 8px 14px rgba(226,129,0,.15))}
+.mentor-chart svg{width:100%;height:100%}.mentor-chart path{fill:none;stroke:#de7d00;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.mentor-person{position:absolute;z-index:3;left:50%;bottom:-7px;height:480px;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 20px 22px rgba(38,24,5,.22));transform:translateX(-50%)}
+.mentor-role-badge{position:absolute;z-index:4;left:28px;bottom:23px;padding:9px 14px;border:1px solid rgba(255,181,55,.85);border-radius:999px;background:rgba(18,24,35,.92);color:#fff;font-size:10px;font-weight:850;letter-spacing:.11em;box-shadow:0 12px 28px rgba(0,0,0,.22)}
+.mentor-content{position:relative;display:flex;flex-direction:column;justify-content:center;padding:30px 48px 30px 34px}
+.mentor-eyebrow{display:inline-flex;align-items:center;gap:9px;width:max-content;margin-bottom:10px;color:#c96600;font-size:11px;font-weight:900;letter-spacing:.13em}.mentor-eyebrow:before{content:"";width:28px;height:2px;background:linear-gradient(90deg,#f7ae28,#d66d00)}
+.mentor-content h2{max-width:680px;margin:0 0 10px;color:#171b27;font-size:clamp(32px,3.25vw,46px);line-height:1.04;letter-spacing:-.045em}.mentor-content h2 span{color:#e37a00}
+.mentor-description{max-width:690px;margin:0;color:#5f6673;font-size:13.5px;line-height:1.62}
+.mentor-highlights{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 12px}.mentor-highlights span{padding:7px 10px;border:1px solid #f0cf9a;border-radius:999px;background:#fff9ef;color:#71400c;font-size:10.5px;font-weight:800;box-shadow:0 5px 13px rgba(120,69,5,.05)}
+.mentor-quote{margin:0 0 14px;padding:9px 13px;border-left:4px solid #ed8d09;border-radius:4px 12px 12px 4px;background:rgba(244,148,20,.09);color:#333a46;font-size:12px;font-weight:750}
+.mentor-cta{align-self:flex-start;min-height:43px;padding:10px 17px;color:#15100a!important}.mentor-cta .arrow{transition:transform .25s ease}.mentor-cta:hover .arrow{transform:translateX(5px)}
+body.dark-theme .mentor-spotlight-section{background:linear-gradient(180deg,#07101f 0%,#091426 100%)}
+body.dark-theme .mentor-spotlight{border-color:rgba(238,150,25,.38);background:linear-gradient(115deg,#0b1526 0%,#101c30 54%,#0b1526 100%);box-shadow:0 30px 76px rgba(0,0,0,.38)}
+body.dark-theme .mentor-spotlight:before{background-image:linear-gradient(rgba(255,167,31,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,167,31,.07) 1px,transparent 1px)}
+body.dark-theme .mentor-content h2{color:#fff}body.dark-theme .mentor-description{color:#bdc7d7}body.dark-theme .mentor-eyebrow{color:#ffad2e}
+body.dark-theme .mentor-highlights span{background:#142139;border-color:#60451f;color:#ffe1ad}body.dark-theme .mentor-quote{background:rgba(245,154,0,.11);color:#e8edf5}
+.mentor-spotlight .mentor-portrait,.mentor-spotlight .mentor-content{opacity:0;transition:opacity .72s ease,transform .72s cubic-bezier(.2,.75,.25,1)}
+.mentor-spotlight .mentor-portrait{transform:translateX(-34px)}.mentor-spotlight .mentor-content{transform:translateX(34px)}
+.mentor-spotlight.is-visible .mentor-portrait,.mentor-spotlight.is-visible .mentor-content{opacity:1;transform:translateX(0)}
+@keyframes mentorGlow{0%,100%{transform:scale(.96);opacity:.78}50%{transform:scale(1.05);opacity:1}}
+@media(max-width:900px){.mentor-spotlight-section{padding:18px 0 28px}.mentor-spotlight{height:auto;grid-template-columns:1fr}.mentor-portrait{height:430px}.mentor-content{padding:32px 28px 38px}.mentor-person{height:445px}.mentor-role-badge{left:50%;transform:translateX(-50%);white-space:nowrap}.mentor-content h2{font-size:38px}}
+@media(max-width:560px){.mentor-spotlight{border-radius:22px}.mentor-portrait{height:360px}.mentor-person{height:372px}.mentor-orbit{width:280px;height:280px}.mentor-content{padding:27px 20px 32px}.mentor-content h2{font-size:32px}.mentor-description{font-size:13px}.mentor-highlights{gap:6px}.mentor-highlights span{font-size:10px}.mentor-role-badge{bottom:14px;font-size:9px}}
+@media(prefers-reduced-motion:reduce){.mentor-spotlight:after{animation:none}.mentor-spotlight .mentor-portrait,.mentor-spotlight .mentor-content{opacity:1;transform:none;transition:none}}
 
 
 
@@ -1346,271 +1391,264 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
   object-position:center center!important;
 }
 
+
+.menu a.active{color:#e97900!important;position:relative}.menu a.active:after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:3px;border-radius:99px;background:linear-gradient(90deg,#e97900,#ffb21c)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <header class="topbar">
-  <div class="container nav">
-    <a class="brand" href="#home"><img src="favicon.png" alt="PipSePaisa logo"><span>PipSePaisa</span></a>
-    <nav class="menu">
-      <a href="#home">Home</a>
-      <a href="#partner">Become Partner</a>
-      <a href="#services">Services</a>
-      <a href="#courses">Courses</a>
-      <a href="#tools">Trading Tools</a>
-    </nav>
-    <div class="nav-actions">
-      <button type="button" class="theme-btn" aria-label="Theme">☀️</button>
-      <button type="button" class="btn" onclick="openAuth();">Login</button>
-      <button type="button" class="mobile-menu" aria-label="Menu">☰</button>
-    </div>
-  </div>
+<div class="container nav">
+<a class="brand" href="#home"><img alt="PipSePaisa logo" src="favicon.png"/><span>PipSePaisa</span></a>
+<nav class="menu"><a class="active" href="landing.html">Home</a><a class="broker-reviews-link" href="landing.html#broker-comparison">Broker Reviews</a><a href="partner.html">Become Partner</a><a href="courses.html">Courses</a><a href="tools-services.html">Trading Tools &amp; Services</a></nav>
+<div class="nav-actions">
+<button aria-label="Theme" class="theme-btn" type="button">☀️</button>
+<button class="btn" onclick="openAuth();" type="button">Login</button>
+<button aria-label="Menu" class="mobile-menu" type="button">☰</button>
+</div>
+</div>
 </header>
-
-<main id="home">
-  <section class="hero" id="home">
-    <div class="container">
-      <div class="hero-overlay-banner">
-        <div class="hero-text-layer">
-          <div class="hero-eyebrow">PIPSEPAISA FOREX EDUCATION</div>
-          <h1>Your Financial Future<br>Begins with the <span>Right Education</span></h1>
-          <p class="hero-course">Complete Forex Trading Course by Pakistan’s #1 Forex Mentor</p>
-
-          <div class="hero-quote">
-            <strong>Mr Sajid says:</strong>
-            <p>Trading is not about luck; it is about knowledge, discipline, and execution. I have trained thousands of students throughout my career, and those who truly committed to learning and consistently followed the process have achieved remarkable results. Invest in your education today, and allow yourself to build a stronger financial future.</p>
-          </div>
-
-          <div class="hero-features">
-            <div class="hero-feature"><span>🎓</span><div><b>Expert</b><small>Mentorship</small></div></div>
-            <div class="hero-feature"><span>📈</span><div><b>Practical</b><small>Strategies</small></div></div>
-            <div class="hero-feature"><span>📚</span><div><b>Comprehensive</b><small>Learning</small></div></div>
-            <div class="hero-feature"><span>🏆</span><div><b>Proven</b><small>Results</small></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="broker-showcase">
-    <div class="container">
-      <div class="section-heading broker-heading">
-        <div class="small">TRUSTED TRADING PARTNERS</div>
-        <h2>Choose Your Preferred Broker</h2>
-        <p>Explore leading broker options and select the platform that best matches your trading requirements.</p>
-      </div>
-
-      <div class="broker-logo-grid" id="landingBrokerGrid">
-        <a class="broker-logo-card" href="#" data-fallback="true">
-          <picture class="theme-picture"><img src="broker-promo-assets/dprime-promo-light.png" data-light="broker-promo-assets/dprime-promo-light.png" data-dark="broker-promo-assets/dprime-promo-dark.png" alt="DPrime broker"></picture>
-          <div class="broker-card-footer"><strong>DPrime</strong><span>Open Account →</span></div>
-        </a>
-        <a class="broker-logo-card" href="#" data-fallback="true">
-          <picture class="theme-picture"><img src="broker-promo-assets/xm-promo-light.png" data-light="broker-promo-assets/xm-promo-light.png" data-dark="broker-promo-assets/xm-promo-dark.png" alt="XM broker"></picture>
-          <div class="broker-card-footer"><strong>XM</strong><span>Open Account →</span></div>
-        </a>
-        <a class="broker-logo-card" href="#" data-fallback="true">
-          <picture class="theme-picture"><img src="broker-promo-assets/exness-promo-light.png" data-light="broker-promo-assets/exness-promo-light.png" data-dark="broker-promo-assets/exness-promo-dark.png" alt="Exness broker"></picture>
-          <div class="broker-card-footer"><strong>Exness</strong><span>Open Account →</span></div>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="social-showcase">
-    <div class="container">
-      <div class="section-heading social-heading">
-        <div class="small">JOIN THE COMMUNITY</div>
-        <h2>Connect With PipSePaisa</h2>
-        <p>Follow our official social channels for educational content, market updates and community announcements.</p>
-      </div>
-      <div class="social-grid social-grid-three">
-        <a class="social-platform facebook" id="socialFacebook" href="#" target="_blank" rel="noopener">
-          <div class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06C2 17.08 5.66 21.24 10.44 22v-7.03H7.9v-2.91h2.54V9.84c0-2.52 1.5-3.91 3.8-3.91 1.1 0 2.25.2 2.25.2v2.48h-1.27c-1.25 0-1.64.78-1.64 1.57v1.88h2.79l-.45 2.91h-2.34V22C18.34 21.24 22 17.08 22 12.06Z"/></svg></div>
-          <h3>Facebook</h3><p>Daily Posts & Updates</p>
-        </a>
-        <a class="social-platform instagram" id="socialInstagram" href="#" target="_blank" rel="noopener">
-          <div class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7.75 2h8.5A5.76 5.76 0 0 1 22 7.75v8.5A5.76 5.76 0 0 1 16.25 22h-8.5A5.76 5.76 0 0 1 2 16.25v-8.5A5.76 5.76 0 0 1 7.75 2Zm0 2A3.76 3.76 0 0 0 4 7.75v8.5A3.76 3.76 0 0 0 7.75 20h8.5A3.76 3.76 0 0 0 20 16.25v-8.5A3.76 3.76 0 0 0 16.25 4h-8.5Zm8.75 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/></svg></div>
-          <h3>Instagram</h3><p>Stories, Reels & Education</p>
-        </a>
-        <a class="social-platform whatsapp" id="socialWhatsapp" href="#" target="_blank" rel="noopener">
-          <div class="social-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2a9.84 9.84 0 0 0-8.42 14.93L2 22l5.22-1.58A9.94 9.94 0 1 0 12.04 2Zm0 17.97a8.02 8.02 0 0 1-4.09-1.12l-.29-.17-3.1.94.95-3.02-.19-.31a7.91 7.91 0 1 1 6.72 3.68Zm4.34-5.92c-.24-.12-1.4-.69-1.62-.77-.22-.08-.38-.12-.54.12-.16.24-.62.77-.76.93-.14.16-.28.18-.52.06-.24-.12-1.01-.37-1.92-1.18-.71-.63-1.19-1.41-1.33-1.65-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.39-.41-.54-.42h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.09 3.62.57.25 1.02.39 1.37.5.58.18 1.1.16 1.51.1.46-.07 1.4-.57 1.6-1.12.2-.55.2-1.02.14-1.12-.06-.1-.22-.16-.46-.28Z"/></svg></div>
-          <h3>WhatsApp Channel</h3><p>Direct Channel Updates</p>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section services-premium services-banner-section" id="services">
-    <div class="container">
-      <div class="section-heading services-heading">
-        <div class="small">WHAT WE OFFER</div>
-        <h2>Our Services</h2>
-        <p>Everything you need to learn, analyze and grow with a structured trading ecosystem.</p>
-      </div>
-      <div class="services-banner-grid">
-        <a class="service-banner-card" href="#" onclick="openAuth();return false" aria-label="Explore Forex Education">
-          <img class="theme-card-image" src="service-banners/forex-education-light.jpg" data-light="service-banners/forex-education-light.jpg" data-dark="service-banners/forex-education-dark.jpg" alt="Forex Education">
-        </a>
-        <a class="service-banner-card" href="#" onclick="openAuth();return false" aria-label="Explore Trading Signals">
-          <img class="theme-card-image" src="service-banners/trading-signals-light.jpg" data-light="service-banners/trading-signals-light.jpg" data-dark="service-banners/trading-signals-dark.jpg" alt="Premium Trading Signals">
-        </a>
-        <a class="service-banner-card" href="#" onclick="openAuth();return false" aria-label="Explore Trading Tools">
-          <img class="theme-card-image" src="service-banners/trading-tools-light.jpg" data-light="service-banners/trading-tools-light.jpg" data-dark="service-banners/trading-tools-dark.jpg" alt="Trading Tools">
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section partner-promo-section" id="partner">
-    <div class="container">
-      <div class="section-heading partner-section-heading">
-        <div class="small">BECOME OUR PARTNER</div>
-        <h2>Grow With PipSePaisa</h2>
-        <p>Build your IB business with competitive commissions, free team training and practical AI tools.</p>
-      </div>
-
-      <div class="partner-promo-grid">
-        <div class="partner-promo-item">
-          <a class="partner-promo-card visual-promo-card" href="#" onclick="openAuth();return false">
-            <picture>
-              <img class="theme-card-image" src="ib-growth-light.jpg" data-light="ib-growth-light.jpg" data-dark="ib-growth-dark.jpg" alt="Grow Your IB Business — up to $25 per lot">
-            </picture>
-          </a>
+<main>
+<section class="hero" id="home">
+<div class="container">
+<div class="hero-overlay-banner">
+<div class="hero-text-layer">
+<div class="hero-eyebrow">PIPSEPAISA FOREX EDUCATION</div>
+<h1>Your Financial Future<br/>Begins with the <span>Right Education</span></h1>
+<p class="hero-course">Complete Forex Trading Course by Pakistan’s #1 Forex Mentor</p>
+<div class="hero-quote">
+<strong>Mr Sajid says:</strong>
+<p>Trading is not about luck; it is about knowledge, discipline, and execution. I have trained thousands of students throughout my career, and those who truly committed to learning and consistently followed the process have achieved remarkable results. Invest in your education today, and allow yourself to build a stronger financial future.</p>
 </div>
-        <div class="partner-promo-item">
-          <a class="partner-promo-card visual-promo-card" href="#" onclick="openAuth();return false">
-            <picture>
-              <img class="theme-card-image" src="team-training-light.png" data-light="team-training-light.png" data-dark="team-training-dark.png" alt="Free Team Training for you and your team">
-            </picture>
-          </a>
+<div class="hero-features">
+<div class="hero-feature"><span>🎓</span><div><b>Expert</b><small>Mentorship</small></div></div>
+<div class="hero-feature"><span>📈</span><div><b>Practical</b><small>Strategies</small></div></div>
+<div class="hero-feature"><span>📚</span><div><b>Comprehensive</b><small>Learning</small></div></div>
+<div class="hero-feature"><span>🏆</span><div><b>Proven</b><small>Results</small></div></div>
 </div>
-        <div class="partner-promo-item">
-          <a class="partner-promo-card visual-promo-card" href="#" onclick="openAuth();return false">
-            <picture>
-              <img class="theme-card-image" src="ai-tools-light.png" data-light="ai-tools-light.png" data-dark="ai-tools-dark.png" alt="AI tools for social media growth">
-            </picture>
-          </a>
+<button class="btn hero-primary-cta" onclick="openAuth();" type="button">Join Now →</button>
 </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section soft broker-comparison-section" id="broker-comparison">
-    <div class="container">
-      <div class="section-heading broker-compare-heading">
-        <div class="small">BROKER COMPARISON</div>
-        <h2>Compare Our Featured Brokers</h2>
-        <p>Review key account conditions at a glance. Availability, leverage and payment options can vary by region and account type.</p>
-      </div>
-      <div class="table-wrap broker-table-wrap">
-        <table class="broker-comparison-table">
-          <colgroup>
-            <col style="width:14%">
-            <col style="width:10%">
-            <col style="width:14%">
-            <col style="width:13%">
-            <col style="width:11%">
-            <col style="width:10%">
-            <col style="width:11%">
-            <col style="width:8%">
-            <col style="width:9%">
-          </colgroup>
-          <thead>
-            <tr>
-              <th>Broker</th><th>Promotions</th><th>Regulatory Coverage</th><th>Account Options</th><th>Minimum Deposit</th><th>Spreads</th><th>Maximum Leverage</th><th>Minimum Trade</th><th>Withdrawals</th>
-            </tr>
-          </thead>
-          <tbody><tr>
-              <td data-label="Broker"><div class="broker-name"><img src="dprime-logo.svg" alt="DPrime logo"><strong>DPrime</strong></div></td>
-              <td data-label="Promotions"><span class="badge">Offers may vary</span></td>
-              <td data-label="Regulatory Coverage">Multi-regulated group</td>
-              <td class="yes" data-label="Account Options">Multiple account types</td>
-              <td data-label="Minimum Deposit">From $0–$100*</td>
-              <td data-label="Spreads">From 0.0 pips*</td>
-              <td data-label="Maximum Leverage">Up to 1:1000*</td>
-              <td data-label="Minimum Trade">0.01 lot</td>
-              <td data-label="Withdrawals">Method dependent</td>
-            </tr>
-            <tr>
-              <td data-label="Broker"><div class="broker-name"><img src="xm-logo.svg" alt="XM logo"><strong>XM</strong></div></td>
-              <td data-label="Promotions"><span class="badge">Region dependent</span></td>
-              <td data-label="Regulatory Coverage">Multi-regulated group</td>
-              <td class="yes" data-label="Account Options">Multiple account types</td>
-              <td data-label="Minimum Deposit">From $5*</td>
-              <td data-label="Spreads">Variable by instrument</td>
-              <td data-label="Maximum Leverage">Up to 1:1000*</td>
-              <td data-label="Minimum Trade">0.01 lot*</td>
-              <td data-label="Withdrawals">Method dependent</td>
-            </tr>
-            <tr>
-              <td data-label="Broker"><div class="broker-name"><img src="exness-logo.svg" alt="Exness logo"><strong>Exness</strong></div></td>
-              <td data-label="Promotions"><span class="badge">Region dependent</span></td>
-              <td data-label="Regulatory Coverage">Multi-regulated group</td>
-              <td class="yes" data-label="Account Options">Standard & Cent options*</td>
-              <td data-label="Minimum Deposit">From $10*</td>
-              <td data-label="Spreads">From 0.2 pips*</td>
-              <td data-label="Maximum Leverage">Up to unlimited*</td>
-              <td data-label="Minimum Trade">0.01 lot</td>
-              <td class="yes" data-label="Withdrawals">Automated / instant where available*</td>
-            </tr>
-            <tr>
-              <td data-label="Broker"><div class="broker-name"><img src="hfm-logo.svg" alt="HFM logo"><strong>HFM</strong></div></td>
-              <td data-label="Promotions"><span class="badge">Region dependent</span></td>
-              <td data-label="Regulatory Coverage">Multi-regulated group</td>
-              <td class="yes" data-label="Account Options">Standard, Cent & Pro types*</td>
-              <td data-label="Minimum Deposit">From $0*</td>
-              <td data-label="Spreads">Variable by account</td>
-              <td data-label="Maximum Leverage">Up to 1:2000*</td>
-              <td data-label="Minimum Trade">0.01 lot</td>
-              <td data-label="Withdrawals">Method dependent</td>
-            </tr>
-            <tr>
-              <td data-label="Broker"><div class="broker-name"><img src="vantage-logo.svg" alt="Vantage logo"><strong>Vantage</strong></div></td>
-              <td data-label="Promotions"><span class="badge">Promotions may vary</span></td>
-              <td data-label="Regulatory Coverage">Multi-regulated group</td>
-              <td class="yes" data-label="Account Options">Standard, Raw & ECN options*</td>
-              <td data-label="Minimum Deposit">From $50*</td>
-              <td data-label="Spreads">From 0.0 pips*</td>
-              <td data-label="Maximum Leverage">Up to 1:500*</td>
-              <td data-label="Minimum Trade">0.01 lot</td>
-              <td data-label="Withdrawals">Method dependent</td>
-            </tr></tbody>
-        </table>
-      </div>
-      <p class="broker-data-note">*Conditions depend on jurisdiction, account type, instrument, equity and payment method. Confirm current terms on the broker’s official website before opening or funding an account.</p>
-      <div class="cta">
-        <div><h3>Ready to start your learning journey?</h3><p>Create your account and explore signals, charts, courses and trading tools.</p></div>
-        <button type="button" class="btn" onclick="openAuth();">Create Free Account →</button>
-      </div>
-    </div>
-  </section>
+</div>
+</div>
+</section>
+<section class="broker-showcase">
+<div class="container">
+<div class="section-heading broker-heading">
+<div class="small">TRUSTED TRADING PARTNERS</div>
+<h2>Choose Your Preferred Broker</h2>
+<p>Explore leading broker options and select the platform that best matches your trading requirements.</p>
+</div>
+<div class="broker-logo-grid" id="landingBrokerGrid">
+<a class="broker-logo-card" data-fallback="true" href="landing.html">
+<picture class="theme-picture"><img alt="DPrime broker" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" src="broker-promo-assets/dprime-promo-light.webp"/></picture>
+<div class="broker-card-footer"><strong>DPrime</strong><span>Open Account →</span></div>
+</a>
+<a class="broker-logo-card" data-fallback="true" href="landing.html">
+<picture class="theme-picture"><img alt="XM broker" data-dark="broker-promo-assets/xm-promo-dark.webp" data-light="broker-promo-assets/xm-promo-light.webp" src="broker-promo-assets/xm-promo-light.webp"/></picture>
+<div class="broker-card-footer"><strong>XM</strong><span>Open Account →</span></div>
+</a>
+<a class="broker-logo-card" data-fallback="true" href="landing.html">
+<picture class="theme-picture"><img alt="Exness broker" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" src="broker-promo-assets/exness-promo-light.webp"/></picture>
+<div class="broker-card-footer"><strong>Exness</strong><span>Open Account →</span></div>
+</a>
+</div>
+</div>
+</section>
+<section class="social-showcase">
+<div class="container">
+<div class="section-heading social-heading">
+<div class="small">JOIN THE COMMUNITY</div>
+<h2>Connect With PipSePaisa</h2>
+<p>Follow our official social channels for educational content, market updates and community announcements.</p>
+</div>
+<div class="social-grid social-grid-three">
+<a class="social-platform facebook" href="landing.html" id="socialFacebook" rel="noopener" target="_blank">
+<div class="social-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06C2 17.08 5.66 21.24 10.44 22v-7.03H7.9v-2.91h2.54V9.84c0-2.52 1.5-3.91 3.8-3.91 1.1 0 2.25.2 2.25.2v2.48h-1.27c-1.25 0-1.64.78-1.64 1.57v1.88h2.79l-.45 2.91h-2.34V22C18.34 21.24 22 17.08 22 12.06Z" fill="currentColor"></path></svg></div>
+<h3>Facebook</h3><p>Daily Posts &amp; Updates</p>
+</a>
+<a class="social-platform instagram" href="landing.html" id="socialInstagram" rel="noopener" target="_blank">
+<div class="social-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M7.75 2h8.5A5.76 5.76 0 0 1 22 7.75v8.5A5.76 5.76 0 0 1 16.25 22h-8.5A5.76 5.76 0 0 1 2 16.25v-8.5A5.76 5.76 0 0 1 7.75 2Zm0 2A3.76 3.76 0 0 0 4 7.75v8.5A3.76 3.76 0 0 0 7.75 20h8.5A3.76 3.76 0 0 0 20 16.25v-8.5A3.76 3.76 0 0 0 16.25 4h-8.5Zm8.75 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill="currentColor"></path></svg></div>
+<h3>Instagram</h3><p>Stories, Reels &amp; Education</p>
+</a>
+<a class="social-platform whatsapp" href="landing.html" id="socialWhatsapp" rel="noopener" target="_blank">
+<div class="social-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12.04 2a9.84 9.84 0 0 0-8.42 14.93L2 22l5.22-1.58A9.94 9.94 0 1 0 12.04 2Zm0 17.97a8.02 8.02 0 0 1-4.09-1.12l-.29-.17-3.1.94.95-3.02-.19-.31a7.91 7.91 0 1 1 6.72 3.68Zm4.34-5.92c-.24-.12-1.4-.69-1.62-.77-.22-.08-.38-.12-.54.12-.16.24-.62.77-.76.93-.14.16-.28.18-.52.06-.24-.12-1.01-.37-1.92-1.18-.71-.63-1.19-1.41-1.33-1.65-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.39-.41-.54-.42h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.09 3.62.57.25 1.02.39 1.37.5.58.18 1.1.16 1.51.1.46-.07 1.4-.57 1.6-1.12.2-.55.2-1.02.14-1.12-.06-.1-.22-.16-.46-.28Z" fill="currentColor"></path></svg></div>
+<h3>WhatsApp Channel</h3><p>Direct Channel Updates</p>
+</a>
+</div>
+</div>
+</section>
+<section class="section services-premium services-banner-section" id="services">
+<div class="container">
+<div class="section-heading services-heading">
+<div class="small">WHAT WE OFFER</div>
+<h2>Our Services</h2>
+<p>Everything you need to learn, analyze and grow with a structured trading ecosystem.</p>
+</div>
+<div class="services-banner-grid">
+<a aria-label="Explore Forex Education" class="service-banner-card" href="landing.html" onclick="openAuth();return false">
+<img alt="Forex Education" class="theme-card-image" data-dark="service-banners/forex-education-dark-readable-v4.webp" data-light="service-banners/forex-education-light-matched-v4.webp" src="service-banners/forex-education-light-matched-v4.webp"/>
+</a>
+<a aria-label="Explore Trading Signals" class="service-banner-card" href="landing.html" onclick="openAuth();return false">
+<img alt="Premium Trading Signals" class="theme-card-image" data-dark="service-banners/trading-signals-dark-readable-v4.webp" data-light="service-banners/trading-signals-light-matched-v4.webp" src="service-banners/trading-signals-light-matched-v4.webp"/>
+</a>
+<a aria-label="Explore Trading Tools" class="service-banner-card" href="landing.html" onclick="openAuth();return false">
+<img alt="IB Business Solutions" class="theme-card-image" data-dark="service-banners/trading-tools-dark-readable-v4.webp" data-light="service-banners/trading-tools-light-matched-v4.webp" src="service-banners/trading-tools-light-matched-v4.webp"/>
+</a>
+</div>
+</div>
+</section>
+<section class="mentor-spotlight-section" id="meet-sajid-ghori" aria-labelledby="mentor-title">
+<div class="container">
+<div class="mentor-spotlight">
+<div class="mentor-portrait" aria-label="Sajid Ghori, Forex trainer and instructor">
+<div class="mentor-orbit" aria-hidden="true"></div>
+<div class="mentor-chart" aria-hidden="true"><svg viewBox="0 0 540 280" preserveAspectRatio="none"><path d="M6 226 L55 205 L93 218 L135 158 L178 176 L216 108 L258 133 L301 76 L342 98 L388 43 L430 69 L486 24 L534 47"/><path d="M6 254 L65 238 L116 243 L165 213 L215 223 L270 187 L329 197 L386 157 L444 166 L534 119" opacity=".45"/></svg></div>
+<img class="mentor-person" src="sajid-ghori.webp" width="1024" height="1536" loading="lazy" alt="Sajid Ghori — Forex trader, mentor and coach"/>
+<div class="mentor-role-badge">FOREX TRADER • MENTOR • COACH</div>
+</div>
+<div class="mentor-content">
+<div class="mentor-eyebrow">MEET YOUR FOREX MENTOR</div>
+<h2 id="mentor-title">Learn with Sajid Ghori — <span>Top Forex Trainer &amp; Top Forex Instructor</span></h2>
+<p class="mentor-description">Sajid Ghori is a professional Forex and Futures trader, mentor and coach focused on clear, practical and structured trading education. His programs cover technical analysis, market structure, Volume Spread Analysis and disciplined risk management for aspiring traders across Asia.</p>
+<div class="mentor-highlights" aria-label="Sajid Ghori expertise">
+<span>Top Forex Trainer</span><span>Top Forex Instructor</span><span>Forex Mentor in Asia</span><span>Technical Analysis &amp; VSA</span>
+</div>
+<blockquote class="mentor-quote">“Turning complex market concepts into clear, practical learning.”</blockquote>
+<a class="btn mentor-cta" href="courses.html#courses">Explore Sajid Ghori’s Courses <span class="arrow" aria-hidden="true">→</span></a>
+</div>
+</div>
+</div>
+</section>
+<section class="section partner-promo-section" id="partner">
+<div class="container">
+<div class="section-heading partner-section-heading">
+<div class="small">BECOME OUR PARTNER</div>
+<h2>Grow With PipSePaisa</h2>
+<p>Build your IB business with competitive commissions, free team training and practical AI tools.</p>
+</div>
+<div class="partner-promo-grid">
+<div class="partner-promo-item">
+<a class="partner-promo-card visual-promo-card" href="landing.html" onclick="openAuth();return false">
+<picture>
+<img alt="Grow Your IB Business — up to $25 per lot" class="theme-card-image" data-dark="ib-growth-dark.webp" data-light="ib-growth-light.webp" src="ib-growth-light.webp"/>
+</picture>
+</a>
+</div>
+<div class="partner-promo-item">
+<a class="partner-promo-card visual-promo-card" href="landing.html" onclick="openAuth();return false">
+<picture>
+<img alt="Free Team Training for you and your team" class="theme-card-image" data-dark="team-training-dark.webp" data-light="team-training-light.webp" src="team-training-light.webp"/>
+</picture>
+</a>
+</div>
+<div class="partner-promo-item">
+<a class="partner-promo-card visual-promo-card" href="landing.html" onclick="openAuth();return false">
+<picture>
+<img alt="AI tools for social media growth" class="theme-card-image" data-dark="ai-tools-dark.webp" data-light="ai-tools-light.webp" src="ai-tools-light.webp"/>
+</picture>
+</a>
+</div>
+</div>
+</div>
+</section>
+<section class="section soft broker-comparison-section" id="broker-comparison">
+<div class="container">
+<div class="section-heading broker-compare-heading">
+<div class="small">FEATURED BROKERS</div>
+<h2>Broker Reviews</h2>
+<p>Review key account features, trading conditions and payment options to better understand each featured broker.</p>
+</div>
+<div class="table-wrap broker-table-wrap">
+<table class="broker-comparison-table">
+<colgroup>
+<col style="width:14%"/>
+<col style="width:10%"/>
+<col style="width:14%"/>
+<col style="width:13%"/>
+<col style="width:11%"/>
+<col style="width:10%"/>
+<col style="width:11%"/>
+<col style="width:8%"/>
+<col style="width:9%"/>
+</colgroup>
+<thead>
+<tr>
+<th>Broker</th><th>Promotions</th><th>Regulatory Coverage</th><th>Account Options</th><th>Minimum Deposit</th><th>Spreads</th><th>Maximum Leverage</th><th>Minimum Trade</th><th>Withdrawals</th>
+</tr>
+</thead>
+<tbody><tr>
+<td data-label="Broker"><div class="broker-name"><img alt="D Prime official logo" class="broker-logo-icon" src="dprime-logo-official-2026.png"/><strong>D Prime</strong></div></td>
+<td data-label="Promotions"><span class="badge">Offers may vary</span></td>
+<td data-label="Regulatory Coverage">Multi-regulated group</td>
+<td class="yes" data-label="Account Options">Multiple account types</td>
+<td data-label="Minimum Deposit">From $0–$100*</td>
+<td data-label="Spreads">From 0.0 pips*</td>
+<td data-label="Maximum Leverage">Up to 1:1000*</td>
+<td data-label="Minimum Trade">0.01 lot</td>
+<td data-label="Withdrawals">Method dependent</td>
+</tr>
+<tr>
+<td data-label="Broker"><div class="broker-name"><img alt="XM official logo" src="xm-logo-official-2026.svg"/><strong>XM</strong></div></td>
+<td data-label="Promotions"><span class="badge">Region dependent</span></td>
+<td data-label="Regulatory Coverage">Multi-regulated group</td>
+<td class="yes" data-label="Account Options">Multiple account types</td>
+<td data-label="Minimum Deposit">From $5*</td>
+<td data-label="Spreads">Variable by instrument</td>
+<td data-label="Maximum Leverage">Up to 1:1000*</td>
+<td data-label="Minimum Trade">0.01 lot*</td>
+<td data-label="Withdrawals">Method dependent</td>
+</tr>
+<tr>
+<td data-label="Broker"><div class="broker-name"><img alt="Exness official logo" src="exness-logo-official-2026.svg"/><strong>Exness</strong></div></td>
+<td data-label="Promotions"><span class="badge">Region dependent</span></td>
+<td data-label="Regulatory Coverage">Multi-regulated group</td>
+<td class="yes" data-label="Account Options">Standard &amp; Cent options*</td>
+<td data-label="Minimum Deposit">From $10*</td>
+<td data-label="Spreads">From 0.2 pips*</td>
+<td data-label="Maximum Leverage">Up to unlimited*</td>
+<td data-label="Minimum Trade">0.01 lot</td>
+<td class="yes" data-label="Withdrawals">Automated / instant where available*</td>
+</tr>
+<tr>
+<td data-label="Broker"><div class="broker-name"><img alt="HFM official logo" src="hfm-logo-official-2026.png"/><strong>HFM</strong></div></td>
+<td data-label="Promotions"><span class="badge">Region dependent</span></td>
+<td data-label="Regulatory Coverage">Multi-regulated group</td>
+<td class="yes" data-label="Account Options">Standard, Cent &amp; Pro types*</td>
+<td data-label="Minimum Deposit">From $0*</td>
+<td data-label="Spreads">Variable by account</td>
+<td data-label="Maximum Leverage">Up to 1:2000*</td>
+<td data-label="Minimum Trade">0.01 lot</td>
+<td data-label="Withdrawals">Method dependent</td>
+</tr>
+<tr>
+<td data-label="Broker"><div class="broker-name"><img alt="Vantage official logo" src="vantage-logo-official-2026.svg"/><strong>Vantage</strong></div></td>
+<td data-label="Promotions"><span class="badge">Promotions may vary</span></td>
+<td data-label="Regulatory Coverage">Multi-regulated group</td>
+<td class="yes" data-label="Account Options">Standard, Raw &amp; ECN options*</td>
+<td data-label="Minimum Deposit">From $50*</td>
+<td data-label="Spreads">From 0.0 pips*</td>
+<td data-label="Maximum Leverage">Up to 1:500*</td>
+<td data-label="Minimum Trade">0.01 lot</td>
+<td data-label="Withdrawals">Method dependent</td>
+</tr></tbody>
+</table>
+</div>
+<p class="broker-data-note">*Conditions depend on jurisdiction, account type, instrument, equity and payment method. Confirm current terms on the broker’s official website before opening or funding an account.</p>
+<div class="cta">
+<div><h3>Ready to start your learning journey?</h3><p>Create your account and explore signals, charts, courses and trading tools.</p></div>
+<button class="btn" onclick="openAuth();" type="button">Create Free Account →</button>
+</div>
+</div>
+</section>
 </main>
-
-<footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <a class="brand" href="#home"><img src="favicon.png" alt=""><span style="color:#fff">PipSePaisa</span></a>
-        <p>A professional Forex education and trading support platform focused on learning, discipline, market insights and business growth.</p>
-      </div>
-      <div><h4>Quick Links</h4><ul><li><a href="#home">Home</a></li><li><a href="#partner">Become Partner</a></li><li><a href="#services">Services</a></li><li><a href="#" onclick="openAuth();return false">Login</a></li></ul></div>
-      <div><h4>Services</h4><ul><li><a href="#" onclick="openAuth();return false">Daily Signals</a></li><li><a href="#" onclick="openAuth();return false">Forex Courses</a></li><li><a href="#" onclick="openAuth();return false">Trading Tools</a></li><li><a href="#" onclick="return false">Broker Reviews</a></li></ul></div>
-      <div><h4>Connect</h4><ul><li><a href="#" onclick="return false">Facebook</a></li><li><a href="#" onclick="return false">Instagram</a></li><li><a href="#" onclick="return false">WhatsApp Channel</a></li><li><a href="#" onclick="return false">Support</a></li></ul></div>
-    </div>
-    <div class="risk"><strong>Risk Warning:</strong> Forex and CFD trading involve significant risk and may not be suitable for every investor. Educational content, analysis and signals do not guarantee profit. Always use appropriate risk management.</div>
-    <div class="copyright"><span>© 2026 PipSePaisa. All rights reserved.</span><span>Privacy Policy · Terms & Conditions</span></div>
-  </div>
-</footer>
-
+<footer><div class="container"><div class="footer-grid"><div><div class="footer-brand">PipSePaisa</div><p>Forex education, professional learning, practical trading tools and business support designed to help traders and partners grow with knowledge and discipline.</p></div><div><h4>Quick Links</h4><ul><li><a href="landing.html">Home</a></li><li><a href="partner.html">Become Partner</a></li><li><a href="courses.html">Courses</a></li></ul></div><div><h4>Resources</h4><ul><li><a href="tools-services.html">Trading Tools &amp; Services</a></li><li><a href="courses.html#courses">Course Enrollment</a></li><li><a href="index.html">Login</a></li></ul></div><div><h4>Connect</h4><ul><li>Facebook</li><li>Instagram</li><li>WhatsApp Channel</li></ul></div></div><div class="disclaimer">Educational content only. Trading involves risk and results may vary. Broker conditions, commissions and promotions depend on region, account type and official terms.</div></div></footer>
 <script>
 
 const themeButton=document.querySelector('.theme-btn');
 const themePairs=[
-  ['broker-promo-assets/dprime-promo-light.png','broker-promo-assets/dprime-promo-dark.png'],
-  ['broker-promo-assets/xm-promo-light.png','broker-promo-assets/xm-promo-dark.png'],
-  ['broker-promo-assets/exness-promo-light.png','broker-promo-assets/exness-promo-dark.png']
+  ['broker-promo-assets/dprime-promo-light.webp','broker-promo-assets/dprime-promo-dark.webp'],
+  ['broker-promo-assets/xm-promo-light.webp','broker-promo-assets/xm-promo-dark.webp'],
+  ['broker-promo-assets/exness-promo-light.webp','broker-promo-assets/exness-promo-dark.webp']
 ];
 function applyLandingTheme(isDark){
   document.body.classList.toggle('dark-theme',isDark);
@@ -1682,6 +1720,18 @@ function syncPartnerPromoTheme(){
 document.addEventListener('DOMContentLoaded',syncPartnerPromoTheme);
 const partnerThemeObserver=new MutationObserver(syncPartnerPromoTheme);
 partnerThemeObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
+</script>
+<script src="public-upgrades.js?v=20260722-brand-dark-hero-v3"></script>
+<script>
+(function(){
+  const spotlight=document.querySelector('.mentor-spotlight');
+  if(!spotlight)return;
+  if(!('IntersectionObserver' in window)){spotlight.classList.add('is-visible');return;}
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target)}});
+  },{threshold:.2});
+  observer.observe(spotlight);
+})();
 </script>
 </body>
 </html>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 320" role="img" aria-label="MARKETING SUPPORT">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071426"/><stop offset="1" stop-color="#102746"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd46c"/><stop offset=".48" stop-color="#ff9f0b"/><stop offset="1" stop-color="#db6200"/></linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#ffb019"/><stop offset="1" stop-color="#ff7a00"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="12" stdDeviation="13" flood-color="#8a4600" flood-opacity=".28"/></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+    <clipPath id="clip"><rect x="4" y="4" width="592" height="312" rx="27"/></clipPath>
+  </defs>
+  <rect x="4" y="4" width="592" height="312" rx="27" fill="url(#bg)" stroke="url(#gold)" stroke-width="3"/>
+  <g clip-path="url(#clip)">
+    <circle cx="522" cy="42" r="142" fill="#ff9f0b" opacity=".10"/>
+    <circle cx="424" cy="271" r="120" fill="#ffb11a" opacity=".07" filter="url(#soft)"/>
+    <g opacity=".11" stroke="#7a96b6" stroke-width="1"><path d="M20 55H580M20 105H580M20 155H580M20 205H580M20 255H580"/><path d="M70 20V295M140 20V295M210 20V295M280 20V295M350 20V295M420 20V295M490 20V295M560 20V295"/></g>
+    <path d="M0 272C92 238 162 285 251 253s173-11 349-89v156H0Z" fill="#ff9e0a" opacity=".08"/>
+  </g>
+  <rect x="26" y="25" width="128" height="26" rx="13" fill="url(#gold)"/>
+  <text x="90" y="43" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="900" letter-spacing="1.6" fill="#08172e">PARTNER BENEFIT</text>
+  <text x="27" y="76" font-family="Arial,Helvetica,sans-serif" font-size="12" font-weight="800" letter-spacing="1.6" fill="#e87900">BE SEEN. BE REMEMBERED.</text>
+  <text x="27" y="119" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="900" fill="#ffffff">MARKETING</text>
+  <text x="27" y="154" font-family="Arial,Helvetica,sans-serif" font-size="32" font-weight="900" fill="url(#line)">SUPPORT</text>
+  <rect x="27" y="170" width="282" height="2" rx="1" fill="url(#line)"/>
+  <text x="27" y="195" font-family="Arial,Helvetica,sans-serif" font-size="13.5" font-weight="600" fill="#cbd6e6">Premium resources to boost your brand.</text>
+  <g transform="translate(27 224)">
+    <g transform="translate(0 0)"><rect width="94" height="34" rx="17" fill="#142b49" stroke="#6d5731"/><circle cx="15" cy="17" r="6" fill="url(#gold)"/><path d="m12 17 2 2 5-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="27" y="21" font-family="Arial,Helvetica,sans-serif" font-size="8.8" font-weight="800" fill="#ffffff">SOCIAL MEDIA</text></g><g transform="translate(101 0)"><rect width="94" height="34" rx="17" fill="#142b49" stroke="#6d5731"/><circle cx="15" cy="17" r="6" fill="url(#gold)"/><path d="m12 17 2 2 5-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="27" y="21" font-family="Arial,Helvetica,sans-serif" font-size="8.8" font-weight="800" fill="#ffffff">BRAND ASSETS</text></g><g transform="translate(202 0)"><rect width="94" height="34" rx="17" fill="#142b49" stroke="#6d5731"/><circle cx="15" cy="17" r="6" fill="url(#gold)"/><path d="m12 17 2 2 5-6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><text x="27" y="21" font-family="Arial,Helvetica,sans-serif" font-size="8.8" font-weight="800" fill="#ffffff">CAMPAIGN IDEAS</text></g>
+  </g>
+  <g filter="url(#shadow)">
+    <circle cx="454" cy="145" r="112" fill="#132b4b" stroke="url(#gold)" stroke-width="3"/>
+    <circle cx="454" cy="145" r="94" fill="#0b1b32" opacity=".72"/>
+    <g stroke-linejoin="round">
+      <path d="M395 124l92-41v112l-92-40z" fill="url(#gold)" stroke="#ffe09a" stroke-width="5"/>
+      <path d="M395 124h-25c-12 0-21 9-21 21v2c0 12 9 21 21 21h25z" fill="#fff4d8" stroke="#ffbd3d" stroke-width="5"/>
+      <path d="M371 168l17 52h31l-19-61" fill="#0a1d39" stroke="#ffbd3d" stroke-width="5"/>
+      <path d="M505 103l27-20M514 137h34M505 172l27 20" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="462" cy="72" r="7" fill="#fff"/><circle cx="538" cy="115" r="5" fill="#ffbd3d"/>
+    </g>
+  </g>
+  <rect x="365" y="271" width="178" height="30" rx="15" fill="#08182f" stroke="#ffaf17" stroke-width="1.5"/>
+  <text x="454" y="291" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="900" letter-spacing="1.2" fill="#fff">PIPSEPAISA PARTNER</text>
+</svg>
