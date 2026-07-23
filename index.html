@@ -53,6 +53,10 @@
     --purple: #8b5cf6;
     --purple-bg: rgba(139, 92, 246, 0.1);
     --shadow: 0 4px 12px rgba(0,0,0,0.3);
+    --chart-grid: rgba(148, 163, 184, 0.18);
+    --chart-grid-soft: rgba(148, 163, 184, 0.08);
+    --chart-axis: #334155;
+    --chart-tick: #6b7280;
   }
   
   /* ========== LIGHT THEME ========== */
@@ -81,6 +85,10 @@
     --purple: #7c3aed;
     --purple-bg: rgba(124, 58, 237, 0.1);
     --shadow: 0 2px 8px rgba(0,0,0,0.06);
+    --chart-grid: #d8e0ea;
+    --chart-grid-soft: #edf2f7;
+    --chart-axis: #d5deea;
+    --chart-tick: #94a3b8;
   }
   
   body { background: var(--bg-main); color: var(--text-primary); overflow-x: hidden; font-size: 14px; transition: background 0.3s, color 0.3s; }
@@ -3346,7 +3354,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if (page === 'aitools') initMentorAiTools();
     if (page === 'announce') loadAnnouncements();
     if (page === 'signals') loadSignalsFromDB();
-    if (page === 'performance') loadPerformance();
+    if (page === 'performance') { loadPerformance(); setTimeout(function(){ try{ if(perfChart){ perfChart.resize(); perfChart.update('none'); } if(equityChart){ equityChart.resize(); equityChart.update('none'); } }catch(e){} }, 80); }
     if (page === 'articles') loadArticlesFromDB();
     if (page === 'tools' && window.currentToolsTab === 'banners') loadBanners();
     if (page === 'market') { loadGoldPrice(); loadMarketTicker(); }
@@ -3389,13 +3397,31 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if (typeof updateMentorAiTheme === 'function') updateMentorAiTheme();
   }
   
+  function getThemeChartColors() {
+    const styles = getComputedStyle(document.documentElement);
+    return {
+      grid: styles.getPropertyValue('--chart-grid').trim() || '#d8e0ea',
+      gridSoft: styles.getPropertyValue('--chart-grid-soft').trim() || '#edf2f7',
+      axis: styles.getPropertyValue('--chart-axis').trim() || '#d5deea',
+      tick: styles.getPropertyValue('--chart-tick').trim() || '#94a3b8'
+    };
+  }
+
   function updateChartTheme(chart) {
-    const isDark = currentTheme === 'dark';
-    const gridColor = isDark ? '#1f2937' : '#e2e8f0';
-    const tickColor = isDark ? '#6b7280' : '#94a3b8';
-    chart.options.scales.y.grid.color = gridColor;
-    chart.options.scales.y.ticks.color = tickColor;
-    chart.options.scales.x.ticks.color = tickColor;
+    if (!chart || !chart.options || !chart.options.scales) return;
+    const colors = getThemeChartColors();
+    ['x','y'].forEach(function(axis){
+      if (!chart.options.scales[axis]) return;
+      if (!chart.options.scales[axis].grid) chart.options.scales[axis].grid = {};
+      if (!chart.options.scales[axis].ticks) chart.options.scales[axis].ticks = {};
+      if (!chart.options.scales[axis].border) chart.options.scales[axis].border = {};
+      chart.options.scales[axis].ticks.color = colors.tick;
+      chart.options.scales[axis].border.color = colors.axis;
+    });
+    chart.options.scales.y.grid.color = colors.grid;
+    chart.options.scales.y.grid.lineWidth = 1;
+    chart.options.scales.x.grid.color = colors.gridSoft;
+    chart.options.scales.x.grid.lineWidth = 1;
     chart.update();
   }
   
@@ -3575,7 +3601,9 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   // ============ PERFORMANCE CHART ============
   function buildPerfChart() {
     const ctx = document.getElementById('perfChart');
-    if (!ctx) return;
+    if (!ctx || typeof Chart === 'undefined') return;
+    const colors = getThemeChartColors();
+    if (perfChart) { try { perfChart.destroy(); } catch(e){} }
     perfChart = new Chart(ctx, {
       type: 'line',
       data: { labels: ['Start'], datasets: [{
@@ -3586,12 +3614,23 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       options: {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false } },
+        interaction: { intersect: false, mode: 'index' },
         scales: {
-          y: { grid: { color: '#1f2937' }, ticks: { color: '#6b7280', font: { size: 10 } } },
-          x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 10 } } }
+          y: {
+            grid: { color: colors.grid, lineWidth: 1 },
+            ticks: { color: colors.tick, font: { size: 10 } },
+            border: { color: colors.axis }
+          },
+          x: {
+            grid: { display: false, color: colors.gridSoft, lineWidth: 1 },
+            ticks: { color: colors.tick, font: { size: 10 } },
+            border: { color: colors.axis }
+          }
         }
       }
     });
+    updateChartTheme(perfChart);
+    setTimeout(function(){ try{ perfChart.resize(); perfChart.update('none'); }catch(e){} }, 80);
   }
   
   function changeTimeframe(tf, el) {
@@ -4208,13 +4247,19 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if (!equityChart) {
       const ctx = document.getElementById('equityChart');
       if (ctx) {
+        const colors = getThemeChartColors();
         equityChart = new Chart(ctx, {
           type: 'line',
           data: { labels: [], datasets: [{ data: [], borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.1)', fill: true, tension: 0.4, pointRadius: 2, borderWidth: 2 }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
-            scales: { y: { grid: { color: '#1f2937' }, ticks: { color: '#6b7280', font: { size: 10 } } }, x: { grid: { display: false }, ticks: { color: '#6b7280', font: { size: 10 } } } }
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, interaction: { intersect: false, mode: 'index' },
+            scales: {
+              y: { grid: { color: colors.grid, lineWidth: 1 }, ticks: { color: colors.tick, font: { size: 10 } }, border: { color: colors.axis } },
+              x: { grid: { display: false, color: colors.gridSoft, lineWidth: 1 }, ticks: { color: colors.tick, font: { size: 10 } }, border: { color: colors.axis } }
+            }
           }
         });
+        updateChartTheme(equityChart);
+        setTimeout(function(){ try{ equityChart.resize(); equityChart.update('none'); }catch(e){} }, 80);
       }
     }
     if (equityChart) {
@@ -7883,6 +7928,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     updateTime();
     buildCalendar();
     buildPerfChart();
+    setTimeout(function(){ try{ if(perfChart){ updateChartTheme(perfChart); perfChart.resize(); perfChart.update('none'); } }catch(e){} }, 120);
     loadChart();
     
     // Set today's date in journal
