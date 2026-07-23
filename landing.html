@@ -1694,13 +1694,79 @@ async function loadLandingAdminContent(){
 loadLandingAdminContent();
 
 function openAuth(){
-  try{
-    if(window.parent && window.parent !== window && typeof window.parent.openAuthModal === 'function'){
-      window.parent.openAuthModal();
-      return;
-    }
-  }catch(e){}
+  // Open login/signup modal directly on landing page
+  const modal = document.getElementById('landingAuthModal');
+  if(modal){
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    switchLandingAuthTab('login');
+    return;
+  }
+  // Fallback
   window.location.href='index.html#auth-login';
+}
+function closeLandingAuth(){
+  const modal = document.getElementById('landingAuthModal');
+  if(modal){ modal.style.display = 'none'; document.body.style.overflow = ''; }
+}
+function switchLandingAuthTab(tab){
+  document.getElementById('landingTabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('landingTabSignup').classList.toggle('active', tab==='signup');
+  document.getElementById('landingFormLogin').style.display = tab==='login' ? 'block' : 'none';
+  document.getElementById('landingFormSignup').style.display = tab==='signup' ? 'block' : 'none';
+  document.getElementById('landingAuthTitle').textContent = tab==='login' ? 'Welcome Back' : 'Create Account';
+  document.getElementById('landingAuthSubtitle').textContent = tab==='login' ? 'Login to your trading hub' : 'Join thousands of traders';
+  hideLandingAuthMessage();
+}
+function showLandingAuthMessage(msg, isError){
+  const el = document.getElementById('landingAuthMessage');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.style.background = isError ? '#fef2f2' : '#f0fdf4';
+  el.style.color = isError ? '#991b1b' : '#166534';
+  el.style.border = '1px solid ' + (isError ? '#fecaca' : '#bbf7d0');
+}
+function hideLandingAuthMessage(){
+  document.getElementById('landingAuthMessage').style.display = 'none';
+}
+async function landingLoginUser(){
+  const email = document.getElementById('landingLoginEmail').value.trim();
+  const password = document.getElementById('landingLoginPassword').value;
+  if(!email || !password){ showLandingAuthMessage('Please enter email and password', true); return; }
+  if(!landingSb){ showLandingAuthMessage('Auth not available. Please try again.', true); return; }
+  const btn = document.getElementById('landingLoginBtn');
+  btn.disabled = true; btn.textContent = 'Logging in...';
+  try{
+    const { data, error } = await landingSb.auth.signInWithPassword({ email, password });
+    if(error){ showLandingAuthMessage(error.message, true); btn.disabled=false; btn.textContent='🔐 Login to Account'; return; }
+    showLandingAuthMessage('✅ Login successful! Redirecting...', false);
+    setTimeout(() => { window.location.href = 'index.html'; }, 800);
+  }catch(e){
+    showLandingAuthMessage('Login failed. Please try again.', true);
+    btn.disabled=false; btn.textContent='🔐 Login to Account';
+  }
+}
+async function landingSignupUser(){
+  const name = document.getElementById('landingSignupName').value.trim();
+  const email = document.getElementById('landingSignupEmail').value.trim();
+  const password = document.getElementById('landingSignupPassword').value;
+  if(!name || !email || !password){ showLandingAuthMessage('Please fill all fields', true); return; }
+  if(password.length < 6){ showLandingAuthMessage('Password must be at least 6 characters', true); return; }
+  if(!landingSb){ showLandingAuthMessage('Auth not available.', true); return; }
+  const btn = document.getElementById('landingSignupBtn');
+  btn.disabled = true; btn.textContent = 'Creating account...';
+  try{
+    const { data, error } = await landingSb.auth.signUp({ 
+      email, password, 
+      options: { data: { name, role: 'user' } }
+    });
+    if(error){ showLandingAuthMessage(error.message, true); btn.disabled=false; btn.textContent='🚀 Create Free Account'; return; }
+    showLandingAuthMessage('✅ Account created! Please check your email to verify.', false);
+    setTimeout(() => switchLandingAuthTab('login'), 2000);
+  }catch(e){
+    showLandingAuthMessage('Signup failed. Please try again.', true);
+    btn.disabled=false; btn.textContent='🚀 Create Free Account';
+  }
 }
 document.querySelector('.mobile-menu')?.addEventListener('click',()=>{
   const menu=document.querySelector('.menu');
@@ -1733,5 +1799,67 @@ partnerThemeObserver.observe(document.body,{attributes:true,attributeFilter:['cl
   observer.observe(spotlight);
 })();
 </script>
+
+<!-- LOGIN/SIGNUP MODAL FOR LANDING PAGE -->
+<div id="landingAuthModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:99999;align-items:center;justify-content:center;padding:20px;overflow-y:auto;" onclick="if(event.target===this)closeLandingAuth();">
+  <div style="background:#fffaf1;border-radius:16px;max-width:420px;width:100%;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;font-family:'Plus Jakarta Sans',sans-serif;">
+    <button onclick="closeLandingAuth()" style="position:absolute;top:14px;right:14px;background:none;border:none;font-size:24px;cursor:pointer;color:#666;line-height:1;padding:4px 10px;border-radius:8px;">×</button>
+    
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="width:60px;height:60px;background:linear-gradient(135deg,#f59e0b,#d97706);border-radius:14px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#0a0e1a;font-size:20px;">PP</div>
+      <h2 id="landingAuthTitle" style="font-size:22px;margin:0 0 4px 0;color:#1a1a1a;">Welcome Back</h2>
+      <p id="landingAuthSubtitle" style="font-size:12px;color:#666;margin:0;">Login to your trading hub</p>
+    </div>
+    
+    <!-- Tabs -->
+    <div style="display:flex;gap:4px;padding:4px;background:#f5f0e0;border-radius:10px;margin-bottom:18px;">
+      <button id="landingTabLogin" onclick="switchLandingAuthTab('login')" class="active" style="flex:1;padding:9px 14px;font-size:12.5px;font-weight:700;color:#0a0e1a;cursor:pointer;border-radius:8px;border:none;background:#f59e0b;font-family:inherit;">Login</button>
+      <button id="landingTabSignup" onclick="switchLandingAuthTab('signup')" style="flex:1;padding:9px 14px;font-size:12.5px;font-weight:600;color:#666;cursor:pointer;border-radius:8px;border:none;background:transparent;font-family:inherit;">Sign Up</button>
+    </div>
+    
+    <!-- LOGIN FORM -->
+    <div id="landingFormLogin">
+      <div style="margin-bottom:12px;">
+        <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:#333;">Email Address</label>
+        <input type="email" id="landingLoginEmail" placeholder="your@email.com" autocomplete="email" style="width:100%;padding:11px 12px;border:1px solid #e0d5b8;border-radius:8px;font-size:14px;font-family:inherit;background:#fff;box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:#333;">Password</label>
+        <input type="password" id="landingLoginPassword" placeholder="••••••••" autocomplete="current-password" style="width:100%;padding:11px 12px;border:1px solid #e0d5b8;border-radius:8px;font-size:14px;font-family:inherit;background:#fff;box-sizing:border-box;">
+      </div>
+      
+      <button id="landingLoginBtn" onclick="landingLoginUser()" style="width:100%;padding:12px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;margin-top:6px;">🔐 Login to Account</button>
+      
+      <p style="text-align:center;margin-top:14px;font-size:12px;color:#666;">
+        New here? <span style="color:#f59e0b;cursor:pointer;font-weight:600;" onclick="switchLandingAuthTab('signup')">Create free account →</span>
+      </p>
+    </div>
+    
+    <!-- SIGNUP FORM -->
+    <div id="landingFormSignup" style="display:none;">
+      <div style="margin-bottom:12px;">
+        <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:#333;">Full Name</label>
+        <input type="text" id="landingSignupName" placeholder="Ahmed Khan" style="width:100%;padding:11px 12px;border:1px solid #e0d5b8;border-radius:8px;font-size:14px;font-family:inherit;background:#fff;box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:#333;">Email Address</label>
+        <input type="email" id="landingSignupEmail" placeholder="your@email.com" autocomplete="email" style="width:100%;padding:11px 12px;border:1px solid #e0d5b8;border-radius:8px;font-size:14px;font-family:inherit;background:#fff;box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:#333;">Password</label>
+        <input type="password" id="landingSignupPassword" placeholder="Min. 6 characters" autocomplete="new-password" style="width:100%;padding:11px 12px;border:1px solid #e0d5b8;border-radius:8px;font-size:14px;font-family:inherit;background:#fff;box-sizing:border-box;">
+      </div>
+      
+      <button id="landingSignupBtn" onclick="landingSignupUser()" style="width:100%;padding:12px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;border:none;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;margin-top:6px;">🚀 Create Free Account</button>
+      
+      <p style="text-align:center;margin-top:14px;font-size:12px;color:#666;">
+        Already have account? <span style="color:#f59e0b;cursor:pointer;font-weight:600;" onclick="switchLandingAuthTab('login')">Login here →</span>
+      </p>
+    </div>
+    
+    <div id="landingAuthMessage" style="display:none;margin-top:12px;font-size:12px;padding:10px;border-radius:8px;text-align:center;"></div>
+  </div>
+</div>
+
 </body>
 </html>
