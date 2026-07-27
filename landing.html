@@ -4,16 +4,6 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<script id="psp-mobile-desktop-viewport">
-(function () {
-  var viewport = document.querySelector('meta[name="viewport"]');
-  var mobileWidth = Math.min(window.innerWidth || 9999, window.screen && window.screen.width ? window.screen.width : 9999);
-  if (viewport && mobileWidth <= 768) {
-    viewport.setAttribute('content', 'width=1214, user-scalable=yes');
-    document.documentElement.classList.add('psp-compact-desktop-mobile');
-  }
-})();
-</script>
 <title>PipSePaisa — Forex Education &amp; Trading Tools</title>
 <link href="favicon.png" rel="icon"/>
 <link href="public-upgrades.css?v=20260722-brand-dark-hero-v3" rel="stylesheet"/>
@@ -1429,6 +1419,8 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 .landing-auth-switch{text-align:center;margin-top:12px;color:#777;font-size:11px}.dark-theme .landing-auth-switch{color:#aeb5c2}.landing-auth-switch button{border:0;background:none;color:#df7900;font-weight:800;cursor:pointer;padding:0}
 @media(max-width:520px){.landing-auth-overlay{padding:12px}.landing-auth-card{padding:23px 18px 24px;border-radius:16px}}
 </style>
+
+<link rel="stylesheet" href="mobile-reference-layout.css?v=20260727-exact-v3" />
 </head>
 <body>
 <header class="topbar">
@@ -1448,7 +1440,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <div class="hero-overlay-banner">
 <div class="hero-text-layer">
 <div class="hero-eyebrow">PIPSEPAISA FOREX EDUCATION</div>
-<h1>Your Financial Future<br/>Begins with the <span>Right Education</span></h1>
+<h1>Your Financial Future<br/>Begins with the<br/><span>Right Education</span></h1>
 <p class="hero-course">Complete Forex Trading Course by Pakistan’s #1 Forex Mentor</p>
 <div class="hero-quote">
 <strong>Mr Sajid says:</strong>

@@ -382,3 +382,680 @@
   .mentor-content .mentor-quote { margin: 0 0 5px !important; padding: 3px 5px !important; font-size: 3.8px !important; line-height: 1.2 !important; }
   .mentor-content .mentor-cta { min-height: 15px !important; align-self: flex-start !important; padding: 3px 6px !important; border-radius: 4px !important; font-size: 4.3px !important; }
 }
+
+/* ============================================================
+   FINAL MOBILE ROOT FIX — 2026-07-27
+   The earlier build loaded desktop responsive rules but did not
+   neutralize the mobile drawer and late high-specificity upgrades.
+   These rules intentionally win last and reproduce the approved
+   compact, desktop-like mobile composition.
+   ============================================================ */
+@media (max-width: 768px) {
+  html, body { min-width: 0 !important; width: 100% !important; }
+
+  /* Keep every navigation item in one tiny horizontal row. */
+  .topbar .nav > .menu,
+  .topbar .nav > .menu.is-open,
+  .topbar .menu,
+  .topbar .menu.is-open {
+    position: static !important;
+    inset: auto !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 1px !important;
+    overflow: visible !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    z-index: auto !important;
+  }
+  .topbar .nav > .menu a,
+  .topbar .menu a {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 10px 2.5px 9px !important;
+    font-size: 5.2px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+  .topbar .mobile-menu,
+  .topbar .menu-toggle,
+  .topbar .hamburger { display: none !important; }
+
+  /* No blank sections while waiting for scroll observers. */
+  .reveal,
+  .reveal.left,
+  .reveal.right,
+  .reveal.up,
+  .reveal.down,
+  .stagger > *,
+  .feature-card.reveal,
+  .resource-card.reveal,
+  .course-card.reveal,
+  .partner-image.reveal,
+  .partner-info.reveal {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  .partner-info .program-kicker,
+  .partner-info > h3,
+  .partner-info > p,
+  .partner-info .info-row,
+  .partner-info .login,
+  .partner-info .program-note {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  /* Shared headings: prevent late desktop rules from enlarging them. */
+  main .section-head h2,
+  main .section-heading h2,
+  .social-section .section-head h2,
+  .social-showcase .section-heading h2,
+  body.page-tools .section-head h2,
+  body.page-partner .section-head h2,
+  body:has(.course-section) .section-head h2 {
+    margin: 3px 0 4px !important;
+    font-size: 16px !important;
+    line-height: 1.05 !important;
+    letter-spacing: -.035em !important;
+  }
+  main .section-head p,
+  main .section-heading p,
+  .social-section .section-head p,
+  body.page-tools .section-head p,
+  body.page-partner .section-head p,
+  body:has(.course-section) .section-head p {
+    margin: 0 !important;
+    font-size: 5.8px !important;
+    line-height: 1.35 !important;
+  }
+
+  /* Partner benefits are visible artwork cards, exactly four in one row. */
+  body.page-partner .benefits-bg .grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+  }
+  body.page-partner .benefits-bg .feature-card {
+    display: block !important;
+    position: relative !important;
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    aspect-ratio: 15 / 8 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  body.page-partner .benefits-bg .feature-card > :not(.benefit-mini-banner) {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+  }
+  body.page-partner .benefits-bg .benefit-mini-banner,
+  body.page-partner .benefits-bg .benefit-mini-banner img {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+    object-fit: cover !important;
+  }
+
+  /* Partner program rows: square artwork + equally sized compact info panel. */
+  body.page-partner #partner-programs > .container {
+    width: calc(100% - 12px) !important;
+    margin-inline: 6px !important;
+  }
+  body.page-partner #partner-programs .partner-detail {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    align-items: stretch !important;
+    column-gap: 6px !important;
+    row-gap: 0 !important;
+    margin: 0 0 8px !important;
+  }
+  body.page-partner #partner-programs .partner-detail > .partner-image,
+  body.page-partner #partner-programs .partner-detail > .partner-info {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    align-self: stretch !important;
+  }
+  body.page-partner #partner-programs .partner-image,
+  body.page-partner #partner-programs .partner-image img {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    border-radius: 7px !important;
+  }
+  body.page-partner #partner-programs .partner-info {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 7px 6px 5px !important;
+    overflow: hidden !important;
+    border-radius: 7px !important;
+  }
+  body.page-partner #partner-programs .program-kicker {
+    flex: 0 0 auto !important;
+    margin: 0 0 2px !important;
+    font-size: 3.4px !important;
+    line-height: 1 !important;
+  }
+  body.page-partner #partner-programs .partner-info h3 {
+    flex: 0 0 auto !important;
+    margin: 0 0 2px !important;
+    font-size: 9.5px !important;
+    line-height: 1.03 !important;
+    letter-spacing: -.025em !important;
+  }
+  body.page-partner #partner-programs .partner-info > p:not(.program-note) {
+    display: -webkit-box !important;
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    margin: 0 0 2px !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    font-size: 3.2px !important;
+    line-height: 1.15 !important;
+  }
+  body.page-partner #partner-programs .info-row {
+    display: grid !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    grid-template-columns: 13px minmax(0,1fr) !important;
+    align-items: center !important;
+    gap: 3px !important;
+    padding: 2px 0 !important;
+  }
+  body.page-partner #partner-programs .info-ico {
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 3px !important;
+    font-size: 5px !important;
+  }
+  body.page-partner #partner-programs .info-row h4 {
+    margin: 0 !important;
+    font-size: 3.7px !important;
+    line-height: 1.05 !important;
+  }
+  body.page-partner #partner-programs .info-row p {
+    display: -webkit-box !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 1 !important;
+    font-size: 2.7px !important;
+    line-height: 1.05 !important;
+  }
+  body.page-partner #partner-programs .partner-info > .login {
+    flex: 0 0 auto !important;
+    align-self: flex-start !important;
+    min-height: 12px !important;
+    margin: 2px 0 0 !important;
+    padding: 2px 5px !important;
+    border-radius: 3px !important;
+    font-size: 3.4px !important;
+    line-height: 1 !important;
+  }
+  body.page-partner #partner-programs .partner-programs-note {
+    width: 100% !important;
+    margin: 2px 0 0 !important;
+    padding: 4px 5px !important;
+    border-radius: 4px !important;
+    font-size: 3px !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+  }
+
+  /* Courses: two complete compact cards in one row. */
+  body:has(.course-section) .course-section .course-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    gap: 6px !important;
+    align-items: stretch !important;
+  }
+  body:has(.course-section) .course-section .course-card,
+  body:has(.course-section) .course-section .course-card.advanced {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 8px 6px 6px !important;
+    border-radius: 8px !important;
+    transform: none !important;
+  }
+  body:has(.course-section) .course-section .course-card > .mini,
+  body:has(.course-section) .course-section .course-card.advanced > .mini {
+    max-width: calc(100% - 24px) !important;
+    padding: 2px 3px !important;
+    font-size: 3px !important;
+    line-height: 1 !important;
+  }
+  body:has(.course-section) .course-section .course-card h3,
+  body:has(.course-section) .course-section .course-card.advanced h3 {
+    margin: 3px 0 2px !important;
+    font-size: 8.5px !important;
+    line-height: 1.05 !important;
+  }
+  body:has(.course-section) .course-section .course-card p,
+  body:has(.course-section) .course-section .course-card.advanced p {
+    margin: 0 0 3px !important;
+    font-size: 3.25px !important;
+    line-height: 1.18 !important;
+  }
+  body:has(.course-section) .course-section .course-card .price,
+  body:has(.course-section) .course-section .course-card.advanced .price {
+    margin: 3px 0 !important;
+    font-size: 9.5px !important;
+    line-height: 1 !important;
+  }
+  body:has(.course-section) .course-section .course-card .old,
+  body:has(.course-section) .course-section .course-card .save {
+    font-size: 2.8px !important;
+    line-height: 1.1 !important;
+  }
+  body:has(.course-section) .course-section .course-card .topics {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    gap: 2px 3px !important;
+    margin: 3px 0 !important;
+  }
+  body:has(.course-section) .course-section .course-card .topic,
+  body:has(.course-section) .course-section .course-card.advanced .topic {
+    min-width: 0 !important;
+    gap: 2px !important;
+    padding: 0 !important;
+    font-size: 2.8px !important;
+    line-height: 1.12 !important;
+  }
+  body:has(.course-section) .course-section .course-card .check {
+    width: 5px !important;
+    height: 5px !important;
+    flex: 0 0 5px !important;
+    font-size: 3px !important;
+  }
+  body:has(.course-section) .course-section .course-card .highlight {
+    margin: 3px 0 0 !important;
+    padding: 2px !important;
+    font-size: 2.6px !important;
+    line-height: 1.1 !important;
+  }
+  body:has(.course-section) .course-section .course-card .course-btn {
+    min-height: 13px !important;
+    margin-top: 3px !important;
+    padding: 2px 3px !important;
+    border-radius: 3px !important;
+    font-size: 3.4px !important;
+    line-height: 1 !important;
+  }
+  body:has(.course-section) .course-section .course-card .ribbon {
+    top: 4px !important;
+    right: -14px !important;
+    padding: 2px 15px !important;
+    font-size: 2.2px !important;
+  }
+  body:has(.course-section) .why-section .grid-4 {
+    grid-template-columns: repeat(4, minmax(0,1fr)) !important;
+    gap: 4px !important;
+  }
+  body:has(.course-section) .why-section .feature-card {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    aspect-ratio: 15 / 8 !important;
+    margin: 0 !important;
+  }
+
+  /* Tools: 3x2 visual banners and four compact service cards. */
+  body.page-tools #tools .category-grid {
+    grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+    gap: 5px !important;
+  }
+  body.page-tools #tools .resource-card {
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    aspect-ratio: 15 / 8 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 7px !important;
+  }
+  body.page-tools #tools .tool-mini-banner,
+  body.page-tools #tools .tool-mini-banner img {
+    border-radius: 7px !important;
+  }
+  body.page-tools #learning-journey {
+    padding: 17px 0 !important;
+  }
+  body.page-tools #learning-journey .services-grid {
+    grid-template-columns: repeat(4, minmax(0,1fr)) !important;
+    gap: 5px !important;
+  }
+  body.page-tools #learning-journey .resource-card {
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 7px 5px 6px !important;
+    border-radius: 7px !important;
+  }
+  body.page-tools #learning-journey .resource-card .num {
+    top: 3px !important;
+    right: 4px !important;
+    font-size: 8px !important;
+    letter-spacing: 0 !important;
+  }
+  body.page-tools #learning-journey .resource-card .iconbox {
+    width: 17px !important;
+    height: 17px !important;
+    margin: 0 0 3px !important;
+    border-radius: 5px !important;
+  }
+  body.page-tools #learning-journey .resource-card .iconbox svg {
+    width: 9px !important;
+    height: 9px !important;
+  }
+  body.page-tools #learning-journey .resource-card h3 {
+    margin: 1px 0 2px !important;
+    font-size: 5.2px !important;
+    line-height: 1.1 !important;
+  }
+  body.page-tools #learning-journey .resource-card p {
+    display: -webkit-box !important;
+    margin: 0 0 3px !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    font-size: 3px !important;
+    line-height: 1.15 !important;
+  }
+  body.page-tools #learning-journey .resource-card > a {
+    min-height: 12px !important;
+    margin-top: auto !important;
+    padding: 2px 3px !important;
+    border-radius: 3px !important;
+    font-size: 3px !important;
+    line-height: 1 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Home hero: all copy must fit inside the 137px approved banner. */
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-text-layer {
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-eyebrow {
+    flex: 0 0 auto !important;
+    margin: 0 0 3px !important;
+    padding: 2px 4px !important;
+    font-size: 4.7px !important;
+    line-height: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner h1 {
+    flex: 0 0 auto !important;
+    margin: 0 0 3px !important;
+    font-size: 15.5px !important;
+    line-height: .96 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-course {
+    flex: 0 0 auto !important;
+    margin: 0 0 3px !important;
+    padding: 2px 4px !important;
+    border-left-width: 2px !important;
+    font-size: 4.8px !important;
+    line-height: 1.1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote {
+    flex: 0 0 auto !important;
+    max-width: none !important;
+    margin: 0 0 3px !important;
+    padding: 3px 4px !important;
+    border-radius: 4px !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote strong {
+    margin: 0 0 1px !important;
+    padding: 1px 3px !important;
+    font-size: 4.3px !important;
+    line-height: 1 !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote p {
+    display: -webkit-box !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    font-size: 3.7px !important;
+    line-height: 1.2 !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-features {
+    flex: 0 0 auto !important;
+    margin: 2px 0 3px !important;
+  }
+
+  /* Partner hero must use the clean right-side artwork, not the old text banner. */
+  body.page-partner .hero-box > .hero-visual.partner-hero-visual {
+    background-image: url('partner-hero-curved-light.webp') !important;
+    background-size: 100% 100% !important;
+    background-position: center !important;
+  }
+  body.dark.page-partner .hero-box > .hero-visual.partner-hero-visual,
+  body.dark-theme.page-partner .hero-box > .hero-visual.partner-hero-visual {
+    background-image: url('partner-hero-curved-dark.webp') !important;
+  }
+
+  /* Courses use a custom hero, so override its own late responsive rules. */
+  body:has(.course-section) .course-hero-box {
+    display: block !important;
+    position: relative !important;
+    height: 144px !important;
+    min-height: 144px !important;
+    overflow: hidden !important;
+    border-radius: 8px !important;
+  }
+  body:has(.course-section) .course-hero-copy {
+    position: relative !important;
+    z-index: 8 !important;
+    width: 58% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 8px 7px 6px !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+  }
+  body:has(.course-section) .course-academy-label {
+    gap: 2px !important;
+    padding: 1px 3px 1px 2px !important;
+    border-radius: 3px !important;
+    font-size: 2.8px !important;
+    letter-spacing: .07em !important;
+  }
+  body:has(.course-section) .course-academy-label img {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 2px !important;
+  }
+  body:has(.course-section) .course-hero-copy h1 {
+    margin: 3px 0 2px !important;
+    font-size: 11px !important;
+    line-height: .98 !important;
+    letter-spacing: -.03em !important;
+  }
+  body:has(.course-section) .course-hero-copy p {
+    display: -webkit-box !important;
+    max-width: none !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    font-size: 3px !important;
+    line-height: 1.18 !important;
+  }
+  body:has(.course-section) .course-hero-copy .pills {
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+    margin: 3px 0 !important;
+  }
+  body:has(.course-section) .course-hero-copy .pill {
+    padding: 1px 2px !important;
+    border-radius: 2px !important;
+    font-size: 2.6px !important;
+    line-height: 1 !important;
+  }
+  body:has(.course-section) .course-hero-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+  }
+  body:has(.course-section) .course-hero-actions > a,
+  body:has(.course-section) .course-hero-actions > .login,
+  body:has(.course-section) .course-roadmap-btn {
+    width: auto !important;
+    min-height: 12px !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-size: 2.7px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+  body:has(.course-section) .course-hero-art {
+    position: absolute !important;
+    z-index: 3 !important;
+    inset: 0 0 0 auto !important;
+    width: 46% !important;
+    height: 144px !important;
+    min-height: 144px !important;
+    border: 0 !important;
+    border-radius: 47% 0 0 59% / 39% 0 0 67% !important;
+  }
+  body:has(.course-section) .course-gold-curve {
+    display: block !important;
+    left: -20px !important;
+    width: 38px !important;
+    height: 100% !important;
+  }
+  body:has(.course-section) .course-portrait-glow {
+    right: 7% !important;
+    top: 9% !important;
+    width: 66% !important;
+  }
+  body:has(.course-section) .course-mentor-portrait {
+    right: -5% !important;
+    bottom: -40% !important;
+    height: 140% !important;
+    max-width: 100% !important;
+  }
+  body:has(.course-section) .course-mentor-badge {
+    left: auto !important;
+    right: 2px !important;
+    bottom: 2px !important;
+    min-width: 48px !important;
+    padding: 2px 3px !important;
+    border-radius: 3px !important;
+  }
+  body:has(.course-section) .course-mentor-badge strong {
+    font-size: 3.4px !important;
+    line-height: 1 !important;
+  }
+  body:has(.course-section) .course-mentor-badge span {
+    margin-top: 1px !important;
+    font-size: 2.2px !important;
+    line-height: 1 !important;
+    letter-spacing: .04em !important;
+  }
+}
+@media (max-width: 768px) {
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-eyebrow {
+    padding: 1px 3px !important;
+    margin-bottom: 2px !important;
+    font-size: 3.6px !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner h1 {
+    margin-bottom: 2px !important;
+    font-size: 13.2px !important;
+    line-height: .94 !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-course {
+    margin-bottom: 2px !important;
+    padding: 1px 3px !important;
+    font-size: 3.8px !important;
+    line-height: 1.05 !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote {
+    height: 27px !important;
+    min-height: 27px !important;
+    max-height: 27px !important;
+    margin-bottom: 2px !important;
+    padding: 2px 3px !important;
+    overflow: hidden !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote strong {
+    padding: 1px 2px !important;
+    font-size: 3.4px !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote p {
+    font-size: 2.9px !important;
+    line-height: 1.13 !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-features {
+    margin: 1px 0 2px !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-primary-cta {
+    min-height: 14px !important;
+    padding: 2px 7px !important;
+    font-size: 4.7px !important;
+  }
+}
