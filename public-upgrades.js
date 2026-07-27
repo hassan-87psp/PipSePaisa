@@ -25,9 +25,8 @@
   }
 
   function setupNavigation(){
-    const nav=document.querySelector('.nav');
     const menu=document.querySelector('.menu');
-    if(!nav||!menu)return;
+    if(!menu)return;
     const homeLink=[...menu.querySelectorAll('a')].find(a=>a.textContent.trim().toLowerCase()==='home');
     if(homeLink&&!menu.querySelector('a[href*="broker-comparison"]')){
       const brokerReviews=document.createElement('a');
@@ -36,22 +35,10 @@
       brokerReviews.className='broker-reviews-link';
       homeLink.insertAdjacentElement('afterend',brokerReviews);
     }
-    let toggle=document.querySelector('.mobile-menu');
-    if(!toggle){
-      toggle=document.createElement('button');
-      toggle.className='mobile-menu';
-      toggle.type='button';
-      toggle.setAttribute('aria-label','Open navigation menu');
-      toggle.setAttribute('aria-expanded','false');
-      toggle.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
-      const actions=nav.querySelector('.actions,.nav-actions');
-      (actions||nav).appendChild(toggle);
-    }
-    toggle.addEventListener('click',()=>{
-      const open=menu.classList.toggle('is-open');
-      toggle.setAttribute('aria-expanded',String(open));
-    });
-    menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{menu.classList.remove('is-open');toggle.setAttribute('aria-expanded','false')}));
+    /* The approved layout keeps the complete navigation visible. */
+    document.querySelectorAll('.mobile-menu,.menu-toggle,.hamburger,[aria-label="Menu"],[aria-label="Open navigation menu"]').forEach(el=>el.remove());
+    menu.classList.remove('is-open');
+    menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>menu.classList.remove('is-open')));
   }
 
   function brandifyVisibleText(){
@@ -149,10 +136,18 @@
       else if(a.matches('.instagram,#socialInstagram'))a.href='https://www.instagram.com/pipsepaisa/';
       else if(a.matches('.whatsapp,#socialWhatsapp'))a.href='https://wa.me/601156558689';
       else if(a.closest('.broker-grid,.broker-logo-grid,.partner-promo-grid'))a.href='partner.html#partner-programs';
-      else if(a.closest('.partner-info'))a.href='index.html#auth-login';
-      else if(a.closest('.course-card'))a.href='index.html#auth-login';
       else if(a.closest('.resource-card'))a.href='index.html';
       else if(a.getAttribute('href')==='#')a.href='landing.html';
+    });
+    const partnerLinks=[
+      ['DPrime','Open DPrime Partner Account →','https://www.dooprime.com/introducing-broker'],
+      ['XM','Open XM Partner Account →','https://partners.xm.com/registration'],
+      ['Exness','Open Exness Partner Account →','https://www.exnessaffiliates.com/']
+    ];
+    document.querySelectorAll('.partner-detail .partner-info').forEach((box,index)=>{
+      const link=box.querySelector(':scope > a.login');
+      const data=partnerLinks[index];
+      if(link&&data){link.textContent=data[1];link.href=data[2];link.target='_blank';link.rel='noopener';}
     });
     document.querySelectorAll('.broker-card-footer span').forEach(el=>{el.textContent='View Program →'});
   }

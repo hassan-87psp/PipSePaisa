@@ -8899,7 +8899,7 @@ function renderPipTickerTape(force) {
     wrap.dataset.theme = theme;
     wrap.dataset.renderSequence = String(sequence);
     wrap.style.cssText =
-      'min-height:46px;border-bottom:1px solid ' +
+      'height:46px;min-height:46px;max-height:46px;border-bottom:1px solid ' +
       (isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)') +
       ';background:' + (isDark ? '#0a0e1a' : '#fffaf0') +
       ';position:relative;z-index:2;overflow:hidden';
@@ -8920,7 +8920,7 @@ function renderPipTickerTape(force) {
       showSymbolLogo: true,
       colorTheme: theme,
       isTransparent: false,
-      displayMode: 'adaptive',
+      displayMode: 'regular',
       locale: 'en'
     });
     script.onload = function() {
@@ -8930,6 +8930,7 @@ function renderPipTickerTape(force) {
           return;
         }
         removeDuplicatePipTickers(wrap);
+        wrap.querySelectorAll('iframe').forEach(function(frame){frame.style.height='46px';frame.style.minHeight='46px';frame.style.maxHeight='46px';});
       }, 350);
     };
     wrap.querySelector('.tradingview-widget-container').appendChild(script);
@@ -9085,8 +9086,9 @@ document.addEventListener('click',function(e){
 <script id="landingAuthMessageBridge">
 window.addEventListener('message',function(event){
   if(!event.data || event.data.type!=='PIPSEPAISA_OPEN_AUTH') return;
-  if(typeof window.openAuthModal==='function') window.openAuthModal();
+  if(typeof window.openAuthModal==='function'){ window.openAuthModal(); if(event.data.mode==='signup'&&typeof window.switchAuthTab==='function') window.switchAuthTab('signup'); }
 });
 </script>
+<script src="course-enrollments-user.js?v=20260727-course-enrollment-v1"></script>
 </body>
 </html>

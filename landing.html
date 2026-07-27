@@ -1421,8 +1421,9 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 </style>
 
 <link rel="stylesheet" href="mobile-reference-layout.css?v=20260727-exact-v3" />
+<link rel="stylesheet" href="psp-final-fixes.css?v=20260727-all-fixes-v1" />
 </head>
-<body>
+<body class="page-home">
 <header class="topbar">
 <div class="container nav">
 <a class="brand" href="#home"><img alt="PipSePaisa logo" src="favicon.png"/><span>PipSePaisa</span></a>
@@ -1430,7 +1431,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <div class="nav-actions">
 <button aria-label="Theme" class="theme-btn" type="button">☀️</button>
 <button class="btn" onclick="openAuth();" type="button">Login</button>
-<button aria-label="Menu" class="mobile-menu" type="button">☰</button>
+
 </div>
 </div>
 </header>
@@ -1452,7 +1453,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <div class="hero-feature"><span>📚</span><div><b>Comprehensive</b><small>Learning</small></div></div>
 <div class="hero-feature"><span>🏆</span><div><b>Proven</b><small>Results</small></div></div>
 </div>
-<button class="btn hero-primary-cta" onclick="openAuth();" type="button">Join Now →</button>
+<a class="btn hero-primary-cta" href="courses.html#courses">Join Now →</a>
 </div>
 </div>
 </div>
@@ -1662,7 +1663,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <p class="broker-data-note">*Conditions depend on jurisdiction, account type, instrument, equity and payment method. Confirm current terms on the broker’s official website before opening or funding an account.</p>
 <div class="cta">
 <div><h3>Ready to start your learning journey?</h3><p>Create your account and explore signals, charts, courses and trading tools.</p></div>
-<button class="btn" onclick="openAuth();" type="button">Create Free Account →</button>
+<button class="btn" onclick="openAuth('signup');" type="button">Create Free Account →</button>
 </div>
 </div>
 </section>
@@ -1759,15 +1760,15 @@ function showLandingAuthMessage(type,message,id){
 function clearLandingAuthMessages(){
   ['landingLoginMessage','landingSignupMessage'].forEach(id=>{const el=document.getElementById(id);if(el){el.className='landing-auth-message';el.textContent='';}});
 }
-function openLandingAuth(){
+function openLandingAuth(mode='login'){
   clearLandingAuthMessages();
-  switchLandingAuth('login');
+  switchLandingAuth(mode==='signup'?'signup':'login');
   const overlay=document.getElementById('landingAuthOverlay');
   if(!overlay)return;
   overlay.classList.add('active');
   overlay.setAttribute('aria-hidden','false');
   document.body.style.overflow='hidden';
-  setTimeout(()=>document.getElementById('landingLoginEmail')?.focus(),80);
+  setTimeout(()=>document.getElementById(mode==='signup'?'landingSignupName':'landingLoginEmail')?.focus(),80);
 }
 function closeLandingAuth(){
   const overlay=document.getElementById('landingAuthOverlay');
@@ -1788,14 +1789,14 @@ function switchLandingAuth(tab){
   if(sub)sub.textContent=login?'Login to your trading hub':'Join PipSePaisa for free';
   clearLandingAuthMessages();
 }
-function openAuth(){
+function openAuth(mode='login'){
   if(window.parent && window.parent!==window){
     try{
-      window.parent.postMessage({type:'PIPSEPAISA_OPEN_AUTH'},'*');
+      window.parent.postMessage({type:'PIPSEPAISA_OPEN_AUTH',mode:mode==='signup'?'signup':'login'},'*');
       return;
     }catch(e){console.warn('Parent login popup message failed',e)}
   }
-  openLandingAuth();
+  openLandingAuth(mode);
 }
 async function landingLoginUser(){
   const email=document.getElementById('landingLoginEmail')?.value.trim();
@@ -1844,16 +1845,7 @@ async function landingSignupUser(){
 }
 document.getElementById('landingAuthOverlay')?.addEventListener('click',event=>{if(event.target.id==='landingAuthOverlay')closeLandingAuth();});
 document.addEventListener('keydown',event=>{if(event.key==='Escape')closeLandingAuth();});
-document.querySelector('.mobile-menu')?.addEventListener('click',()=>{
-  const menu=document.querySelector('.menu');
-  menu.style.display=menu.style.display==='flex'?'none':'flex';
-  if(menu.style.display==='flex'){
-    menu.style.position='absolute';menu.style.top='66px';menu.style.left='10px';menu.style.right='10px';
-    menu.style.flexDirection='column';menu.style.alignItems='stretch';menu.style.background='#fffaf1';
-    menu.style.padding='12px';menu.style.border='1px solid #eadcc5';menu.style.borderRadius='14px';
-    menu.style.boxShadow='0 18px 45px rgba(58,38,8,.12)';
-  }
-});
+
 </script>
 <script>
 function syncPartnerPromoTheme(){
@@ -1863,7 +1855,7 @@ document.addEventListener('DOMContentLoaded',syncPartnerPromoTheme);
 const partnerThemeObserver=new MutationObserver(syncPartnerPromoTheme);
 partnerThemeObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
 </script>
-<script src="public-upgrades.js?v=20260722-brand-dark-hero-v3"></script>
+<script src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
 <script>
 (function(){
   const spotlight=document.querySelector('.mentor-spotlight');
