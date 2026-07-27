@@ -257,6 +257,9 @@
   .perf-tab { padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 6px; border: none; background: transparent; transition: all 0.2s; }
   .perf-tab.active { background: var(--gold); color: #0a0e1a; }
   .chart-container { height: 260px; position: relative; }
+  /* Performance card should use the full height beside the monthly calendar. */
+  .performance-card { display: flex; flex-direction: column; min-height: 100%; }
+  .performance-card .chart-container { flex: 1 1 auto; height: auto; min-height: 260px; }
   
   .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); font-size: 13px; padding: 30px; }
   .empty-state .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
@@ -1193,7 +1196,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         </div>
         
         <div class="two-col">
-          <div class="card">
+          <div class="card performance-card">
             <div class="card-header">
               <div>
                 <div class="card-title"><span style="color: var(--gold);">📈</span>Performance</div>
@@ -3617,6 +3620,9 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         interaction: { intersect: false, mode: 'index' },
         scales: {
           y: {
+            beginAtZero: true,
+            min: 0,
+            max: 1,
             grid: { color: colors.grid, lineWidth: 1 },
             ticks: { color: colors.tick, font: { size: 10 } },
             border: { color: colors.axis }
@@ -4071,12 +4077,39 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         perfChart.data.datasets[0].backgroundColor = bgColor;
         perfChart.data.datasets[0].pointBackgroundColor = color;
         perfChart.data.datasets[0].pointRadius = 4;
+
+        // Keep $0 at the bottom for profitable/equal curves, at the top for
+        // fully negative curves, and allow both sides for mixed P&L.
+        const minPL = Math.min(...data);
+        const maxPL = Math.max(...data);
+        if (minPL >= 0) {
+          perfChart.options.scales.y.min = 0;
+          delete perfChart.options.scales.y.max;
+          perfChart.options.scales.y.suggestedMax = maxPL === 0 ? 1 : maxPL;
+          delete perfChart.options.scales.y.suggestedMin;
+        } else if (maxPL <= 0) {
+          delete perfChart.options.scales.y.min;
+          perfChart.options.scales.y.max = 0;
+          perfChart.options.scales.y.suggestedMin = minPL;
+          delete perfChart.options.scales.y.suggestedMax;
+        } else {
+          delete perfChart.options.scales.y.min;
+          delete perfChart.options.scales.y.max;
+          delete perfChart.options.scales.y.suggestedMin;
+          delete perfChart.options.scales.y.suggestedMax;
+        }
       } else {
         perfChart.data.labels = ['Start'];
         perfChart.data.datasets[0].data = [0];
         perfChart.data.datasets[0].borderColor = '#f59e0b';
         perfChart.data.datasets[0].backgroundColor = 'rgba(245, 158, 11, 0.1)';
+        perfChart.data.datasets[0].pointRadius = 0;
+        perfChart.options.scales.y.min = 0;
+        perfChart.options.scales.y.max = 1;
+        delete perfChart.options.scales.y.suggestedMin;
+        delete perfChart.options.scales.y.suggestedMax;
       }
+      perfChart.resize();
       perfChart.update();
     }
   }
