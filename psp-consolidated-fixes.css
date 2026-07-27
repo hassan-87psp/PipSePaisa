@@ -1,0 +1,46 @@
+/* PipSePaisa consolidated fixes — 2026-07-27 */
+:root{--psp-footer-bg:#07111f;--psp-footer-text:#dbe7f5}
+/* Dark-theme sections that previously stayed white */
+body.dark-theme .social-showcase,
+body.dark-theme .services-section,
+body.dark-theme .services-premium,
+body.dark-theme .community-section,
+body.dark-theme .connect-section{background:#07111f!important;color:#fff!important}
+body.dark-theme .social-showcase h2,
+body.dark-theme .social-showcase .section-heading h2,
+body.dark-theme .services-section h2,
+body.dark-theme .services-premium h2{color:#fff!important}
+body.dark-theme .social-showcase p,
+body.dark-theme .services-section p,
+body.dark-theme .services-premium p{color:#b8c4d6!important}
+body.dark-theme .service-card,
+body.dark-theme .service-premium-card,
+body.dark-theme .practical-service-card{background:#111c2e!important;color:#fff!important;border-color:rgba(245,158,11,.45)!important}
+body.dark-theme .service-card h3,
+body.dark-theme .service-premium-card h3,
+body.dark-theme .practical-service-card h3{color:#fff!important}
+body.dark-theme .service-card p,
+body.dark-theme .service-premium-card p,
+body.dark-theme .practical-service-card p{color:#b8c4d6!important}
+/* Broker cards keep exact 3:1 artwork ratio */
+.broker-logo-card picture,.broker-logo-card img,.broker-banner-card img{aspect-ratio:3/1!important;object-fit:cover!important;width:100%!important;height:auto!important;display:block!important}
+.broker-logo-card{overflow:hidden!important}
+/* Auth logo */
+.landing-auth-logo{background-image:url('icon-192.png')!important;background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important;color:transparent!important;font-size:0!important;border-radius:16px!important}
+/* Mobile footer — no overflow, readable columns */
+@media(max-width:768px){
+  footer{width:100%!important;overflow:hidden!important}
+  footer .container{width:100%!important;max-width:none!important;padding:22px 16px!important}
+  footer .footer-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:20px 16px!important;align-items:start!important}
+  footer .footer-grid>div:first-child{grid-column:1/-1!important}
+  footer h4{font-size:11px!important;margin-bottom:8px!important}
+  footer p,footer li,footer a{font-size:10px!important;line-height:1.55!important;overflow-wrap:anywhere!important}
+  footer .disclaimer{font-size:8px!important;line-height:1.45!important;margin-top:18px!important;padding:10px!important}
+  .mobile-menu,.menu-toggle,.hamburger,[aria-label*="menu" i].mobile-only{display:none!important}
+}
+/* Course enrollment improves clarity */
+.ce-progress{display:flex;align-items:center;gap:6px;margin-bottom:16px}.ce-progress span{flex:1;height:5px;border-radius:999px;background:#e8dfcf}.ce-progress span.on{background:#e88600}
+.ce-readonly{background:#f1ede5!important;color:#657084!important;cursor:not-allowed}
+/* Performance chart card/canvas must have a measurable height */
+#perfChart{display:block!important;width:100%!important;height:100%!important;min-height:320px!important}
+#perfChartWrap,.performance-chart-wrap,.perf-chart-area{min-height:340px!important;position:relative!important}

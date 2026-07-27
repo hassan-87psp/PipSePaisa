@@ -984,7 +984,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @keyframes pipToastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}.pip-toast.out{animation:pipToastOut .3s ease forwards}@keyframes pipToastOut{to{opacity:0;transform:translateX(40px)}}
 </style>
 <style id="pipSplash">
-#pipBoot{position:fixed;inset:0;z-index:999999;background:radial-gradient(circle at 50% 40%,#0d1322,#070b15 72%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .6s ease,visibility .6s}
+#pipBoot{display:none!important;position:fixed;inset:0;z-index:999999;background:radial-gradient(circle at 50% 40%,#0d1322,#070b15 72%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .6s ease,visibility .6s}
 #pipBoot.gone{opacity:0;visibility:hidden}
 #pipBoot .bl{width:86px;height:86px;border-radius:22px;box-shadow:0 12px 44px rgba(245,158,11,.45);animation:pipBootPulse 1.4s ease-in-out infinite}
 #pipBoot .bt{font-size:21px;font-weight:800;letter-spacing:.4px;color:#e8eaf0}#pipBoot .bt span{color:#f59e0b}
@@ -1006,6 +1006,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @media(max-width:1050px){.mentor-ai-grid{grid-template-columns:1fr}.mentor-ai-output{min-height:300px}}@media(max-width:650px){.mentor-ai-hero{min-height:250px}.mentor-ai-hero-copy{padding:26px 20px}.mentor-ai-hero-copy h2{font-size:23px}.mentor-ai-form-grid{grid-template-columns:1fr}.mentor-ai-card{padding:15px}.mentor-ai-tabs button{min-width:125px}.mentor-ai-output-actions{align-items:flex-start;flex-direction:column}.mentor-ai-output-actions button{width:100%}}
 </style>
 
+<link rel="stylesheet" href="psp-consolidated-fixes.css?v=20260727-final">
 </head>
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
@@ -7457,7 +7458,10 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     var box=document.getElementById('aiReportBox');if(!box)return;
     var w=window.open('','_blank');if(!w)return;
     var name=(currentProfile&&(currentProfile.full_name||currentProfile.email))||'Trader';
-    w.document.write('<html><head><title>AI Trade Report</title><style>body{font-family:system-ui,Arial,sans-serif;background:#0a0e1a;color:#e8eaf0;padding:24px;max-width:820px;margin:auto;}h1{color:#f59e0b}</style></head><body><h1>🤖 AI Trade Report</h1><p style="color:#94a0b8">'+vEsc(name)+' · '+new Date().toLocaleString()+'</p>'+box.innerHTML+'<script>setTimeout(function(){window.print()},400)<\/script></body></html>');
+    w.document.write('<html><head><title>AI Trade Report</title><style>body{font-family:system-ui,Arial,sans-serif;background:#0a0e1a;color:#e8eaf0;padding:24px;max-width:820px;margin:auto;}h1{color:#f59e0b}</style><link rel="stylesheet" href="psp-consolidated-fixes.css?v=20260727-final">
+</head><body><h1>🤖 AI Trade Report</h1><p style="color:#94a0b8">'+vEsc(name)+' · '+new Date().toLocaleString()+'</p>'+box.innerHTML+'<script>setTimeout(function(){window.print()},400)<\/script><script src="psp-consolidated-fixes.js?v=20260727-final"></script>
+<script src="dashboard-consolidated-fixes.js?v=20260727-final"></script>
+</body></html>');
     w.document.close();
   }
   function renderAIReport(box,text,provider,cached,stats){
@@ -9089,6 +9093,8 @@ window.addEventListener('message',function(event){
   if(typeof window.openAuthModal==='function'){ window.openAuthModal(); if(event.data.mode==='signup'&&typeof window.switchAuthTab==='function') window.switchAuthTab('signup'); }
 });
 </script>
-<script src="course-enrollments-user.js?v=20260727-course-enrollment-v1"></script>
+<script src="course-enrollments-user.js?v=20260727-course-enrollment-v2"></script>
+<script src="psp-consolidated-fixes.js?v=20260727-final"></script>
+<script src="dashboard-consolidated-fixes.js?v=20260727-final"></script>
 </body>
 </html>

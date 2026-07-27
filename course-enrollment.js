@@ -54,8 +54,11 @@
 
           <section class="ce-step" id="ceStepLogin">
             <div class="ce-course-summary"><strong id="ceLoginCourseName">Course</strong><span class="ce-price" id="ceLoginPrice">Free</span></div>
-            <h3 style="margin:0 0 13px">Login to Continue</h3>
+            <div class="ce-progress"><span class="on"></span><span class="on"></span><span></span></div>
+            <h3 style="margin:0 0 13px">Login & Enrollment Details</h3>
             <div class="ce-grid">
+              <div class="ce-field"><label>Full Name</label><input id="ceLoginName" type="text" autocomplete="name" placeholder="Your full name"></div>
+              <div class="ce-field"><label>WhatsApp Number</label><input id="ceLoginPhone" type="tel" autocomplete="tel" placeholder="+60..."></div>
               <div class="ce-field full"><label>Email Address</label><input id="ceLoginEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
               <div class="ce-field full"><label>Password</label><input id="ceLoginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div>
             </div>
@@ -87,6 +90,7 @@
             <div class="ce-grid">
               <div class="ce-field"><label>Full Name</label><input id="ceDetailsName" type="text" placeholder="Your full name"></div>
               <div class="ce-field"><label>WhatsApp Number</label><input id="ceDetailsPhone" type="tel" placeholder="+60..."></div>
+              <div class="ce-field full"><label>Email Address</label><input id="ceDetailsEmail" class="ce-readonly" type="email" readonly></div>
               <div class="ce-field"><label>Trading Experience</label><select id="ceDetailsExperience"><option value="Beginner">Beginner</option><option value="Intermediate">Intermediate</option><option value="Advanced">Advanced</option></select></div>
               <div class="ce-field"><label>Learning Goal</label><input id="ceDetailsGoal" type="text" placeholder="What do you want to achieve?"></div>
             </div>
@@ -214,7 +218,28 @@
     if(old?.course_type==='paid' && old?.payment_status==='pending')return {pending:true,row:old};
     const receiptUrl=selectedCourse.type==='paid'?await uploadReceipt(receiptFile,activeUser.id):null;
     const payload=enrollmentPayload(values,receiptUrl);
-    const {data,error}=await getClient().from('course_enrollments').upsert(payload,{onConflict:'user_id,course_key'}).select().single();
+    const sb=getClient();
+    /* Use the canonical RPC so profile update, free instant access and paid
+       pending status happen atomically before any redirect. */
+    const rpc=await sb.rpc('enroll_course_v2',{
+      p_course_key:selectedCourse.key,
+      p_full_name:values.name,
+      p_whatsapp:values.phone,
+      p_experience:values.experience||'Beginner',
+      p_learning_goal:values.goal||null,
+      p_payment_method:payload.payment_method,
+      p_transaction_id:payload.transaction_id,
+      p_receipt_url:payload.receipt_url
+    });
+    if(!rpc.error){
+      const row=rpc.data?.enrollment||rpc.data;
+      if(rpc.data?.already)return {already:true,row};
+      if(rpc.data?.pending)return {pending:true,row};
+      return {row};
+    }
+    /* Backward-compatible fallback when Query 45 has not yet been run. */
+    if(!/enroll_course_v2|function .* does not exist|schema cache/i.test(rpc.error.message||''))throw rpc.error;
+    const {data,error}=await sb.from('course_enrollments').upsert(payload,{onConflict:'user_id,course_key'}).select().single();
     if(error)throw error;
     return {row:data};
   }
@@ -277,9 +302,12 @@
   };
 
   window.courseEnrollmentLogin=async function(){
+    const name=document.getElementById('ceLoginName').value.trim();
+    const phone=document.getElementById('ceLoginPhone').value.trim();
     const email=document.getElementById('ceLoginEmail').value.trim();
     const password=document.getElementById('ceLoginPassword').value;
-    if(!email||!password){setMessage('ceLoginMessage','error','Please enter your email and password.');return;}
+    if(!name||!phone||!email||!password){setMessage('ceLoginMessage','error','Please enter name, email, WhatsApp number and password.');return;}
+    if(phone.length<7){setMessage('ceLoginMessage','error','Please enter a valid WhatsApp number.');return;}
     setBusy('ceLoginBtn',true,'Logging in...','Login & Continue');
     setMessage('ceLoginMessage','info','Checking your account...');
     try{
@@ -287,7 +315,10 @@
       const {data,error}=await sb.auth.signInWithPassword({email,password});
       if(error)throw error;
       activeUser=data?.user||null;if(!activeUser)throw new Error('Login could not be completed.');
-      await loadProfile(activeUser);fillExistingDetails();setMessage('ceLoginMessage','','');showStep('ceStepDetails');
+      await loadProfile(activeUser);fillExistingDetails();
+      document.getElementById('ceDetailsName').value=name;
+      document.getElementById('ceDetailsPhone').value=phone;
+      setMessage('ceLoginMessage','','');showStep('ceStepDetails');
     }catch(error){
       let msg=error?.message||'Login failed.';
       if(/invalid login credentials|invalid/i.test(msg))msg='Email or password is incorrect.';

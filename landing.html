@@ -1422,6 +1422,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 
 <link rel="stylesheet" href="mobile-reference-layout.css?v=20260727-exact-v3" />
 <link rel="stylesheet" href="psp-final-fixes.css?v=20260727-all-fixes-v1" />
+<link rel="stylesheet" href="psp-consolidated-fixes.css?v=20260727-final">
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -1466,15 +1467,15 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <p>Explore leading broker options and select the platform that best matches your trading requirements.</p>
 </div>
 <div class="broker-logo-grid" id="landingBrokerGrid">
-<a class="broker-logo-card" data-fallback="true" href="landing.html">
+<a class="broker-logo-card" data-fallback="true" href="https://my.dooprime.com/links/go/72929">
 <picture class="theme-picture"><img alt="DPrime broker" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" src="broker-promo-assets/dprime-promo-light.webp"/></picture>
 <div class="broker-card-footer"><strong>DPrime</strong><span>Open Account →</span></div>
 </a>
-<a class="broker-logo-card" data-fallback="true" href="landing.html">
+<a class="broker-logo-card" data-fallback="true" href="https://affs.click/BvyF2">
 <picture class="theme-picture"><img alt="XM broker" data-dark="broker-promo-assets/xm-promo-dark.webp" data-light="broker-promo-assets/xm-promo-light.webp" src="broker-promo-assets/xm-promo-light.webp"/></picture>
 <div class="broker-card-footer"><strong>XM</strong><span>Open Account →</span></div>
 </a>
-<a class="broker-logo-card" data-fallback="true" href="landing.html">
+<a class="broker-logo-card" data-fallback="true" href="https://one.exnessonelink.com/a/be2kjlypr9">
 <picture class="theme-picture"><img alt="Exness broker" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" src="broker-promo-assets/exness-promo-light.webp"/></picture>
 <div class="broker-card-footer"><strong>Exness</strong><span>Open Account →</span></div>
 </a>
@@ -1673,7 +1674,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <div class="landing-auth-overlay" id="landingAuthOverlay" aria-hidden="true">
   <div class="landing-auth-card" role="dialog" aria-modal="true" aria-labelledby="landingAuthTitle">
     <button class="landing-auth-close" type="button" aria-label="Close login popup" onclick="closeLandingAuth()">×</button>
-    <div class="landing-auth-logo">PP</div>
+    <div class="landing-auth-logo" aria-label="PipSePaisa logo"></div>
     <h2 class="landing-auth-title" id="landingAuthTitle">Welcome Back</h2>
     <p class="landing-auth-sub" id="landingAuthSubtitle">Login to your trading hub</p>
     <div class="landing-auth-tabs">
@@ -1741,7 +1742,7 @@ async function loadLandingAdminContent(){
     const brokers=rows.filter(x=>(x.title||'').startsWith('LANDING_BROKER|'));
     if(brokers.length){
       const grid=document.getElementById('landingBrokerGrid');
-      grid.innerHTML=brokers.map(b=>{const name=(b.title||'').split('|').slice(1).join('|')||'Broker';const meta=safeJson(b.description);const light=b.image_url||'';const dark=meta.dark_url||light;const link=meta.link||'#';return `<a class="broker-logo-card" href="${link}" target="_blank" rel="noopener"><picture class="theme-picture"><img src="${document.body.classList.contains('dark-theme')?dark:light}" data-light="${light}" data-dark="${dark}" alt="${name} broker"></picture><div class="broker-card-footer"><strong>${name}</strong><span>Open Account →</span></div></a>`}).join('');
+      grid.innerHTML=brokers.map(b=>{const name=(b.title||'').split('|').slice(1).join('|')||'Broker';const meta=safeJson(b.description);const light=b.image_url||'';const dark=meta.dark_url||light;const defaults={dprime:'https://my.dooprime.com/links/go/72929',xm:'https://affs.click/BvyF2',exness:'https://one.exnessonelink.com/a/be2kjlypr9'};const key=name.toLowerCase().replace(/[^a-z]/g,'');const link=meta.link||defaults[key]||'#';return `<a class="broker-logo-card" href="${link}" target="_blank" rel="noopener"><picture class="theme-picture"><img src="${document.body.classList.contains('dark-theme')?dark:light}" data-light="${light}" data-dark="${dark}" alt="${name} broker"></picture><div class="broker-card-footer"><strong>${name}</strong><span>Open Account →</span></div></a>`}).join('');
     }
     const social={};rows.filter(x=>(x.title||'').startsWith('LANDING_SOCIAL|')).forEach(x=>social[(x.title||'').split('|')[1]]=x.description||'#');
     if(social.facebook)document.getElementById('socialFacebook').href=social.facebook;
@@ -1790,12 +1791,8 @@ function switchLandingAuth(tab){
   clearLandingAuthMessages();
 }
 function openAuth(mode='login'){
-  if(window.parent && window.parent!==window){
-    try{
-      window.parent.postMessage({type:'PIPSEPAISA_OPEN_AUTH',mode:mode==='signup'?'signup':'login'},'*');
-      return;
-    }catch(e){console.warn('Parent login popup message failed',e)}
-  }
+  /* Open instantly in the current page. The old parent/iframe hand-off caused
+     the black splash and a second delayed popup. */
   openLandingAuth(mode);
 }
 async function landingLoginUser(){
@@ -1867,5 +1864,6 @@ partnerThemeObserver.observe(document.body,{attributes:true,attributeFilter:['cl
   observer.observe(spotlight);
 })();
 </script>
+<script src="psp-consolidated-fixes.js?v=20260727-final"></script>
 </body>
 </html>
