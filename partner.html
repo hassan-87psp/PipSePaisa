@@ -3,6 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+<script id="psp-mobile-desktop-viewport">
+(function () {
+  var viewport = document.querySelector('meta[name="viewport"]');
+  var mobileWidth = Math.min(window.innerWidth || 9999, window.screen && window.screen.width ? window.screen.width : 9999);
+  if (viewport && mobileWidth <= 768) {
+    viewport.setAttribute('content', 'width=1214, user-scalable=yes');
+    document.documentElement.classList.add('psp-compact-desktop-mobile');
+  }
+})();
+</script>
     <title>Become a Partner | PipSePaisa</title>
     <meta
       name="description"
@@ -407,7 +417,6 @@
         .cta-person { animation: none !important; }
       }
     </style>
-  <link rel="stylesheet" href="mobile-reference-layout.css?v=20260727-exact-mobile-v1" />
 </head>
   <body class="page-partner">
     <header class="topbar">
