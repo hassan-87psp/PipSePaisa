@@ -94,3 +94,12 @@ body.dark .ce-modal,body.dark-theme .ce-modal{background:#0b1728;color:#f8fafc;b
   .psp-footer .footer-bottom .container{display:flex!important;justify-content:space-between!important;gap:4px!important;flex-wrap:nowrap!important;text-align:left!important}
   .ce-choice-grid,.ce-grid{grid-template-columns:1fr}.ce-field.full{grid-column:auto}.ce-modal{border-radius:16px}.ce-head{padding:16px}.ce-body{padding:16px}.ce-head h2{font-size:20px}
 }
+
+.ce-choice{position:relative;z-index:2;pointer-events:auto!important;cursor:pointer!important}
+.ce-step.is-active{display:block!important;pointer-events:auto!important}
+.ce-pay-card{border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.07);border-radius:12px;padding:12px}
+.ce-pay-title{font-weight:900;font-size:14px;color:#d97706;margin-bottom:7px}
+.ce-pay-row{display:grid;grid-template-columns:115px 1fr auto;gap:8px;align-items:center;padding:7px 0;border-top:1px solid rgba(148,163,184,.17);font-size:12px}
+.ce-pay-row:first-of-type{border-top:0}.ce-pay-row span{color:#64748b}.ce-pay-row strong{overflow-wrap:anywhere}
+.ce-copy{border:0;border-radius:7px;background:#d97706;color:white;font-weight:850;padding:6px 10px;cursor:pointer}
+.ce-pay-empty{padding:12px;border:1px dashed #d97706;border-radius:10px;color:#64748b;font-size:12px}

@@ -984,7 +984,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @keyframes pipToastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}.pip-toast.out{animation:pipToastOut .3s ease forwards}@keyframes pipToastOut{to{opacity:0;transform:translateX(40px)}}
 </style>
 <style id="pipSplash">
-#pipBoot{display:none!important;position:fixed;inset:0;z-index:999999;background:radial-gradient(circle at 50% 40%,#0d1322,#070b15 72%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .6s ease,visibility .6s}
+#pipBoot{position:fixed;inset:0;z-index:999999;background:radial-gradient(circle at 50% 40%,#0d1322,#070b15 72%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .6s ease,visibility .6s}
 #pipBoot.gone{opacity:0;visibility:hidden}
 #pipBoot .bl{width:86px;height:86px;border-radius:22px;box-shadow:0 12px 44px rgba(245,158,11,.45);animation:pipBootPulse 1.4s ease-in-out infinite}
 #pipBoot .bt{font-size:21px;font-weight:800;letter-spacing:.4px;color:#e8eaf0}#pipBoot .bt span{color:#f59e0b}
@@ -1006,7 +1006,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @media(max-width:1050px){.mentor-ai-grid{grid-template-columns:1fr}.mentor-ai-output{min-height:300px}}@media(max-width:650px){.mentor-ai-hero{min-height:250px}.mentor-ai-hero-copy{padding:26px 20px}.mentor-ai-hero-copy h2{font-size:23px}.mentor-ai-form-grid{grid-template-columns:1fr}.mentor-ai-card{padding:15px}.mentor-ai-tabs button{min-width:125px}.mentor-ai-output-actions{align-items:flex-start;flex-direction:column}.mentor-ai-output-actions button{width:100%}}
 </style>
 
-<link rel="stylesheet" href="psp-consolidated-fixes.css?v=20260727-payment-v4">
 </head>
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
@@ -3397,7 +3396,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     currentTheme = newTheme;
     if (perfChart) updateChartTheme(perfChart);
     if (equityChart) updateChartTheme(equityChart);
-    if (typeof schedulePipTickerTape === 'function') schedulePipTickerTape(true);
+    
     if (typeof updateMentorAiTheme === 'function') updateMentorAiTheme();
   }
   
@@ -8856,100 +8855,68 @@ document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getE
 document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getElementById('landingPage');if(!lp)return;var orbs=document.createElement('div');orbs.style.cssText='position:absolute;top:0;left:0;right:0;height:720px;overflow:hidden;pointer-events:none;z-index:-1';orbs.innerHTML='<div class="pip-orb" style="width:240px;height:240px;background:rgba(245,158,11,.45);left:5%;top:90px;animation:pipFloatY 9s ease-in-out infinite"></div><div class="pip-orb" style="width:200px;height:200px;background:rgba(16,185,129,.38);right:7%;top:150px;animation:pipFloatX 12s ease-in-out infinite"></div><div class="pip-orb" style="width:160px;height:160px;background:rgba(245,158,11,.30);left:42%;top:30px;animation:pipFloatY 11s ease-in-out infinite"></div>';lp.insertBefore(orbs,lp.firstChild);var els=lp.querySelectorAll('section, .card, [class*="hero"], [class*="feature"], [class*="stat"]');els.forEach(function(e){e.classList.add('pip-reveal')});var io=new IntersectionObserver(function(ents){ents.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}})},{threshold:.1});els.forEach(function(e){io.observe(e)});setTimeout(function(){els.forEach(function(e){e.classList.add('in')})},1600);}catch(e){}});
 </script>
 <script>
-var pipTickerRenderTimer = null;
-var pipTickerRenderSequence = 0;
+var pipTickerMounted = false;
 
-function removeDuplicatePipTickers(keepWrap) {
-  var lp = document.getElementById('landingPage');
-  if (!lp) return;
-  lp.querySelectorAll('#pipTickerTapeWrap, .pip-ticker-tape-wrap').forEach(function(node) {
-    if (node !== keepWrap) node.remove();
-  });
-  if (keepWrap) {
-    var frames = keepWrap.querySelectorAll('iframe');
-    for (var i = 1; i < frames.length; i++) frames[i].remove();
-  }
+function removeAllPipTickers(){
+  document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap').forEach(function(node){node.remove();});
 }
 
-function renderPipTickerTape(force) {
-  try {
-    var lp = document.getElementById('landingPage');
-    if (!lp) return;
+function renderSinglePipTicker(){
+  try{
+    if(pipTickerMounted)return;
+    var lp=document.getElementById('landingPage');
+    if(!lp||window.innerWidth<=768)return;
+    removeAllPipTickers();
+    pipTickerMounted=true;
 
-    if (window.innerWidth <= 768) {
-      removeDuplicatePipTickers(null);
-      return;
-    }
+    var isDark=document.documentElement.getAttribute('data-theme')==='dark';
+    var theme=isDark?'dark':'light';
+    var wrap=document.createElement('div');
+    wrap.id='pipTickerTapeWrap';
+    wrap.className='pip-ticker-tape-wrap';
+    wrap.style.cssText='height:46px;min-height:46px;max-height:46px;overflow:hidden;position:relative;z-index:2;border-bottom:1px solid '+(isDark?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)')+';background:'+(isDark?'#0a0e1a':'#fffaf0');
+    wrap.innerHTML='<div class="tradingview-widget-container" style="height:46px;overflow:hidden"><div class="tradingview-widget-container__widget" style="height:46px;overflow:hidden"></div></div>';
+    lp.insertBefore(wrap,lp.firstChild);
 
-    var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    var theme = isDark ? 'dark' : 'light';
-    var current = document.getElementById('pipTickerTapeWrap');
-
-    /* Reuse the existing live widget unless a theme change explicitly requires a rebuild. */
-    if (!force && current && current.dataset.theme === theme) {
-      removeDuplicatePipTickers(current);
-      return;
-    }
-
-    var sequence = ++pipTickerRenderSequence;
-    removeDuplicatePipTickers(null);
-
-    var wrap = document.createElement('div');
-    wrap.id = 'pipTickerTapeWrap';
-    wrap.className = 'pip-ticker-tape-wrap';
-    wrap.dataset.theme = theme;
-    wrap.dataset.renderSequence = String(sequence);
-    wrap.style.cssText =
-      'height:46px;min-height:46px;max-height:46px;border-bottom:1px solid ' +
-      (isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)') +
-      ';background:' + (isDark ? '#0a0e1a' : '#fffaf0') +
-      ';position:relative;z-index:2;overflow:hidden';
-    wrap.innerHTML = '<div class="tradingview-widget-container"><div class="tradingview-widget-container__widget"></div></div>';
-    lp.insertBefore(wrap, lp.firstChild);
-
-    var script = document.createElement('script');
-    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-      symbols: [
-        { description: 'Gold', proName: 'OANDA:XAUUSD' },
-        { description: 'EUR/USD', proName: 'OANDA:EURUSD' },
-        { description: 'GBP/USD', proName: 'OANDA:GBPUSD' },
-        { description: 'BTC', proName: 'BINANCE:BTCUSDT' },
-        { description: 'USD/JPY', proName: 'OANDA:USDJPY' }
+    var script=document.createElement('script');
+    script.src='https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+    script.async=true;
+    script.text=JSON.stringify({
+      symbols:[
+        {description:'Gold',proName:'OANDA:XAUUSD'},
+        {description:'EUR/USD',proName:'OANDA:EURUSD'},
+        {description:'GBP/USD',proName:'OANDA:GBPUSD'},
+        {description:'BTC',proName:'BINANCE:BTCUSDT'},
+        {description:'USD/JPY',proName:'OANDA:USDJPY'}
       ],
-      showSymbolLogo: true,
-      colorTheme: theme,
-      isTransparent: false,
-      displayMode: 'regular',
-      locale: 'en'
+      showSymbolLogo:true,
+      colorTheme:theme,
+      isTransparent:false,
+      displayMode:'adaptive',
+      locale:'en'
     });
-    script.onload = function() {
-      setTimeout(function() {
-        if (sequence !== pipTickerRenderSequence || !wrap.isConnected) {
-          wrap.remove();
-          return;
-        }
-        removeDuplicatePipTickers(wrap);
-        wrap.querySelectorAll('iframe').forEach(function(frame){frame.style.height='46px';frame.style.minHeight='46px';frame.style.maxHeight='46px';});
-      }, 350);
+    script.onload=function(){
+      setTimeout(function(){
+        var all=document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap');
+        for(var i=1;i<all.length;i++)all[i].remove();
+        var frames=wrap.querySelectorAll('iframe');
+        for(var j=1;j<frames.length;j++)frames[j].remove();
+        frames.forEach(function(frame){
+          frame.style.height='46px';
+          frame.style.minHeight='46px';
+          frame.style.maxHeight='46px';
+          frame.style.display='block';
+        });
+      },800);
     };
     wrap.querySelector('.tradingview-widget-container').appendChild(script);
-  } catch (error) {
-    console.warn('PipSePaisa ticker could not load', error);
+  }catch(error){
+    pipTickerMounted=false;
+    console.warn('Ticker failed',error);
   }
 }
 
-function schedulePipTickerTape(force) {
-  clearTimeout(pipTickerRenderTimer);
-  pipTickerRenderTimer = setTimeout(function() {
-    renderPipTickerTape(Boolean(force));
-  }, 120);
-}
-
-document.addEventListener('DOMContentLoaded', function() { schedulePipTickerTape(false); });
-window.addEventListener('pageshow', function() { schedulePipTickerTape(false); });
-window.addEventListener('resize', function() { schedulePipTickerTape(false); }, { passive: true });
+document.addEventListener('DOMContentLoaded',function(){setTimeout(renderSinglePipTicker,80);},{once:true});
 </script>
 <script>
 (function(){var c=document.createElement('div');c.id='pipToasts';function mount(){if(!document.getElementById('pipToasts')&&document.body)document.body.appendChild(c);}document.addEventListener('DOMContentLoaded',mount);
@@ -9090,8 +9057,45 @@ window.addEventListener('message',function(event){
   if(typeof window.openAuthModal==='function'){ window.openAuthModal(); if(event.data.mode==='signup'&&typeof window.switchAuthTab==='function') window.switchAuthTab('signup'); }
 });
 </script>
-<script src="course-enrollments-user.js?v=20260727-lms-v4"></script>
-<script src="psp-consolidated-fixes.js?v=20260727-ib-modal-v3"></script>
-<script src="dashboard-consolidated-fixes.js?v=20260727-final"></script>
+<script src="course-enrollments-user.js?v=20260728-audit-v11"></script>
+<script>
+(function enforceOnePipTicker(){
+  let lock=false;
+  function clean(){
+    if(lock)return;
+    lock=true;
+    try{
+      const nodes=[...document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap')];
+      nodes.slice(1).forEach(node=>node.remove());
+      const first=nodes[0];
+      if(first){
+        first.style.height='46px';
+        first.style.minHeight='46px';
+        first.style.maxHeight='46px';
+        first.style.overflow='hidden';
+        first.style.position='relative';
+        const frames=[...first.querySelectorAll('iframe')];
+        frames.slice(1).forEach(frame=>frame.remove());
+        frames.forEach(frame=>{
+          frame.style.position='absolute';
+          frame.style.inset='0';
+          frame.style.width='100%';
+          frame.style.height='46px';
+          frame.style.minHeight='46px';
+          frame.style.maxHeight='46px';
+          frame.style.display='block';
+        });
+      }
+    }finally{lock=false;}
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    clean();
+    const observer=new MutationObserver(()=>requestAnimationFrame(clean));
+    observer.observe(document.documentElement,{childList:true,subtree:true});
+    setTimeout(clean,500);
+    setTimeout(clean,1500);
+  },{once:true});
+})();
+</script>
 </body>
 </html>
