@@ -1423,7 +1423,14 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <link rel="stylesheet" href="mobile-reference-layout.css?v=20260727-exact-v3" />
 <link rel="stylesheet" href="psp-final-fixes.css?v=20260727-all-fixes-v1" />
 
-<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-position-mobile-v3">
+<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-final-v4">
+
+<style>
+@media(max-width:980px){
+  .topbar,.nav,.nav-actions{position:relative;z-index:10020}
+  .nav-actions .btn{display:inline-flex!important;pointer-events:auto!important;touch-action:manipulation;min-height:42px;align-items:center;justify-content:center}
+}
+</style>
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -1432,7 +1439,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <nav class="menu"><a class="active" href="landing.html">Home</a><a class="broker-reviews-link" href="landing.html#broker-comparison">Broker Reviews</a><a href="partner.html">Become Partner</a><a href="courses.html">Courses</a><a href="tools-services.html">Trading Tools &amp; Services</a></nav>
 <div class="nav-actions">
 <button aria-label="Theme" class="theme-btn" type="button">☀️</button>
-<button class="btn" onclick="openAuth();" type="button">Login</button>
+<button class="btn" data-login-button="true" onclick="openAuth();" type="button">Login</button>
 
 </div>
 </div>
@@ -1898,6 +1905,7 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 
-<script src="push-subscribe-prompt.js?v=20260728-position-mobile-v3"></script>
+<script src="push-subscribe-prompt.js?v=20260728-final-v4"></script>
+<script src="mobile-login-fix.js?v=20260728-v1"></script>
 </body>
 </html>

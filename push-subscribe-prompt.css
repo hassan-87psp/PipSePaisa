@@ -155,3 +155,33 @@
     font-size:12px;
   }
 }
+
+/* FINAL overlap/mobile enforcement */
+#pspNotifyInstallBar{z-index:2147483647!important}
+#pwaInstallBanner{z-index:2147483000!important}
+@media(min-width:701px){
+  body:has(#pwaInstallBanner[style*="display: flex"]) #pspNotifyInstallBar,
+  body:has(#pwaInstallBanner[style*="display:flex"]) #pspNotifyInstallBar{
+    bottom:112px!important;
+  }
+}
+@media(max-width:700px){
+  #pspNotifyInstallBar{
+    position:fixed!important;
+    left:8px!important;
+    right:8px!important;
+    bottom:calc(116px + env(safe-area-inset-bottom,0px))!important;
+    width:auto!important;
+    max-height:calc(100vh - 140px)!important;
+    overflow:auto!important;
+  }
+  #pwaInstallBanner{
+    left:8px!important;
+    right:8px!important;
+    bottom:8px!important;
+    width:auto!important;
+    max-width:none!important;
+    transform:none!important;
+    box-sizing:border-box!important;
+  }
+}

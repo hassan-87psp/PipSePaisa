@@ -4,13 +4,15 @@
 const APP_ID = "18a97e55-9d93-4193-b60b-fe8e621f5d12";
 const SDK_URL = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
 const DISMISS_KEY = "psp_notify_prompt_dismissed_until";
+const SUBSCRIBED_KEY = "psp_push_subscription_confirmed";
 let OneSignalRef = null;
 
 function isSecure(){
   return location.protocol === "https:" || location.hostname === "localhost";
 }
 function dismissed(){
-  return Number(localStorage.getItem(DISMISS_KEY) || 0) > Date.now();
+  return localStorage.getItem(SUBSCRIBED_KEY)==="1" ||
+    Number(localStorage.getItem(DISMISS_KEY) || 0) > Date.now();
 }
 function dismissFor(hours){
   localStorage.setItem(DISMISS_KEY, String(Date.now() + hours * 60 * 60 * 1000));
@@ -79,6 +81,7 @@ function updateBarOffset(){
   const installCandidates=[
     document.querySelector(".pwa-install-prompt"),
     document.querySelector("#pwaInstallPrompt"),
+    document.querySelector("#pwaInstallBanner"),
     document.querySelector("[data-pwa-install]"),
     ...Array.from(document.querySelectorAll("body > div")).filter(el=>{
       const t=(el.textContent||"").toLowerCase();
@@ -155,6 +158,7 @@ function showBar(){
         const optIn=os?.User?.PushSubscription?.optIn;
         if(typeof optIn==="function")await optIn.call(os.User.PushSubscription);
         btn.textContent="Enabled ✓";
+        localStorage.setItem(SUBSCRIBED_KEY,"1");
         localStorage.removeItem(DISMISS_KEY);
         setTimeout(removeBar,900);
       }else{
@@ -173,7 +177,10 @@ async function start(){
   // Show the PWA-style bar immediately; subscription check runs in parallel.
   setTimeout(showBar,650);
   try{
-    if(await alreadySubscribed())removeBar();
+    if(await alreadySubscribed()){
+      localStorage.setItem(SUBSCRIBED_KEY,"1");
+      removeBar();
+    }
   }catch(_){}
 }
 if(document.readyState==="loading"){
