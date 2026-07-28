@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-<!-- PipSePaisa OneSignal Clean Web Prompt Fix: 2026-07-28-v1 -->
-<!-- PipSePaisa Notification Flow Fix: 2026-07-28-v1 -->
+<!-- PipSePaisa Mobile UI + Notification Prompt Final: 2026-07-28-v1 -->
 <!-- PipSePaisa Direct Login Verified: 2026-07-28-v2 -->
 <!-- PipSePaisa Direct Parent Login Fix: 2026-07-28-v1 -->
 <!-- PipSePaisa Full Login Audit: 2026-07-28-v1 -->
@@ -1025,38 +1024,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 
 <link rel="stylesheet" href="psp-final-fixes.css?v=20260728-user-course-v13">
 
-<!-- PipSePaisa OneSignal Web Push — single clean initialization -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script id="pipsepaisaOneSignalInit">
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-window.OneSignalDeferred.push(async function(OneSignal) {
-  try {
-    await OneSignal.init({
-      appId: "18a97e55-9d93-4193-b60b-fe8e621f5d12",
-      serviceWorkerPath: "/OneSignalSDKWorker.js",
-      serviceWorkerUpdaterPath: "/OneSignalSDKUpdaterWorker.js",
-      serviceWorkerParam: { scope: "/" },
-      notifyButton: { enable: false },
-      autoResubscribe: true,
-      allowLocalhostAsSecureOrigin: true
-    });
-
-    window.__PIPSEPAISA_ONESIGNAL_READY__ = true;
-
-    const permission = OneSignal.Notifications.permission;
-    const optedIn = OneSignal.User?.PushSubscription?.optedIn;
-    console.log("[PipSePaisa OneSignal]", {
-      initialized: true,
-      permission,
-      optedIn
-    });
-  } catch (error) {
-    window.__PIPSEPAISA_ONESIGNAL_READY__ = false;
-    console.error("[PipSePaisa OneSignal init failed]", error);
-  }
-});
-</script>
-
+<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-mobile-prompt-final-v1">
 </head>
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
@@ -9209,6 +9177,37 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 <script>(function(){var b=document.createElement('div');b.id='announceBanner';b.style.cssText='display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(560px,92vw);';function mount(){if(document.body&&!document.getElementById('announceBanner'))document.body.appendChild(b);}if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);function active(id){var p=document.getElementById(id);return p&&p.classList.contains('active');}function tick(){try{if(typeof checkAnnounceBanner==='function')checkAnnounceBanner();}catch(e){}}function poll(){try{if(active('page-support')&&typeof loadSupport==='function')loadSupport(true);if(active('page-announce')&&typeof loadAnnouncements==='function')loadAnnouncements();}catch(e){}}setTimeout(tick,4500);setInterval(tick,20000);setInterval(poll,3000);})();</script>
 <script>(function(){function hide(){var b=document.getElementById('pipBoot');if(b){b.classList.add('gone');setTimeout(function(){if(b)b.remove();},700);}}if(document.readyState==='complete'){setTimeout(hide,450);}else{window.addEventListener('load',function(){setTimeout(hide,450);});}setTimeout(hide,3500);})();</script>
 <div id="eventAIHost"></div>
+
+
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+(function(){
+  window.PIPSEPAISA_ONESIGNAL_APP_ID = "18a97e55-9d93-4193-b60b-fe8e621f5d12";
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    try {
+      await OneSignal.init({
+        appId: window.PIPSEPAISA_ONESIGNAL_APP_ID,
+        serviceWorkerPath: "OneSignalSDKWorker.js",
+        serviceWorkerParam: { scope: "/" },
+        notifyButton: { enable: false },
+        autoResubscribe: true
+      });
+      window.PipOneSignal = OneSignal;
+      window.pipAskPushNotifications = async function() {
+        try {
+          if (!("Notification" in window)) return false;
+          if (Notification.permission === "granted") return true;
+          if (Notification.permission === "denied") return false;
+          await OneSignal.Notifications.requestPermission();
+          return Notification.permission === "granted";
+        } catch(e) { console.warn("OneSignal permission failed", e); return false; }
+      };
+    } catch(e) { console.warn("OneSignal init failed", e); }
+  });
+})();
+</script>
+
 <script>document.addEventListener('DOMContentLoaded',function(){try{var f=document.getElementById('artFilters'),sl=document.getElementById('artFiltersSlot');if(f&&sl){sl.appendChild(f);f.style.display='flex';}}catch(e){}});</script>
 <style>@media(max-width:768px){#pipTickerTapeWrap{display:none!important}}</style>
 <script>
@@ -9407,5 +9406,7 @@ window.addEventListener('message',function(event){
 })();
 </script>
 
+
+<script src="push-subscribe-prompt.js?v=20260728-mobile-prompt-final-v1"></script>
 </body>
 </html>

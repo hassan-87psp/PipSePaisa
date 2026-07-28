@@ -1,122 +1,102 @@
 (function(){
-'use strict';
+"use strict";
 
-const APP_ID = "18a97e55-9d93-4193-b60b-fe8e621f5d12";
-const SDK_URL = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
-const DISMISS_KEY = "psp_notify_prompt_dismissed_until";
-const SUBSCRIBED_KEY = "psp_push_subscription_confirmed";
-let OneSignalRef = null;
+if(window.top!==window.self)return;
 
-function isSecure(){
-  return location.protocol === "https:" || location.hostname === "localhost";
+const APP_ID="18a97e55-9d93-4193-b60b-fe8e621f5d12";
+const SDK_URL="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+let OneSignalRef=null;
+let starting=false;
+
+function secure(){
+  return location.protocol==="https:"||location.hostname==="localhost";
 }
-function dismissed(){
-  return localStorage.getItem(SUBSCRIBED_KEY)==="1" ||
-    Number(localStorage.getItem(DISMISS_KEY) || 0) > Date.now();
+
+function hidePwa(){
+  const pwa=document.getElementById("pwaInstallBanner");
+  if(!pwa)return;
+  pwa.dataset.notificationPromptHidden="1";
+  pwa.style.setProperty("display","none","important");
 }
-function dismissFor(hours){
-  localStorage.setItem(DISMISS_KEY, String(Date.now() + hours * 60 * 60 * 1000));
+
+function restorePwa(){
+  const pwa=document.getElementById("pwaInstallBanner");
+  if(!pwa||pwa.dataset.notificationPromptHidden!=="1")return;
+  delete pwa.dataset.notificationPromptHidden;
+  // beforeinstallprompt will show it again when available.
 }
-function removeBar(){
-  const bar=document.getElementById("pspNotifyInstallBar");
-  if(!bar)return;
-  bar.classList.remove("show");
-  setTimeout(()=>{
-    bar.remove();
-    const pwa=document.getElementById("pwaInstallBanner");
-    if(pwa&&pwa.dataset.pspHiddenForPush==="1"){
-      pwa.style.removeProperty("display");
-      if(pwa.dataset.pspOldDisplay)pwa.style.display=pwa.dataset.pspOldDisplay;
-      delete pwa.dataset.pspHiddenForPush;
-    }
+
+function removePrompt(){
+  const el=document.getElementById("pspNotifyInstallBar");
+  if(!el)return;
+  el.classList.remove("show");
+  setTimeout(function(){
+    el.remove();
+    restorePwa();
   },220);
 }
+
 function loadSdk(){
-  return new Promise((resolve,reject)=>{
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    const old=document.querySelector(`script[src="${SDK_URL}"]`);
-    if(old){resolve();return;}
+  return new Promise(function(resolve,reject){
+    if(window.OneSignalDeferred&&document.querySelector('script[src="'+SDK_URL+'"]')){
+      resolve();
+      return;
+    }
+    window.OneSignalDeferred=window.OneSignalDeferred||[];
     const script=document.createElement("script");
     script.src=SDK_URL;
     script.defer=true;
     script.onload=resolve;
-    script.onerror=reject;
+    script.onerror=function(){reject(new Error("OneSignal SDK could not load."));};
     document.head.appendChild(script);
   });
 }
-async function getOneSignal(){
+
+async function oneSignal(){
   if(OneSignalRef)return OneSignalRef;
   await loadSdk();
-  return new Promise((resolve)=>{
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+  return new Promise(function(resolve,reject){
+    window.OneSignalDeferred=window.OneSignalDeferred||[];
     window.OneSignalDeferred.push(async function(OneSignal){
       try{
-        if(!window.__pspOneSignalReady){
+        if(!window.__PIPSEPAISA_ONESIGNAL_READY__){
           await OneSignal.init({
             appId:APP_ID,
-            serviceWorkerPath:"OneSignalSDKWorker.js",
+            serviceWorkerPath:"/OneSignalSDKWorker.js",
+            serviceWorkerUpdaterPath:"/OneSignalSDKUpdaterWorker.js",
             serviceWorkerParam:{scope:"/"},
             notifyButton:{enable:false},
-            autoResubscribe:true,
-            allowLocalhostAsSecureOrigin:true
+            autoResubscribe:true
           });
-          window.__pspOneSignalReady=true;
+          window.__PIPSEPAISA_ONESIGNAL_READY__=true;
         }
         OneSignalRef=OneSignal;
         resolve(OneSignal);
       }catch(error){
-        console.warn("OneSignal init error",error);
-        resolve(null);
+        reject(error);
       }
     });
   });
 }
-async function alreadySubscribed(){
+
+async function realSubscriptionActive(){
   if(!("Notification" in window))return false;
   if(Notification.permission!=="granted")return false;
   try{
-    const os=await getOneSignal();
-    const value=os?.User?.PushSubscription?.optedIn;
-    return typeof value==="function" ? !!(await value()) : !!value;
+    const os=await oneSignal();
+    const state=os?.User?.PushSubscription?.optedIn;
+    return typeof state==="function" ? !!(await state()) : !!state;
   }catch(_){
     return false;
   }
 }
 
-function updateBarOffset(){
-  const bar=document.getElementById("pspNotifyInstallBar");
-  if(!bar)return;
-  const installCandidates=[
-    document.querySelector(".pwa-install-prompt"),
-    document.querySelector("#pwaInstallPrompt"),
-    document.querySelector("#pwaInstallBanner"),
-    document.querySelector("[data-pwa-install]"),
-    ...Array.from(document.querySelectorAll("body > div")).filter(el=>{
-      const t=(el.textContent||"").toLowerCase();
-      return t.includes("install trading platform app") || t.includes("add to home screen");
-    })
-  ].filter(Boolean);
-  const visible=installCandidates.find(el=>{
-    const r=el.getBoundingClientRect();
-    const cs=getComputedStyle(el);
-    return r.height>20 && cs.display!=="none" && cs.visibility!=="hidden" && Number(cs.opacity||1)>0;
-  });
-  if(visible){
-    const h=Math.ceil(visible.getBoundingClientRect().height);
-    if(window.innerWidth<=700){
-      bar.style.bottom=`calc(${h+18}px + env(safe-area-inset-bottom, 0px))`;
-    }else{
-      bar.style.bottom=`calc(${h+28}px + env(safe-area-inset-bottom, 0px))`;
-    }
-  }else{
-    bar.style.bottom=window.innerWidth<=700
-      ? "calc(18px + env(safe-area-inset-bottom, 0px))"
-      : "calc(18px + env(safe-area-inset-bottom, 0px))";
-  }
-}
-
-function showBar(){
+function showPrompt(){
   if(document.getElementById("pspNotifyInstallBar"))return;
+
+  hidePwa();
+
   const bar=document.createElement("div");
   bar.id="pspNotifyInstallBar";
   bar.innerHTML=`
@@ -124,79 +104,95 @@ function showBar(){
       <img src="icon-192.png" alt="PipSePaisa">
     </div>
     <div class="psp-notify-copy">
-      <strong>Enable PipSePaisa Alerts</strong>
-      <span>Get instant trading signals and important updates.</span>
+      <strong>Subscribe for Notifications</strong>
+      <span>Receive instant trading signals, TP/SL updates and important alerts.</span>
     </div>
-    <button type="button" class="psp-notify-enable">Enable</button>
+    <button type="button" class="psp-notify-enable">Subscribe</button>
     <button type="button" class="psp-notify-later">Not now</button>
   `;
-  const pwa=document.getElementById("pwaInstallBanner");
-  if(pwa){
-    pwa.dataset.pspHiddenForPush="1";
-    pwa.dataset.pspOldDisplay=pwa.style.display||"";
-    pwa.style.setProperty("display","none","important");
-  }
+
   document.body.appendChild(bar);
-  updateBarOffset();
-  window.addEventListener('resize',updateBarOffset,{passive:true});
-  setTimeout(updateBarOffset,350);
-  setTimeout(updateBarOffset,1200);
-  requestAnimationFrame(()=>bar.classList.add("show"));
+  requestAnimationFrame(function(){bar.classList.add("show");});
 
-  bar.querySelector(".psp-notify-later").onclick=()=>{
-    dismissFor(12);
-    removeBar();
-  };
+  bar.querySelector(".psp-notify-later").addEventListener("click",function(){
+    removePrompt();
+  });
 
-  bar.querySelector(".psp-notify-enable").onclick=async function(){
+  bar.querySelector(".psp-notify-enable").addEventListener("click",async function(){
     const btn=this;
+    const copy=bar.querySelector(".psp-notify-copy span");
+
     if(!("Notification" in window)){
+      copy.textContent="Notifications are not supported in this browser.";
       btn.textContent="Not supported";
       return;
     }
+
     if(Notification.permission==="denied"){
-      bar.querySelector(".psp-notify-copy span").textContent=
-        "Browser settings → Site settings → Notifications → Allow";
+      copy.textContent="Chrome Settings → Site settings → Notifications → Allow";
       btn.textContent="Blocked";
       return;
     }
+
+    if(starting)return;
+    starting=true;
     btn.disabled=true;
-    btn.textContent="Enabling...";
+    btn.textContent="Subscribing...";
+
     try{
-      const os=await getOneSignal();
-      if(!os)throw new Error("Notification service could not start.");
+      const os=await oneSignal();
+
       if(Notification.permission!=="granted"){
         await os.Notifications.requestPermission();
       }
-      if(Notification.permission==="granted"){
-        const optIn=os?.User?.PushSubscription?.optIn;
-        if(typeof optIn==="function")await optIn.call(os.User.PushSubscription);
-        btn.textContent="Enabled ✓";
-        localStorage.setItem(SUBSCRIBED_KEY,"1");
-        localStorage.removeItem(DISMISS_KEY);
-        setTimeout(removeBar,900);
-      }else{
-        btn.disabled=false;
-        btn.textContent="Enable";
+
+      if(Notification.permission!=="granted"){
+        throw new Error("Notification permission was not allowed.");
       }
+
+      const optIn=os?.User?.PushSubscription?.optIn;
+      if(typeof optIn==="function"){
+        await optIn.call(os.User.PushSubscription);
+      }
+
+      let active=false;
+      for(let i=0;i<24;i++){
+        const state=os?.User?.PushSubscription?.optedIn;
+        active=typeof state==="function" ? !!(await state()) : !!state;
+        if(active)break;
+        await new Promise(function(resolve){setTimeout(resolve,250);});
+      }
+
+      if(!active){
+        throw new Error("Subscription was not created. Please try again.");
+      }
+
+      btn.textContent="Subscribed ✓";
+      copy.textContent="Notifications are now enabled on this device.";
+      setTimeout(removePrompt,1000);
     }catch(error){
-      console.warn(error);
+      console.warn("PipSePaisa notification subscribe error:",error);
       btn.disabled=false;
       btn.textContent="Try again";
+      copy.textContent=error?.message||"Could not enable notifications.";
+    }finally{
+      starting=false;
     }
-  };
+  });
 }
+
 async function start(){
-  if(!isSecure() || dismissed())return;
-  // Show the PWA-style bar immediately; subscription check runs in parallel.
-  setTimeout(showBar,650);
-  try{
-    if(await alreadySubscribed()){
-      localStorage.setItem(SUBSCRIBED_KEY,"1");
-      removeBar();
-    }
-  }catch(_){}
+  if(!secure())return;
+
+  // Always verify the actual OneSignal subscription; ignore stale local flags.
+  const active=await realSubscriptionActive();
+  if(active)return;
+
+  // Notification prompt must appear before the PWA install banner.
+  hidePwa();
+  setTimeout(showPrompt,900);
 }
+
 if(document.readyState==="loading"){
   document.addEventListener("DOMContentLoaded",start,{once:true});
 }else{
