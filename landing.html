@@ -1533,6 +1533,28 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 }
 </style>
 
+
+<style id="mobileDesktopNavVisibilityFix">
+/* Only restore the approved desktop-style header navigation on mobile. */
+html.psp-desktop-mobile-view .topbar .nav{
+  display:flex!important;align-items:center!important;gap:8px!important;
+}
+html.psp-desktop-mobile-view .topbar .menu,
+html.psp-desktop-mobile-view .topbar .menu.is-open{
+  position:static!important;display:flex!important;visibility:visible!important;opacity:1!important;
+  flex:1 1 auto!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;
+  gap:8px!important;width:auto!important;height:auto!important;overflow:visible!important;
+  transform:none!important;pointer-events:auto!important;background:transparent!important;box-shadow:none!important;
+}
+html.psp-desktop-mobile-view .topbar .menu a{
+  display:inline-flex!important;visibility:visible!important;opacity:1!important;
+  flex:0 0 auto!important;white-space:nowrap!important;padding:9px 5px!important;
+  font-size:10px!important;line-height:1!important;pointer-events:auto!important;
+}
+html.psp-desktop-mobile-view .topbar .nav-actions{
+  display:flex!important;align-items:center!important;gap:6px!important;flex:0 0 auto!important;
+}
+</style>
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -1924,7 +1946,7 @@ async function landingLoginUser(){
     if(!persisted?.data?.session)throw new Error('Login session could not be saved. Please try again.');
     localStorage.setItem('pipsepaisa_last_login_email',email);
     showLandingAuthMessage('success','Login successful. Opening your dashboard...','landingLoginMessage');
-    location.replace('index.html?logged_in=1');
+    window.top.location.replace('index.html?logged_in=1');
   }catch(error){
     const raw=error?.message||'Login failed. Please try again.';
     const msg=/invalid login credentials|invalid/i.test(raw)?'Email or password is incorrect.':raw;
