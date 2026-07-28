@@ -1,0 +1,105 @@
+/* PipSePaisa final public-page fixes — July 2026 */
+
+/* Hamburger is intentionally removed: the complete navigation remains visible. */
+.mobile-menu,.menu-toggle,.hamburger,[aria-label="Menu"],[aria-label="Open navigation menu"]{display:none!important}
+
+/* One-line outer TradingView ticker in the app shell. */
+#pipTickerTapeWrap,.pip-ticker-tape-wrap{height:46px!important;min-height:46px!important;max-height:46px!important;overflow:hidden!important}
+#pipTickerTapeWrap iframe,.pip-ticker-tape-wrap iframe{height:46px!important;min-height:46px!important;max-height:46px!important;display:block!important}
+
+/* Complete dark treatment for social/community sections on every public page. */
+body.dark .social-section,body.dark-theme .social-section,
+body.dark .social-showcase,body.dark-theme .social-showcase{
+  background:radial-gradient(circle at 50% 0,rgba(245,158,11,.10),transparent 38%),linear-gradient(180deg,#0a1626,#06101d)!important;
+  color:#f8fafc!important;border-color:rgba(245,158,11,.16)!important
+}
+body.dark .social-section .section-head h2,body.dark-theme .social-section .section-head h2,
+body.dark .social-showcase .section-heading h2,body.dark-theme .social-showcase .section-heading h2{color:#fff!important}
+body.dark .social-section .section-head p,body.dark-theme .social-section .section-head p,
+body.dark .social-showcase .section-heading p,body.dark-theme .social-showcase .section-heading p{color:#aebbd0!important}
+body.dark .social-section .social-card,body.dark-theme .social-section .social-card,
+body.dark .social-showcase .social-platform,body.dark-theme .social-showcase .social-platform{
+  background:linear-gradient(145deg,#111f33,#0a1729)!important;color:#fff!important;
+  border-color:#2a3d58!important;box-shadow:0 17px 38px rgba(0,0,0,.30)!important
+}
+body.dark .social-section .social-card h3,body.dark-theme .social-section .social-card h3,
+body.dark .social-showcase .social-platform h3,body.dark-theme .social-showcase .social-platform h3{color:#fff!important}
+body.dark .social-section .social-card p,body.dark-theme .social-section .social-card p,
+body.dark .social-showcase .social-platform p,body.dark-theme .social-showcase .social-platform p{color:#b7c3d6!important}
+
+/* Trading Tools: service section and cards must follow the dark theme. */
+body.dark.page-tools #learning-journey,body.dark-theme.page-tools #learning-journey{
+  background:radial-gradient(circle at 50% 0,rgba(245,158,11,.08),transparent 36%),linear-gradient(180deg,#07111f,#050c17)!important;
+  color:#f8fafc!important
+}
+body.dark.page-tools #learning-journey .resource-card,
+body.dark-theme.page-tools #learning-journey .resource-card{
+  background:linear-gradient(145deg,#111f33,#0a1729)!important;color:#fff!important;
+  border-color:#31445f!important;box-shadow:0 18px 42px rgba(0,0,0,.34)!important
+}
+body.dark.page-tools #learning-journey .resource-card h3,
+body.dark-theme.page-tools #learning-journey .resource-card h3{color:#fff!important}
+body.dark.page-tools #learning-journey .resource-card p,
+body.dark-theme.page-tools #learning-journey .resource-card p{color:#b5c2d5!important}
+body.dark.page-tools #learning-journey .resource-card>a,
+body.dark-theme.page-tools #learning-journey .resource-card>a{background:#f59e0b!important;color:#07111f!important}
+body.dark.page-tools #learning-journey .resource-card .num,
+body.dark-theme.page-tools #learning-journey .resource-card .num{color:rgba(245,158,11,.30)!important}
+
+/* Enrollment buttons are real buttons but retain the card CTA look. */
+.course-btn[type="button"]{width:100%;border:0;cursor:pointer;font:inherit;color:inherit}
+
+/* Course enrollment modal */
+.ce-overlay{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(3,8,18,.78);backdrop-filter:blur(8px)}
+.ce-overlay.is-open{display:flex}
+.ce-modal{width:min(680px,100%);max-height:92vh;overflow:auto;border:1px solid rgba(245,158,11,.38);border-radius:22px;background:#fffaf1;color:#121827;box-shadow:0 30px 90px rgba(0,0,0,.45)}
+body.dark .ce-modal,body.dark-theme .ce-modal{background:#0b1728;color:#f8fafc;border-color:#44516a}
+.ce-head{position:sticky;top:0;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:20px 22px 16px;background:inherit;border-bottom:1px solid rgba(148,163,184,.20)}
+.ce-head h2{margin:0;font-size:24px;line-height:1.15}.ce-head p{margin:5px 0 0;color:#64748b;font-size:13px}.dark .ce-head p,.dark-theme .ce-head p{color:#a9b5c7}
+.ce-close{width:36px;height:36px;border:0;border-radius:10px;background:rgba(148,163,184,.14);color:inherit;font-size:22px;cursor:pointer}
+.ce-body{padding:22px}.ce-step{display:none}.ce-step.is-active{display:block}
+.ce-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ce-choice{padding:20px;border:1px solid #e2d5c1;border-radius:16px;background:#fff;cursor:pointer;text-align:left;color:#111827;transition:.2s}
+.ce-choice:hover{transform:translateY(-2px);border-color:#e68a00;box-shadow:0 16px 35px rgba(129,75,0,.13)}
+.dark .ce-choice,.dark-theme .ce-choice{background:#111f33;color:#fff;border-color:#31445f}
+.ce-choice strong{display:block;font-size:17px;margin-bottom:5px}.ce-choice span{display:block;color:#64748b;font-size:12px;line-height:1.5}.dark .ce-choice span,.dark-theme .ce-choice span{color:#aebbd0}
+.ce-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.ce-field{display:grid;gap:6px}.ce-field.full{grid-column:1/-1}.ce-field label{font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.04em}.dark .ce-field label,.dark-theme .ce-field label{color:#aebbd0}
+.ce-field input,.ce-field select,.ce-field textarea{width:100%;min-height:43px;padding:10px 12px;border:1px solid #dfd2bd;border-radius:10px;background:#fff;color:#111827;font:inherit;outline:none}.ce-field textarea{min-height:82px;resize:vertical}.dark .ce-field input,.dark-theme .ce-field input,.dark .ce-field select,.dark-theme .ce-field select,.dark .ce-field textarea,.dark-theme .ce-field textarea{background:#0a1424;color:#fff;border-color:#30435e}
+.ce-field input:focus,.ce-field select:focus,.ce-field textarea:focus{border-color:#e68a00;box-shadow:0 0 0 3px rgba(230,138,0,.12)}
+.ce-course-summary{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:14px 16px;margin-bottom:17px;border-radius:13px;background:linear-gradient(135deg,rgba(245,158,11,.16),rgba(245,158,11,.05));border:1px solid rgba(245,158,11,.25)}
+.ce-course-summary strong{font-size:16px}.ce-price{font-size:20px;font-weight:950;color:#d97706;white-space:nowrap}
+.ce-payment{margin-top:17px;padding-top:17px;border-top:1px solid rgba(148,163,184,.20)}
+.ce-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}.ce-btn{min-height:42px;padding:10px 18px;border:0;border-radius:10px;font-weight:850;cursor:pointer}.ce-btn.secondary{background:rgba(148,163,184,.15);color:inherit}.ce-btn.primary{background:linear-gradient(135deg,#f59e0b,#d97706);color:#101010}.ce-btn:disabled{opacity:.6;cursor:not-allowed}
+.ce-message{display:none;margin-top:14px;padding:12px 14px;border-radius:10px;font-size:13px;line-height:1.5}.ce-message.error{display:block;background:rgba(239,68,68,.12);color:#dc2626}.ce-message.info{display:block;background:rgba(245,158,11,.12);color:#b45309}.ce-message.success{display:block;background:rgba(16,185,129,.12);color:#059669}
+.ce-success{text-align:center;padding:14px 4px 8px}.ce-success-icon{width:76px;height:76px;margin:0 auto 15px;border-radius:22px;display:grid;place-items:center;background:rgba(16,185,129,.14);font-size:38px}.ce-success h3{font-size:25px;margin:0 0 8px}.ce-success p{color:#64748b;line-height:1.65;margin:0 auto;max-width:520px}.dark .ce-success p,.dark-theme .ce-success p{color:#b7c3d6}
+.ce-signed-in{padding:11px 13px;margin-bottom:14px;border-radius:10px;background:rgba(16,185,129,.11);color:#047857;font-size:12px;font-weight:700}
+
+/* Public mobile footer: force the approved compact four-column composition. */
+@media(max-width:768px){
+  .psp-footer{width:100%!important;overflow:hidden!important}
+  .psp-footer .footer-main{padding:16px 0 8px!important}
+  .psp-footer .container{width:calc(100% - 12px)!important;margin:0 6px!important}
+  .psp-footer .footer-grid{display:grid!important;grid-template-columns:1.55fr repeat(3,minmax(0,1fr))!important;gap:7px!important;align-items:start!important}
+  .psp-footer .footer-grid>div:first-child{grid-column:auto!important;min-width:0!important}
+  .psp-footer .footer-brand{gap:3px!important;font-size:8.5px!important;white-space:nowrap!important}
+  .psp-footer .footer-brand img{width:17px!important;height:17px!important;border-radius:5px!important}
+  .psp-footer .footer-about{margin:3px 0!important;max-width:none!important;font-size:3.8px!important;line-height:1.35!important}
+  .psp-footer h4{margin:1px 0 4px!important;font-size:4.6px!important;letter-spacing:.08em!important}
+  .psp-footer ul{gap:2px!important;font-size:3.7px!important;line-height:1.25!important}
+  .psp-footer .footer-socials{gap:3px!important;margin-top:4px!important}
+  .psp-footer .footer-socials a{width:13px!important;height:13px!important;border-radius:4px!important}
+  .psp-footer .footer-socials svg{width:7px!important;height:7px!important}
+  .psp-footer .risk-note{margin-top:6px!important;padding:5px 6px!important;border-radius:5px!important;font-size:3.2px!important;line-height:1.35!important}
+  .psp-footer .footer-bottom{padding:5px 0!important;font-size:3.2px!important}
+  .psp-footer .footer-bottom .container{display:flex!important;justify-content:space-between!important;gap:4px!important;flex-wrap:nowrap!important;text-align:left!important}
+  .ce-choice-grid,.ce-grid{grid-template-columns:1fr}.ce-field.full{grid-column:auto}.ce-modal{border-radius:16px}.ce-head{padding:16px}.ce-body{padding:16px}.ce-head h2{font-size:20px}
+}
+
+.ce-choice{position:relative;z-index:2;pointer-events:auto!important;cursor:pointer!important}
+.ce-step.is-active{display:block!important;pointer-events:auto!important}
+.ce-pay-card{border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.07);border-radius:12px;padding:12px}
+.ce-pay-title{font-weight:900;font-size:14px;color:#d97706;margin-bottom:7px}
+.ce-pay-row{display:grid;grid-template-columns:115px 1fr auto;gap:8px;align-items:center;padding:7px 0;border-top:1px solid rgba(148,163,184,.17);font-size:12px}
+.ce-pay-row:first-of-type{border-top:0}.ce-pay-row span{color:#64748b}.ce-pay-row strong{overflow-wrap:anywhere}
+.ce-copy{border:0;border-radius:7px;background:#d97706;color:white;font-weight:850;padding:6px 10px;cursor:pointer}
+.ce-pay-empty{padding:12px;border:1px dashed #d97706;border-radius:10px;color:#64748b;font-size:12px}
