@@ -1,0 +1,229 @@
+
+/* ===== FINAL MOBILE LOGIN + BROKER COMPARISON FIX ===== */
+
+/* Notification subscription prompt has priority over the PWA install card. */
+body:has(#pspNotifyInstallBar) #pwaInstallBanner{
+  display:none!important;
+}
+
+@media(max-width:768px){
+  /* Keep the mobile header usable instead of shrinking every item to 5px. */
+  .topbar{
+    position:sticky!important;
+    top:0!important;
+    z-index:50000!important;
+    background:var(--surface,#fffaf1)!important;
+  }
+  .topbar .nav{
+    width:100%!important;
+    height:58px!important;
+    min-height:58px!important;
+    padding:7px 10px!important;
+    margin:0!important;
+    gap:8px!important;
+    display:flex!important;
+    align-items:center!important;
+  }
+  .topbar .brand{
+    font-size:15px!important;
+    gap:7px!important;
+    flex:0 0 auto!important;
+  }
+  .topbar .brand img{
+    width:38px!important;
+    height:38px!important;
+    border-radius:10px!important;
+  }
+  .topbar .menu,
+  .topbar .menu.is-open{
+    display:flex!important;
+    flex:1 1 auto!important;
+    justify-content:flex-start!important;
+    gap:14px!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:none!important;
+    white-space:nowrap!important;
+  }
+  .topbar .menu::-webkit-scrollbar{display:none!important}
+  .topbar .menu a{
+    flex:0 0 auto!important;
+    padding:10px 0!important;
+    font-size:11px!important;
+    line-height:1!important;
+  }
+  .topbar .nav-actions{
+    display:flex!important;
+    align-items:center!important;
+    gap:6px!important;
+    flex:0 0 auto!important;
+    position:relative!important;
+    z-index:50010!important;
+  }
+  .topbar .theme-btn{
+    width:38px!important;
+    height:38px!important;
+    min-width:38px!important;
+    font-size:16px!important;
+    pointer-events:auto!important;
+  }
+  .topbar .nav-actions .btn,
+  .topbar [data-login-button]{
+    display:inline-flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+    touch-action:manipulation!important;
+    min-width:66px!important;
+    min-height:40px!important;
+    padding:9px 13px!important;
+    border-radius:11px!important;
+    font-size:12px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    position:relative!important;
+    z-index:50020!important;
+  }
+
+  /* Auth popup always above PWA/push UI and sized for mobile. */
+  .landing-auth-overlay{
+    position:fixed!important;
+    inset:0!important;
+    z-index:2147483647!important;
+    padding:12px!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  .landing-auth-card{
+    width:min(420px,100%)!important;
+    max-height:calc(100dvh - 24px)!important;
+    overflow:auto!important;
+  }
+
+  /* Only broker comparison is converted to readable mobile cards. */
+  .broker-comparison-section{
+    padding:34px 0!important;
+  }
+  .broker-table-wrap{
+    overflow:visible!important;
+    border:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  .broker-comparison-table,
+  .broker-comparison-table tbody{
+    display:block!important;
+    width:100%!important;
+  }
+  .broker-comparison-table colgroup,
+  .broker-comparison-table thead{
+    display:none!important;
+  }
+  .broker-comparison-table tbody{
+    display:grid!important;
+    gap:14px!important;
+  }
+  .broker-comparison-table tbody tr{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    width:100%!important;
+    overflow:hidden!important;
+    border:1px solid rgba(230,127,0,.30)!important;
+    border-radius:16px!important;
+    background:#fff!important;
+    box-shadow:0 12px 28px rgba(41,29,10,.09)!important;
+    cursor:pointer!important;
+  }
+  .broker-comparison-table tbody td{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    width:auto!important;
+    min-width:0!important;
+    padding:11px 12px!important;
+    border:0!important;
+    border-bottom:1px solid #eee3d2!important;
+    border-right:1px solid #eee3d2!important;
+    text-align:left!important;
+    font-size:11px!important;
+    line-height:1.35!important;
+    overflow-wrap:anywhere!important;
+  }
+  .broker-comparison-table tbody td:nth-child(even){
+    border-right:0!important;
+  }
+  .broker-comparison-table tbody td::before{
+    content:attr(data-label)!important;
+    display:block!important;
+    margin-bottom:5px!important;
+    color:#8a5b19!important;
+    font-size:8px!important;
+    font-weight:900!important;
+    letter-spacing:.05em!important;
+    text-transform:uppercase!important;
+  }
+  .broker-comparison-table tbody td[data-label="Broker"]{
+    grid-column:1/-1!important;
+    min-height:74px!important;
+    background:linear-gradient(135deg,#fff9ed,#fff)!important;
+    border-right:0!important;
+  }
+  .broker-comparison-table tbody td[data-label="Broker"]::before{
+    display:none!important;
+  }
+  .broker-comparison-table .broker-name{
+    width:100%!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:12px!important;
+  }
+  .broker-comparison-table .broker-name img,
+  .broker-comparison-table .broker-logo-icon{
+    width:92px!important;
+    height:44px!important;
+    object-fit:contain!important;
+    padding:4px!important;
+    border-radius:9px!important;
+    background:#fff!important;
+  }
+  .broker-comparison-table .broker-name strong{
+    font-size:15px!important;
+  }
+  .broker-comparison-table .badge{
+    display:inline-flex!important;
+    padding:5px 8px!important;
+    font-size:9px!important;
+    line-height:1.15!important;
+  }
+  body.dark-theme .broker-comparison-table tbody tr{
+    background:#0f192a!important;
+    border-color:#2c3a50!important;
+  }
+  body.dark-theme .broker-comparison-table tbody td{
+    color:#e5edf8!important;
+    border-color:#26364c!important;
+  }
+  body.dark-theme .broker-comparison-table tbody td[data-label="Broker"]{
+    background:linear-gradient(135deg,#111d30,#0f192a)!important;
+  }
+  body.dark-theme .broker-comparison-table tbody td::before{
+    color:#f4ad45!important;
+  }
+}
+
+@media(max-width:520px){
+  /* On narrow phones, preserve Login and remove crowded desktop menu links. */
+  .topbar .menu,
+  .topbar .menu.is-open{
+    display:none!important;
+  }
+  .topbar .nav{
+    justify-content:space-between!important;
+  }
+  .topbar .brand{
+    flex:1 1 auto!important;
+  }
+}

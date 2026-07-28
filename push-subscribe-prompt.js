@@ -18,17 +18,17 @@ function dismissFor(hours){
   localStorage.setItem(DISMISS_KEY, String(Date.now() + hours * 60 * 60 * 1000));
 }
 function removeBar(){
-  const pwa=document.getElementById("pwaInstallBanner");
-  if(pwa){
-    const old=pwa.dataset.pspWasDisplay||"";
-    pwa.style.removeProperty("display");
-    if(old)pwa.style.display=old;
-    delete pwa.dataset.pspWasDisplay;
-  }
   const bar=document.getElementById("pspNotifyInstallBar");
   if(!bar)return;
   bar.classList.remove("show");
-  setTimeout(()=>bar.remove(),220);
+  setTimeout(()=>{
+    bar.remove();
+    const pwa=document.getElementById("pwaInstallBanner");
+    if(pwa){
+      pwa.style.removeProperty("display");
+      if(pwa.dataset.previousDisplay)pwa.style.display=pwa.dataset.previousDisplay;
+    }
+  },220);
 }
 function loadSdk(){
   return new Promise((resolve,reject)=>{
@@ -130,7 +130,7 @@ function showBar(){
     <button type="button" class="psp-notify-later">Not now</button>
   `;
   const pwa=document.getElementById("pwaInstallBanner");
-  if(pwa){pwa.dataset.pspWasDisplay=pwa.style.display||"";pwa.style.setProperty("display","none","important");}
+  if(pwa){pwa.dataset.previousDisplay=pwa.style.display||"";pwa.style.setProperty("display","none","important");}
   document.body.appendChild(bar);
   updateBarOffset();
   window.addEventListener('resize',updateBarOffset,{passive:true});

@@ -7459,7 +7459,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     var w=window.open('','_blank');if(!w)return;
     var name=(currentProfile&&(currentProfile.full_name||currentProfile.email))||'Trader';
     w.document.write('<html><head><title>AI Trade Report</title><style>body{font-family:system-ui,Arial,sans-serif;background:#0a0e1a;color:#e8eaf0;padding:24px;max-width:820px;margin:auto;}h1{color:#f59e0b}</style>
-<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-ui-login-v5">
+<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-final-v4">
 </head><body><h1>🤖 AI Trade Report</h1><p style="color:#94a0b8">'+vEsc(name)+' · '+new Date().toLocaleString()+'</p>'+box.innerHTML+'<script>setTimeout(function(){window.print()},400)<\/script></body></html>');
     w.document.close();
   }
@@ -9135,8 +9135,7 @@ window.addEventListener('message',function(event){
 </script>
 
 
-<script src="push-subscribe-prompt.js?v=20260728-ui-login-v5"></script>
+<script src="push-subscribe-prompt.js?v=20260728-final-v4"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
-<script src="auth-session-helper.js?v=20260728-v1"></script>
 </body>
 </html>

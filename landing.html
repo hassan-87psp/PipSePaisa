@@ -1423,7 +1423,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <link rel="stylesheet" href="mobile-reference-layout.css?v=20260727-exact-v3" />
 <link rel="stylesheet" href="psp-final-fixes.css?v=20260727-all-fixes-v1" />
 
-<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-ui-login-v5">
+<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-final-v4">
 
 <style>
 @media(max-width:980px){
@@ -1432,53 +1432,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 }
 </style>
 
-<style id="pspMobileHeaderFinal">
-@media(max-width:980px){
-  header{position:sticky!important;top:0!important;z-index:100000!important;background:var(--bg,#fffaf2)!important}
-  .nav{height:64px!important;padding:0 12px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto auto!important;gap:8px!important;align-items:center!important}
-  .brand{min-width:0!important;font-size:18px!important;gap:8px!important}
-  .brand img{width:40px!important;height:40px!important}
-  .menu{display:none!important;position:fixed!important;left:10px!important;right:10px!important;top:70px!important;
-    padding:12px!important;border:1px solid rgba(230,127,0,.28)!important;border-radius:16px!important;
-    background:#fffaf1!important;box-shadow:0 20px 50px rgba(15,23,42,.25)!important;z-index:100005!important}
-  body.dark-theme .menu{background:#111827!important}
-  .menu.mobile-open{display:grid!important;gap:4px!important}
-  .menu a{display:block!important;padding:12px!important;border-radius:10px!important;font-size:13px!important}
-  .nav-actions{display:flex!important;align-items:center!important;gap:7px!important;position:relative!important;z-index:100006!important}
-  .nav-actions .theme-btn{display:none!important}
-  .nav-actions .btn{display:inline-flex!important;min-height:42px!important;padding:10px 15px!important;pointer-events:auto!important;touch-action:manipulation!important}
-  .mobile-menu{display:inline-flex!important;width:42px!important;height:42px!important;align-items:center!important;justify-content:center!important;
-    border:1px solid rgba(230,127,0,.30)!important;border-radius:11px!important;background:#fff!important;color:#111827!important;
-    font-size:0!important;cursor:pointer!important;position:relative!important;z-index:100006!important}
-  .mobile-menu:before{content:"☰";font-size:21px!important}
-  body.dark-theme .mobile-menu{background:#172136!important;color:#fff!important}
-  .hero-overlay-banner{margin-top:8px!important}
-  .landing-auth-overlay{z-index:2147483647!important;padding:12px!important}
-  .landing-auth-card{width:min(390px,100%)!important;max-height:calc(100dvh - 24px)!important}
-}
-@media(max-width:640px){
-  .container{width:calc(100% - 16px)!important}
-  .nav{padding:0 8px!important}
-  .brand span{font-size:17px!important}
-  .nav-actions .btn{font-size:12px!important;padding:9px 13px!important}
-  .hero-overlay-banner{height:auto!important;min-height:0!important;display:block!important}
-  .hero-text-layer{position:relative!important;width:100%!important;padding:18px 16px 15px!important}
-  .hero-text-layer h1{font-size:32px!important;line-height:1.02!important}
-  .hero-overlay-banner:after{content:"";display:block;min-height:300px;background-position:center top!important;background-size:cover!important}
-  .broker-logo-grid,.quick-grid,.service-grid{grid-template-columns:1fr!important}
-  .broker-comparison-wrap{overflow:visible!important}
-  .broker-comparison-table thead{display:none!important}
-  .broker-comparison-table,.broker-comparison-table tbody,.broker-comparison-table tr,.broker-comparison-table td{display:block!important;width:100%!important}
-  .broker-comparison-table tr{margin-bottom:13px!important;padding:13px!important;border:1px solid #ead6bb!important;border-radius:15px!important;background:#fff!important;box-shadow:0 8px 22px rgba(15,23,42,.06)!important}
-  body.dark-theme .broker-comparison-table tr{background:#111827!important;border-color:#263650!important}
-  .broker-comparison-table td{border:0!important;padding:7px 0!important;text-align:left!important;display:grid!important;grid-template-columns:42% 58%!important;gap:8px!important;align-items:center!important;font-size:11px!important}
-  .broker-comparison-table td:before{content:attr(data-label);font-weight:800;color:#64748b!important}
-  .broker-comparison-table td[data-label="Broker"]{display:block!important}
-  .broker-comparison-table td[data-label="Broker"]:before{display:none!important}
-  .broker-name{justify-content:flex-start!important}
-  .footer-grid{grid-template-columns:1fr!important;text-align:left!important}
-}
-</style>
+<link rel="stylesheet" href="final-mobile-login-broker.css?v=20260728-v1">
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -1738,7 +1692,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
       <button class="landing-auth-tab" id="landingSignupTab" type="button" onclick="switchLandingAuth('signup')">Sign Up</button>
     </div>
     <div class="landing-auth-panel active" id="landingLoginPanel">
-      <div class="landing-auth-field"><label for="landingLoginEmail">Email Address</label><input id="landingLoginEmail" name="email" type="email" autocomplete="username email" placeholder="your@email.com"></div>
+      <div class="landing-auth-field"><label for="landingLoginEmail">Email Address</label><input id="landingLoginEmail" name="email" type="email" autocomplete="username" placeholder="your@email.com"></div>
       <div class="landing-auth-field"><label for="landingLoginPassword">Password</label><input id="landingLoginPassword" name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
       <button class="landing-auth-submit" id="landingLoginBtn" type="button" onclick="landingLoginUser()">🔐 Login to Account</button>
       <div class="landing-auth-message" id="landingLoginMessage"></div>
@@ -1953,66 +1907,9 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 
-<script src="push-subscribe-prompt.js?v=20260728-ui-login-v5"></script>
+<script src="push-subscribe-prompt.js?v=20260728-final-v4"></script>
 <script src="mobile-login-fix.js?v=20260728-v1"></script>
 
-<script id="pspMobileLoginSessionFinal">
-(function(){
-  const menuBtn=document.getElementById('pspMobileMenuBtn');
-  const menu=document.querySelector('header .menu');
-  if(menuBtn&&menu){
-    menuBtn.addEventListener('click',function(e){
-      e.preventDefault();e.stopPropagation();
-      menu.classList.toggle('mobile-open');
-      menuBtn.setAttribute('aria-expanded',menu.classList.contains('mobile-open')?'true':'false');
-    });
-    document.addEventListener('click',function(e){
-      if(!menu.contains(e.target)&&e.target!==menuBtn)menu.classList.remove('mobile-open');
-    });
-  }
-
-  // Direct reliable mobile Login handling.
-  document.addEventListener('click',function(e){
-    const login=e.target.closest('[data-login-button="true"],.nav-actions .btn');
-    if(!login)return;
-    if(!/login/i.test(login.textContent||''))return;
-    e.preventDefault();e.stopImmediatePropagation();
-    if(typeof window.openLandingAuth==='function')window.openLandingAuth('login');
-    else if(typeof window.openAuth==='function')window.openAuth('login');
-  },true);
-
-  // Remember only the email; password remains with the browser password manager.
-  const EMAIL_KEY='pipsepaisa_last_login_email';
-  function prefill(){
-    const email=document.getElementById('landingLoginEmail');
-    if(email&&!email.value)email.value=localStorage.getItem(EMAIL_KEY)||'';
-  }
-  document.addEventListener('DOMContentLoaded',prefill,{once:true});
-  const oldLogin=window.landingLoginUser;
-  if(typeof oldLogin==='function'){
-    window.landingLoginUser=async function(){
-      const email=document.getElementById('landingLoginEmail')?.value.trim();
-      if(email)localStorage.setItem(EMAIL_KEY,email);
-      return oldLogin.apply(this,arguments);
-    };
-  }
-
-  // Keep logged-in users logged in and redirect directly to their panel.
-  async function restoreSession(){
-    try{
-      if(!window.landingSb)return;
-      const {data}=await window.landingSb.auth.getSession();
-      const session=data?.session;
-      if(session){
-        document.documentElement.dataset.pspAuthenticated='1';
-        const btn=document.querySelector('[data-login-button="true"]');
-        if(btn){btn.textContent='Dashboard';btn.onclick=()=>location.href='index.html';}
-      }
-    }catch(e){console.warn('Session restore failed',e)}
-  }
-  setTimeout(restoreSession,500);
-})();
-</script>
-<script src="public-realtime.js?v=20260728-v1"></script>
+<script src="final-login-session.js?v=20260728-v1"></script>
 </body>
 </html>
