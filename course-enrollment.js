@@ -83,11 +83,13 @@
 
           <section class="ce-step" id="ceStepDetails">
             <div class="ce-course-summary"><strong id="ceDetailsCourseName">Course</strong><span class="ce-price" id="ceDetailsPrice">Free</span></div>
-            <div class="ce-signed-in" id="ceSignedIn">Signed in</div>
-            <h3 style="margin:0 0 13px">Enrollment Details</h3>
+            <div class="ce-signed-in" id="ceSignedIn">Enter your existing PipSePaisa account details</div>
+            <h3 style="margin:0 0 13px">Account & Enrollment Details</h3>
             <div class="ce-grid">
-              <div class="ce-field"><label>Full Name</label><input id="ceDetailsName" type="text" placeholder="Your full name"></div>
-              <div class="ce-field"><label>WhatsApp Number</label><input id="ceDetailsPhone" type="tel" placeholder="+60..."></div>
+              <div class="ce-field"><label>Full Name</label><input id="ceDetailsName" type="text" autocomplete="name" placeholder="Your full name"></div>
+              <div class="ce-field"><label>WhatsApp Number</label><input id="ceDetailsPhone" type="tel" autocomplete="tel" placeholder="+60..."></div>
+              <div class="ce-field full"><label>Email Address</label><input id="ceDetailsEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+              <div class="ce-field full" id="ceDetailsPasswordWrap"><label>Password</label><input id="ceDetailsPassword" type="password" autocomplete="current-password" placeholder="Your PipSePaisa password"><small style="color:#64748b">Required only when you are not already signed in.</small></div>
               <div class="ce-field"><label>Trading Experience</label><select id="ceDetailsExperience"><option value="Beginner">Beginner</option><option value="Intermediate">Intermediate</option><option value="Advanced">Advanced</option></select></div>
               <div class="ce-field"><label>Learning Goal</label><input id="ceDetailsGoal" type="text" placeholder="What do you want to achieve?"></div>
             </div>
@@ -232,11 +234,21 @@
 
   function fillExistingDetails(){
     const meta=activeUser?.user_metadata||{};
-    document.getElementById('ceDetailsName').value=activeProfile?.full_name||meta.full_name||'';
-    document.getElementById('ceDetailsPhone').value=activeProfile?.phone||meta.phone||'';
-    document.getElementById('ceDetailsExperience').value='Beginner';
-    document.getElementById('ceDetailsGoal').value='';
-    document.getElementById('ceSignedIn').textContent=`Signed in as ${activeUser?.email||'PipSePaisa user'}`;
+    const email=document.getElementById('ceDetailsEmail');
+    const passwordWrap=document.getElementById('ceDetailsPasswordWrap');
+    if(activeUser){
+      document.getElementById('ceDetailsName').value=activeProfile?.full_name||meta.full_name||'';
+      document.getElementById('ceDetailsPhone').value=activeProfile?.phone||activeProfile?.whatsapp||meta.phone||'';
+      document.getElementById('ceDetailsExperience').value='Beginner';
+      document.getElementById('ceDetailsGoal').value='';
+      if(email){email.value=activeUser.email||'';email.readOnly=true;}
+      if(passwordWrap)passwordWrap.style.display='none';
+      document.getElementById('ceSignedIn').textContent=`Signed in as ${activeUser.email||'PipSePaisa user'}`;
+    }else{
+      if(email){email.value='';email.readOnly=false;}
+      if(passwordWrap)passwordWrap.style.display='';
+      document.getElementById('ceSignedIn').textContent='Enter your existing PipSePaisa account details';
+    }
   }
 
   async function uploadReceipt(file,userId){
@@ -327,14 +339,10 @@
     accountWasCreated=false;
     if(existing){
       if(!activeUser)await currentSession();
-      if(activeUser){
-        fillExistingDetails();
-        showStep('ceStepDetails');
-        setTimeout(()=>document.getElementById('ceDetailsName')?.focus(),60);
-        return;
-      }
-      showStep('ceStepLogin');
-      setTimeout(()=>document.getElementById('ceLoginEmail')?.focus(),60);
+      if(activeUser)await loadProfile(activeUser);
+      fillExistingDetails();
+      showStep('ceStepDetails');
+      setTimeout(()=>document.getElementById('ceDetailsName')?.focus(),60);
       return;
     }
     showStep('ceStepNew');
@@ -342,7 +350,6 @@
   };
 
   window.courseEnrollmentBack=function(){
-    if(activeUser){showStep('ceStepDetails');return;}
     showStep('ceStepChoice');
   };
 
@@ -411,19 +418,28 @@
     const values={
       name:document.getElementById('ceDetailsName').value.trim(),
       phone:document.getElementById('ceDetailsPhone').value.trim(),
+      email:document.getElementById('ceDetailsEmail')?.value.trim()||'',
+      password:document.getElementById('ceDetailsPassword')?.value||'',
       experience:document.getElementById('ceDetailsExperience').value,
       goal:document.getElementById('ceDetailsGoal').value.trim(),
       paymentMethod:(()=>{const el=document.getElementById('ceExistingPaymentMethod');const m=paymentMethods[Number(el?.value||0)];return m?methodLabel(m):null;})(),
       transactionId:document.getElementById('ceExistingTransactionId')?.value.trim()||null
     };
     const receipt=document.getElementById('ceExistingReceipt')?.files?.[0]||null;
-    if(!values.name||!values.phone){setMessage('ceDetailsMessage','error','Please enter your full name and WhatsApp number.');return;}
+    if(!values.name||!values.phone||!values.email){setMessage('ceDetailsMessage','error','Please enter your full name, email and WhatsApp number.');return;}
+    if(!activeUser&&!values.password){setMessage('ceDetailsMessage','error','Please enter your PipSePaisa password.');return;}
     if(selectedCourse.type==='paid'&&(!paymentMethods.length||!values.transactionId||!receipt)){setMessage('ceDetailsMessage','error','Select an available payment method, enter the transaction ID and upload the payment receipt.');return;}
     setBusy('ceDetailsSubmitBtn',true,'Submitting...','Complete Enrollment');
     setMessage('ceDetailsMessage','info','Submitting your enrollment...');
     try{
-      if(!activeUser)activeUser=await currentSession();
-      if(!activeUser)throw new Error('Your login session expired. Please log in again.');
+      const sb=getClient();if(!sb)throw new Error('Connection problem. Please reload and try again.');
+      if(!activeUser){
+        const login=await sb.auth.signInWithPassword({email:values.email,password:values.password});
+        if(login.error)throw login.error;
+        activeUser=login.data?.user||null;
+        if(!activeUser)throw new Error('Login could not be completed.');
+        await loadProfile(activeUser);
+      }
       const result=await saveEnrollment(values,receipt);showSuccess(result);
     }catch(error){
       const msg=/course_enrollments/i.test(error?.message||'')

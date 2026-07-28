@@ -1006,6 +1006,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @media(max-width:1050px){.mentor-ai-grid{grid-template-columns:1fr}.mentor-ai-output{min-height:300px}}@media(max-width:650px){.mentor-ai-hero{min-height:250px}.mentor-ai-hero-copy{padding:26px 20px}.mentor-ai-hero-copy h2{font-size:23px}.mentor-ai-form-grid{grid-template-columns:1fr}.mentor-ai-card{padding:15px}.mentor-ai-tabs button{min-width:125px}.mentor-ai-output-actions{align-items:flex-start;flex-direction:column}.mentor-ai-output-actions button{width:100%}}
 </style>
 
+<link rel="stylesheet" href="psp-final-fixes.css?v=20260728-user-course-v13">
 </head>
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
@@ -9057,7 +9058,8 @@ window.addEventListener('message',function(event){
   if(typeof window.openAuthModal==='function'){ window.openAuthModal(); if(event.data.mode==='signup'&&typeof window.switchAuthTab==='function') window.switchAuthTab('signup'); }
 });
 </script>
-<script src="course-enrollments-user.js?v=20260728-audit-v11"></script>
+<script src="course-enrollment.js?v=20260728-user-course-v13"></script>
+<script src="course-enrollments-user.js?v=20260728-user-course-v13"></script>
 <script>
 (function enforceOnePipTicker(){
   let lock=false;
@@ -9097,5 +9099,42 @@ window.addEventListener('message',function(event){
   },{once:true});
 })();
 </script>
+
+<script>
+(function pipSignalNotifications(){
+  let initialized=false;
+  let unread=Number(localStorage.getItem('psp_signal_unread')||0);
+  function menu(){return document.querySelector('.menu-item[data-page="signals"]');}
+  function badge(){
+    const m=menu();if(!m)return;
+    let b=m.querySelector('.psp-signal-badge');
+    if(!b){b=document.createElement('span');b.className='psp-signal-badge';b.style.cssText='margin-left:auto;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#ef4444;color:#fff;font-size:9px;font-weight:900;display:flex;align-items:center;justify-content:center';m.appendChild(b);}
+    b.textContent=unread>99?'99+':String(unread);b.style.display=unread?'flex':'none';
+  }
+  function openSignals(){unread=0;localStorage.setItem('psp_signal_unread','0');badge();const m=menu();if(m&&typeof showPage==='function')showPage('signals',m);}
+  function toast(title,body){
+    let h=document.getElementById('pspSignalToastHost');
+    if(!h){h=document.createElement('div');h.id='pspSignalToastHost';h.style.cssText='position:fixed;right:18px;top:78px;z-index:12000;display:grid;gap:10px;width:min(360px,calc(100vw - 28px))';document.body.appendChild(h);}
+    const item=document.createElement('button');item.type='button';item.style.cssText='text-align:left;border:1px solid rgba(245,158,11,.45);border-left:5px solid #f59e0b;border-radius:14px;background:#0f172a;color:#fff;padding:14px 15px;box-shadow:0 18px 45px rgba(0,0,0,.28);cursor:pointer';
+    item.innerHTML='<div style="font-size:12px;font-weight:900;margin-bottom:5px">📶 '+String(title||'New Trading Signal')+'</div><div style="font-size:11px;color:#cbd5e1;line-height:1.45">'+String(body||'A new signal is available in your panel.')+'</div>';
+    item.onclick=()=>{item.remove();openSignals();};h.prepend(item);setTimeout(()=>item.remove(),10000);
+  }
+  function notify(payload){
+    const row=payload?.new||{};const pair=row.pair||row.symbol||row.instrument||'Trading Signal';const direction=row.direction||row.type||row.side||'';const entry=row.entry_price||row.entry||'';
+    const body=[direction,entry?('Entry '+entry):'',row.status||''].filter(Boolean).join(' • ')||'Open Signals to view full details.';
+    unread+=1;localStorage.setItem('psp_signal_unread',String(unread));badge();toast(pair,body);
+    if('Notification' in window&&Notification.permission==='granted'){try{const n=new Notification('PipSePaisa: '+pair,{body,icon:'icon-192.png',badge:'icon-192.png',tag:'signal-'+(row.id||Date.now())});n.onclick=()=>{window.focus();openSignals();n.close();};}catch(_){}}
+    if(typeof loadSignalsFromDB==='function')loadSignalsFromDB();
+  }
+  function init(){
+    if(initialized||typeof sb==='undefined'||!sb)return;initialized=true;badge();
+    try{sb.channel('psp-signal-alerts-v1').on('postgres_changes',{event:'INSERT',schema:'public',table:'signals'},notify).subscribe();}catch(error){console.warn('Signal notification channel failed',error);}
+    document.addEventListener('click',function ask(event){if(!event.isTrusted)return;document.removeEventListener('click',ask);if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});});
+    const m=menu();if(m)m.addEventListener('click',()=>{unread=0;localStorage.setItem('psp_signal_unread','0');badge();});
+  }
+  document.addEventListener('DOMContentLoaded',()=>setTimeout(init,1200),{once:true});
+})();
+</script>
+
 </body>
 </html>
