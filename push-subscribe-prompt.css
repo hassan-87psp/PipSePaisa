@@ -1,36 +1,66 @@
 
-#pspPushPrompt{
-  position:fixed;left:50%;bottom:18px;z-index:2147483000;
-  width:min(760px,calc(100vw - 28px));display:grid;
-  grid-template-columns:auto minmax(0,1fr) auto;gap:15px;align-items:center;
-  padding:16px 54px 16px 16px;border:1px solid rgba(245,158,11,.55);
-  border-radius:20px;background:rgba(9,18,34,.97);color:#fff;
-  box-shadow:0 24px 80px rgba(0,0,0,.42);
-  backdrop-filter:blur(18px);transform:translate(-50%,130%);opacity:0;
-  transition:transform .28s ease,opacity .28s ease;
-  font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif
+#pspNotifyInstallBar{
+  position:fixed;
+  left:50%;
+  bottom:14px;
+  z-index:2147483646;
+  width:min(620px,calc(100vw - 24px));
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto auto;
+  gap:12px;
+  align-items:center;
+  padding:12px 14px;
+  border:1px solid rgba(245,158,11,.6);
+  border-radius:16px;
+  background:#fffaf1;
+  color:#111827;
+  box-shadow:0 18px 50px rgba(15,23,42,.28);
+  transform:translate(-50%,120%);
+  opacity:0;
+  transition:.22s ease;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif;
 }
-#pspPushPrompt.show{transform:translate(-50%,0);opacity:1}
-.psp-push-logo{width:56px;height:56px;border-radius:15px;display:grid;place-items:center;
-  background:linear-gradient(145deg,#fff7e6,#f59e0b);box-shadow:0 10px 28px rgba(245,158,11,.25)}
-.psp-push-logo img{width:43px;height:43px;object-fit:contain}
-.psp-push-copy{min-width:0}.psp-push-eyebrow{font-size:9px;font-weight:900;letter-spacing:.13em;color:#f59e0b;margin-bottom:3px}
-.psp-push-copy h3{margin:0 0 4px;font-size:17px;line-height:1.2;color:#fff}
-.psp-push-copy p{margin:0;color:#cbd5e1;font-size:11px;line-height:1.5}
-.psp-push-actions{display:flex;gap:8px;align-items:center;white-space:nowrap}
-.psp-push-primary,.psp-push-later{border:0;border-radius:10px;padding:11px 14px;font-weight:850;cursor:pointer;font-size:11px}
-.psp-push-primary{background:linear-gradient(135deg,#f59e0b,#d97706);color:#0b1220;box-shadow:0 9px 24px rgba(245,158,11,.24)}
-.psp-push-primary:disabled{opacity:.7;cursor:wait}
-.psp-push-later{background:rgba(255,255,255,.08);color:#e2e8f0;border:1px solid rgba(255,255,255,.12)}
-.psp-push-close{position:absolute;right:13px;top:10px;width:30px;height:30px;border:0;border-radius:9px;
-  background:rgba(255,255,255,.08);color:#cbd5e1;font-size:19px;cursor:pointer}
-.psp-push-status{display:none;margin-top:7px;padding:7px 9px;border-radius:8px;font-size:10px;background:rgba(255,255,255,.08);color:#e2e8f0}
-.psp-push-status[data-type="success"]{background:rgba(16,185,129,.16);color:#6ee7b7}
-.psp-push-status[data-type="warning"]{background:rgba(245,158,11,.16);color:#fde68a}
-@media(max-width:680px){
-  #pspPushPrompt{bottom:10px;grid-template-columns:auto 1fr;padding:14px 42px 14px 13px;gap:11px;border-radius:17px}
-  .psp-push-logo{width:48px;height:48px}.psp-push-logo img{width:37px;height:37px}
-  .psp-push-copy h3{font-size:15px}.psp-push-copy p{font-size:10px}
-  .psp-push-actions{grid-column:1/-1;width:100%;display:grid;grid-template-columns:1fr auto}
-  .psp-push-primary,.psp-push-later{padding:11px 12px}
+#pspNotifyInstallBar.show{
+  transform:translate(-50%,0);
+  opacity:1;
+}
+.psp-notify-icon{
+  width:46px;height:46px;border-radius:12px;
+  display:grid;place-items:center;
+  background:linear-gradient(145deg,#fff,#ffd88a);
+  border:1px solid rgba(245,158,11,.35);
+}
+.psp-notify-icon img{width:36px;height:36px;object-fit:contain}
+.psp-notify-copy{min-width:0;display:grid;gap:3px}
+.psp-notify-copy strong{font-size:14px;line-height:1.2}
+.psp-notify-copy span{font-size:10px;color:#64748b;line-height:1.35}
+.psp-notify-enable,.psp-notify-later{
+  border:0;border-radius:9px;padding:10px 13px;
+  font-size:10px;font-weight:850;cursor:pointer;
+}
+.psp-notify-enable{
+  background:#e88700;color:#111827;
+  box-shadow:0 7px 18px rgba(232,135,0,.22);
+}
+.psp-notify-enable:disabled{opacity:.65;cursor:wait}
+.psp-notify-later{
+  background:#eef2f7;color:#64748b;
+}
+[data-theme="dark"] #pspNotifyInstallBar{
+  background:#111827;color:#fff;border-color:rgba(245,158,11,.55);
+}
+[data-theme="dark"] .psp-notify-copy span{color:#cbd5e1}
+[data-theme="dark"] .psp-notify-later{background:#1f2937;color:#cbd5e1}
+@media(max-width:620px){
+  #pspNotifyInstallBar{
+    grid-template-columns:auto minmax(0,1fr) auto;
+    gap:9px;
+    padding:10px 11px;
+    bottom:9px;
+    border-radius:14px;
+  }
+  .psp-notify-icon{width:42px;height:42px}.psp-notify-icon img{width:33px;height:33px}
+  .psp-notify-copy strong{font-size:12px}.psp-notify-copy span{font-size:9px}
+  .psp-notify-enable{padding:9px 11px}
+  .psp-notify-later{grid-column:2/4;justify-self:end;padding:4px 7px;background:transparent}
 }
