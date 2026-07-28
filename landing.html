@@ -1603,8 +1603,8 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <th>Broker</th><th>Promotions</th><th>Regulatory Coverage</th><th>Account Options</th><th>Minimum Deposit</th><th>Spreads</th><th>Maximum Leverage</th><th>Minimum Trade</th><th>Withdrawals</th>
 </tr>
 </thead>
-<tbody><tr>
-<td data-label="Broker"><div class="broker-name"><img alt="D Prime official logo" class="broker-logo-icon" src="dprime-logo-official-2026.png"/><strong>D Prime</strong></div></td>
+<tbody><tr class="broker-link-row" data-broker-url="https://my.dooprime.com/links/go/72929" tabindex="0" role="link" aria-label="Open D Prime account">
+<td data-label="Broker"><div class="broker-name"><img alt="D Prime official logo" class="broker-logo-icon" src="dprime-logo-clean.png"/><strong>D Prime</strong></div></td>
 <td data-label="Promotions"><span class="badge">Offers may vary</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
 <td class="yes" data-label="Account Options">Multiple account types</td>
@@ -1614,7 +1614,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <td data-label="Minimum Trade">0.01 lot</td>
 <td data-label="Withdrawals">Method dependent</td>
 </tr>
-<tr>
+<tr class="broker-link-row" data-broker-url="https://affs.click/BvyF2" tabindex="0" role="link" aria-label="Open XM account">
 <td data-label="Broker"><div class="broker-name"><img alt="XM official logo" src="xm-logo-official-2026.svg"/><strong>XM</strong></div></td>
 <td data-label="Promotions"><span class="badge">Region dependent</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
@@ -1625,8 +1625,8 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <td data-label="Minimum Trade">0.01 lot*</td>
 <td data-label="Withdrawals">Method dependent</td>
 </tr>
-<tr>
-<td data-label="Broker"><div class="broker-name"><img alt="Exness official logo" src="exness-logo-official-2026.svg"/><strong>Exness</strong></div></td>
+<tr class="broker-link-row" data-broker-url="https://one.exnessonelink.com/a/be2kjlypr9" tabindex="0" role="link" aria-label="Open Exness account">
+<td data-label="Broker"><div class="broker-name"><img alt="Exness official logo" src="exness-logo-clean.png"/><strong>Exness</strong></div></td>
 <td data-label="Promotions"><span class="badge">Region dependent</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
 <td class="yes" data-label="Account Options">Standard &amp; Cent options*</td>
@@ -1636,7 +1636,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <td data-label="Minimum Trade">0.01 lot</td>
 <td class="yes" data-label="Withdrawals">Automated / instant where available*</td>
 </tr>
-<tr>
+<tr class="broker-link-row" data-broker-url="https://www.grouphf.com/Pipsepaisa?refid=3" tabindex="0" role="link" aria-label="Open HFM account">
 <td data-label="Broker"><div class="broker-name"><img alt="HFM official logo" src="hfm-logo-official-2026.png"/><strong>HFM</strong></div></td>
 <td data-label="Promotions"><span class="badge">Region dependent</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
@@ -1647,7 +1647,7 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <td data-label="Minimum Trade">0.01 lot</td>
 <td data-label="Withdrawals">Method dependent</td>
 </tr>
-<tr>
+<tr class="broker-link-row" data-broker-url="https://vigco.co/la-com-inv/opun7U0W" tabindex="0" role="link" aria-label="Open Vantage account">
 <td data-label="Broker"><div class="broker-name"><img alt="Vantage official logo" src="vantage-logo-official-2026.svg"/><strong>Vantage</strong></div></td>
 <td data-label="Promotions"><span class="badge">Promotions may vary</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
@@ -1867,5 +1867,33 @@ partnerThemeObserver.observe(document.body,{attributes:true,attributeFilter:['cl
   observer.observe(spotlight);
 })();
 </script>
+
+<style>
+.broker-comparison-table .broker-link-row{cursor:pointer;transition:background .18s ease,transform .18s ease,box-shadow .18s ease}
+.broker-comparison-table .broker-link-row:hover{background:rgba(245,158,11,.08);box-shadow:inset 4px 0 0 #f59e0b}
+.broker-comparison-table .broker-link-row:focus-visible{outline:3px solid rgba(245,158,11,.55);outline-offset:-3px}
+.broker-comparison-table .broker-logo-icon,
+.broker-comparison-table .broker-name img{width:78px!important;height:38px!important;object-fit:contain!important;background:#fff;border:1px solid rgba(15,23,42,.10);border-radius:8px;padding:4px}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.broker-link-row[data-broker-url]').forEach(function(row){
+    function openBroker(){
+      window.open(row.dataset.brokerUrl,'_blank','noopener,noreferrer');
+    }
+    row.addEventListener('click',function(event){
+      if(event.target.closest('a,button,input,select'))return;
+      openBroker();
+    });
+    row.addEventListener('keydown',function(event){
+      if(event.key==='Enter'||event.key===' '){
+        event.preventDefault();
+        openBroker();
+      }
+    });
+  });
+});
+</script>
+
 </body>
 </html>

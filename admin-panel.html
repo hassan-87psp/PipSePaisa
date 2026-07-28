@@ -1751,11 +1751,13 @@ async function loadAdminPayments(){
 function apmTypeChange(){var t=document.getElementById('apmType').value;var S=function(c,on){var e=document.querySelector(c);if(e)e.style.display=on?'block':'none';};S('.apm-bank',t==='bank');S('.apm-wallet',t==='crypto');S('.apm-net',t==='crypto');S('.apm-title',t!=='crypto');S('.apm-num',t!=='crypto');}
 async function addAdminPM(){
   var t=document.getElementById('apmType').value;var v=function(id){return (document.getElementById(id).value||'').trim();};
-  var obj={owner_id:currentAdmin.id,type:t,label:v('apmLabel')||null,enabled:true};
+  var defaultName={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'USDT TRC20'}[t]||'Payment Method';
+  var displayName=v('apmLabel')||defaultName;
+  var obj={owner_id:currentAdmin.id,name:displayName,type:t,label:displayName,enabled:true};
   if(t==='crypto'){obj.wallet=v('apmWallet');obj.network=v('apmNet')||'TRC20';if(!obj.wallet){alert('Wallet address required');return;}}
   else{obj.account_title=v('apmTitle');obj.account_number=v('apmNum');if(!obj.account_number){alert('Account number required');return;}if(t==='bank')obj.bank_name=v('apmBank');}
   var r=await sb.from('payment_methods').insert(obj);
-  if(r.error){alert('Error: '+r.error.message);return;}
+  if(r.error){alert('Payment method could not be saved: '+r.error.message);return;} alert('Payment method saved successfully.');
   ['apmLabel','apmTitle','apmNum','apmBank','apmWallet'].forEach(function(i){document.getElementById(i).value='';});
   loadAdminPMList();
 }

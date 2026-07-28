@@ -313,11 +313,8 @@
     document.getElementById('courseEnrollmentOverlay').classList.add('is-open');
     document.getElementById('courseEnrollmentOverlay').setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';
-    const user=await currentSession();
-    if(user){
-      fillExistingDetails();
-      showStep('ceStepDetails');
-    }else showStep('ceStepChoice');
+    await currentSession();
+    showStep('ceStepChoice');
   };
 
   window.closeCourseEnrollment=function(){
@@ -326,10 +323,22 @@
     document.body.style.overflow='';
   };
 
-  window.courseEnrollmentChooseUser=function(existing){
+  window.courseEnrollmentChooseUser=async function(existing){
     accountWasCreated=false;
-    showStep(existing?'ceStepLogin':'ceStepNew');
-    setTimeout(()=>document.getElementById(existing?'ceLoginEmail':'ceNewName')?.focus(),60);
+    if(existing){
+      if(!activeUser)await currentSession();
+      if(activeUser){
+        fillExistingDetails();
+        showStep('ceStepDetails');
+        setTimeout(()=>document.getElementById('ceDetailsName')?.focus(),60);
+        return;
+      }
+      showStep('ceStepLogin');
+      setTimeout(()=>document.getElementById('ceLoginEmail')?.focus(),60);
+      return;
+    }
+    showStep('ceStepNew');
+    setTimeout(()=>document.getElementById('ceNewName')?.focus(),60);
   };
 
   window.courseEnrollmentBack=function(){
