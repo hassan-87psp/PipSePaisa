@@ -184,13 +184,18 @@ function showPrompt(){
 async function start(){
   if(!secure())return;
 
-  // Always verify the actual OneSignal subscription; ignore stale local flags.
-  const active=await realSubscriptionActive();
-  if(active)return;
-
-  // Notification prompt must appear before the PWA install banner.
+  // Show the subscribe box first. Never block its appearance on SDK loading.
   hidePwa();
-  setTimeout(showPrompt,900);
+  setTimeout(showPrompt,700);
+
+  // Check subscription in the background. Remove the box only when
+  // OneSignal confirms this browser is genuinely opted in.
+  try{
+    const active=await realSubscriptionActive();
+    if(active)removePrompt();
+  }catch(error){
+    console.warn("OneSignal background state check failed:",error);
+  }
 }
 
 if(document.readyState==="loading"){

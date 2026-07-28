@@ -2,7 +2,7 @@
 
 <html lang="en">
 <head>
-<!-- PipSePaisa Exact Mobile Header Fix: 2026-07-28-v1 -->
+<!-- Exact approved mobile header restored; visibility only override -->
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <script>
@@ -1440,6 +1440,8 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 <link rel="stylesheet" href="mobile-reference-layout.css?v=20260727-exact-v3" />
 <link rel="stylesheet" href="psp-final-fixes.css?v=20260727-all-fixes-v1" />
 
+<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5">
+
 <style>
 @media(max-width:980px){
   .topbar,.nav,.nav-actions{position:relative;z-index:10020}
@@ -1533,149 +1535,30 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 </style>
 
 
-<style id="mobileDesktopNavVisibilityFix">
-/* Only restore the approved desktop-style header navigation on mobile. */
+<style id="mobileNavVisibilityOnly">
 html.psp-desktop-mobile-view .topbar .nav{
-  display:flex!important;align-items:center!important;gap:8px!important;
-}
-html.psp-desktop-mobile-view .topbar .menu,
-html.psp-desktop-mobile-view .topbar .menu.is-open{
-  position:static!important;display:flex!important;visibility:visible!important;opacity:1!important;
-  flex:1 1 auto!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;
-  gap:8px!important;width:auto!important;height:auto!important;overflow:visible!important;
-  transform:none!important;pointer-events:auto!important;background:transparent!important;box-shadow:none!important;
-}
-html.psp-desktop-mobile-view .topbar .menu a{
-  display:inline-flex!important;visibility:visible!important;opacity:1!important;
-  flex:0 0 auto!important;white-space:nowrap!important;padding:9px 5px!important;
-  font-size:10px!important;line-height:1!important;pointer-events:auto!important;
-}
-html.psp-desktop-mobile-view .topbar .nav-actions{
-  display:flex!important;align-items:center!important;gap:6px!important;flex:0 0 auto!important;
-}
-</style>
-
-<style id="mobileHeaderExactFinalFix">
-html.psp-desktop-mobile-view .topbar{
-  overflow:visible!important;
-}
-html.psp-desktop-mobile-view .topbar .container.nav{
-  width:1160px!important;
-  max-width:1160px!important;
-  min-width:1160px!important;
-  height:68px!important;
-  margin:0 auto!important;
-  padding:0 8px!important;
   display:flex!important;
-  align-items:center!important;
-  justify-content:flex-start!important;
-  gap:10px!important;
-  overflow:visible!important;
-}
-html.psp-desktop-mobile-view .topbar .brand{
-  position:relative!important;
-  z-index:3!important;
-  display:flex!important;
-  flex:0 0 170px!important;
-  width:170px!important;
-  min-width:170px!important;
-  max-width:170px!important;
-  align-items:center!important;
-  gap:8px!important;
-  margin:0!important;
-  padding:0!important;
-  font-size:18px!important;
-  line-height:1!important;
-  white-space:nowrap!important;
-  overflow:visible!important;
-}
-html.psp-desktop-mobile-view .topbar .brand img{
-  flex:0 0 36px!important;
-  width:36px!important;
-  min-width:36px!important;
-  max-width:36px!important;
-  height:36px!important;
-  min-height:36px!important;
-  max-height:36px!important;
-  border-radius:9px!important;
-}
-html.psp-desktop-mobile-view .topbar .brand span{
-  display:inline-block!important;
-  visibility:visible!important;
-  opacity:1!important;
-  white-space:nowrap!important;
 }
 html.psp-desktop-mobile-view .topbar .menu,
 html.psp-desktop-mobile-view .topbar .menu.is-open{
   position:static!important;
-  z-index:2!important;
   display:flex!important;
-  flex:1 1 auto!important;
-  min-width:0!important;
-  width:auto!important;
-  height:auto!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex-direction:row!important;
   align-items:center!important;
-  justify-content:center!important;
-  gap:4px!important;
-  margin:0!important;
-  padding:0!important;
-  overflow:visible!important;
-  background:transparent!important;
-  box-shadow:none!important;
+  pointer-events:auto!important;
   transform:none!important;
 }
 html.psp-desktop-mobile-view .topbar .menu a{
   display:inline-flex!important;
-  flex:0 0 auto!important;
-  align-items:center!important;
-  justify-content:center!important;
-  min-height:34px!important;
-  padding:7px 9px!important;
-  margin:0!important;
-  border-radius:8px!important;
-  font-size:12px!important;
-  font-weight:700!important;
-  line-height:1!important;
-  white-space:nowrap!important;
   visibility:visible!important;
   opacity:1!important;
+  white-space:nowrap!important;
 }
 html.psp-desktop-mobile-view .topbar .nav-actions{
-  position:relative!important;
-  z-index:3!important;
   display:flex!important;
-  flex:0 0 116px!important;
-  width:116px!important;
-  min-width:116px!important;
   align-items:center!important;
-  justify-content:flex-end!important;
-  gap:6px!important;
-  margin:0!important;
-}
-html.psp-desktop-mobile-view .topbar .theme-btn{
-  flex:0 0 34px!important;
-  width:34px!important;
-  min-width:34px!important;
-  max-width:34px!important;
-  height:34px!important;
-  min-height:34px!important;
-  max-height:34px!important;
-  padding:0!important;
-  border-radius:50%!important;
-  font-size:14px!important;
-  line-height:34px!important;
-}
-html.psp-desktop-mobile-view .topbar #mainLoginButton{
-  flex:0 0 72px!important;
-  width:72px!important;
-  min-width:72px!important;
-  max-width:72px!important;
-  min-height:34px!important;
-  padding:7px 9px!important;
-  border-radius:9px!important;
-  font-size:12px!important;
-  line-height:1!important;
-  white-space:nowrap!important;
 }
 </style>
 
@@ -1987,21 +1870,7 @@ themeButton?.addEventListener('click',()=>applyLandingTheme(!document.body.class
 
 const LANDING_SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
 const LANDING_SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
-const LANDING_IS_EMBEDDED=(window.parent&&window.parent!==window);
-const landingSb=(window.supabase&&window.supabase.createClient)
-  ?window.supabase.createClient(
-      LANDING_SUPABASE_URL,
-      LANDING_SUPABASE_KEY,
-      {auth:{
-        storageKey:LANDING_IS_EMBEDDED
-          ?'pipsepaisa-landing-public-read-v1'
-          :'pipsepaisa-user-auth-v2',
-        persistSession:!LANDING_IS_EMBEDDED,
-        autoRefreshToken:!LANDING_IS_EMBEDDED,
-        detectSessionInUrl:!LANDING_IS_EMBEDDED
-      }}
-    )
-  :null;
+const landingSb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(LANDING_SUPABASE_URL,LANDING_SUPABASE_KEY,{auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}}):null;
 function safeJson(v){try{return JSON.parse(v||'{}')}catch(e){return {}}}
 async function loadLandingAdminContent(){
   if(!landingSb)return;
@@ -2216,6 +2085,9 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 });
 </script>
+
+
+<script src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded',function(){
