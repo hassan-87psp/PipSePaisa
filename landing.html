@@ -1934,24 +1934,70 @@ function openAuth(mode='login'){
 async function landingLoginUser(){
   const email=document.getElementById('landingLoginEmail')?.value.trim();
   const password=document.getElementById('landingLoginPassword')?.value||'';
-  if(!email||!password){showLandingAuthMessage('error','Please enter email and password.','landingLoginMessage');return;}
-  if(!landingSb){showLandingAuthMessage('error','Connection problem. Please reload and try again.','landingLoginMessage');return;}
+  if(!email||!password){
+    showLandingAuthMessage('error','Please enter email and password.','landingLoginMessage');
+    return;
+  }
+
   const btn=document.getElementById('landingLoginBtn');
-  btn.disabled=true;btn.textContent='⏳ Logging in...';
+  btn.disabled=true;
+  btn.textContent='⏳ Logging in...';
+
   try{
+    // The live landing page is loaded inside index.html.
+    // Let the parent page create and keep the Supabase session.
+    if(window.parent && window.parent!==window){
+      const requestId='login_'+Date.now()+'_'+Math.random().toString(36).slice(2);
+      const result=await new Promise((resolve,reject)=>{
+        const timeout=setTimeout(()=>{
+          window.removeEventListener('message',onMessage);
+          reject(new Error('Login timed out. Please try again.'));
+        },15000);
+
+        function onMessage(event){
+          if(event.source!==window.parent)return;
+          const message=event.data||{};
+          if(message.type!=='PIPSEPAISA_LOGIN_RESULT'||message.requestId!==requestId)return;
+          clearTimeout(timeout);
+          window.removeEventListener('message',onMessage);
+          if(message.ok)resolve(message);
+          else reject(new Error(message.error||'Login failed.'));
+        }
+
+        window.addEventListener('message',onMessage);
+        window.parent.postMessage({
+          type:'PIPSEPAISA_LOGIN_REQUEST',
+          requestId,
+          email,
+          password
+        },location.origin);
+      });
+
+      localStorage.setItem('pipsepaisa_last_login_email',email);
+      showLandingAuthMessage('success','Login successful. Opening your dashboard...','landingLoginMessage');
+      return;
+    }
+
+    // Standalone landing.html fallback.
+    if(!landingSb)throw new Error('Connection problem. Please reload and try again.');
     const {data,error}=await landingSb.auth.signInWithPassword({email,password});
     if(error)throw error;
     if(!data?.user)throw new Error('Login could not be completed.');
-    const persisted = await landingSb.auth.getSession();
-    if(!persisted?.data?.session)throw new Error('Login session could not be saved. Please try again.');
+    const persisted=await landingSb.auth.getSession();
+    if(!persisted?.data?.session)throw new Error('Login session could not be saved.');
     localStorage.setItem('pipsepaisa_last_login_email',email);
     showLandingAuthMessage('success','Login successful. Opening your dashboard...','landingLoginMessage');
-    window.top.location.replace('index.html?logged_in=1');
+    location.replace('index.html?logged_in=1');
   }catch(error){
     const raw=error?.message||'Login failed. Please try again.';
-    const msg=/invalid login credentials|invalid/i.test(raw)?'Email or password is incorrect.':raw;
+    const msg=/invalid login credentials|invalid/i.test(raw)
+      ?'Email or password is incorrect.'
+      :raw;
     showLandingAuthMessage('error',msg,'landingLoginMessage');
-  }finally{btn.disabled=false;btn.textContent='🔐 Login to Account';}
+  }finally{
+    btn.disabled=false;
+    btn.textContent='🔐 Login to Account';
+  }
 }
 async function landingSignupUser(){
   const fullName=document.getElementById('landingSignupName')?.value.trim();

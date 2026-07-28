@@ -1034,7 +1034,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
      ======================================================================== -->
 <div id="landingPage" style="display:block;position:fixed;inset:0;z-index:9999;background:var(--bg-main);">
 
-  <iframe src="landing.html?v=20260728-nav-login-doubleticker-v1" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <iframe src="landing.html?v=20260728-parent-auth-final-v1" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
 </div>
 
 <div class="app" id="mainApp" style="display:none;">
@@ -7789,6 +7789,72 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     }
   }
   
+
+  // ============ LANDING IFRAME LOGIN BRIDGE ============
+  // The landing page is an iframe. Authentication is completed by this
+  // parent page so the dashboard opens immediately without refreshing back
+  // to the landing page or creating a second ticker.
+  let _landingLoginBridgeBound = false;
+  function bindLandingLoginBridge(){
+    if(_landingLoginBridgeBound)return;
+    _landingLoginBridgeBound=true;
+
+    window.addEventListener('message',async function(event){
+      if(event.origin!==location.origin)return;
+      const message=event.data||{};
+      if(message.type!=='PIPSEPAISA_LOGIN_REQUEST')return;
+
+      const frame=document.querySelector('#landingPage iframe');
+      if(frame && event.source!==frame.contentWindow)return;
+
+      const requestId=message.requestId||'';
+      try{
+        await ensureSupabaseClient();
+        if(!sb)throw new Error('Connection problem. Please reload and try again.');
+
+        const email=String(message.email||'').trim();
+        const password=String(message.password||'');
+        if(!email||!password)throw new Error('Please enter email and password.');
+
+        const result=await sb.auth.signInWithPassword({email,password});
+        if(result.error)throw result.error;
+        if(!result.data?.user)throw new Error('Login could not be completed.');
+
+        // Confirm the parent session before opening the application.
+        const sessionResult=await sb.auth.getSession();
+        const session=sessionResult?.data?.session||null;
+        if(!session?.user)throw new Error('Login session could not be saved.');
+
+        await loadUserProfile(session.user);
+        enterApp();
+
+        try{
+          localStorage.setItem('pipsepaisa_last_login_email',email);
+          history.replaceState(null,'','index.html');
+        }catch(e){}
+
+        event.source?.postMessage({
+          type:'PIPSEPAISA_LOGIN_RESULT',
+          requestId,
+          ok:true
+        },event.origin);
+      }catch(error){
+        const raw=error?.message||'Login failed. Please try again.';
+        const friendly=/invalid login credentials|invalid/i.test(raw)
+          ?'Email or password is incorrect.'
+          :raw;
+
+        event.source?.postMessage({
+          type:'PIPSEPAISA_LOGIN_RESULT',
+          requestId,
+          ok:false,
+          error:friendly
+        },event.origin);
+      }
+    });
+  }
+  bindLandingLoginBridge();
+
   // ============ LISTEN FOR AUTH STATE CHANGES ============
   let _authListenerBound = false;
   function bindUserAuthListener() {
@@ -9165,5 +9231,32 @@ window.addEventListener('message',function(event){
 
 <script src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
+
+<script id="singleTickerGuard">
+(function(){
+  if(window.top!==window)return;
+  function removeDuplicateTickers(){
+    const candidates=[
+      ...document.querySelectorAll('.tradingview-widget-container, [class*="ticker"], [id*="ticker"]')
+    ].filter(function(el){
+      const r=el.getBoundingClientRect();
+      return r.height>12 && r.height<90 && r.top<130;
+    });
+    const seen=[];
+    candidates.forEach(function(el){
+      const signature=(el.textContent||'').replace(/\s+/g,' ').trim().slice(0,120);
+      if(!signature)return;
+      if(seen.includes(signature)){
+        el.style.display='none';
+      }else{
+        seen.push(signature);
+      }
+    });
+  }
+  document.addEventListener('DOMContentLoaded',removeDuplicateTickers,{once:true});
+  setTimeout(removeDuplicateTickers,1200);
+})();
+</script>
+
 </body>
 </html>
