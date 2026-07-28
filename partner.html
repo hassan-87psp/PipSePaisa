@@ -3,6 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+<script>
+(function(){
+  var mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+               Math.min(screen.width, screen.height) <= 820;
+  if(!mobile) return;
+  var viewport=document.querySelector('meta[name="viewport"]');
+  if(viewport){
+    viewport.setAttribute(
+      'content',
+      'width=1200, user-scalable=yes, minimum-scale=0.25, maximum-scale=4'
+    );
+  }
+  document.documentElement.classList.add('psp-desktop-mobile-view');
+})();
+</script>
+
 <title>Become a Partner | PipSePaisa</title>
     <meta
       name="description"
@@ -411,9 +427,7 @@
 <link rel="stylesheet" href="mobile-reference-layout.css?v=20260727-exact-v3" />
 <link rel="stylesheet" href="psp-final-fixes.css?v=20260727-all-fixes-v1" />
 
-<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-final-v4">
-
-<link rel="stylesheet" href="final-mobile-login-broker.css?v=20260728-v1">
+<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5">
 </head>
   <body class="page-partner">
     <header class="topbar">
@@ -432,7 +446,7 @@
         </nav>
         <div class="actions">
           <button class="theme-btn" id="themeBtn">🌙</button
-          ><a class="login" href="index.html#auth-login">Login</a>
+          ><a class="login" href="landing.html#login">Login</a>
         </div>
       </div>
     </header>
@@ -923,9 +937,6 @@
     </script>
     <script src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
   
-<script src="push-subscribe-prompt.js?v=20260728-final-v4"></script>
-<script src="mobile-login-fix.js?v=20260728-v1"></script>
-
-<script src="final-login-session.js?v=20260728-v1"></script>
+<script src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
 </body>
 </html>

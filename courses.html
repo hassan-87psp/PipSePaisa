@@ -4,6 +4,22 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
+<script>
+(function(){
+  var mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+               Math.min(screen.width, screen.height) <= 820;
+  if(!mobile) return;
+  var viewport=document.querySelector('meta[name="viewport"]');
+  if(viewport){
+    viewport.setAttribute(
+      'content',
+      'width=1200, user-scalable=yes, minimum-scale=0.25, maximum-scale=4'
+    );
+  }
+  document.documentElement.classList.add('psp-desktop-mobile-view');
+})();
+</script>
+
 <title>Forex Courses | PipSePaisa</title>
 <meta content="Structured Forex courses from beginner to advanced." name="description"/>
 <link href="favicon.png" rel="icon"/>
@@ -149,9 +165,7 @@
 <link href="psp-final-fixes.css?v=20260728-click-payment-v6" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-final-v4">
-
-<link rel="stylesheet" href="final-mobile-login-broker.css?v=20260728-v1">
+<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5">
 </head>
 <body class="page-courses">
 <header class="topbar">
@@ -161,7 +175,7 @@
 <a class="" href="landing.html">Home</a><a class="broker-reviews-link" href="landing.html#broker-comparison">Broker Reviews</a><a class="" href="partner.html">Become Partner</a><a class="active" href="courses.html">Courses</a><a class="" href="tools-services.html">Trading Tools &amp; Services</a>
 </nav>
 <div class="actions">
-<button class="theme-btn" id="themeBtn">🌙</button><a class="login" href="index.html#auth-login">Login</a>
+<button class="theme-btn" id="themeBtn">🌙</button><a class="login" href="landing.html#login">Login</a>
 </div>
 </div>
 </header>
@@ -485,9 +499,6 @@
 <script src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
 <script src="course-enrollment.js?v=20260728-premium-push-v15"></script>
 
-<script src="push-subscribe-prompt.js?v=20260728-final-v4"></script>
-<script src="mobile-login-fix.js?v=20260728-v1"></script>
-
-<script src="final-login-session.js?v=20260728-v1"></script>
+<script src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
 </body>
 </html>

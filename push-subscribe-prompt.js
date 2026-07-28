@@ -24,9 +24,10 @@ function removeBar(){
   setTimeout(()=>{
     bar.remove();
     const pwa=document.getElementById("pwaInstallBanner");
-    if(pwa){
+    if(pwa&&pwa.dataset.pspHiddenForPush==="1"){
       pwa.style.removeProperty("display");
-      if(pwa.dataset.previousDisplay)pwa.style.display=pwa.dataset.previousDisplay;
+      if(pwa.dataset.pspOldDisplay)pwa.style.display=pwa.dataset.pspOldDisplay;
+      delete pwa.dataset.pspHiddenForPush;
     }
   },220);
 }
@@ -130,7 +131,11 @@ function showBar(){
     <button type="button" class="psp-notify-later">Not now</button>
   `;
   const pwa=document.getElementById("pwaInstallBanner");
-  if(pwa){pwa.dataset.previousDisplay=pwa.style.display||"";pwa.style.setProperty("display","none","important");}
+  if(pwa){
+    pwa.dataset.pspHiddenForPush="1";
+    pwa.dataset.pspOldDisplay=pwa.style.display||"";
+    pwa.style.setProperty("display","none","important");
+  }
   document.body.appendChild(bar);
   updateBarOffset();
   window.addEventListener('resize',updateBarOffset,{passive:true});
