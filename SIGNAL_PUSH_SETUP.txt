@@ -1,0 +1,32 @@
+PipSePaisa Signal Push Notification Setup
+
+1. Supabase Dashboard → Edge Functions → Create function named:
+   notify-signal
+
+2. Replace its code with:
+   supabase/functions/notify-signal/index.ts
+
+3. Set Verify JWT to OFF.
+
+4. Add Edge Function secrets:
+   ONESIGNAL_APP_ID = 18a97e55-9d93-4193-b60b-fe8e621f5d12
+   ONESIGNAL_REST_API_KEY = your OneSignal REST API key
+   HOOK_SECRET = create one strong secret, for example a long random value
+
+5. Set the same secret for the database trigger.
+   Run this once in SQL Editor, replacing YOUR_SECRET:
+   alter database postgres set app.settings.psp_hook_secret = 'YOUR_SECRET';
+
+6. Run:
+   49_SIGNAL_PUSH_EDGE_FUNCTION_WEBHOOK.sql
+
+7. Test:
+   Insert/send one new signal from PSP Mentor.
+   The User Panel should receive:
+   - Realtime in-app toast
+   - Unread badge
+   - OneSignal browser/mobile push when subscribed
+
+Important:
+Frontend Realtime notifications only work while the website is open.
+The Edge Function + OneSignal setup is required for notifications while the panel is closed.

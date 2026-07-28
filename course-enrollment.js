@@ -326,7 +326,14 @@
     document.getElementById('courseEnrollmentOverlay').setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';
     await currentSession();
-    showStep('ceStepChoice');
+    const insideUserPanel=!!document.getElementById('page-mycourses') || /(?:index|user-website)\.html$/i.test(location.pathname);
+    if(insideUserPanel && activeUser){
+      await loadProfile(activeUser);
+      fillExistingDetails();
+      showStep('ceStepDetails');
+    }else{
+      showStep('ceStepChoice');
+    }
   };
 
   window.closeCourseEnrollment=function(){
