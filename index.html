@@ -7458,7 +7458,9 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     var box=document.getElementById('aiReportBox');if(!box)return;
     var w=window.open('','_blank');if(!w)return;
     var name=(currentProfile&&(currentProfile.full_name||currentProfile.email))||'Trader';
-    w.document.write('<html><head><title>AI Trade Report</title><style>body{font-family:system-ui,Arial,sans-serif;background:#0a0e1a;color:#e8eaf0;padding:24px;max-width:820px;margin:auto;}h1{color:#f59e0b}</style></head><body><h1>🤖 AI Trade Report</h1><p style="color:#94a0b8">'+vEsc(name)+' · '+new Date().toLocaleString()+'</p>'+box.innerHTML+'<script>setTimeout(function(){window.print()},400)<\/script></body></html>');
+    w.document.write('<html><head><title>AI Trade Report</title><style>body{font-family:system-ui,Arial,sans-serif;background:#0a0e1a;color:#e8eaf0;padding:24px;max-width:820px;margin:auto;}h1{color:#f59e0b}</style>
+<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-v1">
+</head><body><h1>🤖 AI Trade Report</h1><p style="color:#94a0b8">'+vEsc(name)+' · '+new Date().toLocaleString()+'</p>'+box.innerHTML+'<script>setTimeout(function(){window.print()},400)<\/script></body></html>');
     w.document.close();
   }
   function renderAIReport(box,text,provider,cached,stats){
@@ -8956,10 +8958,6 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
           return Notification.permission === "granted";
         } catch(e) { console.warn("OneSignal permission failed", e); return false; }
       };
-      // Ask shortly after app load. Browser will only show prompt if user has not decided yet.
-      setTimeout(function() {
-        try { if (Notification.permission === "default") window.pipAskPushNotifications(); } catch(e) {}
-      }, 2500);
     } catch(e) { console.warn("OneSignal init failed", e); }
   });
 })();
@@ -9136,5 +9134,7 @@ window.addEventListener('message',function(event){
 })();
 </script>
 
+
+<script src="push-subscribe-prompt.js?v=20260728-v1"></script>
 </body>
 </html>

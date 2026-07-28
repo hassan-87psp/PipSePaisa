@@ -1,0 +1,36 @@
+
+#pspPushPrompt{
+  position:fixed;left:50%;bottom:18px;z-index:2147483000;
+  width:min(760px,calc(100vw - 28px));display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;gap:15px;align-items:center;
+  padding:16px 54px 16px 16px;border:1px solid rgba(245,158,11,.55);
+  border-radius:20px;background:rgba(9,18,34,.97);color:#fff;
+  box-shadow:0 24px 80px rgba(0,0,0,.42);
+  backdrop-filter:blur(18px);transform:translate(-50%,130%);opacity:0;
+  transition:transform .28s ease,opacity .28s ease;
+  font-family:Inter,system-ui,-apple-system,Segoe UI,Arial,sans-serif
+}
+#pspPushPrompt.show{transform:translate(-50%,0);opacity:1}
+.psp-push-logo{width:56px;height:56px;border-radius:15px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#fff7e6,#f59e0b);box-shadow:0 10px 28px rgba(245,158,11,.25)}
+.psp-push-logo img{width:43px;height:43px;object-fit:contain}
+.psp-push-copy{min-width:0}.psp-push-eyebrow{font-size:9px;font-weight:900;letter-spacing:.13em;color:#f59e0b;margin-bottom:3px}
+.psp-push-copy h3{margin:0 0 4px;font-size:17px;line-height:1.2;color:#fff}
+.psp-push-copy p{margin:0;color:#cbd5e1;font-size:11px;line-height:1.5}
+.psp-push-actions{display:flex;gap:8px;align-items:center;white-space:nowrap}
+.psp-push-primary,.psp-push-later{border:0;border-radius:10px;padding:11px 14px;font-weight:850;cursor:pointer;font-size:11px}
+.psp-push-primary{background:linear-gradient(135deg,#f59e0b,#d97706);color:#0b1220;box-shadow:0 9px 24px rgba(245,158,11,.24)}
+.psp-push-primary:disabled{opacity:.7;cursor:wait}
+.psp-push-later{background:rgba(255,255,255,.08);color:#e2e8f0;border:1px solid rgba(255,255,255,.12)}
+.psp-push-close{position:absolute;right:13px;top:10px;width:30px;height:30px;border:0;border-radius:9px;
+  background:rgba(255,255,255,.08);color:#cbd5e1;font-size:19px;cursor:pointer}
+.psp-push-status{display:none;margin-top:7px;padding:7px 9px;border-radius:8px;font-size:10px;background:rgba(255,255,255,.08);color:#e2e8f0}
+.psp-push-status[data-type="success"]{background:rgba(16,185,129,.16);color:#6ee7b7}
+.psp-push-status[data-type="warning"]{background:rgba(245,158,11,.16);color:#fde68a}
+@media(max-width:680px){
+  #pspPushPrompt{bottom:10px;grid-template-columns:auto 1fr;padding:14px 42px 14px 13px;gap:11px;border-radius:17px}
+  .psp-push-logo{width:48px;height:48px}.psp-push-logo img{width:37px;height:37px}
+  .psp-push-copy h3{font-size:15px}.psp-push-copy p{font-size:10px}
+  .psp-push-actions{grid-column:1/-1;width:100%;display:grid;grid-template-columns:1fr auto}
+  .psp-push-primary,.psp-push-later{padding:11px 12px}
+}
