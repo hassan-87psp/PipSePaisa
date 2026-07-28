@@ -1,139 +1,48 @@
 (function(){
-  'use strict';
-
-  function db(){try{return typeof sb!=='undefined'?sb:null}catch(_){return null}}
-  function esc(v){return String(v??'').replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[ch]);}
-  function fmtDate(v){if(!v)return '—';try{return new Date(v).toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'});}catch(_){return '—';}}
-
-  function injectStyle(){
-    if(document.getElementById('myCoursesStyles'))return;
-    const style=document.createElement('style');style.id='myCoursesStyles';style.textContent=`
-      .mc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px}
-      .mc-card{background:var(--bg-card);border:1px solid var(--border);border-radius:15px;padding:18px;box-shadow:var(--shadow)}
-      .mc-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:15px}.mc-head h3{font-size:17px;margin:0 0 5px}.mc-meta{font-size:11px;color:var(--text-muted)}
-      .mc-badge{padding:5px 9px;border-radius:999px;font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}.mc-badge.free{background:var(--green-bg);color:var(--green)}.mc-badge.paid{background:var(--gold-bg);color:var(--gold)}
-      .mc-steps{display:grid;gap:8px}.mc-step{display:grid;grid-template-columns:28px 1fr auto;gap:9px;align-items:center;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--bg-elevated)}
-      .mc-step-icon{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:13px;background:var(--bg-card)}.mc-step strong{display:block;font-size:12px}.mc-step small{display:block;color:var(--text-muted);font-size:10px;margin-top:2px}.mc-state{font-size:10px;font-weight:800}.mc-state.ok{color:var(--green)}.mc-state.wait{color:var(--gold)}.mc-state.bad{color:var(--red)}.mc-state.lock{color:var(--text-muted)}
-      .mc-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.mc-actions .btn{min-height:36px}.mc-empty{text-align:center;padding:55px 20px}.mc-empty .empty-icon{font-size:44px;margin-bottom:12px}
-      @media(max-width:600px){.mc-grid{grid-template-columns:1fr}.mc-card{padding:14px}.mc-step{grid-template-columns:26px 1fr}.mc-state{grid-column:2;text-align:left}}
-    `;document.head.appendChild(style);
-  }
-
-  function injectNavAndPage(){
-    injectStyle();
-    const nav=document.querySelector('.sidebar nav.menu');
-    if(nav&&!nav.querySelector('[data-page="mycourses"]')){
-      const learn=nav.querySelector('[data-page="learn"]');
-      const item=document.createElement('div');
-      item.className='menu-item';item.dataset.page='mycourses';item.dataset.tabkey='mycourses';
-      item.setAttribute('onclick',"showPage('mycourses', this)");
-      item.innerHTML='<span class="menu-icon">🎓</span>My Courses<span id="myCoursesNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:800;display:none">0</span>';
-      if(learn)nav.insertBefore(item,learn);else nav.appendChild(item);
-    }
-    const content=document.getElementById('content');
-    if(content&&!document.getElementById('page-mycourses')){
-      const page=document.createElement('div');page.className='page';page.id='page-mycourses';
-      page.innerHTML='<div class="card" style="margin-bottom:14px"><div class="card-header" style="margin-bottom:0"><div><div class="card-title">🎓 My Courses</div><div class="card-meta" style="margin-top:4px">Track enrollment, payment verification and course access</div></div><a class="btn btn-secondary btn-sm" href="courses.html" target="_top">Browse Courses</a></div></div><div id="myCoursesGrid" class="mc-grid"><div class="card mc-empty" style="grid-column:1/-1"><div class="empty-icon">⏳</div><div>Loading your courses...</div></div></div>';
-      const learnPage=document.getElementById('page-learn');
-      if(learnPage)content.insertBefore(page,learnPage);else content.appendChild(page);
-    }
-  }
-
-  function step(icon,title,note,state,stateClass){return `<div class="mc-step"><div class="mc-step-icon">${icon}</div><div><strong>${title}</strong><small>${note}</small></div><span class="mc-state ${stateClass}">${state}</span></div>`;}
-
-  function card(row){
-    const paid=row.course_type==='paid';
-    const payment=row.payment_status||'not_required';
-    const enrollment=row.enrollment_status||'pending';
-    const access=enrollment==='enrolled';
-    const paymentSubmittedStep=paid
-      ?step('🧾','Payment Submitted',row.transaction_id?'Transaction reference and receipt submitted':'Payment details submitted','Complete','ok')
-      :step('💳','Payment','No payment required for this course','Not Required','ok');
-    const verificationStep=!paid
-      ?''
-      :payment==='approved'
-        ?step('✅','Payment Verification','Your payment has been approved','Approved','ok')
-        :payment==='rejected'
-          ?step('❌','Payment Verification',row.rejection_reason||'Payment was not approved','Rejected','bad')
-          :step('⏳','Payment Verification','Your proof is waiting for admin review','Pending','wait');
-    const enrollmentStep=enrollment==='enrolled'
-      ?step('✅','Enrollment','You are enrolled in this course','Enrolled','ok')
-      :enrollment==='rejected'
-        ?step('❌','Enrollment','Enrollment request was rejected','Rejected','bad')
-        :step('⏳','Enrollment','Enrollment will complete after approval','Pending','wait');
-    const accessStep=access
-      ?step('🔓','Course Access','Course content is available','Available','ok')
-      :step('🔒','Course Access','Locked until enrollment is approved','Locked','lock');
-    return `<article class="mc-card">
-      <div class="mc-head"><div><h3>${esc(row.course_name||'Forex Course')}</h3><div class="mc-meta">Submitted ${fmtDate(row.created_at)}${row.reviewed_at?` • Reviewed ${fmtDate(row.reviewed_at)}`:''}</div></div><span class="mc-badge ${paid?'paid':'free'}">${paid?'Paid • $'+Number(row.price||200).toFixed(0):'Free'}</span></div>
-      <div class="mc-steps">
-        ${step('👤','Account / Login','Your PipSePaisa account is active','Complete','ok')}
-        ${paymentSubmittedStep}${verificationStep}${enrollmentStep}${accessStep}
-      </div>
-      <div class="mc-actions">${access?'<button class="btn" type="button" onclick="openEnrolledCourse()">Open Course</button>':''}<a class="btn btn-secondary" href="courses.html" target="_top">Course Details</a></div>
-    </article>`;
-  }
-
-  window.loadMyCourses=async function(){
-    injectNavAndPage();
-    const grid=document.getElementById('myCoursesGrid');if(!grid)return;
-    const client=db();
-    if(!client){grid.innerHTML='<div class="card mc-empty" style="grid-column:1/-1"><div class="empty-icon">⚠️</div><div>Database connection is not ready.</div></div>';return;}
-    grid.innerHTML='<div class="card mc-empty" style="grid-column:1/-1"><div class="empty-icon">⏳</div><div>Loading your courses...</div></div>';
-    try{
-      const {data:userData}=await client.auth.getUser();const user=userData?.user;
-      if(!user){grid.innerHTML='<div class="card mc-empty" style="grid-column:1/-1"><div class="empty-icon">🔐</div><div>Please log in to view your course enrollments.</div></div>';return;}
-      const {data,error}=await client.from('course_enrollments').select('*').eq('user_id',user.id).order('created_at',{ascending:false});
-      if(error)throw error;
-      const rows=data||[];
-      const badge=document.getElementById('myCoursesNavBadge');if(badge){badge.textContent=String(rows.length);badge.style.display=rows.length?'inline-block':'none';}
-      if(!rows.length){grid.innerHTML='<div class="card mc-empty" style="grid-column:1/-1"><div class="empty-icon">🎓</div><h3 style="margin-bottom:6px">No course enrollments yet</h3><p style="color:var(--text-muted);margin-bottom:15px">Choose a free or advanced course to begin your learning journey.</p><a class="btn" href="courses.html" target="_top">Browse Courses</a></div>';return;}
-      grid.innerHTML=rows.map(card).join('');
-    }catch(error){
-      const msg=/course_enrollments/i.test(error?.message||'')?'Run Query 44 in Supabase to install the course enrollment system.':(error?.message||'Could not load course enrollments.');
-      grid.innerHTML=`<div class="card mc-empty" style="grid-column:1/-1"><div class="empty-icon">⚠️</div><div>${esc(msg)}</div></div>`;
-    }
-  };
-
-  window.openEnrolledCourse=function(){
-    const item=document.querySelector('.menu-item[data-page="learn"]');
-    if(typeof showPage==='function')showPage('learn',item);
-  };
-
-  function wrapNavigation(){
-    if(window.__myCoursesShowPageWrapped)return;
-    if(typeof showPage!=='function')return setTimeout(wrapNavigation,250);
-    const original=showPage;
-    window.showPage=function(page,el){
-      const result=original.apply(this,arguments);
-      if(page==='mycourses'){
-        const title=document.getElementById('pageTitle');if(title)title.textContent='My Courses';
-        setTimeout(()=>window.loadMyCourses(),0);
-      }
-      return result;
-    };
-    window.__myCoursesShowPageWrapped=true;
-  }
-
-  function openRequestedPage(){
-    if(new URLSearchParams(location.search).get('open')!=='mycourses')return;
-    let tries=0;
-    const timer=setInterval(()=>{
-      tries++;
-      const app=document.getElementById('mainApp');
-      const visible=app&&getComputedStyle(app).display!=='none';
-      const item=document.querySelector('.menu-item[data-page="mycourses"]');
-      if(visible&&item&&typeof showPage==='function'){
-        clearInterval(timer);showPage('mycourses',item);
-        history.replaceState({},'',location.pathname+location.hash);
-      }else if(tries>40)clearInterval(timer);
-    },250);
-  }
-
-  function realtime(){
-    const client=db();if(!client)return setTimeout(realtime,700);
-    try{client.channel('rt-user-course-enrollments').on('postgres_changes',{event:'*',schema:'public',table:'course_enrollments'},()=>{const p=document.getElementById('page-mycourses');if(p?.classList.contains('active'))window.loadMyCourses();}).subscribe();}catch(_){ }
-  }
-
-  document.addEventListener('DOMContentLoaded',()=>{injectNavAndPage();wrapNavigation();openRequestedPage();realtime();});
+'use strict';
+function db(){try{return typeof sb!=='undefined'?sb:null}catch(_){return null}}
+function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]);}
+function date(v){try{return new Date(v).toLocaleDateString('en-MY',{day:'2-digit',month:'short',year:'numeric'})}catch(_){return '—'}}
+function inject(){
+ if(!document.getElementById('mcProStyle')){const st=document.createElement('style');st.id='mcProStyle';st.textContent=`
+ .mc-pro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px}.mc-pro{overflow:hidden;border:1px solid var(--border);border-radius:18px;background:var(--bg-card);box-shadow:var(--shadow)}
+ .mc-cover{height:165px;background:linear-gradient(135deg,#111827,#243044);position:relative;display:flex;align-items:end;padding:18px;color:#fff}.mc-cover:after{content:'🎓';position:absolute;right:22px;top:20px;font-size:58px;opacity:.18}
+ .mc-cover h3{font-size:21px;margin:0 0 4px}.mc-cover p{font-size:12px;opacity:.75;margin:0}.mc-badge{position:absolute;top:15px;left:15px;padding:6px 10px;border-radius:999px;font-size:10px;font-weight:900;text-transform:uppercase}
+ .mc-badge.pending{background:#fff4db;color:#b45309}.mc-badge.enrolled{background:#dff7ec;color:#047857}.mc-badge.rejected{background:#fee2e2;color:#b91c1c}.mc-body{padding:18px}
+ .mc-status-line{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}.mc-status-line strong{font-size:13px}.mc-sub{font-size:11px;color:var(--text-muted);line-height:1.5}
+ .mc-progress{height:8px;background:var(--bg-elevated);border-radius:999px;overflow:hidden;margin:14px 0 7px}.mc-progress span{display:block;height:100%;background:linear-gradient(90deg,#f59e0b,#d97706)}
+ .mc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.mc-empty{text-align:center;padding:45px}.mc-empty .ico{font-size:44px;margin-bottom:10px}
+ @media(max-width:600px){.mc-pro-grid{grid-template-columns:1fr}.mc-cover{height:145px}}
+ `;document.head.appendChild(st);}
+ const nav=document.querySelector('.sidebar nav.menu');if(nav&&!nav.querySelector('[data-page="mycourses"]')){const i=document.createElement('div');i.className='menu-item';i.dataset.page='mycourses';i.onclick=()=>showPage('mycourses',i);i.innerHTML='<span class="menu-icon">🎓</span>My Courses<span id="myCoursesNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:800;display:none">0</span>';nav.appendChild(i);}
+ const content=document.getElementById('content');if(content&&!document.getElementById('page-mycourses')){const p=document.createElement('div');p.className='page';p.id='page-mycourses';p.innerHTML='<div class="card" style="margin-bottom:14px"><div class="card-header" style="margin-bottom:0"><div><div class="card-title">🎓 My Courses</div><div class="card-meta" style="margin-top:4px">Your enrolled courses and learning progress</div></div></div></div><div id="myCoursesGrid" class="mc-pro-grid"></div>';content.appendChild(p);}
+}
+function card(r){
+ const paid=r.course_type==='paid', enrolled=r.enrollment_status==='enrolled', rejected=r.enrollment_status==='rejected';
+ const badge=enrolled?'Enrolled':rejected?'Rejected':'Payment Under Review';
+ const cls=enrolled?'enrolled':rejected?'rejected':'pending';
+ const progress=Math.max(0,Math.min(100,Number(r.progress_percent||0)));
+ const subtitle=enrolled?`${Number(r.completed_lessons||0)} of ${Number(r.total_lessons||12)} lessons completed`:rejected?(r.rejection_reason||'Payment could not be verified'):`Payment submitted ${date(r.created_at)} • Verification in progress`;
+ return `<article class="mc-pro"><div class="mc-cover"><span class="mc-badge ${cls}">${badge}</span><div><h3>${esc(r.course_name||'Forex Course')}</h3><p>${paid?'Professional Trading Program • $'+Number(r.price||200).toFixed(0):'Beginner Learning Program • Free'}</p></div></div><div class="mc-body">
+ <div class="mc-status-line"><strong>${enrolled?'Course access is active':rejected?'Enrollment requires attention':'Your request is being reviewed'}</strong><span class="mc-sub">${date(r.created_at)}</span></div>
+ <div class="mc-sub">${esc(subtitle)}</div>
+ ${enrolled?`<div class="mc-progress"><span style="width:${progress}%"></span></div><div class="mc-sub">${progress}% complete</div>`:''}
+ <div class="mc-actions">
+ ${enrolled?'<button class="btn" type="button" onclick="openEnrolledCourse()">Continue Learning</button>':''}
+ ${paid&&!enrolled?'<button class="btn btn-secondary" type="button" onclick="alert(\'Payment details are saved with your enrollment request.\')">View Payment Details</button>':''}
+ <a class="btn btn-secondary" href="courses.html" target="_top">Course Details</a>
+ </div></div></article>`;
+}
+window.loadMyCourses=async function(){
+ inject();const g=document.getElementById('myCoursesGrid');if(!g)return;g.innerHTML='<div class="card mc-empty" style="grid-column:1/-1"><div class="ico">⏳</div>Loading your courses...</div>';
+ const c=db();if(!c)return;
+ try{const {data:u}=await c.auth.getUser();if(!u?.user){g.innerHTML='<div class="card mc-empty" style="grid-column:1/-1"><div class="ico">🔐</div>Please log in to view your courses.</div>';return;}
+ const {data,error}=await c.from('course_enrollments').select('*').eq('user_id',u.user.id).order('created_at',{ascending:false});if(error)throw error;const rows=data||[];
+ const b=document.getElementById('myCoursesNavBadge');if(b){b.textContent=rows.length;b.style.display=rows.length?'inline-block':'none';}
+ g.innerHTML=rows.length?rows.map(card).join(''):'<div class="card mc-empty" style="grid-column:1/-1"><div class="ico">🎓</div><h3>No courses yet</h3><p class="mc-sub">Choose a course to begin your learning journey.</p><a class="btn" href="courses.html" target="_top">Browse Courses</a></div>';
+ }catch(e){g.innerHTML=`<div class="card mc-empty" style="grid-column:1/-1"><div class="ico">⚠️</div>${esc(e.message||'Could not load courses.')}</div>`;}
+};
+window.openEnrolledCourse=function(){const i=document.querySelector('.menu-item[data-page="learn"]');if(typeof showPage==='function')showPage('learn',i);}
+function wrap(){if(window.__mcWrapped||typeof showPage!=='function')return setTimeout(wrap,250);const o=showPage;window.showPage=function(p,e){const r=o.apply(this,arguments);if(p==='mycourses')setTimeout(loadMyCourses,0);return r};window.__mcWrapped=true;}
+document.addEventListener('DOMContentLoaded',()=>{inject();wrap();if(new URLSearchParams(location.search).get('open')==='mycourses')setTimeout(()=>{const i=document.querySelector('[data-page="mycourses"]');if(i&&typeof showPage==='function')showPage('mycourses',i)},1200);});
 })();
