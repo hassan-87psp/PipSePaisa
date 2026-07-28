@@ -1447,6 +1447,29 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
   .nav-actions .btn{display:inline-flex!important;pointer-events:auto!important;touch-action:manipulation;min-height:42px;align-items:center;justify-content:center}
 }
 </style>
+
+<style id="brokerExactMobileFix">
+.broker-comparison-table .broker-name img,
+.broker-comparison-table img.broker-logo-icon{
+  width:76px!important;min-width:76px!important;max-width:76px!important;
+  height:42px!important;min-height:42px!important;max-height:42px!important;
+  object-fit:contain!important;object-position:center!important;
+  padding:5px 7px!important;margin:0!important;box-sizing:border-box!important;
+}
+.broker-comparison-table .broker-name{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:8px!important;min-width:0!important;
+}
+.broker-comparison-table .broker-name strong{
+  font-size:12px!important;line-height:1.15!important;white-space:normal!important;
+}
+.broker-comparison-table tbody td{
+  height:72px!important;max-height:72px!important;padding:10px 7px!important;
+  overflow:hidden!important;vertical-align:middle!important;
+}
+.broker-comparison-table tbody tr{height:72px!important}
+</style>
+
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -1834,8 +1857,11 @@ async function landingLoginUser(){
     const {data,error}=await landingSb.auth.signInWithPassword({email,password});
     if(error)throw error;
     if(!data?.user)throw new Error('Login could not be completed.');
+    const persisted = await landingSb.auth.getSession();
+    if(!persisted?.data?.session)throw new Error('Login session could not be saved. Please try again.');
+    localStorage.setItem('pipsepaisa_last_login_email',email);
     showLandingAuthMessage('success','Login successful. Opening your dashboard...','landingLoginMessage');
-    setTimeout(()=>location.replace('index.html'),450);
+    location.replace('index.html?logged_in=1');
   }catch(error){
     const raw=error?.message||'Login failed. Please try again.';
     const msg=/invalid login credentials|invalid/i.test(raw)?'Email or password is incorrect.':raw;

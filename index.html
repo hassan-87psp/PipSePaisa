@@ -1024,7 +1024,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
      ======================================================================== -->
 <div id="landingPage" style="display:block;position:fixed;inset:0;z-index:9999;background:var(--bg-main);">
 
-  <iframe src="landing.html?v=20260723-mentor-portals-ai" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <iframe src="landing.html?v=20260728-login-broker-exact-v1" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
 </div>
 
 <div class="app" id="mainApp" style="display:none;">
@@ -7791,6 +7791,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         if (session && session.user) {
           await loadUserProfile(session.user);
           enterApp();
+          try { history.replaceState(null, '', 'index.html'); } catch(e) {}
         }
       } else if (event === 'SIGNED_OUT') {
         currentUser = null;
@@ -7956,11 +7957,28 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   }
   
   async function init() {
-    // Show landing first; restore real session if user already logged in
-    showLandingPage();
+    // Resolve the saved Supabase session before displaying the landing iframe.
+    const landing = document.getElementById('landingPage');
+    const app = document.getElementById('mainApp');
+    if (landing) landing.style.display = 'none';
+    if (app) app.style.display = 'none';
     await ensureSupabaseClient();
-    await loadUserProfile();
-    
+
+    let restoredSession = null;
+    try {
+      const sessionResult = await sb.auth.getSession();
+      restoredSession = sessionResult?.data?.session || null;
+    } catch (e) {
+      console.warn('Session restore failed', e);
+    }
+
+    if (restoredSession?.user) {
+      await loadUserProfile(restoredSession.user);
+      enterApp();
+    } else {
+      showLandingPage();
+    }
+
     updateTime();
     buildCalendar();
     buildPerfChart();
