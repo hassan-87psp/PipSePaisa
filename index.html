@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+<!-- PipSePaisa Direct Login Verified: 2026-07-28-v2 -->
+<!-- PipSePaisa Direct Parent Login Fix: 2026-07-28-v1 -->
 <!-- PipSePaisa Full Login Audit: 2026-07-28-v1 -->
 <!-- PipSePaisa Login Deadlock Fix: 2026-07-28-v1 -->
 <!-- PipSePaisa Login Runtime Fix: 2026-07-28-v1 -->
@@ -1037,7 +1039,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
      ======================================================================== -->
 <div id="landingPage" style="display:block;position:fixed;inset:0;z-index:9999;background:var(--bg-main);">
 
-  <iframe src="landing.html?v=20260728-full-login-audit-v1" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <iframe src="landing.html?v=20260728-direct-login-verified-v2" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
 </div>
 
 <div class="app" id="mainApp" style="display:none;">
@@ -7794,6 +7796,75 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     }
   }
   
+
+
+  // ============ DIRECT SAME-ORIGIN LANDING LOGIN ============
+  // landing.html is loaded from the same domain inside this page.
+  // Calling this function directly is more reliable than waiting for postMessage.
+  window.pspLoginFromLanding = async function(email, password) {
+    if (window._pspDirectLoginBusy) {
+      throw new Error('Login is already processing. Please wait a moment.');
+    }
+    window._pspDirectLoginBusy = true;
+
+    try {
+      const ready = await ensureSupabaseClient();
+      if (!ready || !sb) {
+        throw new Error('Connection problem. Please reload and try again.');
+      }
+
+      email = String(email || '').trim();
+      password = String(password || '');
+      if (!email || !password) {
+        throw new Error('Please enter email and password.');
+      }
+
+      const loginRequest = sb.auth.signInWithPassword({ email, password });
+      const timeoutRequest = new Promise((_, reject) => {
+        setTimeout(
+          () => reject(new Error('Login service took too long. Please check your internet and try again.')),
+          15000
+        );
+      });
+
+      const result = await Promise.race([loginRequest, timeoutRequest]);
+      if (result.error) throw result.error;
+
+      const user = result.data?.user || null;
+      const session = result.data?.session || null;
+      if (!user || !session) {
+        throw new Error('Login session was not created. Please verify your email and try again.');
+      }
+
+      currentUser = user;
+      enterApp();
+
+      _lastAuthHydrationUserId = user.id;
+      _lastAuthHydrationAt = Date.now();
+
+      try {
+        localStorage.setItem('pipsepaisa_last_login_email', email);
+        history.replaceState(null, '', 'index.html');
+      } catch (e) {}
+
+      setTimeout(function () {
+        Promise.resolve(loadUserProfile(user)).catch(function (error) {
+          console.warn('Background profile load failed:', error);
+          try { updateAuthUI(); } catch (e) {}
+        });
+      }, 0);
+
+      return { ok: true, userId: user.id };
+    } catch (error) {
+      const raw = error?.message || 'Login failed. Please try again.';
+      const friendly = /invalid login credentials|invalid/i.test(raw)
+        ? 'Email or password is incorrect.'
+        : raw;
+      throw new Error(friendly);
+    } finally {
+      window._pspDirectLoginBusy = false;
+    }
+  };
 
   // ============ LANDING IFRAME LOGIN BRIDGE ============
   // The landing page is an iframe. Authentication is completed by this
