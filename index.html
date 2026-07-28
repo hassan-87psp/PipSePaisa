@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+<!-- PipSePaisa Full Login Audit: 2026-07-28-v1 -->
+<!-- PipSePaisa Login Deadlock Fix: 2026-07-28-v1 -->
 <!-- PipSePaisa Login Runtime Fix: 2026-07-28-v1 -->
 <script id="iframeLoginEscape">
 (function(){
@@ -1035,7 +1037,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
      ======================================================================== -->
 <div id="landingPage" style="display:block;position:fixed;inset:0;z-index:9999;background:var(--bg-main);">
 
-  <iframe src="landing.html?v=20260728-parent-auth-final-v1" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <iframe src="landing.html?v=20260728-full-login-audit-v1" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
 </div>
 
 <div class="app" id="mainApp" style="display:none;">
@@ -6370,13 +6372,17 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       currentUser = data.user;
       showAuthMessage('success', window.PSP_PORTAL_MODE==='mentor' ? 'Welcome! Opening your Mentor Site...' : 'Welcome! Opening your dashboard...');
 
-      // Load profile using the authenticated user from this exact login response.
-      await loadUserProfile(data.user);
-
-      // Open the selected User or Mentor portal without a page refresh.
+      // Open immediately; do not hold the login screen for profile queries.
       closeModal('auth');
       enterApp();
       resetAuthModalState();
+
+      setTimeout(function(){
+        Promise.resolve(loadUserProfile(data.user)).catch(function(error){
+          console.warn('Login profile load failed:',error);
+          try{updateAuthUI();}catch(e){}
+        });
+      },0);
 
       // Open Performance as the default page.
       try {
@@ -7798,88 +7804,155 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if(_landingLoginBridgeBound)return;
     _landingLoginBridgeBound=true;
 
-    window.addEventListener('message',async function(event){
+    window.addEventListener('message',function(event){
       if(event.origin!==location.origin)return;
       const message=event.data||{};
       if(message.type!=='PIPSEPAISA_LOGIN_REQUEST')return;
 
       const frame=document.querySelector('#landingPage iframe');
-      if(frame && event.source!==frame.contentWindow)return;
+      if(frame&&event.source!==frame.contentWindow)return;
 
       const requestId=message.requestId||'';
-      try{
-        await ensureSupabaseClient();
-        if(!sb)throw new Error('Connection problem. Please reload and try again.');
+      const reply=function(payload){
+        try{
+          event.source?.postMessage(
+            Object.assign({
+              type:'PIPSEPAISA_LOGIN_RESULT',
+              requestId
+            },payload),
+            event.origin
+          );
+        }catch(e){}
+      };
 
-        const email=String(message.email||'').trim();
-        const password=String(message.password||'');
-        if(!email||!password)throw new Error('Please enter email and password.');
-
-        const result=await sb.auth.signInWithPassword({email,password});
-        if(result.error)throw result.error;
-        if(!result.data?.user)throw new Error('Login could not be completed.');
-
-        // Confirm the parent session before opening the application.
-        const sessionResult=await sb.auth.getSession();
-        const session=sessionResult?.data?.session||null;
-        if(!session?.user)throw new Error('Login session could not be saved.');
-
-        await loadUserProfile(session.user);
-        enterApp();
+      (async function(){
+        if(window._pspParentLoginBusy){
+          throw new Error('Login is already processing. Please wait a moment.');
+        }
+        window._pspParentLoginBusy=true;
 
         try{
-          localStorage.setItem('pipsepaisa_last_login_email',email);
-          history.replaceState(null,'','index.html');
-        }catch(e){}
+          const ready=await ensureSupabaseClient();
+          if(!ready||!sb){
+            throw new Error('Connection problem. Please reload and try again.');
+          }
 
-        event.source?.postMessage({
-          type:'PIPSEPAISA_LOGIN_RESULT',
-          requestId,
-          ok:true
-        },event.origin);
-      }catch(error){
-        const raw=error?.message||'Login failed. Please try again.';
-        const friendly=/invalid login credentials|invalid/i.test(raw)
-          ?'Email or password is incorrect.'
-          :raw;
+          const email=String(message.email||'').trim();
+          const password=String(message.password||'');
+          if(!email||!password){
+            throw new Error('Please enter email and password.');
+          }
 
-        event.source?.postMessage({
-          type:'PIPSEPAISA_LOGIN_RESULT',
-          requestId,
-          ok:false,
-          error:friendly
-        },event.origin);
-      }
+          const loginPromise=sb.auth.signInWithPassword({email,password});
+          const timeoutPromise=new Promise((_,reject)=>{
+            setTimeout(
+              ()=>reject(new Error('Login service took too long. Please check your internet and try again.')),
+              12000
+            );
+          });
+
+          const result=await Promise.race([loginPromise,timeoutPromise]);
+          if(result.error)throw result.error;
+
+          const user=result.data?.user||null;
+          const session=result.data?.session||null;
+          if(!user||!session){
+            throw new Error('Login session was not created. Please verify your email and try again.');
+          }
+
+          // Do not wait for profile/database queries before opening the app.
+          currentUser=user;
+          enterApp();
+
+          // Mark this hydration so the auth-state listener does not repeat it.
+          _lastAuthHydrationUserId=user.id;
+          _lastAuthHydrationAt=Date.now();
+
+          try{
+            localStorage.setItem('pipsepaisa_last_login_email',email);
+            history.replaceState(null,'','index.html');
+          }catch(e){}
+
+          reply({ok:true});
+
+          // Profile hydration is intentionally outside the auth lock.
+          setTimeout(function(){
+            Promise.resolve(loadUserProfile(user)).catch(function(error){
+              console.warn('Background profile load failed:',error);
+              try{updateAuthUI();}catch(e){}
+            });
+          },0);
+        }catch(error){
+          const raw=error?.message||'Login failed. Please try again.';
+          const friendly=/invalid login credentials|invalid/i.test(raw)
+            ?'Email or password is incorrect.'
+            :raw;
+          reply({ok:false,error:friendly});
+        }finally{
+          window._pspParentLoginBusy=false;
+        }
+      })();
     });
   }
   bindLandingLoginBridge();
 
   // ============ LISTEN FOR AUTH STATE CHANGES ============
   let _authListenerBound = false;
+  let _lastAuthHydrationUserId = '';
+  let _lastAuthHydrationAt = 0;
+
+  function queueAuthenticatedUser(user){
+    if(!user)return;
+
+    currentUser=user;
+    enterApp();
+
+    const now=Date.now();
+    if(_lastAuthHydrationUserId===user.id&&(now-_lastAuthHydrationAt)<1200){
+      return;
+    }
+    _lastAuthHydrationUserId=user.id;
+    _lastAuthHydrationAt=now;
+
+    setTimeout(function(){
+      Promise.resolve(loadUserProfile(user)).catch(function(error){
+        console.warn('Auth profile hydration failed:',error);
+        try{updateAuthUI();}catch(e){}
+      });
+    },0);
+  }
+
   function bindUserAuthListener() {
     if (_authListenerBound || !sb) return;
     _authListenerBound = true;
-    sb.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        showPasswordResetForm();
-      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
-        if (session && session.user) {
-          await loadUserProfile(session.user);
-          enterApp();
-          try { history.replaceState(null, '', 'index.html'); } catch(e) {}
+
+    sb.auth.onAuthStateChange((event, session) => {
+      // Never await Supabase/database calls inside this callback.
+      setTimeout(function(){
+        if (event === 'PASSWORD_RECOVERY') {
+          showPasswordResetForm();
+        } else if (
+          event === 'SIGNED_IN' ||
+          event === 'TOKEN_REFRESHED' ||
+          event === 'INITIAL_SESSION'
+        ) {
+          if (session && session.user) {
+            queueAuthenticatedUser(session.user);
+            try { history.replaceState(null, '', 'index.html'); } catch(e) {}
+          }
+        } else if (event === 'SIGNED_OUT') {
+          currentUser = null;
+          currentProfile = null;
+          updateAuthUI();
+          try { closeModal('auth'); } catch(e) {}
+          resetAuthModalState();
+          showLandingPage();
         }
-      } else if (event === 'SIGNED_OUT') {
-        currentUser = null;
-        currentProfile = null;
-        updateAuthUI();
-        try { closeModal('auth'); } catch(e) {}
-        resetAuthModalState();
-        showLandingPage();
-      }
+      },0);
     });
   }
   bindUserAuthListener();
-  ensureSupabaseClient().then(function(){ bindUserAuthListener(); loadUserProfile(); });
+  ensureSupabaseClient().then(function(){ bindUserAuthListener(); });
   
   // ============================================================
   // ============ END SUPABASE AUTH ============
@@ -8048,8 +8121,13 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     }
 
     if (restoredSession?.user) {
-      await loadUserProfile(restoredSession.user);
+      currentUser=restoredSession.user;
       enterApp();
+      setTimeout(function(){
+        Promise.resolve(loadUserProfile(restoredSession.user)).catch(function(error){
+          console.warn('Restored profile load failed:',error);
+        });
+      },0);
     } else {
       showLandingPage();
     }

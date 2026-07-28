@@ -1863,7 +1863,21 @@ themeButton?.addEventListener('click',()=>applyLandingTheme(!document.body.class
 
 const LANDING_SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
 const LANDING_SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
-const landingSb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(LANDING_SUPABASE_URL,LANDING_SUPABASE_KEY,{auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}}):null;
+const LANDING_IS_EMBEDDED=(window.parent&&window.parent!==window);
+const landingSb=(window.supabase&&window.supabase.createClient)
+  ?window.supabase.createClient(
+      LANDING_SUPABASE_URL,
+      LANDING_SUPABASE_KEY,
+      {auth:{
+        storageKey:LANDING_IS_EMBEDDED
+          ?'pipsepaisa-landing-public-read-v1'
+          :'pipsepaisa-user-auth-v2',
+        persistSession:!LANDING_IS_EMBEDDED,
+        autoRefreshToken:!LANDING_IS_EMBEDDED,
+        detectSessionInUrl:!LANDING_IS_EMBEDDED
+      }}
+    )
+  :null;
 function safeJson(v){try{return JSON.parse(v||'{}')}catch(e){return {}}}
 async function loadLandingAdminContent(){
   if(!landingSb)return;
@@ -1951,8 +1965,8 @@ async function landingLoginUser(){
       const result=await new Promise((resolve,reject)=>{
         const timeout=setTimeout(()=>{
           window.removeEventListener('message',onMessage);
-          reject(new Error('Login timed out. Please try again.'));
-        },15000);
+          reject(new Error('Login service took too long. Please check your internet and try again.'));
+        },12000);
 
         function onMessage(event){
           if(event.source!==window.parent)return;
