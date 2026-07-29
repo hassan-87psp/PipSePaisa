@@ -160,6 +160,53 @@ function injectStyles(){
     .course-module-action{padding:18px}
     .course-register-btn{width:100%}
   }
+
+  /* Compact desktop module cards: reduced height without clipping text */
+  @media(min-width:901px){
+    .course-module-list{gap:10px;padding:11px}
+    .course-module-card{
+      grid-template-columns:190px minmax(0,1fr) 220px;
+      min-height:0;
+      border-radius:20px
+    }
+    .course-mentor-wrap{gap:4px;padding:9px 10px}
+    .course-mentor-wrap:after{inset:8px;border-radius:17px}
+    .course-mentor-img{width:84px;height:108px;padding:2px}
+    .course-instructor-stars{font-size:12px;letter-spacing:1.5px}
+    .course-instructor-meta strong{font-size:11px}
+    .course-instructor-meta span{font-size:8px;margin-top:2px}
+    .course-module-content{padding:11px 15px}
+    .course-module-topline{gap:7px}
+    .course-module-kicker{padding:4px 8px;font-size:8px;border-radius:8px}
+    .course-module-category{font-size:9px;gap:5px}
+    .course-module-category:before{font-size:15px}
+    .course-module-title{margin:7px 0 3px;font-size:20px;line-height:1.08}
+    .course-module-sub{font-size:9.5px;line-height:1.28}
+    .course-module-meta{margin-top:7px;padding:6px 8px;border-radius:10px}
+    .course-module-meta-item{gap:5px;padding:0 7px}
+    .course-module-meta-icon{font-size:12px}
+    .course-module-meta-copy span{font-size:7px}
+    .course-module-meta-copy strong{font-size:9px}
+    .course-learning-grid{gap:8px;margin-top:8px}
+    .course-learning-col{border-radius:10px}
+    .course-learning-col h4{gap:6px;padding:7px 9px;font-size:11px}
+    .course-learning-col h4:before{width:19px;height:19px;border-radius:5px;font-size:9px}
+    .course-learning-item{gap:6px;padding:5px 8px;font-size:8.5px;line-height:1.2}
+    .course-learning-item:before{width:14px;height:14px;flex-basis:14px;font-size:8px}
+    .course-module-action{padding:9px 10px}
+    .course-module-action:after{height:38px}
+    .course-action-icon{width:34px;height:34px;font-size:15px}
+    .course-action-title{margin:6px 0 2px;font-size:15px}
+    .course-action-text{font-size:8.5px;line-height:1.25}
+    .course-enrollment-state{margin:7px 0 0;padding:7px;border-radius:10px}
+    .course-enrollment-state h4{margin:0 0 5px;font-size:10px}
+    .course-state-boxes{gap:5px}
+    .course-state-box{min-height:29px;padding:5px 6px;font-size:7.5px;border-radius:8px}
+    .course-state-box .dot{width:6px;height:6px;box-shadow:0 0 0 3px rgba(245,158,11,.1)}
+    .course-register-btn{margin-top:8px;width:164px;min-height:40px;border-radius:11px;font-size:11px}
+    .course-action-trust{margin-top:6px;font-size:7.5px}
+  }
+
   `;
   document.head.appendChild(st);
 }
@@ -223,7 +270,7 @@ function ensurePage(){
           <div class="course-module-footer">
             <h3>Ready to begin your trading journey?</h3>
             <p>Register once and unlock the complete Basic Forex Course.</p>
-            <button class="btn" type="button" onclick="openCourseEnrollment('basic')">Register Now — 100% Free</button>
+            <button class="btn" type="button" onclick="openCourseEnrollmentFromModules('basic')">Register Now — 100% Free</button>
           </div>
         </div>
       </div>
@@ -240,7 +287,7 @@ function ensurePage(){
           <div class="course-module-footer">
             <h3>Ready to upgrade your trading skills?</h3>
             <p>Complete your enrollment to unlock the Advanced Forex Course.</p>
-            <button class="btn" type="button" onclick="openCourseEnrollment('advanced')">Enroll Now — $200</button>
+            <button class="btn" type="button" onclick="openCourseEnrollmentFromModules('advanced')">Enroll Now — $200</button>
           </div>
         </div>
       </div>`;
@@ -460,17 +507,18 @@ function advancedStateMarkup(state,compact){
   if(state==='approved')return `<strong>${compact?'Course access active':'Course Enrollment Approved'}</strong><div class="course-state-boxes"><div class="course-state-box"><span class="dot"></span>Payment Approved</div><div class="course-state-box"><span class="dot"></span>Course Unlocked</div></div>`;
   if(state==='pending')return `<strong>${compact?'Enrollment under review':'Course Enrollment Payment Pending'}</strong><div class="course-state-boxes"><div class="course-state-box"><span class="dot"></span>Payment Pending</div><div class="course-state-box"><span class="dot"></span>Access Locked</div></div>`;
   if(state==='rejected')return `<strong>Payment Verification Required</strong><div class="course-state-boxes"><div class="course-state-box"><span class="dot"></span>Payment Rejected</div><div class="course-state-box"><span class="dot"></span>Submit Again</div></div>`;
-  return '';
+  return `<strong>${compact?'Enrollment required':'Course Enrollment Required'}</strong><div class="course-state-boxes"><div class="course-state-box"><span class="dot"></span>Payment Required</div><div class="course-state-box"><span class="dot"></span>Access Locked</div></div>`;
 }
 async function refreshAdvancedCourseState(){
   advancedEnrollmentState=await getCourseEnrollmentState('advanced');
   const state=normalizeAdvancedState(advancedEnrollmentState);
   const box=document.getElementById('advancedMainCourseStatus');
   const btn=document.getElementById('advancedMainCourseButton');
-  if(box){box.style.display=state==='not_enrolled'?'none':'block';box.innerHTML=advancedStateMarkup(state,true);}
+  if(box){box.style.display='block';box.innerHTML=advancedStateMarkup(state,true);}
   if(btn){
-    btn.textContent=state==='approved'?'Open Advanced Modules':state==='pending'?'Payment Pending':state==='rejected'?'Resubmit Payment':'Enroll in Advanced Course';
-    btn.disabled=state==='pending';
+    btn.textContent=state==='approved'?'Open Advanced Modules':state==='pending'?'View Locked Modules':state==='rejected'?'View Modules & Resubmit':'View Advanced Modules';
+    btn.disabled=false;
+    btn.onclick=function(){window.openAdvancedCourseModules();};
   }
   return state;
 }
@@ -478,6 +526,16 @@ function closeAllCourseModulePopups(){
   try{closeFreeCourseModules();}catch(_){ }
   try{closeAdvancedCourseModules();}catch(_){ }
 }
+window.closeAllCourseModulePopups=closeAllCourseModulePopups;
+window.openCourseEnrollmentFromModules=function(courseKey){
+  closeAllCourseModulePopups();
+  window.setTimeout(function(){
+    if(typeof window.openCourseEnrollment==='function'){
+      window.openCourseEnrollment(courseKey);
+    }
+  },70);
+};
+
 window.openAdvancedCourseModules=async function(){
   const shell=document.getElementById('advancedCourseModuleShell');
   const list=document.getElementById('advancedCourseModuleList');
@@ -527,10 +585,10 @@ window.openAdvancedCourseModules=async function(){
 
       <div class="course-module-action">
         <div class="course-action-icon">${state==='approved'?'🔓':'🔒'}</div>
-        <h4 class="course-action-title">${state==='approved'?'Course Unlocked':state==='pending'?'Payment Under Review':'Ready to Advance?'}</h4>
-        <p class="course-action-text">${state==='approved'?'Your payment is approved. Module access is active.':state==='pending'?'Your payment has been submitted and is waiting for admin approval.':'Complete payment enrollment to unlock this module.'}</p>
-        <div class="course-enrollment-state ${state==='approved'?'approved':state==='rejected'?'rejected':''} ${state!=='not_enrolled'?'show':''}">${advancedStateMarkup(state,false)}</div>
-        <button class="course-register-btn ${state==='pending'?'is-locked':''}" type="button" ${state==='pending'?'disabled':''} onclick="${state==='approved'?`openEnrolledCourse()`:`openCourseEnrollment('advanced')`}">${state==='approved'?'Open Module →':state==='pending'?'Payment Pending 🔒':state==='rejected'?'Resubmit Payment →':'Enroll for Module 🔒'}</button>
+        <h4 class="course-action-title">${state==='approved'?'Course Unlocked':state==='pending'?'Payment Under Review':state==='rejected'?'Payment Rejected':'Ready to Advance?'}</h4>
+        <p class="course-action-text">${state==='approved'?'Your payment is approved. Module access is active.':state==='pending'?'Your payment is submitted and waiting for admin approval.':state==='rejected'?'Submit new payment details to request verification again.':'Complete payment enrollment to unlock this module.'}</p>
+        <div class="course-enrollment-state show ${state==='approved'?'approved':state==='rejected'?'rejected':''}">${advancedStateMarkup(state,false)}</div>
+        <button class="course-register-btn ${state==='pending'?'is-locked':''}" type="button" ${state==='pending'?'disabled':''} onclick="${state==='approved'?`openEnrolledCourse()`:`openCourseEnrollmentFromModules('advanced')`}">${state==='approved'?'Open Module →':state==='pending'?'Payment Pending 🔒':state==='rejected'?'Resubmit Payment →':'Enroll for Module 🔒'}</button>
         <div class="course-action-trust">🛡 Secure • Trusted • Professional</div>
       </div>
     </article>
@@ -599,7 +657,7 @@ window.openFreeCourseModules=function(){
         <div class="course-action-icon">🏆</div>
         <h4 class="course-action-title">Ready to Start?</h4>
         <p class="course-action-text">Secure your seat and start learning with confidence.</p>
-        <button class="course-register-btn" type="button" onclick="openCourseEnrollment('basic')">Register for Module →</button>
+        <button class="course-register-btn" type="button" onclick="openCourseEnrollmentFromModules('basic')">Register for Module →</button>
         <div class="course-action-trust">🛡 Secure • Trusted • Professional</div>
       </div>
     </article>
@@ -724,6 +782,13 @@ function bindMyCoursesNavigation(){
     return false;
   };
 }
+
+
+window.addEventListener('course-enrollment-updated',function(event){
+  if(event?.detail?.courseKey==='advanced'){
+    window.setTimeout(function(){refreshAdvancedCourseState();},100);
+  }
+});
 
 document.addEventListener('DOMContentLoaded',()=>{
   ensurePage();

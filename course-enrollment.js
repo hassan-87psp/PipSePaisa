@@ -12,6 +12,7 @@
   let selectedCourse=null;
   let activeUser=null;
   let activeProfile=null;
+  let activeEnrollmentFallback=null;
   let accountWasCreated=false;
   let paymentMethods=[];
 
@@ -210,11 +211,20 @@
 
   async function loadProfile(user){
     activeProfile=null;
+    activeEnrollmentFallback=null;
     if(!user)return;
     try{
-      const {data}=await getClient().from('profiles').select('*').eq('id',user.id).maybeSingle();
-      activeProfile=data||null;
-    }catch(_){activeProfile=null;}
+      const client=getClient();
+      const [profileResult,enrollmentResult]=await Promise.all([
+        client.from('profiles').select('*').eq('id',user.id).maybeSingle(),
+        client.from('course_enrollments').select('full_name,whatsapp,email,experience,learning_goal,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(1).maybeSingle()
+      ]);
+      activeProfile=profileResult?.data||null;
+      activeEnrollmentFallback=enrollmentResult?.data||null;
+    }catch(_){
+      activeProfile=null;
+      activeEnrollmentFallback=null;
+    }
   }
 
   async function currentSession(){
@@ -232,16 +242,48 @@
     return data||null;
   }
 
+  function firstValue(){
+    for(const value of arguments){
+      if(value!==undefined && value!==null && String(value).trim()!=='')return String(value).trim();
+    }
+    return '';
+  }
+
+  function panelProfile(){
+    try{
+      return typeof currentProfile!=='undefined' && currentProfile ? currentProfile : null;
+    }catch(_){
+      return window.currentProfile||null;
+    }
+  }
+
   function fillExistingDetails(){
     const meta=activeUser?.user_metadata||{};
+    const panel=panelProfile()||{};
     const email=document.getElementById('ceDetailsEmail');
     const passwordWrap=document.getElementById('ceDetailsPasswordWrap');
+
     if(activeUser){
-      document.getElementById('ceDetailsName').value=activeProfile?.full_name||meta.full_name||'';
-      document.getElementById('ceDetailsPhone').value=activeProfile?.phone||activeProfile?.whatsapp||meta.phone||'';
-      document.getElementById('ceDetailsExperience').value='Beginner';
-      document.getElementById('ceDetailsGoal').value='';
-      if(email){email.value=activeUser.email||'';email.readOnly=true;}
+      const fallbackName=(activeUser.email||'').split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,ch=>ch.toUpperCase());
+      const fullName=firstValue(
+        activeProfile?.full_name,activeProfile?.name,activeProfile?.display_name,activeProfile?.username,
+        panel.full_name,panel.name,panel.display_name,panel.username,
+        meta.full_name,meta.name,meta.display_name,meta.username,
+        activeEnrollmentFallback?.full_name,
+        fallbackName
+      );
+      const phone=firstValue(
+        activeProfile?.whatsapp,activeProfile?.whatsapp_number,activeProfile?.phone,activeProfile?.phone_number,activeProfile?.mobile,activeProfile?.mobile_number,
+        panel.whatsapp,panel.whatsapp_number,panel.phone,panel.phone_number,panel.mobile,panel.mobile_number,
+        meta.whatsapp,meta.whatsapp_number,meta.phone,meta.phone_number,meta.mobile,meta.mobile_number,
+        activeEnrollmentFallback?.whatsapp
+      );
+
+      document.getElementById('ceDetailsName').value=fullName;
+      document.getElementById('ceDetailsPhone').value=phone;
+      document.getElementById('ceDetailsExperience').value=firstValue(activeEnrollmentFallback?.experience,'Beginner');
+      document.getElementById('ceDetailsGoal').value=firstValue(activeEnrollmentFallback?.learning_goal,'');
+      if(email){email.value=activeUser.email||activeEnrollmentFallback?.email||'';email.readOnly=true;}
       if(passwordWrap)passwordWrap.style.display='none';
       document.getElementById('ceSignedIn').textContent=`Signed in as ${activeUser.email||'PipSePaisa user'}`;
     }else{
@@ -277,7 +319,9 @@
       learning_goal:values.goal||null,
       payment_method:selectedCourse.type==='paid'?values.paymentMethod:null,
       transaction_id:selectedCourse.type==='paid'?values.transactionId:null,
-      receipt_url:selectedCourse.type==='paid'?receiptUrl:null
+      receipt_url:selectedCourse.type==='paid'?receiptUrl:null,
+      payment_status:selectedCourse.type==='paid'?'pending':'not_required',
+      enrollment_status:selectedCourse.type==='paid'?'pending':'enrolled'
     };
   }
 
@@ -313,13 +357,23 @@
     document.getElementById('ceSuccessTitle').textContent=title;
     document.getElementById('ceSuccessText').textContent=text;
     showStep('ceStepSuccess');
+    try{
+      window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));
+    }catch(_){ }
   }
 
   window.openCourseEnrollment=async function(courseKey){
+    try{
+      document.querySelectorAll('.course-modalshell.open').forEach(function(shell){
+        shell.classList.remove('open');
+        shell.setAttribute('aria-hidden','true');
+      });
+      if(typeof window.closeAllCourseModulePopups==='function')window.closeAllCourseModulePopups();
+    }catch(_){ }
     injectModal();
     selectedCourse=COURSE_INFO[courseKey];
     if(!selectedCourse)return;
-    accountWasCreated=false;activeUser=null;activeProfile=null;
+    accountWasCreated=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
     setCourseText();await loadPaymentMethods();renderPaymentSections();
     ['ceLoginMessage','ceNewMessage','ceDetailsMessage'].forEach(id=>setMessage(id,'',''));
     document.getElementById('courseEnrollmentOverlay').classList.add('is-open');
