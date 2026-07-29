@@ -704,7 +704,7 @@
                   </p>
                 </div>
               </div>
-              <a class="login" href="https://pipsepaisa.com" target="_blank" rel="noopener">Open XM Partner Account →</a>
+              <a class="login xm-partner-safe-link" href="https://pipsepaisa.com">Open XM Partner Account →</a>
             </div>
           </article>
           <article class="partner-detail">
@@ -938,5 +938,19 @@
     <script src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
   
 <script src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
+
+<script id="xmPartnerLinkSafetyFix">
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('a').forEach(function (link) {
+    const label = (link.textContent || '').trim().toLowerCase();
+    if (label.includes('open xm partner account')) {
+      link.setAttribute('href', 'https://pipsepaisa.com');
+      link.removeAttribute('target');
+      link.removeAttribute('rel');
+    }
+  });
+});
+</script>
+
 </body>
 </html>
