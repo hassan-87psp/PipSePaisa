@@ -141,7 +141,7 @@
     });
     const partnerLinks=[
       ['DPrime','Open DPrime Partner Account →','https://www.dooprime.com/introducing-broker'],
-      ['XM','Open XM Partner Account →','https://partners.xm.com/registration'],
+      ['XM','Open XM Partner Account →','https://pipsepaisa.com'],
       ['Exness','Open Exness Partner Account →','https://www.exnessaffiliates.com/']
     ];
     document.querySelectorAll('.partner-detail .partner-info').forEach((box,index)=>{

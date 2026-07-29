@@ -16,23 +16,9 @@ function injectStyles(){
   const st=document.createElement('style');
   st.id='mcPremiumStyle';
   st.textContent=`
-  .mc-pro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:18px}
-  .mc-pro{overflow:hidden;border:1px solid var(--border);border-radius:20px;background:var(--bg-card);box-shadow:0 18px 45px rgba(15,23,42,.08)}
-  .mc-cover{height:170px;background:linear-gradient(135deg,#0f172a,#243044);position:relative;display:flex;align-items:end;padding:20px;color:#fff}
-  .mc-cover:after{content:'🎓';position:absolute;right:24px;top:20px;font-size:64px;opacity:.16}
-  .mc-cover h3{font-size:22px;margin:0 0 4px}.mc-cover p{font-size:12px;opacity:.76;margin:0}
-  .mc-badge{position:absolute;top:16px;left:16px;padding:7px 11px;border-radius:999px;font-size:10px;font-weight:900;text-transform:uppercase}
-  .mc-badge.pending{background:#fff4db;color:#b45309}.mc-badge.enrolled{background:#dff7ec;color:#047857}.mc-badge.rejected{background:#fee2e2;color:#b91c1c}
-  .mc-body{padding:19px}.mc-status-line{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px}
-  .mc-status-line strong{font-size:13px}.mc-sub{font-size:11px;color:var(--text-muted);line-height:1.55}
-  .mc-progress{height:9px;background:var(--bg-elevated);border-radius:999px;overflow:hidden;margin:15px 0 7px}
-  .mc-progress span{display:block;height:100%;background:linear-gradient(90deg,#f59e0b,#d97706)}
-  .mc-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}
-
-  .mc-market{margin-top:24px}
-  .mc-market-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:15px}
-  .mc-market-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
-  .mc-shop{position:relative;overflow:hidden;min-height:285px;border:1px solid var(--border);border-radius:24px;background:linear-gradient(145deg,var(--bg-card),var(--bg-elevated));padding:24px;box-shadow:0 20px 48px rgba(15,23,42,.09);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+  .mc-market{margin-top:0}
+  .mc-market-grid{display:grid;grid-template-columns:1fr;gap:18px}
+  .mc-shop{position:relative;overflow:hidden;min-height:310px;border:1px solid var(--border);border-radius:24px;background:linear-gradient(145deg,var(--bg-card),var(--bg-elevated));padding:26px;box-shadow:0 20px 48px rgba(15,23,42,.09);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
   .mc-shop:hover{transform:translateY(-5px);box-shadow:0 28px 68px rgba(15,23,42,.15);border-color:rgba(245,158,11,.52)}
   .mc-shop:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 88% 12%,rgba(245,158,11,.18),transparent 35%);pointer-events:none}
   .mc-icon{position:absolute;right:20px;top:18px;width:68px;height:68px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(135deg,#fff6df,#f59e0b);font-size:31px;box-shadow:0 12px 30px rgba(245,158,11,.25)}
@@ -46,8 +32,116 @@ function injectStyles(){
   .mc-shop.premium{background:linear-gradient(145deg,#0c1422,#17243a);border-color:rgba(245,158,11,.48);color:#fff}
   .mc-shop.premium h3{color:#fff}.mc-shop.premium p{color:#cbd5e1}
   .mc-shop.premium .mc-features span{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#e5e7eb}
-  .mc-empty{text-align:center;padding:46px}.mc-empty .ico{font-size:46px;margin-bottom:10px}
-  @media(max-width:720px){.mc-market-grid,.mc-pro-grid{grid-template-columns:1fr}.mc-shop{min-height:260px}.mc-shop h3{max-width:70%}}
+
+
+
+
+  .course-modalshell{
+    position:fixed;inset:0;z-index:10050;background:rgba(6,11,20,.68);
+    backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);
+    display:none;align-items:flex-start;justify-content:center;padding:16px 12px;overflow:auto
+  }
+  .course-modalshell.open{display:flex}
+  .course-module-modal{
+    width:min(1500px,98vw);background:linear-gradient(180deg,#fffdf8 0%,#f6efe4 100%);
+    border:1px solid rgba(245,158,11,.52);border-radius:26px;
+    box-shadow:0 34px 100px rgba(2,8,23,.42);overflow:hidden;position:relative
+  }
+  [data-theme="dark"] .course-module-modal{
+    background:linear-gradient(180deg,#101827 0%,#0a1220 100%);
+    border-color:rgba(245,158,11,.58)
+  }
+  .course-module-head{
+    position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:18px;
+    padding:15px 20px;background:linear-gradient(90deg,rgba(255,255,255,.98),rgba(255,247,231,.98));
+    border-bottom:1px solid rgba(245,158,11,.28);backdrop-filter:blur(12px)
+  }
+  [data-theme="dark"] .course-module-head{
+    background:linear-gradient(90deg,rgba(14,22,36,.98),rgba(24,20,14,.98))
+  }
+  .course-module-head h2{margin:0;font-size:23px;color:var(--text-primary);letter-spacing:-.02em}
+  .course-module-head p{margin:4px 0 0;font-size:11px;color:var(--text-muted)}
+  .course-module-close{width:40px;height:40px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);border-radius:50%;font-size:21px;cursor:pointer}
+  .course-module-list{display:flex;flex-direction:column;gap:12px;padding:14px}
+  .course-module-card{
+    display:grid;grid-template-columns:230px minmax(0,1fr) 250px;min-height:246px;
+    border-radius:26px;background:linear-gradient(135deg,#fffefb 0%,#f8f0e4 100%);
+    border:1px solid rgba(218,143,27,.42);box-shadow:0 18px 48px rgba(15,23,42,.13);
+    overflow:hidden;position:relative;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease
+  }
+  .course-module-card:hover{transform:translateY(-3px);border-color:rgba(245,158,11,.72);box-shadow:0 28px 58px rgba(15,23,42,.2)}
+  [data-theme="dark"] .course-module-card{background:linear-gradient(135deg,#fffdf7 0%,#f0e3cf 100%)}
+  .course-mentor-wrap{
+    position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:8px;padding:14px 14px;background:radial-gradient(circle at 50% 30%,rgba(245,158,11,.12),transparent 38%),linear-gradient(180deg,#0c1728 0%,#071120 100%);
+    border-right:1px solid rgba(245,158,11,.36)
+  }
+  .course-mentor-wrap:after{content:'';position:absolute;inset:12px;border:1px solid rgba(245,158,11,.12);border-radius:22px;pointer-events:none}
+  .course-mentor-img{
+    width:112px;height:145px;object-fit:contain;object-position:center top;border-radius:50% 50% 46% 46%;transform:scaleX(-1);
+    border:2px solid #f6c65d;background:linear-gradient(180deg,#0f1d31,#0a1422);
+    box-shadow:0 0 0 7px rgba(245,158,11,.07),0 16px 36px rgba(0,0,0,.34);
+    padding:3px;position:relative;z-index:1
+  }
+  .course-instructor-stars{color:#f7c948;font-size:14px;letter-spacing:2px;line-height:1}
+  .course-instructor-meta{position:relative;z-index:1;width:100%;text-align:center;color:#f8fafc}
+  .course-instructor-meta strong{display:block;font-family:Georgia,serif;font-size:13px;line-height:1.22}
+  .course-instructor-meta span{display:block;margin-top:4px;font-size:10px;color:#f5b63f}
+  .course-module-content{min-width:0;padding:18px 22px;display:flex;flex-direction:column;justify-content:center}
+  .course-module-topline{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .course-module-kicker{display:inline-flex;width:max-content;align-items:center;gap:6px;padding:5px 11px;border:1px solid rgba(245,158,11,.48);border-radius:10px;background:#fff9ef;color:#b7791f;font-size:10px;font-weight:900;letter-spacing:.05em;text-transform:uppercase}
+  .course-module-category{display:inline-flex;align-items:center;gap:8px;color:#6b7280;font-size:11px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
+  .course-module-category:before{content:'•';color:#e0a128;font-size:20px;line-height:1}
+  .course-module-title{margin:12px 0 5px;color:#101828;font-family:Georgia,serif;font-size:25px;line-height:1.12;letter-spacing:-.02em}
+  .course-module-sub{margin:0;color:#667085;font-size:12px;line-height:1.42}
+  .course-module-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:12px;padding:10px 12px;border:1px solid rgba(15,23,42,.08);border-radius:14px;background:rgba(255,255,255,.82);box-shadow:0 8px 20px rgba(15,23,42,.05)}
+  .course-module-meta-item{display:flex;align-items:center;gap:8px;padding:0 10px;border-right:1px solid rgba(15,23,42,.1)}
+  .course-module-meta-item:last-child{border-right:0}
+  .course-module-meta-icon{font-size:16px;color:#d89a20}
+  .course-module-meta-copy span{display:block;color:#7b8494;font-size:9px}
+  .course-module-meta-copy strong{display:block;margin-top:1px;color:#182230;font-size:11px}
+  .course-learning-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:12px}
+  .course-learning-col{border:1px solid rgba(15,23,42,.09);border-radius:14px;background:rgba(255,255,255,.84);overflow:hidden;box-shadow:0 8px 18px rgba(15,23,42,.05)}
+  .course-learning-col h4{display:flex;align-items:center;gap:9px;margin:0;padding:10px 13px;background:#fff;color:#172033;font-family:Georgia,serif;font-size:14px;font-weight:800;border-bottom:2px solid #e2a32b}
+  .course-learning-col h4:before{content:'🎓';width:24px;height:24px;display:grid;place-items:center;border-radius:7px;background:#0f1a2d;color:#f6c85f;font-size:12px}
+  .course-learning-col:nth-child(2) h4:before{content:'🎯'}
+  .course-learning-list{display:flex;flex-direction:column}
+  .course-learning-item{display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-top:1px solid rgba(15,23,42,.06);color:#475467;font-size:11px;line-height:1.28}
+  .course-learning-item:first-child{border-top:0}
+  .course-learning-item:before{content:'✓';width:17px;height:17px;display:grid;place-items:center;border-radius:50%;background:#fff8e7;border:1px solid #f0c66a;color:#b7791f;font-size:10px;font-weight:900;flex:0 0 17px}
+  .course-module-action{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 14px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,249,237,.95));border-left:1px solid rgba(245,158,11,.28);position:relative}
+  .course-module-action:after{content:'';position:absolute;right:0;bottom:0;width:100%;height:54px;opacity:.16;background:repeating-linear-gradient(90deg,transparent 0 20px,rgba(226,163,43,.35) 20px 26px);clip-path:polygon(0 70%,8% 52%,16% 64%,24% 34%,32% 60%,40% 42%,48% 72%,56% 26%,64% 52%,72% 40%,80% 62%,88% 38%,100% 58%,100% 100%,0 100%)}
+  .course-action-icon{width:46px;height:46px;display:grid;place-items:center;border:1px solid rgba(245,158,11,.42);border-radius:50%;background:#fff9ec;color:#d38d18;font-size:20px;position:relative;z-index:1}
+  .course-action-title{margin:10px 0 4px;color:#182230;font-family:Georgia,serif;font-size:18px;text-align:center;position:relative;z-index:1}
+  .course-action-text{margin:0;color:#667085;font-size:11px;line-height:1.35;text-align:center;position:relative;z-index:1}
+  .course-register-btn{margin-top:16px;width:178px;min-height:50px;border:2px solid #e99a16;border-radius:14px;background:#fff;color:#b86900;font-family:Georgia,serif;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 0 0 4px rgba(245,158,11,.08),0 10px 22px rgba(217,119,6,.15);position:relative;z-index:1;transition:transform .2s ease,box-shadow .2s ease,background .2s ease,color .2s ease}
+  .course-register-btn:hover{transform:translateY(-2px);background:#fffaf1;color:#9a5700;box-shadow:0 0 0 6px rgba(245,158,11,.12),0 16px 30px rgba(217,119,6,.2)}
+  .course-action-trust{margin-top:10px;color:#6b7280;font-size:10px;position:relative;z-index:1}
+  .course-module-footer{display:none}
+  @media(max-width:1180px){
+    .course-module-card{grid-template-columns:170px minmax(0,1fr) 200px}
+    .course-mentor-img{width:96px;height:126px}
+    .course-module-title{font-size:22px}
+    .course-register-btn{width:156px}
+  }
+  @media(max-width:900px){
+    .course-module-card{grid-template-columns:160px minmax(0,1fr)}
+    .course-module-action{grid-column:1/-1;border-left:0;border-top:1px solid rgba(245,158,11,.28)}
+    .course-module-meta,.course-learning-grid{grid-template-columns:1fr}
+  }
+  @media(max-width:620px){
+    .course-modalshell{padding:8px}
+    .course-module-head{padding:12px}
+    .course-module-head h2{font-size:18px}
+    .course-module-list{padding:10px;gap:12px}
+    .course-module-card{grid-template-columns:1fr}
+    .course-mentor-wrap{padding:16px}
+    .course-mentor-img{width:110px;height:136px}
+    .course-module-content{padding:16px}
+    .course-module-title{font-size:20px}
+    .course-module-action{padding:18px}
+    .course-register-btn{width:100%}
+  }
   `;
   document.head.appendChild(st);
 }
@@ -68,22 +162,7 @@ function ensurePage(){
     page.className='page';
     page.id='page-mycourses';
     page.innerHTML=`
-      <div class="card" style="margin-bottom:14px">
-        <div class="card-header" style="margin-bottom:0">
-          <div>
-            <div class="card-title">🎓 My Courses</div>
-            <div class="card-meta" style="margin-top:4px">Your enrolled courses and learning progress</div>
-          </div>
-        </div>
-      </div>
-      <div id="myCoursesGrid" class="mc-pro-grid"></div>
       <section class="mc-market">
-        <div class="mc-market-head">
-          <div>
-            <div class="card-title">Explore Courses</div>
-            <div class="card-meta">Choose a learning path and enroll directly from your User Panel</div>
-          </div>
-        </div>
         <div class="mc-market-grid">
           <article class="mc-shop">
             <div class="mc-icon">📘</div>
@@ -92,7 +171,7 @@ function ensurePage(){
             <div class="mc-price">100% Free</div>
             <p>Build a strong foundation with structured lessons covering technical analysis, fundamentals, trading psychology and risk management.</p>
             <div class="mc-features"><span>9 Modules</span><span>Beginner Friendly</span><span>Instant Access</span></div>
-            <button class="btn" type="button" onclick="openCourseEnrollment('basic')">Start Free Course</button>
+            <button class="btn" type="button" onclick="openFreeCourseModules()">Start Free Course</button>
           </article>
           <article class="mc-shop premium">
             <div class="mc-icon">🚀</div>
@@ -101,10 +180,44 @@ function ensurePage(){
             <div class="mc-price">$200</div>
             <p>Advanced market structure, session timing, correlations, professional mindset and strategy development for serious traders.</p>
             <div class="mc-features"><span>Advanced Concepts</span><span>Premium Access</span><span>Mentor Support</span></div>
-            <button class="btn" type="button" onclick="openCourseEnrollment('advanced')">Enroll in Advanced Course</button>
+            <button class="btn" type="button" onclick="openAdvancedCourseModules()">Enroll in Advanced Course</button>
           </article>
         </div>
-      </section>`;
+      </section>
+      <div id="freeCourseModuleShell" class="course-modalshell" aria-hidden="true">
+        <div class="course-module-modal" role="dialog" aria-modal="true" aria-labelledby="freeCourseModuleTitle">
+          <div class="course-module-head">
+            <div>
+              <h2 id="freeCourseModuleTitle">Basic Forex Course Modules</h2>
+              <p>9 structured modules designed for complete beginners</p>
+            </div>
+            <button class="course-module-close" type="button" onclick="closeFreeCourseModules()" aria-label="Close">×</button>
+          </div>
+          <div id="freeCourseModuleList" class="course-module-list"></div>
+          <div class="course-module-footer">
+            <h3>Ready to begin your trading journey?</h3>
+            <p>Register once and unlock the complete Basic Forex Course.</p>
+            <button class="btn" type="button" onclick="openCourseEnrollment('basic')">Register Now — 100% Free</button>
+          </div>
+        </div>
+      </div>
+      <div id="advancedCourseModuleShell" class="course-modalshell" aria-hidden="true">
+        <div class="course-module-modal" role="dialog" aria-modal="true" aria-labelledby="advancedCourseModuleTitle">
+          <div class="course-module-head">
+            <div>
+              <h2 id="advancedCourseModuleTitle">Advanced Forex Course Modules</h2>
+              <p>9 professional modules designed for serious traders</p>
+            </div>
+            <button class="course-module-close" type="button" onclick="closeAdvancedCourseModules()" aria-label="Close">×</button>
+          </div>
+          <div id="advancedCourseModuleList" class="course-module-list"></div>
+          <div class="course-module-footer">
+            <h3>Ready to upgrade your trading skills?</h3>
+            <p>Complete your enrollment to unlock the Advanced Forex Course.</p>
+            <button class="btn" type="button" onclick="openCourseEnrollment('advanced')">Enroll Now — $200</button>
+          </div>
+        </div>
+      </div>`;
     content.appendChild(page);
   }
 }
@@ -144,34 +257,312 @@ function courseCard(row){
     </div>
   </article>`;
 }
+
+const FREE_COURSE_MODULES=[
+  {
+    title:'Introduction to Forex Trading',
+    category:'Forex Foundations',
+    duration:'75 Minutes',
+    sub:'Understand the market, its participants and the essential language every trader needs.',
+    points:['How the Forex market works','Currency pairs and trading sessions','Brokers, spreads and leverage'],
+    outcomes:['Identify major Forex market participants','Recognize key currency-pair categories','Understand basic trading terminology']
+  },
+  {
+    title:'Candlestick Patterns and Price Behaviour',
+    category:'Technical Analysis',
+    duration:'90 Minutes',
+    sub:'Read buyer and seller pressure through candles, rejection and basic price behaviour.',
+    points:['Candlestick structure','Rejection and momentum','Core reversal patterns'],
+    outcomes:['Read bullish and bearish candle pressure','Spot common rejection signals','Recognize basic reversal setups']
+  },
+  {
+    title:'Market Sentiment Analysis',
+    category:'Market Psychology',
+    duration:'80 Minutes',
+    sub:'Build a clear market bias by understanding bullish, bearish and risk-driven behaviour.',
+    points:['Bullish vs bearish sentiment','Fear, greed and crowd behaviour','News reaction and market bias'],
+    outcomes:['Define the current market bias','Interpret crowd-driven behaviour','Combine sentiment with price action']
+  },
+  {
+    title:'Trading Psychology and Risk Management',
+    category:'Risk & Mindset',
+    duration:'95 Minutes',
+    sub:'Develop discipline and protect capital with practical risk rules and emotional control.',
+    points:['Position sizing and stop loss','Discipline and execution','Managing fear and overtrading'],
+    outcomes:['Calculate safer trade risk','Follow a disciplined trading routine','Reduce emotional trading mistakes']
+  },
+  {
+    title:'Trading Strategies — Part 2',
+    category:'Strategy Development',
+    duration:'100 Minutes',
+    sub:'Refine entries, exits and trade management using stronger confirmation techniques.',
+    points:['Advanced confirmations','Trade management rules','Exit planning and review'],
+    outcomes:['Filter weaker trade setups','Manage open positions with structure','Review strategy performance clearly']
+  },
+  {
+    title:'Foundations of Technical Analysis',
+    category:'Technical Analysis',
+    duration:'90 Minutes',
+    sub:'Learn how to read trends, levels and market structure before planning a trade.',
+    points:['Trend identification','Support and resistance','Basic market structure'],
+    outcomes:['Classify bullish and bearish trends','Mark important price levels','Read basic structural shifts']
+  },
+  {
+    title:'Understanding Technical Indicators',
+    category:'Indicators',
+    duration:'85 Minutes',
+    sub:'Use popular indicators as confirmation tools without depending on them blindly.',
+    points:['Moving averages','RSI and momentum','MACD confirmation'],
+    outcomes:['Use indicators as confirmation','Avoid indicator over-dependence','Combine momentum with price action']
+  },
+  {
+    title:'Fundamentals of Fundamental Analysis',
+    category:'Fundamental Analysis',
+    duration:'100 Minutes',
+    sub:'Understand the economic events and policy decisions that move currencies and gold.',
+    points:['Interest rates and inflation','CPI, NFP and central banks','Using the economic calendar'],
+    outcomes:['Recognize high-impact economic events','Understand central-bank influence','Prepare for scheduled news releases']
+  },
+  {
+    title:'Trading Strategies — Part 1',
+    category:'Trading Strategy',
+    duration:'95 Minutes',
+    sub:'Create a simple, repeatable trading plan with clear entries, risk and targets.',
+    points:['Setup selection','Entry and stop-loss rules','Take-profit structure'],
+    outcomes:['Build a repeatable trade plan','Apply clear entry and exit rules','Set structured targets and risk']
+  }
+];
+
+
+const ADVANCED_COURSE_MODULES=[
+  {
+    title:'Advanced Market Structure and Liquidity',
+    category:'Professional Structure',
+    duration:'110 Minutes',
+    sub:'Study institutional structure, liquidity behaviour and advanced confirmation across multiple timeframes.',
+    points:['Internal and external structure','Liquidity pools and sweeps','Multi-timeframe confirmation'],
+    outcomes:['Map institutional market structure','Identify high-probability liquidity zones','Confirm entries across timeframes']
+  },
+  {
+    title:'Session Timing and Market Behaviour',
+    category:'Session Analysis',
+    duration:'95 Minutes',
+    sub:'Understand how London, New York and Asian sessions create liquidity, volatility and execution opportunities.',
+    points:['Session opens and overlaps','Kill zones and volatility windows','Session-based trade planning'],
+    outcomes:['Select higher-quality trading windows','Recognize session-specific behaviour','Build a structured session plan']
+  },
+  {
+    title:'Advanced Supply, Demand and Order Flow',
+    category:'Order Flow',
+    duration:'115 Minutes',
+    sub:'Refine institutional zones using displacement, imbalance, mitigation and order-flow confirmation.',
+    points:['Premium supply and demand zones','Displacement and imbalance','Mitigation and order-flow shifts'],
+    outcomes:['Filter weak institutional zones','Read displacement with confidence','Use mitigation for precise execution']
+  },
+  {
+    title:'Intermarket Correlations and Currency Strength',
+    category:'Market Correlation',
+    duration:'100 Minutes',
+    sub:'Combine currency strength, dollar movement and correlated markets to improve directional conviction.',
+    points:['Currency-strength relationships','Dollar index and gold correlation','Cross-market confirmation'],
+    outcomes:['Compare relative currency strength','Confirm bias through correlations','Avoid conflicting market exposure']
+  },
+  {
+    title:'Professional Risk and Position Management',
+    category:'Capital Protection',
+    duration:'105 Minutes',
+    sub:'Apply professional position sizing, partial management and drawdown control to protect trading capital.',
+    points:['Dynamic position sizing','Partial profits and breakeven','Drawdown and exposure control'],
+    outcomes:['Manage risk with consistency','Protect profits during active trades','Reduce portfolio-level exposure']
+  },
+  {
+    title:'Advanced Fundamental and News Analysis',
+    category:'Macro Analysis',
+    duration:'110 Minutes',
+    sub:'Interpret central-bank policy, inflation, labour data and market expectations before major events.',
+    points:['Central-bank policy cycles','Inflation and employment data','Pre-news and post-news behaviour'],
+    outcomes:['Build a macro directional bias','Prepare for high-impact releases','Interpret market reaction versus expectation']
+  },
+  {
+    title:'Institutional Entry Models',
+    category:'Execution Models',
+    duration:'120 Minutes',
+    sub:'Develop precise entries using liquidity sweeps, CHoCH, BOS, order blocks and fair value gaps.',
+    points:['Liquidity sweep entry model','CHoCH and BOS confirmation','Order block and FVG execution'],
+    outcomes:['Build repeatable entry models','Improve entry precision and timing','Avoid premature trade execution']
+  },
+  {
+    title:'Trading Psychology for Professional Execution',
+    category:'Professional Mindset',
+    duration:'90 Minutes',
+    sub:'Strengthen discipline, decision quality and consistency under pressure through professional routines.',
+    points:['Process-based decision making','Managing hesitation and revenge trading','Performance journaling routines'],
+    outcomes:['Execute without emotional interference','Follow a consistent trading process','Review behaviour using objective data']
+  },
+  {
+    title:'Strategy Development and Performance Review',
+    category:'Trading Business',
+    duration:'125 Minutes',
+    sub:'Build, test and refine a complete trading strategy using rules, journaling and performance metrics.',
+    points:['Strategy rule development','Backtesting and forward testing','Performance metrics and optimization'],
+    outcomes:['Create a complete trading playbook','Measure strategy performance objectively','Refine rules without over-optimization']
+  }
+];
+
+window.openAdvancedCourseModules=function(){
+  const shell=document.getElementById('advancedCourseModuleShell');
+  const list=document.getElementById('advancedCourseModuleList');
+  if(!shell||!list)return;
+
+  list.innerHTML=ADVANCED_COURSE_MODULES.map((module,index)=>`
+    <article class="course-module-card">
+      <div class="course-mentor-wrap">
+        <img class="course-mentor-img" src="sajid-ghori.webp" alt="Sajid Ghori">
+        <div class="course-instructor-stars">★★★★★</div>
+        <div class="course-instructor-meta">
+          <strong>Asia's No. 1 Instructor</strong>
+          <span>CNBC Guest Analyst</span>
+        </div>
+      </div>
+
+      <div class="course-module-content">
+        <div class="course-module-topline">
+          <span class="course-module-kicker">Module ${String(index+1).padStart(2,'0')}</span>
+          <span class="course-module-category">${esc(module.category)}</span>
+        </div>
+        <h3 class="course-module-title">${esc(module.title)}</h3>
+        <p class="course-module-sub">${esc(module.sub)}</p>
+
+        <div class="course-module-meta">
+          <div class="course-module-meta-item"><span class="course-module-meta-icon">◷</span><div class="course-module-meta-copy"><span>Duration</span><strong>${esc(module.duration)}</strong></div></div>
+          <div class="course-module-meta-item"><span class="course-module-meta-icon">▥</span><div class="course-module-meta-copy"><span>Level</span><strong>Advanced</strong></div></div>
+          <div class="course-module-meta-item"><span class="course-module-meta-icon">▣</span><div class="course-module-meta-copy"><span>Format</span><strong>Live Session</strong></div></div>
+        </div>
+
+        <div class="course-learning-grid">
+          <div class="course-learning-col">
+            <h4>Learning Objectives</h4>
+            <div class="course-learning-list">
+              ${module.points.slice(0,3).map(point=>`<div class="course-learning-item">${esc(point)}</div>`).join('')}
+            </div>
+          </div>
+          <div class="course-learning-col">
+            <h4>Expected Outcomes</h4>
+            <div class="course-learning-list">
+              ${module.outcomes.slice(0,3).map(outcome=>`<div class="course-learning-item">${esc(outcome)}</div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="course-module-action">
+        <div class="course-action-icon">🏆</div>
+        <h4 class="course-action-title">Ready to Advance?</h4>
+        <p class="course-action-text">Secure your seat and begin the professional trading program.</p>
+        <button class="course-register-btn" type="button" onclick="openCourseEnrollment('advanced')">Enroll for Module →</button>
+        <div class="course-action-trust">🛡 Secure • Trusted • Professional</div>
+      </div>
+    </article>
+  `).join('');
+
+  shell.classList.add('open');
+  shell.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+};
+
+window.closeAdvancedCourseModules=function(){
+  const shell=document.getElementById('advancedCourseModuleShell');
+  if(!shell)return;
+  shell.classList.remove('open');
+  shell.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+};
+
+window.openFreeCourseModules=function(){
+  const shell=document.getElementById('freeCourseModuleShell');
+  const list=document.getElementById('freeCourseModuleList');
+  if(!shell||!list)return;
+
+  list.innerHTML=FREE_COURSE_MODULES.map((module,index)=>`
+    <article class="course-module-card">
+      <div class="course-mentor-wrap">
+        <img class="course-mentor-img" src="sajid-ghori.webp" alt="Sajid Ghori">
+        <div class="course-instructor-stars">★★★★★</div>
+        <div class="course-instructor-meta">
+          <strong>Asia's No. 1 Instructor</strong>
+          <span>CNBC Guest Analyst</span>
+        </div>
+      </div>
+
+      <div class="course-module-content">
+        <div class="course-module-topline">
+          <span class="course-module-kicker">Module ${String(index+1).padStart(2,'0')}</span>
+          <span class="course-module-category">${esc(module.category || 'Forex Education')}</span>
+        </div>
+        <h3 class="course-module-title">${esc(module.title)}</h3>
+        <p class="course-module-sub">${esc(module.sub)}</p>
+
+        <div class="course-module-meta">
+          <div class="course-module-meta-item"><span class="course-module-meta-icon">◷</span><div class="course-module-meta-copy"><span>Duration</span><strong>${esc(module.duration || '90 Minutes')}</strong></div></div>
+          <div class="course-module-meta-item"><span class="course-module-meta-icon">▥</span><div class="course-module-meta-copy"><span>Level</span><strong>Beginner</strong></div></div>
+          <div class="course-module-meta-item"><span class="course-module-meta-icon">▣</span><div class="course-module-meta-copy"><span>Format</span><strong>Live Session</strong></div></div>
+        </div>
+
+        <div class="course-learning-grid">
+          <div class="course-learning-col">
+            <h4>Learning Objectives</h4>
+            <div class="course-learning-list">
+              ${module.points.slice(0,3).map(point=>`<div class="course-learning-item">${esc(point)}</div>`).join('')}
+            </div>
+          </div>
+          <div class="course-learning-col">
+            <h4>Expected Outcomes</h4>
+            <div class="course-learning-list">
+              ${module.outcomes.slice(0,3).map(outcome=>`<div class="course-learning-item">${esc(outcome)}</div>`).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="course-module-action">
+        <div class="course-action-icon">🏆</div>
+        <h4 class="course-action-title">Ready to Start?</h4>
+        <p class="course-action-text">Secure your seat and start learning with confidence.</p>
+        <button class="course-register-btn" type="button" onclick="openCourseEnrollment('basic')">Register for Module →</button>
+        <div class="course-action-trust">🛡 Secure • Trusted • Professional</div>
+      </div>
+    </article>
+  `).join('');
+
+  shell.classList.add('open');
+  shell.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+};
+
+window.closeFreeCourseModules=function(){
+  const shell=document.getElementById('freeCourseModuleShell');
+  if(!shell)return;
+  shell.classList.remove('open');
+  shell.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+};
+
+document.addEventListener('click',function(event){
+  const freeShell=document.getElementById('freeCourseModuleShell');
+  const advancedShell=document.getElementById('advancedCourseModuleShell');
+  if(freeShell&&event.target===freeShell)closeFreeCourseModules();
+  if(advancedShell&&event.target===advancedShell)closeAdvancedCourseModules();
+});
+
+document.addEventListener('keydown',function(event){
+  if(event.key==='Escape'){
+    closeFreeCourseModules();
+    closeAdvancedCourseModules();
+  }
+});
+
 window.loadMyCourses=async function(){
   ensurePage();
-  const grid=document.getElementById('myCoursesGrid');
-  if(!grid)return;
-  grid.innerHTML='<div class="card mc-empty" style="grid-column:1/-1"><div class="ico">⏳</div>Loading your courses...</div>';
-  const client=db();
-  if(!client)return;
-  try{
-    const {data:userData}=await client.auth.getUser();
-    const user=userData?.user;
-    if(!user){
-      grid.innerHTML='<div class="card mc-empty" style="grid-column:1/-1"><div class="ico">🔐</div>Please log in to view your courses.</div>';
-      return;
-    }
-    const {data,error}=await client.from('course_enrollments').select('*').eq('user_id',user.id).order('created_at',{ascending:false});
-    if(error)throw error;
-    const rows=data||[];
-    const badge=document.getElementById('myCoursesNavBadge');
-    if(badge){
-      badge.textContent=rows.length;
-      badge.style.display=rows.length?'inline-block':'none';
-    }
-    grid.innerHTML=rows.length
-      ? rows.map(courseCard).join('')
-      : '<div class="card mc-empty" style="grid-column:1/-1"><div class="ico">🎓</div><h3>No courses yet</h3><p class="mc-sub">Choose a course below to begin your learning journey.</p></div>';
-  }catch(error){
-    grid.innerHTML=`<div class="card mc-empty" style="grid-column:1/-1"><div class="ico">⚠️</div>${esc(error?.message||'Could not load courses.')}</div>`;
-  }
 };
 window.openEnrolledCourse=function(){
   const item=document.querySelector('.menu-item[data-page="learn"]');
