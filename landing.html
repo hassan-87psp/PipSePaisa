@@ -1571,37 +1571,6 @@ html.psp-desktop-mobile-view .topbar .nav-actions{
 </head>
 <body class="page-home">
 
-<div id="pipLandingTicker" style="height:46px;min-height:46px;max-height:46px;overflow:hidden;border-bottom:1px solid rgba(0,0,0,.08);background:#fffaf0">
-  <div class="tradingview-widget-container" style="height:46px;overflow:hidden">
-    <div class="tradingview-widget-container__widget" style="height:46px;overflow:hidden"></div>
-  </div>
-</div>
-<script id="pipLandingSingleTicker">
-(function(){
-  const host=document.querySelector('#pipLandingTicker .tradingview-widget-container');
-  if(!host || host.dataset.loaded==='1')return;
-  host.dataset.loaded='1';
-  const script=document.createElement('script');
-  script.src='https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
-  script.async=true;
-  script.text=JSON.stringify({
-    symbols:[
-      {description:'Gold',proName:'OANDA:XAUUSD'},
-      {description:'EUR/USD',proName:'OANDA:EURUSD'},
-      {description:'GBP/USD',proName:'OANDA:GBPUSD'},
-      {description:'BTC',proName:'BINANCE:BTCUSDT'},
-      {description:'USD/JPY',proName:'OANDA:USDJPY'}
-    ],
-    showSymbolLogo:true,
-    colorTheme:document.body.classList.contains('dark-theme')?'dark':'light',
-    isTransparent:false,
-    displayMode:'adaptive',
-    locale:'en'
-  });
-  host.appendChild(script);
-})();
-</script>
-
 <header class="topbar">
 <div class="container nav">
 <a class="brand" href="#home"><img alt="PipSePaisa logo" src="favicon.png"/><span>PipSePaisa</span></a>
@@ -1868,7 +1837,7 @@ html.psp-desktop-mobile-view .topbar .nav-actions{
     <div class="landing-auth-panel" id="landingSignupPanel">
       <div class="landing-auth-field"><label for="landingSignupName">Full Name</label><input id="landingSignupName" type="text" autocomplete="name" placeholder="Your full name"></div>
       <div class="landing-auth-field"><label for="landingSignupEmail">Email Address</label><input id="landingSignupEmail" type="email" autocomplete="email" placeholder="your@email.com"></div>
-      <div class="landing-auth-field"><label for="landingSignupPhone">WhatsApp Number</label><input id="landingSignupPhone" type="tel" autocomplete="tel" placeholder="+60..."></div>
+      <div class="landing-auth-field"><label for="landingSignupPhone">WhatsApp Number</label><input id="landingSignupPhone" type="tel" autocomplete="tel" placeholder="+92..."></div>
       <div class="landing-auth-field"><label for="landingSignupPassword">Password</label><input id="landingSignupPassword" type="password" autocomplete="new-password" placeholder="Minimum 6 characters"></div>
       <div class="landing-auth-field"><label for="landingSignupPassword2">Confirm Password</label><input id="landingSignupPassword2" type="password" autocomplete="new-password" placeholder="Repeat password"></div>
       <button class="landing-auth-submit" id="landingSignupBtn" type="button" onclick="landingSignupUser()">✨ Create Free Account</button>

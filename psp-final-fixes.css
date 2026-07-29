@@ -3,10 +3,6 @@
 /* Hamburger is intentionally removed: the complete navigation remains visible. */
 .mobile-menu,.menu-toggle,.hamburger,[aria-label="Menu"],[aria-label="Open navigation menu"]{display:none!important}
 
-/* One-line outer TradingView ticker in the app shell. */
-#pipTickerTapeWrap,.pip-ticker-tape-wrap{height:46px!important;min-height:46px!important;max-height:46px!important;overflow:hidden!important}
-#pipTickerTapeWrap iframe,.pip-ticker-tape-wrap iframe{height:46px!important;min-height:46px!important;max-height:46px!important;display:block!important}
-
 /* Complete dark treatment for social/community sections on every public page. */
 body.dark .social-section,body.dark-theme .social-section,
 body.dark .social-showcase,body.dark-theme .social-showcase{

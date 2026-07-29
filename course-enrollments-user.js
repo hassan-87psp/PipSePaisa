@@ -118,6 +118,23 @@ function injectStyles(){
   .course-register-btn:hover{transform:translateY(-2px);background:#fffaf1;color:#9a5700;box-shadow:0 0 0 6px rgba(245,158,11,.12),0 16px 30px rgba(217,119,6,.2)}
   .course-action-trust{margin-top:10px;color:#6b7280;font-size:10px;position:relative;z-index:1}
   .course-module-footer{display:none}
+
+  .course-enrollment-state{display:none;margin:0 0 14px;padding:13px 15px;border:1px solid rgba(245,158,11,.34);border-radius:15px;background:linear-gradient(135deg,#fffdf8,#fff7e8);box-shadow:0 8px 22px rgba(180,100,0,.08)}
+  .course-enrollment-state.show{display:block}
+  .course-enrollment-state h4{margin:0 0 8px;color:#182230;font-size:14px;font-weight:850}
+  .course-state-boxes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .course-state-box{display:flex;align-items:center;gap:8px;min-height:38px;padding:8px 10px;border:1px solid rgba(15,23,42,.08);border-radius:11px;background:#fff;color:#475467;font-size:10px;font-weight:750}
+  .course-state-box .dot{width:9px;height:9px;border-radius:50%;background:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.12)}
+  .course-enrollment-state.approved{border-color:rgba(16,185,129,.38);background:linear-gradient(135deg,#f5fff9,#ecfdf5)}
+  .course-enrollment-state.approved .dot{background:#10b981;box-shadow:0 0 0 4px rgba(16,185,129,.12)}
+  .course-enrollment-state.rejected{border-color:rgba(239,68,68,.32);background:#fff7f7}
+  .course-enrollment-state.rejected .dot{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.1)}
+  .course-register-btn.is-locked,.course-register-btn:disabled{cursor:not-allowed;opacity:.72;background:#f8fafc;color:#64748b;border-color:#cbd5e1;box-shadow:none;transform:none}
+  .mc-course-status{margin-top:14px;max-width:470px;padding:12px 14px;border:1px solid rgba(245,158,11,.34);border-radius:14px;background:rgba(255,255,255,.08)}
+  .mc-course-status strong{display:block;font-size:12px;margin-bottom:7px}
+  .mc-course-status .course-state-boxes{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mc-course-status .course-state-box{background:rgba(255,255,255,.08);color:inherit;border-color:rgba(255,255,255,.12)}
+  @media(max-width:620px){.course-state-boxes{grid-template-columns:1fr}.mc-course-status .course-state-boxes{grid-template-columns:1fr}}
   @media(max-width:1180px){
     .course-module-card{grid-template-columns:170px minmax(0,1fr) 200px}
     .course-mentor-img{width:96px;height:126px}
@@ -148,13 +165,20 @@ function injectStyles(){
 function ensurePage(){
   injectStyles();
   const nav=document.querySelector('.sidebar nav.menu');
-  if(nav&&!nav.querySelector('[data-page="mycourses"]')){
-    const item=document.createElement('div');
-    item.className='menu-item';
-    item.dataset.page='mycourses';
-    item.onclick=()=>showPage('mycourses',item);
-    item.innerHTML='<span class="menu-icon">🎓</span>My Courses<span id="myCoursesNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:800;display:none">0</span>';
-    nav.appendChild(item);
+  if(nav){
+    let item=nav.querySelector('[data-page="mycourses"]')||nav.querySelector('[data-page="learn"]');
+    if(item){
+      item.dataset.page='mycourses';
+      item.setAttribute('onclick','openMyCoursesPage(this)');
+      if(!item.querySelector('#myCoursesNavBadge')) item.insertAdjacentHTML('beforeend','<span id="myCoursesNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:800;display:none">0</span>');
+    }else{
+      item=document.createElement('div');
+      item.className='menu-item';
+      item.dataset.page='mycourses';
+      item.setAttribute('onclick','openMyCoursesPage(this)');
+      item.innerHTML='<span class="menu-icon">🎓</span>My Courses<span id="myCoursesNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:800;display:none">0</span>';
+      nav.appendChild(item);
+    }
   }
   const content=document.getElementById('content');
   if(content&&!document.getElementById('page-mycourses')){
@@ -180,7 +204,8 @@ function ensurePage(){
             <div class="mc-price">$200</div>
             <p>Advanced market structure, session timing, correlations, professional mindset and strategy development for serious traders.</p>
             <div class="mc-features"><span>Advanced Concepts</span><span>Premium Access</span><span>Mentor Support</span></div>
-            <button class="btn" type="button" onclick="openAdvancedCourseModules()">Enroll in Advanced Course</button>
+            <div id="advancedMainCourseStatus" class="mc-course-status" style="display:none"></div>
+            <button id="advancedMainCourseButton" class="btn" type="button" onclick="openAdvancedCourseModules()">Enroll in Advanced Course</button>
           </article>
         </div>
       </section>
@@ -409,10 +434,54 @@ const ADVANCED_COURSE_MODULES=[
   }
 ];
 
-window.openAdvancedCourseModules=function(){
+
+let advancedEnrollmentState=null;
+async function getCourseEnrollmentState(courseKey){
+  try{
+    const sb=window.supabase?.createClient?window.supabase.createClient('https://etfolhinohgmskbfjoyh.supabase.co','sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw',{auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}}):null;
+    if(!sb)return null;
+    const session=await sb.auth.getSession();
+    const user=session?.data?.session?.user;
+    if(!user)return null;
+    const result=await sb.from('course_enrollments').select('*').eq('user_id',user.id).eq('course_key',courseKey).maybeSingle();
+    if(result.error && !/0 rows|no rows/i.test(result.error.message||''))throw result.error;
+    return result.data||null;
+  }catch(error){console.warn('Course state could not load',error);return null;}
+}
+function normalizeAdvancedState(row){
+  if(!row)return 'not_enrolled';
+  if(row.enrollment_status==='enrolled' || row.payment_status==='approved' || row.payment_status==='paid')return 'approved';
+  if(row.enrollment_status==='rejected' || row.payment_status==='rejected')return 'rejected';
+  if(row.payment_status==='pending' || row.enrollment_status==='pending')return 'pending';
+  return 'not_enrolled';
+}
+function advancedStateMarkup(state,compact){
+  if(state==='approved')return `<strong>${compact?'Course access active':'Course Enrollment Approved'}</strong><div class="course-state-boxes"><div class="course-state-box"><span class="dot"></span>Payment Approved</div><div class="course-state-box"><span class="dot"></span>Course Unlocked</div></div>`;
+  if(state==='pending')return `<strong>${compact?'Enrollment under review':'Course Enrollment Payment Pending'}</strong><div class="course-state-boxes"><div class="course-state-box"><span class="dot"></span>Payment Pending</div><div class="course-state-box"><span class="dot"></span>Access Locked</div></div>`;
+  if(state==='rejected')return `<strong>Payment Verification Required</strong><div class="course-state-boxes"><div class="course-state-box"><span class="dot"></span>Payment Rejected</div><div class="course-state-box"><span class="dot"></span>Submit Again</div></div>`;
+  return '';
+}
+async function refreshAdvancedCourseState(){
+  advancedEnrollmentState=await getCourseEnrollmentState('advanced');
+  const state=normalizeAdvancedState(advancedEnrollmentState);
+  const box=document.getElementById('advancedMainCourseStatus');
+  const btn=document.getElementById('advancedMainCourseButton');
+  if(box){box.style.display=state==='not_enrolled'?'none':'block';box.innerHTML=advancedStateMarkup(state,true);}
+  if(btn){
+    btn.textContent=state==='approved'?'Open Advanced Modules':state==='pending'?'Payment Pending':state==='rejected'?'Resubmit Payment':'Enroll in Advanced Course';
+    btn.disabled=state==='pending';
+  }
+  return state;
+}
+function closeAllCourseModulePopups(){
+  try{closeFreeCourseModules();}catch(_){ }
+  try{closeAdvancedCourseModules();}catch(_){ }
+}
+window.openAdvancedCourseModules=async function(){
   const shell=document.getElementById('advancedCourseModuleShell');
   const list=document.getElementById('advancedCourseModuleList');
   if(!shell||!list)return;
+  const state=await refreshAdvancedCourseState();
 
   list.innerHTML=ADVANCED_COURSE_MODULES.map((module,index)=>`
     <article class="course-module-card">
@@ -456,10 +525,11 @@ window.openAdvancedCourseModules=function(){
       </div>
 
       <div class="course-module-action">
-        <div class="course-action-icon">🏆</div>
-        <h4 class="course-action-title">Ready to Advance?</h4>
-        <p class="course-action-text">Secure your seat and begin the professional trading program.</p>
-        <button class="course-register-btn" type="button" onclick="openCourseEnrollment('advanced')">Enroll for Module →</button>
+        <div class="course-action-icon">${state==='approved'?'🔓':'🔒'}</div>
+        <h4 class="course-action-title">${state==='approved'?'Course Unlocked':state==='pending'?'Payment Under Review':'Ready to Advance?'}</h4>
+        <p class="course-action-text">${state==='approved'?'Your payment is approved. Module access is active.':state==='pending'?'Your payment has been submitted and is waiting for admin approval.':'Complete payment enrollment to unlock this module.'}</p>
+        <div class="course-enrollment-state ${state==='approved'?'approved':state==='rejected'?'rejected':''} ${state!=='not_enrolled'?'show':''}">${advancedStateMarkup(state,false)}</div>
+        <button class="course-register-btn ${state==='pending'?'is-locked':''}" type="button" ${state==='pending'?'disabled':''} onclick="${state==='approved'?`openEnrolledCourse()`:`openCourseEnrollment('advanced')`}">${state==='approved'?'Open Module →':state==='pending'?'Payment Pending 🔒':state==='rejected'?'Resubmit Payment →':'Enroll for Module 🔒'}</button>
         <div class="course-action-trust">🛡 Secure • Trusted • Professional</div>
       </div>
     </article>
@@ -561,23 +631,80 @@ document.addEventListener('keydown',function(event){
   }
 });
 
+window.openMyCoursesPage=function(item){
+  window.forceOpenMyCoursesPage(item);
+};
 window.loadMyCourses=async function(){
   ensurePage();
+  await refreshAdvancedCourseState();
 };
 window.openEnrolledCourse=function(){
-  const item=document.querySelector('.menu-item[data-page="learn"]');
-  if(typeof showPage==='function')showPage('learn',item);
+  const item=document.querySelector('.menu-item[data-page="mycourses"]');
+  window.openMyCoursesPage(item);
 };
 function wrapShowPage(){
   if(window.__premiumCoursesWrapped||typeof showPage!=='function')return setTimeout(wrapShowPage,250);
   const original=showPage;
   window.showPage=function(page,item){
+    closeAllCourseModulePopups();
     const result=original.apply(this,arguments);
-    if(page==='mycourses')setTimeout(loadMyCourses,0);
+    if(page==='mycourses')setTimeout(function(){window.loadMyCourses&&window.loadMyCourses();},0);
     return result;
   };
   window.__premiumCoursesWrapped=true;
 }
+
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden){
+    const myCourses=document.getElementById('page-mycourses');
+    if(myCourses&&myCourses.classList.contains('active'))sessionStorage.setItem('psp-return-page','mycourses');
+    closeAllCourseModulePopups();
+  }else if(sessionStorage.getItem('psp-return-page')==='mycourses'){
+    sessionStorage.removeItem('psp-return-page');
+    setTimeout(function(){
+      const item=document.querySelector('[data-page="mycourses"]');
+      if(item&&typeof showPage==='function')showPage('mycourses',item);
+    },80);
+  }
+});
+
+
+/* Reliable My Courses navigation */
+window.forceOpenMyCoursesPage=function(item){
+  ensurePage();
+  closeAllCourseModulePopups();
+
+  const page=document.getElementById('page-mycourses');
+  const navItem=item||document.querySelector('.menu-item[data-page="mycourses"]');
+
+  document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
+  if(page) page.classList.add('active');
+
+  document.querySelectorAll('.menu-item,.submenu-item').forEach(function(el){el.classList.remove('active');});
+  if(navItem) navItem.classList.add('active');
+
+  const title=document.getElementById('pageTitle');
+  if(title) title.textContent='My Courses';
+
+  const sidebar=document.getElementById('sidebar');
+  if(sidebar) sidebar.classList.remove('open');
+  const overlay=document.getElementById('sidebarOverlay');
+  if(overlay) overlay.style.display='none';
+
+  setTimeout(function(){
+    if(typeof window.loadMyCourses==='function') window.loadMyCourses();
+  },0);
+};
+
+document.addEventListener('click',function(event){
+  const item=event.target.closest&&event.target.closest('.menu-item[data-page="mycourses"]');
+  if(!item)return;
+  event.preventDefault();
+  event.stopPropagation();
+  if(typeof event.stopImmediatePropagation==='function') event.stopImmediatePropagation();
+  window.forceOpenMyCoursesPage(item);
+},true);
+
 document.addEventListener('DOMContentLoaded',()=>{
   ensurePage();
   wrapShowPage();
