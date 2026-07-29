@@ -632,7 +632,7 @@ document.addEventListener('keydown',function(event){
 });
 
 window.openMyCoursesPage=function(item){
-  window.forceOpenMyCoursesPage(item);
+  window.openMyCoursesPage(item);
 };
 window.loadMyCourses=async function(){
   ensurePage();
@@ -669,44 +669,46 @@ document.addEventListener('visibilitychange',function(){
 });
 
 
-/* Reliable My Courses navigation */
-window.forceOpenMyCoursesPage=function(item){
+/* Stable My Courses navigation */
+window.openMyCoursesPage=function(item){
   ensurePage();
   closeAllCourseModulePopups();
 
-  const page=document.getElementById('page-mycourses');
   const navItem=item||document.querySelector('.menu-item[data-page="mycourses"]');
+  if(typeof window.showPage==='function'){
+    window.showPage('mycourses',navItem);
+  }else{
+    document.querySelectorAll('.page').forEach(function(page){page.classList.remove('active');});
+    const page=document.getElementById('page-mycourses');
+    if(page)page.classList.add('active');
 
-  document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
-  if(page) page.classList.add('active');
+    document.querySelectorAll('.menu-item,.submenu-item').forEach(function(el){el.classList.remove('active');});
+    if(navItem)navItem.classList.add('active');
 
-  document.querySelectorAll('.menu-item,.submenu-item').forEach(function(el){el.classList.remove('active');});
-  if(navItem) navItem.classList.add('active');
-
-  const title=document.getElementById('pageTitle');
-  if(title) title.textContent='My Courses';
-
-  const sidebar=document.getElementById('sidebar');
-  if(sidebar) sidebar.classList.remove('open');
-  const overlay=document.getElementById('sidebarOverlay');
-  if(overlay) overlay.style.display='none';
+    const title=document.getElementById('pageTitle');
+    if(title)title.textContent='My Courses';
+  }
 
   setTimeout(function(){
-    if(typeof window.loadMyCourses==='function') window.loadMyCourses();
+    if(typeof window.loadMyCourses==='function')window.loadMyCourses();
   },0);
 };
 
-document.addEventListener('click',function(event){
-  const item=event.target.closest&&event.target.closest('.menu-item[data-page="mycourses"]');
+function bindMyCoursesNavigation(){
+  ensurePage();
+  const item=document.querySelector('.menu-item[data-page="mycourses"]');
   if(!item)return;
-  event.preventDefault();
-  event.stopPropagation();
-  if(typeof event.stopImmediatePropagation==='function') event.stopImmediatePropagation();
-  window.forceOpenMyCoursesPage(item);
-},true);
+  item.removeAttribute('onclick');
+  item.onclick=function(event){
+    if(event)event.preventDefault();
+    window.openMyCoursesPage(item);
+    return false;
+  };
+}
 
 document.addEventListener('DOMContentLoaded',()=>{
   ensurePage();
+  bindMyCoursesNavigation();
   wrapShowPage();
   if(new URLSearchParams(location.search).get('open')==='mycourses'){
     setTimeout(()=>{
@@ -715,4 +717,12 @@ document.addEventListener('DOMContentLoaded',()=>{
     },1200);
   }
 });
+
+if(document.readyState==='loading'){
+  // DOMContentLoaded handler above will initialize the page.
+}else{
+  ensurePage();
+  bindMyCoursesNavigation();
+  wrapShowPage();
+}
 })();

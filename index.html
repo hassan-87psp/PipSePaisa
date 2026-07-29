@@ -1091,7 +1091,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">📊</span>Dashboard</div>
       <div class="menu-item" data-tabkey="addtrade" onclick="openAddTradeModal()" style="background: linear-gradient(135deg, var(--gold-bg), transparent); border: 1px solid rgba(245,158,11,0.3);"><span class="menu-icon">➕</span><strong>Add Trade</strong></div>
       <div class="menu-item" data-page="performance" onclick="showPage('performance', this)"><span class="menu-icon">🏆</span>Performance</div>
-      <div class="menu-item" data-page="mycourses" onclick="openMyCoursesPage(this)"><span class="menu-icon">🎓</span>My Courses</div>
+      <div class="menu-item" data-page="mycourses" onclick="return openMyCoursesPage(this)"><span class="menu-icon">🎓</span>My Courses</div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts &amp; Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
@@ -9323,7 +9323,7 @@ window.addEventListener('message',function(event){
 });
 </script>
 <script src="course-enrollment.js?v=20260728-premium-push-v15"></script>
-<script src="course-enrollments-user.js?v=20260729-courses-pakistan-final-v21"></script>
+<script src="course-enrollments-user.js?v=20260729-mycourses-working-final-v30"></script>
 
 <script>
 (function pipSignalNotifications(){
