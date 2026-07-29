@@ -71,3 +71,8 @@
 .psp-status.pending{background:var(--gold-bg);color:var(--gold)}.psp-status.approved{background:var(--green-bg);color:var(--green)}.psp-status.rejected{background:var(--red-bg);color:var(--red)}
 @media(max-width:1100px){.psp-admin-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.psp-pay-row{grid-template-columns:1fr 1fr}.psp-system-course-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.psp-admin-dashboard-grid{grid-template-columns:1fr}.psp-pay-row{grid-template-columns:1fr}.psp-system-course-meta{grid-template-columns:1fr}}
+
+/* Editable system course actions */
+.psp-course-admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.psp-course-admin-actions .btn{justify-content:center;width:100%;min-width:0}
+@media(max-width:620px){.psp-course-admin-actions{grid-template-columns:1fr}}

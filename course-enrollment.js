@@ -282,7 +282,7 @@
       document.getElementById('ceDetailsName').value=fullName;
       document.getElementById('ceDetailsPhone').value=phone;
       document.getElementById('ceDetailsExperience').value=firstValue(activeEnrollmentFallback?.experience,'Beginner');
-      document.getElementById('ceDetailsGoal').value=firstValue(activeEnrollmentFallback?.learning_goal,'');
+      document.getElementById('ceDetailsGoal').value='';
       if(email){email.value=activeUser.email||activeEnrollmentFallback?.email||'';email.readOnly=true;}
       if(passwordWrap)passwordWrap.style.display='none';
       document.getElementById('ceSignedIn').textContent=`Signed in as ${activeUser.email||'PipSePaisa user'}`;
@@ -380,9 +380,19 @@
     document.getElementById('courseEnrollmentOverlay').setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';
     await currentSession();
-    const insideUserPanel=!!document.getElementById('page-mycourses') || /(?:index|user-website)\.html$/i.test(location.pathname);
-    if(insideUserPanel && activeUser){
+    if(activeUser){
       await loadProfile(activeUser);
+      const oldEnrollment=await existingEnrollment();
+      const alreadyApproved=oldEnrollment && (oldEnrollment.enrollment_status==='enrolled' || oldEnrollment.payment_status==='approved' || oldEnrollment.payment_status==='paid');
+      const alreadyPending=oldEnrollment && selectedCourse.type==='paid' && (oldEnrollment.payment_status==='pending' || oldEnrollment.enrollment_status==='pending');
+      if(alreadyApproved){
+        showSuccess({already:true,row:oldEnrollment});
+        return;
+      }
+      if(alreadyPending){
+        showSuccess({pending:true,row:oldEnrollment});
+        return;
+      }
       fillExistingDetails();
       showStep('ceStepDetails');
     }else{
@@ -511,6 +521,14 @@
   };
 
   window.openMyCoursesFromEnrollment=function(){
+    try{window.closeCourseEnrollment();}catch(_){ }
+    const inUserPanel=!!document.getElementById('page-mycourses');
+    if(inUserPanel && typeof window.openMyCoursesPage==='function'){
+      const item=document.querySelector('.menu-item[data-page="mycourses"]');
+      window.openMyCoursesPage(item);
+      window.setTimeout(function(){document.getElementById('page-mycourses')?.scrollIntoView({behavior:'smooth',block:'start'});},80);
+      return;
+    }
     const target='index.html?open=mycourses';
     if(window.top&&window.top!==window)window.top.location.href=target;
     else window.location.href=target;

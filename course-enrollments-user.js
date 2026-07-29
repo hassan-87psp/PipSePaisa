@@ -237,25 +237,48 @@ function ensurePage(){
     page.id='page-mycourses';
     page.innerHTML=`
       <section class="mc-market">
-        <div class="mc-market-grid">
-          <article class="mc-shop">
-            <div class="mc-icon">📘</div>
-            <span class="mc-plan-label">Beginner Foundation</span>
-            <h3>Basic Forex Course</h3>
+        <div class="mc-market-grid mc-public-course-grid">
+          <article class="mc-shop mc-public-course basic" data-course-card="basic">
+            <span class="mc-public-mini">FREE BASIC COURSE</span>
+            <div class="mc-public-ribbon">START HERE</div>
+            <h3 id="myBasicCourseTitle">Basic Forex Course</h3>
+            <p id="myBasicCourseDescription">Build a strong foundation in Forex trading, technical analysis, market sentiment, risk management and beginner-level strategies.</p>
             <div class="mc-price">100% Free</div>
-            <p>Build a strong foundation with structured lessons covering technical analysis, fundamentals, trading psychology and risk management.</p>
-            <div class="mc-features"><span>9 Modules</span><span>Beginner Friendly</span><span>Instant Access</span></div>
-            <button class="btn" type="button" onclick="openFreeCourseModules()">Start Free Course</button>
+            <div class="mc-public-topics">
+              <div class="mc-public-topic"><span>✓</span>Introduction to Forex Trading</div>
+              <div class="mc-public-topic"><span>✓</span>Foundations of Technical Analysis</div>
+              <div class="mc-public-topic"><span>✓</span>Candlestick Patterns and Price Behaviour</div>
+              <div class="mc-public-topic"><span>✓</span>Understanding Technical Indicators</div>
+              <div class="mc-public-topic"><span>✓</span>Market Sentiment Analysis</div>
+              <div class="mc-public-topic"><span>✓</span>Fundamentals of Fundamental Analysis</div>
+              <div class="mc-public-topic"><span>✓</span>Trading Psychology and Risk Management</div>
+              <div class="mc-public-topic"><span>✓</span>Trading Strategies — Part 1</div>
+              <div class="mc-public-topic"><span>✓</span>Trading Strategies — Part 2</div>
+            </div>
+            <div class="mc-public-highlight">NO COST • BEGINNER FRIENDLY • 9 STRUCTURED MODULES</div>
+            <button class="btn mc-public-btn" type="button" onclick="openFreeCourseModules()">Start Free Course →</button>
           </article>
-          <article class="mc-shop premium">
-            <div class="mc-icon">🚀</div>
-            <span class="mc-plan-label">Professional Program</span>
-            <h3>Advanced Forex Course</h3>
-            <div class="mc-price">$200</div>
-            <p>Advanced market structure, session timing, correlations, professional mindset and strategy development for serious traders.</p>
-            <div class="mc-features"><span>Advanced Concepts</span><span>Premium Access</span><span>Mentor Support</span></div>
+          <article class="mc-shop mc-public-course premium" data-course-card="advanced">
+            <span class="mc-public-mini">ADVANCED PROFESSIONAL COURSE</span>
+            <div class="mc-public-ribbon">BEST FOR SERIOUS TRADERS</div>
+            <h3 id="myAdvancedCourseTitle">Advanced Forex Course</h3>
+            <p id="myAdvancedCourseDescription">Develop a professional trading mindset and study advanced market behaviour, session timing, currency indices, correlations, fundamental analysis and strategy development.</p>
+            <div class="mc-public-price-row"><span class="mc-public-old">Original Price $500</span><span class="mc-price">$200</span></div>
+            <span class="mc-public-save">Save $300 — Limited-Time Offer</span>
+            <div class="mc-public-topics">
+              <div class="mc-public-topic"><span>✓</span>Professional Trader Mindset and Best Practices</div>
+              <div class="mc-public-topic"><span>✓</span>Understanding Global Trading Sessions</div>
+              <div class="mc-public-topic"><span>✓</span>Identifying Market Trends with Currency Indices</div>
+              <div class="mc-public-topic"><span>✓</span>Building Confluence Through Market Correlations</div>
+              <div class="mc-public-topic"><span>✓</span>Understanding Market Microstructure</div>
+              <div class="mc-public-topic"><span>✓</span>Advanced Fundamental Analysis — Part 1</div>
+              <div class="mc-public-topic"><span>✓</span>Advanced Fundamental Analysis — Part 2</div>
+              <div class="mc-public-topic"><span>✓</span>Advanced Trading Strategies — Part 1</div>
+              <div class="mc-public-topic"><span>✓</span>Advanced Trading Strategies — Part 2</div>
+            </div>
+            <div class="mc-public-highlight">PROFESSIONAL LEARNING • ADVANCED CONCEPTS • LIMITED-TIME PRICE</div>
             <div id="advancedMainCourseStatus" class="mc-course-status" style="display:none"></div>
-            <button id="advancedMainCourseButton" class="btn" type="button" onclick="openAdvancedCourseModules()">Enroll in Advanced Course</button>
+            <button id="advancedMainCourseButton" class="btn mc-public-btn" type="button" onclick="openAdvancedCourseModules()">Unlock Advanced Course — $200 →</button>
           </article>
         </div>
       </section>
@@ -518,7 +541,7 @@ async function refreshAdvancedCourseState(){
   const btn=document.getElementById('advancedMainCourseButton');
   if(box){box.style.display='block';box.innerHTML=advancedStateMarkup(state,true);}
   if(btn){
-    btn.textContent=state==='approved'?'Open Advanced Modules':state==='pending'?'View Locked Modules':state==='rejected'?'View Modules & Resubmit':'View Advanced Modules';
+    btn.textContent=state==='approved'?'Open Advanced Modules →':state==='pending'?'Payment Verification Pending 🔒':state==='rejected'?'Resubmit Payment →':'Unlock Advanced Course — $200 →';
     btn.disabled=false;
     btn.onclick=function(){window.openAdvancedCourseModules();};
   }
@@ -538,67 +561,106 @@ window.openCourseEnrollmentFromModules=function(courseKey){
   },70);
 };
 
+function courseModuleDetailsMarkup(module){
+  return `<div class="course-module-details" aria-hidden="true">
+    <div class="course-learning-grid">
+      <div class="course-learning-col">
+        <h4>Learning Objectives</h4>
+        <div class="course-learning-list">${module.points.slice(0,3).map(point=>`<div class="course-learning-item">${esc(point)}</div>`).join('')}</div>
+      </div>
+      <div class="course-learning-col">
+        <h4>Expected Outcomes</h4>
+        <div class="course-learning-list">${module.outcomes.slice(0,3).map(outcome=>`<div class="course-learning-item">${esc(outcome)}</div>`).join('')}</div>
+      </div>
+    </div>
+  </div>`;
+}
+function courseModuleCardMarkup(module,index,options){
+  const paid=!!options.paid;
+  const level=options.level||'Beginner';
+  const state=options.state||'free';
+  const approved=!paid||state==='approved';
+  const actionTitle=paid?'Course Unlocked':'Ready to Start?';
+  const actionText=paid?'Your payment is approved. Module access is active.':'Secure your seat and start learning with confidence.';
+  const actionButton=paid
+    ? `<button class="course-register-btn" type="button" onclick="openEnrolledCourse()">Open Module →</button>`
+    : `<button class="course-register-btn" type="button" onclick="openCourseEnrollmentFromModules('basic')">Register for Module →</button>`;
+  return `<article class="course-module-card premium-accordion-card" data-module-index="${index}">
+    <div class="course-mentor-wrap">
+      <img class="course-mentor-img" src="sajid-ghori.webp" alt="Sajid Ghori">
+      <div class="course-instructor-stars">★★★★★</div>
+      <div class="course-instructor-meta"><strong>Asia's No. 1 Instructor</strong><span>CNBC Guest Analyst</span></div>
+    </div>
+    <div class="course-module-content">
+      <div class="course-module-topline"><span class="course-module-kicker">Module ${String(index+1).padStart(2,'0')}</span><span class="course-module-category">${esc(module.category||'Forex Education')}</span></div>
+      <h3 class="course-module-title">${esc(module.title)}</h3>
+      <p class="course-module-sub">${esc(module.sub)}</p>
+      <div class="course-module-meta">
+        <div class="course-module-meta-item"><span class="course-module-meta-icon">◷</span><div class="course-module-meta-copy"><span>Duration</span><strong>${esc(module.duration||'90 Minutes')}</strong></div></div>
+        <div class="course-module-meta-item"><span class="course-module-meta-icon">▥</span><div class="course-module-meta-copy"><span>Level</span><strong>${esc(level)}</strong></div></div>
+        <div class="course-module-meta-item"><span class="course-module-meta-icon">▣</span><div class="course-module-meta-copy"><span>Format</span><strong>Live Session</strong></div></div>
+      </div>
+      <button class="course-details-toggle" type="button" aria-expanded="false" onclick="toggleCourseModuleDetails(this)"><span>View Details</span><span class="course-details-arrow">⌄</span></button>
+      ${courseModuleDetailsMarkup(module)}
+    </div>
+    <div class="course-module-action">
+      <div class="course-action-icon">${approved?(paid?'🔓':'🏆'):'🔒'}</div>
+      <h4 class="course-action-title">${actionTitle}</h4>
+      <p class="course-action-text">${actionText}</p>
+      ${actionButton}
+      <div class="course-action-trust">🛡 Secure • Trusted • Professional</div>
+    </div>
+  </article>`;
+}
+window.toggleCourseModuleDetails=function(button){
+  const card=button&&button.closest('.course-module-card');
+  if(!card)return;
+  const list=card.closest('.course-module-list');
+  const wasOpen=card.classList.contains('is-expanded');
+  if(list){
+    list.querySelectorAll('.course-module-card.is-expanded').forEach(function(openCard){
+      openCard.classList.remove('is-expanded');
+      const openBtn=openCard.querySelector('.course-details-toggle');
+      const openDetails=openCard.querySelector('.course-module-details');
+      if(openBtn){openBtn.setAttribute('aria-expanded','false');const label=openBtn.querySelector('span:first-child');if(label)label.textContent='View Details';}
+      if(openDetails)openDetails.setAttribute('aria-hidden','true');
+    });
+  }
+  if(!wasOpen){
+    card.classList.add('is-expanded');
+    button.setAttribute('aria-expanded','true');
+    const label=button.querySelector('span:first-child');if(label)label.textContent='Hide Details';
+    const details=card.querySelector('.course-module-details');if(details)details.setAttribute('aria-hidden','false');
+    window.setTimeout(function(){card.scrollIntoView({behavior:'smooth',block:'nearest'});},180);
+  }
+};
+function advancedLockedMarkup(state){
+  const pending=state==='pending',rejected=state==='rejected';
+  const title=pending?'Payment Verification Pending':rejected?'Payment Was Not Approved':'Advanced Course Locked';
+  const text=pending?'Your payment has been submitted. The 9 Advanced Course modules will remain hidden until admin approval.':rejected?'Submit your payment details again. The 9 Advanced Course modules will unlock only after admin approval.':'Complete the payment enrollment first. The 9 Advanced Course modules will remain completely hidden until your payment is approved.';
+  const button=pending
+    ? '<button class="course-lock-button is-pending" type="button" disabled>Waiting for Admin Approval</button>'
+    : `<button class="course-lock-button" type="button" onclick="openCourseEnrollmentFromModules('advanced')">${rejected?'Resubmit Payment':'Make Payment — $200'} →</button>`;
+  return `<section class="course-access-lock ${rejected?'is-rejected':pending?'is-pending':''}">
+    <div class="course-access-lock-icon">🔒</div>
+    <span class="course-access-eyebrow">PROFESSIONAL PROGRAM</span>
+    <h3>${title}</h3><p>${text}</p>
+    <div class="course-access-lock-points"><span>9 Advanced Modules</span><span>Hidden Until Approval</span><span>Mentor Support</span></div>
+    ${button}
+    <small>Payment approval is required before module names, cards and learning content become visible.</small>
+  </section>`;
+}
 window.openAdvancedCourseModules=async function(){
   const shell=document.getElementById('advancedCourseModuleShell');
   const list=document.getElementById('advancedCourseModuleList');
   if(!shell||!list)return;
   const state=await refreshAdvancedCourseState();
-
-  list.innerHTML=ADVANCED_COURSE_MODULES.map((module,index)=>`
-    <article class="course-module-card">
-      <div class="course-mentor-wrap">
-        <img class="course-mentor-img" src="sajid-ghori.webp" alt="Sajid Ghori">
-        <div class="course-instructor-stars">★★★★★</div>
-        <div class="course-instructor-meta">
-          <strong>Asia's No. 1 Instructor</strong>
-          <span>CNBC Guest Analyst</span>
-        </div>
-      </div>
-
-      <div class="course-module-content">
-        <div class="course-module-topline">
-          <span class="course-module-kicker">Module ${String(index+1).padStart(2,'0')}</span>
-          <span class="course-module-category">${esc(module.category)}</span>
-        </div>
-        <h3 class="course-module-title">${esc(module.title)}</h3>
-        <p class="course-module-sub">${esc(module.sub)}</p>
-
-        <div class="course-module-meta">
-          <div class="course-module-meta-item"><span class="course-module-meta-icon">◷</span><div class="course-module-meta-copy"><span>Duration</span><strong>${esc(module.duration)}</strong></div></div>
-          <div class="course-module-meta-item"><span class="course-module-meta-icon">▥</span><div class="course-module-meta-copy"><span>Level</span><strong>Advanced</strong></div></div>
-          <div class="course-module-meta-item"><span class="course-module-meta-icon">▣</span><div class="course-module-meta-copy"><span>Format</span><strong>Live Session</strong></div></div>
-        </div>
-
-        <div class="course-learning-grid">
-          <div class="course-learning-col">
-            <h4>Learning Objectives</h4>
-            <div class="course-learning-list">
-              ${module.points.slice(0,3).map(point=>`<div class="course-learning-item">${esc(point)}</div>`).join('')}
-            </div>
-          </div>
-          <div class="course-learning-col">
-            <h4>Expected Outcomes</h4>
-            <div class="course-learning-list">
-              ${module.outcomes.slice(0,3).map(outcome=>`<div class="course-learning-item">${esc(outcome)}</div>`).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="course-module-action">
-        <div class="course-action-icon">${state==='approved'?'🔓':'🔒'}</div>
-        <h4 class="course-action-title">${state==='approved'?'Course Unlocked':state==='pending'?'Payment Under Review':state==='rejected'?'Payment Rejected':'Ready to Advance?'}</h4>
-        <p class="course-action-text">${state==='approved'?'Your payment is approved. Module access is active.':state==='pending'?'Your payment is submitted and waiting for admin approval.':state==='rejected'?'Submit new payment details to request verification again.':'Complete payment enrollment to unlock this module.'}</p>
-        <div class="course-enrollment-state show ${state==='approved'?'approved':state==='rejected'?'rejected':''}">${advancedStateMarkup(state,false)}</div>
-        <button class="course-register-btn ${state==='pending'?'is-locked':''}" type="button" ${state==='pending'?'disabled':''} onclick="${state==='approved'?`openEnrolledCourse()`:`openCourseEnrollmentFromModules('advanced')`}">${state==='approved'?'Open Module →':state==='pending'?'Payment Pending 🔒':state==='rejected'?'Resubmit Payment →':'Enroll for Module 🔒'}</button>
-        <div class="course-action-trust">🛡 Secure • Trusted • Professional</div>
-      </div>
-    </article>
-  `).join('');
-
-  shell.classList.add('open');
-  shell.setAttribute('aria-hidden','false');
-  document.body.style.overflow='hidden';
+  if(state!=='approved'){
+    list.innerHTML=advancedLockedMarkup(state);
+  }else{
+    list.innerHTML=ADVANCED_COURSE_MODULES.map((module,index)=>courseModuleCardMarkup(module,index,{paid:true,level:'Advanced',state})).join('');
+  }
+  shell.classList.add('open');shell.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
 };
 
 window.closeAdvancedCourseModules=function(){
@@ -613,61 +675,8 @@ window.openFreeCourseModules=function(){
   const shell=document.getElementById('freeCourseModuleShell');
   const list=document.getElementById('freeCourseModuleList');
   if(!shell||!list)return;
-
-  list.innerHTML=FREE_COURSE_MODULES.map((module,index)=>`
-    <article class="course-module-card">
-      <div class="course-mentor-wrap">
-        <img class="course-mentor-img" src="sajid-ghori.webp" alt="Sajid Ghori">
-        <div class="course-instructor-stars">★★★★★</div>
-        <div class="course-instructor-meta">
-          <strong>Asia's No. 1 Instructor</strong>
-          <span>CNBC Guest Analyst</span>
-        </div>
-      </div>
-
-      <div class="course-module-content">
-        <div class="course-module-topline">
-          <span class="course-module-kicker">Module ${String(index+1).padStart(2,'0')}</span>
-          <span class="course-module-category">${esc(module.category || 'Forex Education')}</span>
-        </div>
-        <h3 class="course-module-title">${esc(module.title)}</h3>
-        <p class="course-module-sub">${esc(module.sub)}</p>
-
-        <div class="course-module-meta">
-          <div class="course-module-meta-item"><span class="course-module-meta-icon">◷</span><div class="course-module-meta-copy"><span>Duration</span><strong>${esc(module.duration || '90 Minutes')}</strong></div></div>
-          <div class="course-module-meta-item"><span class="course-module-meta-icon">▥</span><div class="course-module-meta-copy"><span>Level</span><strong>Beginner</strong></div></div>
-          <div class="course-module-meta-item"><span class="course-module-meta-icon">▣</span><div class="course-module-meta-copy"><span>Format</span><strong>Live Session</strong></div></div>
-        </div>
-
-        <div class="course-learning-grid">
-          <div class="course-learning-col">
-            <h4>Learning Objectives</h4>
-            <div class="course-learning-list">
-              ${module.points.slice(0,3).map(point=>`<div class="course-learning-item">${esc(point)}</div>`).join('')}
-            </div>
-          </div>
-          <div class="course-learning-col">
-            <h4>Expected Outcomes</h4>
-            <div class="course-learning-list">
-              ${module.outcomes.slice(0,3).map(outcome=>`<div class="course-learning-item">${esc(outcome)}</div>`).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="course-module-action">
-        <div class="course-action-icon">🏆</div>
-        <h4 class="course-action-title">Ready to Start?</h4>
-        <p class="course-action-text">Secure your seat and start learning with confidence.</p>
-        <button class="course-register-btn" type="button" onclick="openCourseEnrollmentFromModules('basic')">Register for Module →</button>
-        <div class="course-action-trust">🛡 Secure • Trusted • Professional</div>
-      </div>
-    </article>
-  `).join('');
-
-  shell.classList.add('open');
-  shell.setAttribute('aria-hidden','false');
-  document.body.style.overflow='hidden';
+  list.innerHTML=FREE_COURSE_MODULES.map((module,index)=>courseModuleCardMarkup(module,index,{paid:false,level:'Beginner',state:'free'})).join('');
+  shell.classList.add('open');shell.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
 };
 
 window.closeFreeCourseModules=function(){
