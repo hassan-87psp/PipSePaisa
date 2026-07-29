@@ -17,8 +17,8 @@ function injectStyles(){
   st.id='mcPremiumStyle';
   st.textContent=`
   .mc-market{margin-top:0}
-  .mc-market-grid{display:grid;grid-template-columns:1fr;gap:18px}
-  .mc-shop{position:relative;overflow:hidden;min-height:310px;border:1px solid var(--border);border-radius:24px;background:linear-gradient(145deg,var(--bg-card),var(--bg-elevated));padding:26px;box-shadow:0 20px 48px rgba(15,23,42,.09);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+  .mc-market-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch}
+  .mc-shop{position:relative;overflow:hidden;min-height:310px;height:100%;border:1px solid var(--border);border-radius:24px;background:linear-gradient(145deg,var(--bg-card),var(--bg-elevated));padding:26px;box-shadow:0 20px 48px rgba(15,23,42,.09);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
   .mc-shop:hover{transform:translateY(-5px);box-shadow:0 28px 68px rgba(15,23,42,.15);border-color:rgba(245,158,11,.52)}
   .mc-shop:before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 88% 12%,rgba(245,158,11,.18),transparent 35%);pointer-events:none}
   .mc-icon{position:absolute;right:20px;top:18px;width:68px;height:68px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(135deg,#fff6df,#f59e0b);font-size:31px;box-shadow:0 12px 30px rgba(245,158,11,.25)}
@@ -134,6 +134,7 @@ function injectStyles(){
   .mc-course-status strong{display:block;font-size:12px;margin-bottom:7px}
   .mc-course-status .course-state-boxes{grid-template-columns:repeat(2,minmax(0,1fr))}
   .mc-course-status .course-state-box{background:rgba(255,255,255,.08);color:inherit;border-color:rgba(255,255,255,.12)}
+  @media(max-width:900px){.mc-market-grid{grid-template-columns:1fr}}
   @media(max-width:620px){.course-state-boxes{grid-template-columns:1fr}.mc-course-status .course-state-boxes{grid-template-columns:1fr}}
   @media(max-width:1180px){
     .course-module-card{grid-template-columns:170px minmax(0,1fr) 200px}
@@ -438,12 +439,12 @@ const ADVANCED_COURSE_MODULES=[
 let advancedEnrollmentState=null;
 async function getCourseEnrollmentState(courseKey){
   try{
-    const sb=window.supabase?.createClient?window.supabase.createClient('https://etfolhinohgmskbfjoyh.supabase.co','sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw',{auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}}):null;
-    if(!sb)return null;
-    const session=await sb.auth.getSession();
+    const client=db();
+    if(!client)return null;
+    const session=await client.auth.getSession();
     const user=session?.data?.session?.user;
     if(!user)return null;
-    const result=await sb.from('course_enrollments').select('*').eq('user_id',user.id).eq('course_key',courseKey).maybeSingle();
+    const result=await client.from('course_enrollments').select('*').eq('user_id',user.id).eq('course_key',courseKey).maybeSingle();
     if(result.error && !/0 rows|no rows/i.test(result.error.message||''))throw result.error;
     return result.data||null;
   }catch(error){console.warn('Course state could not load',error);return null;}
@@ -631,9 +632,6 @@ document.addEventListener('keydown',function(event){
   }
 });
 
-window.openMyCoursesPage=function(item){
-  window.openMyCoursesPage(item);
-};
 window.loadMyCourses=async function(){
   ensurePage();
   await refreshAdvancedCourseState();
@@ -675,30 +673,51 @@ window.openMyCoursesPage=function(item){
   closeAllCourseModulePopups();
 
   const navItem=item||document.querySelector('.menu-item[data-page="mycourses"]');
-  if(typeof window.showPage==='function'){
-    window.showPage('mycourses',navItem);
-  }else{
-    document.querySelectorAll('.page').forEach(function(page){page.classList.remove('active');});
-    const page=document.getElementById('page-mycourses');
-    if(page)page.classList.add('active');
+  const page=document.getElementById('page-mycourses');
 
-    document.querySelectorAll('.menu-item,.submenu-item').forEach(function(el){el.classList.remove('active');});
+  const pageOpener =
+    (typeof window.showPage==='function' && window.showPage) ||
+    (typeof showPage==='function' && showPage) ||
+    null;
+
+  if(pageOpener){
+    pageOpener('mycourses',navItem);
+  }else{
+    document.querySelectorAll('.page').forEach(function(el){
+      el.classList.remove('active');
+      el.style.display='';
+    });
+    if(page){
+      page.classList.add('active');
+      page.style.display='block';
+    }
+
+    document.querySelectorAll('.menu-item,.submenu-item').forEach(function(el){
+      el.classList.remove('active');
+    });
     if(navItem)navItem.classList.add('active');
 
     const title=document.getElementById('pageTitle');
     if(title)title.textContent='My Courses';
   }
 
+  if(page && !page.classList.contains('active')){
+    document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
+    page.classList.add('active');
+    page.style.display='block';
+  }
+
   setTimeout(function(){
     if(typeof window.loadMyCourses==='function')window.loadMyCourses();
   },0);
+
+  return false;
 };
 
 function bindMyCoursesNavigation(){
   ensurePage();
   const item=document.querySelector('.menu-item[data-page="mycourses"]');
   if(!item)return;
-  item.removeAttribute('onclick');
   item.onclick=function(event){
     if(event)event.preventDefault();
     window.openMyCoursesPage(item);

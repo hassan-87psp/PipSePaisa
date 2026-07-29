@@ -1069,7 +1069,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
     <div class="brand" onclick="goPerformanceHome()" title="Go to Performance" style="cursor:pointer;">
-      <div class="brand-logo" style="background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;font-size:18px;width:36px;height:36px;border-radius:8px;">P</div>
+      <img class="brand-logo-img" src="icon-192.png" alt="PipSePaisa logo">
       <div class="brand-text">
         <h1>PipSePaisa</h1>
         <p id="portalBrandSub">User Panel</p>
@@ -1091,7 +1091,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">📊</span>Dashboard</div>
       <div class="menu-item" data-tabkey="addtrade" onclick="openAddTradeModal()" style="background: linear-gradient(135deg, var(--gold-bg), transparent); border: 1px solid rgba(245,158,11,0.3);"><span class="menu-icon">➕</span><strong>Add Trade</strong></div>
       <div class="menu-item" data-page="performance" onclick="showPage('performance', this)"><span class="menu-icon">🏆</span>Performance</div>
-      <div class="menu-item" data-page="mycourses" onclick="return openMyCoursesPage(this)"><span class="menu-icon">🎓</span>My Courses</div>
+      <div class="menu-item" data-page="mycourses" onclick="return pspOpenCoursesDirect(this,event)"><span class="menu-icon">🎓</span>My Courses</div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts &amp; Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
@@ -8022,7 +8022,10 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if(!user)return;
 
     currentUser=user;
-    enterApp();
+    const app=document.getElementById('mainApp');
+    const appVisible=!!(app && getComputedStyle(app).display!=='none');
+    if(!appVisible) enterApp();
+    else updateAuthUI();
 
     const now=Date.now();
     if(_lastAuthHydrationUserId===user.id&&(now-_lastAuthHydrationAt)<1200){
@@ -8048,9 +8051,13 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       setTimeout(function(){
         if (event === 'PASSWORD_RECOVERY') {
           showPasswordResetForm();
+        } else if (event === 'TOKEN_REFRESHED') {
+          if (session && session.user) {
+            currentUser=session.user;
+            updateAuthUI();
+          }
         } else if (
           event === 'SIGNED_IN' ||
-          event === 'TOKEN_REFRESHED' ||
           event === 'INITIAL_SESSION'
         ) {
           if (session && session.user) {
@@ -8227,20 +8234,26 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   function enterApp() {
     const landing = document.getElementById('landingPage');
     const app = document.getElementById('mainApp');
+    const appWasVisible = !!(app && getComputedStyle(app).display !== 'none');
+    const activePageBefore = document.querySelector('.page.active');
+
     if (landing) landing.style.display = 'none';
     if (app) app.style.display = 'flex';
     document.body.style.overflow = '';
     try { sessionStorage.setItem('hasEnteredApp', 'true'); } catch(e) {}
-    window.scrollTo(0, 0);
-    const dashboardItem=document.querySelector('.menu-item[data-page="dashboard"]');
-    showPage('dashboard', dashboardItem);
 
-    // The chart may have been initialized while the dashboard was hidden.
-    // Rebuild/resize only after the panel is visible.
-    requestAnimationFrame(function(){
-      setTimeout(ensurePerformanceGraphVisible, 80);
-      setTimeout(ensurePerformanceGraphVisible, 450);
-    });
+    // Open Dashboard only on the first app entry. Auth refreshes must preserve
+    // the page the user is currently viewing, including My Courses.
+    if (!appWasVisible || !activePageBefore) {
+      window.scrollTo(0, 0);
+      const dashboardItem=document.querySelector('.menu-item[data-page="dashboard"]');
+      showPage('dashboard', dashboardItem);
+
+      requestAnimationFrame(function(){
+        setTimeout(ensurePerformanceGraphVisible, 80);
+        setTimeout(ensurePerformanceGraphVisible, 450);
+      });
+    }
   }
   
   // Auto-hide landing page when user logs in
@@ -9323,7 +9336,99 @@ window.addEventListener('message',function(event){
 });
 </script>
 <script src="course-enrollment.js?v=20260728-premium-push-v15"></script>
-<script src="course-enrollments-user.js?v=20260729-mycourses-working-final-v30"></script>
+<script src="course-enrollments-user.js?v=20260729-stable-two-cards-v50"></script>
+
+<style id="pspFinalLogoCourseFix">
+.brand-logo-img{
+  width:42px;
+  height:42px;
+  object-fit:contain;
+  display:block;
+  flex:0 0 42px;
+  border-radius:10px;
+  background:transparent;
+}
+</style>
+<script id="pspFinalCourseDirectFix">
+(function(){
+  function activateCoursePage(item){
+    var openNow=function(){
+      var page=document.getElementById('page-mycourses');
+      if(!page)return false;
+
+      document.querySelectorAll('.page').forEach(function(el){
+        el.classList.remove('active');
+        el.style.display='';
+      });
+
+      page.classList.add('active');
+      page.style.display='block';
+
+      document.querySelectorAll('.menu-item,.submenu-item').forEach(function(el){
+        el.classList.remove('active');
+      });
+      if(item)item.classList.add('active');
+
+      var title=document.getElementById('pageTitle');
+      if(title)title.textContent='My Courses';
+
+      var sidebar=document.getElementById('sidebar');
+      if(sidebar)sidebar.classList.remove('open');
+      var overlay=document.getElementById('sidebarOverlay');
+      if(overlay)overlay.style.display='none';
+
+      if(typeof window.loadMyCourses==='function'){
+        Promise.resolve(window.loadMyCourses()).catch(function(){});
+      }
+      return true;
+    };
+
+    if(openNow())return false;
+
+    if(typeof window.loadMyCourses==='function'){
+      Promise.resolve(window.loadMyCourses()).finally(function(){
+        requestAnimationFrame(openNow);
+      });
+    }else{
+      setTimeout(openNow,100);
+    }
+    return false;
+  }
+
+  window.pspOpenCoursesDirect=function(item,event){
+    if(event){
+      event.preventDefault();
+      event.stopPropagation();
+      if(typeof event.stopImmediatePropagation==='function')event.stopImmediatePropagation();
+    }
+    return activateCoursePage(item);
+  };
+
+  document.addEventListener('click',function(event){
+    var item=event.target.closest&&event.target.closest('.menu-item[data-page="mycourses"]');
+    if(!item)return;
+    event.preventDefault();
+    event.stopPropagation();
+    if(typeof event.stopImmediatePropagation==='function')event.stopImmediatePropagation();
+    activateCoursePage(item);
+  },true);
+
+  function bind(){
+    var item=document.querySelector('.menu-item[data-page="mycourses"]');
+    if(item)item.setAttribute('onclick','return pspOpenCoursesDirect(this,event)');
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',bind,{once:true});
+  }else{
+    bind();
+  }
+
+  setTimeout(bind,500);
+  setTimeout(bind,1500);
+})();
+</script>
+
 
 <script>
 (function pipSignalNotifications(){
