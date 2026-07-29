@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
+<!-- PipSePaisa Dashboard Home + Final Sidebar Sorting: 2026-07-29-v1 -->
+<!-- PipSePaisa User Panel Instant Realtime + Graph Fix: 2026-07-29-v1 -->
 <!-- Exact Header + Always Visible Subscribe Prompt Final -->
 <!-- PipSePaisa Direct Login Verified: 2026-07-28-v2 -->
 <!-- PipSePaisa Direct Parent Login Fix: 2026-07-28-v1 -->
@@ -1070,38 +1072,26 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     <div class="menu-label">Main Menu</div>
     
     <nav class="menu">
-      <div class="menu-item active" data-page="performance" onclick="showPage('performance', this)"><span class="menu-icon">🏆</span>Performance</div>
       <div class="menu-item" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">📊</span>Dashboard</div>
       <div class="menu-item" data-tabkey="addtrade" onclick="openAddTradeModal()" style="background: linear-gradient(135deg, var(--gold-bg), transparent); border: 1px solid rgba(245,158,11,0.3);"><span class="menu-icon">➕</span><strong>Add Trade</strong></div>
+      <div class="menu-item active" data-page="performance" onclick="showPage('performance', this)"><span class="menu-icon">🏆</span>Performance</div>
+      <div class="menu-item" data-page="learn" onclick="showPage('learn', this)"><span class="menu-icon">🎓</span>My Courses</div>
+      <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
+      <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
+      <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts &amp; Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
+      <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;animation:pulse 2s infinite;">LIVE</span></div>
+      <div class="menu-item" data-page="strength" onclick="showPage('strength', this)"><span class="menu-icon">💪</span>Currency Strength Meter</div>
       <div class="menu-item" data-page="trades" onclick="showPage('trades', this)"><span class="menu-icon">📈</span>My Trades</div>
       <div class="menu-item" data-page="analysis" onclick="showPage('analysis', this)"><span class="menu-icon">📉</span>Trades Analysis</div>
-      <div class="menu-item" data-page="aireport" onclick="showPage('aireport', this)"><span class="menu-icon">🤖</span>AI Report<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:700;">NEW</span></div>
-      <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
-      <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Member Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
-      <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
-      <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts &amp; Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
-      <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
-      <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>Economic News<span class="dot"></span></div>
-      <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;animation:pulse 2s infinite;">LIVE</span></div>
-      <div class="menu-item" data-page="strength" onclick="showPage('strength', this)"><span class="menu-icon">💪</span>Currency Strength</div>
-
-      <div class="menu-item" id="mentorAiToolsNav" data-page="aitools" onclick="showPage('aitools', this)" style="display:none;background:linear-gradient(135deg,rgba(245,158,11,.14),transparent);border:1px solid rgba(245,158,11,.24);"><span class="menu-icon">✨</span><strong>AI Tools</strong><span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:800;">MENTOR</span></div>
-      
       <div class="menu-item" data-page="tools" onclick="showPage('tools', this)"><span class="menu-icon">🔧</span>Tools</div>
-      
-      <div class="menu-item" data-page="learn" onclick="showPage('learn', this)"><span class="menu-icon">🎓</span>Learn Forex</div>
-      
+      <div class="menu-item" data-page="aireport" onclick="showPage('aireport', this)"><span class="menu-icon">🤖</span>AI Report<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:700;">NEW</span></div>
+      <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>Economic News<span class="dot"></span></div>
+      <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Member Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
+      <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
+      <div class="menu-item" id="mentorAiToolsNav" data-page="aitools" onclick="showPage('aitools', this)" style="display:none;background:linear-gradient(135deg,rgba(245,158,11,.14),transparent);border:1px solid rgba(245,158,11,.24);"><span class="menu-icon">✨</span><strong>AI Tools</strong><span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:800;">MENTOR</span></div>
       <div class="menu-item" data-tabkey="vipindicators" onclick="alert('🚀 VIP Indicators launching soon!\nStay tuned for premium trading indicators.')" style="cursor: pointer;">
-        <span class="menu-icon">⭐</span>VIP Indicators
-        <span style="margin-left: auto; font-size: 9px; padding: 2px 6px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0a0e1a; border-radius: 10px; font-weight: 700;">SOON</span>
-      </div>
-      
       <div class="menu-item" data-tabkey="vipea" onclick="alert('🤖 VIP EAs launching soon!\nAutomated trading systems coming your way.')" style="cursor: pointer;">
-        <span class="menu-icon">🤖</span>VIP EAs
-        <span style="margin-left: auto; font-size: 9px; padding: 2px 6px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0a0e1a; border-radius: 10px; font-weight: 700;">SOON</span>
-      </div>
-
-    </nav>
+</nav>
     
     <div class="sidebar-footer">
       <div class="menu-item" data-page="settings" onclick="showPage('settings', this)"><span class="menu-icon">⚙️</span>Settings</div>
@@ -3376,7 +3366,12 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if (page === 'aitools') initMentorAiTools();
     if (page === 'announce') loadAnnouncements();
     if (page === 'signals') loadSignalsFromDB();
-    if (page === 'performance') { loadPerformance(); setTimeout(function(){ try{ if(perfChart){ perfChart.resize(); perfChart.update('none'); } if(equityChart){ equityChart.resize(); equityChart.update('none'); } }catch(e){} }, 80); }
+    if (page === 'performance') {
+      loadPerformance();
+      setTimeout(ensurePerformanceGraphVisible, 80);
+      setTimeout(ensurePerformanceGraphVisible, 350);
+      setTimeout(function(){ try{ if(equityChart){ equityChart.resize(); equityChart.update('none'); } }catch(e){} }, 100);
+    }
     if (page === 'articles') loadArticlesFromDB();
     if (page === 'tools' && window.currentToolsTab === 'banners') loadBanners();
     if (page === 'market') { loadGoldPrice(); loadMarketTicker(); }
@@ -3839,6 +3834,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       updateDashboard();
       updateTradesTable();
       buildCalendar();
+      setTimeout(ensurePerformanceGraphVisible, 80);
       closeModal('addTrade');
       
       setTimeout(() => alert('✅ Trade saved to your account! P&L: ' + (pnl >= 0 ? '+$' : '-$') + Math.abs(pnl).toFixed(2)), 100);
@@ -6375,6 +6371,16 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       }
 
       currentUser = data.user;
+      currentProfile={
+        id:data.user.id,
+        full_name:data.user.user_metadata?.full_name || (data.user.email||'User').split('@')[0],
+        username:data.user.user_metadata?.username || (data.user.email||'User').split('@')[0],
+        email:data.user.email || '',
+        role:'user',
+        is_premium:false,
+        member_type:'free'
+      };
+      updateAuthUI();
       showAuthMessage('success', window.PSP_PORTAL_MODE==='mentor' ? 'Welcome! Opening your Mentor Site...' : 'Welcome! Opening your dashboard...');
 
       // Open immediately; do not hold the login screen for profile queries.
@@ -7639,7 +7645,17 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         .on('postgres_changes',{event:'*',schema:'public',table:'courses'},rtContent)
         .on('postgres_changes',{event:'*',schema:'public',table:'news_posts'},rtContent)
         .on('postgres_changes',{event:'*',schema:'public',table:'subscription_plans'},rtContent)
+        .on('postgres_changes',{event:'*',schema:'public',table:'articles'},rtContent)
+        .on('postgres_changes',{event:'*',schema:'public',table:'banners'},rtContent)
         .subscribe();
+
+      sb.channel('rt-user-site-settings')
+        .on('postgres_changes',{event:'*',schema:'public',table:'site_settings'},function(){
+          loadTabSettings();
+        })
+        .subscribe(function(status){
+          if(status==='SUBSCRIBED') loadTabSettings();
+        });
       sb.channel('rt-user-community')
         .on('postgres_changes',{event:'*',schema:'public',table:'group_posts'},function(){if(commVisible()&&typeof loadFeed==='function')loadFeed(true);})
         .on('postgres_changes',{event:'*',schema:'public',table:'post_likes'},function(){if(commVisible()&&typeof loadFeed==='function')loadFeed(true);})
@@ -7840,6 +7856,16 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       }
 
       currentUser = user;
+      currentProfile={
+        id:user.id,
+        full_name:user.user_metadata?.full_name || (user.email||'User').split('@')[0],
+        username:user.user_metadata?.username || (user.email||'User').split('@')[0],
+        email:user.email || '',
+        role:'user',
+        is_premium:false,
+        member_type:'free'
+      };
+      updateAuthUI();
       enterApp();
 
       _lastAuthHydrationUserId = user.id;
@@ -8119,6 +8145,39 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   // ============================================================
   // ============================================================
   
+
+  (function installPerformanceChartObserver(){
+    function attach(){
+      const container=document.querySelector('.performance-card .chart-container');
+      if(!container)return setTimeout(attach,500);
+      if(container.dataset.resizeObserverInstalled==='1')return;
+      container.dataset.resizeObserverInstalled='1';
+      if(typeof ResizeObserver!=='undefined'){
+        const ro=new ResizeObserver(function(){
+          if(container.offsetWidth>0 && container.offsetHeight>0){
+            ensurePerformanceGraphVisible();
+          }
+        });
+        ro.observe(container);
+        window._perfResizeObserver=ro;
+      }
+    }
+    if(document.readyState==='loading'){
+      document.addEventListener('DOMContentLoaded',attach,{once:true});
+    }else{
+      attach();
+    }
+  })();
+
+
+  // Fallback sync for admin tab ON/OFF controls.
+  // Realtime remains primary; this only protects against a dropped websocket.
+  setInterval(function(){
+    if(currentUser && sb){
+      loadTabSettings();
+    }
+  }, 3000);
+
   // ============ INIT ============
   // ============ LANDING PAGE LOGIC ============
   function showLandingPage() {
@@ -8129,6 +8188,25 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     document.body.style.overflow = 'hidden';
   }
   
+  function ensurePerformanceGraphVisible() {
+    try {
+      const canvas = document.getElementById('perfChart');
+      if (!canvas || typeof Chart === 'undefined') return;
+
+      if (!perfChart) {
+        buildPerfChart();
+      }
+
+      if (perfChart) {
+        perfChart.resize();
+        perfChart.update('none');
+        updateDashboard();
+      }
+    } catch (error) {
+      console.warn('Performance graph refresh failed:', error);
+    }
+  }
+
   function enterApp() {
     const landing = document.getElementById('landingPage');
     const app = document.getElementById('mainApp');
@@ -8137,6 +8215,21 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     document.body.style.overflow = '';
     try { sessionStorage.setItem('hasEnteredApp', 'true'); } catch(e) {}
     window.scrollTo(0, 0);
+
+    // Dashboard is the fixed home page after every successful login/open.
+    try {
+      setPage('dashboard');
+    } catch (e) {
+      const dashboardButton = document.querySelector('[data-page="dashboard"]');
+      if (dashboardButton) dashboardButton.click();
+    }
+
+    // The chart may have been initialized while the dashboard was hidden.
+    // Rebuild/resize only after the panel is visible.
+    requestAnimationFrame(function(){
+      setTimeout(ensurePerformanceGraphVisible, 80);
+      setTimeout(ensurePerformanceGraphVisible, 450);
+    });
   }
   
   // Auto-hide landing page when user logs in
@@ -8196,6 +8289,16 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 
     if (restoredSession?.user) {
       currentUser=restoredSession.user;
+      currentProfile={
+        id:restoredSession.user.id,
+        full_name:restoredSession.user.user_metadata?.full_name || (restoredSession.user.email||'User').split('@')[0],
+        username:restoredSession.user.user_metadata?.username || (restoredSession.user.email||'User').split('@')[0],
+        email:restoredSession.user.email || '',
+        role:'user',
+        is_premium:false,
+        member_type:'free'
+      };
+      updateAuthUI();
       enterApp();
       setTimeout(function(){
         Promise.resolve(loadUserProfile(restoredSession.user)).catch(function(error){
@@ -9348,7 +9451,6 @@ window.addEventListener('message',function(event){
   document.addEventListener('DOMContentLoaded',()=>setTimeout(init,1200),{once:true});
 })();
 </script>
-<script src="realtime-complete.js?v=20260728-v2"></script>
 
 <script id="singleTickerGuard">
 (function(){
