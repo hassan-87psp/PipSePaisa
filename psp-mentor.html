@@ -556,6 +556,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   }
 }
 </style>
+<style id="pspMentorLogoFinal">.login-logo,.brand-logo,#pipBoot .bl{background-image:url('icon-192.png')!important;background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important;background-color:transparent!important;color:transparent!important;overflow:visible!important}</style>
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
@@ -1254,17 +1255,22 @@ function cancelSigEdit(){
 }
 async function updateMentorSigStatus(id,kind){
   const pi=document.getElementById('pips-'+id);const pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;
-  let obj;
+  let obj={};const terminal=['tp3','be','sl','closed'].includes(kind);
   if(kind==='be_move'){
-    // SL ko breakeven pe move — trade active rehta hai, sirf tag + users ko notification
     obj={be_moved:true};
+  }else if(kind==='tp1'||kind==='tp2'){
+    obj={status:kind,tp_hit:kind==='tp1'?1:2};
+    if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
   }else{
-    const map={tp1:1,tp2:2,tp3:3};obj={status:kind,closed_at:new Date().toISOString()};
-    if(kind in map)obj.tp_hit=map[kind];
+    obj={status:kind,closed_at:new Date().toISOString()};
+    if(kind==='tp3')obj.tp_hit=3;
     if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
   }
   const {error}=await sb.from('signals').update(obj).eq('id',id);
   if(error){alert('Error: '+error.message);return;}
+  if(terminal){
+    try{await pspCreateNotificationAndPush('🔒 Signal Closed',kind==='tp3'?'TP3 Hit — signal closed.':kind==='be'?'Breakeven Hit — signal closed.':kind==='sl'?'Stop Loss Hit — signal closed.':'Signal closed.','signal','/?tab=signals','all');}catch(_){ }
+  }
   loadSignals();
 }
 async function setSigStatus(id,st){await sb.from('signals').update({status:st}).eq('id',id);loadSignals();}

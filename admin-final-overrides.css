@@ -1,0 +1,73 @@
+
+/* PipSePaisa comprehensive admin polish */
+[data-theme="light"] #content input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="light"] #content select,
+[data-theme="light"] #content textarea,
+[data-theme="light"] .modal input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="light"] .modal select,
+[data-theme="light"] .modal textarea{
+  background:#fffdf8!important;
+  color:#0f172a!important;
+  border-color:#d8ccb4!important;
+  color-scheme:light!important;
+  box-shadow:none!important;
+}
+[data-theme="light"] #content input::placeholder,
+[data-theme="light"] #content textarea::placeholder,
+[data-theme="light"] .modal input::placeholder,
+[data-theme="light"] .modal textarea::placeholder{color:#8b94a3!important;opacity:1}
+[data-theme="light"] select option,
+[data-theme="light"] select optgroup{background:#fffdf8!important;color:#0f172a!important}
+[data-theme="dark"] #content input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] #content select,
+[data-theme="dark"] #content textarea,
+[data-theme="dark"] .modal input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="dark"] .modal select,
+[data-theme="dark"] .modal textarea{
+  background:#111827!important;
+  color:#f3f4f6!important;
+  border-color:#2d3748!important;
+  color-scheme:dark!important;
+}
+[data-theme="dark"] select option,
+[data-theme="dark"] select optgroup{background:#111827!important;color:#f3f4f6!important}
+#page-subscriptions input,#page-subscriptions select,#page-subscriptions textarea,
+#page-payments input,#page-payments select,#page-payments textarea,
+#page-paymentreqs input,#page-paymentreqs select,#page-paymentreqs textarea,
+#page-adsignals input,#page-adsignals select,#page-adsignals textarea,
+#page-adcharts input,#page-adcharts select,#page-adcharts textarea,
+#page-articles input,#page-articles select,#page-articles textarea{width:100%;font-family:inherit}
+.psp-admin-dashboard-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.psp-admin-dashboard-grid .stat-card{min-width:0}
+.psp-system-course-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.psp-system-course{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,var(--bg-card),var(--bg-elevated));padding:22px;box-shadow:var(--shadow)}
+.psp-system-course.paid{background:linear-gradient(145deg,#0e1828,#17263d);color:#fff;border-color:rgba(245,158,11,.5)}
+.psp-system-course:before{content:"";position:absolute;right:-50px;top:-50px;width:180px;height:180px;border-radius:50%;background:rgba(245,158,11,.12)}
+.psp-system-course-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;position:relative}
+.psp-system-course-icon{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:25px;background:var(--gold-bg);border:1px solid rgba(245,158,11,.28)}
+.psp-system-course h3{font-size:20px;margin:15px 0 7px;position:relative}
+.psp-system-course p{font-size:12px;line-height:1.65;color:var(--text-muted);position:relative}
+.psp-system-course.paid p{color:#cbd5e1}
+.psp-system-course-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0;position:relative}
+.psp-system-course-meta div{padding:10px;border:1px solid var(--border);border-radius:11px;background:rgba(255,255,255,.04);font-size:10px;color:var(--text-muted)}
+.psp-system-course-meta strong{display:block;margin-top:3px;font-size:15px;color:var(--text-primary)}
+.psp-system-course.paid .psp-system-course-meta strong{color:#fff}
+.psp-role-badge{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900;text-transform:uppercase}
+.psp-role-badge.user{background:var(--blue-bg);color:var(--blue)}
+.psp-role-badge.mentor{background:var(--green-bg);color:var(--green)}
+.psp-role-badge.admin{background:var(--gold-bg);color:var(--gold)}
+.psp-admin-tabs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:11px}
+.psp-admin-tab-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 14px;border:1px solid var(--border);border-radius:12px;background:var(--bg-elevated)}
+.psp-admin-tab-row strong{font-size:12px}.psp-admin-tab-row small{display:block;margin-top:3px;color:var(--text-muted);font-size:10px}
+.psp-admin-toggle{min-width:62px;padding:7px 12px;border:0;border-radius:9px;font-weight:900;cursor:pointer}
+.psp-admin-toggle.on{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+.psp-admin-toggle.off{background:rgba(239,68,68,.14);color:#ef4444;border:1px solid rgba(239,68,68,.3)}
+.psp-admin-toggle.locked{background:var(--bg-card);color:var(--text-muted);border:1px solid var(--border);cursor:not-allowed}
+.psp-pay-section{margin-top:14px;border:1px solid var(--border);border-radius:13px;overflow:hidden}
+.psp-pay-section-title{padding:12px 14px;background:var(--bg-elevated);font-size:12px;font-weight:850}
+.psp-pay-row{display:grid;grid-template-columns:1.2fr 1fr .75fr .85fr auto;gap:10px;align-items:center;padding:12px 14px;border-top:1px solid var(--border);font-size:11px}
+.psp-pay-row:first-child{border-top:0}.psp-pay-row small{color:var(--text-muted)}
+.psp-status{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900;text-transform:uppercase}
+.psp-status.pending{background:var(--gold-bg);color:var(--gold)}.psp-status.approved{background:var(--green-bg);color:var(--green)}.psp-status.rejected{background:var(--red-bg);color:var(--red)}
+@media(max-width:1100px){.psp-admin-dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.psp-pay-row{grid-template-columns:1fr 1fr}.psp-system-course-grid{grid-template-columns:1fr}}
+@media(max-width:620px){.psp-admin-dashboard-grid{grid-template-columns:1fr}.psp-pay-row{grid-template-columns:1fr}.psp-system-course-meta{grid-template-columns:1fr}}

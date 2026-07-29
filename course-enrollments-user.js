@@ -16,6 +16,8 @@ function injectStyles(){
   const st=document.createElement('style');
   st.id='mcPremiumStyle';
   st.textContent=`
+  #page-mycourses:not(.active){display:none!important}
+  #page-mycourses.active{display:block!important}
   .mc-market{margin-top:0}
   .mc-market-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:stretch}
   .mc-shop{position:relative;overflow:hidden;min-height:310px;height:100%;border:1px solid var(--border);border-radius:24px;background:linear-gradient(145deg,var(--bg-card),var(--bg-elevated));padding:26px;box-shadow:0 20px 48px rgba(15,23,42,.09);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
@@ -743,11 +745,11 @@ window.openMyCoursesPage=function(item){
   }else{
     document.querySelectorAll('.page').forEach(function(el){
       el.classList.remove('active');
-      el.style.display='';
+      el.style.removeProperty('display');
     });
     if(page){
       page.classList.add('active');
-      page.style.display='block';
+      page.style.removeProperty('display');
     }
 
     document.querySelectorAll('.menu-item,.submenu-item').forEach(function(el){
@@ -762,7 +764,7 @@ window.openMyCoursesPage=function(item){
   if(page && !page.classList.contains('active')){
     document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
     page.classList.add('active');
-    page.style.display='block';
+    page.style.removeProperty('display');
   }
 
   setTimeout(function(){

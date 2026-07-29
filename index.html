@@ -1043,6 +1043,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 #sidebar .menu-item[data-page="vipea"]{order:19}
 </style>
 
+<style id="pspCoursePageIsolationCss">#page-mycourses:not(.active){display:none!important}#page-mycourses.active{display:block!important}.brand-logo-img{width:42px;height:42px;object-fit:contain;display:block;flex:0 0 42px;border-radius:10px}</style>
 </head>
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
@@ -1091,7 +1092,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">📊</span>Dashboard</div>
       <div class="menu-item" data-tabkey="addtrade" onclick="openAddTradeModal()" style="background: linear-gradient(135deg, var(--gold-bg), transparent); border: 1px solid rgba(245,158,11,0.3);"><span class="menu-icon">➕</span><strong>Add Trade</strong></div>
       <div class="menu-item" data-page="performance" onclick="showPage('performance', this)"><span class="menu-icon">🏆</span>Performance</div>
-      <div class="menu-item" data-page="mycourses" onclick="return pspOpenCoursesDirect(this,event)"><span class="menu-icon">🎓</span>My Courses</div>
+      <div class="menu-item" data-page="mycourses" onclick="return openMyCoursesPage(this,event)"><span class="menu-icon">🎓</span>My Courses</div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts &amp; Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
@@ -9336,99 +9337,8 @@ window.addEventListener('message',function(event){
 });
 </script>
 <script src="course-enrollment.js?v=20260729-enrollment-flow-v60"></script>
-<script src="course-enrollments-user.js?v=20260729-enrollment-flow-v60"></script>
-
-<style id="pspFinalLogoCourseFix">
-.brand-logo-img{
-  width:42px;
-  height:42px;
-  object-fit:contain;
-  display:block;
-  flex:0 0 42px;
-  border-radius:10px;
-  background:transparent;
-}
-</style>
-<script id="pspFinalCourseDirectFix">
-(function(){
-  function activateCoursePage(item){
-    var openNow=function(){
-      var page=document.getElementById('page-mycourses');
-      if(!page)return false;
-
-      document.querySelectorAll('.page').forEach(function(el){
-        el.classList.remove('active');
-        el.style.display='';
-      });
-
-      page.classList.add('active');
-      page.style.display='block';
-
-      document.querySelectorAll('.menu-item,.submenu-item').forEach(function(el){
-        el.classList.remove('active');
-      });
-      if(item)item.classList.add('active');
-
-      var title=document.getElementById('pageTitle');
-      if(title)title.textContent='My Courses';
-
-      var sidebar=document.getElementById('sidebar');
-      if(sidebar)sidebar.classList.remove('open');
-      var overlay=document.getElementById('sidebarOverlay');
-      if(overlay)overlay.style.display='none';
-
-      if(typeof window.loadMyCourses==='function'){
-        Promise.resolve(window.loadMyCourses()).catch(function(){});
-      }
-      return true;
-    };
-
-    if(openNow())return false;
-
-    if(typeof window.loadMyCourses==='function'){
-      Promise.resolve(window.loadMyCourses()).finally(function(){
-        requestAnimationFrame(openNow);
-      });
-    }else{
-      setTimeout(openNow,100);
-    }
-    return false;
-  }
-
-  window.pspOpenCoursesDirect=function(item,event){
-    if(event){
-      event.preventDefault();
-      event.stopPropagation();
-      if(typeof event.stopImmediatePropagation==='function')event.stopImmediatePropagation();
-    }
-    return activateCoursePage(item);
-  };
-
-  document.addEventListener('click',function(event){
-    var item=event.target.closest&&event.target.closest('.menu-item[data-page="mycourses"]');
-    if(!item)return;
-    event.preventDefault();
-    event.stopPropagation();
-    if(typeof event.stopImmediatePropagation==='function')event.stopImmediatePropagation();
-    activateCoursePage(item);
-  },true);
-
-  function bind(){
-    var item=document.querySelector('.menu-item[data-page="mycourses"]');
-    if(item)item.setAttribute('onclick','return pspOpenCoursesDirect(this,event)');
-  }
-
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',bind,{once:true});
-  }else{
-    bind();
-  }
-
-  setTimeout(bind,500);
-  setTimeout(bind,1500);
-})();
-</script>
-
+<script src="course-enrollments-user.js?v=20260729-comprehensive-v70"></script>
+<script src="user-course-isolation.js?v=20260729-comprehensive-v1"></script>
 
 <script>
 (function pipSignalNotifications(){

@@ -398,6 +398,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @keyframes pipBootPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 @keyframes pipBootBar{0%{margin-left:-40%}100%{margin-left:150%}}
 </style>
+<link rel="stylesheet" href="admin-final-overrides.css?v=20260729-final-v1">
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
@@ -682,16 +683,14 @@ select option{background:#0f1729;color:#e8eaf0}
           </div>
           
           <div class="table-controls">
-            <div class="search-wrap"><input type="text" class="search-input" placeholder="Search by name, email or WhatsApp..."></div>
-            <select style="padding: 9px 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-size: 12px;">
-              <option>All Countries</option><option>🇵🇰 Pakistan</option><option>🇮🇳 India</option><option>🇦🇪 UAE</option><option>🇸🇦 Saudi Arabia</option><option>🇲🇾 Malaysia</option>
-            </select>
+            <div class="search-wrap"><input id="adminUserSearch" type="text" class="search-input" placeholder="Search by name, email or WhatsApp..." oninput="filterAdminUsers()"></div>
+            <select id="adminUserRoleFilter" onchange="filterAdminUsers()" style="padding:9px 12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:12px"><option value="all">All Roles</option><option value="user">User</option><option value="mentor">Mentor</option><option value="admin">Admin</option></select>
           </div>
           
           <div style="overflow-x: auto;">
             <table class="data-table">
               <thead>
-                <tr><th>Name</th><th>Email</th><th>WhatsApp</th><th>Country</th><th>Joined Date</th></tr>
+                <tr><th>Name</th><th>Email</th><th>WhatsApp</th><th>Role</th><th>Joined Date</th></tr>
               </thead>
               <tbody>
                 <tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">Loading users...</td></tr>
@@ -1783,7 +1782,7 @@ async function loadAdminPaymentReqs(){
 async function loadAprList(){
   var box=document.getElementById('aprList');if(!box)return;
   var f=document.getElementById('aprFilter')?document.getElementById('aprFilter').value:'pending';
-  var q=sb.from('payment_requests').select('*, profiles:user_id(full_name,email), mentor:mentor_id(full_name)').or('request_type.is.null,request_type.eq.payment').order('created_at',{ascending:false});
+  var q=sb.from('payment_requests').select('*, profiles:user_id(full_name,email), mentor:mentor_id(full_name)').order('created_at',{ascending:false});
   if(f!=='all')q=q.eq('status',f);
   var r=await q;
   if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}
@@ -1986,19 +1985,12 @@ async function loadAdSigList(){
   }).join('');
 }
 async function updateSigStatus(id,kind){
-  var pi=document.getElementById('pips-'+id);
-  var pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;
-  var obj;
-  if(kind==='be_move'){
-    obj={be_moved:true};
-  }else{
-    var map={tp1:1,tp2:2,tp3:3};
-    obj={status:kind,closed_at:new Date().toISOString()};
-    if(kind in map)obj.tp_hit=map[kind];
-    if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
-  }
-  var r=await sb.from('signals').update(obj).eq('id',id);
-  if(r.error){alert('Error: '+r.error.message);return;}
+  var pi=document.getElementById('pips-'+id);var pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;var obj={};var terminal=['tp3','be','sl','closed'].indexOf(kind)>-1;
+  if(kind==='be_move'){obj={be_moved:true};}
+  else if(kind==='tp1'||kind==='tp2'){obj={status:kind,tp_hit:kind==='tp1'?1:2};if(pips!==null&&!isNaN(pips))obj.result_pips=pips;}
+  else{obj={status:kind,closed_at:new Date().toISOString()};if(kind==='tp3')obj.tp_hit=3;if(pips!==null&&!isNaN(pips))obj.result_pips=pips;}
+  var r=await sb.from('signals').update(obj).eq('id',id);if(r.error){alert('Error: '+r.error.message);return;}
+  if(terminal){try{await pspCreateNotificationAndPush('🔒 Signal Closed',kind==='tp3'?'TP3 Hit — signal closed.':kind==='be'?'Breakeven Hit — signal closed.':kind==='sl'?'Stop Loss Hit — signal closed.':'Signal closed.','signal','/?tab=signals','all');}catch(e){}}
   loadAdSigList();
 }
 async function delAdSig(id){if(!confirm('Delete this signal?'))return;await sb.from('signals').delete().eq('id',id);loadAdSigList();}
@@ -3476,7 +3468,7 @@ async function initCharts() {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, grid: { color: '#1f2937' }, ticks: { color: '#6b7280', stepSize: 1 } },
+          y: { beginAtZero: true, grid: { color: 'rgba(100,116,139,0.16)' }, ticks: { color: '#6b7280', stepSize: 1 } },
           x: { grid: { display: false }, ticks: { color: '#6b7280' } }
         }
       }
@@ -3511,7 +3503,7 @@ async function initCharts() {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, grid: { color: '#1f2937' }, ticks: { color: '#6b7280', stepSize: 1 } },
+          y: { beginAtZero: true, grid: { color: 'rgba(100,116,139,0.16)' }, ticks: { color: '#6b7280', stepSize: 1 } },
           x: { grid: { display: false }, ticks: { color: '#6b7280' } }
         }
       }
@@ -3742,7 +3734,8 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 }
 </script>
 
-<script src="course-enrollments-admin.js?v=20260728-audit-v11"></script>
+<script src="course-enrollments-admin.js?v=20260729-counts-v20"></script>
+<script src="admin-final-overrides.js?v=20260729-comprehensive-v1"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
 </body>
 </html>
