@@ -86,8 +86,8 @@ window.loadAdminCourses=async function(){
   setText('coursesAllCount','2');setText('coursesActiveCount',String(active));setText('coursesDraftsCount',String(2-active));setText('coursesEnrollmentsCount',rows.length.toLocaleString());
   function stateBadge(course,type){return '<span class="badge '+(course.is_published===false?'draft':'published')+'">'+(course.is_published===false?'Draft':'Active')+' · '+type+'</span>'}
   var grid=document.querySelector('#page-courses .courses-grid');if(!grid)return;grid.className='psp-system-course-grid';grid.innerHTML=''+
-   '<article class="psp-system-course"><div class="psp-system-course-head"><div class="psp-system-course-icon">'+esc(basicView.thumbnail_emoji||'📘')+'</div>'+stateBadge(basicView,'Free')+'</div><h3>'+esc(basicView.title)+'</h3><p>'+esc(basicView.description)+'</p><div class="psp-system-course-meta"><div>Course Type<strong>Free</strong></div><div>Modules<strong>9</strong></div><div>Enrollments<strong>'+free.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'basic\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'free\')">View Enrollments</button></div></article>'+
-   '<article class="psp-system-course paid"><div class="psp-system-course-head"><div class="psp-system-course-icon">'+esc(advancedView.thumbnail_emoji||'🚀')+'</div>'+stateBadge(advancedView,'Paid')+'</div><h3>'+esc(advancedView.title)+'</h3><p>'+esc(advancedView.description)+'</p><div class="psp-system-course-meta"><div>Course Fee<strong>$200</strong></div><div>Modules<strong>9</strong></div><div>Approved Users<strong>'+approved.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'advanced\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'paid-approved\')">View Enrollments</button></div></article>';
+   '<article class="psp-system-course"><div class="psp-system-course-head"><div class="psp-system-course-icon">'+esc(basicView.thumbnail_emoji||'📘')+'</div>'+stateBadge(basicView,'Free')+'</div><h3>'+esc(basicView.title)+'</h3><p>'+esc(basicView.description)+'</p><div class="psp-system-course-meta"><div>Course Type<strong>Free</strong></div><div>Modules<strong>9</strong></div><div>Enrollments<strong>'+free.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'basic\')">✏️ Edit Course</button><button class="btn btn-secondary" onclick="openCourseClassesManager(\'basic\')">🎥 Manage Classes</button><button class="btn" onclick="openSystemCourseEnrollments(\'free\')">View Enrollments</button></div></article>'+
+   '<article class="psp-system-course paid"><div class="psp-system-course-head"><div class="psp-system-course-icon">'+esc(advancedView.thumbnail_emoji||'🚀')+'</div>'+stateBadge(advancedView,'Paid')+'</div><h3>'+esc(advancedView.title)+'</h3><p>'+esc(advancedView.description)+'</p><div class="psp-system-course-meta"><div>Course Fee<strong>$200</strong></div><div>Modules<strong>9</strong></div><div>Approved Users<strong>'+approved.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'advanced\')">✏️ Edit Course</button><button class="btn btn-secondary" onclick="openCourseClassesManager(\'advanced\')">🎥 Manage Classes</button><button class="btn" onclick="openSystemCourseEnrollments(\'paid-approved\')">View Enrollments</button></div></article>';
   var createBtn=document.querySelector('#page-courses .card-header .btn');if(createBtn)createBtn.style.display='none';
 };
 
@@ -124,4 +124,71 @@ function wrapShowPageFinal(){if(window.__pspAdminFinalWrapped||typeof showPage!=
 
 function init(){ensureAdminTabsPage();buildDashboardCards();wrapShowPageFinal();setTimeout(window.loadAdminTabsControl,300);setTimeout(window.loadDashboardStats,450);startAdminTabsRealtime();var role=document.getElementById('adminUserRoleFilter');if(role)role.onchange=renderAdminUsersFinal;var search=document.getElementById('adminUserSearch');if(search)search.oninput=renderAdminUsersFinal}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+
+/* V11: Admin-managed Class 1–9 Zoom links */
+(function(){
+'use strict';
+let activeClassCourse='basic';
+function db(){try{return typeof sb!=='undefined'?sb:null}catch(_){return null}}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]))}
+function ensureModal(){
+  if(document.getElementById('pspClassManagerOverlay'))return;
+  const overlay=document.createElement('div');
+  overlay.id='pspClassManagerOverlay';
+  overlay.className='psp-class-manager-overlay';
+  overlay.setAttribute('aria-hidden','true');
+  overlay.innerHTML=`<div class="psp-class-manager-modal" role="dialog" aria-modal="true" aria-labelledby="pspClassManagerTitle">
+    <div class="psp-class-manager-head"><div><span>COURSE LIVE CLASSES</span><h2 id="pspClassManagerTitle">Manage Classes</h2><p>Add or update the Zoom link for each class. Changes appear in the user panel in real time.</p></div><button type="button" onclick="closeCourseClassesManager()">×</button></div>
+    <div id="pspClassManagerMessage" class="psp-class-manager-message"></div>
+    <div id="pspClassManagerRows" class="psp-class-manager-rows"></div>
+    <div class="psp-class-manager-actions"><button class="btn btn-secondary" type="button" onclick="closeCourseClassesManager()">Cancel</button><button class="btn" id="pspClassManagerSave" type="button" onclick="saveCourseClassesManager()">Save All 9 Classes</button></div>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',event=>{if(event.target===overlay)window.closeCourseClassesManager()});
+}
+function defaultRows(key){return Array.from({length:9},(_,i)=>({course_key:key,class_number:i+1,title:`Class ${i+1}`,zoom_url:'',is_active:true}))}
+function renderRows(rows){
+  const box=document.getElementById('pspClassManagerRows');if(!box)return;
+  const map=new Map((rows||[]).map(r=>[Number(r.class_number),r]));
+  box.innerHTML=defaultRows(activeClassCourse).map(base=>{
+    const row={...base,...(map.get(base.class_number)||{})};
+    return `<div class="psp-class-manager-row" data-class="${base.class_number}"><div class="psp-class-number">${String(base.class_number).padStart(2,'0')}</div><div class="psp-class-field"><label>Class Title</label><input class="psp-class-title" type="text" value="${esc(row.title||base.title)}" maxlength="80"></div><div class="psp-class-field link"><label>Zoom Link</label><input class="psp-class-url" type="url" value="${esc(row.zoom_url||'')}" placeholder="https://zoom.us/j/..."></div><label class="psp-class-active"><input class="psp-class-enabled" type="checkbox" ${row.is_active===false?'':'checked'}><span>Active</span></label></div>`;
+  }).join('');
+}
+window.openCourseClassesManager=async function(key){
+  activeClassCourse=key==='advanced'?'advanced':'basic';
+  ensureModal();
+  document.getElementById('pspClassManagerTitle').textContent=(activeClassCourse==='advanced'?'Advanced Forex Course':'Basic Forex Course')+' — Classes';
+  document.getElementById('pspClassManagerMessage').textContent='Loading class links…';
+  renderRows([]);
+  const overlay=document.getElementById('pspClassManagerOverlay');overlay.classList.add('open');overlay.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
+  const client=db();if(!client){document.getElementById('pspClassManagerMessage').textContent='Database connection is unavailable.';return}
+  try{
+    const r=await client.from('course_classes').select('*').eq('course_key',activeClassCourse).order('class_number',{ascending:true});
+    if(r.error)throw r.error;
+    renderRows(r.data||[]);
+    document.getElementById('pspClassManagerMessage').textContent='';
+  }catch(error){
+    document.getElementById('pspClassManagerMessage').innerHTML='Run <strong>56_COURSE_CLASSES_ZOOM_LINKS.sql</strong> once, then reopen this manager. '+esc(error.message||'');
+  }
+};
+window.closeCourseClassesManager=function(){const overlay=document.getElementById('pspClassManagerOverlay');if(overlay){overlay.classList.remove('open');overlay.setAttribute('aria-hidden','true')}document.body.style.overflow=''};
+window.saveCourseClassesManager=async function(){
+  const client=db();if(!client)return;
+  const rows=[...document.querySelectorAll('#pspClassManagerRows .psp-class-manager-row')];
+  const payload=[];
+  for(const el of rows){
+    const n=Number(el.dataset.class);const title=el.querySelector('.psp-class-title').value.trim()||`Class ${n}`;const zoom=el.querySelector('.psp-class-url').value.trim();
+    if(zoom&&!/^https?:\/\//i.test(zoom)){document.getElementById('pspClassManagerMessage').textContent=`Class ${n}: Zoom link must start with http:// or https://`;return}
+    payload.push({course_key:activeClassCourse,class_number:n,title,zoom_url:zoom||null,is_active:el.querySelector('.psp-class-enabled').checked,updated_at:new Date().toISOString()});
+  }
+  const btn=document.getElementById('pspClassManagerSave');btn.disabled=true;btn.textContent='Saving…';document.getElementById('pspClassManagerMessage').textContent='Saving all class links…';
+  try{
+    const r=await client.from('course_classes').upsert(payload,{onConflict:'course_key,class_number'}).select();
+    if(r.error)throw r.error;
+    document.getElementById('pspClassManagerMessage').textContent='✓ All 9 class links saved. User panels update in real time.';
+  }catch(error){document.getElementById('pspClassManagerMessage').textContent='Save error: '+(error.message||error)}
+  finally{btn.disabled=false;btn.textContent='Save All 9 Classes'}
+};
 })();

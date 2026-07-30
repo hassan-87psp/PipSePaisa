@@ -10,6 +10,7 @@
 
   let client=null;
   let selectedCourse=null;
+  let paidProfileConfirmed=false;
   let activeUser=null;
   let activeProfile=null;
   let activeEnrollmentFallback=null;
@@ -44,7 +45,7 @@
           <button class="ce-close" type="button" aria-label="Close enrollment form" onclick="closeCourseEnrollment()">×</button>
         </div>
         <div class="ce-body">
-          <section class="ce-step is-active" id="ceStepChoice">
+          <section class="ce-step" id="ceStepChoice">
             <div class="ce-course-summary"><div><strong id="ceChoiceCourseName">Course</strong><div style="font-size:12px;color:#64748b;margin-top:3px">Secure enrollment through PipSePaisa</div></div><div class="ce-price" id="ceChoicePrice">Free</div></div>
             <h3 style="margin:0 0 7px">Are you already a PipSePaisa user?</h3>
             <p style="margin:0 0 17px;color:#64748b;font-size:13px;line-height:1.55">Choose the option that matches your account status.</p>
@@ -74,8 +75,10 @@
               <div class="ce-field full"><label>Email Address</label><input id="ceNewEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
               <div class="ce-field"><label>Password</label><input id="ceNewPassword" type="password" autocomplete="new-password" placeholder="Minimum 6 characters"></div>
               <div class="ce-field"><label>Confirm Password</label><input id="ceNewPassword2" type="password" autocomplete="new-password" placeholder="Repeat password"></div>
-              <div class="ce-field"><label>Trading Experience</label><select id="ceNewExperience"><option value="Beginner">Beginner</option><option value="Intermediate">Intermediate</option><option value="Advanced">Advanced</option></select></div>
-              <div class="ce-field"><label>Learning Goal</label><input id="ceNewGoal" type="text" placeholder="What do you want to achieve?"></div>
+              <div class="ce-field full ce-question-field"><label>What is your current trading level?</label><select id="ceNewExperience" onchange="courseEnrollmentToggleOther('ceNewExperience','ceNewExperienceOtherWrap')"><option value="">Select one option</option><option value="Beginner — Never traded before">Beginner — Never traded before</option><option value="Basic Knowledge — Learning fundamentals">Basic Knowledge — Learning fundamentals</option><option value="Demo Trader — Practising on demo">Demo Trader — Practising on demo</option><option value="Live Trader — Trading with a real account">Live Trader — Trading with a real account</option><option value="Experienced Trader — Improving consistency">Experienced Trader — Improving consistency</option><option value="Other">Other</option></select></div>
+              <div class="ce-field full ce-other-field" id="ceNewExperienceOtherWrap" hidden><label>Please specify your trading level</label><input id="ceNewExperienceOther" type="text" placeholder="Write your answer"></div>
+              <div class="ce-field full ce-question-field"><label>What is your main goal from this course?</label><select id="ceNewGoal" onchange="courseEnrollmentToggleOther('ceNewGoal','ceNewGoalOtherWrap')"><option value="">Select one option</option><option value="Learn Forex from zero">Learn Forex from zero</option><option value="Improve entries and exits">Improve entries and exits</option><option value="Master risk management">Master risk management</option><option value="Build a complete trading strategy">Build a complete trading strategy</option><option value="Become a consistent trader">Become a consistent trader</option><option value="Other">Other</option></select></div>
+              <div class="ce-field full ce-other-field" id="ceNewGoalOtherWrap" hidden><label>Please specify your learning goal</label><input id="ceNewGoalOther" type="text" placeholder="Write your answer"></div>
             </div>
             <div class="ce-payment" id="ceNewPayment"></div>
             <div class="ce-message" id="ceNewMessage"></div>
@@ -87,12 +90,14 @@
             <div class="ce-signed-in" id="ceSignedIn">Enter your existing PipSePaisa account details</div>
             <h3 style="margin:0 0 13px">Account & Enrollment Details</h3>
             <div class="ce-grid">
-              <div class="ce-field"><label>Full Name</label><input id="ceDetailsName" type="text" autocomplete="name" placeholder="Your full name"></div>
-              <div class="ce-field"><label>WhatsApp Number</label><input id="ceDetailsPhone" type="tel" autocomplete="tel" placeholder="+92..."></div>
-              <div class="ce-field full"><label>Email Address</label><input id="ceDetailsEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
+              <div class="ce-field"><label>Full Name</label><input id="ceDetailsName" type="text" autocomplete="name" placeholder="Your full name" readonly></div>
+              <div class="ce-field"><label>WhatsApp Number</label><input id="ceDetailsPhone" type="tel" autocomplete="tel" placeholder="+92..." readonly></div>
+              <div class="ce-field full"><label>Email Address</label><input id="ceDetailsEmail" type="email" autocomplete="email" placeholder="you@example.com" readonly></div>
               <div class="ce-field full" id="ceDetailsPasswordWrap"><label>Password</label><input id="ceDetailsPassword" type="password" autocomplete="current-password" placeholder="Your PipSePaisa password"><small style="color:#64748b">Required only when you are not already signed in.</small></div>
-              <div class="ce-field"><label>Trading Experience</label><select id="ceDetailsExperience"><option value="Beginner">Beginner</option><option value="Intermediate">Intermediate</option><option value="Advanced">Advanced</option></select></div>
-              <div class="ce-field"><label>Learning Goal</label><input id="ceDetailsGoal" type="text" placeholder="What do you want to achieve?"></div>
+              <div class="ce-field full ce-question-field" id="ceDetailsExperienceWrap"><label>What is your current trading level?</label><select id="ceDetailsExperience" onchange="courseEnrollmentToggleOther('ceDetailsExperience','ceDetailsExperienceOtherWrap')"><option value="">Select one option</option><option value="Beginner — Never traded before">Beginner — Never traded before</option><option value="Basic Knowledge — Learning fundamentals">Basic Knowledge — Learning fundamentals</option><option value="Demo Trader — Practising on demo">Demo Trader — Practising on demo</option><option value="Live Trader — Trading with a real account">Live Trader — Trading with a real account</option><option value="Experienced Trader — Improving consistency">Experienced Trader — Improving consistency</option><option value="Other">Other</option></select></div>
+              <div class="ce-field full ce-other-field" id="ceDetailsExperienceOtherWrap" hidden><label>Please specify your trading level</label><input id="ceDetailsExperienceOther" type="text" placeholder="Write your answer"></div>
+              <div class="ce-field full ce-question-field" id="ceDetailsGoalWrap"><label>What is your main goal from this course?</label><select id="ceDetailsGoal" onchange="courseEnrollmentToggleOther('ceDetailsGoal','ceDetailsGoalOtherWrap')"><option value="">Select one option</option><option value="Learn Forex from zero">Learn Forex from zero</option><option value="Improve entries and exits">Improve entries and exits</option><option value="Master risk management">Master risk management</option><option value="Build a complete trading strategy">Build a complete trading strategy</option><option value="Become a consistent trader">Become a consistent trader</option><option value="Other">Other</option></select></div>
+              <div class="ce-field full ce-other-field" id="ceDetailsGoalOtherWrap" hidden><label>Please specify your learning goal</label><input id="ceDetailsGoalOther" type="text" placeholder="Write your answer"></div>
             </div>
             <div class="ce-payment" id="ceExistingPayment"></div>
             <div class="ce-message" id="ceDetailsMessage"></div>
@@ -114,6 +119,35 @@
     const price=selectedCourse?priceText(selectedCourse):'';
     ['ceChoiceCourseName','ceLoginCourseName','ceNewCourseName','ceDetailsCourseName'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=text;});
     ['ceChoicePrice','ceLoginPrice','ceNewPrice','ceDetailsPrice'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=price;});
+  }
+
+  window.courseEnrollmentToggleOther=function(selectId,wrapId){
+    const select=document.getElementById(selectId);
+    const wrap=document.getElementById(wrapId);
+    if(!select||!wrap)return;
+    const show=select.value==='Other';
+    wrap.hidden=!show;
+    wrap.classList.toggle('is-visible',show);
+    const input=wrap.querySelector('input,textarea');
+    if(!show&&input)input.value='';
+    if(show&&input)setTimeout(()=>input.focus(),40);
+  };
+
+  function answerValue(selectId,otherId){
+    const select=document.getElementById(selectId);
+    if(!select)return '';
+    if(select.value!=='Other')return select.value.trim();
+    return (document.getElementById(otherId)?.value||'').trim();
+  }
+
+  function resetQuestionFields(prefix){
+    const experience=document.getElementById(prefix+'Experience');
+    const goal=document.getElementById(prefix+'Goal');
+    if(experience)experience.value='';
+    if(goal)goal.value='';
+    [prefix+'ExperienceOtherWrap',prefix+'GoalOtherWrap'].forEach(id=>{
+      const wrap=document.getElementById(id);if(wrap){wrap.hidden=true;wrap.classList.remove('is-visible');const input=wrap.querySelector('input');if(input)input.value='';}
+    });
   }
 
   function methodLabel(m){
@@ -279,13 +313,20 @@
         activeEnrollmentFallback?.whatsapp
       );
 
-      document.getElementById('ceDetailsName').value=fullName;
-      document.getElementById('ceDetailsPhone').value=phone;
-      document.getElementById('ceDetailsExperience').value=firstValue(activeEnrollmentFallback?.experience,'Beginner');
-      document.getElementById('ceDetailsGoal').value='';
-      if(email){email.value=activeUser.email||activeEnrollmentFallback?.email||'';email.readOnly=true;}
+      const nameField=document.getElementById('ceDetailsName');
+      const phoneField=document.getElementById('ceDetailsPhone');
+      if(nameField){nameField.value=fullName;nameField.readOnly=true;nameField.classList.add('ce-readonly');}
+      if(phoneField){phoneField.value=phone;phoneField.readOnly=true;phoneField.classList.add('ce-readonly');}
+      resetQuestionFields('ceDetails');
+      document.getElementById('ceDetailsExperienceWrap').style.display='grid';
+      document.getElementById('ceDetailsGoalWrap').style.display='grid';
+      if(email){email.value=activeUser.email||activeEnrollmentFallback?.email||'';email.readOnly=true;email.classList.add('ce-readonly');}
       if(passwordWrap)passwordWrap.style.display='none';
-      document.getElementById('ceSignedIn').textContent=`Signed in as ${activeUser.email||'PipSePaisa user'}`;
+      const payment=document.getElementById('ceExistingPayment');
+      const submit=document.getElementById('ceDetailsSubmitBtn');
+      if(selectedCourse?.type==='paid'&&!paidProfileConfirmed){if(payment)payment.style.display='none';if(submit)submit.textContent='Confirm & Continue to Payment';}
+      else {if(payment)payment.style.display='';if(submit)submit.textContent=selectedCourse?.type==='free'?'Confirm Free Enrollment':'Submit Payment for Approval';}
+      document.getElementById('ceSignedIn').textContent='Profile details fetched from your PipSePaisa account';
     }else{
       if(email){email.value='';email.readOnly=false;}
       if(passwordWrap)passwordWrap.style.display='';
@@ -327,7 +368,15 @@
 
   async function saveEnrollment(values,receiptFile){
     const old=await existingEnrollment();
-    if(old?.enrollment_status==='enrolled')return {already:true,row:old};
+    if(old?.enrollment_status==='enrolled'){
+      if(selectedCourse.type==='free'){
+        const updates={full_name:values.name,email:activeUser.email,whatsapp:values.phone,experience:values.experience,learning_goal:values.goal||null};
+        const {data,error}=await getClient().from('course_enrollments').update(updates).eq('id',old.id).select().single();
+        if(error)throw error;
+        return {already:true,updated:true,row:data};
+      }
+      return {already:true,row:old};
+    }
     if(old?.course_type==='paid' && old?.payment_status==='pending')return {pending:true,row:old};
     const receiptUrl=selectedCourse.type==='paid'?await uploadReceipt(receiptFile,activeUser.id):null;
     const payload=enrollmentPayload(values,receiptUrl);
@@ -340,7 +389,7 @@
     let title='Congratulations!';
     let text='';
     if(result.already){
-      text=`You are already enrolled in the ${selectedCourse.name}. Your course access is available in My Courses.`;
+      text=result.updated?`Your enrollment details have been confirmed. The ${selectedCourse.name} remains available in My Courses.`:`You are already enrolled in the ${selectedCourse.name}. Your course access is available in My Courses.`;
     }else if(result.pending){
       title='Enrollment Request Already Submitted';
       text='Your payment verification is pending. The Advanced Forex Course will unlock after admin approval.';
@@ -373,31 +422,33 @@
     injectModal();
     selectedCourse=COURSE_INFO[courseKey];
     if(!selectedCourse)return;
-    accountWasCreated=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
-    setCourseText();await loadPaymentMethods();renderPaymentSections();
+    const overlay=document.getElementById('courseEnrollmentOverlay');
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden','true');
+    showStep('');
+    accountWasCreated=false;paidProfileConfirmed=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
+    setCourseText();resetQuestionFields('ceNew');resetQuestionFields('ceDetails');
     ['ceLoginMessage','ceNewMessage','ceDetailsMessage'].forEach(id=>setMessage(id,'',''));
-    document.getElementById('courseEnrollmentOverlay').classList.add('is-open');
-    document.getElementById('courseEnrollmentOverlay').setAttribute('aria-hidden','false');
-    document.body.style.overflow='hidden';
-    await currentSession();
+    await Promise.all([loadPaymentMethods(),currentSession()]);
+    renderPaymentSections();
     if(activeUser){
-      await loadProfile(activeUser);
       const oldEnrollment=await existingEnrollment();
       const alreadyApproved=oldEnrollment && (oldEnrollment.enrollment_status==='enrolled' || oldEnrollment.payment_status==='approved' || oldEnrollment.payment_status==='paid');
       const alreadyPending=oldEnrollment && selectedCourse.type==='paid' && (oldEnrollment.payment_status==='pending' || oldEnrollment.enrollment_status==='pending');
-      if(alreadyApproved){
+      if(alreadyApproved && selectedCourse.type==='paid'){
         showSuccess({already:true,row:oldEnrollment});
-        return;
-      }
-      if(alreadyPending){
+      }else if(alreadyPending){
         showSuccess({pending:true,row:oldEnrollment});
-        return;
+      }else{
+        fillExistingDetails();
+        showStep('ceStepDetails');
       }
-      fillExistingDetails();
-      showStep('ceStepDetails');
     }else{
       showStep('ceStepChoice');
     }
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
   };
 
   window.closeCourseEnrollment=function(){
@@ -450,8 +501,8 @@
       email:document.getElementById('ceNewEmail').value.trim(),
       password:document.getElementById('ceNewPassword').value,
       password2:document.getElementById('ceNewPassword2').value,
-      experience:document.getElementById('ceNewExperience').value,
-      goal:document.getElementById('ceNewGoal').value.trim(),
+      experience:answerValue('ceNewExperience','ceNewExperienceOther'),
+      goal:answerValue('ceNewGoal','ceNewGoalOther'),
       paymentMethod:(()=>{const el=document.getElementById('ceNewPaymentMethod');const m=paymentMethods[Number(el?.value||0)];return m?methodLabel(m):null;})(),
       transactionId:document.getElementById('ceNewTransactionId')?.value.trim()||null
     };
@@ -460,6 +511,7 @@
     if(values.phone.length<7){setMessage('ceNewMessage','error','Please enter a valid WhatsApp number.');return;}
     if(values.password.length<6){setMessage('ceNewMessage','error','Password must be at least 6 characters.');return;}
     if(values.password!==values.password2){setMessage('ceNewMessage','error','Passwords do not match.');return;}
+    if(!values.experience||!values.goal){setMessage('ceNewMessage','error','Please answer both enrollment questions.');return;}
     if(selectedCourse.type==='paid'&&(!paymentMethods.length||!values.transactionId||!receipt)){setMessage('ceNewMessage','error','Select an available payment method, enter the transaction ID and upload the payment receipt.');return;}
     setBusy('ceNewSubmitBtn',true,'Creating Account...','Create Account & Enroll');
     setMessage('ceNewMessage','info','Creating your PipSePaisa account...');
@@ -491,16 +543,26 @@
       phone:document.getElementById('ceDetailsPhone').value.trim(),
       email:document.getElementById('ceDetailsEmail')?.value.trim()||'',
       password:document.getElementById('ceDetailsPassword')?.value||'',
-      experience:document.getElementById('ceDetailsExperience').value,
-      goal:document.getElementById('ceDetailsGoal').value.trim(),
+      experience:answerValue('ceDetailsExperience','ceDetailsExperienceOther'),
+      goal:answerValue('ceDetailsGoal','ceDetailsGoalOther'),
       paymentMethod:(()=>{const el=document.getElementById('ceExistingPaymentMethod');const m=paymentMethods[Number(el?.value||0)];return m?methodLabel(m):null;})(),
       transactionId:document.getElementById('ceExistingTransactionId')?.value.trim()||null
     };
     const receipt=document.getElementById('ceExistingReceipt')?.files?.[0]||null;
-    if(!values.name||!values.phone||!values.email){setMessage('ceDetailsMessage','error','Please enter your full name, email and WhatsApp number.');return;}
+    if(!values.name||!values.phone||!values.email){setMessage('ceDetailsMessage','error','Your profile must include name, email and WhatsApp number before enrollment.');return;}
+    if(!values.experience||!values.goal){setMessage('ceDetailsMessage','error','Please answer both enrollment questions.');return;}
     if(!activeUser&&!values.password){setMessage('ceDetailsMessage','error','Please enter your PipSePaisa password.');return;}
+    if(activeUser&&selectedCourse.type==='paid'&&!paidProfileConfirmed){
+      paidProfileConfirmed=true;
+      const payment=document.getElementById('ceExistingPayment');
+      if(payment){payment.style.display='';payment.classList.add('ce-payment-reveal');}
+      const submit=document.getElementById('ceDetailsSubmitBtn');if(submit)submit.textContent='Submit Payment for Approval';
+      setMessage('ceDetailsMessage','info','Profile confirmed. Select a payment method, enter the transaction ID and upload your payment proof.');
+      payment?.scrollIntoView({behavior:'smooth',block:'nearest'});
+      return;
+    }
     if(selectedCourse.type==='paid'&&(!paymentMethods.length||!values.transactionId||!receipt)){setMessage('ceDetailsMessage','error','Select an available payment method, enter the transaction ID and upload the payment receipt.');return;}
-    setBusy('ceDetailsSubmitBtn',true,'Submitting...','Complete Enrollment');
+    setBusy('ceDetailsSubmitBtn',true,'Submitting...',selectedCourse.type==='free'?'Confirm Free Enrollment':'Submit Payment for Approval');
     setMessage('ceDetailsMessage','info','Submitting your enrollment...');
     try{
       const sb=getClient();if(!sb)throw new Error('Connection problem. Please reload and try again.');
@@ -517,7 +579,7 @@
         ?'Course enrollment is not installed yet. Run Query 44 in Supabase, then try again.'
         :(error?.message||'Enrollment could not be completed.');
       setMessage('ceDetailsMessage','error',msg);
-    }finally{setBusy('ceDetailsSubmitBtn',false,'Submitting...','Complete Enrollment');}
+    }finally{setBusy('ceDetailsSubmitBtn',false,'Submitting...',selectedCourse.type==='free'?'Confirm Free Enrollment':'Submit Payment for Approval');}
   };
 
   window.openMyCoursesFromEnrollment=function(){

@@ -76,3 +76,24 @@
 .psp-course-admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
 .psp-course-admin-actions .btn{justify-content:center;width:100%;min-width:0}
 @media(max-width:620px){.psp-course-admin-actions{grid-template-columns:1fr}}
+
+/* V11 Course class / Zoom link manager */
+.psp-class-manager-overlay{position:fixed;inset:0;z-index:20000;display:none;align-items:flex-start;justify-content:center;padding:24px;background:rgba(3,8,18,.76);backdrop-filter:blur(9px);overflow:auto}
+.psp-class-manager-overlay.open{display:flex}
+.psp-class-manager-modal{width:min(1080px,96vw);margin:auto;background:var(--bg-card);border:1px solid rgba(245,158,11,.48);border-radius:24px;box-shadow:0 34px 90px rgba(2,8,23,.42);overflow:hidden;animation:pspAdminClassIn .3s cubic-bezier(.2,.8,.2,1) both}
+.psp-class-manager-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:20px 22px;background:linear-gradient(135deg,#0c1728,#14243a);color:#fff;border-bottom:1px solid rgba(245,158,11,.42)}
+.psp-class-manager-head span{display:block;color:#ffb326;font-size:9px;font-weight:950;letter-spacing:.13em}
+.psp-class-manager-head h2{margin:5px 0 4px;color:#fff;font-size:24px}
+.psp-class-manager-head p{margin:0;color:#cbd5e1;font-size:11px}
+.psp-class-manager-head>button{width:38px;height:38px;border:1px solid rgba(255,255,255,.18);border-radius:50%;background:rgba(255,255,255,.06);color:#fff;font-size:22px;cursor:pointer}
+.psp-class-manager-message{min-height:20px;margin:14px 18px 0;color:var(--text-muted);font-size:11px}
+.psp-class-manager-rows{display:flex;flex-direction:column;gap:9px;padding:12px 18px 18px}
+.psp-class-manager-row{display:grid;grid-template-columns:48px minmax(180px,.7fr) minmax(320px,1.3fr) 78px;gap:10px;align-items:end;padding:11px;border:1px solid var(--border);border-radius:15px;background:var(--bg-elevated)}
+.psp-class-number{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:#111d31;color:#ffc04f;font-size:13px;font-weight:950}
+.psp-class-field label{display:block;margin-bottom:5px;color:var(--text-muted);font-size:9px;font-weight:850}
+.psp-class-field input{width:100%;height:40px;padding:0 11px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);color:var(--text-primary);font-family:inherit;font-size:11px;box-sizing:border-box}
+.psp-class-field input:focus{outline:none;border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.12)}
+.psp-class-active{height:40px;display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);font-size:10px;font-weight:850;color:var(--text-secondary)}
+.psp-class-manager-actions{display:flex;justify-content:flex-end;gap:10px;padding:15px 18px;border-top:1px solid var(--border);background:var(--bg-elevated)}
+@keyframes pspAdminClassIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@media(max-width:760px){.psp-class-manager-overlay{padding:10px}.psp-class-manager-row{grid-template-columns:42px 1fr}.psp-class-field.link{grid-column:1/-1}.psp-class-active{grid-column:2}.psp-class-manager-head{padding:17px}.psp-class-manager-actions{position:sticky;bottom:0}}

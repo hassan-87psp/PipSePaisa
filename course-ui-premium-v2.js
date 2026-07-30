@@ -47,12 +47,12 @@ function addStyles(){
   .mc-public-ribbon{letter-spacing:.04em;border:1px solid rgba(255,255,255,.12)}
   .mc-public-course .mc-public-btn{border:1px solid rgba(184,102,0,.18)!important;box-shadow:0 14px 32px rgba(223,115,0,.22)!important}
   .mc-public-course.premium .mc-public-btn{box-shadow:0 14px 34px rgba(245,158,11,.24)!important}
-  .sidebar .menu-item[data-page="mycourses"]{background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(223,115,0,.08))!important;border:1px solid rgba(217,139,22,.34)!important;color:#b85f00!important;font-weight:800!important;box-shadow:0 10px 24px rgba(223,115,0,.08)!important}
-  .sidebar .menu-item[data-page="mycourses"] .menu-icon{color:#d97706!important}
-  .sidebar .menu-item[data-page="mycourses"]:hover{transform:translateX(2px)!important;background:linear-gradient(135deg,rgba(245,158,11,.24),rgba(223,115,0,.12))!important}
-  .sidebar .menu-item[data-page="mycourses"].active{background:linear-gradient(135deg,#f6a609,#dd7600)!important;color:#111827!important;border-color:#d97706!important;box-shadow:0 16px 34px rgba(223,115,0,.24)!important}
-  .sidebar .menu-item[data-page="mycourses"].active .menu-icon,.sidebar .menu-item[data-page="mycourses"].active #myCoursesNavBadge{color:inherit!important}
-  .sidebar .menu-item[data-page="mycourses"].active #myCoursesNavBadge{background:rgba(17,24,39,.14)!important;color:#111827!important}
+  .sidebar .menu-item[data-page="mycourses"],.sidebar .menu-item[data-page="learn"]{background:linear-gradient(135deg,#f6a609,#df7600)!important;border:1px solid #d97706!important;color:#111827!important;font-weight:900!important;box-shadow:0 12px 26px rgba(217,119,6,.22)!important}
+  .sidebar .menu-item[data-page="mycourses"] .menu-icon,.sidebar .menu-item[data-page="learn"] .menu-icon{color:#111827!important}
+  .sidebar .menu-item[data-page="mycourses"]:hover,.sidebar .menu-item[data-page="learn"]:hover{transform:translateX(2px)!important;background:linear-gradient(135deg,#ffb41f,#e77d00)!important}
+  .sidebar .menu-item[data-page="mycourses"].active,.sidebar .menu-item[data-page="learn"].active{background:linear-gradient(135deg,#e98700,#c96200)!important;color:#fff!important;border-color:#c96200!important;box-shadow:0 16px 34px rgba(198,98,0,.3)!important}
+  .sidebar .menu-item[data-page="mycourses"].active .menu-icon,.sidebar .menu-item[data-page="mycourses"].active #myCoursesNavBadge,.sidebar .menu-item[data-page="learn"].active .menu-icon{color:inherit!important}
+  .sidebar .menu-item[data-page="mycourses"].active #myCoursesNavBadge{background:rgba(17,24,39,.14)!important;color:#fff!important}
 
   /* Premium accordion module cards */
   .course-module-card.premium-accordion-card{grid-template-columns:190px minmax(0,1fr) 220px!important;min-height:164px!important;border-radius:21px!important;align-items:stretch!important}

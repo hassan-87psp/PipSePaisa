@@ -1,0 +1,940 @@
+/* PipSePaisa Course Marketplace V3 */
+body .sidebar nav.menu .menu-item[data-page="mycourses"],
+body .sidebar nav.menu .menu-item[data-page="learn"]{
+  background:linear-gradient(135deg,#f6a609,#df7600)!important;
+  border:1px solid #d97706!important;
+  color:#111827!important;
+  font-weight:900!important;
+  box-shadow:0 12px 26px rgba(217,119,6,.22)!important;
+}
+body .sidebar nav.menu .menu-item[data-page="mycourses"] .menu-icon,
+body .sidebar nav.menu .menu-item[data-page="learn"] .menu-icon{
+  color:#111827!important;
+}
+body .sidebar nav.menu .menu-item[data-page="mycourses"]:hover,
+body .sidebar nav.menu .menu-item[data-page="learn"]:hover{
+  background:linear-gradient(135deg,#ffb41f,#e77d00)!important;
+  transform:translateX(2px)!important;
+}
+body .sidebar nav.menu .menu-item[data-page="mycourses"].active,
+body .sidebar nav.menu .menu-item[data-page="learn"].active{
+  background:linear-gradient(135deg,#e98700,#c96200)!important;
+  color:#fff!important;
+  box-shadow:0 14px 30px rgba(198,98,0,.3)!important;
+}
+
+#page-mycourses{padding:0!important}
+.psp-course-marketplace{padding:18px 20px 30px}
+.psp-course-market-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:18px}
+.psp-course-market-head h2{margin:0;font-size:24px;color:var(--text-primary,#111827)}
+.psp-course-market-head p{margin:5px 0 0;color:var(--text-muted,#7b8aa5);font-size:12px}
+.psp-course-market-count{padding:8px 12px;border-radius:999px;background:rgba(245,158,11,.12);border:1px solid rgba(217,119,6,.24);font-size:10px;font-weight:900;color:#b65e00;white-space:nowrap}
+.psp-course-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,420px));gap:22px;align-items:start}
+.psp-course-tile{position:relative;overflow:hidden;border-radius:22px;background:var(--bg-card,#fff);border:1px solid rgba(217,139,22,.26);box-shadow:0 18px 48px rgba(15,23,42,.11);cursor:pointer;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
+.psp-course-tile:hover{transform:translateY(-6px);box-shadow:0 26px 62px rgba(15,23,42,.16);border-color:rgba(217,119,6,.58)}
+.psp-course-thumb{position:relative;aspect-ratio:16/9;overflow:hidden;background:#0b1426}
+.psp-course-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease}
+.psp-course-tile:hover .psp-course-thumb img{transform:scale(1.035)}
+.psp-course-play{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(180deg,transparent 35%,rgba(2,8,23,.45))}
+.psp-course-play span{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.94);color:#0f172a;font-size:19px;box-shadow:0 14px 30px rgba(0,0,0,.26);padding-left:3px}
+.psp-course-thumb-label{position:absolute;left:13px;top:13px;padding:6px 9px;border-radius:999px;background:rgba(7,18,38,.88);color:#ffb21b;font-size:9px;font-weight:900;letter-spacing:.04em;border:1px solid rgba(255,179,32,.25)}
+.psp-course-tile-body{padding:16px 17px 18px}
+.psp-course-tile-top{display:flex;align-items:start;justify-content:space-between;gap:10px}
+.psp-course-tile h3{margin:0;font-size:19px;color:var(--text-primary,#111827);line-height:1.25}
+.psp-course-price{font-size:22px;font-weight:950;color:#df7600;white-space:nowrap}
+.psp-course-tile p{margin:8px 0 13px;color:var(--text-muted,#70809b);font-size:11px;line-height:1.55;min-height:34px}
+.psp-course-meta{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
+.psp-course-meta span{padding:6px 8px;border-radius:999px;border:1px solid rgba(148,163,184,.28);background:rgba(148,163,184,.07);font-size:9px;font-weight:800;color:var(--text-secondary,#475569)}
+.psp-course-tile-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid rgba(148,163,184,.16);padding-top:13px}
+.psp-course-status-pill{font-size:9px;font-weight:900;color:#0f9f64;background:rgba(16,185,129,.11);padding:6px 8px;border-radius:999px}
+.psp-course-status-pill.pending{color:#b86700;background:rgba(245,158,11,.12)}
+.psp-course-status-pill.rejected{color:#dc2626;background:rgba(239,68,68,.1)}
+.psp-course-open-btn{border:0;border-radius:10px;padding:10px 13px;background:linear-gradient(135deg,#f6a609,#df7600);color:#111827;font-size:10px;font-weight:950;cursor:pointer;box-shadow:0 10px 22px rgba(223,118,0,.18)}
+.psp-course-tile.paid{background:linear-gradient(145deg,#0a1629,#11233d);border-color:rgba(245,158,11,.45)}
+.psp-course-tile.paid h3{color:#fff}
+.psp-course-tile.paid p{color:#c8d3e4}
+.psp-course-tile.paid .psp-course-meta span{color:#e5e7eb;border-color:rgba(255,255,255,.12);background:rgba(255,255,255,.05)}
+.psp-course-tile.paid .psp-course-tile-footer{border-color:rgba(255,255,255,.09)}
+
+.psp-course-detail{display:none;padding-bottom:40px}
+.psp-course-detail.is-open{display:block}
+.psp-course-marketplace.is-hidden{display:none}
+.psp-course-detail-hero{position:relative;background:radial-gradient(circle at 76% 10%,rgba(245,158,11,.18),transparent 28%),linear-gradient(135deg,#0b1220,#111a2b 62%,#17243a);color:#fff;padding:30px 34px 34px;border-bottom:1px solid rgba(245,158,11,.3)}
+.psp-course-detail-back{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#fff;padding:8px 11px;border-radius:10px;font-size:10px;font-weight:850;cursor:pointer;margin-bottom:18px}
+.psp-course-detail-hero-grid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:30px;align-items:start;max-width:1260px;margin:0 auto}
+.psp-course-breadcrumb{color:#ffb21b;font-size:10px;font-weight:850;margin-bottom:14px}
+.psp-course-detail-title{margin:0 0 12px;font-size:35px;line-height:1.13;color:#fff;max-width:760px}
+.psp-course-detail-subtitle{margin:0 0 18px;color:#d2d9e6;font-size:14px;line-height:1.6;max-width:780px}
+.psp-course-detail-badges{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.psp-course-detail-badges span{padding:6px 9px;border-radius:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:9px;font-weight:850}
+.psp-course-mentor-line{display:flex;align-items:center;gap:10px;margin-top:17px;font-size:10px;color:#d6deec}
+.psp-course-mentor-line img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #f59e0b}
+.psp-course-buy-card{position:sticky;top:88px;background:var(--bg-card,#fff);color:var(--text-primary,#111827);border-radius:18px;overflow:hidden;border:1px solid rgba(148,163,184,.24);box-shadow:0 22px 52px rgba(2,8,23,.3);z-index:3}
+.psp-course-buy-thumb{position:relative;aspect-ratio:16/9;background:#0b1426;overflow:hidden}
+.psp-course-buy-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.psp-course-buy-thumb:after{content:'Preview this course';position:absolute;left:0;right:0;bottom:0;padding:18px 12px 11px;background:linear-gradient(transparent,rgba(0,0,0,.78));color:#fff;text-align:center;font-size:12px;font-weight:900}
+.psp-course-buy-body{padding:18px}
+.psp-course-buy-price{font-size:30px;font-weight:950;color:#df7600;margin-bottom:4px}
+.psp-course-buy-old{font-size:12px;color:#94a3b8;text-decoration:line-through;margin-left:6px}
+.psp-course-buy-note{font-size:10px;color:var(--text-muted,#64748b);margin-bottom:14px}
+.psp-course-buy-list{display:grid;gap:9px;margin:14px 0}
+.psp-course-buy-list div{display:flex;gap:8px;align-items:flex-start;font-size:10px;color:var(--text-secondary,#475569)}
+.psp-course-buy-list b{color:#e98500}
+.psp-course-buy-btn{width:100%;border:0;border-radius:11px;padding:13px;background:linear-gradient(135deg,#f6a609,#df7600);color:#111827;font-size:12px;font-weight:950;cursor:pointer;box-shadow:0 12px 26px rgba(223,118,0,.22)}
+.psp-course-buy-btn:disabled{cursor:not-allowed;opacity:.68;filter:saturate(.45)}
+.psp-course-buy-status{margin:12px 0;padding:10px 11px;border-radius:10px;background:rgba(245,158,11,.1);border:1px solid rgba(217,119,6,.22);font-size:10px;font-weight:850;color:#b66400}
+.psp-course-buy-status.approved{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.22);color:#078052}
+.psp-course-buy-status.rejected{background:rgba(239,68,68,.09);border-color:rgba(239,68,68,.2);color:#c62424}
+
+.psp-course-detail-body{max-width:1260px;margin:0 auto;padding:28px 34px;display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:30px}
+.psp-course-main-column{min-width:0}
+.psp-course-section{background:var(--bg-card,#fff);border:1px solid rgba(148,163,184,.2);border-radius:17px;padding:22px;margin-bottom:18px;box-shadow:0 10px 32px rgba(15,23,42,.05)}
+.psp-course-section h3{margin:0 0 15px;font-size:21px;color:var(--text-primary,#111827)}
+.psp-learn-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}
+.psp-learn-item{display:flex;gap:9px;font-size:11px;line-height:1.5;color:var(--text-secondary,#475569)}
+.psp-learn-item span{color:#dd7600;font-weight:950}
+.psp-includes-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px 20px}
+.psp-includes-item{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--text-secondary,#475569)}
+.psp-course-content-head{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:13px}
+.psp-course-content-head small{color:var(--text-muted,#64748b);font-size:10px}
+.psp-module-list{border:1px solid rgba(148,163,184,.24);border-radius:12px;overflow:hidden}
+.psp-module-row{border-bottom:1px solid rgba(148,163,184,.2);background:rgba(148,163,184,.045)}
+.psp-module-row:last-child{border-bottom:0}
+.psp-module-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;border:0;background:transparent;padding:14px 15px;color:var(--text-primary,#111827);cursor:pointer;text-align:left}
+.psp-module-toggle strong{font-size:12px}
+.psp-module-toggle small{font-size:9px;color:var(--text-muted,#64748b);white-space:nowrap}
+.psp-module-arrow{font-size:15px;transition:transform .24s ease;color:#d97706}
+.psp-module-row.open .psp-module-arrow{transform:rotate(180deg)}
+.psp-module-panel{display:none;padding:0 15px 14px;color:var(--text-secondary,#475569);font-size:10px;line-height:1.55}
+.psp-module-row.open .psp-module-panel{display:block}
+.psp-module-points{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-top:10px}
+.psp-module-points span{display:flex;gap:7px}
+.psp-course-locked-content{text-align:center;padding:34px 20px;border:1px dashed rgba(217,119,6,.38);border-radius:14px;background:rgba(245,158,11,.06)}
+.psp-course-locked-content .lock{font-size:32px;margin-bottom:9px}
+.psp-course-locked-content h4{margin:0 0 7px;font-size:17px;color:var(--text-primary,#111827)}
+.psp-course-locked-content p{margin:0;color:var(--text-muted,#64748b);font-size:10px;line-height:1.55}
+.psp-course-copy{color:var(--text-secondary,#475569);font-size:11px;line-height:1.75}
+.psp-course-copy ul{padding-left:18px}
+.psp-related-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.psp-related-card{display:flex;gap:12px;border:1px solid rgba(148,163,184,.22);border-radius:13px;padding:10px;background:rgba(148,163,184,.04);cursor:pointer}
+.psp-related-card img{width:120px;height:68px;object-fit:cover;border-radius:9px}
+.psp-related-card h4{margin:2px 0 5px;font-size:12px;color:var(--text-primary,#111827)}
+.psp-related-card p{margin:0;font-size:9px;color:var(--text-muted,#64748b)}
+.psp-course-side-spacer{min-height:1px}
+
+body.dark .psp-course-tile:not(.paid),
+[data-theme="dark"] .psp-course-tile:not(.paid),
+body.dark .psp-course-section,
+[data-theme="dark"] .psp-course-section,
+body.dark .psp-course-buy-card,
+[data-theme="dark"] .psp-course-buy-card{background:#111b2c;color:#fff;border-color:rgba(255,255,255,.1)}
+body.dark .psp-course-tile:not(.paid) h3,
+[data-theme="dark"] .psp-course-tile:not(.paid) h3,
+body.dark .psp-course-section h3,
+[data-theme="dark"] .psp-course-section h3{color:#fff}
+
+@media(max-width:1050px){
+  .psp-course-detail-hero-grid,.psp-course-detail-body{grid-template-columns:1fr 310px}
+  .psp-course-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:820px){
+  .psp-course-detail-hero-grid,.psp-course-detail-body{grid-template-columns:1fr}
+  .psp-course-buy-card{position:relative;top:auto;max-width:520px}
+  .psp-course-side-spacer{display:none}
+}
+@media(max-width:620px){
+  .psp-course-marketplace{padding:14px 12px 24px}
+  .psp-course-card-grid{grid-template-columns:1fr;gap:16px}
+  .psp-course-market-head{align-items:start}
+  .psp-course-market-count{display:none}
+  .psp-course-detail-hero{padding:22px 16px 26px}
+  .psp-course-detail-title{font-size:27px}
+  .psp-course-detail-body{padding:18px 12px}
+  .psp-learn-grid,.psp-includes-grid,.psp-module-points,.psp-related-grid{grid-template-columns:1fr}
+  .psp-related-card img{width:100px;height:62px}
+  body .sidebar nav.menu .menu-item[data-page="mycourses"],body .sidebar nav.menu .menu-item[data-page="learn"]{box-shadow:none!important}
+}
+
+/* ===== Course Detail Premium V4 ===== */
+.psp-course-detail-hero{padding:0!important;background:radial-gradient(circle at 82% 4%,rgba(245,158,11,.2),transparent 26%),linear-gradient(135deg,#071224 0%,#0c182b 55%,#15243b 100%)!important;border-bottom:1px solid rgba(245,158,11,.34)!important}
+.psp-course-detail-hero-inner{max-width:1440px;margin:0 auto;padding:24px 28px 30px}
+.psp-course-detail-back{margin-bottom:15px!important;background:rgba(255,255,255,.07)!important;backdrop-filter:blur(8px);box-shadow:0 8px 22px rgba(0,0,0,.12)}
+.psp-course-detail-hero-grid{max-width:none!important;grid-template-columns:minmax(0,1fr) 380px!important;gap:28px!important;align-items:stretch!important}
+.psp-course-hero-copy{padding:8px 0 4px;display:flex;flex-direction:column;min-height:470px}
+.psp-course-breadcrumb{margin-bottom:12px!important;letter-spacing:.02em}
+.psp-course-detail-title{font-size:42px!important;max-width:820px!important;letter-spacing:-.025em;text-shadow:0 5px 24px rgba(0,0,0,.22)}
+.psp-course-detail-subtitle{font-size:15px!important;max-width:850px!important;color:#d7deea!important}
+.psp-course-detail-badges span{padding:8px 11px!important;border-radius:9px!important;background:rgba(255,255,255,.07)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.psp-course-mentor-line{margin-top:18px!important;padding:10px 12px;width:max-content;max-width:100%;border-radius:13px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.09)}
+.psp-course-hero-value-grid{margin-top:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding-top:22px}
+.psp-course-hero-value-grid>div{min-height:74px;padding:13px 14px;border-radius:14px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.psp-course-hero-value-grid strong{display:block;color:#ffb21b;font-size:16px;line-height:1.2;margin-bottom:5px}
+.psp-course-hero-value-grid span{display:block;color:#cbd5e1;font-size:9px;line-height:1.35;font-weight:750}
+.psp-course-buy-card{align-self:start;border-radius:20px!important;border:1px solid rgba(245,158,11,.5)!important;box-shadow:0 28px 70px rgba(2,8,23,.42)!important;background:linear-gradient(180deg,#fff,#fffaf1)!important}
+.psp-course-buy-thumb{aspect-ratio:16/8.7!important;border-bottom:2px solid #e98b00}
+.psp-course-buy-thumb:after{padding:22px 12px 12px!important;background:linear-gradient(transparent,rgba(0,0,0,.86))!important}
+.psp-course-preview-play{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.94);color:#172033;font-size:20px;padding-left:3px;box-shadow:0 16px 34px rgba(0,0,0,.28);z-index:2}
+.psp-course-buy-body{padding:18px 19px 17px!important}
+.psp-course-access-label{display:inline-flex;padding:6px 9px;border-radius:999px;background:rgba(245,158,11,.12);color:#bd6500;font-size:8px;font-weight:950;letter-spacing:.06em;margin-bottom:8px}
+.psp-course-price-line{display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}
+.psp-course-buy-price{font-size:34px!important;letter-spacing:-.025em}
+.psp-course-buy-list{padding:11px 0;margin:11px 0!important;border-top:1px solid rgba(148,163,184,.14);border-bottom:1px solid rgba(148,163,184,.14)}
+.psp-course-buy-btn{min-height:48px;font-size:12px!important;border:1px solid rgba(184,101,0,.18)!important;box-shadow:0 15px 30px rgba(223,118,0,.24)!important}
+.psp-course-secure-line{text-align:center;margin-top:10px;color:#8a96aa;font-size:8px;font-weight:750}
+
+.psp-course-detail-body{max-width:1440px!important;padding:26px 28px 42px!important;grid-template-columns:minmax(0,1fr) 360px!important;gap:24px!important;align-items:start!important}
+.psp-course-main-column{display:block;min-width:0}
+.psp-course-detail-side{position:relative;min-width:0}
+.psp-course-side-card{position:sticky;top:92px;padding:20px;border-radius:18px;background:linear-gradient(180deg,#fff,#fff9ef);border:1px solid rgba(217,139,22,.34);box-shadow:0 22px 54px rgba(15,23,42,.12)}
+.psp-course-side-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid rgba(148,163,184,.18)}
+.psp-course-side-head span{width:100%;font-size:8px;font-weight:950;letter-spacing:.07em;color:#b76100}
+.psp-course-side-head strong{font-size:31px;color:#df7600;letter-spacing:-.025em}
+.psp-course-side-head small{font-size:11px;color:#94a3b8;text-decoration:line-through}
+.psp-course-side-list{display:grid;gap:10px;margin:15px 0}
+.psp-course-side-list>div{display:flex;align-items:flex-start;gap:8px;color:#526075;font-size:10px;line-height:1.45}
+.psp-course-side-list span{flex:0 0 20px;width:20px;height:20px;display:grid;place-items:center;border-radius:50%;background:#fff0d2;color:#d66c00;font-weight:950}
+
+.psp-course-overview-grid{display:grid;grid-template-columns:1.25fr .85fr;gap:18px;margin-bottom:18px}
+.psp-course-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.psp-course-overview-grid .psp-course-section,.psp-course-info-grid .psp-course-section{margin-bottom:0!important;height:100%}
+.psp-course-section{border-radius:18px!important;padding:22px 23px!important;border-color:rgba(148,163,184,.2)!important;box-shadow:0 14px 38px rgba(15,23,42,.065)!important;position:relative;overflow:hidden}
+.psp-course-section:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(#f6a609,#df7600);opacity:.82}
+.psp-course-section-accent{background:linear-gradient(145deg,#fff,#fffaf1)!important}
+.psp-course-section-accent:after{content:'';position:absolute;right:-60px;top:-60px;width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.1),transparent 67%);pointer-events:none}
+.psp-section-kicker{font-size:8px;font-weight:950;letter-spacing:.08em;color:#c36a00;margin-bottom:7px}
+.psp-course-section h3{font-size:22px!important;letter-spacing:-.015em}
+.psp-learn-grid{gap:12px 18px!important}
+.psp-learn-item{padding:8px 9px;border-radius:10px;background:rgba(245,158,11,.045);border:1px solid rgba(245,158,11,.08)}
+.psp-includes-grid{grid-template-columns:1fr!important;gap:9px!important}
+.psp-includes-item{padding:9px 10px;border-radius:10px;background:rgba(148,163,184,.055);border:1px solid rgba(148,163,184,.11)}
+.psp-course-content-card{padding:24px!important}
+.psp-course-content-head{padding-bottom:14px;border-bottom:1px solid rgba(148,163,184,.15)}
+.psp-module-list{border-radius:14px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.psp-module-row{background:linear-gradient(90deg,rgba(148,163,184,.035),rgba(255,255,255,.01))!important}
+.psp-module-toggle{padding:16px 17px!important;transition:background .2s ease}
+.psp-module-toggle:hover{background:rgba(245,158,11,.055)}
+.psp-module-toggle strong{font-size:12.5px!important}
+.psp-module-panel{background:rgba(245,158,11,.035);padding:0 17px 16px!important}
+.psp-course-description-card{background:linear-gradient(145deg,#fff,#fbfcff)!important}
+.psp-course-copy{font-size:11.5px!important;line-height:1.8!important}
+.psp-course-copy li{margin-bottom:6px}
+.psp-related-card{padding:12px!important;align-items:center;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.psp-related-card:hover{transform:translateY(-3px);border-color:rgba(217,119,6,.4);box-shadow:0 12px 28px rgba(15,23,42,.08)}
+.psp-related-card img{width:150px!important;height:84px!important}
+
+body.dark .psp-course-side-card,[data-theme="dark"] .psp-course-side-card{background:linear-gradient(180deg,#111b2c,#0e1727);border-color:rgba(245,158,11,.28);box-shadow:0 22px 54px rgba(0,0,0,.28)}
+body.dark .psp-course-side-list>div,[data-theme="dark"] .psp-course-side-list>div{color:#cbd5e1}
+body.dark .psp-course-section-accent,[data-theme="dark"] .psp-course-section-accent,body.dark .psp-course-description-card,[data-theme="dark"] .psp-course-description-card{background:linear-gradient(145deg,#111b2c,#0f192a)!important}
+body.dark .psp-learn-item,[data-theme="dark"] .psp-learn-item,body.dark .psp-includes-item,[data-theme="dark"] .psp-includes-item{background:rgba(255,255,255,.035);border-color:rgba(255,255,255,.07)}
+
+@media(max-width:1120px){
+  .psp-course-detail-hero-grid{grid-template-columns:minmax(0,1fr) 335px!important}
+  .psp-course-detail-body{grid-template-columns:minmax(0,1fr) 320px!important}
+  .psp-course-hero-value-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:900px){
+  .psp-course-detail-hero-grid,.psp-course-detail-body{grid-template-columns:1fr!important}
+  .psp-course-hero-copy{min-height:0}
+  .psp-course-hero-value-grid{margin-top:20px}
+  .psp-course-detail-side{display:none}
+  .psp-course-overview-grid,.psp-course-info-grid{grid-template-columns:1fr}
+  .psp-course-buy-card{max-width:560px}
+}
+@media(max-width:620px){
+  .psp-course-detail-hero-inner{padding:18px 14px 24px}
+  .psp-course-detail-title{font-size:30px!important}
+  .psp-course-detail-subtitle{font-size:12px!important}
+  .psp-course-hero-value-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .psp-course-hero-value-grid>div{min-height:65px;padding:11px}
+  .psp-course-detail-body{padding:16px 12px 28px!important}
+  .psp-course-section{padding:18px!important}
+  .psp-learn-grid{grid-template-columns:1fr!important}
+  .psp-related-card img{width:105px!important;height:65px!important}
+}
+
+/* ===== Requested compact course cards + mentor-led premium hero ===== */
+.psp-course-marketplace{padding:18px 20px 34px!important}
+.psp-course-card-grid{
+  grid-template-columns:repeat(2,minmax(330px,410px))!important;
+  gap:20px!important;
+  justify-content:start!important;
+}
+.psp-course-tile{
+  height:228px!important;
+  display:grid!important;
+  grid-template-columns:43% 57%!important;
+  border-radius:18px!important;
+}
+.psp-course-thumb{aspect-ratio:auto!important;height:100%!important;min-height:0!important}
+.psp-course-thumb img{height:100%!important}
+.psp-course-play span{width:44px!important;height:44px!important;font-size:16px!important}
+.psp-course-thumb-label{left:10px!important;top:10px!important;font-size:7px!important;max-width:calc(100% - 20px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.psp-course-tile-body{padding:15px 15px 14px!important;display:flex;flex-direction:column;min-width:0}
+.psp-course-tile-top{display:block!important}
+.psp-course-tile h3{font-size:17px!important;line-height:1.2!important;padding-right:0!important}
+.psp-course-price{font-size:20px!important;margin-top:5px!important}
+.psp-course-tile p{font-size:9.5px!important;line-height:1.45!important;margin:7px 0 9px!important;min-height:0!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.psp-course-meta{gap:5px!important;margin-bottom:9px!important}
+.psp-course-meta span{font-size:7.5px!important;padding:5px 6px!important}
+.psp-course-tile-footer{margin-top:auto!important;padding-top:9px!important;gap:6px!important}
+.psp-course-status-pill{font-size:7.5px!important;padding:5px 6px!important;white-space:nowrap}
+.psp-course-open-btn{font-size:8px!important;padding:8px 9px!important;white-space:nowrap}
+
+.psp-course-detail-hero-grid{
+  grid-template-columns:minmax(0,1fr) 275px 360px!important;
+  gap:22px!important;
+  align-items:stretch!important;
+}
+.psp-course-hero-copy{min-height:470px!important;position:relative;z-index:2}
+.psp-course-mentor-visual{position:relative;min-height:470px;display:flex;align-items:flex-end;justify-content:center;overflow:visible;isolation:isolate}
+.psp-course-mentor-glow{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);width:250px;height:350px;border-radius:48% 48% 20% 20%;background:radial-gradient(circle at 50% 35%,rgba(255,174,30,.4),rgba(245,158,11,.11) 42%,transparent 72%);filter:blur(2px);z-index:-1}
+.psp-course-mentor-visual>img{position:relative;z-index:1;width:275px;height:445px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 24px 28px rgba(0,0,0,.35));transform:scaleX(-1)}
+.psp-course-mentor-badge{position:absolute;z-index:3;left:10px;right:10px;bottom:12px;padding:12px 13px;border-radius:15px;background:linear-gradient(145deg,rgba(7,18,36,.9),rgba(17,31,52,.82));border:1px solid rgba(255,179,32,.42);box-shadow:0 18px 38px rgba(0,0,0,.28);backdrop-filter:blur(12px);text-align:center}
+.psp-course-mentor-badge span{display:block;color:#ffb21b;font-size:7px;font-weight:950;letter-spacing:.12em}
+.psp-course-mentor-badge strong{display:block;color:#fff;font-size:17px;line-height:1.2;margin:3px 0}
+.psp-course-mentor-badge small{display:block;color:#cbd5e1;font-size:8px;font-weight:750}
+.psp-course-floating-chip{position:absolute;z-index:4;display:flex;align-items:center;gap:7px;padding:8px 9px;border-radius:12px;background:rgba(255,255,255,.94);border:1px solid rgba(245,158,11,.35);box-shadow:0 14px 28px rgba(0,0,0,.22);color:#172033}
+.psp-course-floating-chip b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:linear-gradient(135deg,#ffb21b,#df7600);font-size:13px;color:#101827}
+.psp-course-floating-chip span{font-size:7.5px;line-height:1.25;font-weight:850}
+.psp-course-floating-chip.chip-one{left:-8px;top:84px}
+.psp-course-floating-chip.chip-two{right:-4px;top:178px}
+
+@media(max-width:1280px){
+  .psp-course-detail-hero-grid{grid-template-columns:minmax(0,1fr) 230px 335px!important}
+  .psp-course-mentor-visual>img{width:235px;height:420px}
+  .psp-course-floating-chip{display:none}
+}
+@media(max-width:1050px){
+  .psp-course-detail-hero-grid{grid-template-columns:minmax(0,1fr) 320px!important}
+  .psp-course-mentor-visual{display:none}
+}
+@media(max-width:900px){
+  .psp-course-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .psp-course-detail-hero-grid{grid-template-columns:1fr!important}
+}
+@media(max-width:700px){
+  .psp-course-card-grid{grid-template-columns:1fr!important}
+  .psp-course-tile{height:210px!important;grid-template-columns:40% 60%!important}
+}
+@media(max-width:430px){
+  .psp-course-tile{height:auto!important;grid-template-columns:1fr!important}
+  .psp-course-thumb{height:160px!important}
+}
+
+/* ===== V5: Udemy-inspired premium hero + one true sticky enrollment/payment card ===== */
+@media (min-width:901px){
+  .psp-course-detail-hero-inner{max-width:1440px!important;padding:22px 28px 34px!important;min-height:500px}
+  .psp-course-detail-hero-grid{
+    width:calc(100% - 384px)!important;
+    grid-template-columns:minmax(0,1fr) 300px!important;
+    gap:20px!important;
+    min-height:420px;
+    align-items:stretch!important;
+  }
+  .psp-course-hero-copy{min-height:420px!important;padding:4px 0 0!important}
+  .psp-course-detail-title{font-size:38px!important;margin-bottom:10px!important}
+  .psp-course-detail-subtitle{font-size:13px!important;line-height:1.55!important;margin-bottom:12px!important}
+  .psp-course-detail-badges{margin:10px 0!important}
+  .psp-course-mentor-line{margin-top:12px!important}
+  .psp-course-hero-value-grid{padding-top:15px!important;gap:8px!important}
+  .psp-course-hero-value-grid>div{min-height:65px!important;padding:10px 12px!important}
+  .psp-course-mentor-visual{min-height:420px!important}
+  .psp-course-mentor-visual>img{max-height:390px!important;object-fit:contain!important;object-position:center bottom!important}
+
+  .psp-course-detail-body{
+    max-width:1440px!important;
+    grid-template-columns:minmax(0,1fr) 360px!important;
+    gap:24px!important;
+    padding:26px 28px 46px!important;
+    overflow:visible!important;
+  }
+  .psp-course-detail-side{
+    display:block!important;
+    position:relative!important;
+    z-index:20!important;
+    margin-top:-438px!important;
+    align-self:stretch!important;
+    overflow:visible!important;
+  }
+  .psp-course-side-card-premium{
+    position:sticky!important;
+    top:76px!important;
+    padding:0!important;
+    overflow:hidden!important;
+    border-radius:18px!important;
+    background:linear-gradient(180deg,#fff,#fffaf2)!important;
+    border:1px solid rgba(230,132,0,.5)!important;
+    box-shadow:0 26px 70px rgba(2,8,23,.34)!important;
+  }
+  .psp-course-side-preview{position:relative;height:184px;overflow:hidden;border-bottom:3px solid #eb8b00;background:#0b1423}
+  .psp-course-side-preview img{width:100%;height:100%;display:block;object-fit:cover}
+  .psp-course-side-preview:after{content:'';position:absolute;inset:38% 0 0;background:linear-gradient(transparent,rgba(0,0,0,.82))}
+  .psp-course-side-play{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);z-index:2;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;padding-left:3px;background:rgba(255,255,255,.95);color:#101827;font-size:19px;box-shadow:0 14px 34px rgba(0,0,0,.3)}
+  .psp-course-side-preview>strong{position:absolute;z-index:3;left:0;right:0;bottom:12px;text-align:center;color:#fff;font-size:11px;text-shadow:0 2px 8px #000}
+  .psp-course-side-body{padding:18px 19px 17px}
+  .psp-course-side-head{margin-bottom:10px!important;padding-bottom:10px!important}
+  .psp-course-side-head strong{font-size:35px!important}
+  .psp-course-side-list{margin:12px 0!important;gap:8px!important}
+  .psp-course-buy-btn{width:100%;min-height:50px!important}
+}
+
+@media (max-width:900px){
+  .psp-course-detail-side{display:block!important;margin-top:0!important}
+  .psp-course-side-card-premium{position:static!important;max-width:560px;margin:0 auto 18px;padding:0!important;overflow:hidden}
+  .psp-course-side-preview{position:relative;height:210px;overflow:hidden;border-bottom:3px solid #eb8b00;background:#0b1423}
+  .psp-course-side-preview img{width:100%;height:100%;object-fit:cover}
+  .psp-course-side-preview>strong{position:absolute;left:0;right:0;bottom:12px;text-align:center;color:#fff}
+  .psp-course-side-play{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:#fff;color:#111827}
+  .psp-course-side-body{padding:18px}
+}
+
+/* ===== V6: exact Udemy-style two-column course detail + true sticky enrollment ===== */
+.psp-course-detail-shell{
+  width:100%;
+  max-width:1480px;
+  margin:0 auto;
+  padding:20px 24px 44px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 330px;
+  gap:24px;
+  align-items:start;
+}
+.psp-course-detail-left{min-width:0}
+.psp-course-detail-shell .psp-course-detail-hero{
+  border-radius:0;
+  overflow:hidden;
+  min-width:0;
+}
+.psp-course-detail-shell .psp-course-detail-hero-inner{padding:22px 28px 28px;max-width:none}
+.psp-course-detail-shell .psp-course-detail-hero-grid{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 285px!important;
+  gap:18px!important;
+  min-height:480px;
+  align-items:stretch!important;
+}
+.psp-course-detail-shell .psp-course-hero-copy{min-height:450px;padding:4px 0 0}
+.psp-course-detail-shell .psp-course-mentor-visual{min-width:0;width:100%;height:100%;overflow:hidden}
+.psp-course-detail-shell .psp-course-mentor-visual>img{max-width:100%;object-fit:contain;object-position:center bottom}
+.psp-course-detail-shell .psp-course-detail-body{
+  display:block!important;
+  max-width:none!important;
+  width:100%;
+  padding:24px 0 0!important;
+}
+.psp-course-sticky-column{
+  display:block!important;
+  min-width:0;
+  align-self:stretch;
+  position:relative;
+}
+.psp-course-sticky-column .psp-course-side-card{
+  position:sticky!important;
+  top:84px!important;
+  width:100%;
+  max-width:330px;
+  z-index:20;
+  overflow:hidden;
+}
+.psp-course-sticky-column .psp-course-side-preview{aspect-ratio:16/9;overflow:hidden}
+.psp-course-sticky-column .psp-course-side-preview img{width:100%;height:100%;object-fit:cover}
+.psp-course-sticky-column .psp-course-buy-btn{width:100%;white-space:normal;line-height:1.25;padding:13px 10px}
+
+@media(max-width:1260px){
+  .psp-course-detail-shell{grid-template-columns:minmax(0,1fr) 300px;gap:18px;padding-left:16px;padding-right:16px}
+  .psp-course-sticky-column .psp-course-side-card{max-width:300px}
+  .psp-course-detail-shell .psp-course-detail-hero-grid{grid-template-columns:minmax(0,1fr) 235px!important}
+  .psp-course-detail-title{font-size:36px!important}
+}
+@media(max-width:1050px){
+  .psp-course-detail-shell{grid-template-columns:1fr}
+  .psp-course-sticky-column{grid-row:1;margin-left:auto;width:min(100%,560px)}
+  .psp-course-sticky-column .psp-course-side-card{position:relative!important;top:auto!important;max-width:none}
+  .psp-course-detail-left{grid-row:2}
+}
+@media(max-width:760px){
+  .psp-course-detail-shell{padding:12px 10px 28px;gap:14px}
+  .psp-course-detail-shell .psp-course-detail-hero-grid{grid-template-columns:1fr!important;min-height:0}
+  .psp-course-detail-shell .psp-course-hero-copy{min-height:0}
+  .psp-course-detail-shell .psp-course-mentor-visual{height:300px}
+  .psp-course-detail-shell .psp-course-detail-hero-inner{padding:18px 15px 22px}
+}
+
+/* ===== V7 FINAL: compact premium mentor hero, distinct free/paid themes, real sticky access card ===== */
+.psp-course-detail-shell{max-width:1420px!important;grid-template-columns:minmax(0,1fr) 344px!important;gap:20px!important;padding:14px 20px 46px!important}
+.psp-course-detail-shell .psp-course-detail-hero{border-radius:22px!important;box-shadow:0 26px 70px rgba(2,8,23,.18);animation:pspHeroIn .7s cubic-bezier(.2,.8,.2,1) both}
+.psp-course-detail-shell .psp-course-detail-hero-inner{padding:18px 22px 22px!important;min-height:0!important}
+.psp-course-detail-shell .psp-course-detail-hero-grid{grid-template-columns:minmax(0,1fr) 255px!important;gap:8px!important;min-height:420px!important;align-items:end!important}
+.psp-course-detail-shell .psp-course-hero-copy{min-height:0!important;padding:0 0 4px!important;align-self:center;max-width:700px}
+.psp-course-detail-title{font-size:clamp(34px,3.2vw,52px)!important;line-height:1.02!important;letter-spacing:-.04em;margin:8px 0 10px!important}
+.psp-course-detail-subtitle{max-width:660px;font-size:13px!important;line-height:1.55!important;margin:0 0 12px!important}
+.psp-course-detail-badges{gap:7px!important;margin:10px 0!important}
+.psp-course-detail-badges span{animation:pspChipIn .5s both;animation-delay:calc(var(--i,0)*80ms)}
+.psp-course-mentor-line{margin-top:10px!important}
+.psp-course-hero-value-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important;padding-top:12px!important}
+.psp-course-hero-value-grid>div{min-height:58px!important;padding:8px 9px!important;transition:.25s ease}
+.psp-course-hero-value-grid>div:hover{transform:translateY(-3px);border-color:rgba(255,174,30,.6)}
+.psp-course-mentor-visual{min-height:390px!important;height:390px!important;overflow:visible!important;justify-content:flex-end!important}
+.psp-course-mentor-visual>img{width:250px!important;height:382px!important;max-height:none!important;transform:none!important;object-fit:contain!important;object-position:right bottom!important;animation:pspMentorIn .85s .1s cubic-bezier(.2,.8,.2,1) both}
+.psp-course-mentor-glow{width:225px!important;height:305px!important;left:58%!important;bottom:18px!important;animation:pspGlowPulse 4s ease-in-out infinite}
+.psp-course-mentor-badge{left:auto!important;right:-4px!important;bottom:8px!important;width:205px!important;padding:9px 11px!important;animation:pspFloat 4s ease-in-out infinite}
+.psp-course-floating-chip{display:none!important}
+.psp-course-detail-body{padding-top:18px!important}
+.psp-course-section{animation:pspSectionIn .65s both;animation-timeline:view();animation-range:entry 0% cover 24%}
+
+.psp-course-basic .psp-course-detail-hero{background:radial-gradient(circle at 78% 20%,rgba(255,177,35,.26),transparent 34%),linear-gradient(135deg,#101e32 0%,#142640 58%,#0b1525 100%)!important}
+.psp-course-advanced .psp-course-detail-hero{background:radial-gradient(circle at 82% 18%,rgba(255,178,35,.22),transparent 32%),radial-gradient(circle at 18% 84%,rgba(42,91,145,.22),transparent 40%),linear-gradient(135deg,#07101d 0%,#111d31 52%,#060b13 100%)!important}
+.psp-course-advanced .psp-course-detail-hero:after{content:'';position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:28px 28px}
+
+.psp-course-sticky-column{align-self:stretch!important}
+.psp-course-sticky-column .psp-course-side-card{top:72px!important;max-width:344px!important;border-radius:20px!important;animation:pspCardIn .75s .12s cubic-bezier(.2,.8,.2,1) both}
+.psp-course-side-card-premium.free{background:linear-gradient(180deg,#fff,#fffaf0)!important;border:1px solid rgba(238,146,16,.46)!important;box-shadow:0 25px 65px rgba(84,51,0,.18)!important}
+.psp-course-side-card-premium.paid{background:linear-gradient(180deg,#101b2c,#0a1321)!important;border:1px solid rgba(255,177,35,.42)!important;color:#fff;box-shadow:0 28px 75px rgba(1,7,18,.42)!important}
+.psp-course-side-preview{height:168px!important;aspect-ratio:auto!important;position:relative}
+.psp-course-side-preview:after{content:'';position:absolute;inset:20% 0 0;background:linear-gradient(transparent,rgba(2,8,18,.88))}
+.psp-course-side-overlay{position:absolute;z-index:3;left:15px;right:15px;bottom:12px;color:#fff;display:grid;gap:2px}
+.psp-course-side-overlay span{font-size:8px;font-weight:900;letter-spacing:.12em;color:#ffb21b}
+.psp-course-side-overlay strong{font-size:16px;line-height:1.15}
+.psp-course-side-body{padding:16px 17px 15px!important}
+.psp-side-eyebrow{font-size:8px;font-weight:950;letter-spacing:.13em;color:#d97706;margin-bottom:5px}
+.paid .psp-side-eyebrow{color:#ffb21b}
+.psp-course-side-head{display:flex!important;align-items:baseline!important;gap:8px!important;border:0!important;padding:0!important;margin:0 0 7px!important}
+.psp-course-side-head strong{font-size:34px!important;line-height:1!important}
+.paid .psp-course-side-head strong{color:#fff!important}
+.psp-course-side-head small{text-decoration:line-through;color:#94a3b8;font-size:14px}
+.psp-course-side-head em{font-style:normal;font-size:8px;font-weight:900;padding:4px 6px;border-radius:999px;background:#fff1cf;color:#9a5900}
+.psp-side-helper{font-size:10px;line-height:1.45;color:#64748b;margin:0 0 10px}
+.paid .psp-side-helper{color:#aebbd0}
+.psp-access-steps{display:grid;grid-template-columns:22px auto 1fr 22px auto 1fr 22px auto;align-items:center;gap:5px;margin:10px 0 12px}
+.psp-access-steps span{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:8px;font-weight:900;background:#e8edf4;color:#64748b}
+.psp-access-steps span.done{background:linear-gradient(135deg,#ffb21b,#df7600);color:#152033}
+.psp-access-steps b{font-size:7px;color:#64748b}.paid .psp-access-steps b{color:#9fb0c8}
+.psp-access-steps i{height:1px;background:linear-gradient(90deg,#f0a11d,#d7dee8)}
+.paid .psp-access-steps i{background:linear-gradient(90deg,#f0a11d,#34445a)}
+.psp-course-buy-status{display:grid!important;gap:2px!important;padding:9px 10px!important;margin:0 0 10px!important;border-radius:11px!important}
+.psp-course-buy-status b{font-size:9px}.psp-course-buy-status span{font-size:8px;line-height:1.35;opacity:.8}
+.psp-course-buy-status.pending{background:#fff7da!important;border-color:#efb62d!important;color:#765000!important}
+.psp-course-side-card-premium.paid .psp-course-buy-status{background:rgba(255,255,255,.055)!important;border-color:rgba(255,177,35,.22)!important;color:#e8edf5!important}
+.psp-course-side-card-premium.paid .psp-course-buy-status.approved{background:rgba(34,197,94,.12)!important;border-color:rgba(34,197,94,.35)!important;color:#d7ffe4!important}
+.psp-course-side-card-premium.paid .psp-course-buy-status.rejected{background:rgba(239,68,68,.12)!important;border-color:rgba(239,68,68,.35)!important;color:#ffdede!important}
+.psp-course-side-list{gap:7px!important;margin:10px 0 12px!important}.paid .psp-course-side-list{color:#c4cfdd}
+.psp-course-buy-btn{transition:.25s ease!important;position:relative;overflow:hidden}
+.psp-course-buy-btn:before{content:'';position:absolute;top:0;left:-120%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.42),transparent);transform:skewX(-20deg);transition:left .6s ease}
+.psp-course-buy-btn:hover:before{left:150%}.psp-course-buy-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(224,119,0,.32)}
+.paid .psp-course-secure-line{color:#8393a9!important}
+.psp-course-locked-roadmap{display:grid;gap:8px}.psp-course-locked-intro{display:flex;gap:12px;align-items:center;padding:16px;border-radius:14px;background:linear-gradient(135deg,#fff8e7,#fff);border:1px solid #f3c56c}.psp-course-locked-intro .lock{font-size:25px}.psp-course-locked-intro h4{margin:0 0 3px}.psp-course-locked-intro p{margin:0;font-size:10px;color:#64748b}.psp-module-row.locked{opacity:.78;background:#f8fafc}.psp-module-row.locked .psp-module-toggle{cursor:not-allowed}.psp-locked-label{font-size:8px;font-weight:900;color:#a16207;background:#fff3cf;padding:5px 7px;border-radius:999px}
+
+@keyframes pspHeroIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pspCardIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+@keyframes pspMentorIn{from{opacity:0;transform:translateX(24px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes pspChipIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pspGlowPulse{50%{filter:blur(8px);opacity:.72;transform:translateX(-50%) scale(1.05)}}
+@keyframes pspFloat{50%{transform:translateY(-5px)}}
+@keyframes pspSectionIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+@media(max-width:1180px){.psp-course-detail-shell{grid-template-columns:minmax(0,1fr) 310px!important}.psp-course-detail-shell .psp-course-detail-hero-grid{grid-template-columns:minmax(0,1fr) 215px!important}.psp-course-mentor-visual>img{width:220px!important}.psp-course-hero-value-grid{grid-template-columns:repeat(2,1fr)!important}}
+@media(max-width:980px){.psp-course-detail-shell{grid-template-columns:1fr!important}.psp-course-sticky-column{grid-row:2!important;width:100%!important;margin:0!important}.psp-course-sticky-column .psp-course-side-card{position:relative!important;top:auto!important;max-width:620px!important;margin:0 auto}.psp-course-detail-left{grid-row:1!important}}
+@media(max-width:700px){.psp-course-detail-shell{padding:10px 8px 26px!important}.psp-course-detail-shell .psp-course-detail-hero-grid{grid-template-columns:1fr!important}.psp-course-mentor-visual{height:285px!important;min-height:285px!important}.psp-course-mentor-visual>img{height:280px!important;width:220px!important;margin-left:auto}.psp-course-mentor-badge{width:170px!important}.psp-course-hero-value-grid{grid-template-columns:repeat(2,1fr)!important}.psp-course-detail-title{font-size:34px!important}}
+@media(prefers-reduced-motion:reduce){.psp-course-detail-shell *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ===== V8 FIX: working primary action + compact balanced hero ===== */
+@media (min-width:1051px){
+  .psp-course-detail-shell{
+    grid-template-columns:minmax(0,1fr) 344px!important;
+    gap:18px!important;
+    max-width:1460px!important;
+  }
+  .psp-course-detail-shell .psp-course-detail-hero-inner{
+    padding:16px 20px 18px!important;
+  }
+  .psp-course-detail-shell .psp-course-detail-hero-grid{
+    grid-template-columns:minmax(0,1.15fr) minmax(310px,.85fr)!important;
+    gap:0!important;
+    min-height:430px!important;
+    align-items:stretch!important;
+  }
+  .psp-course-detail-shell .psp-course-hero-copy{
+    max-width:none!important;
+    align-self:center!important;
+    padding:4px 8px 0 0!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+  }
+  .psp-course-detail-title{
+    max-width:620px!important;
+    font-size:clamp(40px,3.4vw,58px)!important;
+    margin-top:4px!important;
+  }
+  .psp-course-detail-subtitle{max-width:640px!important}
+  .psp-course-mentor-line{width:max-content;max-width:100%}
+  .psp-course-hero-value-grid{
+    width:min(100%,610px)!important;
+    grid-template-columns:repeat(4,minmax(112px,1fr))!important;
+    gap:9px!important;
+    margin-top:2px!important;
+  }
+  .psp-course-hero-value-grid>div{
+    min-width:0!important;
+    min-height:72px!important;
+    padding:11px 12px!important;
+    border-radius:14px!important;
+  }
+  .psp-course-hero-value-grid>div strong{font-size:17px!important;line-height:1.05!important}
+  .psp-course-hero-value-grid>div span{font-size:8.5px!important;line-height:1.25!important}
+  .psp-course-mentor-visual{
+    min-height:430px!important;
+    height:430px!important;
+    align-items:flex-end!important;
+    justify-content:center!important;
+    overflow:hidden!important;
+  }
+  .psp-course-mentor-visual>img{
+    width:335px!important;
+    height:425px!important;
+    max-width:none!important;
+    object-position:center bottom!important;
+    transform:none!important;
+  }
+  .psp-course-mentor-glow{
+    width:310px!important;
+    height:370px!important;
+    left:50%!important;
+    bottom:4px!important;
+  }
+  .psp-course-mentor-badge{
+    width:250px!important;
+    right:50%!important;
+    transform:translateX(50%)!important;
+    bottom:4px!important;
+  }
+}
+
+@media (min-width:1051px) and (max-width:1250px){
+  .psp-course-detail-shell .psp-course-detail-hero-grid{grid-template-columns:minmax(0,1fr) 285px!important}
+  .psp-course-mentor-visual>img{width:300px!important;height:410px!important}
+  .psp-course-hero-value-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;width:520px!important}
+}
+
+#courseEnrollmentOverlay .ce-field input[readonly]{
+  background:#f3f4f6!important;
+  color:#475569!important;
+  cursor:not-allowed!important;
+  border-color:#d8dee8!important;
+}
+body.dark #courseEnrollmentOverlay .ce-field input[readonly],
+[data-theme="dark"] #courseEnrollmentOverlay .ce-field input[readonly]{
+  background:#111827!important;
+  color:#cbd5e1!important;
+  border-color:#334155!important;
+}
+
+
+/* ===== V9 FINAL: remove duplicate mentor chip, fill hero width, larger portrait, reliable sticky access card ===== */
+#page-mycourses,
+#page-mycourses .psp-course-marketplace-v3,
+#page-mycourses .psp-course-detail,
+#page-mycourses .psp-course-detail-shell,
+#page-mycourses .psp-course-detail-left{
+  overflow:visible!important;
+}
+
+@media (min-width:1051px){
+  .psp-course-detail-shell{
+    max-width:1480px!important;
+    grid-template-columns:minmax(0,1fr) 344px!important;
+    gap:18px!important;
+    align-items:start!important;
+    padding:14px 20px 48px!important;
+  }
+  .psp-course-detail-left{min-width:0!important}
+  .psp-course-detail-shell .psp-course-detail-hero{
+    min-height:500px!important;
+    overflow:hidden!important;
+  }
+  .psp-course-detail-shell .psp-course-detail-hero-inner{
+    padding:16px 22px 18px!important;
+    max-width:none!important;
+  }
+  .psp-course-detail-shell .psp-course-detail-hero-grid{
+    width:100%!important;
+    max-width:none!important;
+    grid-template-columns:minmax(0,1fr) minmax(360px,420px)!important;
+    gap:10px!important;
+    min-height:430px!important;
+    align-items:stretch!important;
+    margin:0!important;
+  }
+  .psp-course-detail-shell .psp-course-hero-copy{
+    min-width:0!important;
+    max-width:none!important;
+    min-height:430px!important;
+    padding:8px 18px 10px 0!important;
+    justify-content:center!important;
+    align-self:stretch!important;
+  }
+  .psp-course-breadcrumb{margin-bottom:13px!important}
+  .psp-course-detail-title{
+    max-width:690px!important;
+    font-size:clamp(43px,3.65vw,62px)!important;
+    line-height:1.01!important;
+    margin:0 0 12px!important;
+  }
+  .psp-course-detail-subtitle{
+    max-width:700px!important;
+    font-size:13.5px!important;
+    line-height:1.58!important;
+    margin-bottom:13px!important;
+  }
+  .psp-course-detail-badges{margin:9px 0 0!important}
+  .psp-course-mentor-line{display:none!important}
+  .psp-course-hero-value-grid{
+    width:min(100%,690px)!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:9px!important;
+    margin-top:28px!important;
+    padding-top:0!important;
+  }
+  .psp-course-hero-value-grid>div{
+    min-height:76px!important;
+    padding:12px 12px!important;
+    border-radius:14px!important;
+  }
+  .psp-course-hero-value-grid>div strong{font-size:18px!important}
+  .psp-course-hero-value-grid>div span{font-size:8.5px!important}
+
+  .psp-course-mentor-visual{
+    min-height:430px!important;
+    height:430px!important;
+    overflow:hidden!important;
+    justify-content:center!important;
+    align-items:flex-end!important;
+    border-left:1px solid rgba(255,255,255,.09);
+  }
+  .psp-course-mentor-visual>img{
+    width:390px!important;
+    height:455px!important;
+    max-width:none!important;
+    max-height:none!important;
+    object-fit:contain!important;
+    object-position:center bottom!important;
+    transform:none!important;
+    margin:0 -4px -2px 0!important;
+  }
+  .psp-course-mentor-glow{
+    width:360px!important;
+    height:390px!important;
+    left:50%!important;
+    bottom:0!important;
+  }
+  .psp-course-mentor-badge{
+    width:260px!important;
+    left:50%!important;
+    right:auto!important;
+    bottom:6px!important;
+    transform:translateX(-50%)!important;
+  }
+
+  /* Sticky is applied to the grid item itself; old negative-margin rules are cancelled. */
+  .psp-course-detail-side.psp-course-sticky-column{
+    display:block!important;
+    position:sticky!important;
+    top:78px!important;
+    align-self:start!important;
+    height:max-content!important;
+    min-height:0!important;
+    margin-top:0!important;
+    overflow:visible!important;
+    z-index:40!important;
+  }
+  .psp-course-sticky-column .psp-course-side-card{
+    position:relative!important;
+    top:auto!important;
+    width:100%!important;
+    max-width:344px!important;
+    margin:0!important;
+  }
+}
+
+@media (min-width:1051px) and (max-width:1240px){
+  .psp-course-detail-shell .psp-course-detail-hero-grid{
+    grid-template-columns:minmax(0,1fr) 330px!important;
+  }
+  .psp-course-mentor-visual>img{width:340px!important;height:440px!important}
+  .psp-course-detail-title{font-size:clamp(40px,3.5vw,54px)!important}
+  .psp-course-hero-value-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;max-width:560px!important}
+}
+
+@media (max-width:1050px){
+  .psp-course-detail-side.psp-course-sticky-column{
+    position:relative!important;
+    top:auto!important;
+    margin-top:0!important;
+    height:auto!important;
+  }
+}
+
+/* ===== V10: full-head mentor portrait, richer motion and polished enrollment CTA ===== */
+.psp-course-detail-shell .psp-course-hero-copy > *{
+  opacity:0;
+  animation:pspV10Reveal .62s cubic-bezier(.2,.8,.2,1) forwards;
+}
+.psp-course-detail-shell .psp-course-detail-back{animation-delay:.04s}
+.psp-course-detail-shell .psp-course-breadcrumb{animation-delay:.10s}
+.psp-course-detail-shell .psp-course-detail-title{animation-delay:.16s}
+.psp-course-detail-shell .psp-course-detail-subtitle{animation-delay:.23s}
+.psp-course-detail-shell .psp-course-detail-badges{animation-delay:.30s}
+.psp-course-detail-shell .psp-course-hero-value-grid{animation-delay:.37s}
+.psp-course-detail-badges span{transition:transform .24s ease,border-color .24s ease,background .24s ease,box-shadow .24s ease}
+.psp-course-detail-badges span:hover{transform:translateY(-2px);border-color:rgba(255,178,27,.58);background:rgba(255,178,27,.12);box-shadow:0 8px 20px rgba(0,0,0,.16)}
+.psp-course-hero-value-grid>div{opacity:0;animation:pspV10StatIn .55s cubic-bezier(.2,.8,.2,1) forwards;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.psp-course-hero-value-grid>div:nth-child(1){animation-delay:.40s}
+.psp-course-hero-value-grid>div:nth-child(2){animation-delay:.47s}
+.psp-course-hero-value-grid>div:nth-child(3){animation-delay:.54s}
+.psp-course-hero-value-grid>div:nth-child(4){animation-delay:.61s}
+.psp-course-hero-value-grid>div:hover{transform:translateY(-5px);border-color:rgba(255,178,27,.58)!important;box-shadow:0 16px 28px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.08)}
+.psp-course-mentor-visual{animation:pspV10MentorStage .72s .18s cubic-bezier(.2,.8,.2,1) both}
+.psp-course-mentor-badge{animation:pspV10BadgeIn .58s .62s cubic-bezier(.2,.8,.2,1) both,pspV10BadgeFloat 4.8s 1.2s ease-in-out infinite!important}
+.psp-course-mentor-badge strong{font-size:18px!important;letter-spacing:-.01em}
+.psp-course-mentor-badge small{font-size:9px!important;color:#ffd47b!important;letter-spacing:.035em;text-transform:uppercase}
+.psp-course-section,.psp-related-card{opacity:0;animation:pspV10SectionIn .64s cubic-bezier(.2,.8,.2,1) forwards}
+.psp-course-overview-grid .psp-course-section:nth-child(1){animation-delay:.12s}
+.psp-course-overview-grid .psp-course-section:nth-child(2){animation-delay:.20s}
+.psp-course-content-card{animation-delay:.28s}
+.psp-course-info-grid .psp-course-section:nth-child(1){animation-delay:.34s}
+.psp-course-info-grid .psp-course-section:nth-child(2){animation-delay:.40s}
+.psp-course-description-card{animation-delay:.46s}
+.psp-learn-item,.psp-includes-item,.psp-module-row{transition:transform .24s ease,border-color .24s ease,box-shadow .24s ease,background .24s ease}
+.psp-learn-item:hover,.psp-includes-item:hover,.psp-module-row:not(.locked):hover{transform:translateY(-2px);border-color:rgba(245,158,11,.36);box-shadow:0 10px 24px rgba(15,23,42,.08)}
+.psp-course-side-card{overflow:hidden}
+.psp-course-buy-btn{position:relative;overflow:hidden;isolation:isolate;transition:transform .22s ease,box-shadow .22s ease,filter .22s ease!important}
+.psp-course-buy-btn:before{content:"";position:absolute;z-index:-1;top:-80%;left:-35%;width:28%;height:260%;transform:rotate(22deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);animation:pspV10ButtonShine 3.4s ease-in-out infinite}
+.psp-course-buy-btn:hover{transform:translateY(-2px);filter:saturate(1.08);box-shadow:0 14px 28px rgba(217,119,6,.28)}
+
+@media (min-width:1051px){
+  .psp-course-detail-shell .psp-course-detail-hero-grid{
+    grid-template-columns:minmax(0,1fr) minmax(390px,440px)!important;
+  }
+  .psp-course-mentor-visual{
+    min-height:430px!important;
+    height:430px!important;
+    padding-top:0!important;
+    overflow:hidden!important;
+  }
+  .psp-course-mentor-visual>img{
+    width:370px!important;
+    height:430px!important;
+    max-width:none!important;
+    max-height:none!important;
+    object-fit:cover!important;
+    object-position:center top!important;
+    transform:none!important;
+    margin:0!important;
+    filter:drop-shadow(0 24px 28px rgba(0,0,0,.38));
+  }
+  .psp-course-mentor-badge{
+    width:270px!important;
+    bottom:7px!important;
+  }
+}
+@media (min-width:1051px) and (max-width:1240px){
+  .psp-course-detail-shell .psp-course-detail-hero-grid{grid-template-columns:minmax(0,1fr) 350px!important}
+  .psp-course-mentor-visual>img{width:330px!important;height:430px!important;object-fit:cover!important;object-position:center top!important}
+}
+@media(max-width:1050px){
+  .psp-course-mentor-visual>img{object-fit:contain!important;object-position:center bottom!important}
+}
+
+@keyframes pspV10Reveal{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pspV10StatIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes pspV10MentorStage{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:none}}
+@keyframes pspV10BadgeIn{from{opacity:0;transform:translate(-50%,14px) scale(.96)}to{opacity:1;transform:translateX(-50%)}}
+@keyframes pspV10BadgeFloat{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-4px)}}
+@keyframes pspV10SectionIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes pspV10ButtonShine{0%,68%{left:-40%;opacity:0}72%{opacity:1}100%{left:125%;opacity:0}}
+@media(prefers-reduced-motion:reduce){
+  .psp-course-detail-shell .psp-course-hero-copy>*,.psp-course-hero-value-grid>div,.psp-course-mentor-visual,.psp-course-mentor-badge,.psp-course-section,.psp-related-card{opacity:1!important;animation:none!important;transform:none!important}
+  .psp-course-buy-btn:before{display:none!important}
+}
+
+/* ===== V11: enrolled class access, stronger paid price and stable no-flash layout ===== */
+.psp-course-initial-loader{min-height:1px}
+.psp-course-side-head.psp-paid-price-highlight{
+  position:relative;
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:wrap;
+  gap:8px!important;
+  margin:8px 0 12px!important;
+  padding:13px 14px!important;
+  border:1px solid rgba(245,158,11,.52)!important;
+  border-radius:16px!important;
+  background:radial-gradient(circle at 20% 30%,rgba(255,185,45,.18),transparent 48%),linear-gradient(135deg,rgba(245,158,11,.10),rgba(255,255,255,.025))!important;
+  box-shadow:0 14px 34px rgba(245,158,11,.14),inset 0 1px 0 rgba(255,255,255,.08)!important;
+  overflow:hidden;
+}
+.psp-course-side-head.psp-paid-price-highlight:before{
+  content:'COURSE FEE';
+  width:100%;
+  color:#ffbd45;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.14em;
+}
+.psp-course-side-head.psp-paid-price-highlight strong{
+  color:#ffad16!important;
+  font-size:48px!important;
+  line-height:.9!important;
+  letter-spacing:-.045em!important;
+  text-shadow:0 0 24px rgba(255,174,22,.28);
+}
+.psp-course-side-head.psp-paid-price-highlight small{font-size:15px!important;opacity:.65!important}
+.psp-course-side-head.psp-paid-price-highlight em{
+  margin-left:auto!important;
+  padding:6px 9px!important;
+  border-radius:999px!important;
+  background:#fff1cf!important;
+  color:#9b5a00!important;
+  font-size:9px!important;
+  font-style:normal!important;
+  font-weight:950!important;
+}
+.psp-live-class-card{
+  margin-top:14px;
+  border:1px solid rgba(217,139,22,.42);
+  border-radius:20px;
+  background:linear-gradient(180deg,#fffdf8 0%,#fff8eb 100%);
+  box-shadow:0 18px 44px rgba(15,23,42,.12);
+  overflow:hidden;
+  animation:pspV11ClassCardIn .5s .16s cubic-bezier(.2,.8,.2,1) both;
+}
+body.dark .psp-live-class-card,[data-theme="dark"] .psp-live-class-card{
+  background:linear-gradient(180deg,#0d192b 0%,#091426 100%);
+  border-color:rgba(245,158,11,.48);
+}
+.psp-live-class-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 15px 8px}
+.psp-live-class-head span{display:block;color:#d97706;font-size:8px;font-weight:950;letter-spacing:.13em}
+.psp-live-class-head h3{margin:3px 0 0;color:var(--text-primary);font-size:18px;line-height:1.1}
+.psp-live-class-head>b{padding:6px 8px;border-radius:999px;background:rgba(245,158,11,.12);color:#b86400;font-size:8px;white-space:nowrap}
+.psp-live-class-card>p{margin:0;padding:0 15px 12px;color:var(--text-muted);font-size:10px;line-height:1.5}
+.psp-live-class-list{padding:0 10px 11px;display:flex;flex-direction:column;gap:6px}
+.psp-live-class-row{border:1px solid var(--border);border-radius:11px;background:var(--bg-card);overflow:hidden;transition:border-color .22s ease,box-shadow .22s ease,transform .22s ease}
+.psp-live-class-row:hover{transform:translateY(-1px);border-color:rgba(245,158,11,.5);box-shadow:0 8px 18px rgba(15,23,42,.07)}
+.psp-live-class-toggle{width:100%;min-height:42px;padding:8px 10px;border:0;background:transparent;color:var(--text-primary);display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;font-family:inherit}
+.psp-live-class-toggle>span:first-child{display:flex;align-items:center;gap:8px;min-width:0}
+.psp-live-class-toggle i{width:25px;height:25px;display:grid;place-items:center;border-radius:8px;background:#111d31;color:#ffc04f;font-size:9px;font-style:normal;font-weight:950;flex:0 0 25px}
+.psp-live-class-toggle strong{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.psp-live-class-state{color:var(--text-muted);font-size:8px;font-weight:850;white-space:nowrap;transition:transform .22s ease}
+.psp-live-class-row.has-link .psp-live-class-state{color:#0f9d65}
+.psp-live-class-row.open .psp-live-class-state{transform:rotate(180deg)}
+.psp-live-class-panel{max-height:0;opacity:0;overflow:hidden;padding:0 10px;color:var(--text-muted);font-size:9px;transition:max-height .3s ease,opacity .22s ease,padding .3s ease}
+.psp-live-class-row.open .psp-live-class-panel{max-height:82px;opacity:1;padding:0 10px 10px}
+.psp-live-class-panel a{display:flex;align-items:center;justify-content:center;min-height:34px;border-radius:9px;background:linear-gradient(90deg,#ffbc38,#ea8500);color:#111827;text-decoration:none;font-size:10px;font-weight:950;box-shadow:0 9px 20px rgba(234,133,0,.18)}
+.psp-live-class-panel span{display:block;padding:9px 10px;border-radius:9px;background:var(--bg-elevated);border:1px dashed var(--border);text-align:center}
+@keyframes pspV11ClassCardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media (min-width:1051px){
+  .psp-course-detail-side.psp-course-sticky-column{max-height:calc(100vh - 92px)!important;overflow:auto!important;padding-right:3px!important;scrollbar-width:thin}
+  .psp-course-sticky-column .psp-live-class-card{max-width:344px}
+}
+@media(max-width:1050px){.psp-live-class-card{margin-top:12px}}
+@media(prefers-reduced-motion:reduce){.psp-live-class-card{animation:none!important}}
