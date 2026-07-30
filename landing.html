@@ -1830,6 +1830,7 @@ html.psp-desktop-mobile-view .topbar .nav-actions{
     <div class="landing-auth-panel active" id="landingLoginPanel">
       <div class="landing-auth-field"><label for="landingLoginEmail">Email Address</label><input id="landingLoginEmail" name="email" type="email" autocomplete="username" placeholder="your@email.com"></div>
       <div class="landing-auth-field"><label for="landingLoginPassword">Password</label><input id="landingLoginPassword" name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
+      <div style="display:flex;justify-content:flex-end;margin:-2px 0 12px;"><button type="button" onclick="switchLandingAuth('forgot')" style="border:0;background:transparent;color:#d97706;font:inherit;font-size:12px;font-weight:800;cursor:pointer;padding:0;">Forgot Password?</button></div>
       <button class="landing-auth-submit" id="landingLoginBtn" type="button" onclick="landingLoginUser()">🔐 Login to Account</button>
       <div class="landing-auth-message" id="landingLoginMessage"></div>
       <div class="landing-auth-switch">New here? <button type="button" onclick="switchLandingAuth('signup')">Create free account →</button></div>
@@ -1843,6 +1844,12 @@ html.psp-desktop-mobile-view .topbar .nav-actions{
       <button class="landing-auth-submit" id="landingSignupBtn" type="button" onclick="landingSignupUser()">✨ Create Free Account</button>
       <div class="landing-auth-message" id="landingSignupMessage"></div>
       <div class="landing-auth-switch">Already registered? <button type="button" onclick="switchLandingAuth('login')">Login →</button></div>
+    </div>
+    <div class="landing-auth-panel" id="landingForgotPanel">
+      <div class="landing-auth-field"><label for="landingForgotEmail">Email Address</label><input id="landingForgotEmail" type="email" autocomplete="email" placeholder="your@email.com"></div>
+      <button class="landing-auth-submit" id="landingForgotBtn" type="button" onclick="landingForgotPassword()">📧 Send Reset Link</button>
+      <div class="landing-auth-message" id="landingForgotMessage"></div>
+      <div class="landing-auth-switch">Remembered your password? <button type="button" onclick="switchLandingAuth('login')">Back to Login →</button></div>
     </div>
   </div>
 </div>
@@ -1905,7 +1912,7 @@ function showLandingAuthMessage(type,message,id){
   box.textContent=message;
 }
 function clearLandingAuthMessages(){
-  ['landingLoginMessage','landingSignupMessage'].forEach(id=>{const el=document.getElementById(id);if(el){el.className='landing-auth-message';el.textContent='';}});
+  ['landingLoginMessage','landingSignupMessage','landingForgotMessage'].forEach(id=>{const el=document.getElementById(id);if(el){el.className='landing-auth-message';el.textContent='';}});
 }
 function openLandingAuth(mode='login'){
   clearLandingAuthMessages();
@@ -1926,14 +1933,25 @@ function closeLandingAuth(){
 }
 function switchLandingAuth(tab){
   const login=tab==='login';
+  const signup=tab==='signup';
+  const forgot=tab==='forgot';
   document.getElementById('landingLoginTab')?.classList.toggle('active',login);
-  document.getElementById('landingSignupTab')?.classList.toggle('active',!login);
+  document.getElementById('landingSignupTab')?.classList.toggle('active',signup);
   document.getElementById('landingLoginPanel')?.classList.toggle('active',login);
-  document.getElementById('landingSignupPanel')?.classList.toggle('active',!login);
+  document.getElementById('landingSignupPanel')?.classList.toggle('active',signup);
+  document.getElementById('landingForgotPanel')?.classList.toggle('active',forgot);
+  const tabs=document.querySelector('.landing-auth-tabs');
+  if(tabs)tabs.style.display=forgot?'none':'flex';
   const title=document.getElementById('landingAuthTitle');
   const sub=document.getElementById('landingAuthSubtitle');
-  if(title)title.textContent=login?'Welcome Back':'Create Your Account';
-  if(sub)sub.textContent=login?'Login to your trading hub':'Join PipSePaisa for free';
+  if(title)title.textContent=login?'Welcome Back':(signup?'Create Your Account':'Reset Password');
+  if(sub)sub.textContent=login?'Login to your trading hub':(signup?'Join PipSePaisa for free':"We'll email you a secure reset link");
+  if(forgot){
+    const loginEmail=document.getElementById('landingLoginEmail')?.value.trim();
+    const forgotEmail=document.getElementById('landingForgotEmail');
+    if(forgotEmail && loginEmail && !forgotEmail.value)forgotEmail.value=loginEmail;
+    setTimeout(()=>forgotEmail?.focus(),60);
+  }
   clearLandingAuthMessages();
 }
 function openAuth(mode='login'){
@@ -2015,6 +2033,22 @@ async function landingLoginUser(){
     btn.textContent='🔐 Login to Account';
   }
 }
+async function landingForgotPassword(){
+  const email=document.getElementById('landingForgotEmail')?.value.trim();
+  if(!email){showLandingAuthMessage('error','Please enter your email address.','landingForgotMessage');return;}
+  if(!landingSb){showLandingAuthMessage('error','Connection problem. Please reload and try again.','landingForgotMessage');return;}
+  const btn=document.getElementById('landingForgotBtn');
+  btn.disabled=true;btn.textContent='⏳ Sending...';
+  try{
+    const redirectTo=new URL('reset-password.html',window.location.href).href;
+    const {error}=await landingSb.auth.resetPasswordForEmail(email,{redirectTo});
+    if(error)throw error;
+    showLandingAuthMessage('success','Reset link sent. Check your inbox and spam folder.','landingForgotMessage');
+  }catch(error){
+    showLandingAuthMessage('error',error?.message||'Could not send reset link.','landingForgotMessage');
+  }finally{btn.disabled=false;btn.textContent='📧 Send Reset Link';}
+}
+
 async function landingSignupUser(){
   const fullName=document.getElementById('landingSignupName')?.value.trim();
   const email=document.getElementById('landingSignupEmail')?.value.trim();
