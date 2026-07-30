@@ -6460,7 +6460,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     
     try {
       const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: new URL('reset-password.html', window.location.href).href
+        redirectTo: 'https://www.pipsepaisa.com/reset-password.html'
       });
       
       if (error) throw error;

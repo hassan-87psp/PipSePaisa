@@ -2040,7 +2040,7 @@ async function landingForgotPassword(){
   const btn=document.getElementById('landingForgotBtn');
   btn.disabled=true;btn.textContent='⏳ Sending...';
   try{
-    const redirectTo=new URL('reset-password.html',window.location.href).href;
+    const redirectTo='https://www.pipsepaisa.com/reset-password.html';
     const {error}=await landingSb.auth.resetPasswordForEmail(email,{redirectTo});
     if(error)throw error;
     showLandingAuthMessage('success','Reset link sent. Check your inbox and spam folder.','landingForgotMessage');
