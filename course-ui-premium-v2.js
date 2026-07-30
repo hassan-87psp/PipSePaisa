@@ -34,6 +34,26 @@ function addStyles(){
   .mc-public-course.premium .mc-public-btn{background:linear-gradient(90deg,#ffc656,#ee9200)!important}
   .mc-public-course.premium .mc-course-status{position:relative;z-index:1;margin-top:14px!important;max-width:none!important;background:rgba(255,255,255,.055)!important}
 
+  /* Premium visual uplift + highlighted My Courses sidebar button */
+  .mc-public-course-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:28px!important}
+  .mc-shop.mc-public-course{background:linear-gradient(135deg,#ffffff 0%,#fffaf0 55%,#fff3dd 100%)!important;border:1px solid rgba(217,139,22,.32)!important;box-shadow:0 24px 70px rgba(15,23,42,.12)!important}
+  .mc-shop.mc-public-course:after{content:'';position:absolute;inset:auto -80px -90px auto;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,.12),transparent 68%);pointer-events:none}
+  .mc-shop.mc-public-course:hover{transform:translateY(-8px)!important;box-shadow:0 30px 82px rgba(15,23,42,.16)!important}
+  .mc-shop.mc-public-course.basic .mc-price{font-size:46px!important;font-weight:950!important;letter-spacing:-.02em}
+  .mc-shop.mc-public-course.basic .mc-public-highlight{background:linear-gradient(90deg,rgba(245,158,11,.12),rgba(255,255,255,.92))!important;border-color:rgba(217,139,22,.35)!important;color:#a65d00!important}
+  .mc-shop.mc-public-course.premium{background:radial-gradient(circle at top right,rgba(255,191,49,.16),transparent 18%),linear-gradient(135deg,#071226 0%,#0b1931 56%,#132742 100%)!important;box-shadow:0 26px 78px rgba(2,8,20,.34)!important}
+  .mc-shop.mc-public-course.premium:before{background:radial-gradient(circle at 84% 0,rgba(255,193,68,.2),transparent 34%)!important}
+  .mc-shop.mc-public-course.premium:after{background:radial-gradient(circle,rgba(255,184,43,.14),transparent 68%)!important}
+  .mc-public-ribbon{letter-spacing:.04em;border:1px solid rgba(255,255,255,.12)}
+  .mc-public-course .mc-public-btn{border:1px solid rgba(184,102,0,.18)!important;box-shadow:0 14px 32px rgba(223,115,0,.22)!important}
+  .mc-public-course.premium .mc-public-btn{box-shadow:0 14px 34px rgba(245,158,11,.24)!important}
+  .sidebar .menu-item[data-page="mycourses"]{background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(223,115,0,.08))!important;border:1px solid rgba(217,139,22,.34)!important;color:#b85f00!important;font-weight:800!important;box-shadow:0 10px 24px rgba(223,115,0,.08)!important}
+  .sidebar .menu-item[data-page="mycourses"] .menu-icon{color:#d97706!important}
+  .sidebar .menu-item[data-page="mycourses"]:hover{transform:translateX(2px)!important;background:linear-gradient(135deg,rgba(245,158,11,.24),rgba(223,115,0,.12))!important}
+  .sidebar .menu-item[data-page="mycourses"].active{background:linear-gradient(135deg,#f6a609,#dd7600)!important;color:#111827!important;border-color:#d97706!important;box-shadow:0 16px 34px rgba(223,115,0,.24)!important}
+  .sidebar .menu-item[data-page="mycourses"].active .menu-icon,.sidebar .menu-item[data-page="mycourses"].active #myCoursesNavBadge{color:inherit!important}
+  .sidebar .menu-item[data-page="mycourses"].active #myCoursesNavBadge{background:rgba(17,24,39,.14)!important;color:#111827!important}
+
   /* Premium accordion module cards */
   .course-module-card.premium-accordion-card{grid-template-columns:190px minmax(0,1fr) 220px!important;min-height:164px!important;border-radius:21px!important;align-items:stretch!important}
   .premium-accordion-card .course-mentor-wrap{padding:11px 10px!important}
@@ -69,13 +89,13 @@ function addStyles(){
   .course-access-lock small{display:block;margin-top:14px;color:#94a3b8;font-size:9px}
 
   @media(max-width:900px){
-    .mc-public-course-grid{grid-template-columns:1fr!important}
+    .mc-public-course-grid{grid-template-columns:1fr!important;gap:22px!important}
     .course-module-card.premium-accordion-card{grid-template-columns:150px minmax(0,1fr)!important}
     .premium-accordion-card .course-module-action{grid-column:1/-1!important}
   }
   @media(max-width:620px){
     .mc-public-topics{grid-template-columns:1fr}
-    .mc-shop.mc-public-course{padding:20px!important}
+    .mc-shop.mc-public-course{padding:20px!important;border-radius:22px!important}
     .mc-shop.mc-public-course h3{font-size:25px!important;max-width:72%!important}
     .course-module-card.premium-accordion-card{grid-template-columns:1fr!important}
     .premium-accordion-card .course-module-content{padding:15px!important}
