@@ -1016,7 +1016,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @media(max-width:1050px){.mentor-ai-grid{grid-template-columns:1fr}.mentor-ai-output{min-height:300px}}@media(max-width:650px){.mentor-ai-hero{min-height:250px}.mentor-ai-hero-copy{padding:26px 20px}.mentor-ai-hero-copy h2{font-size:23px}.mentor-ai-form-grid{grid-template-columns:1fr}.mentor-ai-card{padding:15px}.mentor-ai-tabs button{min-width:125px}.mentor-ai-output-actions{align-items:flex-start;flex-direction:column}.mentor-ai-output-actions button{width:100%}}
 </style>
 
-<link rel="stylesheet" href="psp-final-fixes.css?v=20260730-v11">
+<link rel="stylesheet" href="psp-final-fixes.css?v=20260730-v13">
 
 <link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-always-prompt-v2">
 
@@ -1044,7 +1044,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </style>
 
 <style id="pspCoursePageIsolationCss">#page-mycourses:not(.active){display:none!important}#page-mycourses.active{display:block!important}.brand-logo-img{width:42px;height:42px;object-fit:contain;display:block;flex:0 0 42px;border-radius:10px}</style>
-<link rel="stylesheet" href="course-marketplace-v3.css?v=20260730-v11">
+<link rel="stylesheet" href="course-marketplace-v3.css?v=20260730-v13">
 </head>
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
@@ -9123,7 +9123,8 @@ function renderArticles(){
     }
     const idx=ARTICLES.indexOf(a);
     html+=`<div class="card art-card art-media-only" onclick="openArt(${idx})" role="button" tabindex="0" aria-label="Open ${String(a.title||'item').replace(/"/g,'&quot;')}">
-      <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover'):a.grad}">${a.image?'':a.ico}${a.locked?'<span style="position:absolute;top:10px;right:10px;background:var(--gold);color:#0a0e1a;font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px">🔒 LOCKED</span>':''}</div>
+      <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover no-repeat'):a.grad}">${a.image?'':a.ico}${a.locked?'<span style="position:absolute;top:10px;right:10px;background:var(--gold);color:#0a0e1a;font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px">🔒 LOCKED</span>':''}</div>
+      <div class="art-body"><div class="art-title">${String(a.title||'Untitled').replace(/</g,'&lt;')}</div><div class="art-time">${String(a.date||'').replace(/</g,'&lt;')}</div></div>
     </div>`;
   });
   g.innerHTML=html;
@@ -9337,8 +9338,8 @@ window.addEventListener('message',function(event){
   if(typeof window.openAuthModal==='function'){ window.openAuthModal(); if(event.data.mode==='signup'&&typeof window.switchAuthTab==='function') window.switchAuthTab('signup'); }
 });
 </script>
-<script src="course-enrollment.js?v=20260730-v11"></script>
-<script src="course-marketplace-v3.js?v=20260730-v11"></script>
+<script src="course-enrollment.js?v=20260730-v13"></script>
+<script src="course-marketplace-v3.js?v=20260730-v13"></script>
 
 
 <script>

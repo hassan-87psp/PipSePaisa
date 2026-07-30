@@ -398,7 +398,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @keyframes pipBootPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 @keyframes pipBootBar{0%{margin-left:-40%}100%{margin-left:150%}}
 </style>
-<link rel="stylesheet" href="admin-final-overrides.css?v=20260730-v11">
+<link rel="stylesheet" href="admin-final-overrides.css?v=20260730-v13">
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
@@ -1715,17 +1715,25 @@ async function logoutAdmin() {
 
 async function uploadCourseThumb(input){
   const file=input.files&&input.files[0];if(!file)return;
-  const prev=document.getElementById('courseThumbPrev');if(prev)prev.innerHTML='<span style="font-size:12px;color:#94a0b8">Uploading...</span>';
+  const prev=document.getElementById('courseThumbPrev');
+  if(prev)prev.innerHTML='<span style="font-size:12px;color:#94a0b8">Checking 16:9 thumbnail...</span>';
   try{
+    if(!/^image\//i.test(file.type||''))throw new Error('Please select an image file.');
+    if(file.size>8*1024*1024)throw new Error('Thumbnail must be smaller than 8 MB.');
+    const dims=await new Promise((resolve,reject)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{resolve({width:img.naturalWidth,height:img.naturalHeight});URL.revokeObjectURL(url)};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Could not read the selected image.'))};img.src=url;});
+    const ratio=dims.width/dims.height;
+    if(!Number.isFinite(ratio)||Math.abs(ratio-(16/9))>0.025)throw new Error('Use a 16:9 thumbnail. Recommended size: 1200 × 675 px.');
+    if(prev)prev.innerHTML='<span style="font-size:12px;color:#94a0b8">Uploading '+dims.width+' × '+dims.height+'...</span>';
     const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
     const path='courses/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
     const {error}=await sb.storage.from('charts').upload(path,file,{upsert:true});
-    if(error){if(prev)prev.innerHTML='<span style="font-size:12px;color:#ef4444">Upload failed: '+error.message+' — create a public "charts" bucket in Supabase Storage.</span>';return;}
+    if(error)throw error;
     const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
     document.getElementById('courseThumbnail').value=url;
-    if(prev)prev.innerHTML='<img src="'+url+'" style="width:120px;height:80px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.12)">';
-  }catch(e){if(prev)prev.innerHTML='<span style="font-size:12px;color:#ef4444">Error: '+e.message+'</span>';}
+    if(prev)prev.innerHTML='<div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap"><img src="'+url+'" style="width:240px;aspect-ratio:16/9;object-fit:cover;border-radius:10px;border:1px solid var(--border)"><div><div style="font-size:11px;font-weight:800;color:var(--green)">✓ Thumbnail uploaded</div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">'+dims.width+' × '+dims.height+' · 16:9</div><button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="removeCourseThumbnail()">Remove</button></div></div>';
+  }catch(e){input.value='';if(prev)prev.innerHTML='<span style="font-size:12px;color:#ef4444">'+String(e.message||e)+'</span>';}
 }
+function removeCourseThumbnail(){const hidden=document.getElementById('courseThumbnail'),file=document.getElementById('courseThumbFile'),prev=document.getElementById('courseThumbPrev');if(hidden)hidden.value='';if(file)file.value='';if(prev)prev.innerHTML='<span style="font-size:11px;color:var(--text-muted)">Thumbnail removed. Save the course to apply.</span>';}
 function toggleQuickAdd(e){if(e)e.stopPropagation();const m=document.getElementById('qaMenu');if(m)m.style.display=m.style.display==='none'?'block':'none';}
 function qaGo(page){const m=document.getElementById('qaMenu');if(m)m.style.display='none';const nav=document.querySelector('[data-page="'+page+'"]');if(nav)nav.click();else showPage(page);}
 document.addEventListener('click',function(e){const m=document.getElementById('qaMenu');if(m&&m.style.display==='block'&&!e.target.closest('#qaWrap'))m.style.display='none';});
@@ -2987,7 +2995,8 @@ function openCourseForm(course) {
     document.getElementById('courseLevel').value = course.level || 'Beginner';
     document.getElementById('courseCategory').value = course.category || '';
     document.getElementById('courseThumbnail').value = course.thumbnail || '';
-    { const _p=document.getElementById('courseThumbPrev'); if(_p)_p.innerHTML = course.thumbnail ? ('<img src="'+course.thumbnail+'" style="width:120px;height:80px;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,.12)">') : ''; const _f=document.getElementById('courseThumbFile'); if(_f)_f.value=''; }
+    { const _p=document.getElementById('courseThumbPrev'); if(_p)_p.innerHTML = course.thumbnail ? ('<div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap"><img src="'+course.thumbnail+'" style="width:240px;aspect-ratio:16/9;object-fit:cover;border-radius:10px;border:1px solid var(--border)"><button type="button" class="btn btn-secondary btn-sm" onclick="removeCourseThumbnail()">Remove</button></div>') : ''; const _f=document.getElementById('courseThumbFile'); if(_f)_f.value=''; }
+    { const _price=document.getElementById('coursePrice'); if(_price)_price.value=Number(course.price!=null?course.price:(course.is_premium?200:0)); }
     document.getElementById('courseEmoji').value = course.thumbnail_emoji || '📚';
     document.getElementById('courseColor').value = course.thumbnail_color || 1;
     document.getElementById('courseYoutubeUrl').value = course.youtube_url || '';
@@ -3005,6 +3014,7 @@ function openCourseForm(course) {
     document.getElementById('courseLevel').value = 'Beginner';
     document.getElementById('courseOrder').value = '0';
     document.getElementById('courseEnrollments').value = '0';
+    { const _price=document.getElementById('coursePrice'); if(_price)_price.value='0'; }
     document.getElementById('coursePublished').checked = true;
     document.getElementById('coursePremium').checked = false;
   }
@@ -3046,12 +3056,17 @@ async function saveCourse() {
     display_order: parseInt(document.getElementById('courseOrder').value) || 0,
     enrollments_count: parseInt(document.getElementById('courseEnrollments').value) || 0,
     is_published: document.getElementById('coursePublished').checked,
-    is_premium: document.getElementById('coursePremium').checked
+    is_premium: document.getElementById('coursePremium').checked,
+    price: Math.max(0, parseFloat((document.getElementById('coursePrice')||{value:'0'}).value) || 0)
   };
   
-  const result = id 
+  let result = id 
     ? await sb.from('courses').update(data).eq('id', id)
     : await sb.from('courses').insert(data);
+  if(result.error && /price.*column|column.*price|schema cache.*price/i.test(String(result.error.message||''))){
+    delete data.price;
+    result = id ? await sb.from('courses').update(data).eq('id', id) : await sb.from('courses').insert(data);
+  }
   
   btn.textContent = '💾 Save Course';
   btn.disabled = false;
@@ -3528,9 +3543,10 @@ async function initCharts() {
       <div class="form-group"><label>Category</label><input type="text" id="courseCategory" placeholder="e.g. Technical, Risk"></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Emoji Icon</label><input type="text" id="courseEmoji" placeholder="📊" maxlength="2" value="📚"></div>
-      <div class="form-group"><label>Color (1-6)</label><select id="courseColor"><option value="1">🟧 Gold</option><option value="2">🟦 Blue</option><option value="3">🟩 Green</option><option value="4">🟪 Purple</option><option value="5">🟥 Pink</option><option value="6">🔴 Red</option></select></div>
-      <div class="form-group" style="grid-column:1/-1"><label>Thumbnail Image (upload)</label><input type="file" id="courseThumbFile" accept="image/*" onchange="uploadCourseThumb(this)"><input type="hidden" id="courseThumbnail"><div id="courseThumbPrev" style="margin-top:8px"></div></div>
+      <div class="form-group"><label>Emoji Icon (fallback)</label><input type="text" id="courseEmoji" placeholder="📊" maxlength="2" value="📚"></div>
+      <div class="form-group"><label>Color (fallback)</label><select id="courseColor"><option value="1">🟧 Gold</option><option value="2">🟦 Blue</option><option value="3">🟩 Green</option><option value="4">🟪 Purple</option><option value="5">🟥 Pink</option><option value="6">🔴 Red</option></select></div>
+      <div class="form-group"><label>Course Price (USD)</label><input type="number" min="0" step="1" id="coursePrice" value="0" placeholder="0 for free, 200 for paid"></div>
+      <div class="form-group" style="grid-column:1/-1"><label>Course Thumbnail — 1200 × 675 px (16:9)</label><input type="file" id="courseThumbFile" accept="image/png,image/jpeg,image/webp" onchange="uploadCourseThumb(this)"><input type="hidden" id="courseThumbnail"><div style="font-size:10px;color:var(--text-muted);margin-top:6px">This image is used in My Courses, the sticky access card and related-course cards.</div><div id="courseThumbPrev" style="margin-top:10px"></div></div>
     </div>
     <div class="form-group"><label>YouTube URL</label><input type="url" id="courseYoutubeUrl" placeholder="https://youtube.com/..."></div>
     <div class="form-row">
@@ -3735,7 +3751,7 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 </script>
 
 <script src="course-enrollments-admin.js?v=20260729-counts-v20"></script>
-<script src="admin-final-overrides.js?v=20260730-v11"></script>
+<script src="admin-final-overrides.js?v=20260730-v13"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
 </body>
 </html>

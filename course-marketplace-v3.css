@@ -436,8 +436,8 @@ body.dark .psp-learn-item,[data-theme="dark"] .psp-learn-item,body.dark .psp-inc
   z-index:20;
   overflow:hidden;
 }
-.psp-course-sticky-column .psp-course-side-preview{aspect-ratio:16/9;overflow:hidden}
-.psp-course-sticky-column .psp-course-side-preview img{width:100%;height:100%;object-fit:cover}
+.psp-course-sticky-column .psp-course-side-preview{aspect-ratio:auto;min-height:166px;height:166px;overflow:hidden;display:flex;align-items:stretch;justify-content:stretch;background:linear-gradient(180deg,#08162b,#0d223f)}
+.psp-course-sticky-column .psp-course-side-preview img{width:100%;height:100%;object-fit:contain;object-position:center right;background:linear-gradient(180deg,#08162b,#0d223f)}
 .psp-course-sticky-column .psp-course-buy-btn{width:100%;white-space:normal;line-height:1.25;padding:13px 10px}
 
 @media(max-width:1260px){
@@ -465,6 +465,7 @@ body.dark .psp-learn-item,[data-theme="dark"] .psp-learn-item,body.dark .psp-inc
 .psp-course-detail-shell .psp-course-detail-hero{border-radius:22px!important;box-shadow:0 26px 70px rgba(2,8,23,.18);animation:pspHeroIn .7s cubic-bezier(.2,.8,.2,1) both}
 .psp-course-detail-shell .psp-course-detail-hero-inner{padding:18px 22px 22px!important;min-height:0!important}
 .psp-course-detail-shell .psp-course-detail-hero-grid{grid-template-columns:minmax(0,1fr) 255px!important;gap:8px!important;min-height:420px!important;align-items:end!important}
+.psp-course-side-overlay{padding:14px 14px 12px!important;background:linear-gradient(180deg,transparent 0%,rgba(4,10,20,.68) 58%,rgba(4,10,20,.88) 100%)!important}
 .psp-course-detail-shell .psp-course-hero-copy{min-height:0!important;padding:0 0 4px!important;align-self:center;max-width:700px}
 .psp-course-detail-title{font-size:clamp(34px,3.2vw,52px)!important;line-height:1.02!important;letter-spacing:-.04em;margin:8px 0 10px!important}
 .psp-course-detail-subtitle{max-width:660px;font-size:13px!important;line-height:1.55!important;margin:0 0 12px!important}
@@ -938,3 +939,17 @@ body.dark .psp-live-class-card,[data-theme="dark"] .psp-live-class-card{
 }
 @media(max-width:1050px){.psp-live-class-card{margin-top:12px}}
 @media(prefers-reduced-motion:reduce){.psp-live-class-card{animation:none!important}}
+
+/* ===== V13: admin-managed 16:9 course thumbnails, full-image previews ===== */
+.psp-course-thumb{isolation:isolate;display:grid!important;place-items:center!important;background:#081426!important}
+.psp-course-thumb img.psp-course-thumb-bg{position:absolute!important;inset:-16px!important;width:calc(100% + 32px)!important;height:calc(100% + 32px)!important;object-fit:cover!important;filter:blur(14px) brightness(.48) saturate(.92)!important;opacity:.82!important;transform:scale(1.08)!important;z-index:0!important}
+.psp-course-thumb img.psp-course-thumb-main{position:relative!important;z-index:1!important;width:calc(100% - 14px)!important;height:auto!important;max-height:calc(100% - 14px)!important;aspect-ratio:16/9!important;object-fit:contain!important;border-radius:8px!important;box-shadow:0 10px 26px rgba(0,0,0,.25)!important;transform:none!important}
+.psp-course-tile:hover .psp-course-thumb img.psp-course-thumb-main{transform:scale(1.018)!important}
+.psp-course-play{z-index:3!important;pointer-events:none}
+.psp-course-thumb-label{z-index:4!important}
+.psp-course-sticky-column .psp-course-side-preview{position:relative!important;isolation:isolate!important;display:grid!important;place-items:center!important;background:#081426!important}
+.psp-course-side-preview-bg{position:absolute!important;inset:-18px!important;width:calc(100% + 36px)!important;height:calc(100% + 36px)!important;object-fit:cover!important;filter:blur(16px) brightness(.5)!important;opacity:.85!important;z-index:0!important}
+.psp-course-side-preview-main{position:relative!important;z-index:1!important;width:calc(100% - 12px)!important;height:calc(100% - 12px)!important;object-fit:contain!important;object-position:center!important;border-radius:8px!important}
+.psp-course-side-preview-play{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;padding-left:3px;background:rgba(255,255,255,.94);color:#111827;box-shadow:0 12px 28px rgba(0,0,0,.28);font-size:16px}
+.psp-course-side-overlay{z-index:4!important}
+@media(max-width:430px){.psp-course-thumb img.psp-course-thumb-main{width:calc(100% - 12px)!important;max-height:calc(100% - 12px)!important}}

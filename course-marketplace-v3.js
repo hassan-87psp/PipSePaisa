@@ -98,18 +98,36 @@ async function loadCourseClasses(){
 }
 async function loadCourseData(){
   const db=client();
+  let rows=[];
   if(db){
     try{
       const r=await db.from('courses').select('*').order('display_order',{ascending:true});
-      if(!r.error&&Array.isArray(r.data)){
-        const basic=r.data.find(x=>/basic forex course/i.test(x.title||''))||r.data.find(x=>!x.is_premium);
-        const adv=r.data.find(x=>/advanced forex course/i.test(x.title||''))||r.data.find(x=>x.is_premium);
-        if(basic){courseData.basic={...courseData.basic,title:basic.title||courseData.basic.title,short:basic.description||courseData.basic.short,description:basic.description||courseData.basic.description,published:basic.is_published!==false};}
-        if(adv){courseData.advanced={...courseData.advanced,title:adv.title||courseData.advanced.title,short:adv.description||courseData.advanced.short,description:adv.description||courseData.advanced.description,price:Number(adv.price||200),published:adv.is_published!==false};}
-      }
+      if(!r.error&&Array.isArray(r.data))rows=r.data;
+      else if(r.error)console.warn('Course catalog sync skipped',r.error);
     }catch(e){console.warn('Course data sync skipped',e);}
   }
-  const [b,a]=await Promise.all([getEnrollment('basic'),getEnrollment('advanced'),loadCourseClasses()]);
+  const basic=rows.find(x=>/basic forex course/i.test(x.title||''))||rows.find(x=>x.is_premium!==true&&Number(x.display_order)===1)||rows.find(x=>x.is_premium!==true);
+  const adv=rows.find(x=>/advanced forex course/i.test(x.title||''))||rows.find(x=>x.is_premium===true&&Number(x.display_order)===2)||rows.find(x=>x.is_premium===true);
+  const numberValue=(value,fallback)=>{if(value===null||value===undefined||value==='')return fallback;const n=Number(value);return Number.isFinite(n)&&n>=0?n:fallback;};
+  courseData.basic={...defaults.basic,...(basic?{
+    dbId:basic.id||'',title:basic.title||defaults.basic.title,
+    short:basic.short_description||basic.description||defaults.basic.short,
+    description:basic.description||defaults.basic.description,
+    level:basic.level||defaults.basic.level,badge:basic.course_badge||defaults.basic.badge,
+    thumbnail:basic.thumbnail||defaults.basic.thumbnail,videoUrl:basic.youtube_url||basic.video_url||'',
+    price:0,oldPrice:0,published:basic.is_published!==false
+  }:{published:true,videoUrl:''})};
+  courseData.advanced={...defaults.advanced,...(adv?{
+    dbId:adv.id||'',title:adv.title||defaults.advanced.title,
+    short:adv.short_description||adv.description||defaults.advanced.short,
+    description:adv.description||defaults.advanced.description,
+    level:adv.level||defaults.advanced.level,badge:adv.course_badge||defaults.advanced.badge,
+    thumbnail:adv.thumbnail||defaults.advanced.thumbnail,videoUrl:adv.youtube_url||adv.video_url||'',
+    price:numberValue(adv.price,defaults.advanced.price),oldPrice:numberValue(adv.old_price,defaults.advanced.oldPrice),
+    published:adv.is_published!==false
+  }:{published:true,videoUrl:''})};
+  const [b,a]=await Promise.all([getEnrollment('basic'),getEnrollment('advanced')]);
+  await loadCourseClasses();
   enrollmentState.basic=normalize(b,'basic');
   enrollmentState.advanced=normalize(a,'advanced');
 }
@@ -122,8 +140,14 @@ function statusLabel(key){
 }
 function tileMarkup(c){
   const st=statusLabel(c.key);
+  const hasVideo=/^https?:\/\//i.test(String(c.videoUrl||'').trim());
   return `<article class="psp-course-tile ${c.type==='paid'?'paid':''}" data-course="${c.key}" tabindex="0" role="button" aria-label="Open ${esc(c.title)} details">
-    <div class="psp-course-thumb"><img src="${esc(c.thumbnail)}" alt="${esc(c.title)} thumbnail"><div class="psp-course-play"><span>▶</span></div><div class="psp-course-thumb-label">${esc(c.badge)}</div></div>
+    <div class="psp-course-thumb">
+      <img class="psp-course-thumb-bg" src="${esc(c.thumbnail)}" alt="" aria-hidden="true">
+      <img class="psp-course-thumb-main" src="${esc(c.thumbnail)}" alt="${esc(c.title)} thumbnail">
+      ${hasVideo?'<div class="psp-course-play" aria-label="Video preview available"><span>▶</span></div>':''}
+      <div class="psp-course-thumb-label">${esc(c.badge)}</div>
+    </div>
     <div class="psp-course-tile-body">
       <div class="psp-course-tile-top"><h3>${esc(c.title)}</h3><div class="psp-course-price">${c.price?('$'+c.price):'Free'}</div></div>
       <p>${esc(c.short)}</p>
@@ -135,14 +159,17 @@ function tileMarkup(c){
 function ensureShell(){
   const page=document.getElementById('page-mycourses');if(!page)return null;
   if(!page.querySelector('.psp-course-marketplace-v3')){
-    page.innerHTML=`<div class="psp-course-marketplace-v3"><section class="psp-course-marketplace"><div class="psp-course-market-head"><div><h2>Explore Forex Courses</h2><p>Choose a course, review the complete details and enroll from one professional page.</p></div><span class="psp-course-market-count">2 Active Courses</span></div><div class="psp-course-card-grid" id="pspCourseCardGrid"></div></section><section class="psp-course-detail" id="pspCourseDetail"></section></div>`;
+    page.innerHTML=`<div class="psp-course-marketplace-v3"><section class="psp-course-marketplace"><div class="psp-course-market-head"><div><h2>Explore Forex Courses</h2><p>Choose a course, review the complete details and enroll from one professional page.</p></div><span class="psp-course-market-count" id="pspCourseActiveCount">2 Active Courses</span></div><div class="psp-course-card-grid" id="pspCourseCardGrid"></div></section><section class="psp-course-detail" id="pspCourseDetail"></section></div>`;
   }
   return page;
 }
 function renderMarketplace(){
   const page=ensureShell();if(!page)return;
   const grid=page.querySelector('#pspCourseCardGrid');if(!grid)return;
-  grid.innerHTML=Object.values(courseData).filter(c=>c.published!==false).map(tileMarkup).join('');
+  const visible=Object.values(courseData).filter(c=>c.published!==false);
+  const count=page.querySelector('#pspCourseActiveCount');
+  if(count)count.textContent=`${visible.length} Active Course${visible.length===1?'':'s'}`;
+  grid.innerHTML=visible.map(tileMarkup).join('');
   grid.querySelectorAll('.psp-course-tile').forEach(card=>{
     const open=()=>window.openCourseDetail(card.dataset.course);
     card.addEventListener('click',open);
@@ -155,7 +182,7 @@ function buyPanel(c,state){
   let status='',button='',disabled='';
   if(c.type==='free'){
     status=approved?'<div class="psp-course-buy-status approved">You are already enrolled in this course.</div>':'<div class="psp-course-buy-status">Free enrollment — no payment required.</div>';
-    button=approved?'Open Course Modules':'Enroll Now — 100% Free';
+    button=approved?'Already Enrolled — Open Modules':'Enroll Now — 100% Free';
   }else if(approved){
     status='<div class="psp-course-buy-status approved">Payment approved — course access is unlocked.</div>';
     button='Open Advanced Course';
@@ -192,7 +219,7 @@ function stickyAccessPanel(c,state){
     status=approved
       ?'<div class="psp-course-buy-status approved"><b>✓ Already Enrolled</b><span>Your Basic Forex Course access is active.</span></div>'
       :'<div class="psp-course-buy-status"><b>100% Free Enrollment</b><span>No payment or admin approval required.</span></div>';
-    button=approved?'Open Course Modules':'Enroll Now';
+    button=approved?'Already Enrolled — Open Modules':'Enroll Now';
     steps='<div class="psp-access-steps"><span class="done">1</span><b>Profile</b><i></i><span class="'+(approved?'done':'')+'">2</span><b>Access</b></div>';
   }else if(approved){
     eyebrow='PREMIUM ACCESS ACTIVE';
@@ -221,7 +248,9 @@ function stickyAccessPanel(c,state){
   }
   return `<div class="psp-course-side-card psp-course-side-card-premium ${c.type} ${state}">
     <div class="psp-course-side-preview">
-      <img src="${esc(c.thumbnail)}" alt="${esc(c.title)} preview">
+      <img class="psp-course-side-preview-bg" src="${esc(c.thumbnail)}" alt="" aria-hidden="true">
+      <img class="psp-course-side-preview-main" src="${esc(c.thumbnail)}" alt="${esc(c.title)} preview">
+      ${/^https?:\/\//i.test(String(c.videoUrl||'').trim())?'<span class="psp-course-side-preview-play">▶</span>':''}
       <div class="psp-course-side-overlay"><span>${esc(c.level)} Program</span><strong>${esc(c.title)}</strong></div>
     </div>
     <div class="psp-course-side-body">
@@ -377,6 +406,18 @@ window.addEventListener('course-enrollment-updated',async()=>{
   await loadCourseData();
   if(currentCourse)renderCurrentDetail(currentCourse.key);else renderMarketplace();
 });
+
+function subscribeCourseCatalog(){
+  const db=client();if(!db)return setTimeout(subscribeCourseCatalog,500);
+  if(window.__pspCourseCatalogRealtime)return;
+  window.__pspCourseCatalogRealtime=true;
+  try{
+    db.channel('psp-course-catalog-user-v13').on('postgres_changes',{event:'*',schema:'public',table:'courses'},async()=>{
+      await loadCourseData();
+      if(currentCourse)renderCurrentDetail(currentCourse.key);else renderMarketplace();
+    }).subscribe();
+  }catch(e){console.warn('Course catalog realtime unavailable',e);}
+}
 function subscribeCourseClasses(){
   const db=client();if(!db)return setTimeout(subscribeCourseClasses,500);
   if(window.__pspCourseClassesRealtime)return;
@@ -388,5 +429,5 @@ function subscribeCourseClasses(){
     }).subscribe();
   }catch(e){console.warn('Course class realtime unavailable',e);}
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{init();subscribeCourseClasses();});else{init();subscribeCourseClasses();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{init();subscribeCourseCatalog();subscribeCourseClasses();});else{init();subscribeCourseCatalog();subscribeCourseClasses();}
 })();
