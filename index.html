@@ -2967,6 +2967,10 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         <label>Password</label>
         <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
       </div>
+
+      <div style="display:flex;justify-content:flex-end;margin:-2px 0 12px;">
+        <button type="button" onclick="switchAuthTab('forgot')" style="border:0;background:transparent;color:var(--gold);font:inherit;font-size:12px;font-weight:800;cursor:pointer;padding:2px 0;">Forgot Password?</button>
+      </div>
       
       <button class="btn" style="width: 100%;" onclick="loginUser()" id="loginBtn">🔐 Login to Account</button>
       
@@ -6250,6 +6254,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if(m){m.style.background='transparent';m.style.color='var(--text-muted)';m.style.fontWeight='600';}
   }
   function switchAuthTab(tab) {
+    if (tab === 'forgot') {
+      const loginEmail = document.getElementById('loginEmail');
+      const forgotEmail = document.getElementById('forgotEmail');
+      if (forgotEmail && loginEmail && !forgotEmail.value) forgotEmail.value = loginEmail.value.trim();
+    }
     // Update tabs
     document.getElementById('authTabLogin').style.background = tab === 'login' ? 'var(--gold)' : 'transparent';
     document.getElementById('authTabLogin').style.color = tab === 'login' ? '#0a0e1a' : 'var(--text-muted)';
@@ -6458,8 +6467,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     btn.textContent = '⏳ Sending...';
     
     try {
+      const resetUrl = (location.protocol === 'http:' || location.protocol === 'https:')
+        ? new URL('reset-password.html', location.href).href
+        : 'https://www.pipsepaisa.com/reset-password.html';
       const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin
+        redirectTo: resetUrl
       });
       
       if (error) throw error;
@@ -6467,7 +6479,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       showAuthMessage('success', `Reset link sent to ${email}! Check your inbox (and spam folder).`, 'authMessageForgot');
       setTimeout(() => {
         switchAuthTab('login');
-      }, 4000);
+      }, 5000);
     } catch (error) {
       console.error('Forgot password error:', error);
       showAuthMessage('error', error.message || 'Could not send reset link', 'authMessageForgot');
