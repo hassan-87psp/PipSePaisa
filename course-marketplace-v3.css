@@ -953,3 +953,31 @@ body.dark .psp-live-class-card,[data-theme="dark"] .psp-live-class-card{
 .psp-course-side-preview-play{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;padding-left:3px;background:rgba(255,255,255,.94);color:#111827;box-shadow:0 12px 28px rgba(0,0,0,.28);font-size:16px}
 .psp-course-side-overlay{z-index:4!important}
 @media(max-width:430px){.psp-course-thumb img.psp-course-thumb-main{width:calc(100% - 12px)!important;max-height:calc(100% - 12px)!important}}
+
+/* V18 — exact 16:9 course thumbnails, no black side bars/cropped frame */
+.psp-course-thumb{
+  aspect-ratio:16/9!important;
+  height:auto!important;
+  min-height:0!important;
+  background:transparent!important;
+  display:block!important;
+}
+.psp-course-thumb img.psp-course-thumb-bg,
+.psp-course-side-preview-bg{display:none!important}
+.psp-course-thumb img.psp-course-thumb-main{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  max-height:none!important;aspect-ratio:16/9!important;object-fit:cover!important;object-position:center!important;
+  border-radius:0!important;box-shadow:none!important;transform:none!important
+}
+.psp-course-tile:hover .psp-course-thumb img.psp-course-thumb-main{transform:scale(1.015)!important}
+.psp-course-side-preview,
+.psp-course-sticky-column .psp-course-side-preview{
+  aspect-ratio:16/9!important;height:auto!important;min-height:0!important;background:transparent!important
+}
+.psp-course-side-preview-main,
+.psp-course-sticky-column .psp-course-side-preview img.psp-course-side-preview-main{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  object-fit:cover!important;object-position:center!important;border-radius:0!important;background:transparent!important
+}
+.psp-course-buy-thumb{aspect-ratio:16/9!important;height:auto!important;background:transparent!important}
+.psp-course-buy-thumb img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important}

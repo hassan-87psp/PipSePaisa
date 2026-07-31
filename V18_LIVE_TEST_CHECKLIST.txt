@@ -1,0 +1,46 @@
+PipSePaisa V18 — Live Test Checklist
+
+Run these tests only after Query 58, Edge Function redeploy, Auth email template update and website upload.
+
+1. SIGNUP
+- Create a fresh account.
+- The signup modal must immediately stay on “Check Your Email”.
+- It must not auto-close or switch to Login.
+- Verification email should arrive.
+
+2. EMAIL VERIFICATION
+- Click the verification link.
+- email-verified.html must open.
+- Dashboard must NOT auto-open.
+- Click Continue to Sign In and log in manually.
+- Free Access PIN instruction email should arrive.
+
+3. PIN ACCESS
+- In Admin Panel > Users, confirm the user has a unique PIN and deadline.
+- In Admin Panel > Settings, set a short test timer such as 1 minute and click Apply Timer to All Pending Users.
+- In the user Settings page, confirm Name, Email, WhatsApp, PIN status, deadline and PIN input are visible.
+- After expiry, Signals, Charts, Articles and Journal should remain visible but be blurred/locked.
+- Clicking locked content must show the “totally free” WhatsApp/PIN popup.
+- Enter the correct PIN in Settings and confirm protected content unlocks.
+
+4. FREE COURSE
+- Enroll in the Basic course.
+- Success should appear immediately without a long visible “Submitting…” state.
+- Free enrollment email should arrive.
+
+5. PAID COURSE / RECEIPT
+- Test JPG/JPEG, PNG and PDF receipt uploads.
+- A file larger than 5 MB or an unsupported type must show a clear error.
+- Payment submission success should appear immediately.
+- “Payment Received — Under Review” email should arrive.
+
+6. ADMIN PAYMENT ACTIONS
+- Approve payment: course unlocks and approval email arrives.
+- Edit payment details/status after approval.
+- Revoke approval: course locks again and revocation email arrives.
+- Resubmit after rejected/revoked status.
+
+7. COURSE ADMIN EDITOR
+- Upload a direct 16:9 thumbnail (recommended 1200 × 675).
+- Edit title, full/short/extra descriptions, price, badge, labels, access-card features, requirements, audience, six learning outcomes, six achievement outcomes, modules, content note, secure line, mentor text and button text.
+- Confirm both free and paid course cards use clean 16:9 thumbnails without side bars or overflow.

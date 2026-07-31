@@ -1,0 +1,12 @@
+PipSePaisa V18 — Build Validation
+
+Completed before packaging:
+- All 15 standalone JavaScript files passed Node syntax checks.
+- 45 inline JavaScript blocks from the main HTML pages passed syntax checks.
+- Supabase Edge Function TypeScript passed TypeScript transpile/syntax validation.
+- Local script, stylesheet, image and iframe file references were checked across all HTML files.
+- The requested course copy and 16:9 thumbnail overrides are present.
+- Edge Function copy-paste file matches supabase/functions/send-course-email/index.ts exactly.
+
+Live-environment requirement:
+The SQL migration, SMTP connection, Supabase Auth confirmation redirect, RLS behaviour and real emails can only be fully verified after deploying to the correct live Supabase project. Follow V18_LIVE_TEST_CHECKLIST.txt after deployment.

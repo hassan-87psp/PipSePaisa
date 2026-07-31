@@ -220,7 +220,7 @@
         <div class="ce-field full"><label>Payment Method</label><select id="${prefix}PaymentMethod">${options}</select></div>
         <div class="ce-field full"><div id="${prefix}PaymentDetails">${paymentMethodDetails(paymentMethods[0])}</div></div>
         <div class="ce-field full"><label>Transaction ID / Reference</label><input id="${prefix}TransactionId" type="text" placeholder="Transaction reference"></div>
-        <div class="ce-field full"><label>Payment Receipt</label><input id="${prefix}Receipt" type="file" accept="image/*,.pdf"><small style="color:#64748b">Upload a clear screenshot or PDF of your payment.</small></div>
+        <div class="ce-field full"><label>Payment Receipt</label><input id="${prefix}Receipt" type="file" accept="image/jpeg,image/png,application/pdf,.jpg,.jpeg,.png,.pdf"><small style="color:#64748b">JPG, JPEG, PNG or PDF only — maximum 5 MB.</small></div>
       </div>`;
   }
 
@@ -353,14 +353,30 @@
     }
   }
 
+  function validateReceiptFile(file){
+    if(!file)return {ok:false,message:'Please upload your payment receipt.'};
+    const max=5*1024*1024;
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    const allowedExt=['jpg','jpeg','png','pdf'];
+    const allowedMime=['image/jpeg','image/png','application/pdf'];
+    if(!allowedExt.includes(ext)||!allowedMime.includes(file.type)){
+      return {ok:false,message:'Payment receipt must be a JPG, JPEG, PNG or PDF file.'};
+    }
+    if(file.size>max){
+      return {ok:false,message:'Payment receipt must be 5 MB or smaller.'};
+    }
+    return {ok:true};
+  }
+
   async function uploadReceipt(file,userId){
     if(selectedCourse?.type!=='paid')return null;
-    if(!file)throw new Error('Please upload your payment receipt.');
+    const check=validateReceiptFile(file);
+    if(!check.ok)throw new Error(check.message);
     const ext=(file.name.split('.').pop()||'jpg').replace(/[^a-z0-9]/gi,'').toLowerCase()||'jpg';
-    const path=`course-payments/${userId}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
-    const {error}=await getClient().storage.from('charts').upload(path,file,{upsert:false,contentType:file.type||undefined});
+    const path=`${userId}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+    const {error}=await getClient().storage.from('course-receipts').upload(path,file,{upsert:false,contentType:file.type||undefined});
     if(error)throw error;
-    const {data}=getClient().storage.from('charts').getPublicUrl(path);
+    const {data}=getClient().storage.from('course-receipts').getPublicUrl(path);
     return data?.publicUrl||null;
   }
 
@@ -532,32 +548,29 @@
     if(values.password!==values.password2){setMessage('ceNewMessage','error','Passwords do not match.');return;}
     if(!values.experience||!values.goal){setMessage('ceNewMessage','error','Please answer both enrollment questions.');return;}
     if(selectedCourse.type==='paid'&&(!paymentMethods.length||!values.transactionId||!receipt)){setMessage('ceNewMessage','error','Select an available payment method, enter the transaction ID and upload the payment receipt.');return;}
-    setBusy('ceNewSubmitBtn',true,'Creating Account...','Create Account & Enroll');
-    setMessage('ceNewMessage','info','Creating your PipSePaisa account...');
+    if(selectedCourse.type==='paid'){const check=validateReceiptFile(receipt);if(!check.ok){setMessage('ceNewMessage','error',check.message);return;}}
+    const instantTitle=document.getElementById('ceSuccessTitle');
+    const instantText=document.getElementById('ceSuccessText');
+    if(instantTitle)instantTitle.textContent='Check Your Email';
+    if(instantText)instantText.textContent=`We are sending a verification link to ${values.email}. Verify your email, then sign in to complete the course enrollment.`;
+    showStep('ceStepSuccess');
     try{
       const sb=getClient();if(!sb)throw new Error('Connection problem. Please reload and try again.');
       const username=values.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
       const {data,error}=await sb.auth.signUp({email:values.email,password:values.password,options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:values.name,username,phone:values.phone,role:'user'}}});
       if(error)throw error;
       activeUser=data?.session?.user||data?.user||null;
-      if(!data?.session){
-        const login=await sb.auth.signInWithPassword({email:values.email,password:values.password});
-        if(!login.error)activeUser=login.data?.user||activeUser;
-      }
-      if(!activeUser || !(await sb.auth.getSession()).data?.session){
-        setMessage('ceNewMessage','success',`Account created. A verification email was sent to ${values.email}. Verify it first, then return and choose “Yes, I’m Already a User” to complete enrollment.`);
-        const btn=document.getElementById('ceNewSubmitBtn');if(btn){btn.textContent='Verification Email Sent';btn.disabled=true;}
-        return;
-      }
-      accountWasCreated=true;await loadProfile(activeUser);
-      const result=await saveEnrollment(values,receipt);
-      if(!result.already&&!result.pending){await sendCourseEmail(selectedCourse.type==='free'?'free_course_enrolled':'payment_received',values);}
-      showSuccess(result);
+      if(data?.session){try{await sb.auth.signOut({scope:'local'});}catch(_){}}
+      if(!data?.session){return;}
+      // Signup always continues through email verification and a manual sign-in.
+      // Enrollment is completed after the verified user returns and signs in.
+      return;
     }catch(error){
       let msg=error?.message||'Account creation failed.';
       if(/already|registered|exists/i.test(msg))msg='This email is already registered. Go back and choose “Yes, I’m Already a User”.';
+      showStep('ceStepNew');
       setMessage('ceNewMessage','error',msg);
-    }finally{setBusy('ceNewSubmitBtn',false,'Creating Account...','Create Account & Enroll');}
+    }
   };
 
   window.courseEnrollmentSubmitExisting=async function(){
@@ -585,8 +598,9 @@
       return;
     }
     if(selectedCourse.type==='paid'&&(!paymentMethods.length||!values.transactionId||!receipt)){setMessage('ceDetailsMessage','error','Select an available payment method, enter the transaction ID and upload the payment receipt.');return;}
-    setBusy('ceDetailsSubmitBtn',true,'Submitting...',selectedCourse.type==='free'?'Confirm Free Enrollment':'Submit Payment for Approval');
-    setMessage('ceDetailsMessage','info','Submitting your enrollment...');
+    if(selectedCourse.type==='paid'){const check=validateReceiptFile(receipt);if(!check.ok){setMessage('ceDetailsMessage','error',check.message);return;}}
+    const optimistic={already:false,pending:false};
+    showSuccess(optimistic);
     try{
       const sb=getClient();if(!sb)throw new Error('Connection problem. Please reload and try again.');
       if(!activeUser){
@@ -603,8 +617,10 @@
       const msg=/course_enrollments/i.test(error?.message||'')
         ?'Course enrollment is not installed yet. Run Query 44 in Supabase, then try again.'
         :(error?.message||'Enrollment could not be completed.');
+      showStep('ceStepDetails');
       setMessage('ceDetailsMessage','error',msg);
-    }finally{setBusy('ceDetailsSubmitBtn',false,'Submitting...',selectedCourse.type==='free'?'Confirm Free Enrollment':'Submit Payment for Approval');}
+      if(window.pipToast)window.pipToast(msg,'err');
+    }
   };
 
   window.openMyCoursesFromEnrollment=function(){

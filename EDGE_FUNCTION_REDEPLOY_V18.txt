@@ -1,0 +1,17 @@
+PipSePaisa V18 — IMPORTANT EDGE FUNCTION UPDATE
+
+The website ZIP contains the updated function here:
+  supabase/functions/send-course-email/index.ts
+
+Why redeploy is required:
+- Fixes payment-approved email for admin roles named "superadmin".
+- Adds payment-revoked email.
+- Adds the dynamic Free Access PIN email after email verification.
+
+Browser-dashboard method:
+1. Supabase > Edge Functions > send-course-email > Edit/Deploy new version.
+2. Delete the old code.
+3. Paste the full code from supabase/functions/send-course-email/index.ts.
+4. Deploy.
+
+Keep the existing SMTP secrets exactly as already saved.

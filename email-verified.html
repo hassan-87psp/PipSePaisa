@@ -31,29 +31,53 @@
     (async function(){
       const title=document.getElementById('title'),status=document.getElementById('status'),icon=document.getElementById('icon'),btn=document.getElementById('loginBtn');
       try{
+        sessionStorage.setItem('psp-manual-signin-required','1');
+        sessionStorage.removeItem('psp-signup-pending');
         const client=window.supabase.createClient(
           'https://etfolhinohgmskbfjoyh.supabase.co',
           'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw',
-          {auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}
+          {auth:{storageKey:'pipsepaisa-verification-temporary',persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}}
         );
         const params=new URLSearchParams(location.search);
         const code=params.get('code');
+        let session=null;
         if(code){
           const result=await client.auth.exchangeCodeForSession(code);
           if(result.error)throw result.error;
-        }else{
-          await new Promise(r=>setTimeout(r,700));
-          const session=await client.auth.getSession();
-          if(session.error)throw session.error;
+          session=result.data?.session||null;
+        }else if(location.hash){
+          const hash=new URLSearchParams(location.hash.replace(/^#/,''));
+          const access_token=hash.get('access_token'),refresh_token=hash.get('refresh_token');
+          if(access_token&&refresh_token){
+            const result=await client.auth.setSession({access_token,refresh_token});
+            if(result.error)throw result.error;
+            session=result.data?.session||null;
+          }
         }
-        await client.auth.signOut({scope:'local'});
+        if(!session){
+          const current=await client.auth.getSession();
+          if(current.error)throw current.error;
+          session=current.data?.session||null;
+        }
+        if(!session)throw new Error('Verification session was not created.');
+
+        // Send the dynamic, totally-free PIN instructions while this temporary
+        // verification session is authenticated. Email failure does not block verification.
+        try{
+          const name=session.user?.user_metadata?.full_name||session.user?.email?.split('@')[0]||'Student';
+          await client.functions.invoke('send-course-email',{body:{type:'pin_access_welcome',user_name:name}});
+        }catch(emailError){console.warn('PIN welcome email could not be sent',emailError);}
+
+        try{await client.auth.signOut({scope:'local'});}catch(_){ }
+        localStorage.removeItem('pipsepaisa-user-auth-v2');
         icon.textContent='✓';title.textContent='Email Verified Successfully';
-        status.textContent='Your PipSePaisa account is active. Please sign in using your email and password.';
-        btn.setAttribute('aria-disabled','false');
+        status.textContent='Your account is active. We also sent your free Access PIN instructions. Please sign in manually using your email and password.';
+        btn.href='index.html#auth-login';btn.setAttribute('aria-disabled','false');
+        try{history.replaceState(null,'','email-verified.html');}catch(_){ }
       }catch(error){
         console.error(error);icon.textContent='!';title.textContent='Verification Link Could Not Be Confirmed';
         status.textContent='The link may be expired or already used. Open PipSePaisa and request a new verification email.';
-        btn.textContent='Back to Sign In';btn.setAttribute('aria-disabled','false');
+        btn.href='index.html#auth-login';btn.textContent='Back to Sign In';btn.setAttribute('aria-disabled','false');
       }
     })();
   </script>
