@@ -1045,7 +1045,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 
 <style id="pspCoursePageIsolationCss">#page-mycourses:not(.active){display:none!important}#page-mycourses.active{display:block!important}.brand-logo-img{width:42px;height:42px;object-fit:contain;display:block;flex:0 0 42px;border-radius:10px}</style>
 <link rel="stylesheet" href="course-marketplace-v3.css?v=20260731-v18-final">
-<link rel="stylesheet" href="psp-v18-auth-access.css?v=20260731-v18-final">
+<link rel="stylesheet" href="psp-v18-auth-access.css?v=20260731-v19-fix">
 </head>
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
@@ -2621,19 +2621,12 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       
       <!-- ========== SETTINGS ========== -->
       <div class="page" id="page-settings">
-        <div class="profile-card">
+        <div class="profile-card psp-settings-profile-head">
           <div class="profile-avatar" id="settingsAvatar">U</div>
           <div class="profile-info">
             <h2><span id="settingsName">User</span></h2>
-            <div class="username">@<span id="settingsUsername">trader</span></div>
-            <div class="joined">Joined April 2026</div>
-            <div class="profile-stats" style="display:none;">
-              <span class="profile-stat verified">✓ Verified</span>
-              <span class="profile-stat" id="settingsTradesCount">0 Trades</span>
-              <span class="profile-stat" id="settingsWinRate">0% Win Rate</span>
-            </div>
+            <div class="psp-settings-role" id="settingsRole">User</div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="alert('Edit profile feature coming soon with admin panel!')">✏️ Edit Profile</button>
         </div>
         
         <div class="settings-tabs">
@@ -2642,19 +2635,23 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
           <button class="settings-tab" onclick="showSettingsTab('security', this)">🔒 Security</button>
         </div>
         
-        <div class="card" id="settings-profile">
+        <div class="card psp-simple-profile-card" id="settings-profile">
           <div class="card-title" style="margin-bottom: 16px;">Profile Information</div>
-          <div class="form-row">
-            <div class="form-group"><label>Full Name <span style="font-size:10px;color:var(--text-muted);">(cannot be changed)</span></label><input type="text" id="profName" placeholder="Your name" readonly style="opacity:.7;cursor:not-allowed;"></div>
-            <div class="form-group"><label>Username</label><input type="text" id="profUsername" placeholder="@yourname"></div>
+          <div class="psp-simple-profile-grid">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input type="text" id="profName" placeholder="Your name" readonly>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="profEmail" placeholder="your@email.com" readonly>
+            </div>
+            <div class="form-group">
+              <label>WhatsApp Number</label>
+              <input type="tel" id="profPhone" placeholder="+60 11 0000 0000">
+            </div>
           </div>
-          <div class="form-row">
-            <div class="form-group"><label>Email <span style="font-size:10px;color:var(--text-muted);">(cannot be changed)</span></label><input type="email" id="profEmail" placeholder="your@email.com" readonly style="opacity:.7;cursor:not-allowed;"></div>
-            <div class="form-group"><label>Phone</label><input type="tel" id="profPhone" placeholder="+92 3XX XXXXXXX"></div>
-          </div>
-          <div class="form-group"><label>Bio</label><textarea id="profBio" rows="3" placeholder="Tell us about yourself..."></textarea></div>
-          <div class="form-group"><label>Profile Photo</label><div style="display:flex;align-items:center;gap:12px;"><div id="profAvatarPrev" style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-dark));display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;font-size:20px;flex:0 0 auto;">U</div><input type="file" id="profAvatarFile" accept="image/*" onchange="uploadAvatar(this)" style="font-size:13px;"><span id="profAvatarMsg" style="font-size:12px;color:var(--text-muted);"></span></div></div>
-          <button class="btn" onclick="saveProfile()">💾 Save Profile</button>
+          <button class="btn" onclick="saveProfile()">💾 Save WhatsApp</button>
         </div>
         
         <div class="card" id="settings-preferences" style="display: none;">
@@ -6076,10 +6073,15 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   // ============ SETTINGS ============
   function showSettingsTab(tab, el) {
     document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('settings-profile').style.display = tab === 'profile' ? 'block' : 'none';
-    document.getElementById('settings-preferences').style.display = tab === 'preferences' ? 'block' : 'none';
-    document.getElementById('settings-security').style.display = tab === 'security' ? 'block' : 'none';
+    if(el)el.classList.add('active');
+    const profile=document.getElementById('settings-profile');
+    const preferences=document.getElementById('settings-preferences');
+    const security=document.getElementById('settings-security');
+    const pin=document.getElementById('pspAccessPinCard');
+    if(profile)profile.style.display = tab === 'profile' ? 'block' : 'none';
+    if(preferences)preferences.style.display = tab === 'preferences' ? 'block' : 'none';
+    if(security)security.style.display = tab === 'security' ? 'block' : 'none';
+    if(pin)pin.style.display = tab === 'profile' ? 'block' : 'none';
   }
   
   async function uploadAvatar(input){
@@ -6099,37 +6101,43 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     }catch(e){if(msg){msg.style.color='var(--red)';msg.textContent='Error: '+e.message;}}
   }
   async function saveProfile() {
-    const name = document.getElementById('profName').value.trim();
-    const username = document.getElementById('profUsername').value.trim();
-    const phone = document.getElementById('profPhone').value.trim();
-    const bio = document.getElementById('profBio').value.trim();
-    if (name) {
-      userName = name;
-      var un=document.getElementById('userName');if(un)un.textContent=name;
-      var ua=document.getElementById('userAvatar');if(ua)ua.textContent=name.charAt(0).toUpperCase();
-      document.getElementById('settingsName').textContent = name;
-      document.getElementById('settingsAvatar').textContent = name.charAt(0).toUpperCase();
-      document.getElementById('settingsUsername').textContent = username || name.toLowerCase().replace(/\s/g,'');
+    const phoneEl = document.getElementById('profPhone');
+    const phone = phoneEl ? phoneEl.value.trim() : '';
+    if(!currentProfile||!sb){alert('Please sign in to save.');return;}
+
+    // V19 keeps Settings simple: name/email are read-only and only WhatsApp is editable.
+    let r=await sb.from('profiles').update({phone:phone||null,whatsapp:phone||null}).eq('id',currentProfile.id);
+    // Backward compatibility if the database repair query has not been run yet.
+    if(r.error&&/whatsapp|column/i.test(r.error.message||'')){
+      r=await sb.from('profiles').update({phone:phone||null}).eq('id',currentProfile.id);
     }
-    if(currentProfile&&sb){
-      const r=await sb.from('profiles').update({full_name:name||null,username:username||null,phone:phone||null,bio:bio||null}).eq('id',currentProfile.id);
-      if(r.error){alert('Error saving: '+r.error.message);return;}
-      currentProfile.full_name=name;currentProfile.username=username;currentProfile.phone=phone;currentProfile.bio=bio;
-      alert('✅ Profile saved');
-    }else{alert('Please sign in to save.');}
+    if(r.error){alert('Error saving WhatsApp: '+r.error.message);return;}
+
+    currentProfile.phone=phone;
+    currentProfile.whatsapp=phone;
+    alert('✅ WhatsApp number saved');
   }
   
+  function pspFriendlyRole(role){
+    var r=String(role||'user').toLowerCase().replace(/[\s-]+/g,'_');
+    if(r==='admin')return 'Admin';
+    if(r==='super_admin'||r==='superadmin'||r==='owner')return 'Super Admin';
+    if(r==='mentor')return 'Mentor';
+    if(r==='psp_mentor'||r==='pspmentor')return 'PSP Mentor';
+    return 'User';
+  }
+
   function updateSettingsProfile() {
-    document.getElementById('settingsTradesCount').textContent = trades.length + ' Trades';
+    var tc=document.getElementById('settingsTradesCount');if(tc)tc.textContent=trades.length+' Trades';
     const winRate = trades.length > 0 ? (trades.filter(t => t.pnl > 0).length / trades.length * 100).toFixed(0) : 0;
-    document.getElementById('settingsWinRate').textContent = winRate + '% Win Rate';
+    var wr=document.getElementById('settingsWinRate');if(wr)wr.textContent=winRate+'% Win Rate';
     if(currentProfile){
-      var p=document.getElementById('profName');if(p&&!p.value)p.value=currentProfile.full_name||'';
-      var u=document.getElementById('profUsername');if(u&&!u.value)u.value=currentProfile.username||'';
-      var e=document.getElementById('profEmail');if(e&&!e.value)e.value=currentProfile.email||'';
-      var ph=document.getElementById('profPhone');if(ph&&!ph.value)ph.value=currentProfile.phone||'';
-      var b=document.getElementById('profBio');if(b&&!b.value)b.value=currentProfile.bio||'';
-      var prev=document.getElementById('profAvatarPrev');if(prev){if(currentProfile.avatar_url){prev.style.background="#000 url('"+currentProfile.avatar_url+"') center/cover";prev.textContent='';}else{prev.textContent=((currentProfile.full_name||currentProfile.email||'U')[0]||'U').toUpperCase();}}
+      var p=document.getElementById('profName');if(p)p.value=currentProfile.full_name||'';
+      var e=document.getElementById('profEmail');if(e)e.value=currentProfile.email||'';
+      var ph=document.getElementById('profPhone');if(ph)ph.value=currentProfile.whatsapp||currentProfile.phone||'';
+      var sn=document.getElementById('settingsName');if(sn)sn.textContent=currentProfile.full_name||'User';
+      var sa=document.getElementById('settingsAvatar');if(sa)sa.textContent=((currentProfile.full_name||currentProfile.email||'U')[0]||'U').toUpperCase();
+      var sr=document.getElementById('settingsRole');if(sr)sr.textContent=pspFriendlyRole(currentProfile.role);
     }
   }
   
@@ -7812,21 +7820,17 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       
       // Update settings page profile fields
       const profName = document.getElementById('profName');
-      const profUsername = document.getElementById('profUsername');
       const profEmail = document.getElementById('profEmail');
       const profPhone = document.getElementById('profPhone');
-      const profBio = document.getElementById('profBio');
       const settingsName = document.getElementById('settingsName');
-      const settingsUsername = document.getElementById('settingsUsername');
+      const settingsRole = document.getElementById('settingsRole');
       const settingsAvatar = document.getElementById('settingsAvatar');
       
       if (profName) profName.value = currentProfile.full_name || '';
-      if (profUsername) profUsername.value = currentProfile.username || '';
       if (profEmail) profEmail.value = currentProfile.email || '';
-      if (profPhone) profPhone.value = currentProfile.phone || '';
-      if (profBio) profBio.value = currentProfile.bio || '';
+      if (profPhone) profPhone.value = currentProfile.whatsapp || currentProfile.phone || '';
       if (settingsName) settingsName.textContent = name;
-      if (settingsUsername) settingsUsername.textContent = currentProfile.username || '';
+      if (settingsRole) settingsRole.textContent = pspFriendlyRole(currentProfile.role);
       if (settingsAvatar) settingsAvatar.textContent = initial;
     } else {
       // Not logged in
@@ -9418,6 +9422,6 @@ window.addEventListener('message',function(event){
 
 <style id="pspNoTopTickerFinal">#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker{display:none!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}</style>
 <script id="pspNoTopTickerFinalScript">(function(){function clean(){document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker').forEach(function(n){n.remove();});}document.addEventListener('DOMContentLoaded',clean);window.addEventListener('pageshow',clean);setTimeout(clean,250);setTimeout(clean,1200);})();</script>
-<script src="psp-v18-auth-access.js?v=20260731-v18-final"></script>
+<script src="psp-v18-auth-access.js?v=20260731-v19-fix"></script>
 </body>
 </html>

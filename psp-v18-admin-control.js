@@ -3,6 +3,7 @@
 let adminUsers=[];
 let pinMap={};
 let globalPinSettings=null;
+let pinSetupError='';
 function db(){try{return typeof sb!=='undefined'?sb:(window.sb||null)}catch(_){return window.sb||null}}
 function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function fmt(v){if(!v)return '—';try{return new Date(v).toLocaleString()}catch(_){return '—'}}
@@ -15,13 +16,21 @@ function statusPill(pin){
   return `<span class="v18-pill ${cls}">${text}</span>`;
 }
 function randomPin(){const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let out='';crypto.getRandomValues(new Uint32Array(8)).forEach(n=>out+=a[n%a.length]);return out;}
+function roleLabel(role){
+  const r=String(role||'user').toLowerCase().replace(/[-\s]+/g,'_');
+  if(['super_admin','superadmin','owner'].includes(r))return 'Super Admin';
+  if(r==='admin')return 'Admin';
+  if(['psp_mentor','pspmentor'].includes(r))return 'PSP Mentor';
+  if(r==='mentor')return 'Mentor';
+  return 'User';
+}
 
 function injectStyles(){
   if(document.getElementById('pspV18AdminCss'))return;
   const s=document.createElement('style');s.id='pspV18AdminCss';s.textContent=`
   .v18-pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900;text-transform:uppercase}.v18-pill.ok{background:rgba(16,185,129,.14);color:#10b981}.v18-pill.bad{background:rgba(239,68,68,.14);color:#ef4444}.v18-pill.wait{background:rgba(245,158,11,.15);color:#d97706}
   .v18-pin-code{font-family:ui-monospace,monospace;font-weight:900;letter-spacing:1.4px}.v18-actions{display:flex;gap:5px;flex-wrap:wrap}.v18-actions button{padding:6px 8px;border-radius:7px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);font-size:9px;font-weight:800;cursor:pointer}.v18-actions button.primary{background:var(--gold);color:#111827;border-color:var(--gold)}.v18-actions button.danger{color:var(--red);border-color:rgba(239,68,68,.35)}
-  .v18-settings-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.v18-settings-grid .form-group{margin:0}.v18-course-extra{margin-top:15px;padding-top:15px;border-top:1px solid var(--border)}.v18-course-extra h3{font-size:14px;margin:0 0 12px;color:var(--gold)}.v18-help{font-size:10px;color:var(--text-muted);margin-top:5px;line-height:1.5}
+  .v18-settings-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.v18-settings-grid .form-group{margin:0}.v18-course-extra{margin-top:15px;padding-top:15px;border-top:1px solid var(--border)}.v18-course-extra h3{font-size:14px;margin:0 0 12px;color:var(--gold)}.v18-help{font-size:10px;color:var(--text-muted);margin-top:5px;line-height:1.5}.v19-role-under-name{display:inline-flex;margin-top:4px;padding:3px 7px;border-radius:999px;background:rgba(245,158,11,.13);color:var(--gold);font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.35px}.v19-pin-setup-error{padding:12px 14px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.08);color:var(--red);font-size:11px;font-weight:700}
   @media(max-width:850px){.v18-settings-grid{grid-template-columns:1fr 1fr}}
   `;document.head.appendChild(s);
 }
@@ -57,19 +66,33 @@ async function applyPinTimerToPending(){
 
 window.loadAdminUsers=async function(){
   const client=db();if(!client)return;injectStyles();injectPinSettings();
-  const [u,pins]=await Promise.all([client.from('profiles').select('*').order('created_at',{ascending:false}),client.from('user_access_pins').select('*')]);
-  if(u.error){toast('Users load error: '+u.error.message,'err');return;}if(pins.error)console.warn('PIN table unavailable',pins.error);
+  const u=await client.from('profiles').select('*').order('created_at',{ascending:false});
+  if(u.error){toast('Users load error: '+u.error.message,'err');return;}
+
+  pinSetupError='';
+  let pins=await client.from('user_access_pins').select('*');
+  if(!pins.error){
+    // Repair any profiles that were imported before the PIN trigger existed.
+    try{await client.rpc('psp_admin_ensure_access_pins');}catch(_){}
+    pins=await client.from('user_access_pins').select('*');
+  }
+  if(pins.error){
+    console.warn('PIN table unavailable',pins.error);
+    pinSetupError="PIN database is not installed yet. Run 59_V19_PIN_DATABASE_AND_PROFILE_REPAIR.sql once in Supabase SQL Editor, then refresh this page.";
+  }
+
   adminUsers=u.data||[];pinMap={};(pins.data||[]).forEach(x=>pinMap[x.user_id]=x);
   renderAdminUsers(adminUsers);loadPinSettings();
 };
 function renderAdminUsers(users){
   const table=document.querySelector('#page-users table');const tbody=table?.querySelector('tbody');if(!tbody)return;
-  table.querySelector('thead tr').innerHTML='<th>Name</th><th>Email</th><th>WhatsApp</th><th>Unique PIN</th><th>PIN Status / Deadline</th><th>Role</th><th>Joined</th><th>Controls</th>';
-  if(!users.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:40px">No users found.</td></tr>';return;}
-  tbody.innerHTML=users.map(u=>{
+  table.querySelector('thead tr').innerHTML='<th>Name</th><th>Email</th><th>WhatsApp</th><th>Unique PIN</th><th>PIN Status / Deadline</th><th>Joined</th><th>Controls</th>';
+  if(!users.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px">No users found.</td></tr>';return;}
+  const setupRow=pinSetupError?`<tr><td colspan="7"><div class="v19-pin-setup-error">⚠️ ${esc(pinSetupError)}</div></td></tr>`:'';
+  tbody.innerHTML=setupRow+users.map(u=>{
     const pin=pinMap[u.id];const initials=(u.full_name||u.email||'U').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
-    const wa=u.whatsapp||u.whatsapp_number||u.phone||u.mobile||'—';const role=String(u.role||'user');
-    return `<tr data-user-id="${u.id}"><td><div class="user-cell"><div class="user-cell-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706)">${esc(initials)}</div><div><div class="user-cell-name">${esc(u.full_name||'No name')}</div></div></div></td><td>${esc(u.email||'—')}</td><td>${esc(wa)}</td><td><span class="v18-pin-code">${esc(pin?.access_pin||'—')}</span>${pin?`<button class="action-btn" title="Copy PIN" onclick="pspCopyPin('${esc(pin.access_pin)}')">📋</button>`:''}</td><td>${statusPill(pin)}<div style="font-size:9px;color:var(--text-muted);margin-top:4px">${pin?.status==='active'?'Activated '+fmt(pin.activated_at):'Ends '+fmt(pin?.grace_expires_at)}</div></td><td>${esc(role)}</td><td>${fmt(u.created_at)}</td><td><div class="v18-actions"><button class="primary" onclick="pspActivateUserPin('${u.id}')">Activate / Unlock</button><button onclick="pspExtendUserPin('${u.id}')">Extend</button><button onclick="pspResetUserPin('${u.id}')">Reset</button><button onclick="pspRegenerateUserPin('${u.id}')">New PIN</button><button class="danger" onclick="pspLockUserPin('${u.id}')">Lock</button></div></td></tr>`;
+    const wa=u.whatsapp||u.whatsapp_number||u.phone||u.mobile||'—';const role=roleLabel(u.role);
+    return `<tr data-user-id="${u.id}"><td><div class="user-cell"><div class="user-cell-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706)">${esc(initials)}</div><div><div class="user-cell-name">${esc(u.full_name||'No name')}</div><span class="v19-role-under-name">${esc(role)}</span></div></div></td><td>${esc(u.email||'—')}</td><td>${esc(wa)}</td><td><span class="v18-pin-code">${esc(pin?.access_pin||'—')}</span>${pin?`<button class="action-btn" title="Copy PIN" onclick="pspCopyPin('${esc(pin.access_pin)}')">📋</button>`:''}</td><td>${statusPill(pin)}<div style="font-size:9px;color:var(--text-muted);margin-top:4px">${pin?.status==='active'?'Activated '+fmt(pin.activated_at):'Ends '+fmt(pin?.grace_expires_at)}</div></td><td>${fmt(u.created_at)}</td><td><div class="v18-actions"><button class="primary" onclick="pspActivateUserPin('${u.id}')">Activate / Unlock</button><button onclick="pspExtendUserPin('${u.id}')">Extend</button><button onclick="pspResetUserPin('${u.id}')">Reset</button><button onclick="pspRegenerateUserPin('${u.id}')">New PIN</button><button class="danger" onclick="pspLockUserPin('${u.id}')">Lock</button></div></td></tr>`;
   }).join('');
   const total=adminUsers.length,premium=adminUsers.filter(x=>x.is_premium).length,banned=adminUsers.filter(x=>x.is_banned).length;
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('usersAllCount',total);set('usersPremiumCount',premium);set('usersFreeCount',total-premium);set('usersBannedCount',banned);set('usersShowing',`Showing ${users.length} of ${total}`);

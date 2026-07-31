@@ -171,11 +171,13 @@ function showLockModal(){
   document.getElementById('pspPinLockModal').classList.add('open');
 }
 function ensureSettingsCard(){
-  const host=document.getElementById('settings-profile')||document.querySelector('#page-settings');
-  if(!host||document.getElementById('pspAccessPinCard'))return;
+  const profileCard=document.getElementById('settings-profile');
+  const page=document.querySelector('#page-settings');
+  if((!profileCard&&!page)||document.getElementById('pspAccessPinCard'))return;
   const card=document.createElement('div');card.className='card psp-access-pin-card';card.id='pspAccessPinCard';
   card.innerHTML=`<div class="card-title" style="margin-bottom:6px">🔐 Free Access PIN</div><p style="margin:0 0 16px;color:var(--text-muted);font-size:12px;line-height:1.6">Your PIN is totally free. Contact the admin, receive your unique PIN and add it below to keep Signals, Charts, Articles, Journal and other protected features unlocked.</p><div class="psp-pin-status-grid"><div><span>Status</span><strong id="pspPinStatus">Checking…</strong></div><div><span>Access deadline</span><strong id="pspPinDeadline">—</strong></div><div><span>Time remaining</span><strong id="pspPinRemaining">—</strong></div></div><div class="psp-pin-entry"><input id="pspPinInput" maxlength="12" autocomplete="one-time-code" placeholder="Enter your access PIN"><button type="button" id="pspActivatePinBtn">Activate PIN</button></div><div id="pspPinMessage"></div><a id="pspSettingsWhatsapp" class="psp-pin-whatsapp" target="_blank" rel="noopener">💬 Contact Admin — Get Free PIN</a>`;
-  host.appendChild(card);
+  if(profileCard)profileCard.insertAdjacentElement('afterend',card);else page.appendChild(card);
+  if(profileCard&&getComputedStyle(profileCard).display==='none')card.style.display='none';
   card.querySelector('#pspActivatePinBtn').onclick=activatePin;
 }
 function renderAccessCard(){
