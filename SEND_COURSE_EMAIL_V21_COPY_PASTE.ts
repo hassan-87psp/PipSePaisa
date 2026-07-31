@@ -9,7 +9,20 @@ const SMTP_PASSWORD = Deno.env.get("SMTP_PASSWORD") ?? "";
 const SMTP_FROM_EMAIL = Deno.env.get("SMTP_FROM_EMAIL") ?? "no-reply@pipsepaisa.com";
 const SMTP_FROM_NAME = Deno.env.get("SMTP_FROM_NAME") ?? "PipSePaisa";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+function readJsonSecret(envName: string, key = "default"): string {
+  const raw = Deno.env.get(envName);
+  if (!raw) return "";
+  try {
+    const parsed = JSON.parse(raw);
+    return typeof parsed?.[key] === "string" ? parsed[key] : "";
+  } catch {
+    return "";
+  }
+}
+
+const SUPABASE_SECRET_KEY =
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+  readJsonSecret("SUPABASE_SECRET_KEYS", "default");
 const SITE_URL = "https://www.pipsepaisa.com";
 
 const corsHeaders = {
@@ -136,7 +149,7 @@ function validateConfig() {
     ["SMTP_PASSWORD", SMTP_PASSWORD],
     ["SMTP_FROM_EMAIL", SMTP_FROM_EMAIL],
     ["SUPABASE_URL", SUPABASE_URL],
-    ["SUPABASE_SERVICE_ROLE_KEY", SUPABASE_SERVICE_ROLE_KEY],
+    ["SUPABASE_SECRET_KEY", SUPABASE_SECRET_KEY],
   ].filter(([, value]) => !value).map(([key]) => key);
   if (missing.length) throw new Error(`Missing environment variables: ${missing.join(", ")}`);
 }
@@ -157,12 +170,13 @@ async function deliver(to: string, subject: string, html: string) {
   let lastError: unknown = null;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      return await transporter.sendMail({
+      const result = await transporter.sendMail({
         from: { name: SMTP_FROM_NAME, address: SMTP_FROM_EMAIL },
         to,
         subject,
         html,
       });
+      return result;
     } catch (error) {
       lastError = error;
       console.error(`SMTP attempt ${attempt + 1} failed`, error);
@@ -172,57 +186,147 @@ async function deliver(to: string, subject: string, html: string) {
   throw lastError instanceof Error ? lastError : new Error("SMTP delivery failed.");
 }
 
+function normalizeType(type: EmailType): EmailType {
+  return type === "payment_received" ? "payment_receipt_received" : type;
+}
+
+function normalizeRole(value: unknown): string {
+  return String(value ?? "").trim().toLowerCase().replaceAll("-", "_").replaceAll(" ", "_");
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return response({ success: false, error: "Only POST requests are allowed." }, 405);
 
+  const requestId = crypto.randomUUID();
   try {
     validateConfig();
+
     const authorization = req.headers.get("Authorization");
-    if (!authorization?.startsWith("Bearer ")) return response({ success: false, error: "Authentication required." }, 401);
+    if (!authorization?.startsWith("Bearer ")) {
+      console.error(`[${requestId}] missing authorization header`);
+      return response({ success: false, error: "Authentication required.", request_id: requestId }, 401);
+    }
     const token = authorization.slice(7).trim();
 
-    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-      auth: { persistSession: false, autoRefreshToken: false },
+    const admin = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     });
+
     const { data: userResult, error: userError } = await admin.auth.getUser(token);
     const currentUser = userResult?.user;
-    if (userError || !currentUser?.email) return response({ success: false, error: "Your login session is invalid or expired." }, 401);
+    if (userError || !currentUser?.email) {
+      console.error(`[${requestId}] invalid user token`, userError?.message || "no user");
+      return response({ success: false, error: "Your login session is invalid or expired.", request_id: requestId }, 401);
+    }
 
     const body = await req.json() as Body;
-    const allowed: EmailType[] = ["free_course_enrolled", "payment_receipt_received", "payment_received", "payment_approved", "payment_rejected", "payment_revoked", "pin_access_welcome"];
-    if (!allowed.includes(body.type)) return response({ success: false, error: "Unsupported email type." }, 400);
+    const allowed: EmailType[] = [
+      "free_course_enrolled",
+      "payment_receipt_received",
+      "payment_received",
+      "payment_approved",
+      "payment_rejected",
+      "payment_revoked",
+      "pin_access_welcome",
+    ];
+    if (!body?.type || !allowed.includes(body.type)) {
+      return response({ success: false, error: "Unsupported email type.", request_id: requestId }, 400);
+    }
 
-    const adminOnly = ["payment_approved", "payment_rejected", "payment_revoked"].includes(body.type) || Boolean(body.target_user_id);
-    let recipientEmail = currentUser.email;
-    let recipientName = body.user_name || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || "Student";
-    const extra: Record<string, unknown> = {};
+    const eventType = normalizeType(body.type);
+    const adminOnly = ["payment_approved", "payment_rejected", "payment_revoked"].includes(eventType);
+    console.info(`[${requestId}] email event started`, { eventType, userId: currentUser.id, enrollmentId: body.enrollment_id || null });
 
-    if (adminOnly) {
-      const { data: profile, error: profileError } = await admin.from("profiles").select("*").eq("id", currentUser.id).maybeSingle();
-      if (profileError) console.error("Admin profile lookup failed", profileError);
-      const role = String(profile?.role || "").toLowerCase().replaceAll("-", "_");
-      const isAdmin = Boolean(profile?.is_admin) || ["admin", "owner", "super_admin", "superadmin"].includes(role);
-      if (!isAdmin) return response({ success: false, error: "Admin access is required." }, 403);
-
-      if (body.target_user_id) {
-        const { data: targetResult, error: targetError } = await admin.auth.admin.getUserById(body.target_user_id);
-        if (!targetError && targetResult?.user?.email) {
-          recipientEmail = targetResult.user.email;
-          recipientName = body.user_name || targetResult.user.user_metadata?.full_name || targetResult.user.user_metadata?.name || "Student";
-        } else if (body.target_email) {
-          recipientEmail = body.target_email;
-        } else {
-          return response({ success: false, error: "The student email could not be resolved." }, 404);
-        }
-      } else if (body.target_email) {
-        recipientEmail = body.target_email;
+    let enrollment: Record<string, unknown> | null = null;
+    if (body.enrollment_id) {
+      const enrollmentResult = await admin
+        .from("course_enrollments")
+        .select("*")
+        .eq("id", body.enrollment_id)
+        .maybeSingle();
+      if (enrollmentResult.error) {
+        console.error(`[${requestId}] enrollment lookup failed`, enrollmentResult.error);
       } else {
-        return response({ success: false, error: "target_user_id or target_email is required." }, 400);
+        enrollment = enrollmentResult.data as Record<string, unknown> | null;
       }
     }
 
-    if (body.type === "pin_access_welcome") {
+    let recipientEmail = currentUser.email;
+    let recipientName =
+      body.user_name ||
+      currentUser.user_metadata?.full_name ||
+      currentUser.user_metadata?.name ||
+      currentUser.email.split("@")[0] ||
+      "Student";
+
+    if (adminOnly) {
+      const { data: profile, error: profileError } = await admin
+        .from("profiles")
+        .select("role,is_admin,full_name,email")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+      if (profileError) console.error(`[${requestId}] admin profile lookup failed`, profileError);
+
+      const roles = [
+        normalizeRole(profile?.role),
+        normalizeRole(currentUser.app_metadata?.role),
+        normalizeRole(currentUser.user_metadata?.role),
+      ];
+      const isAdmin = Boolean(profile?.is_admin) || roles.some((role) =>
+        ["admin", "owner", "super_admin", "superadmin"].includes(role)
+      );
+      if (!isAdmin) {
+        console.error(`[${requestId}] admin authorization failed`, { roles, isAdmin: profile?.is_admin });
+        return response({ success: false, error: "Admin access is required.", request_id: requestId }, 403);
+      }
+
+      const targetUserId = String(enrollment?.user_id || body.target_user_id || "").trim();
+      const targetEmail = String(enrollment?.email || body.target_email || body.user_email || "").trim().toLowerCase();
+      const targetName = String(enrollment?.full_name || body.user_name || "").trim();
+
+      if (targetUserId) {
+        const { data: targetResult, error: targetError } = await admin.auth.admin.getUserById(targetUserId);
+        if (!targetError && targetResult?.user?.email) {
+          recipientEmail = targetResult.user.email;
+          recipientName = targetName ||
+            targetResult.user.user_metadata?.full_name ||
+            targetResult.user.user_metadata?.name ||
+            recipientEmail.split("@")[0] ||
+            "Student";
+        } else if (targetEmail) {
+          recipientEmail = targetEmail;
+          recipientName = targetName || targetEmail.split("@")[0] || "Student";
+        } else {
+          console.error(`[${requestId}] target user resolution failed`, targetError);
+          return response({ success: false, error: "The student email could not be resolved.", request_id: requestId }, 404);
+        }
+      } else if (targetEmail) {
+        recipientEmail = targetEmail;
+        recipientName = targetName || targetEmail.split("@")[0] || "Student";
+      } else {
+        return response({ success: false, error: "Student user ID or email is required.", request_id: requestId }, 400);
+      }
+    } else if (enrollment) {
+      const enrollmentUserId = String(enrollment.user_id || "");
+      if (enrollmentUserId && enrollmentUserId !== currentUser.id) {
+        return response({ success: false, error: "You cannot send email for another user's enrollment.", request_id: requestId }, 403);
+      }
+    }
+
+    const hydratedBody: Body = {
+      ...body,
+      type: eventType,
+      user_name: recipientName,
+      course_title: body.course_title || String(enrollment?.course_name || "") || undefined,
+      amount: body.amount ?? (enrollment?.price != null ? `${String(enrollment?.currency || "USD")} ${String(enrollment?.price)}` : undefined),
+      payment_method: body.payment_method || String(enrollment?.payment_method || "") || undefined,
+      transaction_id: body.transaction_id || String(enrollment?.transaction_id || "") || undefined,
+      rejection_reason: body.rejection_reason || String(enrollment?.rejection_reason || enrollment?.revocation_reason || "") || undefined,
+    };
+
+    const extra: Record<string, unknown> = {};
+    if (eventType === "pin_access_welcome") {
       const [{ data: pin }, { data: settings }] = await Promise.all([
         admin.from("user_access_pins").select("grace_expires_at").eq("user_id", currentUser.id).maybeSingle(),
         admin.from("pin_access_settings").select("grace_value,grace_unit,admin_whatsapp").eq("id", 1).maybeSingle(),
@@ -232,11 +336,24 @@ Deno.serve(async (req: Request) => {
       extra.grace_label = `${settings?.grace_value || 48} ${settings?.grace_unit || "hours"}`;
     }
 
-    const email = buildEmail({ ...body, user_name: recipientName }, extra);
+    const email = buildEmail(hydratedBody, extra);
     const result = await deliver(recipientEmail, email.subject, email.html);
-    return response({ success: true, message: "Email sent successfully.", recipient: recipientEmail, message_id: result.messageId || null });
+    console.info(`[${requestId}] email sent`, { eventType, recipientEmail, messageId: result.messageId || null });
+
+    return response({
+      success: true,
+      message: "Email sent successfully.",
+      event_type: eventType,
+      recipient: recipientEmail,
+      message_id: result.messageId || null,
+      request_id: requestId,
+    });
   } catch (error) {
-    console.error("send-course-email error", error);
-    return response({ success: false, error: error instanceof Error ? error.message : "Unexpected server error." }, 500);
+    console.error(`[${requestId}] send-course-email error`, error);
+    return response({
+      success: false,
+      error: error instanceof Error ? error.message : "Unexpected server error.",
+      request_id: requestId,
+    }, 500);
   }
 });

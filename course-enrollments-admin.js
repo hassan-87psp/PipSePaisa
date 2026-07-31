@@ -50,10 +50,37 @@ function actionHtml(r){const paid=r.course_type==='paid'||r.course_key==='advanc
 function render(filter='all'){const box=document.getElementById('aceStandalone');if(!box)return;const data=filtered(filter);counts();if(!data.length){box.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-muted)">No matching enrollments.</div>';return}box.innerHTML='<div class="ace-wrap"><table class="ace-table"><thead><tr><th>Student</th><th>Contact</th><th>Course</th><th>Experience / Goal</th><th>Payment</th><th>Transaction</th><th>Receipt</th><th>Payment Status</th><th>Enrollment</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>'+data.map(r=>{const paid=r.course_type==='paid'||r.course_key==='advanced';return `<tr><td><strong>${esc(r.full_name||'Member')}</strong><br>${esc(r.email||'')}</td><td>${esc(r.whatsapp||'—')}</td><td><strong>${esc(r.course_name||(paid?'Advanced Forex Course':'Basic Forex Course'))}</strong><br>${paid?`${esc(r.currency||'USD')} ${Number(r.price||200).toFixed(0)}`:'Free'}</td><td>${esc(r.experience||'—')}<br><small>${esc(r.learning_goal||'')}</small></td><td>${esc(r.payment_method||(paid?'Not added':'Not Required'))}</td><td>${esc(r.transaction_id||'—')}</td><td>${r.receipt_url?`<a href="${esc(r.receipt_url)}" target="_blank" rel="noopener">View Receipt ↗</a>`:'—'}</td><td>${pill(r.payment_status)}</td><td>${pill(r.enrollment_status)}</td><td>${dt(r.created_at)}</td><td>${actionHtml(r)}</td></tr>`}).join('')+'</tbody></table></div>'}
 window.loadAdminCourseEnrollments=async function(){inject();const client=db();if(!client)return;const box=document.getElementById('aceStandalone');if(box)box.textContent='Loading…';const r=await client.from('course_enrollments').select('*').order('created_at',{ascending:false});if(r.error){if(box)box.innerHTML=`<div style="color:var(--red)">${esc(r.error.message)}</div>`;return}rows=r.data||[];const f=document.querySelector('#page-course-enrollments [data-filter].active')?.dataset.filter||'all';render(f)};
 async function rowById(id){const {data,error}=await db().from('course_enrollments').select('*').eq('id',id).single();if(error){result(false,'Enrollment Not Found',error.message);return null}return data}
+async function getAdminEmailSession(client,forceRefresh=false){
+  let session=null;
+  try{
+    const current=await client.auth.getSession();
+    if(current.error)throw current.error;
+    session=current.data?.session||null;
+    const expiresSoon=session?.expires_at&&(session.expires_at*1000-Date.now()<45000);
+    if(forceRefresh||!session||expiresSoon){
+      const refreshed=await client.auth.refreshSession();
+      if(refreshed.error)throw refreshed.error;
+      session=refreshed.data?.session||session;
+    }
+  }catch(error){console.warn('Admin email session check failed',error)}
+  return session;
+}
+async function invokeAdminEmail(client,body,forceRefresh=false){
+  const session=await getAdminEmailSession(client,forceRefresh);
+  if(!session?.access_token)throw new Error('Admin login session is missing or expired. Please sign in again.');
+  const res=await fetch('https://etfolhinohgmskbfjoyh.supabase.co/functions/v1/send-course-email',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw','Authorization':`Bearer ${session.access_token}`,'x-client-info':'pipsepaisa-admin-v21'},
+    body:JSON.stringify(body)
+  });
+  let data=null;try{data=await res.json()}catch(_){data={}}
+  if(!res.ok||data?.success===false){const error=new Error(data?.error||`Email request failed (${res.status}).`);error.status=res.status;error.requestId=data?.request_id||null;throw error}
+  return data;
+}
 async function sendEmail(type,row,extra={}){
   const client=db();const body={type,target_user_id:row.user_id,target_email:row.email||undefined,user_email:row.email||undefined,user_name:row.full_name||'Student',course_title:row.course_name||'Advanced Forex Course',amount:`${row.currency||'USD'} ${Number(row.price||200)}`,payment_method:row.payment_method||undefined,transaction_id:row.transaction_id||undefined,enrollment_id:row.id,...extra};let lastError=null;
   for(let attempt=0;attempt<2;attempt++){
-    try{if(attempt===1){try{await client.auth.refreshSession()}catch(_){}}const out=await client.functions.invoke('send-course-email',{body});if(!out.error&&out.data?.success!==false)return {ok:true,data:out.data};lastError=out.error||new Error(out.data?.error||'Email sending failed.');}catch(e){lastError=e;}
+    try{const data=await invokeAdminEmail(client,body,attempt===1);return {ok:true,data}}catch(e){lastError=e;if(attempt===0)await new Promise(resolve=>setTimeout(resolve,500))}
   }
   console.error('Course status email failed',lastError);return {ok:false,error:lastError};
 }

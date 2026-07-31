@@ -65,7 +65,18 @@
         // verification session is authenticated. Email failure does not block verification.
         try{
           const name=session.user?.user_metadata?.full_name||session.user?.email?.split('@')[0]||'Student';
-          await client.functions.invoke('send-course-email',{body:{type:'pin_access_welcome',user_name:name}});
+          const emailResponse=await fetch('https://etfolhinohgmskbfjoyh.supabase.co/functions/v1/send-course-email',{
+            method:'POST',
+            headers:{
+              'Content-Type':'application/json',
+              'apikey':'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw',
+              'Authorization':`Bearer ${session.access_token}`,
+              'x-client-info':'pipsepaisa-verification-v21'
+            },
+            body:JSON.stringify({type:'pin_access_welcome',user_name:name})
+          });
+          const emailData=await emailResponse.json().catch(()=>({}));
+          if(!emailResponse.ok||emailData?.success===false)throw new Error(emailData?.error||`PIN email request failed (${emailResponse.status}).`);
         }catch(emailError){console.warn('PIN welcome email could not be sent',emailError);}
 
         try{await client.auth.signOut({scope:'local'});}catch(_){ }

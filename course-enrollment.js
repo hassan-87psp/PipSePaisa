@@ -26,6 +26,48 @@
     return client;
   }
 
+  async function getEmailSession(sb, forceRefresh=false){
+    let session=null;
+    try{
+      const current=await sb.auth.getSession();
+      if(current.error)throw current.error;
+      session=current.data?.session||null;
+      const expiresSoon=session?.expires_at && (session.expires_at*1000-Date.now()<45000);
+      if(forceRefresh||!session||expiresSoon){
+        const refreshed=await sb.auth.refreshSession();
+        if(refreshed.error)throw refreshed.error;
+        session=refreshed.data?.session||session;
+      }
+    }catch(error){
+      console.warn('Email session check failed:',error);
+    }
+    return session;
+  }
+
+  async function invokeCourseEmail(sb,body,forceRefresh=false){
+    const session=await getEmailSession(sb,forceRefresh);
+    if(!session?.access_token)throw new Error('Your login session is missing or expired. Please sign in again.');
+    const res=await fetch(`${SUPABASE_URL}/functions/v1/send-course-email`,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'apikey':SUPABASE_KEY,
+        'Authorization':`Bearer ${session.access_token}`,
+        'x-client-info':'pipsepaisa-web-v21'
+      },
+      body:JSON.stringify(body)
+    });
+    let data=null;
+    try{data=await res.json();}catch(_){data={};}
+    if(!res.ok||data?.success===false){
+      const error=new Error(data?.error||`Email request failed (${res.status}).`);
+      error.status=res.status;
+      error.requestId=data?.request_id||null;
+      throw error;
+    }
+    return data;
+  }
+
   async function sendCourseEmail(type, values, extra={}){
     const sb=getClient();
     if(!sb)return {ok:false,error:new Error('Supabase client is unavailable.')};
@@ -43,11 +85,12 @@
     let lastError=null;
     for(let attempt=0;attempt<2;attempt++){
       try{
-        if(attempt===1){try{await sb.auth.refreshSession();}catch(_){}}
-        const out=await sb.functions.invoke('send-course-email',{body});
-        if(!out.error && out.data?.success!==false)return {ok:true,data:out.data||null};
-        lastError=out.error||new Error(out.data?.error||'Email sending failed.');
-      }catch(error){lastError=error;}
+        const data=await invokeCourseEmail(sb,body,attempt===1);
+        return {ok:true,data};
+      }catch(error){
+        lastError=error;
+        if(attempt===0)await new Promise(resolve=>setTimeout(resolve,500));
+      }
     }
     console.warn('Course email could not be sent:',lastError);
     return {ok:false,error:lastError};
