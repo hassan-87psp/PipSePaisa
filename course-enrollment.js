@@ -26,6 +26,25 @@
     return client;
   }
 
+  async function sendCourseEmail(type, values, extra={}){
+    try{
+      const sb=getClient();
+      if(!sb)return;
+      const {error}=await sb.functions.invoke('send-course-email',{
+        body:{
+          type,
+          user_name:values?.name||activeProfile?.full_name||activeUser?.user_metadata?.full_name||'Student',
+          course_title:selectedCourse?.name||'PipSePaisa Course',
+          amount:selectedCourse?.type==='paid'?`${selectedCourse.currency} ${selectedCourse.price}`:undefined,
+          payment_method:values?.paymentMethod||undefined,
+          transaction_id:values?.transactionId||undefined,
+          ...extra
+        }
+      });
+      if(error)console.warn('Course email could not be sent:',error);
+    }catch(error){console.warn('Course email could not be sent:',error);}
+  }
+
   function escapeHtml(value){
     return String(value??'').replace(/[&<>'"]/g,ch=>({
       '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'
@@ -518,7 +537,7 @@
     try{
       const sb=getClient();if(!sb)throw new Error('Connection problem. Please reload and try again.');
       const username=values.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
-      const {data,error}=await sb.auth.signUp({email:values.email,password:values.password,options:{data:{full_name:values.name,username,phone:values.phone,role:'user'}}});
+      const {data,error}=await sb.auth.signUp({email:values.email,password:values.password,options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:values.name,username,phone:values.phone,role:'user'}}});
       if(error)throw error;
       activeUser=data?.session?.user||data?.user||null;
       if(!data?.session){
@@ -526,10 +545,14 @@
         if(!login.error)activeUser=login.data?.user||activeUser;
       }
       if(!activeUser || !(await sb.auth.getSession()).data?.session){
-        throw new Error('Account created. Please verify your email, then return and select “Yes, I’m Already a User” to complete enrollment.');
+        setMessage('ceNewMessage','success',`Account created. A verification email was sent to ${values.email}. Verify it first, then return and choose “Yes, I’m Already a User” to complete enrollment.`);
+        const btn=document.getElementById('ceNewSubmitBtn');if(btn){btn.textContent='Verification Email Sent';btn.disabled=true;}
+        return;
       }
       accountWasCreated=true;await loadProfile(activeUser);
-      const result=await saveEnrollment(values,receipt);showSuccess(result);
+      const result=await saveEnrollment(values,receipt);
+      if(!result.already&&!result.pending){await sendCourseEmail(selectedCourse.type==='free'?'free_course_enrolled':'payment_received',values);}
+      showSuccess(result);
     }catch(error){
       let msg=error?.message||'Account creation failed.';
       if(/already|registered|exists/i.test(msg))msg='This email is already registered. Go back and choose “Yes, I’m Already a User”.';
@@ -573,7 +596,9 @@
         if(!activeUser)throw new Error('Login could not be completed.');
         await loadProfile(activeUser);
       }
-      const result=await saveEnrollment(values,receipt);showSuccess(result);
+      const result=await saveEnrollment(values,receipt);
+      if(!result.already&&!result.pending){await sendCourseEmail(selectedCourse.type==='free'?'free_course_enrolled':'payment_received',values);}
+      showSuccess(result);
     }catch(error){
       const msg=/course_enrollments/i.test(error?.message||'')
         ?'Course enrollment is not installed yet. Run Query 44 in Supabase, then try again.'

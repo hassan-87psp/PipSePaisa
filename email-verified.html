@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Email Verified | PipSePaisa</title>
+  <link rel="icon" href="favicon.png">
+  <style>
+    :root{--gold:#f59e0b;--navy:#0b172a;--muted:#64748b;--green:#047857}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#07111f,#111d31);font-family:Arial,Helvetica,sans-serif;color:#111827}
+    .card{width:min(520px,100%);background:#fff;border-radius:22px;padding:34px 28px;text-align:center;box-shadow:0 28px 80px rgba(0,0,0,.35)}
+    .brand{font-size:26px;font-weight:900;color:var(--navy);margin-bottom:25px}.brand span{color:var(--gold)}
+    .icon{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;margin:0 auto 18px;background:#ecfdf5;color:var(--green);font-size:34px}
+    h1{margin:0 0 10px;font-size:26px}.status{margin:0 auto 22px;max-width:390px;color:var(--muted);line-height:1.65;font-size:14px}
+    .btn{display:inline-flex;justify-content:center;align-items:center;width:100%;padding:14px 20px;border-radius:11px;background:var(--gold);color:#111827;text-decoration:none;font-weight:900;border:0;cursor:pointer}.btn[aria-disabled="true"]{opacity:.6;pointer-events:none}
+    .small{font-size:12px;color:var(--muted);margin-top:16px}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">Pip<span>Se</span>Paisa</div>
+    <div class="icon" id="icon">⏳</div>
+    <h1 id="title">Verifying Your Email</h1>
+    <p class="status" id="status">Please wait while we securely activate your account.</p>
+    <a class="btn" id="loginBtn" href="index.html#login" aria-disabled="true">Continue to Sign In</a>
+    <p class="small">For your security, verification does not automatically open your dashboard.</p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    (async function(){
+      const title=document.getElementById('title'),status=document.getElementById('status'),icon=document.getElementById('icon'),btn=document.getElementById('loginBtn');
+      try{
+        const client=window.supabase.createClient(
+          'https://etfolhinohgmskbfjoyh.supabase.co',
+          'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw',
+          {auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}
+        );
+        const params=new URLSearchParams(location.search);
+        const code=params.get('code');
+        if(code){
+          const result=await client.auth.exchangeCodeForSession(code);
+          if(result.error)throw result.error;
+        }else{
+          await new Promise(r=>setTimeout(r,700));
+          const session=await client.auth.getSession();
+          if(session.error)throw session.error;
+        }
+        await client.auth.signOut({scope:'local'});
+        icon.textContent='✓';title.textContent='Email Verified Successfully';
+        status.textContent='Your PipSePaisa account is active. Please sign in using your email and password.';
+        btn.setAttribute('aria-disabled','false');
+      }catch(error){
+        console.error(error);icon.textContent='!';title.textContent='Verification Link Could Not Be Confirmed';
+        status.textContent='The link may be expired or already used. Open PipSePaisa and request a new verification email.';
+        btn.textContent='Back to Sign In';btn.setAttribute('aria-disabled','false');
+      }
+    })();
+  </script>
+</body>
+</html>
