@@ -1,0 +1,17 @@
+PipSePaisa V20 — send-course-email redeploy
+
+1. Supabase Dashboard → Edge Functions → send-course-email.
+2. Open the function editor.
+3. Delete the old code.
+4. Paste the complete contents of SEND_COURSE_EMAIL_V20_COPY_PASTE.txt.
+5. Deploy the function.
+
+Existing Edge Function secrets remain the same:
+SMTP_HOST
+SMTP_PORT
+SMTP_USERNAME
+SMTP_PASSWORD
+SMTP_FROM_EMAIL
+SMTP_FROM_NAME
+
+Do not paste the SMTP password into the function code.

@@ -1,6 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="light" class="psp-v20-booting">
 <head>
+<style id="pspV20CriticalBoot">
+html.psp-v20-booting body{overflow:hidden!important;background:#f4eee2!important}
+html.psp-v20-booting body>*{visibility:hidden!important}
+html.psp-v20-booting body::before{content:"";position:fixed;inset:0;z-index:2147483646;visibility:visible!important;background:#f4eee2}
+html.psp-v20-booting body::after{content:"";position:fixed;left:50%;top:50%;z-index:2147483647;visibility:visible!important;width:44px;height:44px;margin:-22px;border:4px solid rgba(245,158,11,.22);border-top-color:#f59e0b;border-radius:50%;animation:pspBootSpin .7s linear infinite}
+@keyframes pspBootSpin{to{transform:rotate(360deg)}}
+</style>
 <!-- Stable Dashboard + No Flash + Single Ticker: 2026-07-29-v1 -->
 <!-- PipSePaisa Dashboard Home + Final Sidebar Sorting: 2026-07-29-v1 -->
 <!-- PipSePaisa User Panel Instant Realtime + Graph Fix: 2026-07-29-v1 -->
@@ -1044,8 +1051,9 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </style>
 
 <style id="pspCoursePageIsolationCss">#page-mycourses:not(.active){display:none!important}#page-mycourses.active{display:block!important}.brand-logo-img{width:42px;height:42px;object-fit:contain;display:block;flex:0 0 42px;border-radius:10px}</style>
-<link rel="stylesheet" href="course-marketplace-v3.css?v=20260731-v18-final">
+<link rel="stylesheet" href="course-marketplace-v3.css?v=20260731-v20-final">
 <link rel="stylesheet" href="psp-v18-auth-access.css?v=20260731-v19-fix">
+<link rel="stylesheet" href="psp-v20-final.css?v=20260731-v20-final">
 </head>
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
@@ -9372,8 +9380,8 @@ window.addEventListener('message',function(event){
   if(typeof window.openAuthModal==='function'){ window.openAuthModal(); if(event.data.mode==='signup'&&typeof window.switchAuthTab==='function') window.switchAuthTab('signup'); }
 });
 </script>
-<script src="course-enrollment.js?v=20260731-v18-final"></script>
-<script src="course-marketplace-v3.js?v=20260731-v18-final"></script>
+<script src="course-enrollment.js?v=20260731-v20-final"></script>
+<script src="course-marketplace-v3.js?v=20260731-v20-final"></script>
 
 
 <script>
@@ -9422,6 +9430,6 @@ window.addEventListener('message',function(event){
 
 <style id="pspNoTopTickerFinal">#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker{display:none!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}</style>
 <script id="pspNoTopTickerFinalScript">(function(){function clean(){document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker').forEach(function(n){n.remove();});}document.addEventListener('DOMContentLoaded',clean);window.addEventListener('pageshow',clean);setTimeout(clean,250);setTimeout(clean,1200);})();</script>
-<script src="psp-v18-auth-access.js?v=20260731-v19-fix"></script>
+<script src="psp-v18-auth-access.js?v=20260731-v20-final"></script>
 </body>
 </html>

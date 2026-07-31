@@ -8,25 +8,26 @@ let wrapTimer=null;
 let signupScreenKeeper=null;
 let accessDeadlineTimer=null;
 let accessCountdownTimer=null;
+let realtimeChannel=null;
+let accessResolved=false;
+let authChangeSubscription=null;
 
 function db(){try{return typeof sb!=='undefined'?sb:(window.sb||null)}catch(_){return window.sb||null}}
-function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
-function toast(msg,type){if(window.pipToast)window.pipToast(msg,type);else alert(msg);}
+function toast(msg,type){if(window.pipToast)window.pipToast(msg,type);}
+function revealApp(){document.documentElement.classList.remove('psp-v20-booting');}
+function setResolving(on){document.body?.classList.toggle('psp-access-resolving',!!on);}
+window.pspV20RevealApp=revealApp;
 
-// ---------- SIGNUP: INSTANT CHECK-EMAIL SCREEN, NO AUTO SWITCH/CLOSE ----------
+// ---------- SIGNUP: instant Check Your Email screen, no auto close/switch ----------
 function restoreSignupFormWithError(message){
   const form=document.getElementById('authForm-signup');
   if(form?.dataset.originalHtml){form.innerHTML=form.dataset.originalHtml;delete form.dataset.originalHtml;}
   if(typeof window.switchAuthTab==='function')window.switchAuthTab('signup');
-  setTimeout(()=>{if(typeof window.showAuthMessage==='function')window.showAuthMessage('error',message,'authMessageSignup');},0);
+  setTimeout(()=>window.showAuthMessage?.('error',message,'authMessageSignup'),0);
 }
-
 function stopSignupScreenKeeper(clearPending=false){
   clearInterval(signupScreenKeeper);signupScreenKeeper=null;
-  if(clearPending){
-    window.__pspSignupPending=false;
-    sessionStorage.removeItem('psp-signup-pending');
-  }
+  if(clearPending){window.__pspSignupPending=false;sessionStorage.removeItem('psp-signup-pending');}
 }
 function keepSignupVerificationVisible(){
   clearInterval(signupScreenKeeper);
@@ -46,10 +47,9 @@ function keepSignupVerificationVisible(){
     document.body.style.overflow='hidden';
   },90);
 }
-
 function installSignupFix(){
-  if(typeof window.signupUser!=='function'||window.__pspV18SignupFixed)return;
-  window.__pspV18SignupFixed=true;
+  if(typeof window.signupUser!=='function'||window.__pspV20SignupFixed)return;
+  window.__pspV20SignupFixed=true;
   window.signupUser=async function(){
     const fullName=document.getElementById('signupFirstName')?.value.trim()||'';
     const email=document.getElementById('signupEmail')?.value.trim().toLowerCase()||'';
@@ -57,7 +57,7 @@ function installSignupFix(){
     const password=document.getElementById('signupPassword')?.value||'';
     const password2=document.getElementById('signupPassword2')?.value||'';
     const agreed=!!document.getElementById('agreeTerms')?.checked;
-    const fail=(m)=>window.showAuthMessage?.('error',m,'authMessageSignup');
+    const fail=m=>window.showAuthMessage?.('error',m,'authMessageSignup');
     if(!fullName||!email||!password)return fail('Please fill in: Full Name, Email, and Password');
     if(!phone||phone.length<7)return fail('WhatsApp number is required. Please enter a valid number.');
     if(password.length<6)return fail('Password must be at least 6 characters');
@@ -69,7 +69,6 @@ function installSignupFix(){
     sessionStorage.setItem('psp-signup-pending','1');
     sessionStorage.setItem('psp-manual-signin-required','1');
     window.__pspPendingVerificationEmail=email;
-    // Change the UI immediately. No visible 3–4 second "Creating..." state.
     if(typeof window.showSignupVerificationScreen==='function')window.showSignupVerificationScreen(email);
     keepSignupVerificationVisible();
 
@@ -77,15 +76,10 @@ function installSignupFix(){
       const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
       const {data,error}=await client.auth.signUp({
         email,password,
-        options:{
-          emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',
-          data:{full_name:fullName,username,phone,role:'user',portal:(window.PSP_PORTAL_MODE==='mentor'?'mentor':'user')}
-        }
+        options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:fullName,username,phone,whatsapp:phone,role:'user',portal:(window.PSP_PORTAL_MODE==='mentor'?'mentor':'user')}}
       });
       if(error)throw error;
-      const identities=data?.user?.identities;
-      if(Array.isArray(identities)&&identities.length===0)throw new Error('An account already exists with this email. Please sign in, or resend verification if it is still unverified.');
-      // Even if Confirm Email is accidentally disabled, do not auto-open the dashboard.
+      if(Array.isArray(data?.user?.identities)&&data.user.identities.length===0)throw new Error('An account already exists with this email. Please sign in, or resend verification if it is still unverified.');
       if(data?.session){try{await client.auth.signOut({scope:'local'});}catch(_){}}
       const box=document.getElementById('verifyResendMessage');
       if(box){box.style.display='block';box.style.background='var(--green-bg)';box.style.color='var(--green)';box.textContent='✅ Verification email sent. Please check Inbox, Spam or Promotions.';}
@@ -98,45 +92,42 @@ function installSignupFix(){
     }
   };
 
-  // Prevent auth-state hydration from closing the signup confirmation screen.
-  if(typeof window.queueAuthenticatedUser==='function'&&!window.__pspV18QueueFixed){
-    window.__pspV18QueueFixed=true;
-    const original=window.queueAuthenticatedUser;
-    window.queueAuthenticatedUser=function(user){
-      if(window.__pspSignupPending||sessionStorage.getItem('psp-signup-pending')==='1'||sessionStorage.getItem('psp-manual-signin-required')==='1')return;
-      return original.apply(this,arguments);
-    };
+  if(typeof window.queueAuthenticatedUser==='function'&&!window.__pspV20QueueFixed){
+    window.__pspV20QueueFixed=true;const original=window.queueAuthenticatedUser;
+    window.queueAuthenticatedUser=function(user){if(window.__pspSignupPending||sessionStorage.getItem('psp-signup-pending')==='1'||sessionStorage.getItem('psp-manual-signin-required')==='1')return;return original.apply(this,arguments);};
   }
-
-  if(typeof window.loginUser==='function'&&!window.__pspV18LoginWrapped){
-    window.__pspV18LoginWrapped=true;
-    const originalLogin=window.loginUser;
-    window.loginUser=async function(){
-      stopSignupScreenKeeper(true);
-      sessionStorage.removeItem('psp-manual-signin-required');
-      return originalLogin.apply(this,arguments);
-    };
+  if(typeof window.loginUser==='function'&&!window.__pspV20LoginWrapped){
+    window.__pspV20LoginWrapped=true;const originalLogin=window.loginUser;
+    window.loginUser=async function(){stopSignupScreenKeeper(true);sessionStorage.removeItem('psp-manual-signin-required');accessResolved=false;setResolving(true);try{return await originalLogin.apply(this,arguments);}finally{setTimeout(loadAccessStatus,80);}};
   }
-
-  if(typeof window.restoreSignupAndOpenLogin==='function'&&!window.__pspV18RestoreWrapped){
-    window.__pspV18RestoreWrapped=true;
-    const originalRestore=window.restoreSignupAndOpenLogin;
-    window.restoreSignupAndOpenLogin=function(){
-      stopSignupScreenKeeper(true);
-      sessionStorage.removeItem('psp-manual-signin-required');
-      return originalRestore.apply(this,arguments);
-    };
+  if(typeof window.restoreSignupAndOpenLogin==='function'&&!window.__pspV20RestoreWrapped){
+    window.__pspV20RestoreWrapped=true;const originalRestore=window.restoreSignupAndOpenLogin;
+    window.restoreSignupAndOpenLogin=function(){stopSignupScreenKeeper(true);sessionStorage.removeItem('psp-manual-signin-required');return originalRestore.apply(this,arguments);};
   }
-
-  if(!window.__pspV18AuthCloseIntent){
-    window.__pspV18AuthCloseIntent=true;
-    document.addEventListener('click',e=>{
-      if(e.target?.closest?.('.auth-modal-close')||e.target?.id==='modal-auth'){
-        stopSignupScreenKeeper(true);
-      }
-    },true);
+  if(!window.__pspV20AuthCloseIntent){
+    window.__pspV20AuthCloseIntent=true;
+    document.addEventListener('click',e=>{if(e.target?.closest?.('.auth-modal-close')||e.target?.id==='modal-auth')stopSignupScreenKeeper(true);},true);
     document.addEventListener('keydown',e=>{if(e.key==='Escape')stopSignupScreenKeeper(true);},true);
   }
+}
+
+// ---------- Branded user result modal ----------
+function ensureResultModal(){
+  if(document.getElementById('pspUserResultModal'))return;
+  const modal=document.createElement('div');modal.id='pspUserResultModal';modal.className='psp-v20-modal';
+  modal.innerHTML='<div class="psp-v20-modal-card"><div class="psp-v20-modal-head"><div><h2 id="pspUserResultTitle">PipSePaisa</h2><p id="pspUserResultSub">Account update</p></div><button class="psp-v20-modal-x" type="button">×</button></div><div class="psp-v20-modal-body"><div class="psp-v20-result"><div class="psp-v20-result-icon" id="pspUserResultIcon">✓</div><h3 id="pspUserResultHeading">Done</h3><p id="pspUserResultText"></p></div></div><div class="psp-v20-modal-actions"><button class="primary" type="button" id="pspUserResultOk">OK</button></div></div>';
+  document.body.appendChild(modal);
+  const close=()=>modal.classList.remove('open');
+  modal.querySelector('.psp-v20-modal-x').onclick=close;modal.querySelector('#pspUserResultOk').onclick=close;
+  modal.addEventListener('click',e=>{if(e.target===modal)close();});
+}
+function showResult(ok,heading,text){
+  ensureResultModal();
+  const modal=document.getElementById('pspUserResultModal');
+  document.getElementById('pspUserResultIcon').textContent=ok?'✓':'!';
+  document.getElementById('pspUserResultHeading').textContent=heading;
+  document.getElementById('pspUserResultText').textContent=text;
+  modal.classList.add('open');
 }
 
 // ---------- PIN ACCESS USER UI ----------
@@ -152,13 +143,13 @@ function formatRemaining(seconds){
 function whatsappUrl(number){return 'https://wa.me/'+String(number||'601156558689').replace(/\D/g,'');}
 function ensureAccessModal(){
   if(document.getElementById('pspPinLockModal'))return;
-  const modal=document.createElement('div');modal.id='pspPinLockModal';modal.className='psp-pin-modal';modal.innerHTML=`<div class="psp-pin-modal-card"><button type="button" class="psp-pin-modal-x" aria-label="Close">×</button><div class="psp-pin-lock-icon">🔐</div><h2 id="pspPinLockTitle">Free Access PIN Required</h2><p id="pspPinLockMessage"></p><div class="psp-pin-free-badge">✓ This access is totally free</div><a id="pspPinWhatsappBtn" target="_blank" rel="noopener">Contact Admin on WhatsApp</a><button type="button" id="pspPinGoSettings">Open Settings & Add PIN</button></div>`;
+  const modal=document.createElement('div');modal.id='pspPinLockModal';modal.className='psp-pin-modal';
+  modal.innerHTML='<div class="psp-pin-modal-card"><button type="button" class="psp-pin-modal-x" aria-label="Close">×</button><div class="psp-pin-lock-icon">🔐</div><h2 id="pspPinLockTitle">Free Access PIN Required</h2><p id="pspPinLockMessage"></p><div class="psp-pin-free-badge">✓ This access is totally free</div><a id="pspPinWhatsappBtn" target="_blank" rel="noopener">Contact Admin on WhatsApp</a><button type="button" id="pspPinGoSettings">Open Settings & Add PIN</button></div>';
   document.body.appendChild(modal);
   modal.querySelector('.psp-pin-modal-x').onclick=()=>modal.classList.remove('open');
-  modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open')});
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.classList.remove('open');});
   modal.querySelector('#pspPinGoSettings').onclick=()=>{
-    modal.classList.remove('open');
-    const item=document.querySelector('.menu-item[data-page="settings"]');
+    modal.classList.remove('open');const item=document.querySelector('.menu-item[data-page="settings"]');
     if(typeof window.showPage==='function')window.showPage('settings',item||undefined);
     setTimeout(()=>document.getElementById('pspAccessPinCard')?.scrollIntoView({behavior:'smooth',block:'center'}),80);
   };
@@ -171,116 +162,154 @@ function showLockModal(){
   document.getElementById('pspPinLockModal').classList.add('open');
 }
 function ensureSettingsCard(){
-  const profileCard=document.getElementById('settings-profile');
-  const page=document.querySelector('#page-settings');
+  const profileCard=document.getElementById('settings-profile');const page=document.querySelector('#page-settings');
   if((!profileCard&&!page)||document.getElementById('pspAccessPinCard'))return;
   const card=document.createElement('div');card.className='card psp-access-pin-card';card.id='pspAccessPinCard';
-  card.innerHTML=`<div class="card-title" style="margin-bottom:6px">🔐 Free Access PIN</div><p style="margin:0 0 16px;color:var(--text-muted);font-size:12px;line-height:1.6">Your PIN is totally free. Contact the admin, receive your unique PIN and add it below to keep Signals, Charts, Articles, Journal and other protected features unlocked.</p><div class="psp-pin-status-grid"><div><span>Status</span><strong id="pspPinStatus">Checking…</strong></div><div><span>Access deadline</span><strong id="pspPinDeadline">—</strong></div><div><span>Time remaining</span><strong id="pspPinRemaining">—</strong></div></div><div class="psp-pin-entry"><input id="pspPinInput" maxlength="12" autocomplete="one-time-code" placeholder="Enter your access PIN"><button type="button" id="pspActivatePinBtn">Activate PIN</button></div><div id="pspPinMessage"></div><a id="pspSettingsWhatsapp" class="psp-pin-whatsapp" target="_blank" rel="noopener">💬 Contact Admin — Get Free PIN</a>`;
+  card.innerHTML='<div class="card-title" style="margin-bottom:6px">🔐 Free Access PIN</div><p style="margin:0 0 16px;color:var(--text-muted);font-size:12px;line-height:1.6">Your PIN is totally free. Contact the admin, receive your unique PIN and add it below to keep Signals, Charts, Articles, Journal and other protected features unlocked.</p><div class="psp-pin-status-grid"><div><span>Status</span><strong id="pspPinStatus">Checking…</strong></div><div><span>Access deadline</span><strong id="pspPinDeadline">—</strong></div><div><span>Time remaining</span><strong id="pspPinRemaining">—</strong></div></div><div class="psp-pin-entry"><input id="pspPinInput" maxlength="12" autocomplete="one-time-code" placeholder="Enter your access PIN"><button type="button" id="pspActivatePinBtn">Activate PIN</button></div><div id="pspPinMessage"></div><a id="pspSettingsWhatsapp" class="psp-pin-whatsapp" target="_blank" rel="noopener">💬 Contact Admin — Get Free PIN</a>';
   if(profileCard)profileCard.insertAdjacentElement('afterend',card);else page.appendChild(card);
   if(profileCard&&getComputedStyle(profileCard).display==='none')card.style.display='none';
   card.querySelector('#pspActivatePinBtn').onclick=activatePin;
 }
 function renderAccessCard(){
   ensureSettingsCard();if(!accessState)return;
-  const active=accessState.pin_status==='active'||accessState.access_enabled===false;
-  const locked=!!accessState.is_locked;
+  const active=accessState.pin_status==='active'||accessState.access_enabled===false;const locked=!!accessState.is_locked;
   const status=document.getElementById('pspPinStatus');
   if(status){status.textContent=active?'Active':locked?'Locked':'Free Trial Active';status.className=active?'ok':locked?'bad':'wait';}
-  const deadline=document.getElementById('pspPinDeadline');
-  if(deadline)deadline.textContent=accessState.grace_expires_at?new Date(accessState.grace_expires_at).toLocaleString():'—';
+  const deadline=document.getElementById('pspPinDeadline');if(deadline)deadline.textContent=accessState.grace_expires_at?new Date(accessState.grace_expires_at).toLocaleString():'—';
   const rem=document.getElementById('pspPinRemaining');if(rem)rem.textContent=active?'Unlimited':formatRemaining(accessState.remaining_seconds);
   const link=document.getElementById('pspSettingsWhatsapp');if(link)link.href=whatsappUrl(accessState.admin_whatsapp);
   const input=document.getElementById('pspPinInput'),btn=document.getElementById('pspActivatePinBtn');
   if(input)input.disabled=active;if(btn){btn.disabled=active;btn.textContent=active?'PIN Active ✓':'Activate PIN';}
 }
 async function activatePin(){
-  const client=db();const input=document.getElementById('pspPinInput');const msg=document.getElementById('pspPinMessage');
-  const pin=(input?.value||'').trim();if(!pin){msg.textContent='Enter the PIN received from the admin.';msg.className='bad';return;}
-  const btn=document.getElementById('pspActivatePinBtn');btn.disabled=true;
+  const client=db(),input=document.getElementById('pspPinInput'),msg=document.getElementById('pspPinMessage');
+  const pin=(input?.value||'').trim();
+  if(!pin){showResult(false,'PIN Required','Enter the PIN received from the admin.');return;}
+  const btn=document.getElementById('pspActivatePinBtn');if(btn)btn.disabled=true;
   try{
     const {data,error}=await client.rpc('psp_activate_my_access_pin',{p_pin:pin});
     if(error)throw error;const row=Array.isArray(data)?data[0]:data;
-    msg.textContent=row?.message||'PIN checked.';msg.className=row?.success?'ok':'bad';
-    if(row?.success){toast('PIN activated — everything is unlocked','ok');await loadAccessStatus();}
-  }catch(e){msg.textContent=e.message||'PIN could not be activated.';msg.className='bad';}
-  finally{if(accessState?.pin_status!=='active')btn.disabled=false;}
+    if(msg){msg.textContent=row?.message||'PIN checked.';msg.className=row?.success?'ok':'bad';}
+    if(row?.success){await loadAccessStatus();showResult(true,'PIN Activated','Your free PIN is active. Signals, Charts, Articles, Journal and all protected features are unlocked.');}
+    else showResult(false,'PIN Not Activated',row?.message||'The PIN could not be activated.');
+  }catch(e){if(msg){msg.textContent=e.message||'PIN could not be activated.';msg.className='bad';}showResult(false,'PIN Error',e.message||'PIN could not be activated.');}
+  finally{if(btn&&accessState?.pin_status!=='active')btn.disabled=false;}
 }
 function scheduleAccessDeadline(){
-  clearTimeout(accessDeadlineTimer);clearInterval(accessCountdownTimer);
-  accessDeadlineTimer=null;accessCountdownTimer=null;
+  clearTimeout(accessDeadlineTimer);clearInterval(accessCountdownTimer);accessDeadlineTimer=null;accessCountdownTimer=null;
   if(!accessState||accessState.pin_status==='active'||accessState.access_enabled===false)return;
   let remaining=Math.max(0,Number(accessState.remaining_seconds)||0);
   accessCountdownTimer=setInterval(()=>{
-    remaining=Math.max(0,remaining-1);
-    if(accessState)accessState.remaining_seconds=remaining;
+    remaining=Math.max(0,remaining-1);if(accessState)accessState.remaining_seconds=remaining;
     const el=document.getElementById('pspPinRemaining');if(el)el.textContent=formatRemaining(remaining);
     if(remaining<=0){clearInterval(accessCountdownTimer);accessCountdownTimer=null;loadAccessStatus();}
   },1000);
-  if(remaining>0){
-    accessDeadlineTimer=setTimeout(()=>loadAccessStatus(),Math.min(2147483000,(remaining+1)*1000));
+  if(remaining>0)accessDeadlineTimer=setTimeout(()=>loadAccessStatus(),Math.min(2147483000,(remaining+1)*1000));
+}
+
+async function repairSettingsIdentity(sessionUser){
+  if(!sessionUser)return;
+  const fallbackName=sessionUser.user_metadata?.full_name||sessionUser.user_metadata?.name||(sessionUser.email||'User').split('@')[0];
+  let profile=null;
+  try{profile=(await db().from('profiles').select('*').eq('id',sessionUser.id).maybeSingle()).data||null;}catch(_){ }
+  const fullName=(profile?.full_name||'').trim()||fallbackName;
+  const email=profile?.email||sessionUser.email||'';
+  const phone=profile?.whatsapp||profile?.phone||sessionUser.user_metadata?.whatsapp||sessionUser.user_metadata?.phone||'';
+  const role=String(profile?.role||'user');
+  const friendly=typeof window.pspFriendlyRole==='function'?window.pspFriendlyRole(role):role.replaceAll('_',' ');
+  const set=(id,value,prop='value')=>{const el=document.getElementById(id);if(el)el[prop]=value;};
+  set('profName',fullName);set('profEmail',email);set('profPhone',phone);set('settingsName',fullName,'textContent');set('settingsRole',friendly,'textContent');set('settingsAvatar',(fullName[0]||'U').toUpperCase(),'textContent');
+  if(profile&&!(profile.full_name||'').trim()){
+    try{await db().from('profiles').update({full_name:fullName,email:email||null}).eq('id',sessionUser.id);}catch(_){ }
   }
 }
 
+function removeLocks(){document.querySelectorAll('.page.psp-pin-locked').forEach(p=>p.classList.remove('psp-pin-locked'));}
+function applyLockToPages(){
+  removeLocks();if(!accessState?.is_locked)return;
+  document.querySelectorAll('.page').forEach(page=>{const key=(page.id||'').replace('page-','');if(PROTECTED_PAGES.has(key))page.classList.add('psp-pin-locked');});
+}
 async function loadAccessStatus(){
-  const client=db();if(!client)return;
+  const client=db();if(!client){setTimeout(loadAccessStatus,120);return;}
+  if(!accessResolved)setResolving(true);
   try{
-    const s=await client.auth.getSession();if(!s?.data?.session){accessState=null;removeLocks();clearTimeout(accessDeadlineTimer);clearInterval(accessCountdownTimer);return;}
+    const s=await client.auth.getSession();const session=s?.data?.session||null;
+    if(!session){accessState=null;removeLocks();accessResolved=true;setResolving(false);revealApp();clearTimeout(accessDeadlineTimer);clearInterval(accessCountdownTimer);return;}
+    await repairSettingsIdentity(session.user);
     const {data,error}=await client.rpc('psp_get_my_access_status');
-    if(error){console.warn('PIN access not installed yet',error);accessState=null;removeLocks();clearTimeout(accessDeadlineTimer);clearInterval(accessCountdownTimer);return;}
+    if(error)throw error;
     accessState=Array.isArray(data)?data[0]:data;
+    if(!accessState)throw new Error('Access status was not returned.');
     window.PSP_PIN_ACCESS_STATE=accessState;
-    renderAccessCard();applyLockToActivePage();scheduleAccessDeadline();
+    renderAccessCard();applyLockToPages();scheduleAccessDeadline();accessResolved=true;setResolving(false);revealApp();
 
-    // Links from the free-PIN email can open Settings after the user signs in.
     const openTarget=new URLSearchParams(location.search).get('open');
-    if(openTarget==='settings'&&!window.__pspV18SettingsLinkOpened){
-      window.__pspV18SettingsLinkOpened=true;
-      const item=document.querySelector('.menu-item[data-page="settings"]');
+    if(openTarget==='settings'&&!window.__pspV20SettingsLinkOpened){
+      window.__pspV20SettingsLinkOpened=true;const item=document.querySelector('.menu-item[data-page="settings"]');
       if(typeof window.showPage==='function')window.showPage('settings',item||undefined);
       setTimeout(()=>document.getElementById('pspAccessPinCard')?.scrollIntoView({behavior:'smooth',block:'center'}),120);
-      try{const u=new URL(location.href);u.searchParams.delete('open');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(_){}
+      try{const u=new URL(location.href);u.searchParams.delete('open');history.replaceState(null,'',u.pathname+u.search+u.hash);}catch(_){ }
     }
-  }catch(e){console.warn('PIN access status failed',e);}
-}
-function removeLocks(){document.querySelectorAll('.page.psp-pin-locked').forEach(p=>p.classList.remove('psp-pin-locked'));}
-function applyLockToActivePage(){
-  removeLocks();if(!accessState?.is_locked)return;
-  document.querySelectorAll('.page.active').forEach(page=>{
-    const key=(page.id||'').replace('page-','');if(PROTECTED_PAGES.has(key))page.classList.add('psp-pin-locked');
-  });
+  }catch(e){
+    console.warn('PIN access status failed',e);
+    // Fail closed for protected content instead of briefly exposing it.
+    if(!accessState)accessState={is_locked:true,pin_status:'locked',access_enabled:true,lock_title:'Access Check Required',lock_message:'We could not confirm your access status. Please refresh or contact the admin.',admin_whatsapp:'601156558689',remaining_seconds:0};
+    applyLockToPages();renderAccessCard();accessResolved=true;setResolving(false);revealApp();
+  }
 }
 function installPageGuard(){
-  if(typeof window.showPage!=='function'||window.__pspV18PageGuard)return;
-  window.__pspV18PageGuard=true;
-  const original=window.showPage;
+  if(typeof window.showPage!=='function'||window.__pspV20PageGuard)return;
+  window.__pspV20PageGuard=true;const original=window.showPage;
   window.showPage=function(page,el){
+    if(!accessResolved&&PROTECTED_PAGES.has(page)){setResolving(true);loadAccessStatus();return;}
     const result=original.apply(this,arguments);
-    setTimeout(()=>{
-      applyLockToActivePage();
-      if(accessState?.is_locked&&PROTECTED_PAGES.has(page))showLockModal();
-      if(page==='settings')renderAccessCard();
-    },0);
+    setTimeout(()=>{applyLockToPages();if(accessState?.is_locked&&PROTECTED_PAGES.has(page))showLockModal();if(page==='settings')renderAccessCard();},0);
     return result;
   };
   document.addEventListener('click',function(e){
     if(!accessState?.is_locked)return;
-    const add=e.target.closest('[data-tabkey="addtrade"],[onclick*="openAddTradeModal"]');
-    if(add){e.preventDefault();e.stopImmediatePropagation();showLockModal();return;}
-    const lockedPage=e.target.closest('.page.psp-pin-locked');
-    if(lockedPage&&!e.target.closest('.psp-pin-lock-overlay')){e.preventDefault();e.stopImmediatePropagation();showLockModal();}
+    const target=e.target.closest('[data-page], [data-tabkey="addtrade"], [onclick*="openAddTradeModal"], .page.psp-pin-locked');
+    const pageKey=target?.dataset?.page||target?.closest?.('.page')?.id?.replace('page-','');
+    if((pageKey&&PROTECTED_PAGES.has(pageKey))||target?.matches?.('[data-tabkey="addtrade"],[onclick*="openAddTradeModal"]')||target?.closest?.('.page.psp-pin-locked')){
+      e.preventDefault();e.stopImmediatePropagation();showLockModal();
+    }
   },true);
 }
-function subscribeRealtime(){
-  const client=db();if(!client||window.__pspPinRealtime)return;window.__pspPinRealtime=true;
-  try{client.channel('psp-user-pin-access-v18').on('postgres_changes',{event:'*',schema:'public',table:'user_access_pins'},()=>loadAccessStatus()).on('postgres_changes',{event:'*',schema:'public',table:'pin_access_settings'},()=>loadAccessStatus()).subscribe();}catch(e){console.warn(e)}
+function subscribeAuthChanges(){
+  const client=db();if(!client||authChangeSubscription)return;
+  try{
+    const out=client.auth.onAuthStateChange((event,session)=>{
+      if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED'||event==='USER_UPDATED'){
+        accessResolved=false;setResolving(true);setTimeout(()=>loadAccessStatus().then(subscribeRealtime),0);
+      }else if(event==='SIGNED_OUT'){
+        accessState=null;accessResolved=true;removeLocks();setResolving(false);revealApp();
+      }
+    });
+    authChangeSubscription=out?.data?.subscription||true;
+  }catch(e){console.warn('Auth access listener unavailable',e);}
+}
+
+async function subscribeRealtime(){
+  const client=db();if(!client)return;
+  try{
+    const s=await client.auth.getSession();const user=s?.data?.session?.user;if(!user)return;
+    if(realtimeChannel){try{await client.removeChannel(realtimeChannel);}catch(_){}}
+    realtimeChannel=client.channel('psp-user-pin-access-v20-'+user.id)
+      .on('postgres_changes',{event:'*',schema:'public',table:'user_access_pins',filter:`user_id=eq.${user.id}`},()=>loadAccessStatus())
+      .on('postgres_changes',{event:'*',schema:'public',table:'pin_access_settings'},()=>loadAccessStatus())
+      .subscribe();
+  }catch(e){console.warn('PIN realtime unavailable',e);}
 }
 function init(){
-  installSignupFix();installPageGuard();ensureAccessModal();ensureSettingsCard();
-  loadAccessStatus();subscribeRealtime();
-  clearInterval(accessTimer);accessTimer=setInterval(loadAccessStatus,30000);
+  installSignupFix();installPageGuard();ensureAccessModal();ensureResultModal();ensureSettingsCard();subscribeAuthChanges();
+  setResolving(true);loadAccessStatus().then(subscribeRealtime);
+  clearInterval(accessTimer);accessTimer=setInterval(loadAccessStatus,5000);
   clearInterval(wrapTimer);wrapTimer=setInterval(()=>{installSignupFix();installPageGuard();ensureSettingsCard();},500);
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,50));else setTimeout(init,50);
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,20));else setTimeout(init,20);
 window.addEventListener('course-enrollment-updated',loadAccessStatus);
-window.addEventListener('pageshow',()=>setTimeout(loadAccessStatus,200));
+window.addEventListener('pageshow',()=>setTimeout(loadAccessStatus,80));
+window.addEventListener('focus',()=>setTimeout(loadAccessStatus,50));
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadAccessStatus();});
+setTimeout(revealApp,4500);
 })();

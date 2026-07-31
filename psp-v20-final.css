@@ -1,0 +1,149 @@
+/* PipSePaisa V20 — final UI, access and course editor repairs */
+
+/* ---------- Initial render gate: prevents footer/menu/content flashes ---------- */
+html.psp-v20-booting body{overflow:hidden!important}
+html.psp-v20-booting body>*{visibility:hidden!important}
+html.psp-v20-booting body::before{
+  content:"";position:fixed;inset:0;z-index:2147483646;visibility:visible!important;
+  background:var(--bg-main,#f4eee2)
+}
+html.psp-v20-booting body::after{
+  content:"";position:fixed;left:50%;top:50%;z-index:2147483647;visibility:visible!important;
+  width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;
+  border:4px solid rgba(245,158,11,.22);border-top-color:#f59e0b;
+  animation:pspV20Spin .72s linear infinite
+}
+@keyframes pspV20Spin{to{transform:rotate(360deg)}}
+
+/* Keep protected UI hidden until session + PIN status are resolved. */
+body.psp-access-resolving .menu-item[data-page="dashboard"],
+body.psp-access-resolving .menu-item[data-page="performance"],
+body.psp-access-resolving .menu-item[data-page="signals"],
+body.psp-access-resolving .menu-item[data-page="articles"],
+body.psp-access-resolving .menu-item[data-page="charts"],
+body.psp-access-resolving .menu-item[data-page="newshub"],
+body.psp-access-resolving .menu-item[data-page="strength"],
+body.psp-access-resolving .menu-item[data-page="trades"],
+body.psp-access-resolving .menu-item[data-page="analysis"],
+body.psp-access-resolving .menu-item[data-page="tools"],
+body.psp-access-resolving .menu-item[data-page="aireport"],
+body.psp-access-resolving .page.active{visibility:hidden!important}
+body.psp-access-resolving #mainContent,
+body.psp-access-resolving .content{position:relative}
+body.psp-access-resolving #mainContent::after,
+body.psp-access-resolving .content::after{
+  content:"Checking account access…";position:fixed;inset:86px 18px 18px 270px;z-index:900;
+  display:grid;place-items:center;border:1px solid var(--border);border-radius:18px;
+  background:var(--bg-main);color:var(--text-muted);font-size:12px;font-weight:800
+}
+@media(max-width:768px){body.psp-access-resolving #mainContent::after,body.psp-access-resolving .content::after{inset:72px 12px 92px 12px}}
+
+/* ---------- Clean 16:9 thumbnails: image only, no overlay/text/shadow ---------- */
+.psp-course-thumb,.psp-course-side-preview,.psp-course-sticky-column .psp-course-side-preview,
+.psp-related-card img,.psp-system-course-thumbnail{
+  aspect-ratio:16/9!important;background:transparent!important;overflow:hidden!important
+}
+.psp-course-thumb-bg,.psp-course-side-preview-bg,.psp-course-thumb-label,
+.psp-course-side-overlay,.psp-course-side-preview-play,.psp-course-play,
+.psp-course-thumb::after,.psp-course-side-preview::after{display:none!important}
+.psp-course-thumb-main,.psp-course-side-preview-main,
+.psp-course-thumb img.psp-course-thumb-main,
+.psp-course-sticky-column .psp-course-side-preview img.psp-course-side-preview-main{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  object-fit:cover!important;object-position:center!important;border-radius:0!important;
+  box-shadow:none!important;filter:none!important;transform:none!important;background:transparent!important
+}
+.psp-course-tile:hover .psp-course-thumb-main{transform:scale(1.01)!important}
+.psp-system-course-thumbnail span{display:none!important}
+.psp-system-course-thumbnail img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+
+/* ---------- Course detail: balanced outcomes sections ---------- */
+.psp-course-overview-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;align-items:stretch!important}
+.psp-course-overview-grid>.psp-course-section{height:100%!important;display:flex!important;flex-direction:column!important}
+.psp-course-overview-grid .psp-section-kicker{display:none!important}
+.psp-course-overview-grid .psp-learn-grid,
+.psp-course-overview-grid .psp-includes-grid{
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:12px!important;align-content:start!important;flex:1
+}
+.psp-course-overview-grid .psp-learn-item,
+.psp-course-overview-grid .psp-includes-item{
+  min-height:58px!important;display:flex!important;align-items:flex-start!important;gap:9px!important;
+  padding:12px 13px!important;border-radius:12px!important;line-height:1.45!important
+}
+@media(max-width:760px){
+  .psp-course-overview-grid{grid-template-columns:1fr!important}
+  .psp-course-overview-grid .psp-learn-grid,.psp-course-overview-grid .psp-includes-grid{grid-template-columns:1fr!important}
+}
+
+/* ---------- Full branded modal system (admin + user) ---------- */
+.psp-v20-modal{
+  position:fixed;inset:0;z-index:40000;display:none;align-items:center;justify-content:center;
+  padding:18px;background:rgba(3,8,18,.72);backdrop-filter:blur(4px)
+}
+.psp-v20-modal.open{display:flex}
+.psp-v20-modal-card{
+  width:min(560px,100%);max-height:min(88vh,760px);overflow:auto;background:var(--bg-card,#fffdf8);
+  color:var(--text-primary,#111827);border:1px solid var(--border,#e6dcc8);border-radius:22px;
+  box-shadow:0 30px 90px rgba(0,0,0,.34);padding:0
+}
+.psp-v20-modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:22px 24px 16px;border-bottom:1px solid var(--border)}
+.psp-v20-modal-head h2{margin:0;font-size:22px;letter-spacing:-.02em}
+.psp-v20-modal-head p{margin:6px 0 0;color:var(--text-muted);font-size:11px;line-height:1.55}
+.psp-v20-modal-x{border:0;background:var(--bg-elevated);color:var(--text-primary);width:38px;height:38px;border-radius:11px;font-size:20px;cursor:pointer}
+.psp-v20-modal-body{padding:22px 24px}
+.psp-v20-modal-actions{display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap;padding:0 24px 22px}
+.psp-v20-modal-actions button{min-width:108px;border:1px solid var(--border);border-radius:11px;padding:12px 16px;font-weight:900;cursor:pointer;background:var(--bg-elevated);color:var(--text-primary)}
+.psp-v20-modal-actions .primary{background:linear-gradient(135deg,#f6a609,#df7600);border-color:#d97706;color:#111827}
+.psp-v20-modal-actions .danger{background:#dc2626;border-color:#dc2626;color:#fff}
+.psp-v20-modal-field{margin-bottom:14px}
+.psp-v20-modal-field label{display:block;margin-bottom:7px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted)}
+.psp-v20-modal-field input,.psp-v20-modal-field select,.psp-v20-modal-field textarea{
+  width:100%;padding:12px 13px;border:1px solid var(--border);border-radius:10px;background:var(--bg-elevated);color:var(--text-primary);font:inherit
+}
+.psp-v20-modal-note{padding:13px 14px;border-radius:12px;background:var(--gold-bg);border:1px solid rgba(245,158,11,.28);font-size:11px;line-height:1.6;color:var(--text-secondary)}
+.psp-v20-result-icon{width:68px;height:68px;margin:0 auto 14px;border-radius:20px;display:grid;place-items:center;background:var(--gold-bg);font-size:30px}
+.psp-v20-result{text-align:center;padding:8px 2px}.psp-v20-result h3{margin:0 0 8px;font-size:20px}.psp-v20-result p{margin:0;color:var(--text-muted);line-height:1.65;font-size:12px}
+
+/* ---------- Admin PIN control buttons ---------- */
+.v18-actions button{min-height:32px!important}
+.v18-actions button[data-action="set-time"]{background:var(--bg-elevated)!important;color:var(--text-primary)!important}
+
+/* ---------- Course editor, arranged like the frontend ---------- */
+#modal-courseForm .modal-lg{width:min(1120px,96vw)!important;max-height:92vh!important;overflow:auto!important}
+.psp-v20-course-editor{display:grid;gap:16px;margin-top:18px}
+.psp-v20-editor-section{border:1px solid var(--border);background:var(--bg-elevated);border-radius:16px;padding:17px}
+.psp-v20-editor-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+.psp-v20-editor-section-head h3{margin:0;font-size:15px;color:var(--text-primary)}
+.psp-v20-editor-section-head small{color:var(--text-muted);font-size:9px}
+.psp-v20-editor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.psp-v20-editor-list{display:grid;gap:9px}
+.psp-v20-editor-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.psp-v20-editor-row input,.psp-v20-editor-row textarea,.psp-v20-module-card input,.psp-v20-module-card textarea{
+  width:100%;padding:10px 11px;border:1px solid var(--border);border-radius:9px;background:var(--bg-card);color:var(--text-primary);font:inherit
+}
+.psp-v20-row-actions{display:flex;gap:4px}.psp-v20-row-actions button,.psp-v20-add-btn{
+  border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);border-radius:8px;padding:8px 10px;cursor:pointer;font-weight:800
+}
+.psp-v20-add-btn{background:var(--gold-bg);color:var(--gold);border-color:rgba(245,158,11,.3)}
+.psp-v20-module-list{display:grid;gap:12px}
+.psp-v20-module-card{border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:13px;background:var(--bg-card);padding:13px}
+.psp-v20-module-head{display:grid;grid-template-columns:44px minmax(0,1fr) 130px auto;gap:8px;align-items:center}
+.psp-v20-module-number{width:38px;height:38px;border-radius:10px;background:var(--gold-bg);display:grid;place-items:center;font-weight:900;color:var(--gold)}
+.psp-v20-module-body{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:10px}
+.psp-v20-module-body textarea{min-height:76px;resize:vertical}
+@media(max-width:760px){.psp-v20-editor-grid,.psp-v20-module-body{grid-template-columns:1fr}.psp-v20-module-head{grid-template-columns:38px 1fr}.psp-v20-module-head>input:nth-of-type(2),.psp-v20-module-head>.psp-v20-row-actions{grid-column:2}}
+
+/* ---------- Settings identity polish ---------- */
+.psp-settings-profile-head .psp-settings-role{text-transform:uppercase;font-weight:900;letter-spacing:.04em}
+#profName[readonly],#profEmail[readonly]{opacity:.88}
+
+/* ---------- Payment/status feedback should live in proper modals ---------- */
+#pipToasts .pip-toast.access-action,#pipToasts .pip-toast.payment-action{display:none!important}
+
+/* Complete thumbnail cleanup across every course placement. */
+.psp-course-buy-thumb{aspect-ratio:16/9!important;overflow:hidden!important;background:transparent!important;box-shadow:none!important}
+.psp-course-buy-thumb img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;display:block!important;filter:none!important;box-shadow:none!important}
+.psp-course-buy-thumb span,.psp-course-buy-thumb::after{display:none!important}
+.psp-related-card img{object-fit:cover!important;object-position:center!important;filter:none!important;box-shadow:none!important}
+.psp-course-side-preview{border:0!important;box-shadow:none!important}

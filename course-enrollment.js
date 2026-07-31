@@ -27,22 +27,30 @@
   }
 
   async function sendCourseEmail(type, values, extra={}){
-    try{
-      const sb=getClient();
-      if(!sb)return;
-      const {error}=await sb.functions.invoke('send-course-email',{
-        body:{
-          type,
-          user_name:values?.name||activeProfile?.full_name||activeUser?.user_metadata?.full_name||'Student',
-          course_title:selectedCourse?.name||'PipSePaisa Course',
-          amount:selectedCourse?.type==='paid'?`${selectedCourse.currency} ${selectedCourse.price}`:undefined,
-          payment_method:values?.paymentMethod||undefined,
-          transaction_id:values?.transactionId||undefined,
-          ...extra
-        }
-      });
-      if(error)console.warn('Course email could not be sent:',error);
-    }catch(error){console.warn('Course email could not be sent:',error);}
+    const sb=getClient();
+    if(!sb)return {ok:false,error:new Error('Supabase client is unavailable.')};
+    const body={
+      type,
+      user_name:values?.name||activeProfile?.full_name||activeUser?.user_metadata?.full_name||activeUser?.user_metadata?.name||'Student',
+      user_email:values?.email||activeUser?.email||undefined,
+      target_email:values?.email||activeUser?.email||undefined,
+      course_title:selectedCourse?.name||'PipSePaisa Course',
+      amount:selectedCourse?.type==='paid'?`${selectedCourse.currency} ${selectedCourse.price}`:undefined,
+      payment_method:values?.paymentMethod||undefined,
+      transaction_id:values?.transactionId||undefined,
+      ...extra
+    };
+    let lastError=null;
+    for(let attempt=0;attempt<2;attempt++){
+      try{
+        if(attempt===1){try{await sb.auth.refreshSession();}catch(_){}}
+        const out=await sb.functions.invoke('send-course-email',{body});
+        if(!out.error && out.data?.success!==false)return {ok:true,data:out.data||null};
+        lastError=out.error||new Error(out.data?.error||'Email sending failed.');
+      }catch(error){lastError=error;}
+    }
+    console.warn('Course email could not be sent:',lastError);
+    return {ok:false,error:lastError};
   }
 
   function escapeHtml(value){
@@ -403,19 +411,26 @@
 
   async function saveEnrollment(values,receiptFile){
     const old=await existingEnrollment();
-    if(old?.enrollment_status==='enrolled'){
+    if(old?.enrollment_status==='enrolled' || old?.payment_status==='approved'){
       if(selectedCourse.type==='free'){
-        const updates={full_name:values.name,email:activeUser.email,whatsapp:values.phone,experience:values.experience,learning_goal:values.goal||null};
+        const updates={full_name:values.name,email:activeUser.email,whatsapp:values.phone,experience:values.experience,learning_goal:values.goal||null,updated_at:new Date().toISOString()};
         const {data,error}=await getClient().from('course_enrollments').update(updates).eq('id',old.id).select().single();
         if(error)throw error;
         return {already:true,updated:true,row:data};
       }
       return {already:true,row:old};
     }
-    if(old?.course_type==='paid' && old?.payment_status==='pending')return {pending:true,row:old};
     const receiptUrl=selectedCourse.type==='paid'?await uploadReceipt(receiptFile,activeUser.id):null;
     const payload=enrollmentPayload(values,receiptUrl);
-    const {data,error}=await getClient().from('course_enrollments').upsert(payload,{onConflict:'user_id,course_key'}).select().single();
+    const now=new Date().toISOString();
+    if(old?.id){
+      const history=[...(Array.isArray(old.payment_history)?old.payment_history:[]),{action:old.payment_status==='pending'?'receipt_resubmitted':'receipt_submitted',at:now,transaction_id:values.transactionId||null}];
+      const updates={...payload,payment_status:selectedCourse.type==='paid'?'pending':'not_required',enrollment_status:selectedCourse.type==='paid'?'pending':'enrolled',access_granted_at:selectedCourse.type==='paid'?null:(old.access_granted_at||now),rejection_reason:null,revocation_reason:null,reviewed_at:null,reviewed_by:null,payment_edited_at:now,payment_history:history,updated_at:now};
+      const {data,error}=await getClient().from('course_enrollments').update(updates).eq('id',old.id).select().single();
+      if(error)throw error;
+      return {resubmitted:true,row:data};
+    }
+    const {data,error}=await getClient().from('course_enrollments').insert({...payload,updated_at:now}).select().single();
     if(error)throw error;
     return {row:data};
   }
@@ -433,10 +448,10 @@
         ?'Your PipSePaisa account has been created and you are successfully enrolled in the Basic Forex Course.'
         :'You have successfully enrolled in the Basic Forex Course.';
     }else{
-      title=accountWasCreated?'Congratulations!':'Enrollment Request Submitted!';
-      text=accountWasCreated
-        ?'Your PipSePaisa account has been created and your Advanced Forex Course enrollment request has been submitted. Course access will unlock after payment approval.'
-        :'Your Advanced Forex Course enrollment request has been submitted successfully. Course access will unlock after payment approval.';
+      title='Payment Receipt Received';
+      text=result.resubmitted
+        ?'Your new payment receipt has been received and sent for verification. Course access will unlock after admin approval.'
+        :'Your payment receipt has been received successfully and is now under review. Course access will unlock after admin approval.';
     }
     document.getElementById('ceSuccessTitle').textContent=title;
     document.getElementById('ceSuccessText').textContent=text;
@@ -611,7 +626,13 @@
         await loadProfile(activeUser);
       }
       const result=await saveEnrollment(values,receipt);
-      if(!result.already&&!result.pending){await sendCourseEmail(selectedCourse.type==='free'?'free_course_enrolled':'payment_received',values);}
+      if(!result.already || (selectedCourse.type==='free'&&result.updated)){
+        const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
+        const emailResult=await sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined});
+        if(!emailResult.ok){
+          console.warn('Enrollment saved but email delivery failed. Check send-course-email logs.',emailResult.error);
+        }
+      }
       showSuccess(result);
     }catch(error){
       const msg=/course_enrollments/i.test(error?.message||'')

@@ -11,18 +11,19 @@ const defaults={
     included:['9 foundation modules','Beginner-friendly practical learning','Mobile and desktop access','Progress saved in your account'],
     contentNote:'One module opens at a time',
     secureNote:'Direct account-linked enrollment',
+    learningHeading:"What you'll learn",outcomesHeading:'Course Outcomes',contentHeading:'Course content',requirementsHeading:'Requirements',audienceHeading:'Who this course is for',descriptionHeading:'Description',relatedHeading:'Other PipSePaisa Courses',
     requirements:['This course is suitable even if you are completely new to forex.','A mobile phone or computer with internet access.','A willingness to practise on a demo account and follow risk-management rules.'],
     audience:['Complete beginners starting their Forex journey.','Traders who want to rebuild their foundation correctly.','Students who prefer structured, practical learning.'],
     modules:[
-      {title:'Introduction to Forex Trading',duration:'75 min',summary:'Understand the Forex market, currency pairs, brokers, spreads and leverage.',points:['How the Forex market works','Major market participants','Currency pairs and trading sessions']},
+      {title:'Introduction to Forex Trading',duration:'90 min',summary:'Understand the Forex market, currency pairs, brokers, spreads and leverage.',points:['How the Forex market works','Major market participants','Currency pairs and trading sessions']},
       {title:'Candlestick Patterns and Price Behaviour',duration:'90 min',summary:'Read buyer and seller pressure through candles, rejection and momentum.',points:['Candlestick structure','Rejection and momentum','Core reversal patterns']},
-      {title:'Market Sentiment Analysis',duration:'80 min',summary:'Build a market bias by understanding bullish, bearish and crowd behaviour.',points:['Bullish vs bearish sentiment','Fear, greed and crowd behaviour','News reaction and bias']},
-      {title:'Trading Psychology and Risk Management',duration:'95 min',summary:'Develop discipline and protect capital with practical risk rules.',points:['Position sizing and stop loss','Discipline and execution','Managing fear and overtrading']},
-      {title:'Trading Strategies — Part 2',duration:'100 min',summary:'Refine entries, exits and trade management using stronger confirmation.',points:['Advanced confirmations','Trade management rules','Exit planning and review']},
+      {title:'Market Sentiment Analysis',duration:'90 min',summary:'Build a market bias by understanding bullish, bearish and crowd behaviour.',points:['Bullish vs bearish sentiment','Fear, greed and crowd behaviour','News reaction and bias']},
+      {title:'Trading Psychology and Risk Management',duration:'90 min',summary:'Develop discipline and protect capital with practical risk rules.',points:['Position sizing and stop loss','Discipline and execution','Managing fear and overtrading']},
+      {title:'Trading Strategies — Part 2',duration:'90 min',summary:'Refine entries, exits and trade management using stronger confirmation.',points:['Advanced confirmations','Trade management rules','Exit planning and review']},
       {title:'Foundations of Technical Analysis',duration:'90 min',summary:'Learn trends, levels, structure and the foundations of chart analysis.',points:['Trend identification','Support and resistance','Basic market structure']},
-      {title:'Understanding Technical Indicators',duration:'85 min',summary:'Use indicators as confirmation tools without depending on them blindly.',points:['Moving averages','RSI and momentum','MACD confirmation']},
-      {title:'Fundamentals of Fundamental Analysis',duration:'100 min',summary:'Understand economic events and policy decisions that move currencies and gold.',points:['Interest rates and inflation','CPI, NFP and central banks','Using the economic calendar']},
-      {title:'Trading Strategies — Part 1',duration:'95 min',summary:'Create a simple, repeatable trading plan with clear entry and exit rules.',points:['Setup selection','Entry and stop-loss rules','Take-profit structure']}
+      {title:'Understanding Technical Indicators',duration:'90 min',summary:'Use indicators as confirmation tools without depending on them blindly.',points:['Moving averages','RSI and momentum','MACD confirmation']},
+      {title:'Fundamentals of Fundamental Analysis',duration:'90 min',summary:'Understand economic events and policy decisions that move currencies and gold.',points:['Interest rates and inflation','CPI, NFP and central banks','Using the economic calendar']},
+      {title:'Trading Strategies — Part 1',duration:'90 min',summary:'Create a simple, repeatable trading plan with clear entry and exit rules.',points:['Setup selection','Entry and stop-loss rules','Take-profit structure']}
     ],
     learn:['Understand how the Forex market and currency pairs work.','Read candlestick behaviour, trends and important price levels.','Use technical indicators as confirmation rather than dependency.','Prepare for economic news and fundamental market events.','Build a repeatable trading strategy with clear risk rules.','Develop discipline, patience and a professional trading routine.'],
     achievement:['Understand forex market structure and price movement clearly.','Identify stronger entry and exit areas with confidence.','Use technical tools and chart analysis in a practical way.','Build better risk-management and trading-discipline habits.','Improve decision-making using real market examples.','Develop a repeatable trading approach for consistent learning.']
@@ -36,18 +37,19 @@ const defaults={
     included:['9 advanced modules','Institutional concepts & mentor guidance','Mobile and desktop access','Progress saved in your account'],
     contentNote:'One module opens at a time',
     secureNote:'Secure proof submission • Admin verification',
+    learningHeading:"What you'll learn",outcomesHeading:'Course Outcomes',contentHeading:'Course content',requirementsHeading:'Requirements',audienceHeading:'Who this course is for',descriptionHeading:'Description',relatedHeading:'Other PipSePaisa Courses',
     requirements:['This course is suitable even if you are completely new to forex.','Completion of the Basic Forex Course is recommended.','Access to a charting platform and a demo trading account.'],
     audience:['Intermediate traders seeking professional structure.','Traders struggling with consistency and execution.','Students who want institutional concepts and advanced risk management.'],
     modules:[
-      {title:'Advanced Market Structure and Liquidity',duration:'110 min',summary:'Study institutional structure, liquidity behaviour and confirmation.',points:['Internal and external structure','Liquidity pools and sweeps','Multi-timeframe confirmation']},
-      {title:'Session Timing and Market Behaviour',duration:'95 min',summary:'Understand Asian, London and New York session behaviour.',points:['Session opens and overlaps','Volatility windows','Session-based trade planning']},
-      {title:'Advanced Supply, Demand and Order Flow',duration:'115 min',summary:'Refine institutional zones with displacement, imbalance and mitigation.',points:['Premium supply and demand zones','Displacement and imbalance','Mitigation and order-flow shifts']},
-      {title:'Intermarket Correlations and Currency Strength',duration:'100 min',summary:'Use currency strength, the dollar and correlated markets to confirm bias.',points:['Currency-strength relationships','Dollar and gold correlation','Cross-market confirmation']},
-      {title:'Professional Risk and Position Management',duration:'105 min',summary:'Apply professional position sizing, partials and drawdown control.',points:['Dynamic position sizing','Partial profits and breakeven','Exposure and drawdown control']},
-      {title:'Advanced Fundamental and News Analysis',duration:'110 min',summary:'Interpret central-bank policy, inflation and labour data.',points:['Central-bank policy cycles','Inflation and employment data','Pre-news and post-news behaviour']},
-      {title:'Institutional Entry Models',duration:'120 min',summary:'Build precise entries using sweeps, CHoCH, BOS, order blocks and FVGs.',points:['Liquidity sweep entry model','CHoCH and BOS confirmation','Order block and FVG execution']},
+      {title:'Advanced Market Structure and Liquidity',duration:'90 min',summary:'Study institutional structure, liquidity behaviour and confirmation.',points:['Internal and external structure','Liquidity pools and sweeps','Multi-timeframe confirmation']},
+      {title:'Session Timing and Market Behaviour',duration:'90 min',summary:'Understand Asian, London and New York session behaviour.',points:['Session opens and overlaps','Volatility windows','Session-based trade planning']},
+      {title:'Advanced Supply, Demand and Order Flow',duration:'90 min',summary:'Refine institutional zones with displacement, imbalance and mitigation.',points:['Premium supply and demand zones','Displacement and imbalance','Mitigation and order-flow shifts']},
+      {title:'Intermarket Correlations and Currency Strength',duration:'90 min',summary:'Use currency strength, the dollar and correlated markets to confirm bias.',points:['Currency-strength relationships','Dollar and gold correlation','Cross-market confirmation']},
+      {title:'Professional Risk and Position Management',duration:'90 min',summary:'Apply professional position sizing, partials and drawdown control.',points:['Dynamic position sizing','Partial profits and breakeven','Exposure and drawdown control']},
+      {title:'Advanced Fundamental and News Analysis',duration:'90 min',summary:'Interpret central-bank policy, inflation and labour data.',points:['Central-bank policy cycles','Inflation and employment data','Pre-news and post-news behaviour']},
+      {title:'Institutional Entry Models',duration:'90 min',summary:'Build precise entries using sweeps, CHoCH, BOS, order blocks and FVGs.',points:['Liquidity sweep entry model','CHoCH and BOS confirmation','Order block and FVG execution']},
       {title:'Trading Psychology for Professional Execution',duration:'90 min',summary:'Strengthen discipline and decision quality under pressure.',points:['Process-based decisions','Managing revenge trading','Performance journaling']},
-      {title:'Strategy Development and Performance Review',duration:'125 min',summary:'Build, test and refine a complete trading strategy.',points:['Strategy rule development','Backtesting and forward testing','Performance metrics and optimisation']}
+      {title:'Strategy Development and Performance Review',duration:'90 min',summary:'Build, test and refine a complete trading strategy.',points:['Strategy rule development','Backtesting and forward testing','Performance metrics and optimisation']}
     ],
     learn:['Map advanced market structure and institutional liquidity.','Select stronger opportunities using session timing and volatility.','Combine supply, demand, order flow and multi-timeframe confirmation.','Use correlations and currency strength to improve directional bias.','Manage positions, partial profits and portfolio exposure professionally.','Build and review a complete trading playbook using performance data.'],
     achievement:['Read institutional structure and liquidity with greater clarity.','Build high-quality entry models using confirmation and timing.','Combine order flow, supply, demand and multi-timeframe analysis.','Improve risk, exposure and position-management decisions.','Use correlations and macro context to strengthen directional bias.','Create and review a professional, repeatable trading playbook.']
@@ -136,7 +138,7 @@ async function loadCourseData(){
     achievement:arrayValue(basic.achievement_outcomes,defaults.basic.achievement),
     modules:arrayValue(basic.modules_json,defaults.basic.modules),
     accessLabel:basic.access_label||'FREE COURSE ACCESS',buyNote:basic.buy_note||'Complete the enrollment form and begin learning.',
-    actionButtonText:basic.action_button_text||'',mentorName:basic.mentor_name||'Sajid Khan Ghori',mentorTitle:basic.mentor_title||'Asia Top Instructor',
+    actionButtonText:basic.action_button_text||'',mentorName:basic.mentor_name||'Sajid Khan Ghori',mentorTitle:basic.mentor_title||'Asia Top Instructor',learningHeading:basic.learning_heading||defaults.basic.learningHeading,outcomesHeading:basic.outcomes_heading||defaults.basic.outcomesHeading,contentHeading:basic.content_heading||defaults.basic.contentHeading,requirementsHeading:basic.requirements_heading||defaults.basic.requirementsHeading,audienceHeading:basic.audience_heading||defaults.basic.audienceHeading,descriptionHeading:basic.description_heading||defaults.basic.descriptionHeading,relatedHeading:basic.related_heading||defaults.basic.relatedHeading,
     price:0,oldPrice:0,published:basic.is_published!==false
   }:{published:true,videoUrl:''})};
   courseData.advanced={...defaults.advanced,...(adv?{
@@ -154,7 +156,7 @@ async function loadCourseData(){
     achievement:arrayValue(adv.achievement_outcomes,defaults.advanced.achievement),
     modules:arrayValue(adv.modules_json,defaults.advanced.modules),
     accessLabel:adv.access_label||'PROFESSIONAL COURSE ACCESS',buyNote:adv.buy_note||'One-time course payment • Manual verification',
-    actionButtonText:adv.action_button_text||'',mentorName:adv.mentor_name||'Sajid Khan Ghori',mentorTitle:adv.mentor_title||'Asia Top Instructor',
+    actionButtonText:adv.action_button_text||'',mentorName:adv.mentor_name||'Sajid Khan Ghori',mentorTitle:adv.mentor_title||'Asia Top Instructor',learningHeading:adv.learning_heading||defaults.advanced.learningHeading,outcomesHeading:adv.outcomes_heading||defaults.advanced.outcomesHeading,contentHeading:adv.content_heading||defaults.advanced.contentHeading,requirementsHeading:adv.requirements_heading||defaults.advanced.requirementsHeading,audienceHeading:adv.audience_heading||defaults.advanced.audienceHeading,descriptionHeading:adv.description_heading||defaults.advanced.descriptionHeading,relatedHeading:adv.related_heading||defaults.advanced.relatedHeading,
     price:numberValue(adv.price,defaults.advanced.price),oldPrice:numberValue(adv.old_price,defaults.advanced.oldPrice),
     published:adv.is_published!==false
   }:{published:true,videoUrl:''})};
@@ -176,10 +178,7 @@ function tileMarkup(c){
   const hasVideo=/^https?:\/\//i.test(String(c.videoUrl||'').trim());
   return `<article class="psp-course-tile ${c.type==='paid'?'paid':''}" data-course="${c.key}" tabindex="0" role="button" aria-label="Open ${esc(c.title)} details">
     <div class="psp-course-thumb">
-      <img class="psp-course-thumb-bg" src="${esc(c.thumbnail)}" alt="" aria-hidden="true">
       <img class="psp-course-thumb-main" src="${esc(c.thumbnail)}" alt="${esc(c.title)} thumbnail">
-      ${hasVideo?'<div class="psp-course-play" aria-label="Video preview available"><span>▶</span></div>':''}
-      <div class="psp-course-thumb-label">${esc(c.badge)}</div>
     </div>
     <div class="psp-course-tile-body">
       <div class="psp-course-tile-top"><h3>${esc(c.title)}</h3><div class="psp-course-price">${c.price?('$'+c.price):'Free'}</div></div>
@@ -232,7 +231,7 @@ function buyPanel(c,state){
   }
   if(c.actionButtonText&&!approved&&!pending)button=c.actionButtonText;
   return `<aside class="psp-course-buy-card">
-    <div class="psp-course-buy-thumb"><img src="${esc(c.thumbnail)}" alt="${esc(c.title)}"><span class="psp-course-preview-play">▶</span></div>
+    <div class="psp-course-buy-thumb"><img src="${esc(c.thumbnail)}" alt="${esc(c.title)}"></div>
     <div class="psp-course-buy-body">
       <span class="psp-course-access-label">${esc(c.accessLabel||(c.type==='free'?'FREE COURSE ACCESS':'PROFESSIONAL COURSE ACCESS'))}</span>
       <div class="psp-course-price-line"><span class="psp-course-buy-price">${c.price?('$'+c.price):'100% Free'}</span>${c.oldPrice?`<span class="psp-course-buy-old">$${c.oldPrice}</span>`:''}</div>
@@ -283,10 +282,7 @@ function stickyAccessPanel(c,state){
   if(c.actionButtonText&&!approved&&!pending)button=c.actionButtonText;
   return `<div class="psp-course-side-card psp-course-side-card-premium ${c.type} ${state}">
     <div class="psp-course-side-preview">
-      <img class="psp-course-side-preview-bg" src="${esc(c.thumbnail)}" alt="" aria-hidden="true">
       <img class="psp-course-side-preview-main" src="${esc(c.thumbnail)}" alt="${esc(c.title)} preview">
-      ${/^https?:\/\//i.test(String(c.videoUrl||'').trim())?'<span class="psp-course-side-preview-play">▶</span>':''}
-      <div class="psp-course-side-overlay"><span>${esc(c.level)} Program</span><strong>${esc(c.title)}</strong></div>
     </div>
     <div class="psp-course-side-body">
       <div class="psp-side-eyebrow">${eyebrow}</div>
@@ -339,13 +335,13 @@ function detailMarkup(c){
         </div>
       </div></div>
       <main class="psp-course-main-column psp-course-detail-body">
-        <div class="psp-course-overview-grid"><section class="psp-course-section psp-course-section-accent"><div class="psp-section-kicker">COURSE OUTCOMES</div><h3>What you'll learn</h3><div class="psp-learn-grid">${c.learn.map(x=>`<div class="psp-learn-item"><span>✓</span><div>${esc(x)}</div></div>`).join('')}</div></section>
-        <section class="psp-course-section psp-course-section-accent"><div class="psp-section-kicker">COURSE OUTCOMES</div><h3>What you'll achieve</h3><div class="psp-includes-grid">${(c.achievement||[]).map((x,i)=>`<div class="psp-includes-item"><b style="color:#d97706">✓</b> ${esc(x)}</div>`).join('')}</div></section></div>
-        <section class="psp-course-section psp-course-content-card"><div class="psp-course-content-head"><div><div class="psp-section-kicker">STRUCTURED ROADMAP</div><h3 style="margin:0">Course content</h3></div><small>${c.modules.length} modules • ${totalHours}+ hours • ${esc(c.contentNote||'One module opens at a time')}</small></div>${moduleRows(c,unlocked)}</section>
-        <div class="psp-course-info-grid"><section class="psp-course-section"><div class="psp-section-kicker">BEFORE YOU START</div><h3>Requirements</h3><div class="psp-course-copy"><ul>${c.requirements.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section>
-        <section class="psp-course-section"><div class="psp-section-kicker">BEST MATCH</div><h3>Who this course is for</h3><div class="psp-course-copy"><ul>${c.audience.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section></div>
-        <section class="psp-course-section psp-course-description-card"><div class="psp-section-kicker">ABOUT THIS PROGRAM</div><h3>Description</h3><div class="psp-course-copy"><p>${esc(c.description)}</p>${c.descriptionExtra?`<p>${esc(c.descriptionExtra)}</p>`:''}</div></section>
-        <section class="psp-course-section"><div class="psp-section-kicker">CONTINUE LEARNING</div><h3>Other PipSePaisa Courses</h3><div class="psp-related-grid"><article class="psp-related-card" onclick="openCourseDetail('${other.key}')"><img src="${esc(other.thumbnail)}" alt="${esc(other.title)}"><div><h4>${esc(other.title)}</h4><p>${other.price?('$'+other.price):'100% Free'} • ${other.modules.length} Modules • View details →</p></div></article></div></section>
+        <div class="psp-course-overview-grid"><section class="psp-course-section psp-course-section-accent"><h3>${esc(c.learningHeading||"What you'll learn")}</h3><div class="psp-learn-grid">${c.learn.map(x=>`<div class="psp-learn-item"><span>✓</span><div>${esc(x)}</div></div>`).join('')}</div></section>
+        <section class="psp-course-section psp-course-section-accent"><h3>${esc(c.outcomesHeading||'Course Outcomes')}</h3><div class="psp-includes-grid">${(c.achievement||[]).map((x,i)=>`<div class="psp-includes-item"><b style="color:#d97706">✓</b> ${esc(x)}</div>`).join('')}</div></section></div>
+        <section class="psp-course-section psp-course-content-card"><div class="psp-course-content-head"><div><div class="psp-section-kicker">STRUCTURED ROADMAP</div><h3 style="margin:0">${esc(c.contentHeading||'Course content')}</h3></div><small>${c.modules.length} modules • ${totalHours}+ hours • ${esc(c.contentNote||'One module opens at a time')}</small></div>${moduleRows(c,unlocked)}</section>
+        <div class="psp-course-info-grid"><section class="psp-course-section"><div class="psp-section-kicker">BEFORE YOU START</div><h3>${esc(c.requirementsHeading||'Requirements')}</h3><div class="psp-course-copy"><ul>${c.requirements.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section>
+        <section class="psp-course-section"><div class="psp-section-kicker">BEST MATCH</div><h3>${esc(c.audienceHeading||'Who this course is for')}</h3><div class="psp-course-copy"><ul>${c.audience.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section></div>
+        <section class="psp-course-section psp-course-description-card"><div class="psp-section-kicker">ABOUT THIS PROGRAM</div><h3>${esc(c.descriptionHeading||'Description')}</h3><div class="psp-course-copy"><p>${esc(c.description)}</p>${c.descriptionExtra?`<p>${esc(c.descriptionExtra)}</p>`:''}</div></section>
+        <section class="psp-course-section"><div class="psp-section-kicker">CONTINUE LEARNING</div><h3>${esc(c.relatedHeading||'Other PipSePaisa Courses')}</h3><div class="psp-related-grid"><article class="psp-related-card" onclick="openCourseDetail('${other.key}')"><img src="${esc(other.thumbnail)}" alt="${esc(other.title)}"><div><h4>${esc(other.title)}</h4><p>${other.price?('$'+other.price):'100% Free'} • ${other.modules.length} Modules • View details →</p></div></article></div></section>
       </main>
     </div>
     <aside class="psp-course-detail-side psp-course-sticky-column">${stickyAccessPanel(c,state)}${classAccessPanel(c,state)}</aside>
