@@ -19,6 +19,10 @@
 
   function getClient(){
     if(client)return client;
+    try{
+      if(typeof sb!=='undefined'&&sb){client=sb;return client;}
+    }catch(_){ }
+    if(window.sb){client=window.sb;return client;}
     if(!window.supabase?.createClient)return null;
     client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
       auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}
@@ -93,7 +97,8 @@
       }
     }
     console.warn('Course email could not be sent:',lastError);
-    return {ok:false,error:lastError};
+    const detail=[lastError?.message,lastError?.requestId?`Request ID: ${lastError.requestId}`:''].filter(Boolean).join(' — ');
+    return {ok:false,error:lastError,detail};
   }
 
   function escapeHtml(value){
@@ -674,6 +679,8 @@
         const emailResult=await sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined});
         if(!emailResult.ok){
           console.warn('Enrollment saved but email delivery failed. Check send-course-email logs.',emailResult.error);
+          const note=emailResult.detail||emailResult.error?.message||'Email delivery failed.';
+          if(window.pipToast)window.pipToast(`Enrollment saved. Email not sent: ${note}`,'err');
         }
       }
       showSuccess(result);
