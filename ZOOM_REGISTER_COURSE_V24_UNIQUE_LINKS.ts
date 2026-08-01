@@ -98,15 +98,25 @@ async function getZoomAccessToken(): Promise<string> {
   const token = typeof data.access_token === "string" ? data.access_token : "";
 
   if (!response.ok || !token) {
-    console.error("Zoom OAuth token error", data);
-    throw new Error(
-      String(
-        data.reason ??
-          data.error_description ??
-          data.error ??
-          "Could not get Zoom access token.",
-      ),
+    console.error("Zoom OAuth token error", {
+      status: response.status,
+      data,
+    });
+
+    const rawMessage = String(
+      data.reason ??
+        data.error_description ??
+        data.error ??
+        "Could not get Zoom access token.",
     );
+
+    if (response.status === 400 || /bad request/i.test(rawMessage)) {
+      throw new Error(
+        'Zoom OAuth credentials were rejected. ZOOM_ACCOUNT_ID must be the Server-to-Server OAuth App "Account ID / Acc ID" (the alphanumeric value shown with Client ID and Client Secret), not the numeric Zoom Account ID.',
+      );
+    }
+
+    throw new Error(rawMessage);
   }
 
   return token;

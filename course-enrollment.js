@@ -141,6 +141,39 @@
     return {ok:false,error:lastError,detail:lastError?.message||'Zoom registration failed.'};
   }
 
+  function showZoomRegistrationResult(ok, message){
+    let modal=document.getElementById('pspZoomResultModal');
+    if(!modal){
+      modal=document.createElement('div');
+      modal.id='pspZoomResultModal';
+      modal.className='ce-overlay';
+      modal.innerHTML=`
+        <div class="ce-modal" role="dialog" aria-modal="true" style="max-width:520px">
+          <div class="ce-head">
+            <div><h2 id="pspZoomResultTitle">PipSePaisa</h2><p>Zoom webinar registration</p></div>
+            <button class="ce-close" type="button" aria-label="Close">×</button>
+          </div>
+          <div class="ce-body" style="text-align:center;padding-top:28px">
+            <div id="pspZoomResultIcon" style="width:68px;height:68px;border-radius:20px;display:grid;place-items:center;margin:0 auto 18px;font-size:30px;background:#fff3dc">!</div>
+            <h3 id="pspZoomResultHeading" style="font-size:22px;margin:0 0 10px"></h3>
+            <p id="pspZoomResultText" style="line-height:1.65;color:#64748b;margin:0 auto;max-width:420px"></p>
+            <div class="ce-actions" style="justify-content:center;margin-top:24px">
+              <button class="ce-btn primary" type="button" id="pspZoomResultOk">OK</button>
+            </div>
+          </div>
+        </div>`;
+      document.body.appendChild(modal);
+      const close=()=>{modal.classList.remove('open');modal.setAttribute('aria-hidden','true');};
+      modal.querySelector('.ce-close').onclick=close;
+      modal.querySelector('#pspZoomResultOk').onclick=close;
+    }
+    modal.querySelector('#pspZoomResultIcon').textContent=ok?'✓':'!';
+    modal.querySelector('#pspZoomResultHeading').textContent=ok?'Zoom Links Ready':'Zoom Setup Needs Attention';
+    modal.querySelector('#pspZoomResultText').textContent=message;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+  }
+
   window.retryZoomCourseRegistration=async function(event){
     if(event)event.preventDefault();
     const button=event?.currentTarget||null;
@@ -155,10 +188,13 @@
     if(button){button.disabled=false;button.textContent=originalText||'Generate / Retry My Zoom Links';}
     if(result.ok){
       const ready=Number(result.data?.registered||result.data?.results?.filter?.(item=>item?.join_url)?.length||0);
-      if(window.pipToast)window.pipToast(`${ready}/9 unique Zoom links are ready.`,'ok');
+      showZoomRegistrationResult(true,`${ready}/9 unique Zoom links are ready in your course panel.`);
     }else{
-      const note=result.detail||result.error?.message||'Zoom registration needs attention.';
-      if(window.pipToast)window.pipToast(note,'err');
+      let note=result.detail||result.error?.message||'Zoom registration needs attention.';
+      if(/^bad request$/i.test(String(note).trim())){
+        note='Zoom OAuth credentials were rejected. In Supabase Secrets, ZOOM_ACCOUNT_ID must contain the Server-to-Server OAuth App “Acc ID” (the alphanumeric value), not the numeric Zoom Account ID.';
+      }
+      showZoomRegistrationResult(false,note);
     }
     return false;
   };

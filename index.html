@@ -3473,7 +3473,14 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   
   // ============ MODAL ============
   function openModal(id) { document.getElementById('modal-' + id).classList.add('active'); }
-  function closeModal(id) { const modal=document.getElementById('modal-' + id); if(modal) modal.classList.remove('active'); if(id==='auth') document.body.style.overflow=''; }
+  function closeModal(id) {
+    const modal=document.getElementById('modal-' + id);
+    if(modal) modal.classList.remove('active');
+    if(id==='auth'){
+      document.body.style.overflow='';
+      if(typeof resetSignupVerificationState==='function') resetSignupVerificationState(true);
+    }
+  }
   
   // ============ TIME ============
   let globalTimezone = 'Asia/Karachi';
@@ -6212,6 +6219,20 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   let currentProfile = null;
   
   // ============ AUTH MODAL ============
+  function resetSignupVerificationState(clearPendingEmail = true) {
+    const form = document.getElementById('authForm-signup');
+    if (form?.dataset.originalHtml) {
+      form.innerHTML = form.dataset.originalHtml;
+      delete form.dataset.originalHtml;
+    }
+    window.__pspSignupPending = false;
+    try {
+      sessionStorage.removeItem('psp-signup-pending');
+      sessionStorage.removeItem('psp-manual-signin-required');
+    } catch (_) {}
+    if (clearPendingEmail) window.__pspPendingVerificationEmail = '';
+  }
+
   function resetAuthModalState() {
     // Fix: after successful login then logout, the old login button state was staying
     // disabled with "Logging in..." because the modal DOM is reused.
@@ -6253,6 +6274,9 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   }
 
   function openAuthModal() {
+    // Always open a fresh auth form. A previous "Check Your Email" screen
+    // must never remain stuck after closing/reopening the modal.
+    resetSignupVerificationState(true);
     resetAuthModalState();
     switchAuthTab('login');
     openModal('auth');
@@ -6268,6 +6292,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if(m){m.style.background='transparent';m.style.color='var(--text-muted)';m.style.fontWeight='600';}
   }
   function switchAuthTab(tab) {
+    // Choosing Sign Up again means the user wants a fresh editable form.
+    if (tab === 'signup') {
+      const signupForm = document.getElementById('authForm-signup');
+      if (signupForm?.dataset.originalHtml) resetSignupVerificationState(false);
+    }
     // Update tabs
     document.getElementById('authTabLogin').style.background = tab === 'login' ? 'var(--gold)' : 'transparent';
     document.getElementById('authTabLogin').style.color = tab === 'login' ? '#0a0e1a' : 'var(--text-muted)';
@@ -6382,6 +6411,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         <p style="font-size:12px;color:var(--text-muted);line-height:1.6;margin:0 0 18px">Open the email and click the verification button. Also check Spam or Promotions.</p>
         <div id="verifyResendMessage" style="display:none;margin-bottom:12px;padding:10px;border-radius:9px;font-size:12px"></div>
         <button class="btn" style="width:100%;margin-bottom:10px" id="resendVerifyBtn" onclick="resendSignupVerification()">Resend Verification Email</button>
+        <button class="btn btn-secondary" style="width:100%;margin-bottom:10px" onclick="restoreSignupAndOpenSignup()">Change / Correct Email</button>
         <button class="btn btn-secondary" style="width:100%" onclick="restoreSignupAndOpenLogin()">Back to Sign In</button>
       </div>`;
     document.getElementById('authTitle').textContent = 'Verify Your Email';
@@ -6404,12 +6434,26 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     } finally { btn.disabled=false; btn.textContent='Resend Verification Email'; }
   }
 
-  function restoreSignupAndOpenLogin() {
-    const form = document.getElementById('authForm-signup');
+  function restoreSignupAndOpenSignup() {
     const email = window.__pspPendingVerificationEmail || '';
-    if (form?.dataset.originalHtml) { form.innerHTML = form.dataset.originalHtml; delete form.dataset.originalHtml; }
+    resetSignupVerificationState(true);
+    switchAuthTab('signup');
+    const signupEmail = document.getElementById('signupEmail');
+    if (signupEmail) {
+      signupEmail.value = email;
+      setTimeout(() => {
+        signupEmail.focus();
+        signupEmail.select();
+      }, 30);
+    }
+  }
+
+  function restoreSignupAndOpenLogin() {
+    const email = window.__pspPendingVerificationEmail || '';
+    resetSignupVerificationState(true);
     switchAuthTab('login');
-    const loginEmail = document.getElementById('loginEmail'); if (loginEmail) loginEmail.value = email;
+    const loginEmail = document.getElementById('loginEmail');
+    if (loginEmail) loginEmail.value = email;
   }
 
   // ============ LOGIN ============
@@ -9380,8 +9424,8 @@ window.addEventListener('message',function(event){
   if(typeof window.openAuthModal==='function'){ window.openAuthModal(); if(event.data.mode==='signup'&&typeof window.switchAuthTab==='function') window.switchAuthTab('signup'); }
 });
 </script>
-<script src="course-enrollment.js?v=20260801-v24-unique-zoom-links"></script>
-<script src="course-marketplace-v3.js?v=20260801-v24-unique-zoom-links"></script>
+<script src="course-enrollment.js?v=20260801-v24-1-zoom-auth-signup-reset"></script>
+<script src="course-marketplace-v3.js?v=20260801-v24-1-zoom-auth-signup-reset"></script>
 
 
 <script>
@@ -9430,6 +9474,6 @@ window.addEventListener('message',function(event){
 
 <style id="pspNoTopTickerFinal">#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker{display:none!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}</style>
 <script id="pspNoTopTickerFinalScript">(function(){function clean(){document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker').forEach(function(n){n.remove();});}document.addEventListener('DOMContentLoaded',clean);window.addEventListener('pageshow',clean);setTimeout(clean,250);setTimeout(clean,1200);})();</script>
-<script src="psp-v18-auth-access.js?v=20260731-v20-final"></script>
+<script src="psp-v18-auth-access.js?v=20260801-v24-1-signup-reset"></script>
 </body>
 </html>

@@ -27,7 +27,23 @@ function restoreSignupFormWithError(message){
 }
 function stopSignupScreenKeeper(clearPending=false){
   clearInterval(signupScreenKeeper);signupScreenKeeper=null;
-  if(clearPending){window.__pspSignupPending=false;sessionStorage.removeItem('psp-signup-pending');}
+  if(clearPending){
+    window.__pspSignupPending=false;
+    try{
+      sessionStorage.removeItem('psp-signup-pending');
+      sessionStorage.removeItem('psp-manual-signin-required');
+    }catch(_){}
+  }
+}
+function fullyResetSignupVerification(clearEmail=true){
+  stopSignupScreenKeeper(true);
+  const form=document.getElementById('authForm-signup');
+  if(form?.dataset.originalHtml){
+    form.innerHTML=form.dataset.originalHtml;
+    delete form.dataset.originalHtml;
+  }
+  if(clearEmail)window.__pspPendingVerificationEmail='';
+  if(typeof window.resetAuthModalState==='function')window.resetAuthModalState();
 }
 function keepSignupVerificationVisible(){
   clearInterval(signupScreenKeeper);
@@ -106,8 +122,31 @@ function installSignupFix(){
   }
   if(!window.__pspV20AuthCloseIntent){
     window.__pspV20AuthCloseIntent=true;
-    document.addEventListener('click',e=>{if(e.target?.closest?.('.auth-modal-close')||e.target?.id==='modal-auth')stopSignupScreenKeeper(true);},true);
-    document.addEventListener('keydown',e=>{if(e.key==='Escape')stopSignupScreenKeeper(true);},true);
+    // Do not treat text selection or a mouse-up that ends on the backdrop as
+    // an intentional close. Only the X button or Escape clears the state.
+    document.addEventListener('click',e=>{
+      if(e.target?.closest?.('.auth-modal-close')) fullyResetSignupVerification(true);
+    },true);
+    document.addEventListener('keydown',e=>{
+      if(e.key==='Escape') fullyResetSignupVerification(true);
+    },true);
+  }
+
+  if(typeof window.openAuthModal==='function'&&!window.__pspV24OpenAuthWrapped){
+    window.__pspV24OpenAuthWrapped=true;
+    const originalOpen=window.openAuthModal;
+    window.openAuthModal=function(){
+      fullyResetSignupVerification(true);
+      return originalOpen.apply(this,arguments);
+    };
+  }
+  if(typeof window.closeModal==='function'&&!window.__pspV24CloseAuthWrapped){
+    window.__pspV24CloseAuthWrapped=true;
+    const originalClose=window.closeModal;
+    window.closeModal=function(id){
+      if(id==='auth') fullyResetSignupVerification(true);
+      return originalClose.apply(this,arguments);
+    };
   }
 }
 
