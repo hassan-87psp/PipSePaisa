@@ -86,10 +86,10 @@ function formatDeadline(value: unknown): string {
   if (!value) return "the deadline displayed in your Settings";
   try {
     return new Date(String(value)).toLocaleString("en-GB", {
-      timeZone: "Asia/Kuala_Lumpur",
+      timeZone: "Asia/Karachi",
       dateStyle: "medium",
       timeStyle: "short",
-    }) + " (Malaysia time)";
+    }) + " (Pakistan time)";
   } catch {
     return "the deadline displayed in your Settings";
   }

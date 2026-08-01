@@ -101,6 +101,45 @@
     return {ok:false,error:lastError,detail};
   }
 
+  async function registerZoomCourse(values){
+    const sb=getClient();
+    if(!sb)return {ok:false,error:new Error('Supabase client is unavailable.')};
+    let lastError=null;
+    for(let attempt=0;attempt<2;attempt++){
+      try{
+        const session=await getEmailSession(sb,attempt===1);
+        if(!session?.access_token)throw new Error('Your login session is missing or expired. Please sign in again.');
+        const res=await fetch(`${SUPABASE_URL}/functions/v1/zoom-register-course`,{
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json',
+            'apikey':SUPABASE_KEY,
+            'Authorization':`Bearer ${session.access_token}`,
+            'x-client-info':'pipsepaisa-web-v23-zoom-pakistan'
+          },
+          body:JSON.stringify({
+            full_name:values?.name||activeProfile?.full_name||activeUser?.user_metadata?.full_name||activeUser?.user_metadata?.name||'PipSePaisa Student'
+          })
+        });
+        let data=null;
+        try{data=await res.json();}catch(_){data={};}
+        if(!res.ok||data?.success===false){
+          const firstFailure=Array.isArray(data?.results)?data.results.find(item=>!item?.success):null;
+          const error=new Error(firstFailure?.message||data?.error||data?.message||`Zoom registration failed (${res.status}).`);
+          error.status=res.status;
+          error.results=data?.results||null;
+          throw error;
+        }
+        return {ok:true,data};
+      }catch(error){
+        lastError=error;
+        if(attempt===0)await new Promise(resolve=>setTimeout(resolve,500));
+      }
+    }
+    console.warn('Zoom webinar registration could not be completed:',lastError);
+    return {ok:false,error:lastError,detail:lastError?.message||'Zoom registration failed.'};
+  }
+
   function escapeHtml(value){
     return String(value??'').replace(/[&<>'"]/g,ch=>({
       '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'
@@ -676,11 +715,24 @@
       const result=await saveEnrollment(values,receipt);
       if(!result.already || (selectedCourse.type==='free'&&result.updated)){
         const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
-        const emailResult=await sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined});
+        const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
+        if(selectedCourse.type==='free')jobs.push(registerZoomCourse(values));
+        const jobResults=await Promise.all(jobs);
+        const emailResult=jobResults[0];
         if(!emailResult.ok){
           console.warn('Enrollment saved but email delivery failed. Check send-course-email logs.',emailResult.error);
           const note=emailResult.detail||emailResult.error?.message||'Email delivery failed.';
           if(window.pipToast)window.pipToast(`Enrollment saved. Email not sent: ${note}`,'err');
+        }
+        if(selectedCourse.type==='free'){
+          const zoomResult=jobResults[1];
+          if(zoomResult?.ok){
+            if(window.pipToast)window.pipToast('Enrollment complete. Zoom registration for all 9 classes is confirmed.','ok');
+          }else{
+            console.warn('Course enrolled but Zoom registration needs attention.',zoomResult?.error);
+            const note=zoomResult?.detail||zoomResult?.error?.message||'Zoom registration failed.';
+            if(window.pipToast)window.pipToast(`Course enrolled. Zoom registration needs attention: ${note}`,'err');
+          }
         }
       }
       showSuccess(result);
