@@ -115,7 +115,7 @@
             'Content-Type':'application/json',
             'apikey':SUPABASE_KEY,
             'Authorization':`Bearer ${session.access_token}`,
-            'x-client-info':'pipsepaisa-web-v23-zoom-pakistan'
+            'x-client-info':'pipsepaisa-web-v24-unique-zoom-links'
           },
           body:JSON.stringify({
             full_name:values?.name||activeProfile?.full_name||activeUser?.user_metadata?.full_name||activeUser?.user_metadata?.name||'PipSePaisa Student'
@@ -123,6 +123,7 @@
         });
         let data=null;
         try{data=await res.json();}catch(_){data={};}
+        try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:data||{}}));}catch(_){ }
         if(!res.ok||data?.success===false){
           const firstFailure=Array.isArray(data?.results)?data.results.find(item=>!item?.success):null;
           const error=new Error(firstFailure?.message||data?.error||data?.message||`Zoom registration failed (${res.status}).`);
@@ -139,6 +140,29 @@
     console.warn('Zoom webinar registration could not be completed:',lastError);
     return {ok:false,error:lastError,detail:lastError?.message||'Zoom registration failed.'};
   }
+
+  window.retryZoomCourseRegistration=async function(event){
+    if(event)event.preventDefault();
+    const button=event?.currentTarget||null;
+    const originalText=button?.textContent||'';
+    if(button){button.disabled=true;button.textContent='Generating Zoom Links…';}
+    const values={
+      name:activeProfile?.full_name||activeUser?.user_metadata?.full_name||activeUser?.user_metadata?.name||'PipSePaisa Student',
+      email:activeUser?.email||''
+    };
+    const result=await registerZoomCourse(values);
+    try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:result.data||{}}));}catch(_){ }
+    if(button){button.disabled=false;button.textContent=originalText||'Generate / Retry My Zoom Links';}
+    if(result.ok){
+      const ready=Number(result.data?.registered||result.data?.results?.filter?.(item=>item?.join_url)?.length||0);
+      if(window.pipToast)window.pipToast(`${ready}/9 unique Zoom links are ready.`,'ok');
+    }else{
+      const note=result.detail||result.error?.message||'Zoom registration needs attention.';
+      if(window.pipToast)window.pipToast(note,'err');
+    }
+    return false;
+  };
+
 
   function escapeHtml(value){
     return String(value??'').replace(/[&<>'"]/g,ch=>({
@@ -733,6 +757,7 @@
             const note=zoomResult?.detail||zoomResult?.error?.message||'Zoom registration failed.';
             if(window.pipToast)window.pipToast(`Course enrolled. Zoom registration needs attention: ${note}`,'err');
           }
+          try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:zoomResult?.data||{}}));}catch(_){ }
         }
       }
       showSuccess(result);

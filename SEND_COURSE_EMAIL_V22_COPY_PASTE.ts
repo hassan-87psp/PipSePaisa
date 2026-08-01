@@ -162,7 +162,7 @@ function buildEmail(body: Body, extra: Record<string, unknown> = {}) {
     };
   }
 
-  const whatsapp = String(extra.admin_whatsapp || "601156558689").replace(/\D/g, "");
+  const whatsapp = String(extra.admin_whatsapp || "601156961157").replace(/\D/g, "");
   const deadline = formatDeadline(extra.grace_expires_at);
   const graceLabel = esc(extra.grace_label || "48 hours");
   return {
@@ -402,7 +402,7 @@ Deno.serve(async (req: Request) => {
         admin.from("pin_access_settings").select("grace_value,grace_unit,admin_whatsapp").eq("id", 1).maybeSingle(),
       ]);
       extra.grace_expires_at = pin?.grace_expires_at || null;
-      extra.admin_whatsapp = settings?.admin_whatsapp || "601156558689";
+      extra.admin_whatsapp = settings?.admin_whatsapp || "601156961157";
       extra.grace_label = `${settings?.grace_value || 48} ${settings?.grace_unit || "hours"}`;
     }
 

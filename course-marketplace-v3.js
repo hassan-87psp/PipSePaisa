@@ -88,6 +88,10 @@ function defaultClasses(key){
     class_number:index+1,
     title:`Class ${index+1}`,
     zoom_url:'',
+    join_url:'',
+    registration_status:'not_registered',
+    scheduled_at:null,
+    zoom_error_message:'',
     is_active:true
   }));
 }
@@ -95,20 +99,60 @@ async function loadCourseClasses(){
   courseClasses.basic=defaultClasses('basic');
   courseClasses.advanced=defaultClasses('advanced');
   const db=client();if(!db)return;
+
   try{
     const r=await db.from('course_classes').select('*').order('course_key',{ascending:true}).order('class_number',{ascending:true});
-    if(r.error)throw r.error;
-    ['basic','advanced'].forEach(key=>{
-      const rows=(r.data||[]).filter(x=>x.course_key===key&&x.is_active!==false);
-      if(rows.length){
-        const byNumber=new Map(rows.map(row=>[Number(row.class_number),row]));
-        courseClasses[key]=defaultClasses(key).map(base=>({...base,...(byNumber.get(base.class_number)||{})}));
-      }
+    if(!r.error){
+      ['basic','advanced'].forEach(key=>{
+        const rows=(r.data||[]).filter(x=>x.course_key===key&&x.is_active!==false);
+        if(rows.length){
+          const byNumber=new Map(rows.map(row=>[Number(row.class_number),row]));
+          courseClasses[key]=defaultClasses(key).map(base=>({...base,...(byNumber.get(base.class_number)||{})}));
+        }
+      });
+    }
+  }catch(e){console.warn('Legacy course class metadata unavailable.',e);}
+
+  try{
+    const sessionResult=await db.auth.getSession();
+    const user=sessionResult?.data?.session?.user;
+    if(!user)return;
+
+    const catalogResult=await db.from('zoom_webinar_catalog')
+      .select('course_key,class_number,title,webinar_id,scheduled_at,is_active')
+      .eq('course_key','basic')
+      .eq('is_active',true)
+      .order('class_number',{ascending:true});
+
+    const registrationResult=await db.from('zoom_course_registrations')
+      .select('course_key,class_number,title,webinar_id,scheduled_at,join_url,registration_status,zoom_error_message')
+      .eq('user_id',user.id)
+      .eq('course_key','basic')
+      .order('class_number',{ascending:true});
+
+    if(registrationResult.error)throw registrationResult.error;
+
+    const catalogByNumber=new Map((catalogResult.data||[]).map(row=>[Number(row.class_number),row]));
+    const registrationByNumber=new Map((registrationResult.data||[]).map(row=>[Number(row.class_number),row]));
+
+    courseClasses.basic=defaultClasses('basic').map(base=>{
+      const catalog=catalogByNumber.get(base.class_number)||{};
+      const registration=registrationByNumber.get(base.class_number)||{};
+      return {
+        ...base,
+        ...catalog,
+        ...registration,
+        zoom_url:registration.join_url||'',
+        join_url:registration.join_url||'',
+        registration_status:registration.registration_status||'not_registered',
+        zoom_error_message:registration.zoom_error_message||''
+      };
     });
   }catch(e){
-    console.warn('Course class links unavailable. Run 56_COURSE_CLASSES_ZOOM_LINKS.sql to enable admin-managed Zoom links.',e);
+    console.warn('Unique Zoom class links unavailable. Run SQL 63 and redeploy zoom-register-course V24.',e);
   }
 }
+
 async function loadCourseData(){
   const db=client();
   let rows=[];
@@ -298,17 +342,30 @@ function stickyAccessPanel(c,state){
 function classAccessPanel(c,state){
   if(state!=='approved')return '';
   const rows=(courseClasses[c.key]&&courseClasses[c.key].length?courseClasses[c.key]:defaultClasses(c.key));
+  const readyCount=rows.filter(x=>/^https?:\/\//i.test(String(x.join_url||x.zoom_url||''))).length;
+  const isBasic=c.key==='basic';
   return `<section class="psp-live-class-card" aria-label="${esc(c.title)} live classes">
-    <div class="psp-live-class-head"><div><span>LIVE CLASS ACCESS</span><h3>Your 9 Classes</h3></div><b>${rows.filter(x=>x.zoom_url).length}/9 Links Added</b></div>
-    <p>Select a class to view its Zoom access. Links appear here as soon as the admin adds them.</p>
+    <div class="psp-live-class-head"><div><span>LIVE CLASS ACCESS</span><h3>Your 9 Classes</h3></div><b>${readyCount}/9 Links Ready</b></div>
+    <p>${isBasic?'Your personal Zoom links are generated automatically after enrollment. Each link is unique to your account.':'Select a class to view its live-class access.'}</p>
+    ${isBasic&&readyCount<9?'<button type="button" class="psp-zoom-retry-btn" onclick="return window.retryZoomCourseRegistration?.(event)">Generate / Retry My Zoom Links</button>':''}
     <div class="psp-live-class-list">${rows.map((row,index)=>{
-      const url=String(row.zoom_url||'').trim();
+      const url=String(row.join_url||row.zoom_url||'').trim();
       const safeUrl=/^https?:\/\//i.test(url)?url:'';
       const title=row.title||`Class ${index+1}`;
-      return `<div class="psp-live-class-row ${safeUrl?'has-link':'waiting'}"><button type="button" class="psp-live-class-toggle"><span><i>${String(index+1).padStart(2,'0')}</i><strong>${esc(title)}</strong></span><span class="psp-live-class-state">${safeUrl?'Zoom Ready':'Link Pending'}⌄</span></button><div class="psp-live-class-panel">${safeUrl?`<a href="${esc(safeUrl)}" target="_blank" rel="noopener">Join Zoom Class →</a>`:'<span>Zoom link will be added by the admin.</span>'}</div></div>`;
+      const status=String(row.registration_status||'not_registered');
+      const failed=status==='failed';
+      const pending=status==='pending';
+      const stateText=safeUrl?'Zoom Ready':failed?'Registration Failed':pending?'Registration Pending':'Link Pending';
+      const panel=safeUrl
+        ?`<a href="${esc(safeUrl)}" target="_blank" rel="noopener">Join Webinar →</a>`
+        :failed
+          ?`<span>${esc(row.zoom_error_message||'Zoom registration failed. Use the retry button above.')}</span>`
+          :'<span>Your unique Zoom link is being generated automatically.</span>';
+      return `<div class="psp-live-class-row ${safeUrl?'has-link':failed?'failed':'waiting'}"><button type="button" class="psp-live-class-toggle"><span><i>${String(index+1).padStart(2,'0')}</i><strong>${esc(title)}</strong></span><span class="psp-live-class-state">${stateText}⌄</span></button><div class="psp-live-class-panel">${panel}</div></div>`;
     }).join('')}</div>
   </section>`;
 }
+
 
 function moduleRows(c,unlocked){
   if(c.type==='paid'&&!unlocked){return `<div class="psp-course-locked-roadmap"><div class="psp-course-locked-intro"><div class="lock">🔒</div><div><h4>Advanced Modules Locked</h4><p>Module details unlock after payment approval. You can still preview the complete learning roadmap below.</p></div></div>${c.modules.map((m,i)=>`<div class="psp-module-row locked"><div class="psp-module-toggle"><span><strong>${String(i+1).padStart(2,'0')}. ${esc(m.title)}</strong></span><span class="psp-locked-label">🔒 Locked</span></div></div>`).join('')}</div>`;}
@@ -437,6 +494,14 @@ window.addEventListener('course-enrollment-updated',async()=>{
   await loadCourseData();
   if(currentCourse)renderCurrentDetail(currentCourse.key);else renderMarketplace();
 });
+window.addEventListener('zoom-registration-updated',async()=>{
+  await loadCourseClasses();
+  if(currentCourse)renderCurrentDetail(currentCourse.key);
+});
+window.pspReloadZoomClassLinks=async function(){
+  await loadCourseClasses();
+  if(currentCourse)renderCurrentDetail(currentCourse.key);
+};
 
 function subscribeCourseCatalog(){
   const db=client();if(!db)return setTimeout(subscribeCourseCatalog,500);
@@ -453,12 +518,17 @@ function subscribeCourseClasses(){
   const db=client();if(!db)return setTimeout(subscribeCourseClasses,500);
   if(window.__pspCourseClassesRealtime)return;
   window.__pspCourseClassesRealtime=true;
+  const refresh=async()=>{
+    await loadCourseClasses();
+    if(currentCourse)renderCurrentDetail(currentCourse.key);
+  };
   try{
-    db.channel('psp-course-classes-user').on('postgres_changes',{event:'*',schema:'public',table:'course_classes'},async()=>{
-      await loadCourseClasses();
-      if(currentCourse)renderCurrentDetail(currentCourse.key);
-    }).subscribe();
+    db.channel('psp-course-classes-user-v24')
+      .on('postgres_changes',{event:'*',schema:'public',table:'course_classes'},refresh)
+      .on('postgres_changes',{event:'*',schema:'public',table:'zoom_course_registrations'},refresh)
+      .subscribe();
   }catch(e){console.warn('Course class realtime unavailable',e);}
 }
+
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{init();subscribeCourseCatalog();subscribeCourseClasses();});else{init();subscribeCourseCatalog();subscribeCourseClasses();}
 })();

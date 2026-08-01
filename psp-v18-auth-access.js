@@ -140,7 +140,7 @@ function formatRemaining(seconds){
   if(hours)return `${hours}h ${mins}m`;
   return `${mins}m ${secs}s`;
 }
-function whatsappUrl(number){return 'https://wa.me/'+String(number||'601156558689').replace(/\D/g,'');}
+function whatsappUrl(number){return 'https://wa.me/'+String(number||'601156961157').replace(/\D/g,'');}
 function ensureAccessModal(){
   if(document.getElementById('pspPinLockModal'))return;
   const modal=document.createElement('div');modal.id='pspPinLockModal';modal.className='psp-pin-modal';
@@ -253,7 +253,7 @@ async function loadAccessStatus(){
   }catch(e){
     console.warn('PIN access status failed',e);
     // Fail closed for protected content instead of briefly exposing it.
-    if(!accessState)accessState={is_locked:true,pin_status:'locked',access_enabled:true,lock_title:'Access Check Required',lock_message:'We could not confirm your access status. Please refresh or contact the admin.',admin_whatsapp:'601156558689',remaining_seconds:0};
+    if(!accessState)accessState={is_locked:true,pin_status:'locked',access_enabled:true,lock_title:'Access Check Required',lock_message:'We could not confirm your access status. Please refresh or contact the admin.',admin_whatsapp:'601156961157',remaining_seconds:0};
     applyLockToPages();renderAccessCard();accessResolved=true;setResolving(false);revealApp();
   }
 }

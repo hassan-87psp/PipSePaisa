@@ -981,3 +981,12 @@ body.dark .psp-live-class-card,[data-theme="dark"] .psp-live-class-card{
 }
 .psp-course-buy-thumb{aspect-ratio:16/9!important;height:auto!important;background:transparent!important}
 .psp-course-buy-thumb img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important}
+
+/* V24 automatic unique Zoom links */
+.psp-zoom-retry-btn{display:inline-flex;align-items:center;justify-content:center;margin:0 0 14px;padding:10px 14px;border:1px solid #f59e0b;border-radius:10px;background:#fff7ed;color:#9a3412;font-weight:800;cursor:pointer;transition:.2s ease}
+.psp-zoom-retry-btn:hover{transform:translateY(-1px);background:#ffedd5}
+.psp-zoom-retry-btn:disabled{opacity:.65;cursor:wait;transform:none}
+.psp-live-class-row.failed{border-color:#fecaca;background:#fffafa}
+.psp-live-class-row.failed .psp-live-class-state{color:#b91c1c}
+.dark-theme .psp-zoom-retry-btn{background:#25180a;color:#fdba74;border-color:#c56a00}
+.dark-theme .psp-live-class-row.failed{background:#241111;border-color:#7f1d1d}
