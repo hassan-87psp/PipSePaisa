@@ -20,3 +20,63 @@ body.psp-auth-resolving #app,body.psp-auth-resolving .app-shell{visibility:hidde
   .psp-course-thumb img,.psp-course-buy-thumb img,.psp-course-side-preview img{object-fit:contain!important}
   #sidebar,.sidebar{contain:none;min-width:0}
 }
+
+/* V26 — approved desktop course-card layout: full 16:9 thumbnail above content. */
+@media (min-width:769px){
+  .psp-course-card-grid{
+    grid-template-columns:repeat(2,minmax(340px,430px))!important;
+    gap:22px!important;
+    align-items:stretch!important;
+    justify-content:start!important;
+  }
+  .psp-course-tile{
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:430px!important;
+    overflow:hidden!important;
+  }
+  .psp-course-tile .psp-course-thumb{
+    position:relative!important;
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    aspect-ratio:16/9!important;
+    flex:0 0 auto!important;
+    background:transparent!important;
+  }
+  .psp-course-tile .psp-course-thumb img.psp-course-thumb-main{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    transform:none!important;
+    background:transparent!important;
+  }
+  .psp-course-tile:hover .psp-course-thumb img.psp-course-thumb-main{transform:none!important}
+  .psp-course-tile-body{
+    display:flex!important;
+    flex:1 1 auto!important;
+    flex-direction:column!important;
+    padding:18px!important;
+  }
+  .psp-course-tile-top{display:block!important}
+  .psp-course-tile h3{font-size:19px!important}
+  .psp-course-price{font-size:23px!important}
+  .psp-course-tile p{font-size:11px!important;line-height:1.55!important;-webkit-line-clamp:3!important}
+  .psp-course-meta span{font-size:8.5px!important}
+  .psp-course-tile-footer{margin-top:auto!important}
+}
+
+/* Both free and paid detail sidebars use the exact same uncropped 16:9 thumbnail. */
+.psp-course-side-preview,
+.psp-course-buy-thumb{position:relative!important;aspect-ratio:16/9!important;height:auto!important;overflow:hidden!important}
+.psp-course-side-preview img.psp-course-side-preview-main,
+.psp-course-buy-thumb img{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center!important;background:transparent!important;
+}

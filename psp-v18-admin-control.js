@@ -112,12 +112,12 @@ function renderAdminUsers(users){
   if(!users.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px">No users found.</td></tr>';return;}
   const setupRow=pinSetupError?`<tr><td colspan="7"><div class="v19-pin-setup-error">⚠️ ${esc(pinSetupError)}</div></td></tr>`:'';
   tbody.innerHTML=setupRow+users.map(u=>{
-    const pin=pinMap[u.id],name=(u.full_name||u.email?.split('@')[0]||'No name'),initials=name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(),wa=u.whatsapp||u.phone||'—';
+    const pin=pinMap[u.id],name=(u.full_name||u.email?.split('@')[0]||'No name'),initials=name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase(),wa=u.whatsapp||u.whatsapp_number||u.phone||u.phone_number||u.mobile||u.mobile_number||'—';
     return `<tr data-user-id="${u.id}"><td><div class="user-cell"><div class="user-cell-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706)">${esc(initials)}</div><div><div class="user-cell-name">${esc(name)}</div><span class="v19-role-under-name">${esc(roleLabel(u.role))}</span></div></div></td><td>${esc(u.email||'—')}</td><td>${esc(wa)}</td><td><span class="v18-pin-code">${esc(pin?.access_pin||'—')}</span>${pin?`<button class="action-btn" title="Copy PIN" onclick="pspCopyPin('${esc(pin.access_pin)}')">📋</button>`:''}</td><td>${statusPill(pin)}<div style="font-size:9px;color:var(--text-muted);margin-top:4px">${pin?.status==='active'?'Unlimited access':'Ends '+fmt(pin?.grace_expires_at)}</div></td><td>${fmt(u.created_at)}</td><td><div class="v18-actions"><button class="primary" onclick="pspActivateUserPin('${u.id}')">Activate / Unlock</button><button data-action="set-time" onclick="pspSetUserAccessTime('${u.id}')">Set Time</button><button onclick="pspResetUserPin('${u.id}')">Reset</button><button onclick="pspRegenerateUserPin('${u.id}')">New PIN</button><button class="danger" onclick="pspLockUserPin('${u.id}')">Lock</button></div></td></tr>`;
   }).join('');
   const total=adminUsers.length,premium=adminUsers.filter(x=>x.is_premium).length,banned=adminUsers.filter(x=>x.is_banned).length;const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};set('usersAllCount',total);set('usersPremiumCount',premium);set('usersFreeCount',total-premium);set('usersBannedCount',banned);set('usersShowing',`Showing ${users.length} of ${total}`);
 }
-window.filterAdminUsers=function(){const q=(document.getElementById('adminUserSearch')?.value||'').toLowerCase(),role=document.getElementById('adminUserRoleFilter')?.value||'all';renderAdminUsers(adminUsers.filter(u=>{const text=[u.full_name,u.email,u.phone,u.whatsapp,pinMap[u.id]?.access_pin].join(' ').toLowerCase();return(!q||text.includes(q))&&(role==='all'||String(u.role||'user')===role);}));};
+window.filterAdminUsers=function(){const q=(document.getElementById('adminUserSearch')?.value||'').toLowerCase(),role=document.getElementById('adminUserRoleFilter')?.value||'all';renderAdminUsers(adminUsers.filter(u=>{const text=[u.full_name,u.email,u.phone,u.phone_number,u.whatsapp,u.whatsapp_number,u.mobile,u.mobile_number,pinMap[u.id]?.access_pin].join(' ').toLowerCase();return(!q||text.includes(q))&&(role==='all'||String(u.role||'user')===role);}));};
 window.pspCopyPin=async pin=>{try{await navigator.clipboard.writeText(pin);resultModal(true,'PIN Copied',`PIN ${pin} has been copied.`);}catch(_){resultModal(false,'Copy Failed','Select and copy the PIN manually.');}};
 async function manageUserAccess(id,action,value=null,unit=null){
   const client=db();let result=await client.rpc('psp_admin_manage_user_access',{p_user_id:id,p_action:action,p_value:value,p_unit:unit});
@@ -221,6 +221,6 @@ function installCourseEditor(){
   };
 }
 
-function init(){injectStyles();ensureModal();injectPinSettings();installCourseEditor();loadPinSettings();setTimeout(()=>window.loadAdminUsers?.(),400);setInterval(()=>{injectPinSettings();installCourseEditor();},600);}
+function init(){injectStyles();ensureModal();injectPinSettings();installCourseEditor();loadPinSettings();setTimeout(()=>window.loadAdminUsers?.(),400);const timer=setInterval(()=>{injectPinSettings();installCourseEditor();if(window.__pspV20CourseEditor&&document.getElementById('pspV20CourseEditor'))clearInterval(timer);},500);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

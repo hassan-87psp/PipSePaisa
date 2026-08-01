@@ -46,7 +46,7 @@ html.psp-v20-booting body::after{content:"";position:fixed;left:50%;top:50%;z-in
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<link rel="preconnect" href="https://vjqvoinsspgsrcyhwspy.supabase.co" crossorigin>
+<link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co" crossorigin>
 <link rel="preconnect" href="https://cdn.onesignal.com" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1051,7 +1051,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </style>
 
 <style id="pspCoursePageIsolationCss">#page-mycourses:not(.active){display:none!important}#page-mycourses.active{display:block!important}.brand-logo-img{width:42px;height:42px;object-fit:contain;display:block;flex:0 0 42px;border-radius:10px}</style>
-<link rel="stylesheet" href="course-marketplace-v3.css?v=20260801-v24-unique-zoom-links">
+<link rel="stylesheet" href="course-marketplace-v3.css?v=20260801-v27-final">
 <link rel="stylesheet" href="psp-v18-auth-access.css?v=20260731-v19-fix">
 <link rel="stylesheet" href="psp-v20-final.css?v=20260731-v20-final">
 </head>
@@ -6499,6 +6499,15 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       closeModal('auth');
       enterApp();
       resetAuthModalState();
+      const hasPendingTarget=(typeof window.pspHasPendingTarget==='function')
+        ? window.pspHasPendingTarget()
+        : !!(
+          sessionStorage.getItem('psp-post-login-target') ||
+          new URLSearchParams(location.search).get('open') ||
+          new URLSearchParams(location.search).get('tab') ||
+          /^#(?:course-(?:basic|advanced)|dashboard|signals|settings|mycourses)$/i.test(location.hash||'')
+        );
+      window.dispatchEvent(new CustomEvent('psp-authenticated',{detail:{user:data.user}}));
 
       setTimeout(function(){
         Promise.resolve(loadUserProfile(data.user)).catch(function(error){
@@ -6507,11 +6516,13 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         });
       },0);
 
-      // Open Performance as the default page.
-      try {
-        const perfItem = document.querySelector('.menu-item[data-page="performance"]');
-        if (perfItem) showPage('performance', perfItem);
-      } catch (e) {}
+      // Open Performance only when no course/dashboard deep link is pending.
+      if(!hasPendingTarget){
+        try {
+          const perfItem = document.querySelector('.menu-item[data-page="performance"]');
+          if (perfItem) showPage('performance', perfItem);
+        } catch (e) {}
+      }
     } catch (error) {
       console.error('Login error:', error);
       let msg = error && error.message ? error.message : 'Login failed';
@@ -6899,8 +6910,12 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if(!sb)return;
     let latest=null;try{const r=await sb.from('notifications').select('*').eq('is_official',true).order('created_at',{ascending:false}).limit(1);latest=(r.data||[])[0];}catch(e){return;}
     if(!latest)return;
-    let seen=null;try{seen=localStorage.getItem('psp_last_announce');}catch(e){}
-    if(seen&&new Date(latest.created_at)<=new Date(seen)){var hb=document.getElementById('announceBanner');if(hb)hb.style.display='none';return;}
+    const noticeKey=String(latest.id||latest.created_at||latest.title||'');
+    let seenIds=[];
+    try{seenIds=JSON.parse(localStorage.getItem('psp_seen_announce_ids_v2')||'[]');if(!Array.isArray(seenIds))seenIds=[];}catch(e){seenIds=[];}
+    if(noticeKey&&seenIds.includes(noticeKey)){var hb=document.getElementById('announceBanner');if(hb)hb.style.display='none';return;}
+    // Mark as seen when it is displayed, so page changes or refreshes never repeat it.
+    if(noticeKey){try{seenIds.push(noticeKey);localStorage.setItem('psp_seen_announce_ids_v2',JSON.stringify(seenIds.slice(-150)));}catch(e){}}
     window._lastAnnounceAt=latest.created_at;window._lastAnnounceObj=latest;
     try{const lastSound=localStorage.getItem('psp_last_notify_sound');if(lastSound!==latest.created_at){pspPlayNotifySound();pspBrowserNotify(latest);localStorage.setItem('psp_last_notify_sound',latest.created_at);}}catch(e){}
     const ico={general:'📢',urgent:'🔴',course:'🎓',signal:'📈',chart:'📊',article:'📖',banner:'🖼️',promo:'🎁'};
@@ -8291,7 +8306,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     if(currentUser && sb){
       loadTabSettings();
     }
-  }, 3000);
+  }, 30000);
 
   // ============ INIT ============
   // ============ LANDING PAGE LOGIC ============
@@ -8434,11 +8449,13 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     const today = new Date().toISOString().split('T')[0];
     if (document.getElementById('t_date')) document.getElementById('t_date').value = today;
     
-    // Load news in background so it's ready when user opens news page
-    loadNews();
-    
-    // Load quiz questions from database
-    loadQuizQuestionsFromDB();
+    // Load noncritical data when the browser is idle so login feels immediate.
+    const idleLoad=()=>{
+      try{loadNews();}catch(e){}
+      try{loadQuizQuestionsFromDB();}catch(e){}
+    };
+    if('requestIdleCallback' in window)requestIdleCallback(idleLoad,{timeout:2200});
+    else setTimeout(idleLoad,700);
     
     // (real session handled by loadUserProfile above)
   }
@@ -8466,7 +8483,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     // Refresh world news hub if active
     const nhp = document.getElementById('page-newshub');
     if (nhp && nhp.classList.contains('active') && typeof nhLoad === 'function') { nhLoad(); }
-  }, 60 * 1000); // 1 minute
+  }, 5 * 60 * 1000); // 5 minutes
 </script>
 
 <script id="mentorPortalAiJs">
@@ -8568,7 +8585,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <div id="pwaInstallBanner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--bg-card);border:1px solid var(--gold);border-radius:14px;padding:14px 20px;box-shadow:0 8px 30px rgba(0,0,0,0.4);display:none;align-items:center;gap:14px;max-width:340px;width:90%">
   <div style="width:44px;height:44px;border-radius:10px;overflow:hidden;flex-shrink:0"><img src="icon-192.png" style="width:100%;height:100%;object-fit:cover"></div>
   <div style="flex:1">
-    <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Install Trading Platform App</div>
+    <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Install PipSePaisa App</div>
     <div style="font-size:11px;color:var(--text-muted)">Add to home screen for quick access</div>
   </div>
   <div style="display:flex;flex-direction:column;gap:6px">
@@ -8578,24 +8595,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </div>
 
 <script>
-// Kill any stale Service Worker + caches so new versions ALWAYS load fresh
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(rs => {
-    rs = rs.filter(function(r){ var u=((r.active&&r.active.scriptURL)||(r.installing&&r.installing.scriptURL)||(r.waiting&&r.waiting.scriptURL)||'')+''; return u.indexOf('OneSignal') === -1; });
-    var had = rs.length > 0;
-    rs.forEach(r => r.unregister());
-    if (window.caches && caches.keys) {
-      caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k)))).catch(() => {});
-    }
-    // if a stale SW was controlling this page, reload once to drop it
-    if (had && !sessionStorage.getItem('pp_sw_cleared')) {
-      sessionStorage.setItem('pp_sw_cleared', '1');
-      setTimeout(() => location.reload(), 300);
-    }
-  }).catch(() => {});
-} else if (window.caches && caches.keys) {
-  caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
-}
+// Preserve browser caches and OneSignal service workers for faster page loads.
 
 // PWA Install Prompt
 let deferredPrompt;
@@ -9327,7 +9327,7 @@ function animateNum(el){if(el.dataset.cu)return;var raw=(el.textContent||'').tri
 function scan(){document.querySelectorAll('.stat .n, .stat-value').forEach(function(el){var x=(el.textContent||'').trim();if(/\d/.test(x)&&x!=='...')animateNum(el);});}
 var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=setTimeout(scan,150)});document.addEventListener('DOMContentLoaded',function(){try{mo.observe(document.body,{subtree:true,childList:true,characterData:true});}catch(e){}setTimeout(scan,500)});})();
 </script>
-<script>(function(){var b=document.createElement('div');b.id='announceBanner';b.style.cssText='display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(560px,92vw);';function mount(){if(document.body&&!document.getElementById('announceBanner'))document.body.appendChild(b);}if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);function active(id){var p=document.getElementById(id);return p&&p.classList.contains('active');}function tick(){try{if(typeof checkAnnounceBanner==='function')checkAnnounceBanner();}catch(e){}}function poll(){try{if(active('page-support')&&typeof loadSupport==='function')loadSupport(true);if(active('page-announce')&&typeof loadAnnouncements==='function')loadAnnouncements();}catch(e){}}setTimeout(tick,4500);setInterval(tick,20000);setInterval(poll,3000);})();</script>
+<script>(function(){var b=document.createElement('div');b.id='announceBanner';b.style.cssText='display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(560px,92vw);';function mount(){if(document.body&&!document.getElementById('announceBanner'))document.body.appendChild(b);}if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);function active(id){var p=document.getElementById(id);return p&&p.classList.contains('active');}function tick(){try{if(typeof checkAnnounceBanner==='function')checkAnnounceBanner();}catch(e){}}function poll(){try{if(active('page-support')&&typeof loadSupport==='function')loadSupport(true);if(active('page-announce')&&typeof loadAnnouncements==='function')loadAnnouncements();}catch(e){}}setTimeout(tick,4500);setInterval(tick,20000);setInterval(poll,15000);})();</script>
 
 <div id="eventAIHost"></div>
 
@@ -9341,9 +9341,16 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
     document.body.style.overflow='';
   }
 
-  document.addEventListener('click',function(event){
-    if(event.target && event.target.id==='modal-auth') closeLandingAuth();
-  });
+  let authBackdropPointerDown=false;
+  document.addEventListener('pointerdown',function(event){
+    authBackdropPointerDown=!!(event.target && event.target.id==='modal-auth');
+  },true);
+  document.addEventListener('pointerup',function(event){
+    const shouldClose=authBackdropPointerDown && event.target && event.target.id==='modal-auth';
+    authBackdropPointerDown=false;
+    if(shouldClose) closeLandingAuth();
+  },true);
+  document.addEventListener('pointercancel',function(){authBackdropPointerDown=false;},true);
   document.addEventListener('keydown',function(event){
     if(event.key==='Escape' && document.getElementById('modal-auth')?.classList.contains('active')){
       closeLandingAuth();
@@ -9409,14 +9416,6 @@ function ubnSync(p){document.querySelectorAll('#userBottomNav .ubn-item[data-pag
   },600);
 })();
 </script>
-<script>
-document.addEventListener('click',function(e){
-  var ov=document.getElementById('modal-auth');
-  if(ov && getComputedStyle(ov).display!=='none' && e.target===ov){
-    try{closeModal('auth');}catch(err){ov.style.display='none';}
-  }
-},true);
-</script>
 
 <script id="landingAuthMessageBridge">
 window.addEventListener('message',function(event){
@@ -9425,7 +9424,7 @@ window.addEventListener('message',function(event){
 });
 </script>
 <script src="course-enrollment.js?v=20260801-v24-1-zoom-auth-signup-reset"></script>
-<script src="course-marketplace-v3.js?v=20260801-v24-1-zoom-auth-signup-reset"></script>
+<script src="course-marketplace-v3.js?v=20260801-v27-final"></script>
 
 
 <script>
@@ -9476,7 +9475,7 @@ window.addEventListener('message',function(event){
 <script id="pspNoTopTickerFinalScript">(function(){function clean(){document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker').forEach(function(n){n.remove();});}document.addEventListener('DOMContentLoaded',clean);window.addEventListener('pageshow',clean);setTimeout(clean,250);setTimeout(clean,1200);})();</script>
 <script src="psp-v18-auth-access.js?v=20260801-v24-1-signup-reset"></script>
 
-<link rel="stylesheet" href="psp-v25-stability-fixes.css">
-<script src="psp-v25-stability-fixes.js" defer></script>
+<link rel="stylesheet" href="psp-v25-stability-fixes.css?v=20260801-v27-final">
+<script src="psp-v25-stability-fixes.js?v=20260801-v27-final" defer></script>
 </body>
 </html>

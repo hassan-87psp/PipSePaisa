@@ -4,7 +4,7 @@
 const defaults={
   basic:{
     key:'basic',title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
-    thumbnail:'course-thumbnails/basic-forex-course.webp',
+    thumbnail:'/course-thumbnails/basic-forex-course.webp?v=20260801-v27-final',
     short:'Build a strong foundation in Forex trading, technical analysis, market sentiment, risk management and beginner-level strategies.',
     description:'A structured beginner program designed to help new traders understand the Forex market, read price behaviour, control risk and develop a disciplined trading process.',
     descriptionExtra:'Every module follows a clear learning path with practical market examples, defined objectives and expected outcomes. The goal is to help students understand the process rather than copy random trades.',
@@ -31,7 +31,7 @@ const defaults={
   },
   advanced:{
     key:'advanced',title:'Advanced Forex Course',price:200,oldPrice:500,type:'paid',level:'Advanced',badge:'ADVANCED PROFESSIONAL COURSE',
-    thumbnail:'course-thumbnails/advanced-forex-course.webp',
+    thumbnail:'/course-thumbnails/advanced-forex-course.webp?v=20260801-v27-final',
     short:'Develop a professional trading mindset and study advanced market behaviour, session timing, liquidity, correlations and strategy development.',
     description:'A professional program for serious traders who want to study institutional structure, liquidity, session behaviour, advanced risk management, macro analysis and precise execution models.',
     descriptionExtra:'Every module follows a clear learning path with practical market examples, defined objectives and expected outcomes. The goal is to help students understand the process rather than copy random trades.',
@@ -65,6 +65,32 @@ let detailRenderToken=0;
 
 function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 function client(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(_){return null}}
+
+function resolveCourseThumbnail(value,key){
+  const fallback=defaults[key]?.thumbnail||'';
+  const v=String(value||'').trim();
+  if(!v)return fallback;
+  // Older database rows used the generic Forex Education service banner.
+  // Replace only those legacy placeholders; real admin-uploaded thumbnails remain supported.
+  if(/(?:service-banners\/)|forex-education-(?:light|dark)|forex education.*matched|trading-platform.*education/i.test(v))return fallback;
+  return v;
+}
+function imageFallbackAttr(key){return `onerror="this.onerror=null;this.src='${esc(defaults[key]?.thumbnail||'')}';"`;}
+
+function normalizeModules(value,key){
+  const list=Array.isArray(value)&&value.length?value.map((m,i)=>({...m,__originalIndex:i})):defaults[key].modules.map((m,i)=>({...m,__originalIndex:i}));
+  const canonical=new Map(defaults[key].modules.map((m,i)=>[String(m.title||'').trim().toLowerCase(),i]));
+  list.sort((a,b)=>{
+    const ao=Number(a.display_order??a.order??a.module_number);
+    const bo=Number(b.display_order??b.order??b.module_number);
+    if(Number.isFinite(ao)&&Number.isFinite(bo)&&ao!==bo)return ao-bo;
+    const ai=canonical.has(String(a.title||'').trim().toLowerCase())?canonical.get(String(a.title||'').trim().toLowerCase()):999;
+    const bi=canonical.has(String(b.title||'').trim().toLowerCase())?canonical.get(String(b.title||'').trim().toLowerCase()):999;
+    return ai-bi||a.__originalIndex-b.__originalIndex;
+  });
+  return list.map(({__originalIndex,...m})=>({...m,duration:m.duration||'90 min'}));
+}
+
 function normalize(row,key){
   if(!row)return 'not_enrolled';
   if(row.enrollment_status==='enrolled'||row.payment_status==='approved'||row.payment_status==='paid')return 'approved';
@@ -176,12 +202,12 @@ async function loadCourseData(){
     included:arrayValue(basic.included_items,defaults.basic.included),
     contentNote:basic.content_note||defaults.basic.contentNote,secureNote:basic.secure_note||defaults.basic.secureNote,
     level:basic.level||defaults.basic.level,badge:basic.course_badge||defaults.basic.badge,
-    thumbnail:basic.thumbnail||defaults.basic.thumbnail,videoUrl:'',
+    thumbnail:resolveCourseThumbnail(basic.thumbnail,'basic'),videoUrl:'',
     requirements:arrayValue(basic.requirements,defaults.basic.requirements),
     audience:arrayValue(basic.audience,defaults.basic.audience),
     learn:arrayValue(basic.learning_outcomes,defaults.basic.learn),
     achievement:arrayValue(basic.achievement_outcomes,defaults.basic.achievement),
-    modules:arrayValue(basic.modules_json,defaults.basic.modules),
+    modules:normalizeModules(basic.modules_json,'basic'),
     accessLabel:basic.access_label||'FREE COURSE ACCESS',buyNote:basic.buy_note||'Complete the enrollment form and begin learning.',
     actionButtonText:basic.action_button_text||'',mentorName:basic.mentor_name||'Sajid Khan Ghori',mentorTitle:basic.mentor_title||'Asia Top Instructor',learningHeading:basic.learning_heading||defaults.basic.learningHeading,outcomesHeading:basic.outcomes_heading||defaults.basic.outcomesHeading,contentHeading:basic.content_heading||defaults.basic.contentHeading,requirementsHeading:basic.requirements_heading||defaults.basic.requirementsHeading,audienceHeading:basic.audience_heading||defaults.basic.audienceHeading,descriptionHeading:basic.description_heading||defaults.basic.descriptionHeading,relatedHeading:basic.related_heading||defaults.basic.relatedHeading,
     price:0,oldPrice:0,published:basic.is_published!==false
@@ -194,12 +220,12 @@ async function loadCourseData(){
     included:arrayValue(adv.included_items,defaults.advanced.included),
     contentNote:adv.content_note||defaults.advanced.contentNote,secureNote:adv.secure_note||defaults.advanced.secureNote,
     level:adv.level||defaults.advanced.level,badge:adv.course_badge||defaults.advanced.badge,
-    thumbnail:adv.thumbnail||defaults.advanced.thumbnail,videoUrl:'',
+    thumbnail:resolveCourseThumbnail(adv.thumbnail,'advanced'),videoUrl:'',
     requirements:arrayValue(adv.requirements,defaults.advanced.requirements),
     audience:arrayValue(adv.audience,defaults.advanced.audience),
     learn:arrayValue(adv.learning_outcomes,defaults.advanced.learn),
     achievement:arrayValue(adv.achievement_outcomes,defaults.advanced.achievement),
-    modules:arrayValue(adv.modules_json,defaults.advanced.modules),
+    modules:normalizeModules(adv.modules_json,'advanced'),
     accessLabel:adv.access_label||'PROFESSIONAL COURSE ACCESS',buyNote:adv.buy_note||'One-time course payment • Manual verification',
     actionButtonText:adv.action_button_text||'',mentorName:adv.mentor_name||'Sajid Khan Ghori',mentorTitle:adv.mentor_title||'Asia Top Instructor',learningHeading:adv.learning_heading||defaults.advanced.learningHeading,outcomesHeading:adv.outcomes_heading||defaults.advanced.outcomesHeading,contentHeading:adv.content_heading||defaults.advanced.contentHeading,requirementsHeading:adv.requirements_heading||defaults.advanced.requirementsHeading,audienceHeading:adv.audience_heading||defaults.advanced.audienceHeading,descriptionHeading:adv.description_heading||defaults.advanced.descriptionHeading,relatedHeading:adv.related_heading||defaults.advanced.relatedHeading,
     price:numberValue(adv.price,defaults.advanced.price),oldPrice:numberValue(adv.old_price,defaults.advanced.oldPrice),
@@ -223,7 +249,7 @@ function tileMarkup(c){
   const hasVideo=/^https?:\/\//i.test(String(c.videoUrl||'').trim());
   return `<article class="psp-course-tile ${c.type==='paid'?'paid':''}" data-course="${c.key}" tabindex="0" role="button" aria-label="Open ${esc(c.title)} details">
     <div class="psp-course-thumb">
-      <img class="psp-course-thumb-main" src="${esc(c.thumbnail)}" alt="${esc(c.title)} thumbnail">
+      <img class="psp-course-thumb-main" src="${esc(c.thumbnail)}" alt="${esc(c.title)} thumbnail" ${imageFallbackAttr(c.key)}>
     </div>
     <div class="psp-course-tile-body">
       <div class="psp-course-tile-top"><h3>${esc(c.title)}</h3><div class="psp-course-price">${c.price?('$'+c.price):'Free'}</div></div>
@@ -276,7 +302,7 @@ function buyPanel(c,state){
   }
   if(c.actionButtonText&&!approved&&!pending)button=c.actionButtonText;
   return `<aside class="psp-course-buy-card">
-    <div class="psp-course-buy-thumb"><img src="${esc(c.thumbnail)}" alt="${esc(c.title)}"></div>
+    <div class="psp-course-buy-thumb"><img src="${esc(c.thumbnail)}" alt="${esc(c.title)}" ${imageFallbackAttr(c.key)}></div>
     <div class="psp-course-buy-body">
       <span class="psp-course-access-label">${esc(c.accessLabel||(c.type==='free'?'FREE COURSE ACCESS':'PROFESSIONAL COURSE ACCESS'))}</span>
       <div class="psp-course-price-line"><span class="psp-course-buy-price">${c.price?('$'+c.price):'100% Free'}</span>${c.oldPrice?`<span class="psp-course-buy-old">$${c.oldPrice}</span>`:''}</div>
@@ -327,7 +353,7 @@ function stickyAccessPanel(c,state){
   if(c.actionButtonText&&!approved&&!pending)button=c.actionButtonText;
   return `<div class="psp-course-side-card psp-course-side-card-premium ${c.type} ${state}">
     <div class="psp-course-side-preview">
-      <img class="psp-course-side-preview-main" src="${esc(c.thumbnail)}" alt="${esc(c.title)} preview">
+      <img class="psp-course-side-preview-main" src="${esc(c.thumbnail)}" alt="${esc(c.title)} preview" ${imageFallbackAttr(c.key)}>
     </div>
     <div class="psp-course-side-body">
       <div class="psp-side-eyebrow">${eyebrow}</div>
@@ -412,11 +438,35 @@ function bindDetail(){
     list.querySelectorAll('.psp-module-row.open').forEach(r=>r.classList.remove('open'));
     if(!was)row.classList.add('open');
   }));
-  document.querySelectorAll('#pspCourseDetail .psp-live-class-toggle').forEach(button=>button.addEventListener('click',()=>{
-    const row=button.closest('.psp-live-class-row');const list=row.closest('.psp-live-class-list');const was=row.classList.contains('open');
-    list.querySelectorAll('.psp-live-class-row.open').forEach(r=>r.classList.remove('open'));
-    if(!was)row.classList.add('open');
-  }));
+  bindLiveClassToggles(document.getElementById('pspCourseDetail'));
+}
+function bindLiveClassToggles(root){
+  if(!root)return;
+  root.querySelectorAll('.psp-live-class-toggle').forEach(button=>{
+    if(button.dataset.bound==='1')return;
+    button.dataset.bound='1';
+    button.addEventListener('click',()=>{
+      const row=button.closest('.psp-live-class-row');const list=row?.closest('.psp-live-class-list');if(!row||!list)return;
+      const was=row.classList.contains('open');
+      list.querySelectorAll('.psp-live-class-row.open').forEach(r=>r.classList.remove('open'));
+      if(!was)row.classList.add('open');
+    });
+  });
+}
+function refreshClassPanelOnly(){
+  if(!currentCourse)return;
+  const side=document.querySelector('#pspCourseDetail .psp-course-sticky-column');if(!side)return;
+  const existing=side.querySelector('.psp-live-class-card');
+  const html=classAccessPanel(currentCourse,enrollmentState[currentCourse.key]);
+  if(!html){existing?.remove();return;}
+  const temp=document.createElement('div');temp.innerHTML=html.trim();const next=temp.firstElementChild;if(!next)return;
+  if(existing)existing.replaceWith(next);else side.appendChild(next);
+  bindLiveClassToggles(next);
+}
+let classRefreshTimer=0;
+function scheduleClassPanelRefresh(){
+  clearTimeout(classRefreshTimer);
+  classRefreshTimer=setTimeout(async()=>{await loadCourseClasses();refreshClassPanelOnly();},220);
 }
 window.pspCoursePrimaryAction=function(event){if(event){event.preventDefault();event.stopPropagation();}handleAction();return false;};
 function handleAction(){
@@ -495,14 +545,8 @@ window.addEventListener('course-enrollment-updated',async()=>{
   await loadCourseData();
   if(currentCourse)renderCurrentDetail(currentCourse.key);else renderMarketplace();
 });
-window.addEventListener('zoom-registration-updated',async()=>{
-  await loadCourseClasses();
-  if(currentCourse)renderCurrentDetail(currentCourse.key);
-});
-window.pspReloadZoomClassLinks=async function(){
-  await loadCourseClasses();
-  if(currentCourse)renderCurrentDetail(currentCourse.key);
-};
+window.addEventListener('zoom-registration-updated',scheduleClassPanelRefresh);
+window.pspReloadZoomClassLinks=async function(){scheduleClassPanelRefresh();};
 
 function subscribeCourseCatalog(){
   const db=client();if(!db)return setTimeout(subscribeCourseCatalog,500);
@@ -519,10 +563,7 @@ function subscribeCourseClasses(){
   const db=client();if(!db)return setTimeout(subscribeCourseClasses,500);
   if(window.__pspCourseClassesRealtime)return;
   window.__pspCourseClassesRealtime=true;
-  const refresh=async()=>{
-    await loadCourseClasses();
-    if(currentCourse)renderCurrentDetail(currentCourse.key);
-  };
+  const refresh=()=>scheduleClassPanelRefresh();
   try{
     db.channel('psp-course-classes-user-v24')
       .on('postgres_changes',{event:'*',schema:'public',table:'course_classes'},refresh)

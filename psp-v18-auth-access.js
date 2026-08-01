@@ -61,7 +61,7 @@ function keepSignupVerificationVisible(){
     if(title)title.textContent='Verify Your Email';
     if(sub)sub.textContent='One quick step to activate your account';
     document.body.style.overflow='hidden';
-  },90);
+  },250);
 }
 function installSignupFix(){
   if(typeof window.signupUser!=='function'||window.__pspV20SignupFixed)return;
@@ -342,8 +342,8 @@ async function subscribeRealtime(){
 function init(){
   installSignupFix();installPageGuard();ensureAccessModal();ensureResultModal();ensureSettingsCard();subscribeAuthChanges();
   setResolving(true);loadAccessStatus().then(subscribeRealtime);
-  clearInterval(accessTimer);accessTimer=setInterval(loadAccessStatus,5000);
-  clearInterval(wrapTimer);wrapTimer=setInterval(()=>{installSignupFix();installPageGuard();ensureSettingsCard();},500);
+  clearInterval(accessTimer);accessTimer=setInterval(loadAccessStatus,30000);
+  clearInterval(wrapTimer);wrapTimer=setInterval(()=>{installSignupFix();installPageGuard();ensureSettingsCard();},3000);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,20));else setTimeout(init,20);
 window.addEventListener('course-enrollment-updated',loadAccessStatus);

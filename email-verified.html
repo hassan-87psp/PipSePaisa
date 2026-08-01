@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Email Verified | PipSePaisa</title>
   <link rel="icon" href="favicon.png">
+  <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co" crossorigin>
   <style>
     :root{--gold:#f59e0b;--navy:#0b172a;--muted:#64748b;--green:#047857}
     *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#07111f,#111d31);font-family:Arial,Helvetica,sans-serif;color:#111827}
@@ -78,12 +79,14 @@
           }).catch(emailError=>console.warn('PIN welcome email could not be queued',emailError));
         }catch(emailError){console.warn('PIN welcome email could not be sent',emailError);}
 
-        try{await client.auth.signOut({scope:'local'});}catch(_){ }
-        localStorage.removeItem('pipsepaisa-user-auth-v2');
+        // Show success immediately once Supabase confirms the verification.
+        // Cleanup runs in the background and never delays the user-facing button.
         icon.textContent='✓';title.textContent='Email Verified Successfully';
         status.textContent='Your account is active. Please sign in manually using your email and password.';
         btn.href='/#auth-login';btn.setAttribute('aria-disabled','false');
         try{history.replaceState(null,'','email-verified.html');}catch(_){ }
+        localStorage.removeItem('pipsepaisa-user-auth-v2');
+        client.auth.signOut({scope:'local'}).catch(()=>{});
       }catch(error){
         console.error(error);icon.textContent='!';title.textContent='Verification Link Could Not Be Confirmed';
         status.textContent='The link may be expired or already used. Open PipSePaisa and request a new verification email.';
