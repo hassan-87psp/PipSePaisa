@@ -4,7 +4,7 @@
 const defaults={
   basic:{
     key:'basic',title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
-    thumbnail:'service-banners/forex-education-light-matched-v4.webp',
+    thumbnail:'course-thumbnails/basic-forex-course.webp',
     short:'Build a strong foundation in Forex trading, technical analysis, market sentiment, risk management and beginner-level strategies.',
     description:'A structured beginner program designed to help new traders understand the Forex market, read price behaviour, control risk and develop a disciplined trading process.',
     descriptionExtra:'Every module follows a clear learning path with practical market examples, defined objectives and expected outcomes. The goal is to help students understand the process rather than copy random trades.',
@@ -15,22 +15,23 @@ const defaults={
     requirements:['This course is suitable even if you are completely new to forex.','A mobile phone or computer with internet access.','A willingness to practise on a demo account and follow risk-management rules.'],
     audience:['Complete beginners starting their Forex journey.','Traders who want to rebuild their foundation correctly.','Students who prefer structured, practical learning.'],
     modules:[
+
       {title:'Introduction to Forex Trading',duration:'90 min',summary:'Understand the Forex market, currency pairs, brokers, spreads and leverage.',points:['How the Forex market works','Major market participants','Currency pairs and trading sessions']},
       {title:'Candlestick Patterns and Price Behaviour',duration:'90 min',summary:'Read buyer and seller pressure through candles, rejection and momentum.',points:['Candlestick structure','Rejection and momentum','Core reversal patterns']},
       {title:'Market Sentiment Analysis',duration:'90 min',summary:'Build a market bias by understanding bullish, bearish and crowd behaviour.',points:['Bullish vs bearish sentiment','Fear, greed and crowd behaviour','News reaction and bias']},
       {title:'Trading Psychology and Risk Management',duration:'90 min',summary:'Develop discipline and protect capital with practical risk rules.',points:['Position sizing and stop loss','Discipline and execution','Managing fear and overtrading']},
-      {title:'Trading Strategies — Part 2',duration:'90 min',summary:'Refine entries, exits and trade management using stronger confirmation.',points:['Advanced confirmations','Trade management rules','Exit planning and review']},
       {title:'Foundations of Technical Analysis',duration:'90 min',summary:'Learn trends, levels, structure and the foundations of chart analysis.',points:['Trend identification','Support and resistance','Basic market structure']},
       {title:'Understanding Technical Indicators',duration:'90 min',summary:'Use indicators as confirmation tools without depending on them blindly.',points:['Moving averages','RSI and momentum','MACD confirmation']},
       {title:'Fundamentals of Fundamental Analysis',duration:'90 min',summary:'Understand economic events and policy decisions that move currencies and gold.',points:['Interest rates and inflation','CPI, NFP and central banks','Using the economic calendar']},
-      {title:'Trading Strategies — Part 1',duration:'90 min',summary:'Create a simple, repeatable trading plan with clear entry and exit rules.',points:['Setup selection','Entry and stop-loss rules','Take-profit structure']}
+      {title:'Trading Strategies — Part 1',duration:'90 min',summary:'Create a simple, repeatable trading plan with clear entry and exit rules.',points:['Setup selection','Entry and stop-loss rules','Take-profit structure']},
+      {title:'Trading Strategies — Part 2',duration:'90 min',summary:'Refine entries, exits and trade management using stronger confirmation.',points:['Advanced confirmations','Trade management rules','Exit planning and review']}
     ],
     learn:['Understand how the Forex market and currency pairs work.','Read candlestick behaviour, trends and important price levels.','Use technical indicators as confirmation rather than dependency.','Prepare for economic news and fundamental market events.','Build a repeatable trading strategy with clear risk rules.','Develop discipline, patience and a professional trading routine.'],
     achievement:['Understand forex market structure and price movement clearly.','Identify stronger entry and exit areas with confidence.','Use technical tools and chart analysis in a practical way.','Build better risk-management and trading-discipline habits.','Improve decision-making using real market examples.','Develop a repeatable trading approach for consistent learning.']
   },
   advanced:{
     key:'advanced',title:'Advanced Forex Course',price:200,oldPrice:500,type:'paid',level:'Advanced',badge:'ADVANCED PROFESSIONAL COURSE',
-    thumbnail:'service-banners/forex-education-dark-readable-v4.webp',
+    thumbnail:'course-thumbnails/advanced-forex-course.webp',
     short:'Develop a professional trading mindset and study advanced market behaviour, session timing, liquidity, correlations and strategy development.',
     description:'A professional program for serious traders who want to study institutional structure, liquidity, session behaviour, advanced risk management, macro analysis and precise execution models.',
     descriptionExtra:'Every module follows a clear learning path with practical market examples, defined objectives and expected outcomes. The goal is to help students understand the process rather than copy random trades.',
@@ -347,7 +348,7 @@ function classAccessPanel(c,state){
   return `<section class="psp-live-class-card" aria-label="${esc(c.title)} live classes">
     <div class="psp-live-class-head"><div><span>LIVE CLASS ACCESS</span><h3>Your 9 Classes</h3></div><b>${readyCount}/9 Links Ready</b></div>
     <p>${isBasic?'Your personal Zoom links are generated automatically after enrollment. Each link is unique to your account.':'Select a class to view its live-class access.'}</p>
-    ${isBasic&&readyCount<9?'<button type="button" class="psp-zoom-retry-btn" onclick="return window.retryZoomCourseRegistration?.(event)">Generate / Retry My Zoom Links</button>':''}
+    ${isBasic&&readyCount<9?'<button type="button" class="psp-zoom-retry-btn" onclick="return window.retryZoomCourseRegistration?.(event)">Generate Class Links</button>':''}
     <div class="psp-live-class-list">${rows.map((row,index)=>{
       const url=String(row.join_url||row.zoom_url||'').trim();
       const safeUrl=/^https?:\/\//i.test(url)?url:'';

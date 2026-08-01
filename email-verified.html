@@ -22,7 +22,7 @@
     <div class="icon" id="icon">⏳</div>
     <h1 id="title">Verifying Your Email</h1>
     <p class="status" id="status">Please wait while we securely activate your account.</p>
-    <a class="btn" id="loginBtn" href="index.html#login" aria-disabled="true">Continue to Sign In</a>
+    <a class="btn" id="loginBtn" href="/#auth-login" aria-disabled="true">Continue to Sign In</a>
     <p class="small">For your security, verification does not automatically open your dashboard.</p>
   </main>
 
@@ -65,30 +65,29 @@
         // verification session is authenticated. Email failure does not block verification.
         try{
           const name=session.user?.user_metadata?.full_name||session.user?.email?.split('@')[0]||'Student';
-          const emailResponse=await fetch('https://etfolhinohgmskbfjoyh.supabase.co/functions/v1/send-course-email',{
+          fetch('https://etfolhinohgmskbfjoyh.supabase.co/functions/v1/send-course-email',{
             method:'POST',
             headers:{
               'Content-Type':'application/json',
               'apikey':'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw',
               'Authorization':`Bearer ${session.access_token}`,
-              'x-client-info':'pipsepaisa-verification-v21'
+              'x-client-info':'pipsepaisa-verification-v25'
             },
-            body:JSON.stringify({type:'pin_access_welcome',user_name:name})
-          });
-          const emailData=await emailResponse.json().catch(()=>({}));
-          if(!emailResponse.ok||emailData?.success===false)throw new Error(emailData?.error||`PIN email request failed (${emailResponse.status}).`);
+            body:JSON.stringify({type:'pin_access_welcome',user_name:name}),
+            keepalive:true
+          }).catch(emailError=>console.warn('PIN welcome email could not be queued',emailError));
         }catch(emailError){console.warn('PIN welcome email could not be sent',emailError);}
 
         try{await client.auth.signOut({scope:'local'});}catch(_){ }
         localStorage.removeItem('pipsepaisa-user-auth-v2');
         icon.textContent='✓';title.textContent='Email Verified Successfully';
-        status.textContent='Your account is active. We also sent your free Access PIN instructions. Please sign in manually using your email and password.';
-        btn.href='index.html#auth-login';btn.setAttribute('aria-disabled','false');
+        status.textContent='Your account is active. Please sign in manually using your email and password.';
+        btn.href='/#auth-login';btn.setAttribute('aria-disabled','false');
         try{history.replaceState(null,'','email-verified.html');}catch(_){ }
       }catch(error){
         console.error(error);icon.textContent='!';title.textContent='Verification Link Could Not Be Confirmed';
         status.textContent='The link may be expired or already used. Open PipSePaisa and request a new verification email.';
-        btn.href='index.html#auth-login';btn.textContent='Back to Sign In';btn.setAttribute('aria-disabled','false');
+        btn.href='/#auth-login';btn.textContent='Back to Sign In';btn.setAttribute('aria-disabled','false');
       }
     })();
   </script>

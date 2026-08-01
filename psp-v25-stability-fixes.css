@@ -1,0 +1,22 @@
+/* PipSePaisa V25 stability fixes — desktop-focused; approved mobile layout preserved. */
+.auth-brand-mark{overflow:hidden!important;background:transparent!important;box-shadow:none!important}
+.auth-brand-mark img{width:100%;height:100%;display:block;object-fit:contain;border-radius:12px}
+.psp-course-thumb{aspect-ratio:16/9!important;height:auto!important;min-height:0!important}
+.psp-course-thumb img,.psp-course-buy-thumb img,.psp-course-side-preview img{object-fit:contain!important;object-position:center!important;background:transparent!important;filter:none!important;transform:none!important}
+.psp-course-side-preview{aspect-ratio:16/9!important;height:auto!important;min-height:0!important;background:#fffaf2!important}
+body.dark .psp-course-side-preview,body.dark-theme .psp-course-side-preview{background:#0b1728!important}
+.psp-course-card{overflow:hidden!important}
+.psp-course-card .psp-course-thumb{width:100%!important}
+.psp-zoom-retry-btn{width:auto!important;max-width:220px!important;min-height:38px!important;padding:9px 14px!important;font-size:12px!important;border-radius:10px!important;margin:8px 0 12px!important}
+/* Prevent login/sidebar layout shift after auth. */
+#sidebar,.sidebar{contain:layout paint;min-width:var(--sidebar-width,250px)}
+body.psp-auth-resolving #app,body.psp-auth-resolving .app-shell{visibility:hidden}
+.page{animation:pspV25PageIn .16s ease both}
+@keyframes pspV25PageIn{from{opacity:.72}to{opacity:1}}
+/* Admin logos */
+.psp-v25-admin-logo{width:42px;height:42px;object-fit:contain;border-radius:10px;flex:0 0 42px}
+@media(max-width:768px){
+  /* Do not redesign approved mobile UI; only keep images uncropped. */
+  .psp-course-thumb img,.psp-course-buy-thumb img,.psp-course-side-preview img{object-fit:contain!important}
+  #sidebar,.sidebar{contain:none;min-width:0}
+}
