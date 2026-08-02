@@ -104,41 +104,46 @@
   async function registerZoomCourse(values){
     const sb=getClient();
     if(!sb)return {ok:false,error:new Error('Supabase client is unavailable.')};
+    window.__pspZoomGenerating=true;
+    try{window.dispatchEvent(new CustomEvent('zoom-registration-started'));}catch(_){ }
     let lastError=null;
-    for(let attempt=0;attempt<2;attempt++){
-      try{
-        const session=await getEmailSession(sb,attempt===1);
-        if(!session?.access_token)throw new Error('Your login session is missing or expired. Please sign in again.');
-        const res=await fetch(`${SUPABASE_URL}/functions/v1/zoom-register-course`,{
-          method:'POST',
-          headers:{
-            'Content-Type':'application/json',
-            'apikey':SUPABASE_KEY,
-            'Authorization':`Bearer ${session.access_token}`,
-            'x-client-info':'pipsepaisa-web-v24-unique-zoom-links'
-          },
-          body:JSON.stringify({
-            full_name:values?.name||activeProfile?.full_name||activeUser?.user_metadata?.full_name||activeUser?.user_metadata?.name||'PipSePaisa Student'
-          })
-        });
-        let data=null;
-        try{data=await res.json();}catch(_){data={};}
-        try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:data||{}}));}catch(_){ }
-        if(!res.ok||data?.success===false){
-          const firstFailure=Array.isArray(data?.results)?data.results.find(item=>!item?.success):null;
-          const error=new Error(firstFailure?.message||data?.error||data?.message||`Zoom registration failed (${res.status}).`);
-          error.status=res.status;
-          error.results=data?.results||null;
-          throw error;
+    try{
+      for(let attempt=0;attempt<2;attempt++){
+        try{
+          const session=await getEmailSession(sb,attempt===1);
+          if(!session?.access_token)throw new Error('Your login session is missing or expired. Please sign in again.');
+          const res=await fetch(`${SUPABASE_URL}/functions/v1/zoom-register-course`,{
+            method:'POST',
+            headers:{
+              'Content-Type':'application/json',
+              'apikey':SUPABASE_KEY,
+              'Authorization':`Bearer ${session.access_token}`,
+              'x-client-info':'pipsepaisa-web-v29-smooth-zoom-links'
+            },
+            body:JSON.stringify({
+              full_name:values?.name||activeProfile?.full_name||activeUser?.user_metadata?.full_name||activeUser?.user_metadata?.name||'PipSePaisa Student'
+            })
+          });
+          let data=null;
+          try{data=await res.json();}catch(_){data={};}
+          if(!res.ok||data?.success===false){
+            const firstFailure=Array.isArray(data?.results)?data.results.find(item=>!item?.success):null;
+            const error=new Error(firstFailure?.message||data?.error||data?.message||`Zoom registration failed (${res.status}).`);
+            error.status=res.status;
+            error.results=data?.results||null;
+            throw error;
+          }
+          return {ok:true,data};
+        }catch(error){
+          lastError=error;
+          if(attempt===0)await new Promise(resolve=>setTimeout(resolve,500));
         }
-        return {ok:true,data};
-      }catch(error){
-        lastError=error;
-        if(attempt===0)await new Promise(resolve=>setTimeout(resolve,500));
       }
+      console.warn('Zoom webinar registration could not be completed:',lastError);
+      return {ok:false,error:lastError,detail:lastError?.message||'Zoom registration failed.'};
+    }finally{
+      window.__pspZoomGenerating=false;
     }
-    console.warn('Zoom webinar registration could not be completed:',lastError);
-    return {ok:false,error:lastError,detail:lastError?.message||'Zoom registration failed.'};
   }
 
   function showZoomRegistrationResult(ok, message){
@@ -178,14 +183,14 @@
     if(event)event.preventDefault();
     const button=event?.currentTarget||null;
     const originalText=button?.textContent||'';
-    if(button){button.disabled=true;button.textContent='Generating Zoom Links…';}
+    if(button){button.disabled=true;button.textContent='Generating…';button.classList.add('is-loading');}
     const values={
       name:activeProfile?.full_name||activeUser?.user_metadata?.full_name||activeUser?.user_metadata?.name||'PipSePaisa Student',
       email:activeUser?.email||''
     };
     const result=await registerZoomCourse(values);
     try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:result.data||{}}));}catch(_){ }
-    if(button){button.disabled=false;button.textContent=originalText||'Generate / Retry My Zoom Links';}
+    if(button){button.disabled=false;button.textContent=originalText||'Generate Class Links';button.classList.remove('is-loading');}
     if(result.ok){
       const ready=Number(result.data?.registered||result.data?.results?.filter?.(item=>item?.join_url)?.length||0);
       showZoomRegistrationResult(true,`${ready}/9 unique Zoom links are ready in your course panel.`);
@@ -582,7 +587,7 @@
     return {row:data};
   }
 
-  function showSuccess(result){
+  function showSuccess(result,notify=true){
     let title='Congratulations!';
     let text='';
     if(result.already){
@@ -603,9 +608,9 @@
     document.getElementById('ceSuccessTitle').textContent=title;
     document.getElementById('ceSuccessText').textContent=text;
     showStep('ceStepSuccess');
-    try{
-      window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));
-    }catch(_){ }
+    if(notify){
+      try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));}catch(_){ }
+    }
   }
 
   window.openCourseEnrollment=async function(courseKey){
@@ -762,7 +767,7 @@
     if(selectedCourse.type==='paid'&&(!paymentMethods.length||!values.transactionId||!receipt)){setMessage('ceDetailsMessage','error','Select an available payment method, enter the transaction ID and upload the payment receipt.');return;}
     if(selectedCourse.type==='paid'){const check=validateReceiptFile(receipt);if(!check.ok){setMessage('ceDetailsMessage','error',check.message);return;}}
     const optimistic={already:false,pending:false};
-    showSuccess(optimistic);
+    showSuccess(optimistic,false);
     try{
       const sb=getClient();if(!sb)throw new Error('Connection problem. Please reload and try again.');
       if(!activeUser){
@@ -816,7 +821,7 @@
       window.setTimeout(function(){document.getElementById('page-mycourses')?.scrollIntoView({behavior:'smooth',block:'start'});},80);
       return;
     }
-    const target='index.html?open=mycourses';
+    const target='./?open=basic';
     if(window.top&&window.top!==window)window.top.location.href=target;
     else window.location.href=target;
   };

@@ -107,21 +107,21 @@ function buildEmail(body: Body, extra: Record<string, unknown> = {}) {
   if (type === "free_course_enrolled") {
     return {
       subject: `Enrollment Successful — ${course}`,
-      html: layout("Course Enrollment Successful", `<p style="font-size:16px;line-height:1.7;margin:0 0 14px">Hi <strong>${name}</strong>,</p><p style="font-size:15px;line-height:1.7;color:#374151">Your enrollment in <strong>${course}</strong> has been completed successfully.</p><div style="padding:16px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;color:#065f46"><strong>✓ Enrollment confirmed</strong><br><strong>✓ Course access active</strong><br>You can open the course modules from your account.</div>${actionButton("Open My Course", `${SITE_URL}/index.html?open=mycourses`)}`),
+      html: layout("Course Enrollment Successful", `<p style="font-size:16px;line-height:1.7;margin:0 0 14px">Hi <strong>${name}</strong>,</p><p style="font-size:15px;line-height:1.7;color:#374151">Your enrollment in <strong>${course}</strong> has been completed successfully.</p><div style="padding:16px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;color:#065f46"><strong>✓ Enrollment confirmed</strong><br><strong>✓ Course access active</strong><br>You can open the course modules from your account.</div>${actionButton("Open My Course", `${SITE_URL}/?open=basic`)}`),
     };
   }
 
   if (type === "payment_receipt_received") {
     return {
       subject: "Payment Receipt Received — Under Review",
-      html: layout("Payment Receipt Received", `<p style="font-size:16px;line-height:1.7;margin:0 0 14px">Hi <strong>${name}</strong>,</p><p style="font-size:15px;line-height:1.7;color:#374151">We have received your payment receipt for <strong>${course}</strong>.</p>${detailTable(amount, method, transaction)}<div style="padding:16px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;color:#9a3412"><strong>Your payment receipt is under review.</strong><br>Your paid course remains locked until an admin approves the receipt.</div>${actionButton("View Payment Status", `${SITE_URL}/index.html?open=mycourses`)}`),
+      html: layout("Payment Receipt Received", `<p style="font-size:16px;line-height:1.7;margin:0 0 14px">Hi <strong>${name}</strong>,</p><p style="font-size:15px;line-height:1.7;color:#374151">We have received your payment receipt for <strong>${course}</strong>.</p>${detailTable(amount, method, transaction)}<div style="padding:16px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;color:#9a3412"><strong>Your payment receipt is under review.</strong><br>Your paid course remains locked until an admin approves the receipt.</div>${actionButton("View Payment Status", `${SITE_URL}/?open=advanced`)}`),
     };
   }
 
   if (type === "payment_approved") {
     return {
       subject: "Payment Approved — Course Unlocked",
-      html: layout("Payment Approved — Course Unlocked", `<p style="font-size:16px;line-height:1.7;margin:0 0 14px">Hi <strong>${name}</strong>,</p><p style="font-size:15px;line-height:1.7;color:#374151">Your payment receipt for <strong>${course}</strong> has been verified and approved.</p><div style="padding:17px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;color:#065f46"><strong>✓ Payment approved</strong><br><strong>✓ Course enrollment active</strong><br><strong>✓ Course modules unlocked</strong></div>${actionButton("Open My Course", `${SITE_URL}/index.html?open=mycourses`)}<p style="font-size:13px;line-height:1.6;color:#6b7280">Sign in using the same email address used for the payment receipt.</p>`),
+      html: layout("Payment Approved — Course Unlocked", `<p style="font-size:16px;line-height:1.7;margin:0 0 14px">Hi <strong>${name}</strong>,</p><p style="font-size:15px;line-height:1.7;color:#374151">Your payment receipt for <strong>${course}</strong> has been verified and approved.</p><div style="padding:17px;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;color:#065f46"><strong>✓ Payment approved</strong><br><strong>✓ Course enrollment active</strong><br><strong>✓ Course modules unlocked</strong></div>${actionButton("Open My Course", `${SITE_URL}/?open=basic`)}<p style="font-size:13px;line-height:1.6;color:#6b7280">Sign in using the same email address used for the payment receipt.</p>`),
     };
   }
 
@@ -129,7 +129,7 @@ function buildEmail(body: Body, extra: Record<string, unknown> = {}) {
     const revoked = type === "payment_revoked";
     return {
       subject: revoked ? "Course Access Revoked — Payment Review Required" : "Payment Receipt Verification Required",
-      html: layout(revoked ? "Course Access Revoked" : "Payment Receipt Could Not Be Verified", `<p style="font-size:16px;line-height:1.7;margin:0 0 14px">Hi <strong>${name}</strong>,</p><p style="font-size:15px;line-height:1.7;color:#374151">${revoked ? `Your previously approved access to <strong>${course}</strong> has been revoked for review.` : `We could not verify your submitted payment receipt for <strong>${course}</strong>.`}</p><div style="padding:16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;color:#991b1b"><strong>Reason:</strong><br>${reason}</div><p style="font-size:15px;line-height:1.7;color:#374151">Your course is locked. Please contact the admin or submit a corrected payment receipt.</p>${actionButton("Open My Courses", `${SITE_URL}/index.html?open=mycourses`)}`),
+      html: layout(revoked ? "Course Access Revoked" : "Payment Receipt Could Not Be Verified", `<p style="font-size:16px;line-height:1.7;margin:0 0 14px">Hi <strong>${name}</strong>,</p><p style="font-size:15px;line-height:1.7;color:#374151">${revoked ? `Your previously approved access to <strong>${course}</strong> has been revoked for review.` : `We could not verify your submitted payment receipt for <strong>${course}</strong>.`}</p><div style="padding:16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;color:#991b1b"><strong>Reason:</strong><br>${reason}</div><p style="font-size:15px;line-height:1.7;color:#374151">Your course is locked. Please contact the admin or submit a corrected payment receipt.</p>${actionButton("Open My Courses", `${SITE_URL}/?open=advanced`)}`),
     };
   }
 
@@ -138,7 +138,7 @@ function buildEmail(body: Body, extra: Record<string, unknown> = {}) {
   const graceLabel = esc(extra.grace_label || "48 hours");
   return {
     subject: "Your Free PipSePaisa Access PIN Instructions",
-    html: layout("Activate Your Free Access PIN", `<p style="font-size:16px;line-height:1.7;margin:0 0 14px">Hi <strong>${name}</strong>,</p><p style="font-size:15px;line-height:1.7;color:#374151">Your PipSePaisa account has been verified successfully.</p><div style="padding:16px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;color:#9a3412"><strong>Your access PIN is completely free.</strong><br>Contact the PipSePaisa admin on WhatsApp, receive your unique PIN, and add it in <strong>Settings → Free Access PIN</strong>.</div><p style="font-size:15px;line-height:1.7;color:#374151">You have <strong>${graceLabel}</strong> to add the PIN. Your current deadline is <strong>${esc(deadline)}</strong>. After the deadline, Signals, Charts, Articles, Journal and other protected features will remain visible but locked until the PIN is activated.</p>${actionButton("Contact Admin — Get Free PIN", `https://wa.me/${whatsapp}`)}${actionButton("Open PipSePaisa Settings", `${SITE_URL}/index.html?open=settings`)}`),
+    html: layout("Activate Your Free Access PIN", `<p style="font-size:16px;line-height:1.7;margin:0 0 14px">Hi <strong>${name}</strong>,</p><p style="font-size:15px;line-height:1.7;color:#374151">Your PipSePaisa account has been verified successfully.</p><div style="padding:16px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;color:#9a3412"><strong>Your access PIN is completely free.</strong><br>Contact the PipSePaisa admin on WhatsApp, receive your unique PIN, and add it in <strong>Settings → Free Access PIN</strong>.</div><p style="font-size:15px;line-height:1.7;color:#374151">You have <strong>${graceLabel}</strong> to add the PIN. Your current deadline is <strong>${esc(deadline)}</strong>. After the deadline, Signals, Charts, Articles, Journal and other protected features will remain visible but locked until the PIN is activated.</p>${actionButton("Contact Admin — Get Free PIN", `https://wa.me/${whatsapp}`)}${actionButton("Open PipSePaisa Settings", `${SITE_URL}/?open=settings`)}`),
   };
 }
 

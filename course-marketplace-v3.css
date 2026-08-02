@@ -990,3 +990,18 @@ body.dark .psp-live-class-card,[data-theme="dark"] .psp-live-class-card{
 .psp-live-class-row.failed .psp-live-class-state{color:#b91c1c}
 .dark-theme .psp-zoom-retry-btn{background:#25180a;color:#fdba74;border-color:#c56a00}
 .dark-theme .psp-live-class-row.failed{background:#241111;border-color:#7f1d1d}
+
+
+/* ===== V28 verified course-card + no-crop thumbnail layout ===== */
+#page-mycourses .psp-course-card-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px!important;align-items:stretch!important}
+#page-mycourses .psp-course-tile{display:flex!important;flex-direction:column!important;height:auto!important;min-height:0!important;grid-template-columns:none!important;overflow:hidden!important}
+#page-mycourses .psp-course-thumb{position:relative!important;display:block!important;width:100%!important;height:auto!important;aspect-ratio:16/9!important;min-height:0!important;background:#0b1426!important;overflow:hidden!important}
+#page-mycourses .psp-course-thumb img.psp-course-thumb-main{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;transform:none!important;background:#0b1426!important;border-radius:0!important}
+#page-mycourses .psp-course-tile-body{display:flex!important;flex:1!important;flex-direction:column!important;padding:18px!important}
+#page-mycourses .psp-course-tile-footer{margin-top:auto!important}
+.psp-course-side-preview,.psp-course-sticky-column .psp-course-side-preview{position:relative!important;width:100%!important;height:auto!important;aspect-ratio:16/9!important;overflow:hidden!important;background:#0b1426!important}
+.psp-course-side-preview-main,.psp-course-sticky-column .psp-course-side-preview img.psp-course-side-preview-main{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;background:#0b1426!important;border-radius:0!important}
+.psp-related-card img{object-fit:contain!important;background:#0b1426!important}
+.psp-zoom-retry-btn{width:auto!important;min-height:34px!important;margin:0 15px 12px!important;padding:7px 12px!important;border-radius:9px!important;font-size:10px!important;line-height:1!important}
+#pspLiveClassCard{animation:none!important}
+@media(max-width:760px){#page-mycourses .psp-course-card-grid{grid-template-columns:1fr!important;gap:14px!important}}

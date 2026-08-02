@@ -586,7 +586,7 @@ select option,select optgroup{background:#0f1729!important;color:#e8eaf0!importa
     <div class="field"><label>Email</label><input id="auEmail" class="inp" type="email" placeholder="you@email.com"></div>
     <div class="field"><label>Password</label><input id="auPass" class="inp" type="password" placeholder="********"></div>
     <button class="btn" style="width:100%;margin-top:6px" id="authBtn" onclick="doAuth()">Login</button>
-    <p class="muted" style="text-align:center;font-size:12px;margin-top:14px">Not a mentor? <a href="index.html" style="color:var(--gold)">Go to user app &rarr;</a></p>
+    <p class="muted" style="text-align:center;font-size:12px;margin-top:14px">Not a mentor? <a href="./" style="color:var(--gold)">Go to user app &rarr;</a></p>
   </div>
 </div>
 
@@ -681,6 +681,38 @@ function pipSize(p){p=(p||'').toUpperCase();if(p.includes('JPY'))return 0.01;if(
 function perPip(p){p=(p||'').toUpperCase();if(/XAU|GOLD|BTC|ETH|SOL|BNB/.test(p))return 1;if(p.includes('JPY'))return 9;return 10;}
 function calcPips(entry,target,pair){if(entry==null||target==null||isNaN(entry)||isNaN(target))return null;return Math.round(Math.abs(target-entry)/pipSize(pair));}
 function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+
+/* V28 branded confirmations: replaces native browser alert/confirm dialogs. */
+function mentorDialog(message,confirmMode){
+  return new Promise((resolve)=>{
+    let wrap=document.getElementById('pspMentorDialog');
+    if(wrap)wrap.remove();
+    wrap=document.createElement('div');
+    wrap.id='pspMentorDialog';
+    wrap.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(5,12,24,.72);backdrop-filter:blur(7px);display:grid;place-items:center;padding:18px';
+    const card=document.createElement('div');
+    card.style.cssText='width:min(430px,100%);background:#fffaf1;color:#111827;border:1px solid rgba(245,158,11,.45);border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.34);padding:22px';
+    const title=document.createElement('div');
+    title.style.cssText='font-size:19px;font-weight:900;margin-bottom:9px';
+    title.textContent=confirmMode?'Please Confirm':'PipSePaisa';
+    const body=document.createElement('div');
+    body.style.cssText='font-size:14px;line-height:1.55;color:#475569;white-space:pre-wrap';
+    body.textContent=String(message||'');
+    const actions=document.createElement('div');
+    actions.style.cssText='display:flex;justify-content:flex-end;gap:10px;margin-top:20px';
+    function done(v){wrap.remove();resolve(v);}
+    if(confirmMode){
+      const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';cancel.style.cssText='border:1px solid #d6c9b4;background:#fff;color:#334155;border-radius:10px;padding:10px 16px;font-weight:800;cursor:pointer';cancel.onclick=()=>done(false);actions.appendChild(cancel);
+    }
+    const ok=document.createElement('button');ok.type='button';ok.textContent=confirmMode?'Confirm':'OK';ok.style.cssText='border:0;background:#f59e0b;color:#111827;border-radius:10px;padding:10px 18px;font-weight:900;cursor:pointer';ok.onclick=()=>done(true);actions.appendChild(ok);
+    card.append(title,body,actions);wrap.appendChild(card);document.body.appendChild(wrap);
+    wrap.addEventListener('click',(e)=>{if(e.target===wrap)done(false)});
+    ok.focus();
+  });
+}
+function mentorConfirm(message){return mentorDialog(message,true);}
+function mentorAlert(message){mentorDialog(message,false);}
 
 const MODS={
   courses:{icon:'🎓',label:'Courses',sub:'Lessons for your students',table:'courses',audience:true,
@@ -897,10 +929,10 @@ function pmTypeChange(){
 async function addPaymentMethod(){
   const t=document.getElementById('pmType').value;
   const obj={owner_id:ME.id,type:t,label:val('pmLabel')||null,enabled:true};
-  if(t==='crypto'){obj.wallet=val('pmWallet');obj.network=val('pmNet')||'TRC20';if(!obj.wallet){alert('Wallet address required');return;}}
-  else{obj.account_title=val('pmTitle');obj.account_number=val('pmNum');if(!obj.account_number){alert('Account number required');return;}if(t==='bank')obj.bank_name=val('pmBank');}
+  if(t==='crypto'){obj.wallet=val('pmWallet');obj.network=val('pmNet')||'TRC20';if(!obj.wallet){mentorAlert('Wallet address required');return;}}
+  else{obj.account_title=val('pmTitle');obj.account_number=val('pmNum');if(!obj.account_number){mentorAlert('Account number required');return;}if(t==='bank')obj.bank_name=val('pmBank');}
   const {error}=await sb.from('payment_methods').insert(obj);
-  if(error){alert('Error: '+error.message);return;}
+  if(error){mentorAlert('Error: '+error.message);return;}
   ['pmLabel','pmTitle','pmNum','pmBank','pmWallet'].forEach(i=>document.getElementById(i).value='');
   loadPaymentMethods();
 }
@@ -917,7 +949,7 @@ async function loadPaymentMethods(){
   }).join('');
 }
 async function togglePM(id,on){await sb.from('payment_methods').update({enabled:on}).eq('id',id);loadPaymentMethods();}
-async function delPM(id){if(!confirm('Delete this payment method?'))return;await sb.from('payment_methods').delete().eq('id',id);loadPaymentMethods();}
+async function delPM(id){if(!(await mentorConfirm('Delete this payment method?')))return;await sb.from('payment_methods').delete().eq('id',id);loadPaymentMethods();}
 
 async function renderRequests(){
   const el=document.getElementById('pg-requests');
@@ -953,8 +985,8 @@ async function loadRequests(filter,ev){
       ${act}</div></div></div>`;
   }).join('');
 }
-async function approveReq(id){if(!confirm('Approve & activate VIP for this student?'))return;const {error}=await sb.rpc('approve_payment_v2',{req_id:id});if(error){alert('Error: '+error.message);return;}loadRequests('pending');}
-async function rejectReq(id){if(!confirm('Reject this request? If it was approved, the student\'s premium access will be revoked.'))return;const {error}=await sb.rpc('reject_payment_v2',{req_id:id});if(error){alert('Error: '+error.message);return;}loadRequests('pending');}
+async function approveReq(id){if(!(await mentorConfirm('Approve & activate VIP for this student?')))return;const {error}=await sb.rpc('approve_payment_v2',{req_id:id});if(error){mentorAlert('Error: '+error.message);return;}loadRequests('pending');}
+async function rejectReq(id){if(!(await mentorConfirm('Reject this request? If it was approved, the student\'s premium access will be revoked.')))return;const {error}=await sb.rpc('reject_payment_v2',{req_id:id});if(error){mentorAlert('Error: '+error.message);return;}loadRequests('pending');}
 
 
 function showPage(k){
@@ -1098,7 +1130,7 @@ function renderMentorPerfDash(rows){
 function saveMentorPerfGoal(){var i=document.getElementById('perfGoalInput');if(!i)return;try{localStorage.setItem('psp_month_goal_mentor',String(parseFloat(i.value)||0));}catch(e){}renderPerformance();}
 
 
-function copyCode(){try{navigator.clipboard.writeText(ME.mentor_code||'');}catch(e){}alert('Copied: '+ME.mentor_code);}
+function copyCode(){try{navigator.clipboard.writeText(ME.mentor_code||'');}catch(e){}mentorAlert('Copied: '+ME.mentor_code);}
 async function toggleOfficial(v){await sb.from('profiles').update({show_official_signals:v}).eq('id',ME.id);ME.show_official_signals=v;}
 
 /* ============ SIGNALS (smart input + pips/profit) ============ */
@@ -1142,7 +1174,7 @@ async function createSignal(){
   const entry=parseFloat(val('sgEntry'));
   const slv=parseFloat(val('sgSL'));
   const tp1v=parseFloat(val('sgTP1'));
-  if(isNaN(entry)||isNaN(slv)||isNaN(tp1v)){alert('⚠️ Entry price, Stop Loss aur TP1 dena LAZMI hai — inke baghair signal publish nahi hoga.');return;}
+  if(isNaN(entry)||isNaN(slv)||isNaN(tp1v)){mentorAlert('⚠️ Entry price, Stop Loss aur TP1 dena LAZMI hai — inke baghair signal publish nahi hoga.');return;}
   const audArr=['free','premium','vip'];
   if(!audArr.length)audArr.push('free');
   const isFreeOnly=audArr.length===1&&audArr[0]==='free';
@@ -1174,7 +1206,7 @@ async function createSignal(){
     const r=await sb.from('signals').insert(obj);
     error=r.error;
   }
-  if(error){alert('Error: '+error.message);return;}
+  if(error){mentorAlert('Error: '+error.message);return;}
   await pspCreateNotificationAndPush('📊 New Signal Published', obj.pair+' '+obj.direction+' signal is now available.', 'signal', '/?tab=signals', obj.audience||'all');
   ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   loadSignals();
@@ -1223,7 +1255,7 @@ async function loadSignals(){
 let editingSigId=null;
 function editMentorSignal(id){
   const sg=(window._mSigCache||[]).find(x=>String(x.id)===String(id));
-  if(!sg){alert('Signal load nahi hua — list refresh karke dobara try karo');return;}
+  if(!sg){mentorAlert('Signal load nahi hua — list refresh karke dobara try karo');return;}
   editingSigId=id;
   const set=(i,v)=>{const e=document.getElementById(i);if(e)e.value=(v==null?'':v);};
   set('sgPair',sg.pair);set('sgEntry',sg.entry_price);set('sgSL',sg.stop_loss);
@@ -1267,14 +1299,14 @@ async function updateMentorSigStatus(id,kind){
     if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
   }
   const {error}=await sb.from('signals').update(obj).eq('id',id);
-  if(error){alert('Error: '+error.message);return;}
+  if(error){mentorAlert('Error: '+error.message);return;}
   if(terminal){
     try{await pspCreateNotificationAndPush('🔒 Signal Closed',kind==='tp3'?'TP3 Hit — signal closed.':kind==='be'?'Breakeven Hit — signal closed.':kind==='sl'?'Stop Loss Hit — signal closed.':'Signal closed.','signal','/?tab=signals','all');}catch(_){ }
   }
   loadSignals();
 }
 async function setSigStatus(id,st){await sb.from('signals').update({status:st}).eq('id',id);loadSignals();}
-async function delSignal(id){if(!confirm('Delete this signal?'))return;await sb.from('signals').delete().eq('id',id);loadSignals();}
+async function delSignal(id){if(!(await mentorConfirm('Delete this signal?')))return;await sb.from('signals').delete().eq('id',id);loadSignals();}
 
 /* ============ ADMIN SIGNALS ============ */
 let adF='all';
@@ -1323,19 +1355,19 @@ async function createChart(){
     const pair=document.getElementById('chPair').value;const title=document.getElementById('chTitle').value.trim();
     let image_url='';
     const file=document.getElementById('chFile').files[0];
-    if(!title){alert('Title is required');btn.disabled=false;btn.textContent='📊 Publish Chart';return;}
+    if(!title){mentorAlert('Title is required');btn.disabled=false;btn.textContent='📊 Publish Chart';return;}
     if(file){
       const path=ME.id+'/'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9.]/g,'');
       const {error:upErr}=await sb.storage.from('charts').upload(path,file,{upsert:true});
-      if(upErr){alert('Upload failed — create a public "charts" bucket in Supabase Storage: '+upErr.message);btn.disabled=false;btn.textContent='📊 Publish Chart';return;}
+      if(upErr){mentorAlert('Upload failed — create a public "charts" bucket in Supabase Storage: '+upErr.message);btn.disabled=false;btn.textContent='📊 Publish Chart';return;}
       image_url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
     }
     const chAud=['free','premium','vip'];
     if(!chAud.length)chAud.push('free');
     const {error}=await sb.from('charts').insert({owner_id:ME.id,is_official:false,pair,title,image_url,audience:chAud.join(','),notes:document.getElementById('chNotes').value.trim()||null});
-    if(error){alert('Error: '+error.message);}
+    if(error){mentorAlert('Error: '+error.message);}
     else{document.getElementById('chTitle').value='';document.getElementById('chFile').value='';document.getElementById('chNotes').value='';loadCharts();}
-  }catch(e){alert(e.message);}
+  }catch(e){mentorAlert(e.message);}
   btn.disabled=false;btn.textContent='📊 Publish Chart';
 }
 async function loadCharts(){
@@ -1345,7 +1377,7 @@ async function loadCharts(){
   if(!data||!data.length){box.innerHTML='<div class="list-empty">No charts yet.</div>';return;}
   box.innerHTML='<div style="display:grid;gap:12px">'+data.map(c=>{return `<div class="sigc"><div class="top"><div class="pair">${esc(c.title)} <span class="muted" style="font-size:12px">${esc(c.pair||'')}</span></div><button class="del" onclick="delChart('${c.id}')">🗑️</button></div><div class="muted" style="font-size:11.5px;margin:2px 0 4px">🕐 ${pspFmtDT(c.created_at)}</div>${c.image_url?`<img src="${esc(c.image_url)}" style="width:100%;border-radius:10px;margin:4px 0">`:''}${c.notes?`<div class="muted" style="font-size:13px">${esc(c.notes)}</div>`:''}</div>`;}).join('')+'</div>';
 }
-async function delChart(id){if(!confirm('Delete chart?'))return;await sb.from('charts').delete().eq('id',id);loadCharts();}
+async function delChart(id){if(!(await mentorConfirm('Delete chart?')))return;await sb.from('charts').delete().eq('id',id);loadCharts();}
 
 
 /* ============ MENTOR ARTICLES ============ */
@@ -1391,7 +1423,7 @@ async function mentorArticleUpload(inp){
   }catch(e){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">'+e.message+'</span>';}
 }
 async function createMentorArticle(){
-  if(!sb){alert('Supabase not connected');return;}
+  if(!sb){mentorAlert('Supabase not connected');return;}
   const btn=document.getElementById('maBtn'); if(btn){btn.disabled=true;btn.textContent=mentorEditingArticleId?'⏳ Updating...':'⏳ Saving...';}
   try{
     const type='single';
@@ -1401,20 +1433,20 @@ async function createMentorArticle(){
     const content=document.getElementById('maContent').value.trim();
     const content_ur=(document.getElementById('maContentUr')||{value:''}).value.trim()||null;
     const is_published=true;
-    if(!title){alert('Title is required');if(btn){btn.disabled=false;btn.textContent=mentorEditingArticleId?'💾 Update Article':'➕ Create Article';}return;}
+    if(!title){mentorAlert('Title is required');if(btn){btn.disabled=false;btn.textContent=mentorEditingArticleId?'💾 Update Article':'➕ Create Article';}return;}
     if(mentorEditingArticleId){
       const {error}=await sb.from('articles').update({type,title,category,image_url,content,content_ur,is_published}).eq('id',mentorEditingArticleId);
-      if(error){alert('Error: '+error.message);return;}
+      if(error){mentorAlert('Error: '+error.message);return;}
       mentorEditingArticleId=null;
     }else{
       const {error}=await sb.from('articles').insert({type,title,category,image_url,content,content_ur,is_published,is_official:true,author_id:ME.id});
-      if(error){alert('Error: '+error.message);return;}
+      if(error){mentorAlert('Error: '+error.message);return;}
     }
     document.getElementById('maTitle').value='';document.getElementById('maImage').value='';document.getElementById('maContent').value='';var mcu=document.getElementById('maContentUr');if(mcu)mcu.value='';
     const f=document.getElementById('maFile');if(f)f.value='';const p=document.getElementById('maPreview');if(p)p.innerHTML='';
     if(btn)btn.textContent='➕ Create Article';
     loadMentorArticles();
-  }catch(e){alert(e.message)}
+  }catch(e){mentorAlert(e.message)}
   if(btn){btn.disabled=false;btn.textContent=mentorEditingArticleId?'💾 Update Article':'➕ Create Article';}
 }
 async function loadMentorArticles(){
@@ -1427,7 +1459,7 @@ async function loadMentorArticles(){
 }
 async function editMentorArticle(id){
   const {data,error}=await sb.from('articles').select('*').eq('id',id).single();
-  if(error||!data){alert('Could not load article');return;}
+  if(error||!data){mentorAlert('Could not load article');return;}
   if(document.getElementById('maCategory'))document.getElementById('maCategory').value=data.category||'education';
   document.getElementById('maTitle').value=data.title||'';
   document.getElementById('maImage').value=data.image_url||'';
@@ -1440,13 +1472,13 @@ async function editMentorArticle(id){
 }
 async function toggleMentorArticle(id,pub){
   const {error}=await sb.from('articles').update({is_published:!pub}).eq('id',id);
-  if(error){alert('Error: '+error.message);return;}
+  if(error){mentorAlert('Error: '+error.message);return;}
   loadMentorArticles();
 }
 async function delMentorArticle(id){
-  if(!confirm('Delete this article?'))return;
+  if(!(await mentorConfirm('Delete this article?')))return;
   const {error}=await sb.from('articles').delete().eq('id',id);
-  if(error){alert('Error: '+error.message);return;}
+  if(error){mentorAlert('Error: '+error.message);return;}
   loadMentorArticles();
 }
 
@@ -1491,7 +1523,7 @@ async function loadMentorBanners(){
     g.innerHTML=rows.map(b=>`<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:rgba(255,255,255,.03)"><img src="${esc(b.image_url)}" style="width:100%;display:block;object-fit:cover;background:#0a0e1a"><div style="padding:10px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:8px"><div style="min-width:0;flex:1"><div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(b.title||'Banner')}</div>${b.description?`<div style="font-size:11px;color:var(--muted);margin-top:3px;line-height:1.35">${esc(b.description)}</div>`:''}</div><button class="del" onclick="deleteMentorBanner('${b.id}')">🗑️</button></div></div>`).join('');
   }catch(e){g.innerHTML='<div class="list-empty" style="color:var(--red)">'+esc(e.message||'Error')+'</div>';}
 }
-async function deleteMentorBanner(id){if(!confirm('Delete this banner?'))return;try{const r=await sb.from('banners').delete().eq('id',id);if(r.error)throw r.error;loadMentorBanners();}catch(e){alert('Delete failed: '+(e.message||e));}}
+async function deleteMentorBanner(id){if(!(await mentorConfirm('Delete this banner?')))return;try{const r=await sb.from('banners').delete().eq('id',id);if(r.error)throw r.error;loadMentorBanners();}catch(e){mentorAlert('Delete failed: '+(e.message||e));}}
 
 /* ============ MENTOR COURSES (detailed, like admin) ============ */
 function renderMentorCourses(){
@@ -1529,14 +1561,14 @@ async function mcUpload(input){
   }catch(e){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">Error: '+esc(e.message)+'</span>';}
 }
 async function createMentorCourse(){
-  const title=val('mc-title');if(!title){alert('Course title required');return;}
+  const title=val('mc-title');if(!title){mentorAlert('Course title required');return;}
   const aud=Array.prototype.slice.call(document.querySelectorAll('.mc-aud:checked')).map(function(c){return c.value;});if(!aud.length)aud.push('free');
   const obj={owner_id:ME.id,is_official:false,title:title,description:val('mc-desc')||null,level:document.getElementById('mc-level').value,
     category:val('mc-cat')||null,thumbnail_emoji:val('mc-emoji')||'📚',thumbnail:val('mc-thumb')||null,
     youtube_url:val('mc-yt')||null,display_order:parseInt(val('mc-order'))||0,enrollments_count:parseInt(val('mc-enroll'))||0,
     audience:aud.join(','),is_published:document.getElementById('mc-pub').checked,is_premium:document.getElementById('mc-prem').checked};
   const {error}=await sb.from('courses').insert(obj);
-  if(error){alert('Error: '+error.message);return;}
+  if(error){mentorAlert('Error: '+error.message);return;}
   ['mc-title','mc-desc','mc-cat','mc-yt','mc-thumb','mc-file'].forEach(i=>{var e=document.getElementById(i);if(e)e.value='';});
   document.getElementById('mc-emoji').value='📚';document.getElementById('mc-order').value='0';document.getElementById('mc-enroll').value='0';document.getElementById('mc-pub').checked=true;document.getElementById('mc-prem').checked=false;
   document.querySelectorAll('.mc-aud').forEach(c=>c.checked=(c.value==='free'));document.getElementById('mc-prev').innerHTML='';
@@ -1553,7 +1585,7 @@ async function loadMentorCourses(){
     return `<div class="sigc"><div style="display:flex;gap:12px"><div style="width:90px;height:60px;border-radius:8px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;font-size:24px;${thumb}">${c.thumbnail?'':esc(c.thumbnail_emoji||'📚')}</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:6px"><strong>${esc(c.title)}</strong><span class="badge ${c.is_published?'green':'muted'}" style="font-size:9px">${c.is_published?'PUBLISHED':'DRAFT'}</span></div><div class="muted" style="font-size:12px">${esc(c.description||'')}</div><div style="font-size:11px;margin-top:3px"><span class="muted">${esc(c.level||'')} · 👥 ${c.enrollments_count||0}</span>${ab}</div></div><button class="del" style="padding:5px 9px;border-radius:7px;align-self:flex-start" onclick="delMentorCourse('${c.id}')">🗑️</button></div></div>`;
   }).join('')+'</div>';
 }
-async function delMentorCourse(id){if(!confirm('Delete this course?'))return;await sb.from('courses').delete().eq('id',id);loadMentorCourses();}
+async function delMentorCourse(id){if(!(await mentorConfirm('Delete this course?')))return;await sb.from('courses').delete().eq('id',id);loadMentorCourses();}
 
 /* ============ MENTOR COMMUNITY (groups) ============ */
 function renderMentorCommunity(){
@@ -1580,10 +1612,10 @@ function renderMentorCommunity(){
   loadMentorGroups();
 }
 async function createMentorGroup(){
-  const name=val('gp-name');if(!name){alert('Group name required');return;}
+  const name=val('gp-name');if(!name){mentorAlert('Group name required');return;}
   const obj={owner_id:ME.id,is_official:false,name:name,description:val('gp-desc')||null,icon:val('gp-icon')||'👥',audience:document.getElementById('gp-aud').value,slow_mode_seconds:parseInt(document.getElementById('gp-slow').value||'0'),members_can_post:document.getElementById('gp-canpost').checked};
   const {error}=await sb.from('groups').insert(obj);
-  if(error){alert('Error: '+error.message);return;}
+  if(error){mentorAlert('Error: '+error.message);return;}
   document.getElementById('gp-name').value='';document.getElementById('gp-desc').value='';document.getElementById('gp-icon').value='👥';
   loadMentorGroups();
 }
@@ -1597,10 +1629,10 @@ async function loadMentorGroups(){
 }
 async function toggleGroupPost(id,cur){
   const {error}=await sb.from('groups').update({members_can_post:!cur}).eq('id',id);
-  if(error){alert('Error: '+error.message);return;}
+  if(error){mentorAlert('Error: '+error.message);return;}
   loadMentorGroups();
 }
-async function delMentorGroup(id){if(!confirm('Delete this group and all its posts?'))return;await sb.from('groups').delete().eq('id',id);loadMentorGroups();}
+async function delMentorGroup(id){if(!(await mentorConfirm('Delete this group and all its posts?')))return;await sb.from('groups').delete().eq('id',id);loadMentorGroups();}
 
 /* ============ MEMBER CHATS (DM) ============ */
 var _mDmPeer=null,_mDmConvs=[],_mDmRt=false,_mTypeChan=null;
@@ -1695,7 +1727,7 @@ async function mCommPost(){
   if(!txt&&!f)return;var img=null;
   if(f){try{var ext=(f.name.split('.').pop()||'jpg');var path='community/'+ME.id+'_'+Date.now()+'.'+ext;var up=await sb.storage.from('charts').upload(path,f,{upsert:true});if(!up.error)img=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}catch(e){}}
   var r=await sb.from('group_posts').insert({group_id:_mcGid,author_id:ME.id,content:txt||null,image_url:img});
-  if(r.error){alert('Error: '+r.error.message);return;}
+  if(r.error){mentorAlert('Error: '+r.error.message);return;}
   document.getElementById('mCommText').value='';document.getElementById('mCommImg').value='';mCommFeed();
 }
 async function mCommLike(pid){try{var ex=await sb.from('post_likes').select('id').eq('post_id',pid).eq('user_id',ME.id).maybeSingle();if(ex.data)await sb.from('post_likes').delete().eq('id',ex.data.id);else await sb.from('post_likes').insert({post_id:pid,user_id:ME.id});}catch(e){}mCommFeed();}
@@ -1734,7 +1766,7 @@ async function mToggleGroup(gid){
   }
 }
 async function mHeartbeat(){try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);}catch(e){}}
-setInterval(function(){if(typeof ME!=='undefined'&&ME&&sb)mHeartbeat();},30000);
+setInterval(function(){if(typeof ME!=='undefined'&&ME&&sb)mHeartbeat();},60000);
 function mDmInitRt(){if(_mDmRt||!sb)return;_mDmRt=true;try{sb.channel('rt-mentor-dm').on('postgres_changes',{event:'*',schema:'public',table:'dm_messages'},function(){mLoadDMList();if(_mDmPeer)mOpenDM(_mDmPeer.id,_mDmPeer,true);}).subscribe();}catch(e){}}
 async function mDmSearchUsers(){
   var q=(document.getElementById('mDmNew').value||'').trim();var box=document.getElementById('mDmSearchRes');
@@ -1780,7 +1812,7 @@ async function mSendDM(){
   if(!ME||!sb||!_mDmPeer)return;var inp=document.getElementById('mDmInput');var txt=(inp.value||'').trim();if(!txt)return;inp.value='';
   var body=document.getElementById('mDmBody');if(body){if(body.querySelector('.list-empty'))body.innerHTML='';body.insertAdjacentHTML('beforeend','<div style="align-self:flex-end;max-width:72%"><div style="font-size:10px;color:#94a0b8;margin-bottom:2px;text-align:right">You</div><div style="padding:9px 13px;border-radius:16px;font-size:14px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a">'+esc(txt)+'</div></div>');body.scrollTop=body.scrollHeight;}
   var r=await sb.from('dm_messages').insert({sender_id:ME.id,recipient_id:_mDmPeer.id,body:txt});
-  if(r.error){alert('Error: '+r.error.message);return;}mLoadDMList();
+  if(r.error){mentorAlert('Error: '+r.error.message);return;}mLoadDMList();
 }
 
 /* ============ SUBSCRIPTIONS (premium pricing) ============ */
@@ -1880,7 +1912,7 @@ function updatePreview(){
   box.innerHTML=planCardHTML(p);
 }
 async function createPlan(){
-  const name=val('sp-name');if(!name){alert('Plan name is required');return;}
+  const name=val('sp-name');if(!name){mentorAlert('Plan name is required');return;}
   const period=document.getElementById('sp-period').value;const dur=period==='lifetime'?36500:(period==='yearly'?365:30);
   const ibon=(document.getElementById('sp-ibon')||{}).checked;
   const services=getServices();
@@ -1892,7 +1924,7 @@ async function createPlan(){
   f+='[PERIOD]'+period+'\n';const tag=val('sp-tag');if(tag)f+='[TAG]'+tag+'\n';f+=val('sp-feat');
   const obj={owner_id:ME.id,is_official:false,name:name,price:parseFloat(val('sp-price')||'0')||0,currency:val('sp-cur'),duration_days:dur,features:f,is_active:true,services:(services.length?services.join(','):null),member_type:(document.getElementById('sp-mtype')||{}).value||'premium'};
   const {error}=await sb.from('subscription_plans').insert(obj);
-  if(error){alert('Error: '+error.message);return;}
+  if(error){mentorAlert('Error: '+error.message);return;}
   ['sp-name','sp-price','sp-feat','sp-tag','sp-iblink','sp-ibbroker','sp-ibdep'].forEach(i=>{var e=document.getElementById(i);if(e)e.value='';});
   document.getElementById('sp-icon').value='💎';document.getElementById('sp-pop').checked=false;document.getElementById('sp-vip').checked=false;
   document.getElementById('sp-ibon').checked=false;document.getElementById('sp-ibprice').value='0';document.getElementById('sp-mtype').value='premium';
@@ -1906,7 +1938,7 @@ async function loadPlans(){
   if(!data||!data.length){box.innerHTML='<div class="list-empty">No plans yet. Create your first premium plan below. 💎</div>';return;}
   box.innerHTML=data.map(r=>planCardHTML(parsePlan(r))).join('');
 }
-async function delPlan(id){if(!confirm('Delete plan?'))return;await sb.from('subscription_plans').delete().eq('id',id);loadPlans();}
+async function delPlan(id){if(!(await mentorConfirm('Delete plan?')))return;await sb.from('subscription_plans').delete().eq('id',id);loadPlans();}
 async function loadSubs2(){
   const box=document.getElementById('subList');if(!box)return;
   const {data,error}=await sb.from('subscriptions').select('*, profiles:student_id(full_name,email)').eq('mentor_id',ME.id).order('created_at',{ascending:false});
@@ -1957,7 +1989,7 @@ async function renderEarnings(){
      </div></div>`;
   document.getElementById('pm').value=pm;
 }
-function savePayout(){localStorage.setItem('pip_payout_method',document.getElementById('pm').value);localStorage.setItem('pip_payout_details',document.getElementById('pd').value);alert('Payout saved ✅');}
+function savePayout(){localStorage.setItem('pip_payout_method',document.getElementById('pm').value);localStorage.setItem('pip_payout_details',document.getElementById('pd').value);mentorAlert('Payout saved ✅');}
 
 /* ============ STUDENTS ============ */
 async function renderStudents(){
@@ -1994,14 +2026,14 @@ async function loadList(k){
 async function createItem(k){
   const m=MODS[k];let obj={owner_id:ME.id,is_official:false};let any=false;
   m.fields.forEach(([id,ph,t])=>{let v=document.getElementById(`f-${k}-${id}`).value.trim();if(v!==''){obj[id]=(t==='num')?parseFloat(v):v;any=true;}});
-  if(!any){alert('Pehle fields bharein');return;}
+  if(!any){mentorAlert('Pehle fields bharein');return;}
   if(m.audience){obj.audience='free,premium,vip';}
   if(m.transform)obj=m.transform(obj);
   const {error}=await sb.from(m.table).insert(obj);
-  if(error){alert('Error: '+error.message);return;}
+  if(error){mentorAlert('Error: '+error.message);return;}
   m.fields.forEach(([id])=>{const e=document.getElementById(`f-${k}-${id}`);if(e)e.value='';const ff=document.getElementById(`ff-${k}-${id}`);if(ff)ff.value='';const fp=document.getElementById(`fp-${k}-${id}`);if(fp)fp.innerHTML='';});loadList(k);
 }
-async function delItem(k,id){if(!confirm('Delete?'))return;await sb.from(MODS[k].table).delete().eq('id',id);loadList(k);}
+async function delItem(k,id){if(!(await mentorConfirm('Delete?')))return;await sb.from(MODS[k].table).delete().eq('id',id);loadList(k);}
 async function genUpload(k,id,input){
   const file=input.files&&input.files[0];if(!file)return;
   const prev=document.getElementById('fp-'+k+'-'+id);if(prev)prev.innerHTML='<span class="muted" style="font-size:12px">Uploading...</span>';
@@ -2036,7 +2068,7 @@ function renderSettings(){
       <button class="btn" onclick="saveProfile()">💾 Save</button>
     </div></div>`;
 }
-async function saveProfile(){const full_name=val('seName'),phone=val('sePhone');await sb.from('profiles').update({full_name,phone}).eq('id',ME.id);ME.full_name=full_name;ME.phone=phone;document.getElementById('whoami').textContent='👤 '+(ME.full_name||ME.email)+' · '+ME.mentor_code;alert('Saved');}
+async function saveProfile(){const full_name=val('seName'),phone=val('sePhone');await sb.from('profiles').update({full_name,phone}).eq('id',ME.id);ME.full_name=full_name;ME.phone=phone;document.getElementById('whoami').textContent='👤 '+(ME.full_name||ME.email)+' · '+ME.mentor_code;mentorAlert('Saved');}
 
 /* boot */
 async function bootMentorAuth(){
@@ -2139,19 +2171,23 @@ function mDrawerBuild(){
 function mDrawerOpen(){mDrawerBuild();document.getElementById('mDrawerOv').style.display='block';document.getElementById('mDrawer').classList.add('open');}
 function mDrawerClose(){document.getElementById('mDrawerOv').style.display='none';document.getElementById('mDrawer').classList.remove('open');}
 function mDrawerGo(k){mDrawerClose();showPage(k);}
-// Guarantee: More button hamesha nav me ho (login ke baad nav banta hai, isliye interval)
-setInterval(function(){
-  try{
-    var nm=document.getElementById('navMenu');
-    if(nm && nm.children.length && !nm.querySelector('.nav-more')){
-      var d=document.createElement('div');
-      d.className='menu-item nav-more';
-      d.setAttribute('onclick','mDrawerOpen()');
-      d.innerHTML='<span>☰</span> More';
-      nm.appendChild(d);
-    }
-  }catch(e){}
-},800);
+// Guarantee: More button follows nav changes without permanent polling.
+(function installMentorMoreObserver(){
+  function ensureMore(){
+    try{
+      var nm=document.getElementById('navMenu');
+      if(nm && nm.children.length && !nm.querySelector('.nav-more')){
+        var d=document.createElement('div');
+        d.className='menu-item nav-more';
+        d.setAttribute('onclick','mDrawerOpen()');
+        d.innerHTML='<span>☰</span> More';
+        nm.appendChild(d);
+      }
+    }catch(e){}
+  }
+  function start(){var nm=document.getElementById('navMenu');if(!nm)return;ensureMore();new MutationObserver(ensureMore).observe(nm,{childList:true});}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+})();
 console.log('PSP mentor v4 — More/drawer active');
 </script>
 

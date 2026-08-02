@@ -1,0 +1,15 @@
+PipSePaisa V29 Build Validation — 2026-08-02
+
+RESULT: STATIC CODE VALIDATION PASSED
+
+- 25/25 issue source checks passed
+- All top-level external JavaScript files: node --check passed
+- Inline scripts in index/admin/email/reset pages: passed
+- Local HTML/CSS asset scan: 0 missing files
+- index.html reduced from 704,853 bytes to 318,989 bytes
+- Basic Course thumbnail: 1280 x 720 WebP
+- Advanced Course thumbnail: 1280 x 720 WebP
+- New SQL: 65, 66, 67
+- New Edge Function: send-campaign-email
+
+Important: live Supabase, Zoom, SMTP and hosting behavior can only be confirmed after deployment.

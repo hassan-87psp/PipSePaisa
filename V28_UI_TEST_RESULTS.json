@@ -1,0 +1,52 @@
+{
+  "course": {
+    "cards": 2,
+    "images": [
+      {
+        "src": "basic-course-thumbnail.webp?v=20260801-v28-final",
+        "nw": 1280,
+        "nh": 720,
+        "fit": "contain",
+        "dir": "column",
+        "imgBottom": 511.5,
+        "titleTop": 529.5
+      },
+      {
+        "src": "advanced-course-thumbnail.webp?v=20260801-v28-final",
+        "nw": 1280,
+        "nh": 720,
+        "fit": "contain",
+        "dir": "column",
+        "imgBottom": 511.5,
+        "titleTop": 529.5
+      }
+    ],
+    "side": {
+      "src": "basic-course-thumbnail.webp?v=20260801-v28-final",
+      "nw": 1280,
+      "nh": 720,
+      "fit": "contain"
+    },
+    "modules": [
+      "01. Introduction to Forex Trading",
+      "02. Candlestick Patterns and Price Behaviour",
+      "03. Market Sentiment Analysis",
+      "04. Trading Psychology and Risk Management",
+      "05. Foundations of Technical Analysis",
+      "06. Understanding Technical Indicators",
+      "07. Fundamentals of Fundamental Analysis",
+      "08. Trading Strategies \u2014 Part 1",
+      "09. Trading Strategies \u2014 Part 2"
+    ],
+    "errors": []
+  },
+  "auth": {
+    "deep": {
+      "open": 1,
+      "tab": 1
+    },
+    "autofillClose": 0,
+    "backdropClose": 1,
+    "errors": []
+  }
+}

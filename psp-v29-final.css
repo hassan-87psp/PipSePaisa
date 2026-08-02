@@ -1,0 +1,28 @@
+/* PipSePaisa V29 stability and performance fixes.
+   Desktop-only layout rules preserve the approved mobile UI. */
+@media (min-width:769px){
+  #mainApp{min-height:100vh;align-items:stretch}
+  #sidebar.sidebar{flex:0 0 250px;width:250px;min-width:250px;max-width:250px;contain:layout paint style}
+  #sidebar .brand{min-height:80px}
+  #sidebar .user-card{min-height:78px}
+  #mainContent,.main-content{min-width:0;flex:1 1 auto}
+  .page.active{animation:none!important}
+  html.psp-v29-app-ready #mainApp{visibility:visible;opacity:1}
+}
+
+/* Compact Zoom generation state. */
+.psp-zoom-generation-status{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid rgba(245,158,11,.28);border-radius:12px;background:rgba(245,158,11,.07);font-size:12px;font-weight:700;color:var(--text-secondary)}
+.psp-zoom-generation-status::before{content:"";width:15px;height:15px;flex:0 0 15px;border:2px solid rgba(245,158,11,.25);border-top-color:#f59e0b;border-radius:50%;animation:pspV29Spin .7s linear infinite}
+.psp-course-zoom-retry,.psp-zoom-retry-btn{width:auto!important;max-width:100%;min-height:38px!important;padding:9px 14px!important;font-size:12px!important;border-radius:11px!important;display:inline-flex!important;align-items:center;justify-content:center;gap:7px}
+.psp-course-zoom-retry.is-loading,.psp-zoom-retry-btn.is-loading{pointer-events:none;opacity:.72}
+@keyframes pspV29Spin{to{transform:rotate(360deg)}}
+
+/* Avoid expensive rendering for off-screen long sections without changing layout. */
+@supports (content-visibility:auto){
+  @media (min-width:769px){
+    .psp-course-section,.dashboard-grid>.card,.content-grid>.card{content-visibility:auto;contain-intrinsic-size:1px 420px}
+  }
+}
+.psp-zoom-progress{display:flex;align-items:center;gap:9px;padding:10px 12px;margin:10px 0;border:1px solid rgba(245,158,11,.28);border-radius:12px;background:rgba(245,158,11,.07);font-size:12px;font-weight:700;color:var(--text-secondary)}
+.psp-zoom-spinner{width:15px;height:15px;flex:0 0 15px;border:2px solid rgba(245,158,11,.25);border-top-color:#f59e0b;border-radius:50%;animation:pspV29Spin .7s linear infinite}
+.psp-zoom-small-note{margin:8px 0 0;font-size:11px;color:var(--red,#ef4444)}

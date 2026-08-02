@@ -1815,7 +1815,7 @@ html.psp-desktop-mobile-view .topbar .nav-actions{
 </div>
 </section>
 </main>
-<footer><div class="container"><div class="footer-grid"><div><div class="footer-brand">PipSePaisa</div><p>Forex education, professional learning, practical trading tools and business support designed to help traders and partners grow with knowledge and discipline.</p></div><div><h4>Quick Links</h4><ul><li><a href="landing.html">Home</a></li><li><a href="partner.html">Become Partner</a></li><li><a href="courses.html">Courses</a></li></ul></div><div><h4>Resources</h4><ul><li><a href="tools-services.html">Trading Tools &amp; Services</a></li><li><a href="courses.html#courses">Course Enrollment</a></li><li><a href="index.html">Login</a></li></ul></div><div><h4>Connect</h4><ul><li>Facebook</li><li>Instagram</li><li>WhatsApp Channel</li></ul></div></div><div class="disclaimer">Educational content only. Trading involves risk and results may vary. Broker conditions, commissions and promotions depend on region, account type and official terms.</div></div></footer>
+<footer><div class="container"><div class="footer-grid"><div><div class="footer-brand">PipSePaisa</div><p>Forex education, professional learning, practical trading tools and business support designed to help traders and partners grow with knowledge and discipline.</p></div><div><h4>Quick Links</h4><ul><li><a href="landing.html">Home</a></li><li><a href="partner.html">Become Partner</a></li><li><a href="courses.html">Courses</a></li></ul></div><div><h4>Resources</h4><ul><li><a href="tools-services.html">Trading Tools &amp; Services</a></li><li><a href="courses.html#courses">Course Enrollment</a></li><li><a href="./#auth-login">Login</a></li></ul></div><div><h4>Connect</h4><ul><li>Facebook</li><li>Instagram</li><li>WhatsApp Channel</li></ul></div></div><div class="disclaimer">Educational content only. Trading involves risk and results may vary. Broker conditions, commissions and promotions depend on region, account type and official terms.</div></div></footer>
 
 <div class="landing-auth-overlay" id="landingAuthOverlay" aria-hidden="true">
   <div class="landing-auth-card" role="dialog" aria-modal="true" aria-labelledby="landingAuthTitle">
@@ -2009,7 +2009,7 @@ async function landingLoginUser(){
 
       loginResult={ok:true,userId:result.data.user.id};
       localStorage.setItem('pipsepaisa_last_login_email',email);
-      location.replace('index.html?logged_in=1');
+      location.replace('./?logged_in=1');
     }
 
     if(!loginResult?.ok){

@@ -1,0 +1,91 @@
+PipSePaisa V28 Build Validation
+Date: 2026-08-01
+
+[1] JavaScript syntax
+External JS files checked: 17
+External JS failures: 0
+
+[2] Inline script syntax
+HTML files scanned: 15
+Inline scripts checked: 48
+Inline failures: 0
+
+[3] Required assets
+basic-course-thumbnail.webp: exists=True bytes=110582
+  dimensions=1280x720 format=WEBP
+advanced-course-thumbnail.webp: exists=True bytes=153034
+  dimensions=1280x720 format=WEBP
+favicon.png: exists=True bytes=2086
+  dimensions=32x32 format=PNG
+
+[4] Static routing/cache checks
+Active files containing index.html: 0
+Files with forced SW/cache removal: 0
+Correct Supabase preconnect count: 1
+PWA name: PipSePaisa
+PWA start_url: ./
+
+[5] Browser UI tests
+{
+  "course": {
+    "cards": 2,
+    "images": [
+      {
+        "src": "basic-course-thumbnail.webp?v=20260801-v28-final",
+        "nw": 1280,
+        "nh": 720,
+        "fit": "contain",
+        "dir": "column",
+        "imgBottom": 511.5,
+        "titleTop": 529.5
+      },
+      {
+        "src": "advanced-course-thumbnail.webp?v=20260801-v28-final",
+        "nw": 1280,
+        "nh": 720,
+        "fit": "contain",
+        "dir": "column",
+        "imgBottom": 511.5,
+        "titleTop": 529.5
+      }
+    ],
+    "side": {
+      "src": "basic-course-thumbnail.webp?v=20260801-v28-final",
+      "nw": 1280,
+      "nh": 720,
+      "fit": "contain"
+    },
+    "modules": [
+      "01. Introduction to Forex Trading",
+      "02. Candlestick Patterns and Price Behaviour",
+      "03. Market Sentiment Analysis",
+      "04. Trading Psychology and Risk Management",
+      "05. Foundations of Technical Analysis",
+      "06. Understanding Technical Indicators",
+      "07. Fundamentals of Fundamental Analysis",
+      "08. Trading Strategies \u2014 Part 1",
+      "09. Trading Strategies \u2014 Part 2"
+    ],
+    "errors": []
+  },
+  "auth": {
+    "deep": {
+      "open": 1,
+      "tab": 1
+    },
+    "autofillClose": 0,
+    "backdropClose": 1,
+    "errors": []
+  }
+}
+
+[6] Admin course-preview browser test
+{
+  "preview": 1,
+  "modules": 9,
+  "outcomes": 4,
+  "errors": []
+}
+
+[7] Temporary files
+Temp V28 HTML test files in build: 0

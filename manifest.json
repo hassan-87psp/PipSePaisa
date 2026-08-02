@@ -1,10 +1,12 @@
 {
   "name": "PipSePaisa",
   "short_name": "PipSePaisa",
+  "description": "PipSePaisa trading education and member platform",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#07101f",
-  "theme_color": "#e67f00",
+  "background_color": "#0b1729",
+  "theme_color": "#f59e0b",
   "icons": [
     {
       "src": "icon-192.png",
@@ -16,7 +18,5 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "scope": "./",
-  "description": "PipSePaisa trading education, courses, signals and tools."
+  ]
 }

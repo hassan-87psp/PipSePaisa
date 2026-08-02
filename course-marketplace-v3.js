@@ -4,7 +4,7 @@
 const defaults={
   basic:{
     key:'basic',title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
-    thumbnail:'/course-thumbnails/basic-forex-course.webp?v=20260801-v27-final',
+    thumbnail:'basic-course-thumbnail.webp',
     short:'Build a strong foundation in Forex trading, technical analysis, market sentiment, risk management and beginner-level strategies.',
     description:'A structured beginner program designed to help new traders understand the Forex market, read price behaviour, control risk and develop a disciplined trading process.',
     descriptionExtra:'Every module follows a clear learning path with practical market examples, defined objectives and expected outcomes. The goal is to help students understand the process rather than copy random trades.',
@@ -15,7 +15,6 @@ const defaults={
     requirements:['This course is suitable even if you are completely new to forex.','A mobile phone or computer with internet access.','A willingness to practise on a demo account and follow risk-management rules.'],
     audience:['Complete beginners starting their Forex journey.','Traders who want to rebuild their foundation correctly.','Students who prefer structured, practical learning.'],
     modules:[
-
       {title:'Introduction to Forex Trading',duration:'90 min',summary:'Understand the Forex market, currency pairs, brokers, spreads and leverage.',points:['How the Forex market works','Major market participants','Currency pairs and trading sessions']},
       {title:'Candlestick Patterns and Price Behaviour',duration:'90 min',summary:'Read buyer and seller pressure through candles, rejection and momentum.',points:['Candlestick structure','Rejection and momentum','Core reversal patterns']},
       {title:'Market Sentiment Analysis',duration:'90 min',summary:'Build a market bias by understanding bullish, bearish and crowd behaviour.',points:['Bullish vs bearish sentiment','Fear, greed and crowd behaviour','News reaction and bias']},
@@ -31,7 +30,7 @@ const defaults={
   },
   advanced:{
     key:'advanced',title:'Advanced Forex Course',price:200,oldPrice:500,type:'paid',level:'Advanced',badge:'ADVANCED PROFESSIONAL COURSE',
-    thumbnail:'/course-thumbnails/advanced-forex-course.webp?v=20260801-v27-final',
+    thumbnail:'advanced-course-thumbnail.webp',
     short:'Develop a professional trading mindset and study advanced market behaviour, session timing, liquidity, correlations and strategy development.',
     description:'A professional program for serious traders who want to study institutional structure, liquidity, session behaviour, advanced risk management, macro analysis and precise execution models.',
     descriptionExtra:'Every module follows a clear learning path with practical market examples, defined objectives and expected outcomes. The goal is to help students understand the process rather than copy random trades.',
@@ -65,30 +64,22 @@ let detailRenderToken=0;
 
 function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 function client(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(_){return null}}
-
-function resolveCourseThumbnail(value,key){
-  const fallback=defaults[key]?.thumbnail||'';
-  const v=String(value||'').trim();
-  if(!v)return fallback;
-  // Older database rows used the generic Forex Education service banner.
-  // Replace only those legacy placeholders; real admin-uploaded thumbnails remain supported.
-  if(/(?:service-banners\/)|forex-education-(?:light|dark)|forex education.*matched|trading-platform.*education/i.test(v))return fallback;
-  return v;
+function systemThumbnail(key){return key==='advanced'?'advanced-course-thumbnail.webp?v=20260802-v29-final':'basic-course-thumbnail.webp?v=20260802-v29-final';}
+function resolveThumbnail(key,value){
+  const raw=String(value||'').trim();
+  if(!raw||/service-banners\/forex-education/i.test(raw)||/^(?:\.\/)?course-thumbnails\//i.test(raw)||/(?:^|\/)basic-course-thumbnail\.webp(?:\?|$)/i.test(raw)||/(?:^|\/)advanced-course-thumbnail\.webp(?:\?|$)/i.test(raw))return systemThumbnail(key);
+  return raw;
 }
-function imageFallbackAttr(key){return `onerror="this.onerror=null;this.src='${esc(defaults[key]?.thumbnail||'')}';"`;}
-
-function normalizeModules(value,key){
-  const list=Array.isArray(value)&&value.length?value.map((m,i)=>({...m,__originalIndex:i})):defaults[key].modules.map((m,i)=>({...m,__originalIndex:i}));
-  const canonical=new Map(defaults[key].modules.map((m,i)=>[String(m.title||'').trim().toLowerCase(),i]));
-  list.sort((a,b)=>{
-    const ao=Number(a.display_order??a.order??a.module_number);
-    const bo=Number(b.display_order??b.order??b.module_number);
-    if(Number.isFinite(ao)&&Number.isFinite(bo)&&ao!==bo)return ao-bo;
-    const ai=canonical.has(String(a.title||'').trim().toLowerCase())?canonical.get(String(a.title||'').trim().toLowerCase()):999;
-    const bi=canonical.has(String(b.title||'').trim().toLowerCase())?canonical.get(String(b.title||'').trim().toLowerCase()):999;
-    return ai-bi||a.__originalIndex-b.__originalIndex;
-  });
-  return list.map(({__originalIndex,...m})=>({...m,duration:m.duration||'90 min'}));
+function thumbAttrs(c,label){
+  const fallback=systemThumbnail(c.key);
+  return `src="${esc(resolveThumbnail(c.key,c.thumbnail))}" alt="${esc(label)}" onerror="this.onerror=null;this.src='${fallback}'"`;
+}
+function canonicalModules(key,items){
+  const base=defaults[key].modules;
+  if(!Array.isArray(items)||!items.length)return base;
+  const norm=x=>String(x||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const map=new Map(items.map(x=>[norm(x&&x.title),x]));
+  return base.map(b=>({...b,...(map.get(norm(b.title))||{})}));
 }
 
 function normalize(row,key){
@@ -202,16 +193,16 @@ async function loadCourseData(){
     included:arrayValue(basic.included_items,defaults.basic.included),
     contentNote:basic.content_note||defaults.basic.contentNote,secureNote:basic.secure_note||defaults.basic.secureNote,
     level:basic.level||defaults.basic.level,badge:basic.course_badge||defaults.basic.badge,
-    thumbnail:resolveCourseThumbnail(basic.thumbnail,'basic'),videoUrl:'',
+    thumbnail:resolveThumbnail('basic',basic.thumbnail),videoUrl:'',
     requirements:arrayValue(basic.requirements,defaults.basic.requirements),
     audience:arrayValue(basic.audience,defaults.basic.audience),
     learn:arrayValue(basic.learning_outcomes,defaults.basic.learn),
     achievement:arrayValue(basic.achievement_outcomes,defaults.basic.achievement),
-    modules:normalizeModules(basic.modules_json,'basic'),
+    modules:canonicalModules('basic',basic.modules_json),
     accessLabel:basic.access_label||'FREE COURSE ACCESS',buyNote:basic.buy_note||'Complete the enrollment form and begin learning.',
     actionButtonText:basic.action_button_text||'',mentorName:basic.mentor_name||'Sajid Khan Ghori',mentorTitle:basic.mentor_title||'Asia Top Instructor',learningHeading:basic.learning_heading||defaults.basic.learningHeading,outcomesHeading:basic.outcomes_heading||defaults.basic.outcomesHeading,contentHeading:basic.content_heading||defaults.basic.contentHeading,requirementsHeading:basic.requirements_heading||defaults.basic.requirementsHeading,audienceHeading:basic.audience_heading||defaults.basic.audienceHeading,descriptionHeading:basic.description_heading||defaults.basic.descriptionHeading,relatedHeading:basic.related_heading||defaults.basic.relatedHeading,
     price:0,oldPrice:0,published:basic.is_published!==false
-  }:{published:true,videoUrl:''})};
+  }:{published:true,videoUrl:'',thumbnail:systemThumbnail('basic'),modules:canonicalModules('basic',defaults.basic.modules)})};
   courseData.advanced={...defaults.advanced,...(adv?{
     dbId:adv.id||'',title:adv.title||defaults.advanced.title,
     short:adv.short_description||adv.description||defaults.advanced.short,
@@ -220,21 +211,26 @@ async function loadCourseData(){
     included:arrayValue(adv.included_items,defaults.advanced.included),
     contentNote:adv.content_note||defaults.advanced.contentNote,secureNote:adv.secure_note||defaults.advanced.secureNote,
     level:adv.level||defaults.advanced.level,badge:adv.course_badge||defaults.advanced.badge,
-    thumbnail:resolveCourseThumbnail(adv.thumbnail,'advanced'),videoUrl:'',
+    thumbnail:resolveThumbnail('advanced',adv.thumbnail),videoUrl:'',
     requirements:arrayValue(adv.requirements,defaults.advanced.requirements),
     audience:arrayValue(adv.audience,defaults.advanced.audience),
     learn:arrayValue(adv.learning_outcomes,defaults.advanced.learn),
     achievement:arrayValue(adv.achievement_outcomes,defaults.advanced.achievement),
-    modules:normalizeModules(adv.modules_json,'advanced'),
+    modules:canonicalModules('advanced',adv.modules_json),
     accessLabel:adv.access_label||'PROFESSIONAL COURSE ACCESS',buyNote:adv.buy_note||'One-time course payment • Manual verification',
     actionButtonText:adv.action_button_text||'',mentorName:adv.mentor_name||'Sajid Khan Ghori',mentorTitle:adv.mentor_title||'Asia Top Instructor',learningHeading:adv.learning_heading||defaults.advanced.learningHeading,outcomesHeading:adv.outcomes_heading||defaults.advanced.outcomesHeading,contentHeading:adv.content_heading||defaults.advanced.contentHeading,requirementsHeading:adv.requirements_heading||defaults.advanced.requirementsHeading,audienceHeading:adv.audience_heading||defaults.advanced.audienceHeading,descriptionHeading:adv.description_heading||defaults.advanced.descriptionHeading,relatedHeading:adv.related_heading||defaults.advanced.relatedHeading,
     price:numberValue(adv.price,defaults.advanced.price),oldPrice:numberValue(adv.old_price,defaults.advanced.oldPrice),
     published:adv.is_published!==false
-  }:{published:true,videoUrl:''})};
+  }:{published:true,videoUrl:'',thumbnail:systemThumbnail('advanced'),modules:canonicalModules('advanced',defaults.advanced.modules)})};
   const [b,a]=await Promise.all([getEnrollment('basic'),getEnrollment('advanced')]);
   await loadCourseClasses();
   enrollmentState.basic=normalize(b,'basic');
   enrollmentState.advanced=normalize(a,'advanced');
+}
+async function loadEnrollmentStatesOnly(courseKey){
+  const keys=courseKey&&courseData[courseKey]?[courseKey]:['basic','advanced'];
+  const rows=await Promise.all(keys.map(key=>getEnrollment(key)));
+  keys.forEach((key,index)=>{enrollmentState[key]=normalize(rows[index],key);});
 }
 function statusLabel(key){
   const s=enrollmentState[key];
@@ -249,7 +245,7 @@ function tileMarkup(c){
   const hasVideo=/^https?:\/\//i.test(String(c.videoUrl||'').trim());
   return `<article class="psp-course-tile ${c.type==='paid'?'paid':''}" data-course="${c.key}" tabindex="0" role="button" aria-label="Open ${esc(c.title)} details">
     <div class="psp-course-thumb">
-      <img class="psp-course-thumb-main" src="${esc(c.thumbnail)}" alt="${esc(c.title)} thumbnail" ${imageFallbackAttr(c.key)}>
+      <img class="psp-course-thumb-main" ${thumbAttrs(c,`${c.title} thumbnail`)}>
     </div>
     <div class="psp-course-tile-body">
       <div class="psp-course-tile-top"><h3>${esc(c.title)}</h3><div class="psp-course-price">${c.price?('$'+c.price):'Free'}</div></div>
@@ -302,7 +298,7 @@ function buyPanel(c,state){
   }
   if(c.actionButtonText&&!approved&&!pending)button=c.actionButtonText;
   return `<aside class="psp-course-buy-card">
-    <div class="psp-course-buy-thumb"><img src="${esc(c.thumbnail)}" alt="${esc(c.title)}" ${imageFallbackAttr(c.key)}></div>
+    <div class="psp-course-buy-thumb"><img ${thumbAttrs(c,`${c.title} thumbnail`)}></div>
     <div class="psp-course-buy-body">
       <span class="psp-course-access-label">${esc(c.accessLabel||(c.type==='free'?'FREE COURSE ACCESS':'PROFESSIONAL COURSE ACCESS'))}</span>
       <div class="psp-course-price-line"><span class="psp-course-buy-price">${c.price?('$'+c.price):'100% Free'}</span>${c.oldPrice?`<span class="psp-course-buy-old">$${c.oldPrice}</span>`:''}</div>
@@ -353,7 +349,7 @@ function stickyAccessPanel(c,state){
   if(c.actionButtonText&&!approved&&!pending)button=c.actionButtonText;
   return `<div class="psp-course-side-card psp-course-side-card-premium ${c.type} ${state}">
     <div class="psp-course-side-preview">
-      <img class="psp-course-side-preview-main" src="${esc(c.thumbnail)}" alt="${esc(c.title)} preview" ${imageFallbackAttr(c.key)}>
+      <img class="psp-course-side-preview-main" ${thumbAttrs(c,`${c.title} preview`)}>
     </div>
     <div class="psp-course-side-body">
       <div class="psp-side-eyebrow">${eyebrow}</div>
@@ -371,18 +367,28 @@ function classAccessPanel(c,state){
   const rows=(courseClasses[c.key]&&courseClasses[c.key].length?courseClasses[c.key]:defaultClasses(c.key));
   const readyCount=rows.filter(x=>/^https?:\/\//i.test(String(x.join_url||x.zoom_url||''))).length;
   const isBasic=c.key==='basic';
-  return `<section class="psp-live-class-card" aria-label="${esc(c.title)} live classes">
+  const generating=isBasic&&window.__pspZoomGenerating===true;
+  const failedCount=rows.filter(row=>/^(failed|error|rejected)$/i.test(String(row.registration_status||''))).length;
+  const pendingCount=rows.filter(row=>/^(pending|processing|registering)$/i.test(String(row.registration_status||''))).length;
+  const showRetry=isBasic&&readyCount<9&&!generating&&pendingCount===0;
+  const retryText=readyCount>0?'Retry Missing Links':'Generate Class Links';
+  const progress=generating||pendingCount>0
+    ?'<div class="psp-zoom-progress" role="status"><span class="psp-zoom-spinner"></span><span>Generating your personal class links…</span></div>'
+    :'';
+  return `<section class="psp-live-class-card" id="pspLiveClassCard" aria-label="${esc(c.title)} live classes">
     <div class="psp-live-class-head"><div><span>LIVE CLASS ACCESS</span><h3>Your 9 Classes</h3></div><b>${readyCount}/9 Links Ready</b></div>
     <p>${isBasic?'Your personal Zoom links are generated automatically after enrollment. Each link is unique to your account.':'Select a class to view its live-class access.'}</p>
-    ${isBasic&&readyCount<9?'<button type="button" class="psp-zoom-retry-btn" onclick="return window.retryZoomCourseRegistration?.(event)">Generate Class Links</button>':''}
+    ${progress}
+    ${showRetry?`<button type="button" class="psp-zoom-retry-btn" onclick="return window.retryZoomCourseRegistration?.(event)">${retryText}</button>`:''}
+    ${isBasic&&failedCount>0&&!generating?`<div class="psp-zoom-small-note">${failedCount} link${failedCount===1?'':'s'} need another attempt.</div>`:''}
     <div class="psp-live-class-list">${rows.map((row,index)=>{
       const url=String(row.join_url||row.zoom_url||'').trim();
       const safeUrl=/^https?:\/\//i.test(url)?url:'';
-      const title=row.title||`Class ${index+1}`;
+      const title=(c.modules&&c.modules[index]&&c.modules[index].title)||row.title||`Class ${index+1}`;
       const status=String(row.registration_status||'not_registered');
-      const failed=status==='failed';
-      const pending=status==='pending';
-      const stateText=safeUrl?'Zoom Ready':failed?'Registration Failed':pending?'Registration Pending':'Link Pending';
+      const failed=/^(failed|error|rejected)$/i.test(status);
+      const pending=generating||/^(pending|processing|registering)$/i.test(status);
+      const stateText=safeUrl?'Zoom Ready':failed?'Registration Failed':pending?'Generating':'Link Pending';
       const panel=safeUrl
         ?`<a href="${esc(safeUrl)}" target="_blank" rel="noopener">Join Webinar →</a>`
         :failed
@@ -425,7 +431,7 @@ function detailMarkup(c){
         <div class="psp-course-info-grid"><section class="psp-course-section"><div class="psp-section-kicker">BEFORE YOU START</div><h3>${esc(c.requirementsHeading||'Requirements')}</h3><div class="psp-course-copy"><ul>${c.requirements.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section>
         <section class="psp-course-section"><div class="psp-section-kicker">BEST MATCH</div><h3>${esc(c.audienceHeading||'Who this course is for')}</h3><div class="psp-course-copy"><ul>${c.audience.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section></div>
         <section class="psp-course-section psp-course-description-card"><div class="psp-section-kicker">ABOUT THIS PROGRAM</div><h3>${esc(c.descriptionHeading||'Description')}</h3><div class="psp-course-copy"><p>${esc(c.description)}</p>${c.descriptionExtra?`<p>${esc(c.descriptionExtra)}</p>`:''}</div></section>
-        <section class="psp-course-section"><div class="psp-section-kicker">CONTINUE LEARNING</div><h3>${esc(c.relatedHeading||'Other PipSePaisa Courses')}</h3><div class="psp-related-grid"><article class="psp-related-card" onclick="openCourseDetail('${other.key}')"><img src="${esc(other.thumbnail)}" alt="${esc(other.title)}"><div><h4>${esc(other.title)}</h4><p>${other.price?('$'+other.price):'100% Free'} • ${other.modules.length} Modules • View details →</p></div></article></div></section>
+        <section class="psp-course-section"><div class="psp-section-kicker">CONTINUE LEARNING</div><h3>${esc(c.relatedHeading||'Other PipSePaisa Courses')}</h3><div class="psp-related-grid"><article class="psp-related-card" onclick="openCourseDetail('${other.key}')"><img ${thumbAttrs(other,other.title)}><div><h4>${esc(other.title)}</h4><p>${other.price?('$'+other.price):'100% Free'} • ${other.modules.length} Modules • View details →</p></div></article></div></section>
       </main>
     </div>
     <aside class="psp-course-detail-side psp-course-sticky-column">${stickyAccessPanel(c,state)}${classAccessPanel(c,state)}</aside>
@@ -438,35 +444,7 @@ function bindDetail(){
     list.querySelectorAll('.psp-module-row.open').forEach(r=>r.classList.remove('open'));
     if(!was)row.classList.add('open');
   }));
-  bindLiveClassToggles(document.getElementById('pspCourseDetail'));
-}
-function bindLiveClassToggles(root){
-  if(!root)return;
-  root.querySelectorAll('.psp-live-class-toggle').forEach(button=>{
-    if(button.dataset.bound==='1')return;
-    button.dataset.bound='1';
-    button.addEventListener('click',()=>{
-      const row=button.closest('.psp-live-class-row');const list=row?.closest('.psp-live-class-list');if(!row||!list)return;
-      const was=row.classList.contains('open');
-      list.querySelectorAll('.psp-live-class-row.open').forEach(r=>r.classList.remove('open'));
-      if(!was)row.classList.add('open');
-    });
-  });
-}
-function refreshClassPanelOnly(){
-  if(!currentCourse)return;
-  const side=document.querySelector('#pspCourseDetail .psp-course-sticky-column');if(!side)return;
-  const existing=side.querySelector('.psp-live-class-card');
-  const html=classAccessPanel(currentCourse,enrollmentState[currentCourse.key]);
-  if(!html){existing?.remove();return;}
-  const temp=document.createElement('div');temp.innerHTML=html.trim();const next=temp.firstElementChild;if(!next)return;
-  if(existing)existing.replaceWith(next);else side.appendChild(next);
-  bindLiveClassToggles(next);
-}
-let classRefreshTimer=0;
-function scheduleClassPanelRefresh(){
-  clearTimeout(classRefreshTimer);
-  classRefreshTimer=setTimeout(async()=>{await loadCourseClasses();refreshClassPanelOnly();},220);
+  bindClassPanel();
 }
 window.pspCoursePrimaryAction=function(event){if(event){event.preventDefault();event.stopPropagation();}handleAction();return false;};
 function handleAction(){
@@ -481,9 +459,55 @@ function handleAction(){
   }
   if(typeof window.openCourseEnrollment==='function'){window.openCourseEnrollment(key);return;}
   console.error('Course enrollment modal is unavailable.');
-  alert('Enrollment form could not open. Please refresh the page and try again.');
+  (window.pspAlert||window.alert)('Enrollment form could not open. Please refresh the page and try again.');
 }
 
+
+function refreshCourseAccessOnly(courseKey){
+  const key=courseKey||currentCourse?.key;
+  if(!key||!courseData[key])return;
+  if(!currentCourse||currentCourse.key!==key){renderMarketplace();return;}
+  const c=courseData[key],state=enrollmentState[key];
+  const content=document.querySelector('#pspCourseDetail .psp-course-content-card');
+  const oldRows=[...(content?.querySelectorAll('.psp-module-row')||[])];
+  const openIndex=oldRows.findIndex(row=>row.classList.contains('open'));
+  const oldList=content?.querySelector('.psp-module-list,.psp-course-locked-roadmap');
+  if(oldList){
+    const holder=document.createElement('div');
+    holder.innerHTML=moduleRows(c,c.type==='free'||state==='approved');
+    const next=holder.firstElementChild;
+    if(next)oldList.replaceWith(next);
+  }
+  const side=document.querySelector('#pspCourseDetail .psp-course-sticky-column');
+  if(side)side.innerHTML=stickyAccessPanel(c,state)+classAccessPanel(c,state);
+  bindDetail();
+  if(openIndex>=0){document.querySelectorAll('#pspCourseDetail .psp-module-row')[openIndex]?.classList.add('open');}
+}
+window.pspRefreshCourseAccess=async function(courseKey){
+  await loadEnrollmentStatesOnly(courseKey);
+  refreshCourseAccessOnly(courseKey);
+};
+
+function refreshClassPanel(){
+  if(!currentCourse)return;
+  const existing=document.getElementById('pspLiveClassCard');
+  const holder=document.createElement('div');
+  holder.innerHTML=classAccessPanel(currentCourse,enrollmentState[currentCourse.key]);
+  const next=holder.firstElementChild;
+  if(existing&&next)existing.replaceWith(next);
+  else if(!existing&&next){document.querySelector('#pspCourseDetail .psp-course-sticky-column')?.appendChild(next);}
+  bindClassPanel();
+}
+function bindClassPanel(){
+  document.querySelectorAll('#pspLiveClassCard .psp-live-class-toggle').forEach(button=>{
+    if(button.dataset.bound==='1')return;button.dataset.bound='1';
+    button.addEventListener('click',()=>{
+      const row=button.closest('.psp-live-class-row');const list=row.closest('.psp-live-class-list');const was=row.classList.contains('open');
+      list.querySelectorAll('.psp-live-class-row.open').forEach(r=>r.classList.remove('open'));
+      if(!was)row.classList.add('open');
+    });
+  });
+}
 function renderCurrentDetail(key){
   const page=ensureShell();if(!page)return;
   const market=page.querySelector('.psp-course-marketplace');const detail=page.querySelector('#pspCourseDetail');
@@ -500,6 +524,7 @@ window.openCourseDetail=async function(key){
   await loadCourseData();
   if(token!==detailRenderToken||!currentCourse||currentCourse.key!==key)return;
   renderCurrentDetail(key);
+  try{history.replaceState(null,'',location.pathname.replace(/index\.html$/,'')+'?open='+encodeURIComponent(key));}catch(_){}
   window.scrollTo({top:0,behavior:'smooth'});
 };
 window.backToCourseMarketplace=function(){
@@ -507,7 +532,7 @@ window.backToCourseMarketplace=function(){
   currentCourse=null;const page=ensureShell();if(!page)return;
   const market=page.querySelector('.psp-course-marketplace');const detail=page.querySelector('#pspCourseDetail');
   detail.classList.remove('is-open');detail.innerHTML='';market.classList.remove('is-hidden');
-  const title=document.getElementById('pageTitle');if(title)title.textContent='My Courses';window.scrollTo({top:0,behavior:'smooth'});
+  const title=document.getElementById('pageTitle');if(title)title.textContent='My Courses';try{history.replaceState(null,'',location.pathname.replace(/index\.html$/,''));}catch(_){}window.scrollTo({top:0,behavior:'smooth'});
 };
 window.openFreeCourseModules=function(){window.openCourseDetail('basic');};
 window.openAdvancedCourseModules=function(){window.openCourseDetail('advanced');};
@@ -541,12 +566,18 @@ function init(){
   };
   wait();
 }
-window.addEventListener('course-enrollment-updated',async()=>{
-  await loadCourseData();
-  if(currentCourse)renderCurrentDetail(currentCourse.key);else renderMarketplace();
+let enrollmentRefreshTimer=0;
+window.addEventListener('course-enrollment-updated',event=>{
+  const key=event?.detail?.courseKey||currentCourse?.key||'';
+  clearTimeout(enrollmentRefreshTimer);
+  enrollmentRefreshTimer=setTimeout(async()=>{
+    await loadEnrollmentStatesOnly(key);
+    refreshCourseAccessOnly(key);
+  },80);
 });
-window.addEventListener('zoom-registration-updated',scheduleClassPanelRefresh);
-window.pspReloadZoomClassLinks=async function(){scheduleClassPanelRefresh();};
+window.addEventListener('zoom-registration-started',()=>{refreshClassPanel();});
+window.addEventListener('zoom-registration-updated',async()=>{await loadCourseClasses();refreshClassPanel();});
+window.pspReloadZoomClassLinks=async function(){await loadCourseClasses();refreshClassPanel();};
 
 function subscribeCourseCatalog(){
   const db=client();if(!db)return setTimeout(subscribeCourseCatalog,500);
@@ -563,7 +594,8 @@ function subscribeCourseClasses(){
   const db=client();if(!db)return setTimeout(subscribeCourseClasses,500);
   if(window.__pspCourseClassesRealtime)return;
   window.__pspCourseClassesRealtime=true;
-  const refresh=()=>scheduleClassPanelRefresh();
+  let refreshTimer=0;
+  const refresh=()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(async()=>{await loadCourseClasses();refreshClassPanel();},350);};
   try{
     db.channel('psp-course-classes-user-v24')
       .on('postgres_changes',{event:'*',schema:'public',table:'course_classes'},refresh)

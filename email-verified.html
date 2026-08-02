@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Email Verified | PipSePaisa</title>
   <link rel="icon" href="favicon.png">
-  <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co" crossorigin>
   <style>
     :root{--gold:#f59e0b;--navy:#0b172a;--muted:#64748b;--green:#047857}
     *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#07111f,#111d31);font-family:Arial,Helvetica,sans-serif;color:#111827}
@@ -23,7 +22,7 @@
     <div class="icon" id="icon">⏳</div>
     <h1 id="title">Verifying Your Email</h1>
     <p class="status" id="status">Please wait while we securely activate your account.</p>
-    <a class="btn" id="loginBtn" href="/#auth-login" aria-disabled="true">Continue to Sign In</a>
+    <a class="btn" id="loginBtn" href="./#auth-login" aria-disabled="true">Continue to Sign In</a>
     <p class="small">For your security, verification does not automatically open your dashboard.</p>
   </main>
 
@@ -62,35 +61,33 @@
         }
         if(!session)throw new Error('Verification session was not created.');
 
-        // Send the dynamic, totally-free PIN instructions while this temporary
-        // verification session is authenticated. Email failure does not block verification.
-        try{
-          const name=session.user?.user_metadata?.full_name||session.user?.email?.split('@')[0]||'Student';
-          fetch('https://etfolhinohgmskbfjoyh.supabase.co/functions/v1/send-course-email',{
-            method:'POST',
-            headers:{
-              'Content-Type':'application/json',
-              'apikey':'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw',
-              'Authorization':`Bearer ${session.access_token}`,
-              'x-client-info':'pipsepaisa-verification-v25'
-            },
-            body:JSON.stringify({type:'pin_access_welcome',user_name:name}),
-            keepalive:true
-          }).catch(emailError=>console.warn('PIN welcome email could not be queued',emailError));
-        }catch(emailError){console.warn('PIN welcome email could not be sent',emailError);}
-
-        // Show success immediately once Supabase confirms the verification.
-        // Cleanup runs in the background and never delays the user-facing button.
+        // Verification is complete now. Unlock the sign-in button immediately;
+        // welcome email and local sign-out continue in the background.
+        localStorage.removeItem('pipsepaisa-user-auth-v2');
         icon.textContent='✓';title.textContent='Email Verified Successfully';
         status.textContent='Your account is active. Please sign in manually using your email and password.';
-        btn.href='/#auth-login';btn.setAttribute('aria-disabled','false');
+        btn.href='./#auth-login';btn.setAttribute('aria-disabled','false');
         try{history.replaceState(null,'','email-verified.html');}catch(_){ }
-        localStorage.removeItem('pipsepaisa-user-auth-v2');
+
+        const name=session.user?.user_metadata?.full_name||session.user?.email?.split('@')[0]||'Student';
+        fetch('https://etfolhinohgmskbfjoyh.supabase.co/functions/v1/send-course-email',{
+          method:'POST',keepalive:true,
+          headers:{
+            'Content-Type':'application/json',
+            'apikey':'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw',
+            'Authorization':`Bearer ${session.access_token}`,
+            'x-client-info':'pipsepaisa-verification-v28'
+          },
+          body:JSON.stringify({type:'pin_access_welcome',user_name:name})
+        }).then(async response=>{
+          const data=await response.json().catch(()=>({}));
+          if(!response.ok||data?.success===false)console.warn('PIN welcome email could not be sent',data?.error||response.status);
+        }).catch(error=>console.warn('PIN welcome email could not be sent',error));
         client.auth.signOut({scope:'local'}).catch(()=>{});
       }catch(error){
         console.error(error);icon.textContent='!';title.textContent='Verification Link Could Not Be Confirmed';
         status.textContent='The link may be expired or already used. Open PipSePaisa and request a new verification email.';
-        btn.href='/#auth-login';btn.textContent='Back to Sign In';btn.setAttribute('aria-disabled','false');
+        btn.href='./#auth-login';btn.textContent='Back to Sign In';btn.setAttribute('aria-disabled','false');
       }
     })();
   </script>

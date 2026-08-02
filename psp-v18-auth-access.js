@@ -61,7 +61,7 @@ function keepSignupVerificationVisible(){
     if(title)title.textContent='Verify Your Email';
     if(sub)sub.textContent='One quick step to activate your account';
     document.body.style.overflow='hidden';
-  },250);
+  },350);
 }
 function installSignupFix(){
   if(typeof window.signupUser!=='function'||window.__pspV20SignupFixed)return;
@@ -342,13 +342,13 @@ async function subscribeRealtime(){
 function init(){
   installSignupFix();installPageGuard();ensureAccessModal();ensureResultModal();ensureSettingsCard();subscribeAuthChanges();
   setResolving(true);loadAccessStatus().then(subscribeRealtime);
-  clearInterval(accessTimer);accessTimer=setInterval(loadAccessStatus,30000);
-  clearInterval(wrapTimer);wrapTimer=setInterval(()=>{installSignupFix();installPageGuard();ensureSettingsCard();},3000);
+  clearInterval(accessTimer);accessTimer=setInterval(()=>{if(!document.hidden)loadAccessStatus();},5*60*1000);
+  clearInterval(wrapTimer);let wrapAttempts=0;installSignupFix();installPageGuard();ensureSettingsCard();wrapTimer=setInterval(()=>{installSignupFix();installPageGuard();ensureSettingsCard();wrapAttempts+=1;if(wrapAttempts>=10)clearInterval(wrapTimer);},500);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,20));else setTimeout(init,20);
 window.addEventListener('course-enrollment-updated',loadAccessStatus);
 window.addEventListener('pageshow',()=>setTimeout(loadAccessStatus,80));
 window.addEventListener('focus',()=>setTimeout(loadAccessStatus,50));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadAccessStatus();});
-setTimeout(revealApp,4500);
+setTimeout(()=>{if(!accessResolved){accessState={is_locked:true,pin_status:'locked',access_enabled:true,lock_title:'Access Check Required',lock_message:'We could not confirm your access status. Please refresh or contact the admin.',admin_whatsapp:'601156961157',remaining_seconds:0};applyLockToPages();renderAccessCard();accessResolved=true;setResolving(false);revealApp();}},10000);
 })();
