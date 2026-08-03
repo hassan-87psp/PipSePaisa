@@ -1,0 +1,26 @@
+{
+  "external_js_files": 23,
+  "inline_scripts": 46,
+  "syntax_errors": [],
+  "checks": {
+    "report_button": true,
+    "report_script_ref": true,
+    "publish_success": true,
+    "update_success": true,
+    "tp1_success": true,
+    "tp2_success": true,
+    "tp3_success": true,
+    "be_move_success": true,
+    "be_hit_success": true,
+    "sl_hit_success": true,
+    "close_success": true,
+    "copy_success": true,
+    "download_success": true,
+    "text_header": true,
+    "summary_total_signals": true,
+    "summary_total_pnl": true,
+    "no_mentor_name": true,
+    "no_duplicate_publish_on_edit": true
+  },
+  "all_checks_passed": true
+}

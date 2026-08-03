@@ -1162,7 +1162,7 @@ function renderSignals(){
       <button onclick="createSignal()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">🚀 Publish Official Signal</button>
       <button onclick="cancelSigEdit()" id="sgCancelEdit" style="padding:8px;border:none;border-radius:8px;background:transparent;color:#94a0b8;font-size:12px;cursor:pointer;text-decoration:underline">Cancel edit</button>
     </div></div>
-    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px"><h3 style="margin:0">📋 Official Signals</h3><div style="display:flex;gap:6px"><button id="mSigTabA" onclick="mSigSetView('active')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--gold,#f59e0b);color:#0a0e1a;font-weight:800;font-size:12px;cursor:pointer">⚡ Active</button><button id="mSigTabH" onclick="mSigSetView('history')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text,#e8eaf0);font-weight:800;font-size:12px;cursor:pointer">📜 History</button></div></div><div id="sigList">Loading...</div></div>
+    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px"><h3 style="margin:0">📋 Official Signals</h3><div style="display:flex;gap:6px;flex-wrap:wrap"><button id="mSigTabA" onclick="mSigSetView('active')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--gold,#f59e0b);color:#0a0e1a;font-weight:800;font-size:12px;cursor:pointer">⚡ Active</button><button id="mSigTabH" onclick="mSigSetView('history')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text,#e8eaf0);font-weight:800;font-size:12px;cursor:pointer">📜 History</button><button id="mSigReportBtn" onclick="openMentorReport()" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(245,158,11,.45);background:rgba(245,158,11,.12);color:var(--gold,#d97706);font-weight:800;font-size:12px;cursor:pointer">📄 Report</button></div></div><div id="sigList">Loading...</div></div>
   </div>`;
   setDir('buy');loadSignals();
 }
@@ -1174,7 +1174,11 @@ async function createSignal(){
   const entry=parseFloat(val('sgEntry'));
   const slv=parseFloat(val('sgSL'));
   const tp1v=parseFloat(val('sgTP1'));
-  if(isNaN(entry)||isNaN(slv)||isNaN(tp1v)){mentorAlert('⚠️ Entry price, Stop Loss aur TP1 dena LAZMI hai — inke baghair signal publish nahi hoga.');return;}
+  if(isNaN(entry)||isNaN(slv)||isNaN(tp1v)){
+    if(window.pipToast)window.pipToast('Entry price, Stop Loss, and TP1 are required.','err');
+    else mentorAlert('Entry price, Stop Loss, and TP1 are required.');
+    return;
+  }
   const audArr=['free','premium','vip'];
   if(!audArr.length)audArr.push('free');
   const isFreeOnly=audArr.length===1&&audArr[0]==='free';
@@ -1193,21 +1197,32 @@ async function createSignal(){
     access_level:audArr.indexOf('free')>=0?'free':'vip',
     plan_name:(!isFreeOnly)?(val('sgPlan')||null):null,
     status:'active',tp_hit:0,order_type:_otype};
+  const wasEditing=Boolean(editingSigId);
   let error=null;
-  if(editingSigId){
-    // EDIT MODE: update, insert nahi (koi push notification nahi jati kyunke status/be_moved change nahi hote)
+  if(wasEditing){
     delete obj.status;delete obj.tp_hit;delete obj.owner_id;delete obj.is_official;
     const pe=document.getElementById('sgEditPips');
     if(pe&&pe.value!==''&&!isNaN(parseFloat(pe.value)))obj.result_pips=parseFloat(pe.value);
     const r=await sb.from('signals').update(obj).eq('id',editingSigId);
     error=r.error;
-    if(!error){toast('💾 Signal update ho gaya','ok');cancelSigEdit();}
   }else{
     const r=await sb.from('signals').insert(obj);
     error=r.error;
   }
-  if(error){mentorAlert('Error: '+error.message);return;}
-  await pspCreateNotificationAndPush('📊 New Signal Published', obj.pair+' '+obj.direction+' signal is now available.', 'signal', '/?tab=signals', obj.audience||'all');
+  if(error){
+    if(window.pipToast)window.pipToast('Unable to '+(wasEditing?'update':'publish')+' the signal. Please try again.','err');
+    else mentorAlert('Error: '+error.message);
+    return;
+  }
+  if(wasEditing){
+    cancelSigEdit();
+    if(window.pipToast)window.pipToast('Signal updated successfully.','ok');
+    else mentorAlert('Signal updated successfully.');
+  }else{
+    if(window.pipToast)window.pipToast('Signal published successfully.','ok');
+    else mentorAlert('Signal published successfully.');
+    try{await pspCreateNotificationAndPush('📊 New Signal Published',obj.pair+' '+obj.direction+' signal is now available.','signal','/?tab=signals',obj.audience||'all');}catch(_){ }
+  }
   ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   loadSignals();
 }
@@ -1277,7 +1292,7 @@ function editMentorSignal(id){
   const b=document.getElementById('sgPostBtn')||document.querySelector('#pg-signals button[onclick*="createSignal"]');
   if(b){b.textContent='💾 Update Signal';b.dataset.editing='1';}
   window.scrollTo({top:0,behavior:'smooth'});
-  toast&&toast('✏️ Edit mode — changes karke Update dabao');
+  if(window.pipToast)window.pipToast('Edit mode enabled. Update the signal after making your changes.');
 }
 function cancelSigEdit(){
   editingSigId=null;
@@ -1299,14 +1314,39 @@ async function updateMentorSigStatus(id,kind){
     if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
   }
   const {error}=await sb.from('signals').update(obj).eq('id',id);
-  if(error){mentorAlert('Error: '+error.message);return;}
-  if(terminal){
-    try{await pspCreateNotificationAndPush('🔒 Signal Closed',kind==='tp3'?'TP3 Hit — signal closed.':kind==='be'?'Breakeven Hit — signal closed.':kind==='sl'?'Stop Loss Hit — signal closed.':'Signal closed.','signal','/?tab=signals','all');}catch(_){ }
+  if(error){
+    if(window.pipToast)window.pipToast('Unable to update the signal status. Please try again.','err');
+    else mentorAlert('Error: '+error.message);
+    return;
   }
+  const successMessages={
+    tp1:'TP1 hit — status updated successfully.',
+    tp2:'TP2 hit — status updated successfully.',
+    tp3:'TP3 hit — status updated successfully.',
+    be_move:'Stop loss moved to breakeven successfully.',
+    be:'Breakeven hit — signal closed.',
+    sl:'Stop loss hit — signal closed.',
+    closed:'Signal closed successfully.'
+  };
+  const pushData={
+    tp1:['✅ TP1 Hit','TP1 hit — status updated successfully.'],
+    tp2:['✅ TP2 Hit','TP2 hit — status updated successfully.'],
+    tp3:['🏆 TP3 Hit','TP3 hit — signal closed.'],
+    be_move:['🔒 Stop Loss at Breakeven','Move your Stop Loss to the entry price.'],
+    be:['🔒 Breakeven Hit','Breakeven hit — signal closed.'],
+    sl:['🛑 Stop Loss Hit','Stop loss hit — signal closed.'],
+    closed:['🔒 Signal Closed','Signal closed successfully.']
+  };
+  const msg=successMessages[kind]||'Signal status updated successfully.';
+  if(window.pipToast)window.pipToast(msg,'ok');else mentorAlert(msg);
+  try{
+    const pd=pushData[kind];
+    if(pd)await pspCreateNotificationAndPush(pd[0],pd[1],'signal','/?tab=signals','all');
+  }catch(_){ }
   loadSignals();
 }
 async function setSigStatus(id,st){await sb.from('signals').update({status:st}).eq('id',id);loadSignals();}
-async function delSignal(id){if(!(await mentorConfirm('Delete this signal?')))return;await sb.from('signals').delete().eq('id',id);loadSignals();}
+async function delSignal(id){if(!(await mentorConfirm('Delete this signal?')))return;const r=await sb.from('signals').delete().eq('id',id);if(r.error){if(window.pipToast)window.pipToast('Unable to delete the signal. Please try again.','err');else mentorAlert('Error: '+r.error.message);return;}if(window.pipToast)window.pipToast('Signal deleted successfully.','ok');else mentorAlert('Signal deleted successfully.');loadSignals();}
 
 /* ============ ADMIN SIGNALS ============ */
 let adF='all';
@@ -2191,6 +2231,7 @@ function mDrawerGo(k){mDrawerClose();showPage(k);}
 console.log('PSP mentor v4 — More/drawer active');
 </script>
 
+<script src="psp-mentor-report-v31.js?v=20260803-v31"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
 </body>
 </html>
