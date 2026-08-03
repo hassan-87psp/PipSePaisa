@@ -1,0 +1,267 @@
+{
+  "external_js": {
+    "OneSignalSDKUpdaterWorker.js": {
+      "ok": true,
+      "error": ""
+    },
+    "OneSignalSDKWorker.js": {
+      "ok": true,
+      "error": ""
+    },
+    "admin-final-overrides.js": {
+      "ok": true,
+      "error": ""
+    },
+    "admin-v28-fixes.js": {
+      "ok": true,
+      "error": ""
+    },
+    "admin-v29-final.js": {
+      "ok": true,
+      "error": ""
+    },
+    "course-enrollment.js": {
+      "ok": true,
+      "error": ""
+    },
+    "course-enrollments-admin.js": {
+      "ok": true,
+      "error": ""
+    },
+    "course-enrollments-user.js": {
+      "ok": true,
+      "error": ""
+    },
+    "course-marketplace-v3.js": {
+      "ok": true,
+      "error": ""
+    },
+    "course-ui-premium-v2.js": {
+      "ok": true,
+      "error": ""
+    },
+    "mobile-login-fix.js": {
+      "ok": true,
+      "error": ""
+    },
+    "psp-v18-admin-control.js": {
+      "ok": true,
+      "error": ""
+    },
+    "psp-v18-auth-access.js": {
+      "ok": true,
+      "error": ""
+    },
+    "psp-v28-fixes.js": {
+      "ok": true,
+      "error": ""
+    },
+    "psp-v29-final.js": {
+      "ok": true,
+      "error": ""
+    },
+    "public-upgrades.js": {
+      "ok": true,
+      "error": ""
+    },
+    "push-subscribe-prompt.js": {
+      "ok": true,
+      "error": ""
+    },
+    "realtime-complete.js": {
+      "ok": true,
+      "error": ""
+    },
+    "user-app-core-v29.js": {
+      "ok": true,
+      "error": ""
+    },
+    "user-course-isolation.js": {
+      "ok": true,
+      "error": ""
+    },
+    "user-news-hub-v29.js": {
+      "ok": true,
+      "error": ""
+    },
+    "user-signals-core-v29.js": {
+      "ok": true,
+      "error": ""
+    }
+  },
+  "inline_js": {
+    "index.html": [
+      {
+        "index": 0,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 1,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 2,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 7,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 8,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 10,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 11,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 12,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 13,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 14,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 15,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 16,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 18,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 21,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 24,
+        "ok": true,
+        "error": ""
+      }
+    ],
+    "landing.html": [
+      {
+        "index": 0,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 2,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 3,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 5,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 6,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 8,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 9,
+        "ok": true,
+        "error": ""
+      }
+    ],
+    "admin-panel.html": [
+      {
+        "index": 2,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 3,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 4,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 5,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 6,
+        "ok": true,
+        "error": ""
+      },
+      {
+        "index": 7,
+        "ok": true,
+        "error": ""
+      }
+    ],
+    "email-verified.html": [
+      {
+        "index": 1,
+        "ok": true,
+        "error": ""
+      }
+    ],
+    "reset-password.html": [
+      {
+        "index": 1,
+        "ok": true,
+        "error": ""
+      }
+    ]
+  },
+  "checks": {
+    "v30_css_linked": true,
+    "landing_cache_busted": true,
+    "core_cache_busted": true,
+    "sidebar_containment_removed": true,
+    "sidebar_fixed": true,
+    "different_email_button": true,
+    "explicit_on_tabs": true,
+    "new_user_fail_closed": true,
+    "admin_missing_off": true,
+    "sql_present": true
+  },
+  "all_ok": true
+}

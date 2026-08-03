@@ -146,23 +146,77 @@
   }
   
   // ============ NAVIGATION ============
+  // V30: only tabs explicitly enabled by admin are shown. While settings load,
+  // controlled tabs fail closed so a new user never sees disabled pages flash.
+  var PSP_SITE_TAB_KEYS=['performance','addtrade','trades','analysis','aireport','charts','chats','signals','articles','vipplans','news','newshub','strength','tools','learn','vipindicators','vipea','banners','aitools','settings','about','announce','support'];
+  var PSP_ALWAYS_VISIBLE_TABS={dashboard:true,mycourses:true};
   var _disabledTabs={};
+  var _tabSettingsReady=false;
+  var _tabSettingsRetryTimer=null;
+  function pspTabCacheRead(){
+    try{var raw=localStorage.getItem('psp_site_tab_settings_v30');return raw?JSON.parse(raw):null;}catch(_){return null;}
+  }
+  function pspTabCacheWrite(rows){
+    try{localStorage.setItem('psp_site_tab_settings_v30',JSON.stringify({savedAt:Date.now(),rows:rows||[]}));}catch(_){}
+  }
+  function pspBuildDisabledTabs(rows){
+    var explicit={};
+    (rows||[]).forEach(function(row){
+      var key=String(row&&row.key||'');
+      if(PSP_SITE_TAB_KEYS.indexOf(key)!==-1)explicit[key]=row.enabled===true;
+    });
+    var disabled={};
+    PSP_SITE_TAB_KEYS.forEach(function(key){disabled[key]=explicit[key]!==true;});
+    // The Learn Forex setting controls the renamed My Courses item only when
+    // an explicit mycourses setting is not present. My Courses remains safe.
+    disabled.dashboard=false;
+    disabled.mycourses=false;
+    return disabled;
+  }
+  function pspScheduleTabSettingsRetry(){
+    if(_tabSettingsRetryTimer)return;
+    _tabSettingsRetryTimer=setTimeout(function(){_tabSettingsRetryTimer=null;loadTabSettings();},900);
+  }
   async function loadTabSettings(){
-    if(!sb)return;
-    try{const r=await sb.from('site_settings').select('key,enabled').eq('enabled',false);_disabledTabs={};(r.data||[]).forEach(function(s){_disabledTabs[s.key]=true;});}catch(e){_disabledTabs={};}
-    applyTabVisibility();
+    if(!sb){applyTabVisibility();pspScheduleTabSettingsRetry();return;}
+    try{
+      const r=await sb.from('site_settings').select('key,enabled').in('key',PSP_SITE_TAB_KEYS);
+      if(r.error)throw r.error;
+      const rows=r.data||[];
+      _disabledTabs=pspBuildDisabledTabs(rows);
+      _tabSettingsReady=true;
+      pspTabCacheWrite(rows);
+      applyTabVisibility();
+    }catch(e){
+      const cached=pspTabCacheRead();
+      if(cached&&Array.isArray(cached.rows)){
+        _disabledTabs=pspBuildDisabledTabs(cached.rows);
+        _tabSettingsReady=true;
+      }else{
+        _disabledTabs=pspBuildDisabledTabs([]);
+        _tabSettingsReady=false;
+        pspScheduleTabSettingsRetry();
+      }
+      applyTabVisibility();
+      console.warn('Site tab settings could not be loaded yet:',e&&e.message?e.message:e);
+    }
   }
   function applyTabVisibility(){
     document.querySelectorAll('.menu-item[data-page]').forEach(function(m){
       var pg=m.getAttribute('data-page');
       if(pg==='aitools' && window.PSP_PORTAL_MODE!=='mentor'){m.style.display='none';return;}
-      m.style.display=_disabledTabs[pg]?'none':'';
+      if(PSP_ALWAYS_VISIBLE_TABS[pg]){m.style.display='';return;}
+      if(PSP_SITE_TAB_KEYS.indexOf(pg)!==-1){m.style.display=_disabledTabs[pg]===false?'':'none';return;}
+      m.style.display='';
     });
     document.querySelectorAll('.menu-item[data-tabkey]').forEach(function(m){
       var pg=m.getAttribute('data-tabkey');
-      m.style.display=_disabledTabs[pg]?'none':'';
+      m.style.display=_disabledTabs[pg]===false?'':'none';
     });
   }
+  // Hide controlled tabs immediately, before Supabase/session resolution.
+  _disabledTabs=pspBuildDisabledTabs([]);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyTabVisibility,{once:true});else applyTabVisibility();
   function showPage(page, el) {
     if(_disabledTabs[page] && page!=='dashboard'){ page='dashboard'; el=document.querySelector('.menu-item[data-page="dashboard"]'); }
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));

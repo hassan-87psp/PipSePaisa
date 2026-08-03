@@ -2049,6 +2049,28 @@ async function landingForgotPassword(){
   }finally{btn.disabled=false;btn.textContent='📧 Send Reset Link';}
 }
 
+let landingSignupOriginalHtml='';
+let landingPendingVerificationEmail='';
+function showLandingSignupVerificationScreen(email){
+  const panel=document.getElementById('landingSignupPanel');
+  if(!panel)return;
+  if(!landingSignupOriginalHtml)landingSignupOriginalHtml=panel.innerHTML;
+  landingPendingVerificationEmail=email||'';
+  const safeEmail=String(email||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  panel.innerHTML=`<div style="text-align:center;padding:12px 4px"><div style="font-size:42px;margin-bottom:10px">📧</div><h3 style="margin:0 0 8px">Check Your Email</h3><p style="color:var(--muted);line-height:1.6">We are sending a verification link to <strong>${safeEmail}</strong>.</p><p style="font-size:12px;color:var(--muted);margin-bottom:16px">The signup window will stay here. Verify your email, then sign in manually.</p><button type="button" class="landing-auth-submit landing-change-email-btn" onclick="restoreLandingSignupForm()" style="margin-top:2px">Use a different email</button></div>`;
+}
+function restoreLandingSignupForm(){
+  const panel=document.getElementById('landingSignupPanel');
+  if(!panel||!landingSignupOriginalHtml)return;
+  const oldEmail=landingPendingVerificationEmail;
+  panel.innerHTML=landingSignupOriginalHtml;
+  switchLandingAuth('signup');
+  const emailInput=document.getElementById('landingSignupEmail');
+  if(emailInput){
+    emailInput.value=oldEmail;
+    setTimeout(()=>{emailInput.focus();emailInput.select();},40);
+  }
+}
 async function landingSignupUser(){
   const fullName=document.getElementById('landingSignupName')?.value.trim();
   const email=document.getElementById('landingSignupEmail')?.value.trim().toLowerCase();
@@ -2061,10 +2083,10 @@ async function landingSignupUser(){
   if(password!==password2){showLandingAuthMessage('error','Passwords do not match.','landingSignupMessage');return;}
   if(!landingSb){showLandingAuthMessage('error','Connection problem. Please reload and try again.','landingSignupMessage');return;}
 
-  // Instant feedback: keep the signup panel open and never auto-switch to login.
+  // Instant feedback: keep the signup panel open and allow email correction.
   const panel=document.getElementById('landingSignupPanel');
-  const original=panel?.innerHTML||'';
-  if(panel)panel.innerHTML=`<div style="text-align:center;padding:12px 4px"><div style="font-size:42px;margin-bottom:10px">📧</div><h3 style="margin:0 0 8px">Check Your Email</h3><p style="color:var(--muted);line-height:1.6">We are sending a verification link to <strong>${email.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</strong>.</p><p style="font-size:12px;color:var(--muted)">The signup window will stay here. Verify your email, then sign in manually.</p></div>`;
+  const original=panel?.innerHTML||landingSignupOriginalHtml||'';
+  showLandingSignupVerificationScreen(email);
   sessionStorage.setItem('psp-manual-signin-required','1');
   try{
     const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');

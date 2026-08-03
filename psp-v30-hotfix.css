@@ -1,0 +1,29 @@
+/* PipSePaisa V30 targeted hotfixes: desktop sidebar stability only.
+   Approved mobile layout is intentionally untouched. */
+@media (min-width:769px){
+  /* contain:layout made fixed descendants scroll with #mainApp. */
+  #mainApp{contain:style!important;}
+  #sidebar.sidebar{
+    position:fixed!important;
+    top:0!important;
+    bottom:0!important;
+    left:0!important;
+    height:100vh!important;
+    height:100dvh!important;
+    max-height:100vh!important;
+    max-height:100dvh!important;
+    overflow:hidden!important;
+    transform:none!important;
+    will-change:auto!important;
+  }
+  #sidebar .menu{
+    min-height:0!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain!important;
+  }
+  #mainApp .main{
+    margin-left:260px!important;
+    width:calc(100% - 260px)!important;
+    min-width:0!important;
+  }
+}

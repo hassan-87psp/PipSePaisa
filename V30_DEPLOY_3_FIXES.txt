@@ -1,0 +1,13 @@
+PipSePaisa V30 — 3 Pending Issues Hotfix
+
+Fixed:
+1. Desktop left sidebar remains fixed while course/page content scrolls.
+2. Landing signup verification screen includes “Use a different email”.
+3. New users only see tabs explicitly enabled by Admin; missing/failed settings no longer show all tabs.
+
+Deploy:
+1. Upload/overwrite all ZIP contents in the website root.
+2. Run 68_V30_SITE_TABS_PERMISSION_FIX.sql once in Supabase SQL Editor.
+3. Hard refresh (Ctrl+Shift+R), then test with a brand-new user.
+
+Mobile layout was not changed.
