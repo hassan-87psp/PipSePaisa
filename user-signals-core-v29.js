@@ -506,9 +506,14 @@ function renderArticles(){
       </div>`;
     }
     const idx=ARTICLES.indexOf(a);
-    html+=`<div class="card art-card art-media-only" onclick="openArt(${idx})" role="button" tabindex="0" aria-label="Open ${String(a.title||'item').replace(/"/g,'&quot;')}">
+    const actionLabel=a.kind==='article'?'Read More':'View Details';
+    html+=`<div class="card art-card art-media-only" onclick="openArt(${idx})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openArt(${idx})}" role="button" tabindex="0" aria-label="Open ${String(a.title||'item').replace(/"/g,'&quot;')}">
       <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover no-repeat'):a.grad}">${a.image?'':a.ico}${a.locked?'<span style="position:absolute;top:10px;right:10px;background:var(--gold);color:#0a0e1a;font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px">🔒 LOCKED</span>':''}</div>
-      <div class="art-body"><div class="art-title">${String(a.title||'Untitled').replace(/</g,'&lt;')}</div><div class="art-time">${String(a.date||'').replace(/</g,'&lt;')}</div></div>
+      <div class="art-body">
+        <div class="art-title">${String(a.title||'Untitled').replace(/</g,'&lt;')}</div>
+        <div class="art-time">${String(a.date||'').replace(/</g,'&lt;')}</div>
+        <button type="button" class="art-details-btn" onclick="event.stopPropagation();openArt(${idx})">${actionLabel} <span aria-hidden="true">→</span></button>
+      </div>
     </div>`;
   });
   g.innerHTML=html;

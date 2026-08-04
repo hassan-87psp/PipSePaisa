@@ -1,0 +1,9 @@
+PipSePaisa V23.1 WhatsApp update
+
+New admin WhatsApp number:
++60 11-5696 1157
+Stored wa.me format:
+601156961157
+
+Run 62_UPDATE_ADMIN_WHATSAPP_NUMBER.sql once in Supabase SQL Editor so the existing database setting also changes.
+Then deploy this website ZIP and redeploy SEND_COURSE_EMAIL_V23_PAKISTAN_TIME.ts.

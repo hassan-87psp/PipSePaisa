@@ -1,0 +1,19 @@
+PipSePaisa V31 — PSP Mentor Panel Update
+Date: 03 August 2026
+
+Added:
+1. Signals page now has a Report button.
+2. Branded report popup with Last 7 Days, This Month, All Time, and Custom Dates.
+3. Text-only signal report format:
+   Date | Pair | Direction | Result | PNL in Pips
+4. Mentor name is not included.
+5. Copy Report action for WhatsApp sharing.
+6. Download Text Report action (.txt).
+7. Report summary includes Total Signals and Total PNL.
+8. Clear branded success/error notifications for signal publish, edit, TP1, TP2, TP3, SL to breakeven, breakeven hit, SL hit, close, copy, and download.
+9. Editing a signal no longer sends a duplicate “New Signal Published” push notification.
+
+Deployment:
+- Replace/push all files from this ZIP to the website repository.
+- No new SQL is required for this V31 update.
+- No Edge Function change is required for this V31 update.
