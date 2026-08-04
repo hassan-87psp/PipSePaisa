@@ -1,0 +1,263 @@
+/* PipSePaisa V39 — public pages keep the approved desktop composition on phones.
+   The mobile browser renders a 1200px canvas and scales it to the device width. */
+html.psp-desktop-mobile-view{
+  min-width:1200px!important;
+  overflow-x:hidden!important;
+  scroll-behavior:smooth;
+}
+html.psp-desktop-mobile-view body{
+  width:1200px!important;
+  min-width:1200px!important;
+  max-width:1200px!important;
+  margin:0 auto!important;
+  overflow-x:hidden!important;
+}
+html.psp-desktop-mobile-view .container{
+  width:1180px!important;
+  max-width:1180px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+
+/* Keep the exact desktop navigation on every public page. */
+html.psp-desktop-mobile-view .topbar .nav{
+  width:100%!important;
+  height:76px!important;
+  min-height:76px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:24px!important;
+}
+html.psp-desktop-mobile-view .topbar .brand{
+  display:flex!important;
+  font-size:20px!important;
+  white-space:nowrap!important;
+}
+html.psp-desktop-mobile-view .topbar .brand span{display:inline!important}
+html.psp-desktop-mobile-view .topbar .brand img{width:44px!important;height:44px!important}
+html.psp-desktop-mobile-view .topbar .menu,
+html.psp-desktop-mobile-view .topbar .menu.is-open{
+  position:static!important;
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  gap:4px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  pointer-events:auto!important;
+  transform:none!important;
+}
+html.psp-desktop-mobile-view .topbar .menu a{
+  display:inline-flex!important;
+  align-items:center!important;
+  visibility:visible!important;
+  opacity:1!important;
+  padding:11px 15px!important;
+  font-size:15px!important;
+  font-weight:650!important;
+  line-height:1.2!important;
+  white-space:nowrap!important;
+}
+html.psp-desktop-mobile-view .topbar .actions,
+html.psp-desktop-mobile-view .topbar .nav-actions{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  margin-left:0!important;
+}
+html.psp-desktop-mobile-view .mobile-menu{display:none!important}
+
+/* Home hero: exactly the approved desktop height/composition, with no 640px mobile override. */
+html.psp-desktop-mobile-view body.page-home .hero{padding:16px 0 30px!important}
+html.psp-desktop-mobile-view body.page-home .hero-overlay-banner{
+  width:100%!important;
+  height:460px!important;
+  min-height:460px!important;
+  max-height:460px!important;
+  border-radius:26px!important;
+  background-size:auto 100%!important;
+  background-position:right center!important;
+  overflow:hidden!important;
+}
+html.psp-desktop-mobile-view body.page-home .hero-text-layer{
+  width:57%!important;
+  max-width:57%!important;
+  height:100%!important;
+  padding:22px 28px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+}
+html.psp-desktop-mobile-view body.page-home .hero-overlay-banner h1{
+  margin:0!important;
+}
+html.psp-desktop-mobile-view body.page-home .hero-eyebrow,
+html.psp-desktop-mobile-view body.page-home .hero-course{
+  width:max-content!important;
+  max-width:100%!important;
+  margin:0!important;
+}
+html.psp-desktop-mobile-view body.page-home .hero-quote{
+  width:100%!important;
+  max-width:620px!important;
+  margin:0!important;
+  padding:13px 42px!important;
+}
+html.psp-desktop-mobile-view body.page-home .hero-primary-cta{margin:0!important}
+html.psp-desktop-mobile-view body.page-home .hero-mentor-badge{
+  display:block!important;
+  right:28px!important;
+  bottom:24px!important;
+}
+
+/* Preserve the desktop grids and section order instead of switching to a different mobile UI. */
+html.psp-desktop-mobile-view body.page-home .mentor-spotlight{
+  height:485px!important;
+  grid-template-columns:42% 58%!important;
+}
+html.psp-desktop-mobile-view body.page-home .mentor-portrait{height:auto!important}
+html.psp-desktop-mobile-view body.page-home .mentor-content{padding:34px 48px 34px 34px!important}
+html.psp-desktop-mobile-view body.page-home .social-grid-three,
+html.psp-desktop-mobile-view body.page-home .services-premium-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html.psp-desktop-mobile-view body.page-home .partner-promo-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html.psp-desktop-mobile-view body.page-courses .course-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html.psp-desktop-mobile-view body.page-courses .topics{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html.psp-desktop-mobile-view body.page-partner #partner-programs .partner-detail,
+html.psp-desktop-mobile-view body.page-partner .partner-detail{grid-template-columns:minmax(0,600px) minmax(0,600px)!important}
+html.psp-desktop-mobile-view body.page-tools .category-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html.psp-desktop-mobile-view body.page-tools .services-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+html.psp-desktop-mobile-view .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+html.psp-desktop-mobile-view .broker-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html.psp-desktop-mobile-view .social-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html.psp-desktop-mobile-view .psp-footer .footer-grid{grid-template-columns:1.45fr .8fr .9fr 1fr!important}
+html.psp-desktop-mobile-view .psp-footer .footer-grid>div:first-child{grid-column:auto!important}
+
+/* Courses, Partner and Tools heroes remain the same two-part desktop hero. */
+html.psp-desktop-mobile-view body.page-courses .hero-box,
+html.psp-desktop-mobile-view body.page-partner .hero-box,
+html.psp-desktop-mobile-view body.page-tools .hero-box{
+  display:block!important;
+  width:100%!important;
+  height:420px!important;
+  min-height:420px!important;
+  max-height:420px!important;
+}
+html.psp-desktop-mobile-view body.page-courses .hero-copy,
+html.psp-desktop-mobile-view body.page-partner .hero-copy,
+html.psp-desktop-mobile-view body.page-tools .hero-copy{
+  width:56%!important;
+  height:100%!important;
+  min-height:0!important;
+  padding:34px 34px 28px!important;
+}
+html.psp-desktop-mobile-view body.page-courses .course-hero-art,
+html.psp-desktop-mobile-view body.page-partner .hero-visual,
+html.psp-desktop-mobile-view body.page-tools .hero-visual{
+  position:absolute!important;
+  inset:0 0 0 auto!important;
+  width:47%!important;
+  height:100%!important;
+  min-height:0!important;
+}
+
+/* Restore the normal desktop broker comparison table on phones. */
+html.psp-desktop-mobile-view body.page-home .broker-table-wrap{
+  overflow:hidden!important;
+  border:1px solid #eadcc5!important;
+  border-radius:20px!important;
+  background:#fff!important;
+  box-shadow:0 18px 45px rgba(58,38,8,.10)!important;
+}
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table{
+  display:table!important;
+  width:100%!important;
+  min-width:0!important;
+  table-layout:fixed!important;
+  border-collapse:collapse!important;
+}
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table colgroup{display:table-column-group!important}
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table thead{display:table-header-group!important}
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table tbody{display:table-row-group!important}
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table tr{
+  display:table-row!important;
+  width:auto!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table th,
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table td{
+  display:table-cell!important;
+  width:auto!important;
+  min-height:0!important;
+  padding:16px 8px!important;
+  border-bottom:1px solid #eee1d1!important;
+  text-align:center!important;
+  vertical-align:middle!important;
+  font-size:11px!important;
+  line-height:1.3!important;
+}
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table th{
+  padding:15px 8px!important;
+  font-size:10.5px!important;
+}
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table td::before{display:none!important;content:none!important}
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table td:first-child{display:table-cell!important;padding:12px 8px!important}
+html.psp-desktop-mobile-view body.page-home .broker-name{
+  width:auto!important;
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+}
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table .broker-logo-icon,
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table .broker-name img{
+  width:118px!important;
+  min-width:0!important;
+  max-width:118px!important;
+  height:52px!important;
+  min-height:0!important;
+  max-height:52px!important;
+  object-fit:contain!important;
+  padding:4px 6px!important;
+  margin:0 auto!important;
+  border-radius:8px!important;
+}
+html.psp-desktop-mobile-view body.page-home .broker-comparison-table .badge{
+  display:inline-flex!important;
+  justify-self:auto!important;
+  padding:6px 8px!important;
+  font-size:10px!important;
+}
+html.psp-desktop-mobile-view body.page-home .broker-data-note{
+  margin:14px 0 0!important;
+  font-size:11px!important;
+  line-height:1.5!important;
+}
+
+/* Low-cost motion on phones: preserve the design while removing continuous GPU work. */
+html.psp-desktop-mobile-view .mockup,
+html.psp-desktop-mobile-view .mentor-orbit,
+html.psp-desktop-mobile-view .mentor-spotlight::after{
+  animation:none!important;
+}
+html.psp-desktop-mobile-view .reveal,
+html.psp-desktop-mobile-view .stagger>*{
+  transition-duration:.35s!important;
+  animation-duration:.35s!important;
+}
+
+/* Small page transition; no white flash between internal pages. */
+html.psp-page-boot body{opacity:.985}
+html.psp-page-ready body{opacity:1;transition:opacity .12s ease-out}
+@media(prefers-reduced-motion:reduce){
+  html.psp-page-boot body,html.psp-page-ready body{opacity:1!important;transition:none!important}
+}

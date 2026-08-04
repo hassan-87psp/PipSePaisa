@@ -3,17 +3,17 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-<script>
+<script id="pspPublicDesktopMobileViewportV39">
 (function(){
-  var mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
-               Math.min(screen.width, screen.height) <= 820;
-  if(!mobile) return;
+  var mobile=/Android|iPhone|iPad|iPod|Mobile|CrOS/i.test(navigator.userAgent)||
+    (window.matchMedia&&window.matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<=900);
+  if(!mobile)return;
+  var targetWidth=1200;
+  var deviceWidth=Math.min(screen.width||innerWidth,screen.height||innerHeight);
+  var scale=Math.max(.25,Math.min(1,deviceWidth/targetWidth));
   var viewport=document.querySelector('meta[name="viewport"]');
   if(viewport){
-    viewport.setAttribute(
-      'content',
-      'width=1200, user-scalable=yes, minimum-scale=0.25, maximum-scale=4'
-    );
+    viewport.setAttribute('content','width='+targetWidth+', initial-scale='+scale.toFixed(4)+', minimum-scale=0.25, maximum-scale=4, user-scalable=yes');
   }
   document.documentElement.classList.add('psp-desktop-mobile-view');
 })();
@@ -25,6 +25,7 @@
       content="Build your IB business with partner training, marketing support and broker programs."
     />
     <link rel="icon" href="favicon.png" />
+    <link rel="preload" as="image" href="partner-hero.webp" fetchpriority="high"/>
     <link rel="stylesheet" href="public-pages.css" />
     <link
       rel="stylesheet"
@@ -454,12 +455,13 @@
   html.psp-desktop-mobile-view .topbar .menu a{font-size:15px;padding:11px 15px}
 }
 </style>
+<link href="psp-public-desktop-mobile-v39.css?v=20260804-v39" rel="stylesheet"/>
 </head>
   <body class="page-partner">
     <header class="topbar">
       <div class="container nav">
         <a class="brand" href="landing.html"
-          ><img alt="PipSePaisa visual" src="favicon.png" /><span
+          ><img alt="PipSePaisa visual" src="favicon.png"  loading="eager" decoding="async" fetchpriority="high"/><span
             >PipSePaisa</span
           ></a
         >
@@ -522,20 +524,20 @@
                 alt="PipSePaisa visual"
                 data-light="broker-promo-assets/dprime-promo-light.webp"
                 data-dark="broker-promo-assets/dprime-promo-dark.webp"
-                src="broker-promo-assets/dprime-promo-light.webp" /></a
+                src="broker-promo-assets/dprime-promo-light.webp"  loading="lazy" decoding="async"/></a
             ><a class="broker-card" href="landing.html"
               ><img
                 alt="PipSePaisa visual"
                 data-light="broker-promo-assets/xm-promo-light.webp"
                 data-dark="broker-promo-assets/xm-promo-dark.webp"
-                src="broker-promo-assets/xm-promo-light.webp" /></a
+                src="broker-promo-assets/xm-promo-light.webp"  loading="lazy" decoding="async"/></a
             ><a class="broker-card" href="landing.html"
               ><img
                 alt="PipSePaisa visual"
                 data-light="broker-promo-assets/exness-promo-light.webp"
                 data-dark="broker-promo-assets/exness-promo-dark.webp"
                 src="broker-promo-assets/exness-promo-light.webp"
-            /></a>
+             loading="lazy" decoding="async"/></a>
           </div>
         </div>
       </section>
@@ -553,7 +555,7 @@
             <article class="feature-card reveal">
               <span class="num">01</span>
               <div class="benefit-mini-banner" tabindex="0">
-                <img src="benefit-banners/commission-vvip-light.svg" data-light="benefit-banners/commission-vvip-light.svg" data-dark="benefit-banners/commission-vvip-dark.svg" alt="Competitive commission VVIP partner benefit banner" width="600" height="320" />
+                <img src="benefit-banners/commission-vvip-light.svg" data-light="benefit-banners/commission-vvip-light.svg" data-dark="benefit-banners/commission-vvip-dark.svg" alt="Competitive commission VVIP partner benefit banner" width="600" height="320"  loading="lazy" decoding="async"/>
               </div>
               <div class="iconbox">💰</div>
               <h3>Competitive Commission</h3>
@@ -566,7 +568,7 @@
             <article class="feature-card reveal">
               <span class="num">02</span>
               <div class="benefit-mini-banner" tabindex="0">
-                <img src="benefit-banners/training-vvip-light.svg" data-light="benefit-banners/training-vvip-light.svg" data-dark="benefit-banners/training-vvip-dark.svg" alt="Free team training VVIP partner benefit banner" width="600" height="320" />
+                <img src="benefit-banners/training-vvip-light.svg" data-light="benefit-banners/training-vvip-light.svg" data-dark="benefit-banners/training-vvip-dark.svg" alt="Free team training VVIP partner benefit banner" width="600" height="320"  loading="lazy" decoding="async"/>
               </div>
               <div class="iconbox">🎓</div>
               <h3>Free Team Training</h3>
@@ -579,7 +581,7 @@
             <article class="feature-card reveal">
               <span class="num">03</span>
               <div class="benefit-mini-banner" tabindex="0">
-                <img src="benefit-banners/marketing-vvip-light.svg" data-light="benefit-banners/marketing-vvip-light.svg" data-dark="benefit-banners/marketing-vvip-dark.svg" alt="Marketing support VVIP partner benefit banner" width="600" height="320" />
+                <img src="benefit-banners/marketing-vvip-light.svg" data-light="benefit-banners/marketing-vvip-light.svg" data-dark="benefit-banners/marketing-vvip-dark.svg" alt="Marketing support VVIP partner benefit banner" width="600" height="320"  loading="lazy" decoding="async"/>
               </div>
               <div class="iconbox">📣</div>
               <h3>Marketing Support</h3>
@@ -592,7 +594,7 @@
             <article class="feature-card reveal">
               <span class="num">04</span>
               <div class="benefit-mini-banner" tabindex="0">
-                <img src="benefit-banners/growth-vvip-light.svg?v=20260722-growth-text-fix" data-light="benefit-banners/growth-vvip-light.svg?v=20260722-growth-text-fix" data-dark="benefit-banners/growth-vvip-dark.svg?v=20260722-growth-text-fix" alt="Business growth support VVIP partner benefit banner" width="600" height="320" />
+                <img src="benefit-banners/growth-vvip-light.svg?v=20260722-growth-text-fix" data-light="benefit-banners/growth-vvip-light.svg?v=20260722-growth-text-fix" data-dark="benefit-banners/growth-vvip-dark.svg?v=20260722-growth-text-fix" alt="Business growth support VVIP partner benefit banner" width="600" height="320"  loading="lazy" decoding="async"/>
               </div>
               <div class="iconbox">📈</div>
               <h3>Business Growth Support</h3>
@@ -624,7 +626,7 @@
                 src="partner-banner-assets/dprime-light.webp"
                 width="600"
                 height="600"
-              />
+               loading="lazy" decoding="async"/>
             </div>
             <div class="partner-info reveal right">
               <span class="program-kicker">DPrime Partner Program</span>
@@ -677,7 +679,7 @@
                 src="partner-banner-assets/xm-light.webp"
                 width="600"
                 height="600"
-              />
+               loading="lazy" decoding="async"/>
             </div>
             <div class="partner-info reveal left">
               <span class="program-kicker">XM Partner Program</span>
@@ -735,7 +737,7 @@
                 src="partner-banner-assets/exness-light.webp"
                 width="600"
                 height="600"
-              />
+               loading="lazy" decoding="async"/>
             </div>
             <div class="partner-info reveal right">
               <span class="program-kicker">Exness Partner Program</span>
@@ -796,7 +798,7 @@
           <div class="cta-banner reveal">
             <div class="cta-copy">
               <div class="logo-row">
-                <img alt="" aria-hidden="true" src="icon-192.png" />
+                <img alt="" aria-hidden="true" src="icon-192.png"  loading="lazy" decoding="async"/>
                 PIPSEPAISA FOREX ACADEMY
               </div>
               <h2>
@@ -829,7 +831,7 @@
                 alt="Sir Sajid Ghori, Forex Educator and Mentor"
                 class="cta-person"
                 src="sajid-ghori.webp"
-              />
+               loading="lazy" decoding="async"/>
               <div class="name-tag">
                 <strong>Sir Sajid Ghori</strong><small>Forex Educator &amp; Mentor</small>
               </div>
@@ -952,8 +954,9 @@
       );
       document.querySelectorAll(".reveal").forEach((x) => o.observe(x));
     </script>
-    <script src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
+    <script defer src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
   
-<script src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
+<script defer src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
+<script defer src="psp-public-performance-v39.js?v=20260804-v39"></script>
 </body>
 </html>
