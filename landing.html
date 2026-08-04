@@ -824,27 +824,24 @@ body.dark-theme .partner-cta{background:linear-gradient(135deg,#f6b338,#db8200);
 .broker-name{
   display:flex;
   align-items:center;
-  justify-content:flex-start;
-  gap:8px;
+  justify-content:center;
   min-width:0;
 }
 .broker-name img{
-  width:76px;
-  height:42px;
+  width:118px;
+  max-width:100%;
+  height:52px;
   object-fit:contain;
   object-position:center;
   box-sizing:border-box;
-  padding:7px 8px;
+  padding:4px 6px;
   border:1px solid #e8e8e8;
   border-radius:9px;
   background:#fff;
   flex:none;
 }
-.broker-name img.broker-logo-icon{padding:6px 21px}
-.broker-name strong{
-  font-size:12px;
-  white-space:normal;
-}
+.broker-name img.broker-logo-icon{padding:4px 6px}
+.broker-name strong{display:none!important}
 .broker-comparison-table .badge{
   display:inline-flex;
   align-items:center;
@@ -1321,15 +1318,15 @@ body.dark-theme .service-banner-card:hover img{filter:brightness(1.14) contrast(
 .mentor-orbit:before,.mentor-orbit:after{content:"";position:absolute;inset:26px;border:1px dashed rgba(226,129,0,.28);border-radius:50%}.mentor-orbit:after{inset:66px;border-style:solid}
 .mentor-chart{position:absolute;inset:17% 3% 10% 5%;opacity:.26;filter:drop-shadow(0 8px 14px rgba(226,129,0,.15))}
 .mentor-chart svg{width:100%;height:100%}.mentor-chart path{fill:none;stroke:#de7d00;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
-.mentor-person{position:absolute;z-index:3;left:50%;bottom:-7px;height:480px;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 20px 22px rgba(38,24,5,.22));transform:translateX(-50%)}
+.mentor-person{position:absolute;z-index:3;left:50%;bottom:-7px;height:480px;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 20px 22px rgba(38,24,5,.22));transform:translateX(-50%) scaleX(-1);transform-origin:center center}
 .mentor-role-badge{position:absolute;z-index:4;left:28px;bottom:23px;padding:9px 14px;border:1px solid rgba(255,181,55,.85);border-radius:999px;background:rgba(18,24,35,.92);color:#fff;font-size:10px;font-weight:850;letter-spacing:.11em;box-shadow:0 12px 28px rgba(0,0,0,.22)}
-.mentor-content{position:relative;display:flex;flex-direction:column;justify-content:center;padding:30px 48px 30px 34px}
+.mentor-content{position:relative;display:flex;flex-direction:column;justify-content:center;padding:34px 48px 34px 34px}
 .mentor-eyebrow{display:inline-flex;align-items:center;gap:9px;width:max-content;margin-bottom:10px;color:#c96600;font-size:11px;font-weight:900;letter-spacing:.13em}.mentor-eyebrow:before{content:"";width:28px;height:2px;background:linear-gradient(90deg,#f7ae28,#d66d00)}
-.mentor-content h2{max-width:680px;margin:0 0 10px;color:#171b27;font-size:clamp(32px,3.25vw,46px);line-height:1.04;letter-spacing:-.045em}.mentor-content h2 span{color:#e37a00}
-.mentor-description{max-width:690px;margin:0;color:#5f6673;font-size:13.5px;line-height:1.62}
-.mentor-highlights{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 12px}.mentor-highlights span{padding:7px 10px;border:1px solid #f0cf9a;border-radius:999px;background:#fff9ef;color:#71400c;font-size:10.5px;font-weight:800;box-shadow:0 5px 13px rgba(120,69,5,.05)}
+.mentor-content h2{max-width:680px;margin:0 0 15px;color:#171b27;font-size:clamp(32px,3.25vw,46px);line-height:1.04;letter-spacing:-.045em}.mentor-content h2 span{color:#F88702}
+.mentor-description{max-width:690px;margin:0;color:#5f6673;font-size:13.5px;line-height:1.66}
+.mentor-highlights{display:flex;flex-wrap:wrap;gap:9px;margin:19px 0 20px}.mentor-highlights span{padding:8px 12px;border:1px solid #f0cf9a;border-radius:999px;background:#fff9ef;color:#71400c;font-size:10.5px;font-weight:800;box-shadow:0 5px 13px rgba(120,69,5,.05)}
 .mentor-quote{margin:0 0 14px;padding:9px 13px;border-left:4px solid #ed8d09;border-radius:4px 12px 12px 4px;background:rgba(244,148,20,.09);color:#333a46;font-size:12px;font-weight:750}
-.mentor-cta{align-self:flex-start;min-height:43px;padding:10px 17px;color:#15100a!important}.mentor-cta .arrow{transition:transform .25s ease}.mentor-cta:hover .arrow{transform:translateX(5px)}
+.mentor-cta{align-self:flex-start;min-height:45px;padding:11px 18px;color:#15100a!important}.mentor-cta .arrow{transition:transform .25s ease}.mentor-cta:hover .arrow{transform:translateX(5px)}
 body.dark-theme .mentor-spotlight-section{background:linear-gradient(180deg,#07101f 0%,#091426 100%)}
 body.dark-theme .mentor-spotlight{border-color:rgba(238,150,25,.38);background:linear-gradient(115deg,#0b1526 0%,#101c30 54%,#0b1526 100%);box-shadow:0 30px 76px rgba(0,0,0,.38)}
 body.dark-theme .mentor-spotlight:before{background-image:linear-gradient(rgba(255,167,31,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,167,31,.07) 1px,transparent 1px)}
@@ -1687,6 +1684,60 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
   html:not(.psp-desktop-mobile-view) .hero-mentor-badge{right:28px!important;bottom:24px!important}
 }
 </style>
+
+<style id="pspV36MobileHeroHeightRestore">
+/* V36: restore the approved compact mobile hero. Desktop layout remains unchanged. */
+html.psp-desktop-mobile-view .hero-overlay-banner{
+  height:370px!important;
+  min-height:370px!important;
+}
+@media (max-width:768px){
+  .hero-overlay-banner,
+  html.psp-desktop-mobile-view .hero-overlay-banner{
+    height:137px!important;
+    min-height:137px!important;
+    background-size:cover!important;
+    background-position:center top!important;
+    border-radius:8px!important;
+  }
+  .hero-text-layer,
+  html.psp-desktop-mobile-view .hero-text-layer{
+    width:59%!important;
+    height:100%!important;
+    padding:7px 7px 5px!important;
+    justify-content:center!important;
+  }
+  .hero-mentor-badge{display:none!important}
+}
+</style>
+
+<style id="v37MentorBrokerMobileFix">
+/* V37: readable broker cards on the approved forced-desktop mobile viewport. */
+html.psp-desktop-mobile-view .broker-comparison-section{padding:34px 0 28px!important}
+html.psp-desktop-mobile-view .broker-table-wrap{overflow:visible!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
+html.psp-desktop-mobile-view .broker-comparison-table,
+html.psp-desktop-mobile-view .broker-comparison-table tbody,
+html.psp-desktop-mobile-view .broker-comparison-table tr,
+html.psp-desktop-mobile-view .broker-comparison-table td{display:block!important;width:100%!important}
+html.psp-desktop-mobile-view .broker-comparison-table colgroup,
+html.psp-desktop-mobile-view .broker-comparison-table thead{display:none!important}
+html.psp-desktop-mobile-view .broker-comparison-table tbody{display:grid!important;grid-template-columns:1fr!important;gap:24px!important}
+html.psp-desktop-mobile-view .broker-comparison-table tbody tr{overflow:hidden!important;border:2px solid rgba(248,135,2,.28)!important;border-radius:22px!important;background:#fff!important;box-shadow:0 18px 42px rgba(63,37,4,.10)!important}
+html.psp-desktop-mobile-view .broker-comparison-table tbody td{display:grid!important;grid-template-columns:42% 58%!important;align-items:center!important;gap:18px!important;min-height:58px!important;padding:13px 22px!important;border-bottom:1px solid #eee1d1!important;text-align:right!important;font-size:22px!important;line-height:1.3!important}
+html.psp-desktop-mobile-view .broker-comparison-table tbody td::before{display:block!important;content:attr(data-label)!important;color:#0d1b32!important;font-weight:900!important;text-align:left!important;font-size:20px!important}
+html.psp-desktop-mobile-view .broker-comparison-table tbody td:first-child{display:flex!important;justify-content:center!important;padding:20px!important}
+html.psp-desktop-mobile-view .broker-comparison-table tbody td:first-child::before{display:none!important}
+html.psp-desktop-mobile-view .broker-comparison-table tbody td:last-child{border-bottom:0!important}
+html.psp-desktop-mobile-view .broker-name{width:100%!important;justify-content:center!important}
+html.psp-desktop-mobile-view .broker-name img,
+html.psp-desktop-mobile-view .broker-name img.broker-logo-icon,
+html.psp-desktop-mobile-view .broker-comparison-table img.broker-logo-icon{width:260px!important;max-width:72%!important;height:82px!important;min-width:0!important;min-height:0!important;object-fit:contain!important;padding:6px 10px!important;margin:0!important;border-radius:12px!important}
+html.psp-desktop-mobile-view .broker-comparison-table .badge{justify-self:end!important;padding:9px 13px!important;font-size:19px!important}
+html.psp-desktop-mobile-view .broker-data-note{margin:16px 6px 0!important;font-size:17px!important;line-height:1.45!important}
+html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody tr{background:#0f192a!important;border-color:#35445c!important}
+html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::before{color:#fff!important}
+</style>
+
 </head>
 <body class="page-home">
 
@@ -1731,16 +1782,16 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 </div>
 <div class="broker-logo-grid" id="landingBrokerGrid">
 <a class="broker-logo-card" data-fallback="true" href="landing.html">
-<picture class="theme-picture"><img alt="DPrime broker" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" src="broker-promo-assets/dprime-promo-light.webp"/></picture>
-<div class="broker-card-footer"><strong>DPrime</strong><span>Open Account →</span></div>
+<picture class="theme-picture"><img alt="Exness broker" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" src="broker-promo-assets/exness-promo-light.webp"/></picture>
+<div class="broker-card-footer"><strong>Exness</strong><span>Open Account →</span></div>
+</a>
+<a class="broker-logo-card" data-fallback="true" href="landing.html">
+<picture class="theme-picture"><img alt="D Prime broker" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" src="broker-promo-assets/dprime-promo-light.webp"/></picture>
+<div class="broker-card-footer"><strong>D Prime</strong><span>Open Account →</span></div>
 </a>
 <a class="broker-logo-card" data-fallback="true" href="landing.html">
 <picture class="theme-picture"><img alt="XM broker" data-dark="broker-promo-assets/xm-promo-dark.webp" data-light="broker-promo-assets/xm-promo-light.webp" src="broker-promo-assets/xm-promo-light.webp"/></picture>
 <div class="broker-card-footer"><strong>XM</strong><span>Open Account →</span></div>
-</a>
-<a class="broker-logo-card" data-fallback="true" href="landing.html">
-<picture class="theme-picture"><img alt="Exness broker" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" src="broker-promo-assets/exness-promo-light.webp"/></picture>
-<div class="broker-card-footer"><strong>Exness</strong><span>Open Account →</span></div>
 </a>
 </div>
 </div>
@@ -1755,15 +1806,15 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <div class="social-grid social-grid-three">
 <a class="social-platform facebook" href="landing.html" id="socialFacebook" rel="noopener" target="_blank">
 <div class="social-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06C2 17.08 5.66 21.24 10.44 22v-7.03H7.9v-2.91h2.54V9.84c0-2.52 1.5-3.91 3.8-3.91 1.1 0 2.25.2 2.25.2v2.48h-1.27c-1.25 0-1.64.78-1.64 1.57v1.88h2.79l-.45 2.91h-2.34V22C18.34 21.24 22 17.08 22 12.06Z" fill="currentColor"></path></svg></div>
-<h3>Facebook</h3><p>Daily Posts &amp; Updates</p>
+<h3>Facebook</h3><p>Learn From Daily Market Insights</p>
 </a>
 <a class="social-platform instagram" href="landing.html" id="socialInstagram" rel="noopener" target="_blank">
 <div class="social-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M7.75 2h8.5A5.76 5.76 0 0 1 22 7.75v8.5A5.76 5.76 0 0 1 16.25 22h-8.5A5.76 5.76 0 0 1 2 16.25v-8.5A5.76 5.76 0 0 1 7.75 2Zm0 2A3.76 3.76 0 0 0 4 7.75v8.5A3.76 3.76 0 0 0 7.75 20h8.5A3.76 3.76 0 0 0 20 16.25v-8.5A3.76 3.76 0 0 0 16.25 4h-8.5Zm8.75 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill="currentColor"></path></svg></div>
-<h3>Instagram</h3><p>Stories, Reels &amp; Education</p>
+<h3>Instagram</h3><p>Improve Your Trading With Quick Tips</p>
 </a>
 <a class="social-platform whatsapp" href="landing.html" id="socialWhatsapp" rel="noopener" target="_blank">
 <div class="social-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12.04 2a9.84 9.84 0 0 0-8.42 14.93L2 22l5.22-1.58A9.94 9.94 0 1 0 12.04 2Zm0 17.97a8.02 8.02 0 0 1-4.09-1.12l-.29-.17-3.1.94.95-3.02-.19-.31a7.91 7.91 0 1 1 6.72 3.68Zm4.34-5.92c-.24-.12-1.4-.69-1.62-.77-.22-.08-.38-.12-.54.12-.16.24-.62.77-.76.93-.14.16-.28.18-.52.06-.24-.12-1.01-.37-1.92-1.18-.71-.63-1.19-1.41-1.33-1.65-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.39-.41-.54-.42h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.09 3.62.57.25 1.02.39 1.37.5.58.18 1.1.16 1.51.1.46-.07 1.4-.57 1.6-1.12.2-.55.2-1.02.14-1.12-.06-.1-.22-.16-.46-.28Z" fill="currentColor"></path></svg></div>
-<h3>WhatsApp Channel</h3><p>Direct Channel Updates</p>
+<h3>WhatsApp Channel</h3><p>Get Important Updates Instantly</p>
 </a>
 </div>
 </div>
@@ -1791,21 +1842,20 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <section class="mentor-spotlight-section" id="meet-sajid-ghori" aria-labelledby="mentor-title">
 <div class="container">
 <div class="mentor-spotlight">
-<div class="mentor-portrait" aria-label="Sajid Ghori, Forex trainer and instructor">
+<div class="mentor-portrait" aria-label="Mr. Sajid Ghori, Forex trainer and instructor">
 <div class="mentor-orbit" aria-hidden="true"></div>
 <div class="mentor-chart" aria-hidden="true"><svg viewBox="0 0 540 280" preserveAspectRatio="none"><path d="M6 226 L55 205 L93 218 L135 158 L178 176 L216 108 L258 133 L301 76 L342 98 L388 43 L430 69 L486 24 L534 47"/><path d="M6 254 L65 238 L116 243 L165 213 L215 223 L270 187 L329 197 L386 157 L444 166 L534 119" opacity=".45"/></svg></div>
-<img class="mentor-person" src="sajid-ghori.webp" width="1024" height="1536" loading="lazy" alt="Sajid Ghori — Forex trader, mentor and coach"/>
+<img class="mentor-person" src="sajid-ghori.webp" width="1024" height="1536" loading="lazy" alt="Mr. Sajid Ghori — Forex trader, mentor and coach"/>
 <div class="mentor-role-badge">FOREX TRADER • MENTOR • COACH</div>
 </div>
 <div class="mentor-content">
 <div class="mentor-eyebrow">MEET YOUR FOREX MENTOR</div>
-<h2 id="mentor-title">Learn with Sajid Ghori — <span>Top Forex Trainer &amp; Top Forex Instructor</span></h2>
-<p class="mentor-description">Sajid Ghori is a professional Forex and Futures trader, mentor and coach focused on clear, practical and structured trading education. His programs cover technical analysis, market structure, Volume Spread Analysis and disciplined risk management for aspiring traders across Asia.</p>
-<div class="mentor-highlights" aria-label="Sajid Ghori expertise">
-<span>Top Forex Trainer</span><span>Top Forex Instructor</span><span>Forex Mentor in Asia</span><span>Technical Analysis &amp; VSA</span>
+<h2 id="mentor-title">Learn with Mr. Sajid Ghori — <span>Top Asia Instructor</span></h2>
+<p class="mentor-description">Mr. Sajid Ghori is a professional Forex and Futures trader, mentor and coach focused on clear, practical and structured trading education. His programs cover technical analysis, market structure, Volume Spread Analysis and disciplined risk management for aspiring traders across Asia.</p>
+<div class="mentor-highlights" aria-label="Mr. Sajid Ghori expertise">
+<span>Top Asia Instructor</span><span>Forex Trainer</span><span>Technical Analysis &amp; VSA</span>
 </div>
-<blockquote class="mentor-quote">“Turning complex market concepts into clear, practical learning.”</blockquote>
-<a class="btn mentor-cta" href="courses.html#courses">Explore Sajid Ghori’s Courses <span class="arrow" aria-hidden="true">→</span></a>
+<a class="btn mentor-cta" href="courses.html#courses">Explore Mr. Sajid Ghori’s Courses <span class="arrow" aria-hidden="true">→</span></a>
 </div>
 </div>
 </div>
@@ -1867,30 +1917,8 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <th>Broker</th><th>Promotions</th><th>Regulatory Coverage</th><th>Account Options</th><th>Minimum Deposit</th><th>Spreads</th><th>Maximum Leverage</th><th>Minimum Trade</th><th>Withdrawals</th>
 </tr>
 </thead>
-<tbody><tr class="broker-link-row" data-broker-url="https://my.dooprime.com/links/go/72929" tabindex="0" role="link" aria-label="Open D Prime account">
-<td data-label="Broker"><div class="broker-name"><img alt="D Prime official logo" class="broker-logo-icon" src="dprime-logo-clean.png"/><strong>D Prime</strong></div></td>
-<td data-label="Promotions"><span class="badge">Offers may vary</span></td>
-<td data-label="Regulatory Coverage">Multi-regulated group</td>
-<td class="yes" data-label="Account Options">Multiple account types</td>
-<td data-label="Minimum Deposit">From $0–$100*</td>
-<td data-label="Spreads">From 0.0 pips*</td>
-<td data-label="Maximum Leverage">Up to 1:1000*</td>
-<td data-label="Minimum Trade">0.01 lot</td>
-<td data-label="Withdrawals">Method dependent</td>
-</tr>
-<tr class="broker-link-row" data-broker-url="https://pipsepaisa.com" tabindex="0" role="link" aria-label="Open XM account">
-<td data-label="Broker"><div class="broker-name"><img alt="XM official logo" src="xm-logo-official-2026.svg"/><strong>XM</strong></div></td>
-<td data-label="Promotions"><span class="badge">Region dependent</span></td>
-<td data-label="Regulatory Coverage">Multi-regulated group</td>
-<td class="yes" data-label="Account Options">Multiple account types</td>
-<td data-label="Minimum Deposit">From $5*</td>
-<td data-label="Spreads">Variable by instrument</td>
-<td data-label="Maximum Leverage">Up to 1:1000*</td>
-<td data-label="Minimum Trade">0.01 lot*</td>
-<td data-label="Withdrawals">Method dependent</td>
-</tr>
-<tr class="broker-link-row" data-broker-url="https://one.exnessonelink.com/a/be2kjlypr9" tabindex="0" role="link" aria-label="Open Exness account">
-<td data-label="Broker"><div class="broker-name"><img alt="Exness official logo" src="exness-logo-clean.png"/><strong>Exness</strong></div></td>
+<tbody><tr class="broker-link-row" data-broker-url="https://one.exnessonelink.com/a/be2kjlypr9" tabindex="0" role="link" aria-label="Open Exness account">
+<td data-label="Broker"><div class="broker-name"><img alt="Exness official logo" src="exness-logo-clean.png?v=20260804-v37"/></div></td>
 <td data-label="Promotions"><span class="badge">Region dependent</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
 <td class="yes" data-label="Account Options">Standard &amp; Cent options*</td>
@@ -1899,9 +1927,28 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <td data-label="Maximum Leverage">Up to unlimited*</td>
 <td data-label="Minimum Trade">0.01 lot</td>
 <td class="yes" data-label="Withdrawals">Automated / instant where available*</td>
-</tr>
-<tr class="broker-link-row" data-broker-url="https://www.grouphf.com/Pipsepaisa?refid=3" tabindex="0" role="link" aria-label="Open HFM account">
-<td data-label="Broker"><div class="broker-name"><img alt="HFM official logo" src="hfm-logo-official-2026.png"/><strong>HFM</strong></div></td>
+</tr><tr class="broker-link-row" data-broker-url="https://my.dooprime.com/links/go/72929" tabindex="0" role="link" aria-label="Open D Prime account">
+<td data-label="Broker"><div class="broker-name"><img alt="D Prime official logo" class="broker-logo-icon" src="dprime-logo-clean.png?v=20260804-v37"/></div></td>
+<td data-label="Promotions"><span class="badge">Offers may vary</span></td>
+<td data-label="Regulatory Coverage">Multi-regulated group</td>
+<td class="yes" data-label="Account Options">Multiple account types</td>
+<td data-label="Minimum Deposit">From $0–$100*</td>
+<td data-label="Spreads">From 0.0 pips*</td>
+<td data-label="Maximum Leverage">Up to 1:1000*</td>
+<td data-label="Minimum Trade">0.01 lot</td>
+<td data-label="Withdrawals">Method dependent</td>
+</tr><tr class="broker-link-row" data-broker-url="https://pipsepaisa.com" tabindex="0" role="link" aria-label="Open XM account">
+<td data-label="Broker"><div class="broker-name"><img alt="XM official logo" src="xm-logo-official-2026.svg"/></div></td>
+<td data-label="Promotions"><span class="badge">Region dependent</span></td>
+<td data-label="Regulatory Coverage">Multi-regulated group</td>
+<td class="yes" data-label="Account Options">Multiple account types</td>
+<td data-label="Minimum Deposit">From $5*</td>
+<td data-label="Spreads">Variable by instrument</td>
+<td data-label="Maximum Leverage">Up to 1:1000*</td>
+<td data-label="Minimum Trade">0.01 lot*</td>
+<td data-label="Withdrawals">Method dependent</td>
+</tr><tr class="broker-link-row" data-broker-url="https://www.grouphf.com/Pipsepaisa?refid=3" tabindex="0" role="link" aria-label="Open HFM account">
+<td data-label="Broker"><div class="broker-name"><img alt="HFM official logo" src="hfm-logo-official-2026.png"/></div></td>
 <td data-label="Promotions"><span class="badge">Region dependent</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
 <td class="yes" data-label="Account Options">Standard, Cent &amp; Pro types*</td>
@@ -1910,9 +1957,8 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <td data-label="Maximum Leverage">Up to 1:2000*</td>
 <td data-label="Minimum Trade">0.01 lot</td>
 <td data-label="Withdrawals">Method dependent</td>
-</tr>
-<tr class="broker-link-row" data-broker-url="https://vigco.co/la-com-inv/opun7U0W" tabindex="0" role="link" aria-label="Open Vantage account">
-<td data-label="Broker"><div class="broker-name"><img alt="Vantage official logo" src="vantage-logo-official-2026.svg"/><strong>Vantage</strong></div></td>
+</tr><tr class="broker-link-row" data-broker-url="https://vigco.co/la-com-inv/opun7U0W" tabindex="0" role="link" aria-label="Open Vantage account">
+<td data-label="Broker"><div class="broker-name"><img alt="Vantage official logo" src="vantage-logo-official-2026.svg"/></div></td>
 <td data-label="Promotions"><span class="badge">Promotions may vary</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
 <td class="yes" data-label="Account Options">Standard, Raw &amp; ECN options*</td>
@@ -1975,9 +2021,9 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 
 const themeButton=document.querySelector('.theme-btn');
 const themePairs=[
+  ['broker-promo-assets/exness-promo-light.webp','broker-promo-assets/exness-promo-dark.webp'],
   ['broker-promo-assets/dprime-promo-light.webp','broker-promo-assets/dprime-promo-dark.webp'],
-  ['broker-promo-assets/xm-promo-light.webp','broker-promo-assets/xm-promo-dark.webp'],
-  ['broker-promo-assets/exness-promo-light.webp','broker-promo-assets/exness-promo-dark.webp']
+  ['broker-promo-assets/xm-promo-light.webp','broker-promo-assets/xm-promo-dark.webp']
 ];
 function applyLandingTheme(isDark){
   document.body.classList.toggle('dark-theme',isDark);
@@ -2009,7 +2055,12 @@ async function loadLandingAdminContent(){
     const r=await landingSb.from('banners').select('id,title,description,image_url,created_at').order('created_at',{ascending:true});
     if(r.error)throw r.error;
     const rows=r.data||[];
-    const brokers=rows.filter(x=>(x.title||'').startsWith('LANDING_BROKER|'));
+    const brokerPriority={exness:0,'d prime':1,dprime:1,dooprime:1,xm:2};
+    const brokers=rows.filter(x=>(x.title||'').startsWith('LANDING_BROKER|')).sort((a,b)=>{
+      const an=((a.title||'').split('|').slice(1).join('|')||'').trim().toLowerCase();
+      const bn=((b.title||'').split('|').slice(1).join('|')||'').trim().toLowerCase();
+      return (brokerPriority[an]??99)-(brokerPriority[bn]??99);
+    });
     if(brokers.length){
       const grid=document.getElementById('landingBrokerGrid');
       grid.innerHTML=brokers.map(b=>{const name=(b.title||'').split('|').slice(1).join('|')||'Broker';const meta=safeJson(b.description);const light=b.image_url||'';const dark=meta.dark_url||light;const link=meta.link||'#';return `<a class="broker-logo-card" href="${link}" target="_blank" rel="noopener"><picture class="theme-picture"><img src="${document.body.classList.contains('dark-theme')?dark:light}" data-light="${light}" data-dark="${dark}" alt="${name} broker"></picture><div class="broker-card-footer"><strong>${name}</strong><span>Open Account →</span></div></a>`}).join('');
@@ -2248,7 +2299,7 @@ partnerThemeObserver.observe(document.body,{attributes:true,attributeFilter:['cl
 .broker-comparison-table .broker-link-row:hover{background:rgba(245,158,11,.08);box-shadow:inset 4px 0 0 #f59e0b}
 .broker-comparison-table .broker-link-row:focus-visible{outline:3px solid rgba(245,158,11,.55);outline-offset:-3px}
 .broker-comparison-table .broker-logo-icon,
-.broker-comparison-table .broker-name img{width:78px!important;height:38px!important;object-fit:contain!important;background:#fff;border:1px solid rgba(15,23,42,.10);border-radius:8px;padding:4px}
+.broker-comparison-table .broker-name img{width:118px!important;height:52px!important;object-fit:contain!important;background:#fff;border:1px solid rgba(15,23,42,.10);border-radius:8px;padding:4px 6px!important}
 </style>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
