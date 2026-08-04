@@ -1642,8 +1642,8 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <style id="pspV34HeroSpacingBalance">
 /* V34: Desktop-only hero spacing refinement. Keep the approved hero height and mobile layout unchanged. */
 @media (min-width:981px){
-  .hero-overlay-banner{height:460px!important;min-height:460px!important}
-  .hero-text-layer{
+  html:not(.psp-desktop-mobile-view) .hero-overlay-banner{height:460px!important;min-height:460px!important}
+  html:not(.psp-desktop-mobile-view) .hero-text-layer{
     height:100%!important;
     box-sizing:border-box!important;
     padding:22px 28px!important;
@@ -1652,39 +1652,39 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
     align-items:flex-start!important;
     justify-content:space-between!important;
   }
-  .hero-eyebrow{
+  html:not(.psp-desktop-mobile-view) .hero-eyebrow{
     width:max-content!important;
     max-width:100%!important;
     margin:0!important;
   }
-  .hero-overlay-banner h1{
+  html:not(.psp-desktop-mobile-view) .hero-overlay-banner h1{
     width:100%!important;
     margin:0!important;
   }
-  .hero-course{
+  html:not(.psp-desktop-mobile-view) .hero-course{
     width:max-content!important;
     max-width:100%!important;
     margin:0!important;
   }
-  .hero-quote{
+  html:not(.psp-desktop-mobile-view) .hero-quote{
     width:100%!important;
     max-width:620px!important;
     margin:0!important;
     padding:13px 42px!important;
   }
-  .hero-quote::before{left:11px!important;top:7px!important;font-size:32px!important}
-  .hero-quote::after{right:11px!important;bottom:1px!important;font-size:32px!important}
-  .hero-quote strong{
+  html:not(.psp-desktop-mobile-view) .hero-quote::before{left:11px!important;top:7px!important;font-size:32px!important}
+  html:not(.psp-desktop-mobile-view) .hero-quote::after{right:11px!important;bottom:1px!important;font-size:32px!important}
+  html:not(.psp-desktop-mobile-view) .hero-quote strong{
     margin:0 0 5px!important;
     font-size:11.5px!important;
     line-height:1.25!important;
   }
-  .hero-quote p{
+  html:not(.psp-desktop-mobile-view) .hero-quote p{
     font-size:10.8px!important;
     line-height:1.48!important;
   }
-  .hero-primary-cta{margin:0!important}
-  .hero-mentor-badge{right:28px!important;bottom:24px!important}
+  html:not(.psp-desktop-mobile-view) .hero-primary-cta{margin:0!important}
+  html:not(.psp-desktop-mobile-view) .hero-mentor-badge{right:28px!important;bottom:24px!important}
 }
 </style>
 </head>
