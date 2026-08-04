@@ -1,37 +1,32 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-<script id="pspPublicDesktopMobileViewportV39">
-(function(){
-  var mobile=/Android|iPhone|iPad|iPod|Mobile|CrOS/i.test(navigator.userAgent)||
-    (window.matchMedia&&window.matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<=900);
-  if(!mobile)return;
-  var targetWidth=1200;
-  var deviceWidth=Math.min(screen.width||innerWidth,screen.height||innerHeight);
-  var scale=Math.max(.25,Math.min(1,deviceWidth/targetWidth));
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<script id="pspPublicMobileMorningRestoreV40">(function(){
+  var mobile = /Android|iPhone|iPad|iPod|Mobile|CrOS/i.test(navigator.userAgent) ||
+               Math.min(screen.width, screen.height) <= 820;
+  if(!mobile) return;
   var viewport=document.querySelector('meta[name="viewport"]');
   if(viewport){
-    viewport.setAttribute('content','width='+targetWidth+', initial-scale='+scale.toFixed(4)+', minimum-scale=0.25, maximum-scale=4, user-scalable=yes');
+    viewport.setAttribute(
+      'content',
+      'width=1200, user-scalable=yes, minimum-scale=0.25, maximum-scale=4'
+    );
   }
   document.documentElement.classList.add('psp-desktop-mobile-view');
-})();
-</script>
-
+})();</script><link crossorigin="" href="https://www.googletagmanager.com" rel="preconnect"/><link href="//www.googletagmanager.com" rel="dns-prefetch"/><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-5M0NKERDHF"></script><script id="pspGoogleAnalyticsV40">window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 <title>Become a Partner | PipSePaisa</title>
-    <meta
-      name="description"
-      content="Build your IB business with partner training, marketing support and broker programs."
-    />
-    <link rel="icon" href="favicon.png" />
-    <link rel="preload" as="image" href="partner-hero.webp" fetchpriority="high"/>
-    <link rel="stylesheet" href="public-pages.css" />
-    <link
-      rel="stylesheet"
-      href="public-upgrades.css?v=20260722-brand-dark-hero-v3"
-    />
-    <style>
+<meta content="Build your IB business with partner training, marketing support and broker programs." name="description"/>
+<link href="favicon.png" rel="icon"/>
+<link as="image" fetchpriority="high" href="partner-hero.webp" rel="preload"/>
+<link href="public-pages.css" rel="stylesheet"/>
+<link href="public-upgrades.css?v=20260722-brand-dark-hero-v3" rel="stylesheet"/>
+<style>
       .partner-hero-visual {
         background-image: url(partner-hero.webp);
         background-size: cover;
@@ -424,12 +419,9 @@
         .cta-person { animation: none !important; }
       }
     </style>
-
-<link rel="stylesheet" href="mobile-reference-layout.css?v=20260727-exact-v3" />
-<link rel="stylesheet" href="psp-final-fixes.css?v=20260727-all-fixes-v1" />
-
-<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5">
-
+<link href="mobile-reference-layout.css?v=20260727-exact-v3" rel="stylesheet"/>
+<link href="psp-final-fixes.css?v=20260727-all-fixes-v1" rel="stylesheet"/>
+<link href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5" rel="stylesheet"/>
 <style id="pspV33PartnerOrangeFix">
 :root{--orange:#F88702}
 .page-partner .mini,
@@ -443,7 +435,6 @@
 .page-partner .pill,
 .page-partner .cta-highlights span{border-color:rgba(248,135,2,.62)!important}
 </style>
-
 <style id="psp-nav-consistency-v38">
 .topbar .nav{min-height:72px}
 .topbar .brand{font-size:20px;font-weight:900}
@@ -455,484 +446,403 @@
   html.psp-desktop-mobile-view .topbar .menu a{font-size:15px;padding:11px 15px}
 }
 </style>
-<link href="psp-public-desktop-mobile-v39.css?v=20260804-v39" rel="stylesheet"/>
-</head>
-  <body class="page-partner">
-    <header class="topbar">
-      <div class="container nav">
-        <a class="brand" href="landing.html"
-          ><img alt="PipSePaisa visual" src="favicon.png"  loading="eager" decoding="async" fetchpriority="high"/><span
-            >PipSePaisa</span
-          ></a
-        >
-        <nav class="menu">
-          <a class="" href="landing.html">Home</a
-          ><a class="" href="courses.html">Courses</a
-          ><a class="broker-reviews-link" href="landing.html#broker-comparison">Broker Reviews</a
-          ><a class="active" href="partner.html">Become Partner</a
-          ><a class="" href="tools-services.html">Trading Tools & Services</a>
-        </nav>
-        <div class="actions">
-          <button class="theme-btn" id="themeBtn">🌙</button
-          ><a class="login" href="landing.html#login">Login</a>
-        </div>
-      </div>
-    </header>
-    <main>
-      <section class="hero">
-        <div class="container">
-          <div class="hero-box">
-            <div class="hero-copy stagger">
-              <span class="mini">PIPSEPAISA PARTNER PROGRAM</span>
-              <h1>
-                Build a Stronger IB Business<br /><span
-                  >with Practical Support</span
-                >
-              </h1>
-              <p>
-                Grow your client network with competitive commission opportunities,<br />
+<link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/></head>
+<body class="page-partner">
+<header class="topbar">
+<div class="container nav">
+<a class="brand" href="landing.html"><img alt="PipSePaisa visual" decoding="async" fetchpriority="high" loading="eager" src="favicon.png"/><span>PipSePaisa</span></a>
+<nav class="menu">
+<a class="" href="landing.html">Home</a><a class="" href="courses.html">Courses</a><a class="broker-reviews-link" href="landing.html#broker-comparison">Broker Reviews</a><a class="active" href="partner.html">Become Partner</a><a class="" href="tools-services.html">Trading Tools &amp; Services</a>
+</nav>
+<div class="actions">
+<button class="theme-btn" id="themeBtn">🌙</button><a class="login" href="landing.html#login">Login</a>
+</div>
+</div>
+</header>
+<main>
+<section class="hero">
+<div class="container">
+<div class="hero-box">
+<div class="hero-copy stagger">
+<span class="mini">PIPSEPAISA PARTNER PROGRAM</span>
+<h1>
+                Build a Stronger IB Business<br/><span>with Practical Support</span>
+</h1>
+<p>
+                Grow your client network with competitive commission opportunities,<br/>
                 structured team training, marketing resources and practical business
                 guidance.
               </p>
-              <div class="pills">
-                <span class="pill">Competitive Commission</span
-                ><span class="pill">Free Team Training</span
-                ><span class="pill">Marketing Support</span
-                ><span class="pill">Business Growth</span>
-              </div>
-              <a class="login" href="#partner-programs"
-                >Explore Partner Programs ↓</a
-              >
-            </div>
-            <div class="hero-visual partner-hero-visual"></div>
-          </div>
-        </div>
-      </section>
-      <section class="section">
-        <div class="container">
-          <div class="section-head">
-            <span class="mini">TRUSTED TRADING PARTNERS</span>
-            <h2>Choose Your Preferred Broker</h2>
-            <p>
+<div class="pills">
+<span class="pill">Competitive Commission</span><span class="pill">Free Team Training</span><span class="pill">Marketing Support</span><span class="pill">Business Growth</span>
+</div>
+<a class="login" href="#partner-programs">Explore Partner Programs ↓</a>
+</div>
+<div class="hero-visual partner-hero-visual"></div>
+</div>
+</div>
+</section>
+<section class="section">
+<div class="container">
+<div class="section-head">
+<span class="mini">TRUSTED TRADING PARTNERS</span>
+<h2>Choose Your Preferred Broker</h2>
+<p>
               Select a trusted trading platform that matches your account type,
               trading preferences and regional requirements.
             </p>
-          </div>
-          <div class="broker-grid stagger">
-            <a class="broker-card" href="landing.html"
-              ><img
-                alt="PipSePaisa visual"
-                data-light="broker-promo-assets/dprime-promo-light.webp"
-                data-dark="broker-promo-assets/dprime-promo-dark.webp"
-                src="broker-promo-assets/dprime-promo-light.webp"  loading="lazy" decoding="async"/></a
-            ><a class="broker-card" href="landing.html"
-              ><img
-                alt="PipSePaisa visual"
-                data-light="broker-promo-assets/xm-promo-light.webp"
-                data-dark="broker-promo-assets/xm-promo-dark.webp"
-                src="broker-promo-assets/xm-promo-light.webp"  loading="lazy" decoding="async"/></a
-            ><a class="broker-card" href="landing.html"
-              ><img
-                alt="PipSePaisa visual"
-                data-light="broker-promo-assets/exness-promo-light.webp"
-                data-dark="broker-promo-assets/exness-promo-dark.webp"
-                src="broker-promo-assets/exness-promo-light.webp"
-             loading="lazy" decoding="async"/></a>
-          </div>
-        </div>
-      </section>
-      <section class="section benefits-bg">
-        <div class="container">
-          <div class="section-head">
-            <span class="mini">PARTNER BENEFITS</span>
-            <h2>Build Your IB Business with Practical Support</h2>
-            <p>
+</div>
+<div class="broker-grid stagger">
+<a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/dprime-promo-light.webp"/></a><a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/xm-promo-dark.webp" data-light="broker-promo-assets/xm-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/xm-promo-light.webp"/></a><a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/exness-promo-light.webp"/></a>
+</div>
+</div>
+</section>
+<section class="section benefits-bg">
+<div class="container">
+<div class="section-head">
+<span class="mini">PARTNER BENEFITS</span>
+<h2>Build Your IB Business with Practical Support</h2>
+<p>
               Access the training, marketing resources and structured guidance
               needed to build a professional client network.
             </p>
-          </div>
-          <div class="grid-4">
-            <article class="feature-card reveal">
-              <span class="num">01</span>
-              <div class="benefit-mini-banner" tabindex="0">
-                <img src="benefit-banners/commission-vvip-light.svg" data-light="benefit-banners/commission-vvip-light.svg" data-dark="benefit-banners/commission-vvip-dark.svg" alt="Competitive commission VVIP partner benefit banner" width="600" height="320"  loading="lazy" decoding="async"/>
-              </div>
-              <div class="iconbox">💰</div>
-              <h3>Competitive Commission</h3>
-              <p>
+</div>
+<div class="grid-4">
+<article class="feature-card reveal">
+<span class="num">01</span>
+<div class="benefit-mini-banner" tabindex="0">
+<img alt="Competitive commission VVIP partner benefit banner" data-dark="benefit-banners/commission-vvip-dark.svg" data-light="benefit-banners/commission-vvip-light.svg" decoding="async" fetchpriority="low" height="320" loading="lazy" src="benefit-banners/commission-vvip-light.svg" width="600"/>
+</div>
+<div class="iconbox">💰</div>
+<h3>Competitive Commission</h3>
+<p>
                 Earn through competitive broker commission structures designed
                 to support long-term partner growth.
               </p>
-              <div class="highlight">PERFORMANCE-BASED EARNINGS</div>
-            </article>
-            <article class="feature-card reveal">
-              <span class="num">02</span>
-              <div class="benefit-mini-banner" tabindex="0">
-                <img src="benefit-banners/training-vvip-light.svg" data-light="benefit-banners/training-vvip-light.svg" data-dark="benefit-banners/training-vvip-dark.svg" alt="Free team training VVIP partner benefit banner" width="600" height="320"  loading="lazy" decoding="async"/>
-              </div>
-              <div class="iconbox">🎓</div>
-              <h3>Free Team Training</h3>
-              <p>
+<div class="highlight">PERFORMANCE-BASED EARNINGS</div>
+</article>
+<article class="feature-card reveal">
+<span class="num">02</span>
+<div class="benefit-mini-banner" tabindex="0">
+<img alt="Free team training VVIP partner benefit banner" data-dark="benefit-banners/training-vvip-dark.svg" data-light="benefit-banners/training-vvip-light.svg" decoding="async" fetchpriority="low" height="320" loading="lazy" src="benefit-banners/training-vvip-light.svg" width="600"/>
+</div>
+<div class="iconbox">🎓</div>
+<h3>Free Team Training</h3>
+<p>
                 Give your team structured Forex education, practical guidance
                 and professional learning support.
               </p>
-              <div class="highlight">TRAINING FOR YOUR ENTIRE TEAM</div>
-            </article>
-            <article class="feature-card reveal">
-              <span class="num">03</span>
-              <div class="benefit-mini-banner" tabindex="0">
-                <img src="benefit-banners/marketing-vvip-light.svg" data-light="benefit-banners/marketing-vvip-light.svg" data-dark="benefit-banners/marketing-vvip-dark.svg" alt="Marketing support VVIP partner benefit banner" width="600" height="320"  loading="lazy" decoding="async"/>
-              </div>
-              <div class="iconbox">📣</div>
-              <h3>Marketing Support</h3>
-              <p>
+<div class="highlight">TRAINING FOR YOUR ENTIRE TEAM</div>
+</article>
+<article class="feature-card reveal">
+<span class="num">03</span>
+<div class="benefit-mini-banner" tabindex="0">
+<img alt="Marketing support VVIP partner benefit banner" data-dark="benefit-banners/marketing-vvip-dark.svg" data-light="benefit-banners/marketing-vvip-light.svg" decoding="async" fetchpriority="low" height="320" loading="lazy" src="benefit-banners/marketing-vvip-light.svg" width="600"/>
+</div>
+<div class="iconbox">📣</div>
+<h3>Marketing Support</h3>
+<p>
                 Access ready-to-use content, brochures, campaign ideas and
                 promotional resources to attract more clients.
               </p>
-              <div class="highlight">CONTENT & GROWTH RESOURCES</div>
-            </article>
-            <article class="feature-card reveal">
-              <span class="num">04</span>
-              <div class="benefit-mini-banner" tabindex="0">
-                <img src="benefit-banners/growth-vvip-light.svg?v=20260722-growth-text-fix" data-light="benefit-banners/growth-vvip-light.svg?v=20260722-growth-text-fix" data-dark="benefit-banners/growth-vvip-dark.svg?v=20260722-growth-text-fix" alt="Business growth support VVIP partner benefit banner" width="600" height="320"  loading="lazy" decoding="async"/>
-              </div>
-              <div class="iconbox">📈</div>
-              <h3>Business Growth Support</h3>
-              <p>
+<div class="highlight">CONTENT &amp; GROWTH RESOURCES</div>
+</article>
+<article class="feature-card reveal">
+<span class="num">04</span>
+<div class="benefit-mini-banner" tabindex="0">
+<img alt="Business growth support VVIP partner benefit banner" data-dark="benefit-banners/growth-vvip-dark.svg?v=20260722-growth-text-fix" data-light="benefit-banners/growth-vvip-light.svg?v=20260722-growth-text-fix" decoding="async" fetchpriority="low" height="320" loading="lazy" src="benefit-banners/growth-vvip-light.svg?v=20260722-growth-text-fix" width="600"/>
+</div>
+<div class="iconbox">📈</div>
+<h3>Business Growth Support</h3>
+<p>
                 Build a repeatable system for client acquisition, onboarding,
                 retention and sustainable expansion.
               </p>
-              <div class="highlight">GROW WITH A CLEAR SYSTEM</div>
-            </article>
-          </div>
-        </div>
-      </section>
-      <section class="section" id="partner-programs">
-        <div class="container">
-          <div class="section-head">
-            <span class="mini">BROKER PARTNER PROGRAMS</span>
-            <h2>Choose Your Preferred Broker Partner</h2>
-            <p>
+<div class="highlight">GROW WITH A CLEAR SYSTEM</div>
+</article>
+</div>
+</div>
+</section>
+<section class="section" id="partner-programs">
+<div class="container">
+<div class="section-head">
+<span class="mini">BROKER PARTNER PROGRAMS</span>
+<h2>Choose Your Preferred Broker Partner</h2>
+<p>
               Explore each partner program’s features, support model and
               business structure to identify the right fit for your network.
             </p>
-          </div>
-          <article class="partner-detail">
-            <div class="partner-image reveal left">
-              <img
-                alt="DPrime partner program banner"
-                data-light="partner-banner-assets/dprime-light.webp"
-                data-dark="partner-banner-assets/dprime-dark.webp"
-                src="partner-banner-assets/dprime-light.webp"
-                width="600"
-                height="600"
-               loading="lazy" decoding="async"/>
-            </div>
-            <div class="partner-info reveal right">
-              <span class="program-kicker">DPrime Partner Program</span>
-              <h3>Build and Grow with DPrime</h3>
-              <p>
+</div>
+<article class="partner-detail">
+<div class="partner-image reveal left">
+<img alt="DPrime partner program banner" data-dark="partner-banner-assets/dprime-dark.webp" data-light="partner-banner-assets/dprime-light.webp" decoding="async" fetchpriority="low" height="600" loading="lazy" src="partner-banner-assets/dprime-light.webp" width="600"/>
+</div>
+<div class="partner-info reveal right">
+<span class="program-kicker">DPrime Partner Program</span>
+<h3>Build and Grow with DPrime</h3>
+<p>
                 Explore a structured partner program offering international
                 reach, practical resources and support for professional network development.
               </p>
-              <div class="info-row">
-                <div class="info-ico">🌐</div>
-                <div>
-                  <h4>Tradeable Deposit Bonus</h4>
-                  <p>DPrime offers your clients a tradeable deposit bonus.</p>
-                </div>
-              </div>
-              <div class="info-row">
-                <div class="info-ico">↔</div>
-                <div>
-                  <h4>Daily Commission Payouts</h4>
-                  <p>DPrime IBs can withdraw their commissions on a daily basis.</p>
-                </div>
-              </div>
-              <div class="info-row">
-                <div class="info-ico">◈</div>
-                <div>
-                  <h4>IB Lock System</h4>
-                  <p>Your clients remain linked to your IB account and cannot be shifted to another IB.</p>
-                </div>
-              </div>
-              <div class="info-row">
-                <div class="info-ico">◎</div>
-                <div>
-                  <h4>Dedicated Partner Support</h4>
-                  <p>
+<div class="info-row">
+<div class="info-ico">🌐</div>
+<div>
+<h4>Tradeable Deposit Bonus</h4>
+<p>DPrime offers your clients a tradeable deposit bonus.</p>
+</div>
+</div>
+<div class="info-row">
+<div class="info-ico">↔</div>
+<div>
+<h4>Daily Commission Payouts</h4>
+<p>DPrime IBs can withdraw their commissions on a daily basis.</p>
+</div>
+</div>
+<div class="info-row">
+<div class="info-ico">◈</div>
+<div>
+<h4>IB Lock System</h4>
+<p>Your clients remain linked to your IB account and cannot be shifted to another IB.</p>
+</div>
+</div>
+<div class="info-row">
+<div class="info-ico">◎</div>
+<div>
+<h4>Dedicated Partner Support</h4>
+<p>
                     Receive structured assistance for network management and growth.
                   </p>
-                </div>
-              </div>
-              <a class="login" href="https://www.dooprime.com/introducing-broker" target="_blank" rel="noopener"
-                >Open DPrime Partner Account →</a
-              >
-            </div>
-          </article>
-          <article class="partner-detail">
-            <div class="partner-image reveal right">
-              <img
-                alt="XM partner program banner"
-                data-light="partner-banner-assets/xm-light.webp"
-                data-dark="partner-banner-assets/xm-dark.webp"
-                src="partner-banner-assets/xm-light.webp"
-                width="600"
-                height="600"
-               loading="lazy" decoding="async"/>
-            </div>
-            <div class="partner-info reveal left">
-              <span class="program-kicker">XM Partner Program</span>
-              <h3>Connect and Grow with XM</h3>
-              <p>
+</div>
+</div>
+<a class="login" href="https://www.dooprime.com/introducing-broker" rel="noopener" target="_blank">Open DPrime Partner Account →</a>
+</div>
+</article>
+<article class="partner-detail">
+<div class="partner-image reveal right">
+<img alt="XM partner program banner" data-dark="partner-banner-assets/xm-dark.webp" data-light="partner-banner-assets/xm-light.webp" decoding="async" fetchpriority="low" height="600" loading="lazy" src="partner-banner-assets/xm-light.webp" width="600"/>
+</div>
+<div class="partner-info reveal left">
+<span class="program-kicker">XM Partner Program</span>
+<h3>Connect and Grow with XM</h3>
+<p>
                 Explore an internationally focused program supported by educational
                 resources, digital tools and structured partner assistance.
               </p>
-              <div class="info-row">
-                <div class="info-ico">⚡</div>
-                <div>
-                  <h4>Fast Trade Execution</h4>
-                  <p>
+<div class="info-row">
+<div class="info-ico">⚡</div>
+<div>
+<h4>Fast Trade Execution</h4>
+<p>
                     Efficient order processing designed for a responsive platform experience.
                   </p>
-                </div>
-              </div>
-              <div class="info-row">
-                <div class="info-ico">🌐</div>
-                <div>
-                  <h4>Partner Rewards &amp; Loyalty Program</h4>
-                  <p>
+</div>
+</div>
+<div class="info-row">
+<div class="info-ico">🌐</div>
+<div>
+<h4>Partner Rewards &amp; Loyalty Program</h4>
+<p>
                     Partner reward options and loyalty-program features for
                     clients and IBs.
                   </p>
-                </div>
-              </div>
-              <div class="info-row">
-                <div class="info-ico">◇</div>
-                <div>
-                  <h4>Education & Resources</h4>
-                  <p>
+</div>
+</div>
+<div class="info-row">
+<div class="info-ico">◇</div>
+<div>
+<h4>Education &amp; Resources</h4>
+<p>
                     Access available learning materials and promotional resources.
                   </p>
-                </div>
-              </div>
-              <div class="info-row">
-                <div class="info-ico">◎</div>
-                <div>
-                  <h4>Structured Partner Support</h4>
-                  <p>
+</div>
+</div>
+<div class="info-row">
+<div class="info-ico">◎</div>
+<div>
+<h4>Structured Partner Support</h4>
+<p>
                     Use available tools and assistance to manage a professional network.
                   </p>
-                </div>
-              </div>
-              <a class="login" href="https://pipsepaisa.com" target="_blank" rel="noopener">Open XM Partner Account →</a>
-            </div>
-          </article>
-          <article class="partner-detail">
-            <div class="partner-image reveal left">
-              <img
-                alt="Exness partner program banner"
-                data-light="partner-banner-assets/exness-light.webp"
-                data-dark="partner-banner-assets/exness-dark.webp"
-                src="partner-banner-assets/exness-light.webp"
-                width="600"
-                height="600"
-               loading="lazy" decoding="async"/>
-            </div>
-            <div class="partner-info reveal right">
-              <span class="program-kicker">Exness Partner Program</span>
-              <h3>Expand Your Network with Exness</h3>
-              <p>
+</div>
+</div>
+<a class="login" href="https://pipsepaisa.com" rel="noopener" target="_blank">Open XM Partner Account →</a>
+</div>
+</article>
+<article class="partner-detail">
+<div class="partner-image reveal left">
+<img alt="Exness partner program banner" data-dark="partner-banner-assets/exness-dark.webp" data-light="partner-banner-assets/exness-light.webp" decoding="async" fetchpriority="low" height="600" loading="lazy" src="partner-banner-assets/exness-light.webp" width="600"/>
+</div>
+<div class="partner-info reveal right">
+<span class="program-kicker">Exness Partner Program</span>
+<h3>Expand Your Network with Exness</h3>
+<p>
                 Explore a digitally focused program with international reach,
                 online partner tools and scalable network support.
               </p>
-              <div class="info-row">
-                <div class="info-ico">↗</div>
-                <div>
-                  <h4>Fast Withdrawal Processing</h4>
-                  <p>
+<div class="info-row">
+<div class="info-ico">↗</div>
+<div>
+<h4>Fast Withdrawal Processing</h4>
+<p>
                     Convenient processing through supported payment methods.
                   </p>
-                </div>
-              </div>
-              <div class="info-row">
-                <div class="info-ico">▦</div>
-                <div>
-                  <h4>Speed, Operations &amp; Market Reach</h4>
-                  <p>
+</div>
+</div>
+<div class="info-row">
+<div class="info-ico">▦</div>
+<div>
+<h4>Speed, Operations &amp; Market Reach</h4>
+<p>
                     Review withdrawal speed, operational efficiency and
                     availability across supported markets.
                   </p>
-                </div>
-              </div>
-              <div class="info-row">
-                <div class="info-ico">🌐</div>
-                <div>
-                  <h4>Loyalty Rewards for IBs &amp; Clients</h4>
-                  <p>Access exclusive loyalty rewards and benefits designed for both IB partners and their clients.</p>
-                </div>
-              </div>
-              <div class="info-row">
-                <div class="info-ico">◎</div>
-                <div>
-                  <h4>Scalable Network Support</h4>
-                  <p>
+</div>
+</div>
+<div class="info-row">
+<div class="info-ico">🌐</div>
+<div>
+<h4>Loyalty Rewards for IBs &amp; Clients</h4>
+<p>Access exclusive loyalty rewards and benefits designed for both IB partners and their clients.</p>
+</div>
+</div>
+<div class="info-row">
+<div class="info-ico">◎</div>
+<div>
+<h4>Scalable Network Support</h4>
+<p>
                     Access available resources for organized community development.
                   </p>
-                </div>
-              </div>
-              <a class="login" href="https://www.exnessaffiliates.com/" target="_blank" rel="noopener"
-                >Open Exness Partner Account →</a
-              >
-            </div>
-          </article>
-          <p class="partner-programs-note">
+</div>
+</div>
+<a class="login" href="https://www.exnessaffiliates.com/" rel="noopener" target="_blank">Open Exness Partner Account →</a>
+</div>
+</article>
+<p class="partner-programs-note">
             Program availability, spreads, execution and withdrawal processing
             vary by region, account type, market conditions, payment method,
             verification status and official broker terms.
           </p>
-        </div>
-      </section>
-      <section class="section">
-        <div class="container">
-          <div class="cta-banner reveal">
-            <div class="cta-copy">
-              <div class="logo-row">
-                <img alt="" aria-hidden="true" src="icon-192.png"  loading="lazy" decoding="async"/>
+</div>
+</section>
+<section class="section">
+<div class="container">
+<div class="cta-banner reveal">
+<div class="cta-copy">
+<div class="logo-row">
+<img alt="" aria-hidden="true" decoding="async" fetchpriority="low" loading="lazy" src="icon-192.png"/>
                 PIPSEPAISA FOREX ACADEMY
               </div>
-              <h2>
+<h2>
                 Structured Forex Education
                 <span style="color: var(--orange)">for Every Level</span>
-              </h2>
-              <p>
+</h2>
+<p>
                 Build a strong foundation through practical lessons in market
                 structure, risk management and disciplined decision-making.
               </p>
-              <div class="cta-highlights">
-                <span>Beginner Friendly</span>
-                <span>Practical Learning</span>
-                <span>Risk-Focused</span>
-              </div>
-              <a class="login" href="courses.html">Explore Courses →</a>
-            </div>
-            <div class="cta-art" aria-label="Sir Sajid Ghori, Forex Educator and Mentor">
-              <svg
-                class="cta-gold-curve"
-                viewBox="0 0 120 460"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-              >
-                <path class="cta-curve-halo" d="M96 -8 C34 72 105 145 59 226 C19 297 38 386 94 468"></path>
-                <path class="cta-curve-line" d="M96 -8 C34 72 105 145 59 226 C19 297 38 386 94 468"></path>
-              </svg>
-              <div class="cta-portrait-glow" aria-hidden="true"></div>
-              <img
-                alt="Sir Sajid Ghori, Forex Educator and Mentor"
-                class="cta-person"
-                src="sajid-ghori.webp"
-               loading="lazy" decoding="async"/>
-              <div class="name-tag">
-                <strong>Sir Sajid Ghori</strong><small>Forex Educator &amp; Mentor</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section class="social-section">
-        <div class="container">
-          <div class="section-head">
-            <span class="mini">JOIN THE COMMUNITY</span>
-            <h2>Connect With PipSePaisa</h2>
-            <p>
+<div class="cta-highlights">
+<span>Beginner Friendly</span>
+<span>Practical Learning</span>
+<span>Risk-Focused</span>
+</div>
+<a class="login" href="courses.html">Explore Courses →</a>
+</div>
+<div aria-label="Sir Sajid Ghori, Forex Educator and Mentor" class="cta-art">
+<svg aria-hidden="true" class="cta-gold-curve" preserveaspectratio="none" viewbox="0 0 120 460">
+<path class="cta-curve-halo" d="M96 -8 C34 72 105 145 59 226 C19 297 38 386 94 468"></path>
+<path class="cta-curve-line" d="M96 -8 C34 72 105 145 59 226 C19 297 38 386 94 468"></path>
+</svg>
+<div aria-hidden="true" class="cta-portrait-glow"></div>
+<img alt="Sir Sajid Ghori, Forex Educator and Mentor" class="cta-person" decoding="async" fetchpriority="low" loading="lazy" src="sajid-ghori.webp"/>
+<div class="name-tag">
+<strong>Sir Sajid Ghori</strong><small>Forex Educator &amp; Mentor</small>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section class="social-section">
+<div class="container">
+<div class="section-head">
+<span class="mini">JOIN THE COMMUNITY</span>
+<h2>Connect With PipSePaisa</h2>
+<p>
               Follow our official channels for education, market updates and
               community announcements.
             </p>
-          </div>
-          <div class="social-grid">
-            <a class="social-card facebook" href="landing.html"
-              ><div class="social-icon">
-                <svg viewBox="0 0 24 24">
-                  <path
-                    d="M14 8h3V4h-3c-3.3 0-5 2-5 5v2H6v4h3v9h4v-9h3.2l.8-4H13V9c0-.7.3-1 1-1z"
-                  />
-                </svg>
-              </div>
-              <h3>Facebook</h3>
-              <p>Daily Posts & Updates</p></a
-            >
-            <a class="social-card instagram" href="landing.html"
-              ><div class="social-icon">
-                <svg viewBox="0 0 24 24">
-                  <path
-                    d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5zM17.8 6.7a1.1 1.1 0 1 1-1.1-1.1 1.1 1.1 0 0 1 1.1 1.1z"
-                  />
-                </svg>
-              </div>
-              <h3>Instagram</h3>
-              <p>Education, Stories & Reels</p></a
-            >
-            <a class="social-card whatsapp" href="landing.html"
-              ><div class="social-icon">
-                <svg viewBox="0 0 24 24">
-                  <path
-                    d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.6 0 .3 5.3.3 11.8c0 2.1.6 4.1 1.6 5.9L0 24l6.5-1.7a11.8 11.8 0 0 0 5.6 1.4h.1C18.7 23.7 24 18.4 24 11.9c0-3.2-1.2-6.2-3.5-8.4zM12.2 21.7h-.1a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.8 1 1-3.7-.2-.4A9.8 9.8 0 1 1 12.2 21.7zm5.4-7.3c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-4-3.4-.3-.5.3-.5.8-1.6.1-.2 0-.4 0-.6-.1-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.4-1.2 1.2-1.2 2.9s1.2 3.3 1.4 3.5c.2.2 2.4 3.7 5.8 5.2 2.2.9 3 .9 4.1.8.7-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.2-.3-.2-.6-.4z"
-                  />
-                </svg>
-              </div>
-              <h3>WhatsApp Channel</h3>
-              <p>Direct Channel Updates</p></a
-            >
-          </div>
-        </div>
-      </section>
-    </main>
-    <footer>
-      <div class="container">
-        <div class="footer-grid">
-          <div>
-            <div class="footer-brand">PipSePaisa</div>
-            <p>
+</div>
+<div class="social-grid">
+<a class="social-card facebook" href="landing.html"><div class="social-icon">
+<svg viewbox="0 0 24 24">
+<path d="M14 8h3V4h-3c-3.3 0-5 2-5 5v2H6v4h3v9h4v-9h3.2l.8-4H13V9c0-.7.3-1 1-1z"></path>
+</svg>
+</div>
+<h3>Facebook</h3>
+<p>Daily Posts &amp; Updates</p></a>
+<a class="social-card instagram" href="landing.html"><div class="social-icon">
+<svg viewbox="0 0 24 24">
+<path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5zm0 2A2.5 2.5 0 1 0 14.5 12 2.5 2.5 0 0 0 12 9.5zM17.8 6.7a1.1 1.1 0 1 1-1.1-1.1 1.1 1.1 0 0 1 1.1 1.1z"></path>
+</svg>
+</div>
+<h3>Instagram</h3>
+<p>Education, Stories &amp; Reels</p></a>
+<a class="social-card whatsapp" href="landing.html"><div class="social-icon">
+<svg viewbox="0 0 24 24">
+<path d="M20.5 3.5A11.8 11.8 0 0 0 12.1 0C5.6 0 .3 5.3.3 11.8c0 2.1.6 4.1 1.6 5.9L0 24l6.5-1.7a11.8 11.8 0 0 0 5.6 1.4h.1C18.7 23.7 24 18.4 24 11.9c0-3.2-1.2-6.2-3.5-8.4zM12.2 21.7h-.1a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.8 1 1-3.7-.2-.4A9.8 9.8 0 1 1 12.2 21.7zm5.4-7.3c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-1.7-.8-2.8-1.5-4-3.4-.3-.5.3-.5.8-1.6.1-.2 0-.4 0-.6-.1-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.4-1.2 1.2-1.2 2.9s1.2 3.3 1.4 3.5c.2.2 2.4 3.7 5.8 5.2 2.2.9 3 .9 4.1.8.7-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.2-.3-.2-.6-.4z"></path>
+</svg>
+</div>
+<h3>WhatsApp Channel</h3>
+<p>Direct Channel Updates</p></a>
+</div>
+</div>
+</section>
+</main>
+<footer>
+<div class="container">
+<div class="footer-grid">
+<div>
+<div class="footer-brand">PipSePaisa</div>
+<p>
               Forex education, professional learning, practical trading tools
               and business support designed to help traders and partners grow
               with knowledge and discipline.
             </p>
-          </div>
-          <div>
-            <h4>Quick Links</h4>
-            <ul>
-              <li><a href="landing.html">Home</a></li>
-              <li><a href="partner.html">Become Partner</a></li>
-              <li><a href="courses.html">Courses</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4>Resources</h4>
-            <ul>
-              <li>
-                <a href="tools-services.html">Trading Tools & Services</a>
-              </li>
-              <li><a href="courses.html#courses">Course Enrollment</a></li>
-              <li><a href="./#auth-login">Login</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4>Connect</h4>
-            <ul>
-              <li>Facebook</li>
-              <li>Instagram</li>
-              <li>WhatsApp Channel</li>
-            </ul>
-          </div>
-        </div>
-        <div class="disclaimer">
+</div>
+<div>
+<h4>Quick Links</h4>
+<ul>
+<li><a href="landing.html">Home</a></li>
+<li><a href="partner.html">Become Partner</a></li>
+<li><a href="courses.html">Courses</a></li>
+</ul>
+</div>
+<div>
+<h4>Resources</h4>
+<ul>
+<li>
+<a href="tools-services.html">Trading Tools &amp; Services</a>
+</li>
+<li><a href="courses.html#courses">Course Enrollment</a></li>
+<li><a href="./#auth-login">Login</a></li>
+</ul>
+</div>
+<div>
+<h4>Connect</h4>
+<ul>
+<li>Facebook</li>
+<li>Instagram</li>
+<li>WhatsApp Channel</li>
+</ul>
+</div>
+</div>
+<div class="disclaimer">
           Educational content only. Trading involves risk and results may vary.
           Broker conditions, commissions and promotions depend on region,
           account type and official terms.
         </div>
-      </div>
-    </footer>
-    <script>
+</div>
+</footer>
+<script>
       const b = document.body,
         t = document.getElementById("themeBtn");
       function apply(d) {
@@ -954,9 +864,8 @@
       );
       document.querySelectorAll(".reveal").forEach((x) => o.observe(x));
     </script>
-    <script defer src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
-  
-<script defer src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
-<script defer src="psp-public-performance-v39.js?v=20260804-v39"></script>
+<script defer="" src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
+<script defer="" src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
+<script defer="" src="psp-public-performance-v40.js?v=20260804-v40"></script>
 </body>
 </html>

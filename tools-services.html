@@ -4,26 +4,26 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<script id="pspPublicDesktopMobileViewportV39">
-(function(){
-  var mobile=/Android|iPhone|iPad|iPod|Mobile|CrOS/i.test(navigator.userAgent)||
-    (window.matchMedia&&window.matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<=900);
-  if(!mobile)return;
-  var targetWidth=1200;
-  var deviceWidth=Math.min(screen.width||innerWidth,screen.height||innerHeight);
-  var scale=Math.max(.25,Math.min(1,deviceWidth/targetWidth));
+<script id="pspPublicMobileMorningRestoreV40">(function(){
+  var mobile = /Android|iPhone|iPad|iPod|Mobile|CrOS/i.test(navigator.userAgent) ||
+               Math.min(screen.width, screen.height) <= 820;
+  if(!mobile) return;
   var viewport=document.querySelector('meta[name="viewport"]');
   if(viewport){
-    viewport.setAttribute('content','width='+targetWidth+', initial-scale='+scale.toFixed(4)+', minimum-scale=0.25, maximum-scale=4, user-scalable=yes');
+    viewport.setAttribute(
+      'content',
+      'width=1200, user-scalable=yes, minimum-scale=0.25, maximum-scale=4'
+    );
   }
   document.documentElement.classList.add('psp-desktop-mobile-view');
-})();
-</script>
-
+})();</script><link crossorigin="" href="https://www.googletagmanager.com" rel="preconnect"/><link href="//www.googletagmanager.com" rel="dns-prefetch"/><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-5M0NKERDHF"></script><script id="pspGoogleAnalyticsV40">window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 <title>Trading Tools &amp; Services | PipSePaisa</title>
 <meta content="Trading tools, market services and educational resources." name="description"/>
 <link href="favicon.png" rel="icon"/>
-<link rel="preload" as="image" href="tools-hero-assets/performance.webp" fetchpriority="high"/>
+<link as="image" fetchpriority="high" href="tools-hero-assets/performance.webp" rel="preload"/>
 <link href="public-pages.css?v=20260722-learning-cards-v2" rel="stylesheet"/>
 <link href="public-upgrades.css?v=20260722-brand-dark-hero-v3" rel="stylesheet"/>
 <style>
@@ -164,9 +164,7 @@
     </style>
 <link href="mobile-reference-layout.css?v=20260727-exact-v3" rel="stylesheet"/>
 <link href="psp-final-fixes.css?v=20260727-all-fixes-v1" rel="stylesheet"/>
-
-<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5">
-
+<link href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5" rel="stylesheet"/>
 <style id="psp-nav-consistency-v38">
 .topbar .nav{min-height:72px}
 .topbar .brand{font-size:20px;font-weight:900}
@@ -178,12 +176,11 @@
   html.psp-desktop-mobile-view .topbar .menu a{font-size:15px;padding:11px 15px}
 }
 </style>
-<link href="psp-public-desktop-mobile-v39.css?v=20260804-v39" rel="stylesheet"/>
-</head>
+<link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/></head>
 <body class="page-tools">
 <header class="topbar">
 <div class="container nav">
-<a class="brand" href="landing.html"><img alt="PipSePaisa visual" src="favicon.png" loading="eager" decoding="async" fetchpriority="high"/><span>PipSePaisa</span></a>
+<a class="brand" href="landing.html"><img alt="PipSePaisa visual" decoding="async" fetchpriority="high" loading="eager" src="favicon.png"/><span>PipSePaisa</span></a>
 <nav class="menu">
 <a class="" href="landing.html">Home</a><a class="" href="courses.html">Courses</a><a class="broker-reviews-link" href="landing.html#broker-comparison">Broker Reviews</a><a class="" href="partner.html">Become Partner</a><a class="active" href="tools-services.html">Trading Tools &amp; Services</a>
 </nav>
@@ -217,7 +214,7 @@
 <span class="tools-suite-status"><i></i> LIVE PLATFORM</span>
 </div>
 <div class="tools-suite-screen">
-<img alt="PipSePaisa Trading Journal performance dashboard" class="tools-suite-image" src="tools-hero-assets/performance.webp" loading="eager" decoding="async" fetchpriority="high"/>
+<img alt="PipSePaisa Trading Journal performance dashboard" class="tools-suite-image" decoding="async" fetchpriority="high" loading="eager" src="tools-hero-assets/performance.webp"/>
 <div class="tools-suite-caption">
 <span class="tools-suite-icon">01</span>
 <span><b>Trading Journal</b><small>Track, review and improve your performance</small></span>
@@ -253,7 +250,7 @@
             </p>
 </div>
 <div class="broker-grid stagger">
-<a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" src="broker-promo-assets/dprime-promo-light.webp" loading="lazy" decoding="async"/></a><a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/xm-promo-dark.webp" data-light="broker-promo-assets/xm-promo-light.webp" src="broker-promo-assets/xm-promo-light.webp" loading="lazy" decoding="async"/></a><a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" src="broker-promo-assets/exness-promo-light.webp" loading="lazy" decoding="async"/></a>
+<a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/dprime-promo-light.webp"/></a><a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/xm-promo-dark.webp" data-light="broker-promo-assets/xm-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/xm-promo-light.webp"/></a><a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/exness-promo-light.webp"/></a>
 </div>
 </div>
 </section>
@@ -277,7 +274,7 @@
                 structured trading record.
               </p>
 <a href="landing.html">Open Journal →</a>
-<a aria-label="Trading Journal" class="tool-mini-banner" href="landing.html"><img alt="Trading Journal premium tool banner" data-dark="tool-card-banners/journal-dark.webp" data-light="tool-card-banners/journal-light.webp" src="tool-card-banners/journal-light.webp" loading="lazy" decoding="async"/></a></article>
+<a aria-label="Trading Journal" class="tool-mini-banner" href="landing.html"><img alt="Trading Journal premium tool banner" data-dark="tool-card-banners/journal-dark.webp" data-light="tool-card-banners/journal-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="tool-card-banners/journal-light.webp"/></a></article>
 <article class="resource-card reveal">
 <span class="num">02</span>
 <div class="iconbox">🧮</div>
@@ -287,7 +284,7 @@
                 requirements before trading.
               </p>
 <a href="landing.html">Open Calculators →</a>
-<a aria-label="Forex Calculators" class="tool-mini-banner" href="landing.html"><img alt="Forex Calculators premium tool banner" data-dark="tool-card-banners/calculators-dark.webp" data-light="tool-card-banners/calculators-light.webp" src="tool-card-banners/calculators-light.webp" loading="lazy" decoding="async"/></a></article>
+<a aria-label="Forex Calculators" class="tool-mini-banner" href="landing.html"><img alt="Forex Calculators premium tool banner" data-dark="tool-card-banners/calculators-dark.webp" data-light="tool-card-banners/calculators-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="tool-card-banners/calculators-light.webp"/></a></article>
 <article class="resource-card reveal">
 <span class="num">03</span>
 <div class="iconbox">💪</div>
@@ -297,7 +294,7 @@
                 market opportunities.
               </p>
 <a href="landing.html">View Strength →</a>
-<a aria-label="Currency Strength" class="tool-mini-banner" href="landing.html"><img alt="Currency Strength premium tool banner" data-dark="tool-card-banners/strength-dark.webp" data-light="tool-card-banners/strength-light.webp" src="tool-card-banners/strength-light.webp" loading="lazy" decoding="async"/></a></article>
+<a aria-label="Currency Strength" class="tool-mini-banner" href="landing.html"><img alt="Currency Strength premium tool banner" data-dark="tool-card-banners/strength-dark.webp" data-light="tool-card-banners/strength-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="tool-card-banners/strength-light.webp"/></a></article>
 <article class="resource-card reveal">
 <span class="num">04</span>
 <div class="iconbox">🔔</div>
@@ -307,7 +304,7 @@
                 and market changes.
               </p>
 <a href="landing.html">View Alerts →</a>
-<a aria-label="Market Alerts" class="tool-mini-banner" href="landing.html"><img alt="Market Alerts premium tool banner" data-dark="tool-card-banners/alerts-dark.webp" data-light="tool-card-banners/alerts-light.webp" src="tool-card-banners/alerts-light.webp" loading="lazy" decoding="async"/></a></article>
+<a aria-label="Market Alerts" class="tool-mini-banner" href="landing.html"><img alt="Market Alerts premium tool banner" data-dark="tool-card-banners/alerts-dark.webp" data-light="tool-card-banners/alerts-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="tool-card-banners/alerts-light.webp"/></a></article>
 <article class="resource-card reveal">
 <span class="num">05</span>
 <div class="iconbox">📰</div>
@@ -317,8 +314,8 @@
                 developments.
               </p>
 <a href="landing.html">View News →</a>
-<a aria-label="Fundamental News" class="tool-mini-banner" href="landing.html"><img alt="Fundamental News premium tool banner" data-dark="tool-card-banners/news-dark.webp" data-light="tool-card-banners/news-light.webp" src="tool-card-banners/news-light.webp" loading="lazy" decoding="async"/></a></article>
-<article class="resource-card reveal is-visible"><span class="num">06</span><div class="iconbox">📅</div><h3>Economic Calendar</h3><p>Review scheduled economic events and plan around periods of potential volatility.</p><a href="./?page=calendar">View Calendar →</a><a aria-label="Economic Calendar" class="tool-mini-banner" href="./?page=calendar"><img alt="Economic Calendar premium tool banner" data-dark="tool-card-banners/calendar-dark.webp" data-light="tool-card-banners/calendar-light.webp" src="tool-card-banners/calendar-light.webp" loading="lazy" decoding="async"/></a></article></div>
+<a aria-label="Fundamental News" class="tool-mini-banner" href="landing.html"><img alt="Fundamental News premium tool banner" data-dark="tool-card-banners/news-dark.webp" data-light="tool-card-banners/news-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="tool-card-banners/news-light.webp"/></a></article>
+<article class="resource-card reveal is-visible"><span class="num">06</span><div class="iconbox">📅</div><h3>Economic Calendar</h3><p>Review scheduled economic events and plan around periods of potential volatility.</p><a href="./?page=calendar">View Calendar →</a><a aria-label="Economic Calendar" class="tool-mini-banner" href="./?page=calendar"><img alt="Economic Calendar premium tool banner" data-dark="tool-card-banners/calendar-dark.webp" data-light="tool-card-banners/calendar-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="tool-card-banners/calendar-light.webp"/></a></article></div>
 </div>
 </section>
 <section class="category alt" id="learning-journey">
@@ -499,9 +496,8 @@
       );
       document.querySelectorAll(".reveal").forEach((x) => o.observe(x));
     </script>
-<script defer src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
-
-<script defer src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
-<script defer src="psp-public-performance-v39.js?v=20260804-v39"></script>
+<script defer="" src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
+<script defer="" src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
+<script defer="" src="psp-public-performance-v40.js?v=20260804-v40"></script>
 </body>
 </html>

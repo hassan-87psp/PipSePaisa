@@ -1,0 +1,36 @@
+/* PipSePaisa V40 — final public override.
+   Desktop composition remains unchanged. Mobile uses the approved morning viewport/layout. */
+
+/* Active state uses orange text only; no underline/line on any public page. */
+.topbar .menu a,
+.topbar .menu a.active{
+  text-decoration:none!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
+}
+.topbar .menu a.active,
+.topbar .menu a.active:hover{
+  color:#F88702!important;
+}
+.topbar .menu a.active::after,
+.topbar .menu a.active:after{
+  display:none!important;
+  content:none!important;
+  width:0!important;
+  height:0!important;
+  background:none!important;
+  box-shadow:none!important;
+}
+
+/* Keep the small no-flash transition from V39 without changing layout. */
+html.psp-page-boot body{opacity:.985}
+html.psp-page-ready body{opacity:1;transition:opacity .12s ease-out}
+@media(prefers-reduced-motion:reduce){
+  html.psp-page-boot body,html.psp-page-ready body{opacity:1!important;transition:none!important}
+}
+
+/* Reduce continuous paint work while keeping all UI and functions intact. */
+@media (pointer:coarse){
+  .mockup,.mentor-orbit,.mentor-spotlight::after{animation:none!important}
+  .reveal,.stagger>*{transition-duration:.28s!important;animation-duration:.28s!important}
+}

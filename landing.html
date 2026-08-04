@@ -5,27 +5,27 @@
 <!-- Exact approved mobile header restored; visibility only override -->
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<script id="pspPublicDesktopMobileViewportV39">
-(function(){
-  var mobile=/Android|iPhone|iPad|iPod|Mobile|CrOS/i.test(navigator.userAgent)||
-    (window.matchMedia&&window.matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<=900);
-  if(!mobile)return;
-  var targetWidth=1200;
-  var deviceWidth=Math.min(screen.width||innerWidth,screen.height||innerHeight);
-  var scale=Math.max(.25,Math.min(1,deviceWidth/targetWidth));
+<script id="pspPublicMobileMorningRestoreV40">(function(){
+  var mobile = /Android|iPhone|iPad|iPod|Mobile|CrOS/i.test(navigator.userAgent) ||
+               Math.min(screen.width, screen.height) <= 820;
+  if(!mobile) return;
   var viewport=document.querySelector('meta[name="viewport"]');
   if(viewport){
-    viewport.setAttribute('content','width='+targetWidth+', initial-scale='+scale.toFixed(4)+', minimum-scale=0.25, maximum-scale=4, user-scalable=yes');
+    viewport.setAttribute(
+      'content',
+      'width=1200, user-scalable=yes, minimum-scale=0.25, maximum-scale=4'
+    );
   }
   document.documentElement.classList.add('psp-desktop-mobile-view');
-})();
-</script>
-
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
-<link rel="dns-prefetch" href="//cdn.jsdelivr.net"/>
+})();</script><link crossorigin="" href="https://www.googletagmanager.com" rel="preconnect"/><link href="//www.googletagmanager.com" rel="dns-prefetch"/><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-5M0NKERDHF"></script><script id="pspGoogleAnalyticsV40">window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
+<link crossorigin="" href="https://cdn.jsdelivr.net" rel="preconnect"/>
+<link href="//cdn.jsdelivr.net" rel="dns-prefetch"/>
 <title>PipSePaisa — Forex Education &amp; Trading Tools</title>
 <link href="favicon.png" rel="icon"/>
-<link rel="preload" as="image" href="hero-bg-light.webp" fetchpriority="high"/>
+<link as="image" fetchpriority="high" href="hero-bg-light.webp" rel="preload"/>
 <link href="public-upgrades.css?v=20260722-brand-dark-hero-v3" rel="stylesheet"/>
 <style>
 :root{
@@ -1412,7 +1412,6 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 .menu a.active{color:#e97900!important;position:relative}.menu a.active:after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:3px;border-radius:99px;background:linear-gradient(90deg,#e97900,#ffb21c)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style id="landingAuthPopupStyles">
 .landing-auth-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(8,10,14,.64);backdrop-filter:blur(5px)}
 .landing-auth-overlay.active{display:flex}
@@ -1436,19 +1435,15 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 .landing-auth-switch{text-align:center;margin-top:12px;color:#777;font-size:11px}.dark-theme .landing-auth-switch{color:#aeb5c2}.landing-auth-switch button{border:0;background:none;color:#df7900;font-weight:800;cursor:pointer;padding:0}
 @media(max-width:520px){.landing-auth-overlay{padding:12px}.landing-auth-card{padding:23px 18px 24px;border-radius:16px}}
 </style>
-
-<link rel="stylesheet" href="mobile-reference-layout.css?v=20260727-exact-v3" />
-<link rel="stylesheet" href="psp-final-fixes.css?v=20260727-all-fixes-v1" />
-
-<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5">
-
+<link href="mobile-reference-layout.css?v=20260727-exact-v3" rel="stylesheet"/>
+<link href="psp-final-fixes.css?v=20260727-all-fixes-v1" rel="stylesheet"/>
+<link href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5" rel="stylesheet"/>
 <style>
 @media(max-width:980px){
   .topbar,.nav,.nav-actions{position:relative;z-index:10020}
   .nav-actions .btn{display:inline-flex!important;pointer-events:auto!important;touch-action:manipulation;min-height:42px;align-items:center;justify-content:center}
 }
 </style>
-
 <style id="brokerMobileReferenceFinal">
 @media(max-width:820px){
   .broker-comparison-section{
@@ -1533,8 +1528,6 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
   }
 }
 </style>
-
-
 <style id="mobileNavVisibilityOnly">
 html.psp-desktop-mobile-view .topbar .nav{
   display:flex!important;
@@ -1561,14 +1554,10 @@ html.psp-desktop-mobile-view .topbar .nav-actions{
   align-items:center!important;
 }
 </style>
-
-
 <style id="landingAuthOfficialLogoFix">
 .landing-auth-logo{overflow:hidden;padding:0!important;background:transparent!important}
 .landing-auth-logo img{display:block;width:100%;height:100%;object-fit:cover;border-radius:inherit}
 </style>
-
-
 <style id="pspV33HeroBrandFixes">
 /* V33: approved public hero refinements. Keep the existing hero dimensions unchanged. */
 :root{--orange:#F88702;--orange-dark:#F88702}
@@ -1638,7 +1627,6 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 @media(max-width:980px){.hero-overlay-banner{min-height:430px!important}.hero-mentor-badge{display:none!important}}
 @media(max-width:680px){.hero-overlay-banner{min-height:640px!important}}
 </style>
-
 <style id="pspV34HeroSpacingBalance">
 /* V34: Desktop-only hero spacing refinement. Keep the approved hero height and mobile layout unchanged. */
 @media (min-width:981px){
@@ -1688,59 +1676,6 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 }
 </style>
 
-<style id="pspV36MobileHeroHeightRestore">
-/* V36: restore the approved compact mobile hero. Desktop layout remains unchanged. */
-html.psp-desktop-mobile-view .hero-overlay-banner{
-  height:370px!important;
-  min-height:370px!important;
-}
-@media (max-width:768px){
-  .hero-overlay-banner,
-  html.psp-desktop-mobile-view .hero-overlay-banner{
-    height:137px!important;
-    min-height:137px!important;
-    background-size:cover!important;
-    background-position:center top!important;
-    border-radius:8px!important;
-  }
-  .hero-text-layer,
-  html.psp-desktop-mobile-view .hero-text-layer{
-    width:59%!important;
-    height:100%!important;
-    padding:7px 7px 5px!important;
-    justify-content:center!important;
-  }
-  .hero-mentor-badge{display:none!important}
-}
-</style>
-
-<style id="v37MentorBrokerMobileFix">
-/* V37: readable broker cards on the approved forced-desktop mobile viewport. */
-html.psp-desktop-mobile-view .broker-comparison-section{padding:34px 0 28px!important}
-html.psp-desktop-mobile-view .broker-table-wrap{overflow:visible!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
-html.psp-desktop-mobile-view .broker-comparison-table,
-html.psp-desktop-mobile-view .broker-comparison-table tbody,
-html.psp-desktop-mobile-view .broker-comparison-table tr,
-html.psp-desktop-mobile-view .broker-comparison-table td{display:block!important;width:100%!important}
-html.psp-desktop-mobile-view .broker-comparison-table colgroup,
-html.psp-desktop-mobile-view .broker-comparison-table thead{display:none!important}
-html.psp-desktop-mobile-view .broker-comparison-table tbody{display:grid!important;grid-template-columns:1fr!important;gap:24px!important}
-html.psp-desktop-mobile-view .broker-comparison-table tbody tr{overflow:hidden!important;border:2px solid rgba(248,135,2,.28)!important;border-radius:22px!important;background:#fff!important;box-shadow:0 18px 42px rgba(63,37,4,.10)!important}
-html.psp-desktop-mobile-view .broker-comparison-table tbody td{display:grid!important;grid-template-columns:42% 58%!important;align-items:center!important;gap:18px!important;min-height:58px!important;padding:13px 22px!important;border-bottom:1px solid #eee1d1!important;text-align:right!important;font-size:22px!important;line-height:1.3!important}
-html.psp-desktop-mobile-view .broker-comparison-table tbody td::before{display:block!important;content:attr(data-label)!important;color:#0d1b32!important;font-weight:900!important;text-align:left!important;font-size:20px!important}
-html.psp-desktop-mobile-view .broker-comparison-table tbody td:first-child{display:flex!important;justify-content:center!important;padding:20px!important}
-html.psp-desktop-mobile-view .broker-comparison-table tbody td:first-child::before{display:none!important}
-html.psp-desktop-mobile-view .broker-comparison-table tbody td:last-child{border-bottom:0!important}
-html.psp-desktop-mobile-view .broker-name{width:100%!important;justify-content:center!important}
-html.psp-desktop-mobile-view .broker-name img,
-html.psp-desktop-mobile-view .broker-name img.broker-logo-icon,
-html.psp-desktop-mobile-view .broker-comparison-table img.broker-logo-icon{width:260px!important;max-width:72%!important;height:82px!important;min-width:0!important;min-height:0!important;object-fit:contain!important;padding:6px 10px!important;margin:0!important;border-radius:12px!important}
-html.psp-desktop-mobile-view .broker-comparison-table .badge{justify-self:end!important;padding:9px 13px!important;font-size:19px!important}
-html.psp-desktop-mobile-view .broker-data-note{margin:16px 6px 0!important;font-size:17px!important;line-height:1.45!important}
-html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody tr{background:#0f192a!important;border-color:#35445c!important}
-html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::before{color:#fff!important}
-</style>
-
 
 <style id="psp-nav-consistency-v38">
 .topbar .nav{min-height:72px}
@@ -1753,18 +1688,15 @@ html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::
   html.psp-desktop-mobile-view .topbar .menu a{font-size:15px;padding:11px 15px}
 }
 </style>
-<link href="psp-public-desktop-mobile-v39.css?v=20260804-v39" rel="stylesheet"/>
-</head>
+<link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/></head>
 <body class="page-home">
-
 <header class="topbar">
 <div class="container nav">
-<a class="brand" href="#home"><img alt="PipSePaisa logo" src="favicon.png" loading="eager" decoding="async" fetchpriority="high"/><span>PipSePaisa</span></a>
+<a class="brand" href="#home"><img alt="PipSePaisa logo" decoding="async" fetchpriority="high" loading="eager" src="favicon.png"/><span>PipSePaisa</span></a>
 <nav class="menu"><a class="active" href="landing.html">Home</a><a href="courses.html">Courses</a><a class="broker-reviews-link" href="landing.html#broker-comparison">Broker Reviews</a><a href="partner.html">Become Partner</a><a href="tools-services.html">Trading Tools &amp; Services</a></nav>
 <div class="nav-actions">
 <button aria-label="Theme" class="theme-btn" type="button">☀️</button>
 <button class="btn" id="mainLoginButton" onclick="event.preventDefault();openLandingAuth('login');" type="button">Login</button>
-
 </div>
 </div>
 </header>
@@ -1782,9 +1714,9 @@ html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::
 </div>
 <a class="btn hero-primary-cta" href="courses.html#courses">Join My Free Classes →</a>
 </div>
-<div class="hero-mentor-badge" aria-label="Sir Sajid Khan Ghori, Asia Top Instructor">
-  <strong>Sir Sajid Khan Ghori</strong>
-  <span>Asia Top Instructor</span>
+<div aria-label="Sir Sajid Khan Ghori, Asia Top Instructor" class="hero-mentor-badge">
+<strong>Sir Sajid Khan Ghori</strong>
+<span>Asia Top Instructor</span>
 </div>
 </div>
 </div>
@@ -1798,15 +1730,15 @@ html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::
 </div>
 <div class="broker-logo-grid" id="landingBrokerGrid">
 <a class="broker-logo-card" data-fallback="true" href="landing.html">
-<picture class="theme-picture"><img alt="Exness broker" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" src="broker-promo-assets/exness-promo-light.webp" loading="lazy" decoding="async"/></picture>
+<picture class="theme-picture"><img alt="Exness broker" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/exness-promo-light.webp"/></picture>
 <div class="broker-card-footer"><strong>Exness</strong><span>Open Account →</span></div>
 </a>
 <a class="broker-logo-card" data-fallback="true" href="landing.html">
-<picture class="theme-picture"><img alt="D Prime broker" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" src="broker-promo-assets/dprime-promo-light.webp" loading="lazy" decoding="async"/></picture>
+<picture class="theme-picture"><img alt="D Prime broker" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/dprime-promo-light.webp"/></picture>
 <div class="broker-card-footer"><strong>D Prime</strong><span>Open Account →</span></div>
 </a>
 <a class="broker-logo-card" data-fallback="true" href="landing.html">
-<picture class="theme-picture"><img alt="XM broker" data-dark="broker-promo-assets/xm-promo-dark.webp" data-light="broker-promo-assets/xm-promo-light.webp" src="broker-promo-assets/xm-promo-light.webp" loading="lazy" decoding="async"/></picture>
+<picture class="theme-picture"><img alt="XM broker" data-dark="broker-promo-assets/xm-promo-dark.webp" data-light="broker-promo-assets/xm-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/xm-promo-light.webp"/></picture>
 <div class="broker-card-footer"><strong>XM</strong><span>Open Account →</span></div>
 </a>
 </div>
@@ -1844,34 +1776,34 @@ html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::
 </div>
 <div class="services-banner-grid">
 <a aria-label="Explore Forex Education" class="service-banner-card" href="landing.html" onclick="openLandingAuth('login');return false">
-<img alt="Forex Education" class="theme-card-image" data-dark="service-banners/forex-education-dark-readable-v4.webp" data-light="service-banners/forex-education-light-matched-v4.webp" src="service-banners/forex-education-light-matched-v4.webp" loading="lazy" decoding="async"/>
+<img alt="Forex Education" class="theme-card-image" data-dark="service-banners/forex-education-dark-readable-v4.webp" data-light="service-banners/forex-education-light-matched-v4.webp" decoding="async" fetchpriority="low" loading="lazy" src="service-banners/forex-education-light-matched-v4.webp"/>
 </a>
 <a aria-label="Explore Trading Signals" class="service-banner-card" href="landing.html" onclick="openLandingAuth('login');return false">
-<img alt="Premium Trading Signals" class="theme-card-image" data-dark="service-banners/trading-signals-dark-readable-v4.webp" data-light="service-banners/trading-signals-light-matched-v4.webp" src="service-banners/trading-signals-light-matched-v4.webp" loading="lazy" decoding="async"/>
+<img alt="Premium Trading Signals" class="theme-card-image" data-dark="service-banners/trading-signals-dark-readable-v4.webp" data-light="service-banners/trading-signals-light-matched-v4.webp" decoding="async" fetchpriority="low" loading="lazy" src="service-banners/trading-signals-light-matched-v4.webp"/>
 </a>
 <a aria-label="Explore Trading Tools" class="service-banner-card" href="landing.html" onclick="openLandingAuth('login');return false">
-<img alt="IB Business Solutions" class="theme-card-image" data-dark="service-banners/trading-tools-dark-readable-v4.webp" data-light="service-banners/trading-tools-light-matched-v4.webp" src="service-banners/trading-tools-light-matched-v4.webp" loading="lazy" decoding="async"/>
+<img alt="IB Business Solutions" class="theme-card-image" data-dark="service-banners/trading-tools-dark-readable-v4.webp" data-light="service-banners/trading-tools-light-matched-v4.webp" decoding="async" fetchpriority="low" loading="lazy" src="service-banners/trading-tools-light-matched-v4.webp"/>
 </a>
 </div>
 </div>
 </section>
-<section class="mentor-spotlight-section" id="meet-sajid-ghori" aria-labelledby="mentor-title">
+<section aria-labelledby="mentor-title" class="mentor-spotlight-section" id="meet-sajid-ghori">
 <div class="container">
 <div class="mentor-spotlight">
-<div class="mentor-portrait" aria-label="Mr. Sajid Ghori, Forex trainer and instructor">
-<div class="mentor-orbit" aria-hidden="true"></div>
-<div class="mentor-chart" aria-hidden="true"><svg viewBox="0 0 540 280" preserveAspectRatio="none"><path d="M6 226 L55 205 L93 218 L135 158 L178 176 L216 108 L258 133 L301 76 L342 98 L388 43 L430 69 L486 24 L534 47"/><path d="M6 254 L65 238 L116 243 L165 213 L215 223 L270 187 L329 197 L386 157 L444 166 L534 119" opacity=".45"/></svg></div>
-<img class="mentor-person" src="sajid-ghori.webp" width="1024" height="1536" alt="Mr. Sajid Ghori, Forex trader, mentor and coach" loading="lazy" decoding="async"/>
+<div aria-label="Mr. Sajid Ghori, Forex trainer and instructor" class="mentor-portrait">
+<div aria-hidden="true" class="mentor-orbit"></div>
+<div aria-hidden="true" class="mentor-chart"><svg preserveaspectratio="none" viewbox="0 0 540 280"><path d="M6 226 L55 205 L93 218 L135 158 L178 176 L216 108 L258 133 L301 76 L342 98 L388 43 L430 69 L486 24 L534 47"></path><path d="M6 254 L65 238 L116 243 L165 213 L215 223 L270 187 L329 197 L386 157 L444 166 L534 119" opacity=".45"></path></svg></div>
+<img alt="Mr. Sajid Ghori, Forex trader, mentor and coach" class="mentor-person" decoding="async" fetchpriority="low" height="1536" loading="lazy" src="sajid-ghori.webp" width="1024"/>
 <div class="mentor-role-badge">FOREX TRADER • MENTOR • COACH</div>
 </div>
 <div class="mentor-content">
 <div class="mentor-eyebrow">MEET YOUR FOREX MENTOR</div>
 <h2 id="mentor-title">Learn with Mr. Sajid Ghori <span>Top Asia Instructor</span></h2>
 <p class="mentor-description">Mr. Sajid Ghori is a professional Forex and Futures trader, mentor and coach focused on clear, practical and structured trading education. His programs cover technical analysis, market structure, Volume Spread Analysis and disciplined risk management for aspiring traders across Asia.</p>
-<div class="mentor-highlights" aria-label="Mr. Sajid Ghori expertise">
+<div aria-label="Mr. Sajid Ghori expertise" class="mentor-highlights">
 <span>Top Asia Instructor</span><span>Forex Trainer</span><span>Technical Analysis &amp; VSA</span>
 </div>
-<a class="btn mentor-cta" href="courses.html#courses">Explore Mr. Sajid Ghori’s Courses <span class="arrow" aria-hidden="true">→</span></a>
+<a class="btn mentor-cta" href="courses.html#courses">Explore Mr. Sajid Ghori’s Courses <span aria-hidden="true" class="arrow">→</span></a>
 </div>
 </div>
 </div>
@@ -1887,21 +1819,21 @@ html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::
 <div class="partner-promo-item">
 <a class="partner-promo-card visual-promo-card" href="landing.html" onclick="openLandingAuth('login');return false">
 <picture>
-<img alt="Grow Your IB Business — up to $25 per lot" class="theme-card-image" data-dark="ib-growth-dark.webp" data-light="ib-growth-light.webp" src="ib-growth-light.webp" loading="lazy" decoding="async"/>
+<img alt="Grow Your IB Business — up to $25 per lot" class="theme-card-image" data-dark="ib-growth-dark.webp" data-light="ib-growth-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="ib-growth-light.webp"/>
 </picture>
 </a>
 </div>
 <div class="partner-promo-item">
 <a class="partner-promo-card visual-promo-card" href="landing.html" onclick="openLandingAuth('login');return false">
 <picture>
-<img alt="Free Team Training for you and your team" class="theme-card-image" data-dark="team-training-dark.webp" data-light="team-training-light.webp" src="team-training-light.webp" loading="lazy" decoding="async"/>
+<img alt="Free Team Training for you and your team" class="theme-card-image" data-dark="team-training-dark.webp" data-light="team-training-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="team-training-light.webp"/>
 </picture>
 </a>
 </div>
 <div class="partner-promo-item">
 <a class="partner-promo-card visual-promo-card" href="landing.html" onclick="openLandingAuth('login');return false">
 <picture>
-<img alt="AI tools for social media growth" class="theme-card-image" data-dark="ai-tools-dark.webp" data-light="ai-tools-light.webp" src="ai-tools-light.webp" loading="lazy" decoding="async"/>
+<img alt="AI tools for social media growth" class="theme-card-image" data-dark="ai-tools-dark.webp" data-light="ai-tools-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="ai-tools-light.webp"/>
 </picture>
 </a>
 </div>
@@ -1933,8 +1865,8 @@ html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::
 <th>Broker</th><th>Bonus</th><th>Regulatory Coverage</th><th>Account Options</th><th>Minimum Deposit</th><th>Spreads</th><th>Maximum Leverage</th><th>Minimum Trade</th><th>Withdrawals</th>
 </tr>
 </thead>
-<tbody><tr class="broker-link-row" data-broker-url="https://one.exnessonelink.com/a/be2kjlypr9" tabindex="0" role="link" aria-label="Open Exness account">
-<td data-label="Broker"><div class="broker-name"><img alt="Exness official logo" src="exness-logo-clean.png?v=20260804-v37" loading="lazy" decoding="async"/></div></td>
+<tbody><tr aria-label="Open Exness account" class="broker-link-row" data-broker-url="https://one.exnessonelink.com/a/be2kjlypr9" role="link" tabindex="0">
+<td data-label="Broker"><div class="broker-name"><img alt="Exness official logo" decoding="async" fetchpriority="low" loading="lazy" src="exness-logo-clean.png?v=20260804-v37"/></div></td>
 <td data-label="Bonus"><span class="badge">No Deposit Bonus</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
 <td class="yes" data-label="Account Options">Multiple Account Types</td>
@@ -1943,8 +1875,8 @@ html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::
 <td data-label="Maximum Leverage">Up to unlimited*</td>
 <td data-label="Minimum Trade">0.01 lot</td>
 <td class="yes" data-label="Withdrawals">Automated / instant where available*</td>
-</tr><tr class="broker-link-row" data-broker-url="https://my.dooprime.com/links/go/72929" tabindex="0" role="link" aria-label="Open D Prime account">
-<td data-label="Broker"><div class="broker-name"><img alt="D Prime official logo" class="broker-logo-icon" src="dprime-logo-clean.png?v=20260804-v37" loading="lazy" decoding="async"/></div></td>
+</tr><tr aria-label="Open D Prime account" class="broker-link-row" data-broker-url="https://my.dooprime.com/links/go/72929" role="link" tabindex="0">
+<td data-label="Broker"><div class="broker-name"><img alt="D Prime official logo" class="broker-logo-icon" decoding="async" fetchpriority="low" loading="lazy" src="dprime-logo-clean.png?v=20260804-v37"/></div></td>
 <td data-label="Bonus"><span class="badge">20% Deposit Bonus</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
 <td class="yes" data-label="Account Options">Multiple Account Types</td>
@@ -1953,8 +1885,8 @@ html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::
 <td data-label="Maximum Leverage">Up to 1:1000*</td>
 <td data-label="Minimum Trade">0.01 lot</td>
 <td data-label="Withdrawals">Method dependent</td>
-</tr><tr class="broker-link-row" data-broker-url="https://pipsepaisa.com" tabindex="0" role="link" aria-label="Open XM account">
-<td data-label="Broker"><div class="broker-name"><img alt="XM official logo" src="xm-logo-official-2026.svg" loading="lazy" decoding="async"/></div></td>
+</tr><tr aria-label="Open XM account" class="broker-link-row" data-broker-url="https://pipsepaisa.com" role="link" tabindex="0">
+<td data-label="Broker"><div class="broker-name"><img alt="XM official logo" decoding="async" fetchpriority="low" loading="lazy" src="xm-logo-official-2026.svg"/></div></td>
 <td data-label="Bonus"><span class="badge">Welcome &amp; Deposit Bonus</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
 <td class="yes" data-label="Account Options">Multiple Account Types</td>
@@ -1963,8 +1895,8 @@ html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::
 <td data-label="Maximum Leverage">Up to 1:1000*</td>
 <td data-label="Minimum Trade">0.01 lot*</td>
 <td data-label="Withdrawals">Method dependent</td>
-</tr><tr class="broker-link-row" data-broker-url="https://www.grouphf.com/Pipsepaisa?refid=3" tabindex="0" role="link" aria-label="Open HFM account">
-<td data-label="Broker"><div class="broker-name"><img alt="HFM official logo" src="hfm-logo-official-2026.png" loading="lazy" decoding="async"/></div></td>
+</tr><tr aria-label="Open HFM account" class="broker-link-row" data-broker-url="https://www.grouphf.com/Pipsepaisa?refid=3" role="link" tabindex="0">
+<td data-label="Broker"><div class="broker-name"><img alt="HFM official logo" decoding="async" fetchpriority="low" loading="lazy" src="hfm-logo-official-2026.png"/></div></td>
 <td data-label="Bonus"><span class="badge">Region-Based Bonus</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
 <td class="yes" data-label="Account Options">Multiple Account Types</td>
@@ -1973,8 +1905,8 @@ html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::
 <td data-label="Maximum Leverage">Up to 1:2000*</td>
 <td data-label="Minimum Trade">0.01 lot</td>
 <td data-label="Withdrawals">Method dependent</td>
-</tr><tr class="broker-link-row" data-broker-url="https://vigco.co/la-com-inv/opun7U0W" tabindex="0" role="link" aria-label="Open Vantage account">
-<td data-label="Broker"><div class="broker-name"><img alt="Vantage official logo" src="vantage-logo-official-2026.svg" loading="lazy" decoding="async"/></div></td>
+</tr><tr aria-label="Open Vantage account" class="broker-link-row" data-broker-url="https://vigco.co/la-com-inv/opun7U0W" role="link" tabindex="0">
+<td data-label="Broker"><div class="broker-name"><img alt="Vantage official logo" decoding="async" fetchpriority="low" loading="lazy" src="vantage-logo-official-2026.svg"/></div></td>
 <td data-label="Bonus"><span class="badge">Up to 50% Deposit Bonus</span></td>
 <td data-label="Regulatory Coverage">Multi-regulated group</td>
 <td class="yes" data-label="Account Options">Multiple Account Types</td>
@@ -1996,44 +1928,42 @@ html.psp-desktop-mobile-view body.dark-theme .broker-comparison-table tbody td::
 </section>
 </main>
 <footer><div class="container"><div class="footer-grid"><div><div class="footer-brand">PipSePaisa</div><p>Forex education, professional learning, practical trading tools and business support designed to help traders and partners grow with knowledge and discipline.</p></div><div><h4>Quick Links</h4><ul><li><a href="landing.html">Home</a></li><li><a href="partner.html">Become Partner</a></li><li><a href="courses.html">Courses</a></li></ul></div><div><h4>Resources</h4><ul><li><a href="tools-services.html">Trading Tools &amp; Services</a></li><li><a href="courses.html#courses">Course Enrollment</a></li><li><a href="./#auth-login">Login</a></li></ul></div><div><h4>Connect</h4><ul><li>Facebook</li><li>Instagram</li><li>WhatsApp Channel</li></ul></div></div><div class="disclaimer">Educational content only. Trading involves risk and results may vary. Broker conditions, commissions and promotions depend on region, account type and official terms.</div></div></footer>
-
-<div class="landing-auth-overlay" id="landingAuthOverlay" aria-hidden="true">
-  <div class="landing-auth-card" role="dialog" aria-modal="true" aria-labelledby="landingAuthTitle">
-    <button class="landing-auth-close" type="button" aria-label="Close login popup" onclick="closeLandingAuth()">×</button>
-    <div class="landing-auth-logo"><img src="icon-192.png" alt="PipSePaisa" loading="lazy" decoding="async"></div>
-    <h2 class="landing-auth-title" id="landingAuthTitle">Welcome Back</h2>
-    <p class="landing-auth-sub" id="landingAuthSubtitle">Login to your trading hub</p>
-    <div class="landing-auth-tabs">
-      <button class="landing-auth-tab active" id="landingLoginTab" type="button" onclick="switchLandingAuth('login')">Login</button>
-      <button class="landing-auth-tab" id="landingSignupTab" type="button" onclick="switchLandingAuth('signup')">Sign Up</button>
-    </div>
-    <div class="landing-auth-panel active" id="landingLoginPanel">
-      <div class="landing-auth-field"><label for="landingLoginEmail">Email Address</label><input id="landingLoginEmail" name="email" type="email" autocomplete="username" placeholder="your@email.com"></div>
-      <div class="landing-auth-field"><label for="landingLoginPassword">Password</label><input id="landingLoginPassword" name="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
-      <div style="display:flex;justify-content:flex-end;margin:-2px 0 12px;"><button type="button" onclick="switchLandingAuth('forgot')" style="border:0;background:transparent;color:#d97706;font:inherit;font-size:12px;font-weight:800;cursor:pointer;padding:0;">Forgot Password?</button></div>
-      <button class="landing-auth-submit" id="landingLoginBtn" type="button" onclick="landingLoginUser()">🔐 Login to Account</button>
-      <div class="landing-auth-message" id="landingLoginMessage"></div>
-      <div class="landing-auth-switch">New here? <button type="button" onclick="switchLandingAuth('signup')">Create free account →</button></div>
-    </div>
-    <div class="landing-auth-panel" id="landingSignupPanel">
-      <div class="landing-auth-field"><label for="landingSignupName">Full Name</label><input id="landingSignupName" type="text" autocomplete="name" placeholder="Your full name"></div>
-      <div class="landing-auth-field"><label for="landingSignupEmail">Email Address</label><input id="landingSignupEmail" type="email" autocomplete="email" placeholder="your@email.com"></div>
-      <div class="landing-auth-field"><label for="landingSignupPhone">WhatsApp Number</label><input id="landingSignupPhone" type="tel" autocomplete="tel" placeholder="+92..."></div>
-      <div class="landing-auth-field"><label for="landingSignupPassword">Password</label><input id="landingSignupPassword" type="password" autocomplete="new-password" placeholder="Minimum 6 characters"></div>
-      <div class="landing-auth-field"><label for="landingSignupPassword2">Confirm Password</label><input id="landingSignupPassword2" type="password" autocomplete="new-password" placeholder="Repeat password"></div>
-      <button class="landing-auth-submit" id="landingSignupBtn" type="button" onclick="landingSignupUser()">✨ Create Free Account</button>
-      <div class="landing-auth-message" id="landingSignupMessage"></div>
-      <div class="landing-auth-switch">Already registered? <button type="button" onclick="switchLandingAuth('login')">Login →</button></div>
-    </div>
-    <div class="landing-auth-panel" id="landingForgotPanel">
-      <div class="landing-auth-field"><label for="landingForgotEmail">Email Address</label><input id="landingForgotEmail" type="email" autocomplete="email" placeholder="your@email.com"></div>
-      <button class="landing-auth-submit" id="landingForgotBtn" type="button" onclick="landingForgotPassword()">📧 Send Reset Link</button>
-      <div class="landing-auth-message" id="landingForgotMessage"></div>
-      <div class="landing-auth-switch">Remembered your password? <button type="button" onclick="switchLandingAuth('login')">Back to Login →</button></div>
-    </div>
-  </div>
+<div aria-hidden="true" class="landing-auth-overlay" id="landingAuthOverlay">
+<div aria-labelledby="landingAuthTitle" aria-modal="true" class="landing-auth-card" role="dialog">
+<button aria-label="Close login popup" class="landing-auth-close" onclick="closeLandingAuth()" type="button">×</button>
+<div class="landing-auth-logo"><img alt="PipSePaisa" decoding="async" fetchpriority="low" loading="lazy" src="icon-192.png"/></div>
+<h2 class="landing-auth-title" id="landingAuthTitle">Welcome Back</h2>
+<p class="landing-auth-sub" id="landingAuthSubtitle">Login to your trading hub</p>
+<div class="landing-auth-tabs">
+<button class="landing-auth-tab active" id="landingLoginTab" onclick="switchLandingAuth('login')" type="button">Login</button>
+<button class="landing-auth-tab" id="landingSignupTab" onclick="switchLandingAuth('signup')" type="button">Sign Up</button>
 </div>
-
+<div class="landing-auth-panel active" id="landingLoginPanel">
+<div class="landing-auth-field"><label for="landingLoginEmail">Email Address</label><input autocomplete="username" id="landingLoginEmail" name="email" placeholder="your@email.com" type="email"/></div>
+<div class="landing-auth-field"><label for="landingLoginPassword">Password</label><input autocomplete="current-password" id="landingLoginPassword" name="password" placeholder="••••••••" type="password"/></div>
+<div style="display:flex;justify-content:flex-end;margin:-2px 0 12px;"><button onclick="switchLandingAuth('forgot')" style="border:0;background:transparent;color:#d97706;font:inherit;font-size:12px;font-weight:800;cursor:pointer;padding:0;" type="button">Forgot Password?</button></div>
+<button class="landing-auth-submit" id="landingLoginBtn" onclick="landingLoginUser()" type="button">🔐 Login to Account</button>
+<div class="landing-auth-message" id="landingLoginMessage"></div>
+<div class="landing-auth-switch">New here? <button onclick="switchLandingAuth('signup')" type="button">Create free account →</button></div>
+</div>
+<div class="landing-auth-panel" id="landingSignupPanel">
+<div class="landing-auth-field"><label for="landingSignupName">Full Name</label><input autocomplete="name" id="landingSignupName" placeholder="Your full name" type="text"/></div>
+<div class="landing-auth-field"><label for="landingSignupEmail">Email Address</label><input autocomplete="email" id="landingSignupEmail" placeholder="your@email.com" type="email"/></div>
+<div class="landing-auth-field"><label for="landingSignupPhone">WhatsApp Number</label><input autocomplete="tel" id="landingSignupPhone" placeholder="+92..." type="tel"/></div>
+<div class="landing-auth-field"><label for="landingSignupPassword">Password</label><input autocomplete="new-password" id="landingSignupPassword" placeholder="Minimum 6 characters" type="password"/></div>
+<div class="landing-auth-field"><label for="landingSignupPassword2">Confirm Password</label><input autocomplete="new-password" id="landingSignupPassword2" placeholder="Repeat password" type="password"/></div>
+<button class="landing-auth-submit" id="landingSignupBtn" onclick="landingSignupUser()" type="button">✨ Create Free Account</button>
+<div class="landing-auth-message" id="landingSignupMessage"></div>
+<div class="landing-auth-switch">Already registered? <button onclick="switchLandingAuth('login')" type="button">Login →</button></div>
+</div>
+<div class="landing-auth-panel" id="landingForgotPanel">
+<div class="landing-auth-field"><label for="landingForgotEmail">Email Address</label><input autocomplete="email" id="landingForgotEmail" placeholder="your@email.com" type="email"/></div>
+<button class="landing-auth-submit" id="landingForgotBtn" onclick="landingForgotPassword()" type="button">📧 Send Reset Link</button>
+<div class="landing-auth-message" id="landingForgotMessage"></div>
+<div class="landing-auth-switch">Remembered your password? <button onclick="switchLandingAuth('login')" type="button">Back to Login →</button></div>
+</div>
+</div>
+</div>
 <script>
 
 const themeButton=document.querySelector('.theme-btn');
@@ -2298,7 +2228,7 @@ document.addEventListener('DOMContentLoaded',syncPartnerPromoTheme);
 const partnerThemeObserver=new MutationObserver(syncPartnerPromoTheme);
 partnerThemeObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
 </script>
-<script defer src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
+<script defer="" src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
 <script>
 (function(){
   const spotlight=document.querySelector('.mentor-spotlight');
@@ -2310,7 +2240,6 @@ partnerThemeObserver.observe(document.body,{attributes:true,attributeFilter:['cl
   observer.observe(spotlight);
 })();
 </script>
-
 <style>
 .broker-comparison-table .broker-link-row{cursor:pointer;transition:background .18s ease,transform .18s ease,box-shadow .18s ease}
 .broker-comparison-table .broker-link-row:hover{background:rgba(245,158,11,.08);box-shadow:inset 4px 0 0 #f59e0b}
@@ -2337,10 +2266,7 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 });
 </script>
-
-
-<script defer src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
-
+<script defer="" src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
   if(location.hash==='#login'||location.hash==='#auth-login'){
@@ -2350,8 +2276,6 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 },{once:true});
 </script>
-
-
 <script>
 (function(){
   const KEY='pipsepaisa_last_login_email';
@@ -2368,8 +2292,6 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 })();
 </script>
-
-
 <style>
 @media(max-width:820px){
   html:not(.psp-desktop-mobile-view) .broker-table-wrap{
@@ -2381,7 +2303,6 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 }
 </style>
-
-<script defer src="psp-public-performance-v39.js?v=20260804-v39"></script>
+<script defer="" src="psp-public-performance-v40.js?v=20260804-v40"></script>
 </body>
 </html>

@@ -4,28 +4,28 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<script id="pspPublicDesktopMobileViewportV39">
-(function(){
-  var mobile=/Android|iPhone|iPad|iPod|Mobile|CrOS/i.test(navigator.userAgent)||
-    (window.matchMedia&&window.matchMedia('(pointer:coarse)').matches&&Math.min(screen.width,screen.height)<=900);
-  if(!mobile)return;
-  var targetWidth=1200;
-  var deviceWidth=Math.min(screen.width||innerWidth,screen.height||innerHeight);
-  var scale=Math.max(.25,Math.min(1,deviceWidth/targetWidth));
+<script id="pspPublicMobileMorningRestoreV40">(function(){
+  var mobile = /Android|iPhone|iPad|iPod|Mobile|CrOS/i.test(navigator.userAgent) ||
+               Math.min(screen.width, screen.height) <= 820;
+  if(!mobile) return;
   var viewport=document.querySelector('meta[name="viewport"]');
   if(viewport){
-    viewport.setAttribute('content','width='+targetWidth+', initial-scale='+scale.toFixed(4)+', minimum-scale=0.25, maximum-scale=4, user-scalable=yes');
+    viewport.setAttribute(
+      'content',
+      'width=1200, user-scalable=yes, minimum-scale=0.25, maximum-scale=4'
+    );
   }
   document.documentElement.classList.add('psp-desktop-mobile-view');
-})();
-</script>
-
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
-<link rel="dns-prefetch" href="//cdn.jsdelivr.net"/>
+})();</script><link crossorigin="" href="https://www.googletagmanager.com" rel="preconnect"/><link href="//www.googletagmanager.com" rel="dns-prefetch"/><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-5M0NKERDHF"></script><script id="pspGoogleAnalyticsV40">window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
+<link crossorigin="" href="https://cdn.jsdelivr.net" rel="preconnect"/>
+<link href="//cdn.jsdelivr.net" rel="dns-prefetch"/>
 <title>Forex Courses | PipSePaisa</title>
 <meta content="Structured Forex courses from beginner to advanced." name="description"/>
 <link href="favicon.png" rel="icon"/>
-<link rel="preload" as="image" href="sajid-ghori.webp" fetchpriority="high"/>
+<link as="image" fetchpriority="high" href="sajid-ghori.webp" rel="preload"/>
 <link href="public-pages.css" rel="stylesheet"/>
 <link href="public-upgrades.css?v=20260722-brand-dark-hero-v3" rel="stylesheet"/>
 <style>
@@ -178,9 +178,7 @@
 <link href="mobile-reference-layout.css?v=20260727-exact-v3" rel="stylesheet"/>
 <link href="psp-final-fixes.css?v=20260728-click-payment-v6" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5">
-
+<link href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5" rel="stylesheet"/>
 <style id="psp-nav-consistency-v38">
 .topbar .nav{min-height:72px}
 .topbar .brand{font-size:20px;font-weight:900}
@@ -192,12 +190,11 @@
   html.psp-desktop-mobile-view .topbar .menu a{font-size:15px;padding:11px 15px}
 }
 </style>
-<link href="psp-public-desktop-mobile-v39.css?v=20260804-v39" rel="stylesheet"/>
-</head>
+<link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/></head>
 <body class="page-courses">
 <header class="topbar">
 <div class="container nav">
-<a class="brand" href="landing.html"><img alt="PipSePaisa visual" src="favicon.png" loading="eager" decoding="async" fetchpriority="high"/><span>PipSePaisa</span></a>
+<a class="brand" href="landing.html"><img alt="PipSePaisa visual" decoding="async" fetchpriority="high" loading="eager" src="favicon.png"/><span>PipSePaisa</span></a>
 <nav class="menu">
 <a class="" href="landing.html">Home</a><a class="active" href="courses.html">Courses</a><a class="broker-reviews-link" href="landing.html#broker-comparison">Broker Reviews</a><a class="" href="partner.html">Become Partner</a><a class="" href="tools-services.html">Trading Tools &amp; Services</a>
 </nav>
@@ -212,7 +209,7 @@
 <div class="hero-box course-hero-box">
 <div class="hero-copy course-hero-copy stagger">
 <span class="course-academy-label">
-<img alt="" aria-hidden="true" src="icon-192.png" loading="eager" decoding="async" fetchpriority="high"/>
+<img alt="" aria-hidden="true" decoding="async" fetchpriority="high" loading="eager" src="icon-192.png"/>
 <span><strong>PIPSEPAISA</strong> <em>FOREX ACADEMY</em></span>
 </span>
 <h1>
@@ -238,7 +235,7 @@
 <path class="course-curve-line" d="M96 -8 C34 72 105 145 59 226 C19 297 38 386 94 468"></path>
 </svg>
 <div aria-hidden="true" class="course-portrait-glow"></div>
-<img alt="Sir Sajid Ghori, Forex Educator and Mentor" class="course-mentor-portrait" src="sajid-ghori.webp" loading="eager" decoding="async" fetchpriority="high"/>
+<img alt="Sir Sajid Ghori, Forex Educator and Mentor" class="course-mentor-portrait" decoding="async" fetchpriority="high" loading="eager" src="sajid-ghori.webp"/>
 <div class="course-mentor-badge">
 <strong>Sir Sajid Ghori</strong><span>Forex Educator &amp; Mentor</span>
 </div>
@@ -257,7 +254,7 @@
             </p>
 </div>
 <div class="broker-grid stagger">
-<a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" src="broker-promo-assets/dprime-promo-light.webp" loading="lazy" decoding="async"/></a><a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/xm-promo-dark.webp" data-light="broker-promo-assets/xm-promo-light.webp" src="broker-promo-assets/xm-promo-light.webp" loading="lazy" decoding="async"/></a><a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" src="broker-promo-assets/exness-promo-light.webp" loading="lazy" decoding="async"/></a>
+<a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/dprime-promo-light.webp"/></a><a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/xm-promo-dark.webp" data-light="broker-promo-assets/xm-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/xm-promo-light.webp"/></a><a class="broker-card" href="landing.html"><img alt="PipSePaisa visual" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/exness-promo-light.webp"/></a>
 </div>
 </div>
 </section>
@@ -295,7 +292,7 @@
 <div class="highlight">
                 NO COST • BEGINNER FRIENDLY • 9 STRUCTURED MODULES
               </div>
-<button class="course-btn" type="button" onclick="openCourseEnrollment('basic')">Start Free Course →</button>
+<button class="course-btn" onclick="openCourseEnrollment('basic')" type="button">Start Free Course →</button>
 </article>
 <article class="course-card advanced reveal right">
 <span class="mini">ADVANCED PROFESSIONAL COURSE</span>
@@ -307,10 +304,10 @@
                 fundamental analysis and strategy development.
               </p>
 <div class="discount-pricing">
-  <div class="was-price"><span>Original Price</span><strong>$500</strong></div>
-  <div class="now-price"><span>Now Only</span><strong>$200</strong></div>
-  <div class="save-price">You Save $300</div>
-  <div class="offer-label">Limited-Time Offer</div>
+<div class="was-price"><span>Original Price</span><strong>$500</strong></div>
+<div class="now-price"><span>Now Only</span><strong>$200</strong></div>
+<div class="save-price">You Save $300</div>
+<div class="offer-label">Limited-Time Offer</div>
 </div>
 <div class="topics">
 <div class="topic">
@@ -344,7 +341,7 @@
 <div class="highlight">
                 PROFESSIONAL LEARNING • ADVANCED CONCEPTS • LIMITED-TIME PRICE
               </div>
-<button class="course-btn" type="button" onclick="openCourseEnrollment('advanced')">Enroll in Advanced Course — $200 →</button>
+<button class="course-btn" onclick="openCourseEnrollment('advanced')" type="button">Enroll in Advanced Course — $200 →</button>
 </article>
 </div>
 </div>
@@ -369,7 +366,7 @@
                 easy-to-follow lessons.
               </p>
 <div class="highlight">CLEAR STEP-BY-STEP LEARNING</div>
-<div aria-label="Beginner-Friendly Lessons" class="course-process-banner" role="img" tabindex="0"><img alt="Beginner-Friendly Lessons" data-dark="course-process-banners/beginner-dark.webp" data-light="course-process-banners/beginner-light.webp" height="320" src="course-process-banners/beginner-light.webp" width="600" loading="lazy" decoding="async"/></div></article>
+<div aria-label="Beginner-Friendly Lessons" class="course-process-banner" role="img" tabindex="0"><img alt="Beginner-Friendly Lessons" data-dark="course-process-banners/beginner-dark.webp" data-light="course-process-banners/beginner-light.webp" decoding="async" fetchpriority="low" height="320" loading="lazy" src="course-process-banners/beginner-light.webp" width="600"/></div></article>
 <article class="feature-card reveal">
 <span class="num">02</span>
 <div class="iconbox">📈</div>
@@ -379,7 +376,7 @@
                 practical trading scenarios.
               </p>
 <div class="highlight">LEARN THROUGH APPLICATION</div>
-<div aria-label="Practical Market Education" class="course-process-banner" role="img" tabindex="0"><img alt="Practical Market Education" data-dark="course-process-banners/practical-dark.webp" data-light="course-process-banners/practical-light.webp" height="320" src="course-process-banners/practical-light.webp" width="600" loading="lazy" decoding="async"/></div></article>
+<div aria-label="Practical Market Education" class="course-process-banner" role="img" tabindex="0"><img alt="Practical Market Education" data-dark="course-process-banners/practical-dark.webp" data-light="course-process-banners/practical-light.webp" decoding="async" fetchpriority="low" height="320" loading="lazy" src="course-process-banners/practical-light.webp" width="600"/></div></article>
 <article class="feature-card reveal">
 <span class="num">03</span>
 <div class="iconbox">🛡️</div>
@@ -389,7 +386,7 @@
                 and performance.
               </p>
 <div class="highlight">CAPITAL PROTECTION FIRST</div>
-<div aria-label="Risk-Focused Learning" class="course-process-banner" role="img" tabindex="0"><img alt="Risk-Focused Learning" data-dark="course-process-banners/risk-dark.webp" data-light="course-process-banners/risk-light.webp" height="320" src="course-process-banners/risk-light.webp" width="600" loading="lazy" decoding="async"/></div></article>
+<div aria-label="Risk-Focused Learning" class="course-process-banner" role="img" tabindex="0"><img alt="Risk-Focused Learning" data-dark="course-process-banners/risk-dark.webp" data-light="course-process-banners/risk-light.webp" decoding="async" fetchpriority="low" height="320" loading="lazy" src="course-process-banners/risk-light.webp" width="600"/></div></article>
 <article class="feature-card reveal">
 <span class="num">04</span>
 <div class="iconbox">🎓</div>
@@ -399,7 +396,7 @@
                 mentorship and expert direction.
               </p>
 <div class="highlight">STRUCTURED MENTOR SUPPORT</div>
-<div aria-label="Professional Guidance" class="course-process-banner" role="img" tabindex="0"><img alt="Professional Guidance" data-dark="course-process-banners/guidance-dark.webp" data-light="course-process-banners/guidance-light.webp" height="320" src="course-process-banners/guidance-light.webp" width="600" loading="lazy" decoding="async"/></div></article>
+<div aria-label="Professional Guidance" class="course-process-banner" role="img" tabindex="0"><img alt="Professional Guidance" data-dark="course-process-banners/guidance-dark.webp" data-light="course-process-banners/guidance-light.webp" decoding="async" fetchpriority="low" height="320" loading="lazy" src="course-process-banners/guidance-light.webp" width="600"/></div></article>
 </div>
 </div>
 </section>
@@ -506,10 +503,9 @@
       );
       document.querySelectorAll(".reveal").forEach((x) => o.observe(x));
     </script>
-<script defer src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
-<script defer src="course-enrollment.js?v=20260801-v24-unique-zoom-links"></script>
-
-<script defer src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
-<script defer src="psp-public-performance-v39.js?v=20260804-v39"></script>
+<script defer="" src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
+<script defer="" src="course-enrollment.js?v=20260801-v24-unique-zoom-links"></script>
+<script defer="" src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
+<script defer="" src="psp-public-performance-v40.js?v=20260804-v40"></script>
 </body>
 </html>
