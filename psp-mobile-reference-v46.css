@@ -1585,3 +1585,122 @@ img{max-width:100%}
   object-fit:cover!important;
   object-position:center!important;
 }
+
+/* ============================================================
+   V49 — THREE MOBILE SPACING FIXES ONLY
+   1) Home hero: equal vertical rhythm and minimal space below CTA
+   2) Courses: equal card bottoms and CTA baseline alignment
+   3) Become Partner hero: equal vertical rhythm and minimal space below CTA
+   Desktop and all other sections intentionally untouched.
+   ============================================================ */
+@media (max-width:480px){
+  /* HOME: keep the approved composition; redistribute only the vertical space. */
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner .hero-text-layer{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:space-between!important;
+    padding:6px 7px 5px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-eyebrow,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner h1,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-course,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta{
+    flex:0 0 auto!important;
+    margin-top:0!important;
+    margin-bottom:0!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta{
+    align-self:flex-start!important;
+  }
+
+  /* COURSES: same card bottom, same CTA line and no loose space after buttons. */
+  body.page-courses .course-grid{
+    align-items:stretch!important;
+  }
+  body.page-courses .course-card,
+  body.page-courses .course-card.advanced{
+    display:flex!important;
+    flex-direction:column!important;
+    height:100%!important;
+    min-height:0!important;
+    padding-bottom:5px!important;
+  }
+  body.page-courses .course-card .topics{
+    margin-bottom:2px!important;
+  }
+  body.page-courses .course-card .highlight{
+    margin-top:auto!important;
+    margin-bottom:3px!important;
+  }
+  body.page-courses .course-card .course-btn{
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-height:18px!important;
+    height:18px!important;
+    margin:0!important;
+    padding:3px 4px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    align-self:stretch!important;
+    line-height:1!important;
+  }
+
+  /* PARTNER: keep artwork and hero height; balance only the left copy block. */
+  body.page-partner .hero-box .hero-copy{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:space-between!important;
+    padding:9px 7px 7px!important;
+  }
+  body.page-partner .hero-box .hero-copy > .mini,
+  body.page-partner .hero-box .hero-copy > h1,
+  body.page-partner .hero-box .hero-copy > p,
+  body.page-partner .hero-box .hero-copy > .pills,
+  body.page-partner .hero-box .hero-copy > .login{
+    flex:0 0 auto!important;
+    margin-top:0!important;
+    margin-bottom:0!important;
+  }
+  body.page-partner .hero-box .hero-copy > .login{
+    align-self:flex-start!important;
+  }
+}
+
+/* V49 specificity lock — wins over legacy :not()/:has() mobile selectors. */
+@media (max-width:480px){
+  html:not(.psp-desktop-mobile-view) body.page-home:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-text-layer{
+    justify-content:space-between!important;
+  }
+
+  html body.page-courses:has(.course-section) .course-section .course-grid{
+    align-items:stretch!important;
+  }
+  html body.page-courses:has(.course-section) .course-section .course-card,
+  html body.page-courses:has(.course-section) .course-section .course-card.advanced{
+    display:flex!important;
+    flex-direction:column!important;
+    height:100%!important;
+    padding-bottom:5px!important;
+  }
+  html body.page-courses:has(.course-section) .course-section .course-card .topics{
+    margin-bottom:2px!important;
+  }
+  html body.page-courses:has(.course-section) .course-section .course-card .highlight{
+    margin-top:auto!important;
+    margin-bottom:3px!important;
+  }
+  html body.page-courses:has(.course-section) .course-section .course-card .course-btn{
+    width:100%!important;
+    min-height:18px!important;
+    height:18px!important;
+    margin:0!important;
+    padding:3px 4px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    align-self:stretch!important;
+    line-height:1!important;
+  }
+}
