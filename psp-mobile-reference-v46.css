@@ -1188,3 +1188,254 @@
 img{max-width:100%}
 .theme-picture,.broker-card,.broker-logo-card,.service-banner-card,.visual-promo-card,
 .course-process-banner,.tool-mini-banner,.partner-image{background:#fff7ea}
+
+/* ============================================================
+   V47 MOBILE FOLLOW-UP — exact reference polish + performance
+   ============================================================ */
+@media (max-width:768px){
+  /* Home hero: use the full space, reduce quote marks and remove the empty
+     block below the CTA while keeping the approved image composition. */
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner{
+    height:166px!important;
+    min-height:166px!important;
+    max-height:166px!important;
+    background-size:cover!important;
+    background-position:center top!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner .hero-text-layer{
+    width:61%!important;
+    max-width:61%!important;
+    height:100%!important;
+    padding:7px 7px 5px!important;
+    justify-content:flex-start!important;
+    gap:0!important;
+    overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner h1{
+    margin:0 0 3px!important;
+    font-size:15.8px!important;
+    line-height:.95!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-eyebrow{
+    margin:0 0 3px!important;
+    padding:2px 4px!important;
+    font-size:4.5px!important;
+    line-height:1!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-course{
+    margin:0 0 3px!important;
+    padding:2px 4px!important;
+    font-size:4.4px!important;
+    line-height:1.08!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:39px!important;
+    min-height:39px!important;
+    max-height:39px!important;
+    margin:0 0 3px!important;
+    padding:4px 12px 3px!important;
+    overflow:hidden!important;
+    border-radius:4px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::before,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::after{
+    font-size:13px!important;
+    line-height:1!important;
+    opacity:.9!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::before{
+    left:3px!important;
+    top:2px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::after{
+    right:3px!important;
+    bottom:0!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote strong{
+    display:block!important;
+    margin:0 0 1px!important;
+    padding:0!important;
+    font-size:3.9px!important;
+    line-height:1.08!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote p{
+    margin:0!important;
+    font-size:3.45px!important;
+    line-height:1.16!important;
+    -webkit-line-clamp:3!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta{
+    min-height:16px!important;
+    margin:0!important;
+    padding:3px 8px!important;
+    border-radius:4px!important;
+    font-size:5.2px!important;
+    line-height:1!important;
+  }
+
+  /* Broker table: make official brands visible without turning the table
+     into cards or changing the approved compact full-table layout. */
+  .broker-comparison-table colgroup col:nth-child(1){width:16%!important}
+  .broker-comparison-table colgroup col:nth-child(2){width:10%!important}
+  .broker-comparison-table colgroup col:nth-child(3){width:13%!important}
+  .broker-comparison-table colgroup col:nth-child(4){width:13%!important}
+  .broker-comparison-table colgroup col:nth-child(5){width:10%!important}
+  .broker-comparison-table colgroup col:nth-child(6){width:9%!important}
+  .broker-comparison-table colgroup col:nth-child(7){width:11%!important}
+  .broker-comparison-table colgroup col:nth-child(8){width:8%!important}
+  .broker-comparison-table colgroup col:nth-child(9){width:10%!important}
+  .broker-comparison-table th,
+  .broker-comparison-table td{
+    padding:4px 1px!important;
+    font-size:3.55px!important;
+    line-height:1.14!important;
+  }
+  .broker-comparison-table th{font-size:3.05px!important}
+  .broker-name{
+    min-height:22px!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  .broker-name img,
+  .broker-name img.broker-logo-icon,
+  .broker-comparison-table img.broker-logo-icon{
+    display:block!important;
+    width:46px!important;
+    min-width:0!important;
+    max-width:94%!important;
+    height:20px!important;
+    min-height:20px!important;
+    max-height:20px!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    padding:0!important;
+    margin:0 auto!important;
+    border-radius:2px!important;
+    background:transparent!important;
+  }
+  .broker-comparison-table .badge{
+    padding:1px 2px!important;
+    font-size:2.9px!important;
+    line-height:1.08!important;
+  }
+  .broker-bonus-note,.broker-data-note{
+    font-size:3.2px!important;
+    line-height:1.25!important;
+  }
+
+  /* Tools hero: the complete dashboard must remain visible above the tabs. */
+  body.page-tools .tools-suite{
+    inset:5px!important;
+    padding:3px!important;
+    gap:2px!important;
+  }
+  body.page-tools .tools-suite-bar{
+    height:12px!important;
+    flex:0 0 12px!important;
+    gap:3px!important;
+    padding:0 2px!important;
+    font-size:2.8px!important;
+    line-height:1!important;
+  }
+  body.page-tools .tools-suite-dots{gap:2px!important}
+  body.page-tools .tools-suite-dots i{width:3px!important;height:3px!important}
+  body.page-tools .tools-suite-status{gap:2px!important;font-size:2.7px!important}
+  body.page-tools .tools-suite-status i{width:3px!important;height:3px!important;box-shadow:none!important}
+  body.page-tools .tools-suite-screen{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    border-radius:4px!important;
+    background:#f7f1e6!important;
+  }
+  body.page-tools .tools-suite-image{
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    object-position:center top!important;
+    transform:none!important;
+  }
+  body.page-tools .tools-suite-screen::after{
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)!important;
+  }
+  body.page-tools .tools-suite-caption{
+    left:3px!important;
+    bottom:3px!important;
+    gap:2px!important;
+    max-width:65%!important;
+    padding:2px 3px 2px 2px!important;
+    border-radius:3px!important;
+    backdrop-filter:none!important;
+  }
+  body.page-tools .tools-suite-icon{
+    width:9px!important;
+    height:9px!important;
+    flex:0 0 9px!important;
+    border-radius:2px!important;
+    font-size:3px!important;
+  }
+  body.page-tools .tools-suite-caption b{font-size:3.2px!important;line-height:1!important}
+  body.page-tools .tools-suite-caption small{display:none!important}
+  body.page-tools .tools-suite-tabs{
+    height:22px!important;
+    flex:0 0 22px!important;
+    gap:2px!important;
+  }
+  body.page-tools .tools-suite-tab{
+    min-height:0!important;
+    padding:2px!important;
+    gap:0!important;
+    border-radius:3px!important;
+  }
+  body.page-tools .tools-suite-tab span{display:none!important}
+  body.page-tools .tools-suite-tab b{
+    font-size:3px!important;
+    line-height:1!important;
+    overflow:visible!important;
+    white-space:normal!important;
+  }
+  body.page-tools .tools-suite-tab.is-active::after{
+    left:2px!important;
+    right:2px!important;
+    height:1px!important;
+  }
+
+  /* Smart Tools artwork should nearly fill every card. */
+  body.page-tools #tools .resource-card{
+    aspect-ratio:15/8!important;
+    padding:0!important;
+    overflow:hidden!important;
+    border-radius:7px!important;
+  }
+  body.page-tools #tools .tool-mini-banner{
+    inset:1px!important;
+    width:auto!important;
+    height:auto!important;
+    border-radius:6px!important;
+  }
+  body.page-tools #tools .tool-mini-banner img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    transform:scale(1.035)!important;
+    border-radius:6px!important;
+  }
+  body.page-tools #tools .tool-mini-banner::after{display:none!important}
+
+  /* Make lower sections cheaper to render without changing their layout. */
+  .page-home main>section:not(.hero):not(.broker-showcase),
+  .page-courses main>section:not(.hero):not(.broker-showcase),
+  .page-partner main>section:not(.hero):not(.broker-showcase),
+  .page-tools main>section:not(.hero):not(.broker-showcase){
+    content-visibility:auto;
+    contain-intrinsic-size:1px 420px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}

@@ -186,15 +186,22 @@ async function start(){
 
   // Show the subscribe box first. Never block its appearance on SDK loading.
   hidePwa();
-  setTimeout(showPrompt,700);
+  setTimeout(showPrompt,1600);
 
   // Check subscription in the background. Remove the box only when
   // OneSignal confirms this browser is genuinely opted in.
-  try{
-    const active=await realSubscriptionActive();
-    if(active)removePrompt();
-  }catch(error){
-    console.warn("OneSignal background state check failed:",error);
+  const checkState=async function(){
+    try{
+      const active=await realSubscriptionActive();
+      if(active)removePrompt();
+    }catch(error){
+      console.warn("OneSignal background state check failed:",error);
+    }
+  };
+  if("requestIdleCallback" in window){
+    requestIdleCallback(checkState,{timeout:5000});
+  }else{
+    setTimeout(checkState,3200);
   }
 }
 

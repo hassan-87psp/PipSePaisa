@@ -185,3 +185,65 @@
     box-sizing:border-box!important;
   }
 }
+
+/* V47 compact, non-blocking mobile notification prompt. */
+@media(max-width:700px){
+  #pspNotifyInstallBar{
+    left:50%!important;
+    right:auto!important;
+    bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+    width:min(390px,calc(100vw - 18px))!important;
+    max-width:390px!important;
+    max-height:none!important;
+    grid-template-columns:32px minmax(0,1fr) auto auto!important;
+    gap:6px!important;
+    padding:7px 8px!important;
+    overflow:hidden!important;
+    border-radius:11px!important;
+    transform:translate(-50%,12px)!important;
+  }
+  #pspNotifyInstallBar.show{transform:translate(-50%,0)!important}
+  .psp-notify-icon{
+    width:32px!important;
+    height:32px!important;
+    border-radius:8px!important;
+  }
+  .psp-notify-icon img{width:25px!important;height:25px!important}
+  .psp-notify-copy{gap:1px!important}
+  .psp-notify-copy strong{
+    font-size:9.5px!important;
+    line-height:1.1!important;
+    white-space:nowrap!important;
+  }
+  .psp-notify-copy span{
+    display:block!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+    font-size:6.7px!important;
+    line-height:1.15!important;
+  }
+  .psp-notify-enable,.psp-notify-later{
+    grid-column:auto!important;
+    width:auto!important;
+    min-height:26px!important;
+    margin:0!important;
+    padding:5px 8px!important;
+    border-radius:7px!important;
+    font-size:7px!important;
+    line-height:1!important;
+  }
+  .psp-notify-later{background:#eef2f7!important}
+}
+@media(max-width:390px){
+  #pspNotifyInstallBar{
+    grid-template-columns:30px minmax(0,1fr) auto auto!important;
+    gap:5px!important;
+    padding:6px!important;
+  }
+  .psp-notify-icon{width:30px!important;height:30px!important}
+  .psp-notify-icon img{width:23px!important;height:23px!important}
+  .psp-notify-copy strong{font-size:8.8px!important}
+  .psp-notify-copy span{font-size:6.2px!important}
+  .psp-notify-enable,.psp-notify-later{padding:5px 6px!important;font-size:6.5px!important}
+}

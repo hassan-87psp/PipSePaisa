@@ -45,14 +45,26 @@
       var once=function(){prefetch(anchor.href)};
       anchor.addEventListener('pointerenter',once,{once:true,passive:true});
       anchor.addEventListener('focus',once,{once:true,passive:true});
-      anchor.addEventListener('touchstart',once,{once:true,passive:true});
     });
+  }
+
+  function idlePrefetch(){
+    var connection=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+    if(connection && (connection.saveData || /(^|-)2g$/.test(connection.effectiveType||'')))return;
+    var run=function(){
+      document.querySelectorAll('.topbar .menu a[href]').forEach(function(anchor,index){
+        if(index<5)prefetch(anchor.href);
+      });
+    };
+    if('requestIdleCallback' in window)requestIdleCallback(run,{timeout:4500});
+    else setTimeout(run,3200);
   }
 
   function init(){
     optimiseImages();
     bindPrefetch();
     requestAnimationFrame(ready);
+    window.addEventListener('load',idlePrefetch,{once:true,passive:true});
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
