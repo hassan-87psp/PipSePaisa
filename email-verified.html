@@ -23,13 +23,25 @@
     <h1 id="title">Verifying Your Email</h1>
     <p class="status" id="status">Please wait while we securely activate your account.</p>
     <a class="btn" id="loginBtn" href="/landing.html?psp_route=/sign-in&amp;psp_auth=login" aria-disabled="true">Continue to Sign In</a>
-    <p class="small">For your security, verification does not automatically open your dashboard.</p>
+    <p class="small" id="smallNote">For your security, verification does not automatically open your dashboard.</p>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     (async function(){
-      const title=document.getElementById('title'),status=document.getElementById('status'),icon=document.getElementById('icon'),btn=document.getElementById('loginBtn');
+      const title=document.getElementById('title'),status=document.getElementById('status'),icon=document.getElementById('icon'),btn=document.getElementById('loginBtn'),small=document.getElementById('smallNote');
+      const PENDING_KEY='psp_pending_free_course_enrollment_v45';
+      function pendingLocal(){try{return JSON.parse(localStorage.getItem(PENDING_KEY)||'null');}catch(_){return null;}}
+      function markVerified(user){
+        try{
+          const local=pendingLocal();
+          const meta=user?.user_metadata||{};
+          const hasPending=local?.course_key==='basic'||meta.pending_course_key==='basic';
+          if(local?.course_key==='basic'){local.state='verified_waiting_login';local.user_id=user?.id||local.user_id||null;local.updated_at=new Date().toISOString();localStorage.setItem(PENDING_KEY,JSON.stringify(local));}
+          if(hasPending)sessionStorage.setItem('psp_intended_route','basic');
+          return hasPending;
+        }catch(_){return false;}
+      }
       try{
         sessionStorage.setItem('psp-manual-signin-required','1');
         sessionStorage.removeItem('psp-signup-pending');
@@ -64,9 +76,20 @@
         // Verification is complete now. Unlock the sign-in button immediately;
         // welcome email and local sign-out continue in the background.
         localStorage.removeItem('pipsepaisa-user-auth-v2');
-        icon.textContent='✓';title.textContent='Email Verified Successfully';
-        status.textContent='Your account is active. Please sign in manually using your email and password.';
-        btn.href='/sign-in';btn.setAttribute('aria-disabled','false');
+        const hasFreeCourse=markVerified(session.user);
+        icon.textContent='✓';
+        if(hasFreeCourse){
+          title.textContent='Email Verified Successfully';
+          status.textContent='Sign in once using the same email and password. Your Basic Forex Course enrollment will complete automatically and the course will open for you.';
+          btn.textContent='Continue to Sign In & Open Course';
+          btn.href='/sign-in?enroll=basic';
+          if(small)small.textContent='No second enrollment click is required.';
+        }else{
+          title.textContent='Email Verified Successfully';
+          status.textContent='Your account is active. Please sign in manually using your email and password.';
+          btn.href='/sign-in';
+        }
+        btn.setAttribute('aria-disabled','false');
         try{history.replaceState(null,'','email-verified.html');}catch(_){ }
 
         const name=session.user?.user_metadata?.full_name||session.user?.email?.split('@')[0]||'Student';

@@ -159,6 +159,7 @@
 
   window.PSPTrack={
     getAttribution,
+    restoreAttribution:function(value){return saveAttribution(value||{});},
     authMetadata,
     record,
     signup:function(userId){return record('signup',{userId:userId||null});},
