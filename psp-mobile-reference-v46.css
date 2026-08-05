@@ -1749,3 +1749,29 @@ img{max-width:100%}
     padding-right:5px!important;
   }
 }
+
+/* ============================================================
+   V51 — COURSES MOBILE HERO EQUAL SPACING ONLY
+   Equal vertical rhythm between:
+   academy badge → heading → description → pills → CTA buttons.
+   Hero height, artwork/divider, desktop UI and all other sections untouched.
+   ============================================================ */
+@media (max-width:480px){
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    row-gap:4px!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .course-academy-label,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > h1,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > p,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .pills,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .course-hero-actions{
+    flex:0 0 auto!important;
+    margin-top:0!important;
+    margin-bottom:0!important;
+  }
+}
