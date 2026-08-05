@@ -1439,3 +1439,149 @@ img{max-width:100%}
   html{scroll-behavior:auto!important}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+/* ============================================================
+   V48 MOBILE REFERENCE CORRECTION
+   - Fix broker banner height attributes creating vertical slices
+   - Rebalance Home hero so content fills the left panel
+   ============================================================ */
+@media (max-width:768px){
+  /* The banner source files are 3:1. Explicit height:auto is required to
+     override the HTML height attribute after the cards shrink to 3 columns. */
+  .broker-grid,
+  .broker-logo-grid{
+    align-items:start!important;
+  }
+  .broker-card,
+  .broker-logo-card,
+  .broker-card picture,
+  .broker-logo-card picture{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    aspect-ratio:3/1!important;
+    overflow:hidden!important;
+  }
+  .broker-card img,
+  .broker-logo-card img,
+  .broker-card picture img,
+  .broker-logo-card picture img{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    aspect-ratio:3/1!important;
+    object-fit:cover!important;
+    object-position:center!important;
+    transform:none!important;
+  }
+
+  /* Above-the-fold broker strips should render immediately, not as an
+     intrinsic-height placeholder while scrolling. */
+  body.page-courses main>section:has(.broker-grid),
+  body.page-partner main>section:has(.broker-grid),
+  body.page-tools main>section:has(.broker-grid){
+    content-visibility:visible!important;
+    contain-intrinsic-size:auto!important;
+  }
+
+  /* Home hero: preserve the complete mentor composition, enlarge the text
+     hierarchy and reduce the unused area below the CTA. */
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner{
+    height:132px!important;
+    min-height:132px!important;
+    max-height:132px!important;
+    background-size:auto 112%!important;
+    background-position:right center!important;
+    background-repeat:no-repeat!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner .hero-text-layer{
+    width:67%!important;
+    max-width:67%!important;
+    height:100%!important;
+    padding:6px 7px 5px!important;
+    justify-content:flex-start!important;
+    gap:0!important;
+    overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-eyebrow{
+    margin:0 0 3px!important;
+    padding:2px 4px!important;
+    font-size:5px!important;
+    line-height:1!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner h1{
+    margin:0 0 3px!important;
+    font-size:16.5px!important;
+    line-height:.95!important;
+    letter-spacing:-.045em!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-course{
+    margin:0 0 3px!important;
+    padding:2px 4px!important;
+    font-size:4.9px!important;
+    line-height:1.08!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:30px!important;
+    min-height:30px!important;
+    max-height:30px!important;
+    margin:0 0 3px!important;
+    padding:4px 10px 3px!important;
+    overflow:hidden!important;
+    border-radius:4px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::before,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::after{
+    font-size:11px!important;
+    line-height:1!important;
+    opacity:.82!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::before{
+    left:3px!important;
+    top:2px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::after{
+    right:3px!important;
+    bottom:0!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote strong{
+    display:block!important;
+    margin:0 0 1px!important;
+    padding:0!important;
+    font-size:4.25px!important;
+    line-height:1.08!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote p{
+    margin:0!important;
+    font-size:3.7px!important;
+    line-height:1.16!important;
+    -webkit-line-clamp:3!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta{
+    min-height:16px!important;
+    margin:0!important;
+    padding:3px 8px!important;
+    border-radius:4px!important;
+    font-size:5.7px!important;
+    line-height:1!important;
+  }
+}
+
+/* V48 intrinsic-dimension safety: the added HTML width/height attributes must
+   not stretch the 3:1 broker banners on desktop or tablet. */
+.broker-card img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  aspect-ratio:3/1!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
