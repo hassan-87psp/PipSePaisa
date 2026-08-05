@@ -1775,3 +1775,95 @@ img{max-width:100%}
     margin-bottom:0!important;
   }
 }
+
+/* ============================================================
+   V52 — COURSES MOBILE HERO LEFT-COPY SCALE + EQUAL SPACING ONLY
+   Targeted correction after V51: make the left hero copy readable while
+   preserving the approved hero height, artwork, divider and desktop UI.
+   ============================================================ */
+@media (max-width:480px){
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy{
+    width:64%!important;
+    height:100%!important;
+    min-height:0!important;
+    padding:10px 6px 9px 9px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    row-gap:5px!important;
+    overflow:hidden!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .course-academy-label,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > h1,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > p,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .pills,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .course-hero-actions{
+    flex:0 0 auto!important;
+    margin:0!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-academy-label{
+    gap:3px!important;
+    min-height:13px!important;
+    padding:2px 4px 2px 3px!important;
+    border-radius:4px!important;
+    font-size:5px!important;
+    line-height:1!important;
+    letter-spacing:.055em!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-academy-label img{
+    width:11px!important;
+    height:11px!important;
+    border-radius:3px!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy h1{
+    max-width:100%!important;
+    font-size:15px!important;
+    line-height:.96!important;
+    letter-spacing:-.035em!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy p{
+    display:-webkit-box!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    font-size:5.2px!important;
+    line-height:1.28!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy .pills{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    gap:3px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy .pill{
+    padding:2px 4px!important;
+    border-radius:3px!important;
+    font-size:4.8px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-actions{
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    flex-wrap:nowrap!important;
+    gap:4px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-actions > a,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-roadmap-btn{
+    width:auto!important;
+    min-height:17px!important;
+    padding:3px 6px!important;
+    border-radius:4px!important;
+    font-size:4.8px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+}
