@@ -6,6 +6,7 @@
   const BASE_DOMAIN='https://pipsepaisa.com';
   let statsRows=[];
   let realtimeChannel=null;
+  let fallbackClient=null;
 
   function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
   function toast(message,type){if(window.pipToast)window.pipToast(message,type);else alert(message);}
@@ -13,7 +14,29 @@
   function date(value){if(!value)return '—';try{return new Date(value).toLocaleString();}catch(_){return '—';}}
   function slugify(value){return String(value||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80);}
   function trackedUrl(destination,slug){const path=String(destination||'/');const join=path.includes('?')?'&':'?';return BASE_DOMAIN+path+join+'ref='+encodeURIComponent(slug);}
-  function getSb(){try{return window.sb||null;}catch(_){return null;}}
+  function getSb(){
+    try{
+      if(typeof sb!=='undefined'&&sb)return sb;
+      if(window.sb)return window.sb;
+      if(window.adminSb)return window.adminSb;
+      if(!fallbackClient&&window.supabase?.createClient){
+        fallbackClient=window.supabase.createClient(
+          'https://etfolhinohgmskbfjoyh.supabase.co',
+          'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw',
+          {auth:{storageKey:'pipsepaisa-admin-auth-v2',persistSession:true,autoRefreshToken:true}}
+        );
+      }
+      return fallbackClient;
+    }catch(_){return null;}
+  }
+  async function waitForSb(){
+    for(let i=0;i<40;i++){
+      const client=getSb();
+      if(client?.from&&client?.auth)return client;
+      await new Promise(resolve=>setTimeout(resolve,100));
+    }
+    return null;
+  }
 
   function addStyles(){
     const style=document.createElement('style');
@@ -104,7 +127,7 @@
   }
 
   async function createLink(){
-    const client=getSb();if(!client)return toast('Supabase is not connected.','err');
+    const client=await waitForSb();if(!client)return toast('Database connection is still loading. Please refresh once and try again.','err');
     const name=document.getElementById('lmName').value.trim();
     const slug=slugify(document.getElementById('lmSlug').value);
     let destination=document.getElementById('lmDestination').value;
@@ -131,7 +154,8 @@
   }
 
   async function loadLinks(){
-    const client=getSb(),tbody=document.getElementById('lmTable');if(!client||!tbody)return;
+    const client=await waitForSb(),tbody=document.getElementById('lmTable');if(!tbody)return;
+    if(!client){tbody.innerHTML='<tr><td colspan="10">Database connection is still loading. Refresh the Admin Panel once.</td></tr>';return;}
     tbody.innerHTML='<tr><td colspan="10">Loading tracked links…</td></tr>';
     const {data,error}=await client.from('tracked_link_stats').select('*').order('created_at',{ascending:false});
     if(error){
@@ -188,8 +212,8 @@
       return result;
     };
   }
-  function setupRealtime(){
-    const client=getSb();if(!client||realtimeChannel)return;
+  async function setupRealtime(){
+    const client=await waitForSb();if(!client||realtimeChannel)return;
     try{realtimeChannel=client.channel('admin-link-manager-v42').on('postgres_changes',{event:'*',schema:'public',table:'tracked_links'},()=>{if(document.getElementById('page-linkmanager')?.classList.contains('active'))loadLinks();}).on('postgres_changes',{event:'*',schema:'public',table:'tracked_link_events'},()=>{if(document.getElementById('page-linkmanager')?.classList.contains('active'))loadLinks();}).subscribe();}catch(_){ }
   }
 

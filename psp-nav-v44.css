@@ -1,0 +1,45 @@
+/* PipSePaisa V44 — stable public navigation */
+.topbar .menu{
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:nowrap!important;
+  gap:4px!important;
+}
+.topbar .menu a{
+  position:relative!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  white-space:nowrap!important;
+  line-height:1.15!important;
+  padding:11px 13px!important;
+  border:0!important;
+  border-radius:9px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  text-decoration:none!important;
+}
+.topbar .menu a::before,
+.topbar .menu a::after{
+  display:none!important;
+  content:none!important;
+}
+.topbar .menu a.active{
+  color:#F88702!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+}
+@media (min-width:851px){
+  .topbar .menu a{font-size:14px!important;font-weight:700!important;}
+}
+@media (max-width:850px){
+  .topbar .menu{
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scrollbar-width:none!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  .topbar .menu::-webkit-scrollbar{display:none!important;}
+  .topbar .menu a{flex:0 0 auto!important;}
+}

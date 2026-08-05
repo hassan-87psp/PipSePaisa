@@ -29,18 +29,18 @@
     if(!menu)return;
     const path=(location.pathname||'/').replace(/\/+$/,'')||'/';
     const defs=[
-      ['Home','/'],
-      ['Courses','/courses'],
-      ['Broker Reviews','/broker-reviews'],
-      ['Become Partner','/become-partner'],
-      ['Trading Tools & Services','/trading-tools']
+      ['Home','/','/'],
+      ['Courses','/courses.html?psp_route=/courses','/courses'],
+      ['Broker Reviews','/broker-reviews.html?psp_route=/broker-reviews','/broker-reviews'],
+      ['Become Partner','/partner.html?psp_route=/become-partner','/become-partner'],
+      ['Trading Tools & Services','/tools-services.html?psp_route=/trading-tools','/trading-tools']
     ];
     const activePath=path==='/partner'?'/become-partner':(path==='/free-course'?'/courses':path);
-    menu.replaceChildren(...defs.map(([label,href])=>{
+    menu.replaceChildren(...defs.map(([label,href,cleanPath])=>{
       const a=document.createElement('a');
       a.href=href;a.textContent=label;
-      if(href==='/broker-reviews')a.classList.add('broker-reviews-link');
-      if((href==='/'&&activePath==='/')||(href!=='/'&&activePath===href))a.classList.add('active');
+      if(cleanPath==='/broker-reviews')a.classList.add('broker-reviews-link');
+      if((cleanPath==='/'&&activePath==='/')||(cleanPath!=='/'&&activePath===cleanPath))a.classList.add('active');
       return a;
     }));
     document.querySelectorAll('.mobile-menu,.menu-toggle,.hamburger,[aria-label="Menu"],[aria-label="Open navigation menu"]').forEach(el=>el.remove());
@@ -137,11 +137,11 @@
 
   function fixLinks(){
     document.querySelectorAll('a').forEach(a=>{
-      if(a.matches('.topbar .login'))a.href='/sign-in';
+      if(a.matches('.topbar .login'))a.href='/landing.html?psp_route=/sign-in&psp_auth=login';
       else if(a.matches('.facebook,#socialFacebook'))a.href='https://www.facebook.com/share/1AUgXGtVYy/';
       else if(a.matches('.instagram,#socialInstagram'))a.href='https://www.instagram.com/pipsepaisa/';
       else if(a.matches('.whatsapp,#socialWhatsapp'))a.href='https://wa.me/601156961157';
-      else if(a.closest('.broker-grid,.broker-logo-grid,.partner-promo-grid'))a.href='/partner#partner-programs';
+      else if(a.closest('.broker-grid,.broker-logo-grid,.partner-promo-grid'))a.href='/partner.html?psp_route=/become-partner#partner-programs';
       else if(a.closest('.resource-card'))a.href='./';
       else if(a.getAttribute('href')==='#')a.href='/';
     });
@@ -259,7 +259,7 @@
 
   function footerMarkup(){
     const year=new Date().getFullYear();
-    return '<div class="footer-main"><div class="container"><div class="footer-grid"><div><div class="footer-brand"><img src="favicon.png" alt="PipSePaisa logo">PipSePaisa</div><p class="footer-about">Practical Forex education, structured learning resources and professional business support built around knowledge, discipline and responsible decision-making.</p><div class="footer-socials"><a href="https://www.facebook.com/share/1AUgXGtVYy/" target="_blank" rel="noopener" aria-label="PipSePaisa on Facebook"><svg viewBox="0 0 24 24"><path d="M14 8h3V4h-3c-3.3 0-5 2-5 5v2H6v4h3v9h4v-9h3.2l.8-4H13V9c0-.7.3-1 1-1z"/></svg></a><a href="https://www.instagram.com/pipsepaisa/" target="_blank" rel="noopener" aria-label="PipSePaisa on Instagram"><svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5z"/></svg></a><a href="https://wa.me/601156961157" target="_blank" rel="noopener" aria-label="Contact PipSePaisa on WhatsApp"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.4A10 10 0 1 0 12 2zm5.1 14.1c-.2.7-1.2 1.3-1.9 1.4-1.7.2-4.8-1.3-6.7-4-1.8-2.7-2.1-4.7-1.5-5.8.3-.6.8-1 1.4-1h.6c.2 0 .4 0 .6.5l.8 2c.1.3.1.5-.1.7l-.6.8c-.2.2-.2.4 0 .7.8 1.4 1.8 2.4 3.3 3.1.3.1.5.1.7-.1l.9-1.1c.2-.3.5-.3.8-.2l2 .9c.3.2.5.3.5.5 0 .3-.1 1.1-.3 1.6z"/></svg></a></div></div><div><h4>Quick Links</h4><ul><li><a href="/">Home</a></li><li><a href="/courses">Courses</a></li><li><a href="/partner">Become a Partner</a></li><li><a href="/trading-tools">Tools & Services</a></li></ul></div><div><h4>Learning</h4><ul><li><a href="/courses#courses">Course Library</a></li><li><a href="/trading-tools#tools">Trading Resources</a></li><li><a href="/partner#partner-programs">Partner Programs</a></li><li><a href="/sign-in">Member Login</a></li></ul></div><div><h4>Contact</h4><ul><li><a href="https://wa.me/601156961157" target="_blank" rel="noopener">WhatsApp Support</a></li><li><a href="https://www.instagram.com/pipsepaisa/" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://www.facebook.com/share/1AUgXGtVYy/" target="_blank" rel="noopener">Facebook</a></li></ul></div></div><div class="risk-note"><strong>Risk notice:</strong> All content is provided for educational purposes only and does not constitute financial advice. Trading involves risk, and broker availability, conditions and promotions vary by jurisdiction and official terms.</div></div></div><div class="footer-bottom"><div class="container"><span>© '+year+' PipSePaisa. All rights reserved.</span><span>Education • Discipline • Responsible Growth</span></div></div>';
+    return '<div class="footer-main"><div class="container"><div class="footer-grid"><div><div class="footer-brand"><img src="favicon.png" alt="PipSePaisa logo">PipSePaisa</div><p class="footer-about">Practical Forex education, structured learning resources and professional business support built around knowledge, discipline and responsible decision-making.</p><div class="footer-socials"><a href="https://www.facebook.com/share/1AUgXGtVYy/" target="_blank" rel="noopener" aria-label="PipSePaisa on Facebook"><svg viewBox="0 0 24 24"><path d="M14 8h3V4h-3c-3.3 0-5 2-5 5v2H6v4h3v9h4v-9h3.2l.8-4H13V9c0-.7.3-1 1-1z"/></svg></a><a href="https://www.instagram.com/pipsepaisa/" target="_blank" rel="noopener" aria-label="PipSePaisa on Instagram"><svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5z"/></svg></a><a href="https://wa.me/601156961157" target="_blank" rel="noopener" aria-label="Contact PipSePaisa on WhatsApp"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.5 15.3L2 22l4.8-1.4A10 10 0 1 0 12 2zm5.1 14.1c-.2.7-1.2 1.3-1.9 1.4-1.7.2-4.8-1.3-6.7-4-1.8-2.7-2.1-4.7-1.5-5.8.3-.6.8-1 1.4-1h.6c.2 0 .4 0 .6.5l.8 2c.1.3.1.5-.1.7l-.6.8c-.2.2-.2.4 0 .7.8 1.4 1.8 2.4 3.3 3.1.3.1.5.1.7-.1l.9-1.1c.2-.3.5-.3.8-.2l2 .9c.3.2.5.3.5.5 0 .3-.1 1.1-.3 1.6z"/></svg></a></div></div><div><h4>Quick Links</h4><ul><li><a href="/">Home</a></li><li><a href="/courses.html?psp_route=/courses">Courses</a></li><li><a href="/partner.html?psp_route=/become-partner">Become a Partner</a></li><li><a href="/tools-services.html?psp_route=/trading-tools">Tools & Services</a></li></ul></div><div><h4>Learning</h4><ul><li><a href="/courses.html?psp_route=/courses#courses">Course Library</a></li><li><a href="/tools-services.html?psp_route=/trading-tools#tools">Trading Resources</a></li><li><a href="/partner.html?psp_route=/become-partner#partner-programs">Partner Programs</a></li><li><a href="/landing.html?psp_route=/sign-in&psp_auth=login">Member Login</a></li></ul></div><div><h4>Contact</h4><ul><li><a href="https://wa.me/601156961157" target="_blank" rel="noopener">WhatsApp Support</a></li><li><a href="https://www.instagram.com/pipsepaisa/" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://www.facebook.com/share/1AUgXGtVYy/" target="_blank" rel="noopener">Facebook</a></li></ul></div></div><div class="risk-note"><strong>Risk notice:</strong> All content is provided for educational purposes only and does not constitute financial advice. Trading involves risk, and broker availability, conditions and promotions vary by jurisdiction and official terms.</div></div></div><div class="footer-bottom"><div class="container"><span>© '+year+' PipSePaisa. All rights reserved.</span><span>Education • Discipline • Responsible Growth</span></div></div>';
   }
 
   function upgradeFooter(){
