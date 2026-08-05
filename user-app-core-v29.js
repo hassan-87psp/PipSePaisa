@@ -3241,10 +3241,11 @@
         password,
         options: {
           emailRedirectTo: 'https://www.pipsepaisa.com/email-verified.html',
-          data: { full_name: fullName, username, phone, whatsapp: phone, role: 'user', portal: (window.PSP_PORTAL_MODE === 'mentor' ? 'mentor' : 'user') }
+          data: { full_name: fullName, username, phone, whatsapp: phone, role: 'user', portal: (window.PSP_PORTAL_MODE === 'mentor' ? 'mentor' : 'user'), ...(window.PSPTrack?.authMetadata?.()||{}) }
         }
       });
       if (error) throw error;
+      try { if (data?.user?.id) await window.PSPTrack?.signup?.(data.user.id); } catch (_) {}
 
       // Supabase can intentionally return an obfuscated user for an existing email.
       const identities = data?.user?.identities;

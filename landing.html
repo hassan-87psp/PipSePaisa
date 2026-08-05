@@ -5,19 +5,7 @@
 <!-- Exact approved mobile header restored; visibility only override -->
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
-<script id="pspPublicMobileMorningRestoreV40">(function(){
-  var mobile = /Android|iPhone|iPad|iPod|Mobile|CrOS/i.test(navigator.userAgent) ||
-               Math.min(screen.width, screen.height) <= 820;
-  if(!mobile) return;
-  var viewport=document.querySelector('meta[name="viewport"]');
-  if(viewport){
-    viewport.setAttribute(
-      'content',
-      'width=1200, user-scalable=yes, minimum-scale=0.25, maximum-scale=4'
-    );
-  }
-  document.documentElement.classList.add('psp-desktop-mobile-view');
-})();</script><link crossorigin="" href="https://www.googletagmanager.com" rel="preconnect"/><link href="//www.googletagmanager.com" rel="dns-prefetch"/><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-5M0NKERDHF"></script><script id="pspGoogleAnalyticsV40">window.dataLayer = window.dataLayer || [];
+<link crossorigin="" href="https://www.googletagmanager.com" rel="preconnect"/><link href="//www.googletagmanager.com" rel="dns-prefetch"/><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-5M0NKERDHF"></script><script id="pspGoogleAnalyticsV40">window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
@@ -1688,12 +1676,14 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
   html.psp-desktop-mobile-view .topbar .menu a{font-size:15px;padding:11px 15px}
 }
 </style>
-<link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/></head>
+<link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
+<link rel="canonical" href="https://pipsepaisa.com/">
+</head>
 <body class="page-home">
 <header class="topbar">
 <div class="container nav">
 <a class="brand" href="#home"><img alt="PipSePaisa logo" decoding="async" fetchpriority="high" loading="eager" src="favicon.png"/><span>PipSePaisa</span></a>
-<nav class="menu"><a class="active" href="landing.html">Home</a><a href="courses.html">Courses</a><a class="broker-reviews-link" href="landing.html#broker-comparison">Broker Reviews</a><a href="partner.html">Become Partner</a><a href="tools-services.html">Trading Tools &amp; Services</a></nav>
+<nav class="menu"><a class="active" href="/">Home</a><a href="/courses">Courses</a><a class="broker-reviews-link" href="/broker-reviews">Broker Reviews</a><a href="/partner">Become Partner</a><a href="/trading-tools">Trading Tools &amp; Services</a></nav>
 <div class="nav-actions">
 <button aria-label="Theme" class="theme-btn" type="button">☀️</button>
 <button class="btn" id="mainLoginButton" onclick="event.preventDefault();openLandingAuth('login');" type="button">Login</button>
@@ -1712,7 +1702,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <strong>A Message from Sir Sajid Khan Ghori</strong>
 <p>Trading is not about luck; it is about knowledge, discipline, and execution. I have trained thousands of students throughout my career, and those who truly committed to learning and consistently followed the process have achieved remarkable results. Invest in your education today, and allow yourself to build a stronger financial future.</p>
 </div>
-<a class="btn hero-primary-cta" href="courses.html#courses">Join My Free Classes →</a>
+<a class="btn hero-primary-cta" href="/courses#courses">Join My Free Classes →</a>
 </div>
 <div aria-label="Sir Sajid Khan Ghori, Asia Top Instructor" class="hero-mentor-badge">
 <strong>Sir Sajid Khan Ghori</strong>
@@ -1729,15 +1719,15 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <p>Explore leading broker options and select the platform that best matches your trading requirements.</p>
 </div>
 <div class="broker-logo-grid" id="landingBrokerGrid">
-<a class="broker-logo-card" data-fallback="true" href="landing.html">
+<a class="broker-logo-card" data-fallback="true" href="/">
 <picture class="theme-picture"><img alt="Exness broker" data-dark="broker-promo-assets/exness-promo-dark.webp" data-light="broker-promo-assets/exness-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/exness-promo-light.webp"/></picture>
 <div class="broker-card-footer"><strong>Exness</strong><span>Open Account →</span></div>
 </a>
-<a class="broker-logo-card" data-fallback="true" href="landing.html">
+<a class="broker-logo-card" data-fallback="true" href="/">
 <picture class="theme-picture"><img alt="D Prime broker" data-dark="broker-promo-assets/dprime-promo-dark.webp" data-light="broker-promo-assets/dprime-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/dprime-promo-light.webp"/></picture>
 <div class="broker-card-footer"><strong>D Prime</strong><span>Open Account →</span></div>
 </a>
-<a class="broker-logo-card" data-fallback="true" href="landing.html">
+<a class="broker-logo-card" data-fallback="true" href="/">
 <picture class="theme-picture"><img alt="XM broker" data-dark="broker-promo-assets/xm-promo-dark.webp" data-light="broker-promo-assets/xm-promo-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="broker-promo-assets/xm-promo-light.webp"/></picture>
 <div class="broker-card-footer"><strong>XM</strong><span>Open Account →</span></div>
 </a>
@@ -1752,15 +1742,15 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <p>Follow our official social channels for educational content, market updates and community announcements.</p>
 </div>
 <div class="social-grid social-grid-three">
-<a class="social-platform facebook" href="landing.html" id="socialFacebook" rel="noopener" target="_blank">
+<a class="social-platform facebook" href="/" id="socialFacebook" rel="noopener" target="_blank">
 <div class="social-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06C2 17.08 5.66 21.24 10.44 22v-7.03H7.9v-2.91h2.54V9.84c0-2.52 1.5-3.91 3.8-3.91 1.1 0 2.25.2 2.25.2v2.48h-1.27c-1.25 0-1.64.78-1.64 1.57v1.88h2.79l-.45 2.91h-2.34V22C18.34 21.24 22 17.08 22 12.06Z" fill="currentColor"></path></svg></div>
 <h3>Facebook</h3><p>Learn From Daily Market Insights</p>
 </a>
-<a class="social-platform instagram" href="landing.html" id="socialInstagram" rel="noopener" target="_blank">
+<a class="social-platform instagram" href="/" id="socialInstagram" rel="noopener" target="_blank">
 <div class="social-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M7.75 2h8.5A5.76 5.76 0 0 1 22 7.75v8.5A5.76 5.76 0 0 1 16.25 22h-8.5A5.76 5.76 0 0 1 2 16.25v-8.5A5.76 5.76 0 0 1 7.75 2Zm0 2A3.76 3.76 0 0 0 4 7.75v8.5A3.76 3.76 0 0 0 7.75 20h8.5A3.76 3.76 0 0 0 20 16.25v-8.5A3.76 3.76 0 0 0 16.25 4h-8.5Zm8.75 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill="currentColor"></path></svg></div>
 <h3>Instagram</h3><p>Improve Your Trading With Quick Tips</p>
 </a>
-<a class="social-platform whatsapp" href="landing.html" id="socialWhatsapp" rel="noopener" target="_blank">
+<a class="social-platform whatsapp" href="/" id="socialWhatsapp" rel="noopener" target="_blank">
 <div class="social-icon"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M12.04 2a9.84 9.84 0 0 0-8.42 14.93L2 22l5.22-1.58A9.94 9.94 0 1 0 12.04 2Zm0 17.97a8.02 8.02 0 0 1-4.09-1.12l-.29-.17-3.1.94.95-3.02-.19-.31a7.91 7.91 0 1 1 6.72 3.68Zm4.34-5.92c-.24-.12-1.4-.69-1.62-.77-.22-.08-.38-.12-.54.12-.16.24-.62.77-.76.93-.14.16-.28.18-.52.06-.24-.12-1.01-.37-1.92-1.18-.71-.63-1.19-1.41-1.33-1.65-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.39-.41-.54-.42h-.46c-.16 0-.42.06-.64.3-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.09 3.62.57.25 1.02.39 1.37.5.58.18 1.1.16 1.51.1.46-.07 1.4-.57 1.6-1.12.2-.55.2-1.02.14-1.12-.06-.1-.22-.16-.46-.28Z" fill="currentColor"></path></svg></div>
 <h3>WhatsApp Channel</h3><p>Get Important Updates Instantly</p>
 </a>
@@ -1775,13 +1765,13 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <p>Everything you need to learn, analyze and grow with a structured trading ecosystem.</p>
 </div>
 <div class="services-banner-grid">
-<a aria-label="Explore Forex Education" class="service-banner-card" href="landing.html" onclick="openLandingAuth('login');return false">
+<a aria-label="Explore Forex Education" class="service-banner-card" href="/" onclick="openLandingAuth('login');return false">
 <img alt="Forex Education" class="theme-card-image" data-dark="service-banners/forex-education-dark-readable-v4.webp" data-light="service-banners/forex-education-light-matched-v4.webp" decoding="async" fetchpriority="low" loading="lazy" src="service-banners/forex-education-light-matched-v4.webp"/>
 </a>
-<a aria-label="Explore Trading Signals" class="service-banner-card" href="landing.html" onclick="openLandingAuth('login');return false">
+<a aria-label="Explore Trading Signals" class="service-banner-card" href="/" onclick="openLandingAuth('login');return false">
 <img alt="Premium Trading Signals" class="theme-card-image" data-dark="service-banners/trading-signals-dark-readable-v4.webp" data-light="service-banners/trading-signals-light-matched-v4.webp" decoding="async" fetchpriority="low" loading="lazy" src="service-banners/trading-signals-light-matched-v4.webp"/>
 </a>
-<a aria-label="Explore Trading Tools" class="service-banner-card" href="landing.html" onclick="openLandingAuth('login');return false">
+<a aria-label="Explore Trading Tools" class="service-banner-card" href="/" onclick="openLandingAuth('login');return false">
 <img alt="IB Business Solutions" class="theme-card-image" data-dark="service-banners/trading-tools-dark-readable-v4.webp" data-light="service-banners/trading-tools-light-matched-v4.webp" decoding="async" fetchpriority="low" loading="lazy" src="service-banners/trading-tools-light-matched-v4.webp"/>
 </a>
 </div>
@@ -1803,7 +1793,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <div aria-label="Mr. Sajid Ghori expertise" class="mentor-highlights">
 <span>Top Asia Instructor</span><span>Forex Trainer</span><span>Technical Analysis &amp; VSA</span>
 </div>
-<a class="btn mentor-cta" href="courses.html#courses">Explore Mr. Sajid Ghori’s Courses <span aria-hidden="true" class="arrow">→</span></a>
+<a class="btn mentor-cta" href="/courses#courses">Explore Mr. Sajid Ghori’s Courses <span aria-hidden="true" class="arrow">→</span></a>
 </div>
 </div>
 </div>
@@ -1817,21 +1807,21 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 </div>
 <div class="partner-promo-grid">
 <div class="partner-promo-item">
-<a class="partner-promo-card visual-promo-card" href="landing.html" onclick="openLandingAuth('login');return false">
+<a class="partner-promo-card visual-promo-card" href="/" onclick="openLandingAuth('login');return false">
 <picture>
 <img alt="Grow Your IB Business — up to $25 per lot" class="theme-card-image" data-dark="ib-growth-dark.webp" data-light="ib-growth-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="ib-growth-light.webp"/>
 </picture>
 </a>
 </div>
 <div class="partner-promo-item">
-<a class="partner-promo-card visual-promo-card" href="landing.html" onclick="openLandingAuth('login');return false">
+<a class="partner-promo-card visual-promo-card" href="/" onclick="openLandingAuth('login');return false">
 <picture>
 <img alt="Free Team Training for you and your team" class="theme-card-image" data-dark="team-training-dark.webp" data-light="team-training-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="team-training-light.webp"/>
 </picture>
 </a>
 </div>
 <div class="partner-promo-item">
-<a class="partner-promo-card visual-promo-card" href="landing.html" onclick="openLandingAuth('login');return false">
+<a class="partner-promo-card visual-promo-card" href="/" onclick="openLandingAuth('login');return false">
 <picture>
 <img alt="AI tools for social media growth" class="theme-card-image" data-dark="ai-tools-dark.webp" data-light="ai-tools-light.webp" decoding="async" fetchpriority="low" loading="lazy" src="ai-tools-light.webp"/>
 </picture>
@@ -1927,7 +1917,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 </div>
 </section>
 </main>
-<footer><div class="container"><div class="footer-grid"><div><div class="footer-brand">PipSePaisa</div><p>Forex education, professional learning, practical trading tools and business support designed to help traders and partners grow with knowledge and discipline.</p></div><div><h4>Quick Links</h4><ul><li><a href="landing.html">Home</a></li><li><a href="partner.html">Become Partner</a></li><li><a href="courses.html">Courses</a></li></ul></div><div><h4>Resources</h4><ul><li><a href="tools-services.html">Trading Tools &amp; Services</a></li><li><a href="courses.html#courses">Course Enrollment</a></li><li><a href="./#auth-login">Login</a></li></ul></div><div><h4>Connect</h4><ul><li>Facebook</li><li>Instagram</li><li>WhatsApp Channel</li></ul></div></div><div class="disclaimer">Educational content only. Trading involves risk and results may vary. Broker conditions, commissions and promotions depend on region, account type and official terms.</div></div></footer>
+<footer><div class="container"><div class="footer-grid"><div><div class="footer-brand">PipSePaisa</div><p>Forex education, professional learning, practical trading tools and business support designed to help traders and partners grow with knowledge and discipline.</p></div><div><h4>Quick Links</h4><ul><li><a href="/">Home</a></li><li><a href="/partner">Become Partner</a></li><li><a href="/courses">Courses</a></li></ul></div><div><h4>Resources</h4><ul><li><a href="/trading-tools">Trading Tools &amp; Services</a></li><li><a href="/courses#courses">Course Enrollment</a></li><li><a href="/sign-in">Login</a></li></ul></div><div><h4>Connect</h4><ul><li>Facebook</li><li>Instagram</li><li>WhatsApp Channel</li></ul></div></div><div class="disclaimer">Educational content only. Trading involves risk and results may vary. Broker conditions, commissions and promotions depend on region, account type and official terms.</div></div></footer>
 <div aria-hidden="true" class="landing-auth-overlay" id="landingAuthOverlay">
 <div aria-labelledby="landingAuthTitle" aria-modal="true" class="landing-auth-card" role="dialog">
 <button aria-label="Close login popup" class="landing-auth-close" onclick="closeLandingAuth()" type="button">×</button>
@@ -2111,7 +2101,7 @@ async function landingLoginUser(){
         throw new Error('Login system did not load correctly. Please clear the website cache, refresh, and try again.');
       }
     }else{
-      // Standalone landing.html fallback.
+      // Standalone / fallback.
       if(!landingSb){
         throw new Error('Connection problem. Please reload and try again.');
       }
@@ -2205,9 +2195,10 @@ async function landingSignupUser(){
   sessionStorage.setItem('psp-manual-signin-required','1');
   try{
     const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
-    const {data,error}=await landingSb.auth.signUp({email,password,options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:fullName,username,phone,role:'user'}}});
+    const {data,error}=await landingSb.auth.signUp({email,password,options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:fullName,username,phone,role:'user',...(window.PSPTrack?.authMetadata?.()||{})}}});
     if(error)throw error;
     if(!data?.user)throw new Error('Account could not be created.');
+    try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
     if(data?.session){try{await landingSb.auth.signOut({scope:'local'});}catch(_){}}
   }catch(error){
     if(panel)panel.innerHTML=original;

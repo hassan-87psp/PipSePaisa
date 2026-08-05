@@ -92,9 +92,10 @@ function installSignupFix(){
       const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
       const {data,error}=await client.auth.signUp({
         email,password,
-        options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:fullName,username,phone,whatsapp:phone,role:'user',portal:(window.PSP_PORTAL_MODE==='mentor'?'mentor':'user')}}
+        options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:fullName,username,phone,whatsapp:phone,role:'user',portal:(window.PSP_PORTAL_MODE==='mentor'?'mentor':'user'),...(window.PSPTrack?.authMetadata?.()||{})}}
       });
       if(error)throw error;
+      try{if(data?.user?.id)await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
       if(Array.isArray(data?.user?.identities)&&data.user.identities.length===0)throw new Error('An account already exists with this email. Please sign in, or resend verification if it is still unverified.');
       if(data?.session){try{await client.auth.signOut({scope:'local'});}catch(_){}}
       const box=document.getElementById('verifyResendMessage');

@@ -724,8 +724,9 @@
     try{
       const sb=getClient();if(!sb)throw new Error('Connection problem. Please reload and try again.');
       const username=values.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
-      const {data,error}=await sb.auth.signUp({email:values.email,password:values.password,options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:values.name,username,phone:values.phone,role:'user'}}});
+      const {data,error}=await sb.auth.signUp({email:values.email,password:values.password,options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:values.name,username,phone:values.phone,role:'user',...(window.PSPTrack?.authMetadata?.()||{})}}});
       if(error)throw error;
+      try{if(data?.user?.id)await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
       activeUser=data?.session?.user||data?.user||null;
       if(data?.session){try{await sb.auth.signOut({scope:'local'});}catch(_){}}
       if(!data?.session){return;}
@@ -778,6 +779,7 @@
         await loadProfile(activeUser);
       }
       const result=await saveEnrollment(values,receipt);
+      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser?.id,{enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){}
       if(!result.already || (selectedCourse.type==='free'&&result.updated)){
         const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
         const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];

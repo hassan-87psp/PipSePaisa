@@ -1,0 +1,357 @@
+/* PipSePaisa V41 — clean mobile responsive rebuild.
+   Desktop styles are untouched. This file is loaded last on public pages. */
+
+/* Active navigation state: orange text only, never an underline. */
+.topbar .menu a,
+.topbar .menu a.active,
+.topbar .menu a:hover,
+.topbar .menu a:focus{
+  text-decoration:none!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
+  background-image:none!important;
+}
+.topbar .menu a::before,.topbar .menu a::after,
+.topbar .menu a.active::before,.topbar .menu a.active::after{
+  content:none!important;display:none!important;width:0!important;height:0!important;
+}
+.topbar .menu a.active{color:#F88702!important}
+
+/* Stable image boxes and smoother decoding. */
+img{max-width:100%}
+.theme-picture,.broker-card,.broker-logo-card,.service-banner-card,.visual-promo-card,
+.course-process-banner,.tool-mini-banner,.partner-image{
+  background:#fff7ea;
+}
+
+@media (max-width:768px){
+  html,body{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
+  body{font-size:15px!important;-webkit-text-size-adjust:100%!important}
+  .container{width:calc(100% - 16px)!important;max-width:none!important;margin-inline:8px!important}
+
+  /* Public header: same links as desktop, readable and horizontally scrollable. */
+  .topbar{position:sticky!important;top:0!important;z-index:1000!important}
+  .topbar .nav{
+    height:auto!important;min-height:0!important;padding:8px 0 7px!important;
+    display:grid!important;grid-template-columns:auto 1fr auto!important;
+    align-items:center!important;gap:8px!important;
+  }
+  .topbar .brand{grid-column:1!important;gap:6px!important;font-size:17px!important;white-space:nowrap!important}
+  .topbar .brand img{width:36px!important;height:36px!important;border-radius:9px!important}
+  .topbar .nav-actions,.topbar .actions{grid-column:3!important;display:flex!important;align-items:center!important;gap:6px!important}
+  .topbar .theme-btn{width:36px!important;height:36px!important;min-width:36px!important;font-size:15px!important}
+  .topbar .btn,.topbar .login{min-height:36px!important;padding:8px 13px!important;border-radius:10px!important;font-size:13px!important;white-space:nowrap!important}
+  .topbar .menu{
+    grid-column:1 / -1!important;grid-row:2!important;width:100%!important;
+    display:flex!important;align-items:center!important;gap:4px!important;
+    overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none!important;
+    padding:5px 0 1px!important;white-space:nowrap!important;-webkit-overflow-scrolling:touch!important;
+  }
+  .topbar .menu::-webkit-scrollbar{display:none!important}
+  .topbar .menu a{
+    flex:0 0 auto!important;padding:7px 9px!important;border-radius:8px!important;
+    font-size:12px!important;line-height:1.15!important;font-weight:750!important;
+  }
+  .topbar .mobile-menu{display:none!important}
+
+  /* Shared headings and sections. */
+  .hero{padding:10px 0!important}
+  .section,.category,.category.alt,.broker-showcase,.social-showcase,.social-section,
+  .services-premium,.partner-promo-section,.mentor-spotlight-section,.broker-comparison-section{
+    padding-top:28px!important;padding-bottom:28px!important;
+  }
+  .section-head,.section-heading{margin-bottom:18px!important;text-align:center!important}
+  .section-head .mini,.section-heading .small,.mini,.small{
+    font-size:10px!important;letter-spacing:.12em!important;line-height:1.2!important;
+  }
+  .section-head h2,.section-heading h2{
+    font-size:clamp(24px,7vw,31px)!important;line-height:1.08!important;margin:7px 0 8px!important;
+  }
+  .section-head p,.section-heading p{
+    max-width:680px!important;margin-inline:auto!important;font-size:13px!important;line-height:1.5!important;
+  }
+  .btn,.login,.course-btn{touch-action:manipulation}
+
+  /* HOME hero: preserve the desktop split composition without the 640px blank area. */
+  body.page-home .hero-overlay-banner,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner{
+    position:relative!important;height:335px!important;min-height:335px!important;
+    border-radius:16px!important;background-size:auto 100%!important;background-position:right center!important;
+    overflow:hidden!important;
+  }
+  body.page-home .hero-overlay-banner .hero-text-layer{
+    width:61%!important;max-width:61%!important;height:100%!important;
+    padding:14px 10px 12px!important;display:flex!important;flex-direction:column!important;
+    justify-content:flex-start!important;align-items:flex-start!important;
+  }
+  body.page-home .hero-eyebrow{
+    width:auto!important;max-width:100%!important;padding:5px 8px!important;margin:0 0 8px!important;
+    font-size:8px!important;letter-spacing:.08em!important;white-space:nowrap!important;
+  }
+  body.page-home .hero-overlay-banner h1{
+    font-size:clamp(25px,7.4vw,34px)!important;line-height:.98!important;margin:0 0 8px!important;
+    letter-spacing:-.035em!important;
+  }
+  body.page-home .hero-course{
+    width:100%!important;margin:0 0 7px!important;padding:5px 7px!important;
+    font-size:9px!important;line-height:1.25!important;border-radius:8px!important;
+  }
+  body.page-home .hero-quote{
+    width:100%!important;margin:0 0 9px!important;padding:7px 8px 7px 11px!important;
+    border-radius:9px!important;min-height:0!important;
+  }
+  body.page-home .hero-quote::before,body.page-home .hero-quote::after{font-size:21px!important}
+  body.page-home .hero-quote strong{font-size:9px!important;line-height:1.2!important;margin-bottom:3px!important}
+  body.page-home .hero-quote p{
+    display:-webkit-box!important;-webkit-line-clamp:4!important;-webkit-box-orient:vertical!important;
+    overflow:hidden!important;font-size:8px!important;line-height:1.32!important;margin:0!important;
+  }
+  body.page-home .hero-primary-cta{
+    min-height:34px!important;padding:8px 12px!important;border-radius:9px!important;font-size:10px!important;margin-top:0!important;
+  }
+  body.page-home .hero-mentor-badge{
+    right:8px!important;bottom:8px!important;min-width:130px!important;padding:7px 9px!important;border-radius:9px!important;
+  }
+  body.page-home .hero-mentor-badge strong{font-size:10px!important}
+  body.page-home .hero-mentor-badge span{font-size:7px!important}
+
+  /* Reusable broker strip: three visual cards, same order as desktop. */
+  .broker-grid,.broker-logo-grid{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;
+  }
+  .broker-card,.broker-logo-card{min-width:0!important;border-radius:9px!important;overflow:hidden!important}
+  .broker-card img,.broker-logo-card picture,.broker-logo-card img{
+    width:100%!important;height:auto!important;aspect-ratio:16/7!important;object-fit:cover!important;display:block!important;
+  }
+  .broker-card-footer{display:none!important}
+
+  /* Community cards stay three across, but remain legible. */
+  .social-grid,.social-grid-three{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+  .social-card,.social-platform{
+    min-height:128px!important;padding:12px 6px!important;border-radius:14px!important;text-align:center!important;
+  }
+  .social-icon{width:43px!important;height:43px!important;margin:0 auto 8px!important;border-radius:13px!important}
+  .social-icon svg{width:25px!important;height:25px!important}
+  .social-card h3,.social-platform h3{font-size:13px!important;line-height:1.15!important;margin:0 0 4px!important}
+  .social-card p,.social-platform p{font-size:9px!important;line-height:1.25!important;margin:0!important}
+
+  /* Home service/partner banners: swipeable cards instead of tiny unreadable thumbnails. */
+  .services-banner-grid,.partner-promo-grid{
+    display:flex!important;gap:10px!important;overflow-x:auto!important;scroll-snap-type:x mandatory!important;
+    padding:2px 1px 8px!important;scrollbar-width:none!important;
+  }
+  .services-banner-grid::-webkit-scrollbar,.partner-promo-grid::-webkit-scrollbar{display:none!important}
+  .service-banner-card,.visual-promo-card,.partner-promo-card{
+    flex:0 0 82vw!important;max-width:520px!important;scroll-snap-align:start!important;border-radius:14px!important;overflow:hidden!important;
+  }
+  .service-banner-card img,.visual-promo-card img,.partner-promo-card img{width:100%!important;height:auto!important;display:block!important}
+
+  /* Mentor section keeps the desktop left-image/right-copy character while becoming readable. */
+  .mentor-spotlight{
+    height:auto!important;min-height:0!important;display:grid!important;grid-template-columns:42% 58%!important;
+    border-radius:18px!important;overflow:hidden!important;
+  }
+  .mentor-portrait{height:330px!important;min-height:330px!important}
+  .mentor-person{height:336px!important;max-height:none!important;left:50%!important;transform:translateX(-50%) scaleX(-1)!important}
+  .mentor-orbit{width:235px!important;height:235px!important}
+  .mentor-role-badge{left:8px!important;bottom:9px!important;transform:none!important;font-size:7px!important;padding:7px 8px!important;white-space:nowrap!important}
+  .mentor-content{padding:22px 13px 18px!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+  .mentor-eyebrow{font-size:8px!important;margin-bottom:8px!important}
+  .mentor-content h2{font-size:clamp(22px,6vw,29px)!important;line-height:1.03!important;margin:0 0 10px!important}
+  .mentor-content h2 span{display:block!important;margin-top:3px!important;color:#F88702!important}
+  .mentor-description{font-size:10px!important;line-height:1.42!important;margin-bottom:10px!important}
+  .mentor-highlights{display:flex!important;flex-wrap:wrap!important;gap:5px!important;margin-bottom:11px!important}
+  .mentor-highlights span{font-size:8px!important;padding:5px 7px!important}
+  .mentor-cta{align-self:flex-start!important;min-height:34px!important;padding:8px 10px!important;font-size:9px!important;border-radius:9px!important}
+
+  /* Broker comparison remains a real desktop table with readable horizontal swipe. */
+  .broker-table-wrap{overflow-x:auto!important;overflow-y:hidden!important;-webkit-overflow-scrolling:touch!important;border-radius:12px!important}
+  .broker-comparison-table{
+    display:table!important;width:920px!important;min-width:920px!important;table-layout:fixed!important;border-collapse:separate!important;
+  }
+  .broker-comparison-table colgroup{display:table-column-group!important}
+  .broker-comparison-table thead{display:table-header-group!important}
+  .broker-comparison-table tbody{display:table-row-group!important}
+  .broker-comparison-table tr{display:table-row!important}
+  .broker-comparison-table th,.broker-comparison-table td{
+    display:table-cell!important;padding:12px 8px!important;font-size:11px!important;line-height:1.3!important;text-align:center!important;
+  }
+  .broker-comparison-table th{font-size:10px!important}
+  .broker-comparison-table td::before{display:none!important;content:none!important}
+  .broker-comparison-table img.broker-logo-icon,.broker-comparison-table .broker-name img{
+    width:92px!important;height:42px!important;object-fit:contain!important;padding:4px!important;
+  }
+  .broker-comparison-table .badge{font-size:9px!important;padding:5px 7px!important}
+  .broker-data-note{font-size:10px!important;line-height:1.45!important;margin:9px 2px 0!important}
+
+  /* COURSES hero keeps its split desktop identity. */
+  body.page-courses .course-hero-box{
+    height:330px!important;min-height:330px!important;display:grid!important;grid-template-columns:58% 42%!important;
+    border-radius:17px!important;overflow:hidden!important;
+  }
+  body.page-courses .course-hero-copy{width:auto!important;padding:20px 12px 16px!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+  body.page-courses .course-academy-label{font-size:8px!important;padding:5px 7px!important;margin-bottom:10px!important}
+  body.page-courses .course-academy-label img{width:22px!important;height:22px!important}
+  body.page-courses .course-hero-copy h1{font-size:clamp(25px,7vw,34px)!important;line-height:1!important;margin:0 0 9px!important}
+  body.page-courses .course-hero-copy p{font-size:10px!important;line-height:1.4!important;margin:0 0 9px!important}
+  body.page-courses .course-hero-copy .pills{gap:5px!important;margin:0 0 10px!important;display:flex!important;flex-wrap:wrap!important}
+  body.page-courses .course-hero-copy .pill{font-size:8px!important;padding:5px 7px!important}
+  body.page-courses .course-hero-actions{display:flex!important;flex-wrap:wrap!important;gap:6px!important}
+  body.page-courses .course-hero-actions a{min-height:32px!important;padding:7px 9px!important;font-size:8px!important;border-radius:8px!important}
+  body.page-courses .course-hero-art{width:auto!important;height:330px!important;min-height:330px!important}
+  body.page-courses .course-mentor-portrait{height:315px!important;right:-3px!important}
+  body.page-courses .course-mentor-badge{right:7px!important;bottom:7px!important;padding:6px 8px!important}
+  body.page-courses .course-mentor-badge strong{font-size:9px!important}
+  body.page-courses .course-mentor-badge span{font-size:6px!important}
+
+  /* Course cards: desktop card design in a readable horizontal carousel. */
+  body.page-courses .course-grid{
+    display:flex!important;gap:12px!important;overflow-x:auto!important;scroll-snap-type:x mandatory!important;
+    padding:2px 1px 10px!important;scrollbar-width:none!important;align-items:stretch!important;
+  }
+  body.page-courses .course-grid::-webkit-scrollbar{display:none!important}
+  body.page-courses .course-card{
+    flex:0 0 calc(100vw - 28px)!important;width:calc(100vw - 28px)!important;max-width:560px!important;
+    min-height:0!important;height:auto!important;padding:22px 16px 16px!important;scroll-snap-align:start!important;
+    border-radius:17px!important;
+  }
+  body.page-courses .course-card h3{font-size:26px!important;line-height:1.08!important;margin:10px 0!important}
+  body.page-courses .course-card > p{font-size:13px!important;line-height:1.5!important}
+  body.page-courses .course-card .price{font-size:34px!important;margin:18px 0!important}
+  body.page-courses .course-card .topics{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px 12px!important}
+  body.page-courses .course-card .topic{font-size:12px!important;line-height:1.3!important;min-width:0!important}
+  body.page-courses .course-card .check{width:21px!important;height:21px!important;flex:0 0 21px!important;font-size:12px!important}
+  body.page-courses .course-card .highlight{font-size:10px!important;line-height:1.35!important;margin:18px 0 12px!important}
+  body.page-courses .course-card .course-btn{width:100%!important;min-height:48px!important;font-size:14px!important;border-radius:11px!important}
+  body.page-courses .course-card .ribbon{font-size:8px!important;padding:6px 34px!important;right:-33px!important;top:15px!important}
+  body.page-courses .discount-pricing{
+    width:100%!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;
+    padding:14px!important;margin:16px 0!important;border-radius:15px!important;overflow:hidden!important;
+  }
+  body.page-courses .discount-pricing .was-price,body.page-courses .discount-pricing .now-price{min-width:0!important}
+  body.page-courses .discount-pricing span{font-size:11px!important}
+  body.page-courses .discount-pricing strong{font-size:35px!important;line-height:1!important}
+  body.page-courses .discount-pricing .save-price,body.page-courses .discount-pricing .offer-label{font-size:13px!important;padding:10px!important;text-align:center!important}
+  body.page-courses .why-section .grid-4{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
+  body.page-courses .why-section .feature-card{min-height:0!important;padding:10px!important}
+  body.page-courses .why-section .feature-card > :not(.course-process-banner){display:none!important}
+  body.page-courses .course-process-banner,body.page-courses .course-process-banner img{display:block!important;width:100%!important;height:auto!important;border-radius:10px!important}
+
+  /* PARTNER hero and program content. */
+  body.page-partner .hero-box{
+    height:330px!important;min-height:330px!important;display:grid!important;grid-template-columns:58% 42%!important;
+    border-radius:17px!important;overflow:hidden!important;
+  }
+  body.page-partner .hero-copy{width:auto!important;padding:20px 12px 16px!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+  body.page-partner .hero h1{font-size:clamp(24px,6.8vw,33px)!important;line-height:1!important;margin:6px 0 9px!important}
+  body.page-partner .hero p{font-size:10px!important;line-height:1.42!important;margin:0 0 9px!important}
+  body.page-partner .hero .pills{display:flex!important;flex-wrap:wrap!important;gap:5px!important;margin:0 0 10px!important}
+  body.page-partner .hero .pill{font-size:8px!important;padding:5px 7px!important}
+  body.page-partner .hero .login{align-self:flex-start!important;min-height:34px!important;padding:8px 10px!important;font-size:9px!important}
+  body.page-partner .hero-visual.partner-hero-visual{width:auto!important;height:330px!important;min-height:330px!important;background-size:cover!important;background-position:center!important}
+
+  body.page-partner .benefits-bg .grid-4{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important}
+  body.page-partner .benefits-bg .feature-card{padding:0!important;min-height:0!important;background:#fff8ea!important;overflow:hidden!important}
+  body.page-partner .benefits-bg .feature-card > :not(.benefit-mini-banner){display:none!important}
+  body.page-partner .benefit-mini-banner,body.page-partner .benefit-mini-banner img{display:block!important;width:100%!important;height:auto!important;min-height:0!important}
+
+  body.page-partner #partner-programs .partner-detail{
+    display:grid!important;grid-template-columns:1fr!important;gap:0!important;margin-bottom:18px!important;
+    border-radius:17px!important;overflow:hidden!important;
+  }
+  body.page-partner #partner-programs .partner-image{width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:1/1!important}
+  body.page-partner #partner-programs .partner-image img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+  body.page-partner #partner-programs .partner-info{width:100%!important;padding:18px 14px!important}
+  body.page-partner #partner-programs .program-kicker{font-size:9px!important}
+  body.page-partner #partner-programs .partner-info h3{font-size:24px!important;line-height:1.1!important;margin:6px 0 8px!important}
+  body.page-partner #partner-programs .partner-info > p{font-size:12px!important;line-height:1.45!important}
+  body.page-partner #partner-programs .info-row{padding:11px 0!important;gap:10px!important}
+  body.page-partner #partner-programs .info-ico{width:38px!important;height:38px!important;flex:0 0 38px!important}
+  body.page-partner #partner-programs .info-row h4{font-size:14px!important;margin:0 0 3px!important}
+  body.page-partner #partner-programs .info-row p{font-size:11px!important;line-height:1.35!important}
+  body.page-partner #partner-programs .partner-info > .login{min-height:42px!important;padding:10px 13px!important;font-size:12px!important}
+  body.page-partner .partner-programs-note{font-size:9px!important;line-height:1.4!important}
+
+  /* TOOLS hero and cards. */
+  body.page-tools .hero-box{
+    height:330px!important;min-height:330px!important;display:grid!important;grid-template-columns:43% 57%!important;
+    border-radius:17px!important;overflow:hidden!important;
+  }
+  body.page-tools .hero-copy{width:auto!important;padding:19px 10px!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+  body.page-tools .hero h1{font-size:clamp(22px,6.2vw,31px)!important;line-height:1!important;margin:7px 0 9px!important}
+  body.page-tools .hero p{font-size:9px!important;line-height:1.4!important;margin:0 0 9px!important}
+  body.page-tools .hero .pills{display:flex!important;flex-wrap:wrap!important;gap:4px!important;margin-bottom:9px!important}
+  body.page-tools .hero .pill{font-size:7px!important;padding:4px 6px!important}
+  body.page-tools .hero .login{align-self:flex-start!important;min-height:32px!important;padding:7px 9px!important;font-size:8px!important}
+  body.page-tools .hero-visual.tools-visual{width:auto!important;height:330px!important;min-height:330px!important;padding:9px!important}
+  body.page-tools .tools-suite{width:100%!important;height:auto!important;max-height:312px!important;border-radius:12px!important;overflow:hidden!important}
+  body.page-tools .tools-suite-bar{min-height:25px!important;padding:5px 7px!important;font-size:6px!important}
+  body.page-tools .tools-suite-screen{padding:7px!important}
+  body.page-tools .tools-suite-caption{padding:5px 7px!important}
+  body.page-tools .tools-suite-caption b{font-size:8px!important}
+  body.page-tools .tools-suite-caption small{font-size:6px!important}
+  body.page-tools .tools-suite-tabs{gap:4px!important;padding:5px!important}
+  body.page-tools .tools-suite-tab{min-height:40px!important;padding:5px!important;font-size:7px!important}
+  body.page-tools #tools .category-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
+  body.page-tools #tools .resource-card{min-height:0!important;padding:9px!important}
+  body.page-tools #tools .resource-card > :not(.tool-mini-banner){display:none!important}
+  body.page-tools #tools .tool-mini-banner,body.page-tools #tools .tool-mini-banner img{display:block!important;width:100%!important;height:auto!important;border-radius:10px!important}
+  body.page-tools #learning-journey .services-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:9px!important}
+  body.page-tools #learning-journey .resource-card{min-height:190px!important;padding:12px!important}
+  body.page-tools #learning-journey .resource-card h3{font-size:14px!important}
+  body.page-tools #learning-journey .resource-card p{font-size:10px!important;line-height:1.35!important}
+  body.page-tools #learning-journey .resource-card > a{font-size:9px!important;padding:7px 9px!important}
+
+  /* Footer: readable two-column composition rather than a shrunken desktop footer. */
+  footer{padding-top:28px!important}
+  .footer-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:18px 14px!important}
+  .footer-grid > div:first-child{grid-column:1 / -1!important}
+  footer h4{font-size:12px!important}
+  footer a,footer p{font-size:10px!important;line-height:1.45!important}
+
+  /* Install prompt must never cover page content on mobile. */
+  #pushSubscribePrompt,.pwa-install-prompt,.install-app-prompt,[class*="install-prompt"]{
+    max-width:calc(100vw - 18px)!important;left:9px!important;right:9px!important;bottom:9px!important;
+    transform:none!important;z-index:1200!important;
+  }
+
+  /* Faster paint for long public pages. */
+  .reveal,.stagger>*{transition-duration:.2s!important;animation-duration:.2s!important}
+}
+
+@media (max-width:430px){
+  body.page-home .hero-overlay-banner{height:325px!important;min-height:325px!important}
+  body.page-home .hero-overlay-banner .hero-text-layer{width:64%!important;max-width:64%!important;padding:12px 8px!important}
+  body.page-home .hero-overlay-banner h1{font-size:25px!important}
+  body.page-home .hero-quote p{-webkit-line-clamp:3!important;font-size:7.5px!important}
+  .mentor-spotlight{grid-template-columns:40% 60%!important}
+  .mentor-portrait{height:315px!important;min-height:315px!important}
+  .mentor-person{height:320px!important}
+  .mentor-content{padding:17px 10px!important}
+  .mentor-content h2{font-size:20px!important}
+  .mentor-description{font-size:9px!important}
+  .social-card,.social-platform{min-height:118px!important;padding:10px 4px!important}
+  body.page-courses .course-hero-box,body.page-courses .course-hero-art,
+  body.page-partner .hero-box,body.page-partner .hero-visual.partner-hero-visual,
+  body.page-tools .hero-box,body.page-tools .hero-visual.tools-visual{height:315px!important;min-height:315px!important}
+  body.page-courses .course-mentor-portrait{height:300px!important}
+}
+
+/* V41 verification fixes */
+@media (max-width:768px){
+  .topbar .menu a{font-size:13px!important;padding:8px 11px!important}
+  .mentor-spotlight .mentor-portrait,.mentor-spotlight .mentor-content{
+    opacity:1!important;transform:none!important;transition:none!important;
+  }
+  body.page-courses .course-hero-art{
+    position:relative!important;inset:auto!important;right:auto!important;top:auto!important;
+    grid-column:2!important;grid-row:1!important;width:auto!important;min-width:0!important;max-width:none!important;
+    display:block!important;overflow:hidden!important;
+  }
+  body.page-courses .course-mentor-portrait{
+    width:auto!important;max-width:none!important;opacity:1!important;transform:none!important;
+  }
+  body.page-courses .course-hero-copy{grid-column:1!important;grid-row:1!important;min-width:0!important}
+  body.page-courses .why-section .feature-card{position:relative!important;overflow:hidden!important}
+  body.page-courses .course-process-banner{position:relative!important;inset:auto!important}
+}

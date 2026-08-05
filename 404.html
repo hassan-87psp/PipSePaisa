@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PipSePaisa — Opening Link</title>
+  <link rel="icon" href="/favicon.png">
+  <style>
+    :root{--orange:#F88702;--navy:#0b172b;--cream:#fffaf1;--line:#f1d4a9}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#fffaf1,#fff3dd);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--navy)}
+    .card{width:min(460px,100%);padding:32px;border:1px solid var(--line);border-radius:24px;background:#fff;box-shadow:0 24px 70px rgba(68,41,0,.14);text-align:center}
+    .logo{width:70px;height:70px;border-radius:18px;margin:0 auto 16px;display:block}.spinner{width:38px;height:38px;margin:18px auto;border:4px solid #ffe3bd;border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    h1{margin:0 0 9px;font-size:25px}p{margin:0;color:#687386;line-height:1.55}.error{display:none;color:#b42318}.btn{display:none;margin:20px auto 0;padding:12px 18px;border:0;border-radius:12px;background:var(--orange);font-weight:800;color:#111;cursor:pointer}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <img class="logo" src="/favicon.png" alt="PipSePaisa">
+    <h1 id="title">Opening PipSePaisa…</h1>
+    <p id="message">Please wait while we prepare your page.</p>
+    <div class="spinner" id="spinner"></div>
+    <p class="error" id="error">This tracked link is unavailable or has been disabled.</p>
+    <button class="btn" id="homeBtn" onclick="location.href='/'">Go to Home</button>
+  </main>
+  <script src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
+  <script>
+    (async function(){
+      const parts=location.pathname.split('/').filter(Boolean);
+      const goIndex=parts.indexOf('go');
+      const slug=(goIndex>=0?parts[goIndex+1]:new URLSearchParams(location.search).get('slug'))||'';
+      if(!slug){showError();return;}
+      const result=await window.PSPTrack.record('click',{slug:slug,metadata:{tracked_redirect:true}});
+      const row=result&&result.row;
+      if(!result.ok||!row||!row.destination_path){showError();return;}
+      try{sessionStorage.setItem('psp_link_click_recorded_'+slug.toLowerCase(),'1');}catch(_){ }
+      let destination=String(row.destination_path||'/');
+      if(!destination.startsWith('/'))destination='/';
+      document.getElementById('message').textContent='Taking you to '+(row.link_name||'PipSePaisa')+'.';
+      setTimeout(function(){location.replace(destination);},180);
+      function showError(){
+        document.getElementById('spinner').style.display='none';
+        document.getElementById('title').textContent='Link Unavailable';
+        document.getElementById('message').style.display='none';
+        document.getElementById('error').style.display='block';
+        document.getElementById('homeBtn').style.display='block';
+      }
+    })();
+  </script>
+</body>
+</html>
