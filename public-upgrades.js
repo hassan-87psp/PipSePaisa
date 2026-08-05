@@ -27,18 +27,24 @@
   function setupNavigation(){
     const menu=document.querySelector('.menu');
     if(!menu)return;
-    const homeLink=[...menu.querySelectorAll('a')].find(a=>a.textContent.trim().toLowerCase()==='home');
-    if(homeLink&&!menu.querySelector('a[href*="broker-comparison"]')){
-      const brokerReviews=document.createElement('a');
-      brokerReviews.href='/broker-reviews';
-      brokerReviews.textContent='Broker Reviews';
-      brokerReviews.className='broker-reviews-link';
-      homeLink.insertAdjacentElement('afterend',brokerReviews);
-    }
-    /* The approved layout keeps the complete navigation visible. */
+    const path=(location.pathname||'/').replace(/\/+$/,'')||'/';
+    const defs=[
+      ['Home','/'],
+      ['Courses','/courses'],
+      ['Broker Reviews','/broker-reviews'],
+      ['Become Partner','/become-partner'],
+      ['Trading Tools & Services','/trading-tools']
+    ];
+    const activePath=path==='/partner'?'/become-partner':(path==='/free-course'?'/courses':path);
+    menu.replaceChildren(...defs.map(([label,href])=>{
+      const a=document.createElement('a');
+      a.href=href;a.textContent=label;
+      if(href==='/broker-reviews')a.classList.add('broker-reviews-link');
+      if((href==='/'&&activePath==='/')||(href!=='/'&&activePath===href))a.classList.add('active');
+      return a;
+    }));
     document.querySelectorAll('.mobile-menu,.menu-toggle,.hamburger,[aria-label="Menu"],[aria-label="Open navigation menu"]').forEach(el=>el.remove());
     menu.classList.remove('is-open');
-    menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>menu.classList.remove('is-open')));
   }
 
   function brandifyVisibleText(){

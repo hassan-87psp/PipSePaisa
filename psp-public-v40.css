@@ -34,3 +34,13 @@ html.psp-page-ready body{opacity:1;transition:opacity .12s ease-out}
   .mockup,.mentor-orbit,.mentor-spotlight::after{animation:none!important}
   .reveal,.stagger>*{transition-duration:.28s!important;animation-duration:.28s!important}
 }
+
+/* V43 exact public navigation: one row, no duplicate labels or wrapping. */
+@media(min-width:769px){
+ .topbar .nav{gap:18px!important}
+ .topbar .menu{display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:18px!important;min-width:0!important}
+ .topbar .menu a{white-space:nowrap!important;line-height:1.15!important;padding:10px 8px!important;font-size:14px!important}
+ .topbar .brand{flex:0 0 auto!important}
+ .topbar .nav-actions,.topbar .actions{flex:0 0 auto!important}
+}
+@media(min-width:769px) and (max-width:1120px){.topbar .menu{gap:10px!important}.topbar .menu a{font-size:12px!important;padding-inline:5px!important}}

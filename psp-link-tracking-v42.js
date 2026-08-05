@@ -124,14 +124,27 @@
     const source=(params.get('utm_source')||'').trim()||null;
     const medium=(params.get('utm_medium')||'').trim()||null;
     const campaign=(params.get('utm_campaign')||'').trim()||null;
-    saveAttribution({slug,source,medium,campaign,entry_path:location.pathname});
     const sessionFlag='psp_link_click_recorded_'+slug;
     if(storageGet(sessionStorage,sessionFlag)==='1'){
       cleanTrackingParams();
       return;
     }
-    const result=await record('click',{slug,source,campaign,metadata:{medium}});
-    if(result.ok){storageSet(sessionStorage,sessionFlag,'1');cleanTrackingParams();}
+    const result=await record('click',{slug,source,campaign,metadata:{medium,entry_path:location.pathname}});
+    if(result.ok&&result.row){
+      saveAttribution({
+        slug,
+        link_id:result.row.link_id||null,
+        name:result.row.link_name||null,
+        destination_path:result.row.destination_path||location.pathname,
+        source:result.row.source||source,
+        campaign:result.row.campaign||campaign,
+        medium,
+        entry_path:location.pathname
+      });
+      storageSet(sessionStorage,sessionFlag,'1');
+    }
+    // Invalid or disabled references never block the normal website page.
+    cleanTrackingParams();
   }
   function authMetadata(){
     const a=getAttribution();

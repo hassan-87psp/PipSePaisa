@@ -12,7 +12,7 @@
   function fmt(n){return Number(n||0).toLocaleString();}
   function date(value){if(!value)return '—';try{return new Date(value).toLocaleString();}catch(_){return '—';}}
   function slugify(value){return String(value||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80);}
-  function trackedUrl(slug){return BASE_DOMAIN+'/go/'+encodeURIComponent(slug);}
+  function trackedUrl(destination,slug){const path=String(destination||'/');const join=path.includes('?')?'&':'?';return BASE_DOMAIN+path+join+'ref='+encodeURIComponent(slug);}
   function getSb(){try{return window.sb||null;}catch(_){return null;}}
 
   function addStyles(){
@@ -54,14 +54,14 @@
         <div class="card-header"><div><div class="card-title">🔗 Generate Tracked Link</div><div class="card-meta">Create a link and see how many visitors, signups and enrollments came from it.</div></div></div>
         <div class="lm-form-grid">
           <div><label>Link Name *</label><input id="lmName" placeholder="Free Course WhatsApp August"></div>
-          <div><label>Destination Page *</label><select id="lmDestination"><option value="/">Home</option><option value="/courses">Courses</option><option value="/partner">Become Partner</option><option value="/broker-reviews">Broker Reviews</option><option value="/trading-tools">Trading Tools & Services</option><option value="/sign-in">Sign In</option><option value="custom">Custom Path</option></select></div>
+          <div><label>Destination Page *</label><select id="lmDestination"><option value="/">Home</option><option value="/courses">Courses</option><option value="/become-partner">Become Partner</option><option value="/broker-reviews">Broker Reviews</option><option value="/trading-tools">Trading Tools & Services</option><option value="/sign-in">Sign In</option><option value="/sign-up">Sign Up</option><option value="/free-course">Free Course — Signup + Enrollment</option><option value="custom">Custom Path</option></select></div>
           <div><label>Source</label><select id="lmSource"><option>WhatsApp</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>Email</option><option>Google</option><option>Other</option></select></div>
           <div class="wide" id="lmCustomWrap" style="display:none"><label>Custom Destination</label><input id="lmCustomDestination" placeholder="/courses#courses"></div>
           <div><label>Campaign</label><input id="lmCampaign" placeholder="august-free-course"></div>
-          <div class="wide"><label>Custom Slug *</label><input id="lmSlug" placeholder="free-course-whatsapp"></div>
+          <div class="wide"><label>Team Member / Reference Code *</label><input id="lmSlug" placeholder="person-1"></div>
           <div><label>Notes</label><input id="lmNotes" placeholder="Optional internal note"></div>
         </div>
-        <div class="lm-preview" style="margin-top:14px"><span>🔗</span><span class="lm-link" id="lmPreview">${BASE_DOMAIN}/go/your-link</span><button class="lm-btn" style="margin-left:auto" type="button" id="lmCreateBtn">Create Link</button></div>
+        <div class="lm-preview" style="margin-top:14px"><span>🔗</span><span class="lm-link" id="lmPreview">${BASE_DOMAIN}/free-course?ref=person-1</span><button class="lm-btn" style="margin-left:auto" type="button" id="lmCreateBtn">Create Link</button></div>
       </div>
       <div class="card" style="margin-bottom:18px">
         <div class="card-header"><div><div class="card-title">Clean Page URLs</div><div class="card-meta">Normal page links without campaign tracking.</div></div></div>
@@ -78,7 +78,7 @@
   }
 
   function renderCleanLinks(){
-    const pages=[['Home','/'],['Courses','/courses'],['Partner','/partner'],['Broker Reviews','/broker-reviews'],['Trading Tools','/trading-tools'],['Sign In','/sign-in']];
+    const pages=[['Home','/'],['Courses','/courses'],['Become Partner','/become-partner'],['Broker Reviews','/broker-reviews'],['Trading Tools','/trading-tools'],['Sign In','/sign-in'],['Sign Up','/sign-up'],['Free Course','/free-course']];
     const box=document.getElementById('lmCleanLinks');if(!box)return;
     box.innerHTML=pages.map(([name,path])=>`<div class="lm-clean"><strong>${esc(name)}</strong><code>${BASE_DOMAIN}${esc(path)}</code><button class="lm-btn" style="float:right" onclick="copyLinkV42('${BASE_DOMAIN}${path}')">Copy</button></div>`).join('');
   }
@@ -88,14 +88,20 @@
     let slugTouched=false;
     slug.addEventListener('input',()=>{slugTouched=true;slug.value=slugify(slug.value);updatePreview();});
     [name,source,campaign].forEach(el=>el.addEventListener('input',()=>{if(!slugTouched){slug.value=slugify([name.value,source.value,campaign.value].filter(Boolean).join('-'));}updatePreview();}));
-    dest.addEventListener('change',()=>{document.getElementById('lmCustomWrap').style.display=dest.value==='custom'?'':'none';});
+    dest.addEventListener('change',()=>{document.getElementById('lmCustomWrap').style.display=dest.value==='custom'?'':'none';updatePreview();});
+    document.getElementById('lmCustomDestination')?.addEventListener('input',updatePreview);
     document.getElementById('lmCreateBtn').onclick=createLink;
     document.getElementById('lmRefreshBtn').onclick=loadLinks;
     document.getElementById('lmCloseModal').onclick=()=>document.getElementById('lmModal').classList.remove('open');
     document.getElementById('lmModal').addEventListener('click',e=>{if(e.target.id==='lmModal')e.currentTarget.classList.remove('open');});
     updatePreview();
   }
-  function updatePreview(){const slug=slugify(document.getElementById('lmSlug')?.value||'your-link')||'your-link';const p=document.getElementById('lmPreview');if(p)p.textContent=trackedUrl(slug);}
+  function updatePreview(){
+    const slug=slugify(document.getElementById('lmSlug')?.value||'person-1')||'person-1';
+    let destination=document.getElementById('lmDestination')?.value||'/free-course';
+    if(destination==='custom')destination=document.getElementById('lmCustomDestination')?.value.trim()||'/';
+    const p=document.getElementById('lmPreview');if(p)p.textContent=trackedUrl(destination,slug);
+  }
 
   async function createLink(){
     const client=getSb();if(!client)return toast('Supabase is not connected.','err');
@@ -107,19 +113,19 @@
     const campaign=document.getElementById('lmCampaign').value.trim();
     const notes=document.getElementById('lmNotes').value.trim();
     if(!name)return toast('Link name is required.','err');
-    if(!/^[a-z0-9][a-z0-9-]{1,78}[a-z0-9]$/.test(slug))return toast('Slug must contain 3–80 lowercase letters, numbers or hyphens.','err');
+    if(!/^[a-z0-9][a-z0-9-]{1,78}[a-z0-9]$/.test(slug))return toast('Reference code must contain 3–80 lowercase letters, numbers or hyphens.','err');
     if(!destination.startsWith('/'))return toast('Destination must start with /.','err');
     const btn=document.getElementById('lmCreateBtn');btn.disabled=true;btn.textContent='Creating…';
     try{
       let userId=null;try{userId=(await client.auth.getUser()).data?.user?.id||window.currentAdmin?.id||null;}catch(_){ }
       const {error}=await client.from('tracked_links').insert({name,slug,destination_path:destination,destination_label:document.getElementById('lmDestination').selectedOptions[0]?.text||destination,source,campaign:campaign||null,notes:notes||null,created_by:userId});
       if(error)throw error;
-      await copyText(trackedUrl(slug));
+      await copyText(trackedUrl(destination,slug));
       toast('Tracked link created and copied.','ok');
       ['lmName','lmCampaign','lmSlug','lmNotes'].forEach(id=>document.getElementById(id).value='');
       updatePreview();await loadLinks();
     }catch(error){
-      const msg=/duplicate|unique/i.test(error.message||'')?'This slug already exists. Choose another slug.':error.message;
+      const msg=/duplicate|unique/i.test(error.message||'')?'This reference code already exists. Choose another one.':error.message;
       toast('Could not create link: '+msg,'err');
     }finally{btn.disabled=false;btn.textContent='Create Link';}
   }
@@ -139,10 +145,10 @@
     document.getElementById('lmEnrollments').textContent=fmt(statsRows.reduce((a,x)=>a+Number(x.enrollments||0),0));
     if(!statsRows.length){tbody.innerHTML='<tr><td colspan="10" class="lm-empty">No tracked links yet. Create your first link above.</td></tr>';return;}
     tbody.innerHTML=statsRows.map(x=>`<tr>
-      <td><strong>${esc(x.name)}</strong><div style="font-size:10px;color:var(--text-muted);margin-top:3px">/go/${esc(x.slug)}${x.campaign?' · '+esc(x.campaign):''}</div></td>
+      <td><strong>${esc(x.name)}</strong><div style="font-size:10px;color:var(--text-muted);margin-top:3px">${esc(x.destination_path)}?ref=${esc(x.slug)}${x.campaign?' · '+esc(x.campaign):''}</div></td>
       <td>${esc(x.source||'—')}</td><td>${esc(x.destination_path)}</td><td><strong>${fmt(x.total_clicks)}</strong></td><td>${fmt(x.unique_visitors)}</td><td>${fmt(x.signups)}</td><td>${fmt(x.enrollments)}</td><td>${Number(x.signup_conversion_rate||0).toFixed(1)}%</td>
       <td><span class="lm-status ${x.is_active?'on':'off'}">${x.is_active?'Active':'Disabled'}</span></td>
-      <td><div class="lm-actions"><button class="lm-btn" onclick="copyTrackedLinkV42('${esc(x.slug)}')">Copy</button><button class="lm-btn" onclick="viewTrackedLinkV42('${x.id}')">Details</button><button class="lm-btn" onclick="toggleTrackedLinkV42('${x.id}',${x.is_active?'false':'true'})">${x.is_active?'Disable':'Enable'}</button><button class="lm-btn" onclick="deleteTrackedLinkV42('${x.id}')">Delete</button></div></td>
+      <td><div class="lm-actions"><button class="lm-btn" onclick="copyTrackedLinkV42('${esc(x.slug)}','${esc(x.destination_path)}')">Copy</button><button class="lm-btn" onclick="viewTrackedLinkV42('${x.id}')">Details</button><button class="lm-btn" onclick="toggleTrackedLinkV42('${x.id}',${x.is_active?'false':'true'})">${x.is_active?'Disable':'Enable'}</button><button class="lm-btn" onclick="deleteTrackedLinkV42('${x.id}')">Delete</button></div></td>
     </tr>`).join('');
   }
 
@@ -150,7 +156,7 @@
     try{await navigator.clipboard.writeText(text);}catch(_){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}
   }
   window.copyLinkV42=async function(url){await copyText(url);toast('Link copied.','ok');};
-  window.copyTrackedLinkV42=async function(slug){await copyText(trackedUrl(slug));toast('Tracked link copied.','ok');};
+  window.copyTrackedLinkV42=async function(slug,destination){await copyText(trackedUrl(destination,slug));toast('Tracked link copied.','ok');};
   window.toggleTrackedLinkV42=async function(id,isActive){const client=getSb();const {error}=await client.from('tracked_links').update({is_active:isActive}).eq('id',id);if(error)return toast(error.message,'err');toast(isActive?'Link enabled.':'Link disabled.','ok');loadLinks();};
   window.deleteTrackedLinkV42=async function(id){
     const ok=window.pspConfirm?await window.pspConfirm('Delete this tracked link and all of its analytics?'):confirm('Delete this tracked link?');if(!ok)return;
@@ -160,7 +166,7 @@
     const row=statsRows.find(x=>x.id===id);if(!row)return;
     const modal=document.getElementById('lmModal'),body=document.getElementById('lmModalBody');
     document.getElementById('lmModalTitle').textContent=row.name;
-    document.getElementById('lmModalSub').textContent=trackedUrl(row.slug)+' → '+row.destination_path;
+    document.getElementById('lmModalSub').textContent=trackedUrl(row.destination_path,row.slug);
     body.innerHTML='<div class="lm-empty">Loading recent activity…</div>';modal.classList.add('open');
     const client=getSb();const {data,error}=await client.from('tracked_link_events').select('event_type,created_at,course_key,visitor_id,user_id,page_path').eq('link_id',id).order('created_at',{ascending:false}).limit(100);
     if(error){body.innerHTML='<div class="lm-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}

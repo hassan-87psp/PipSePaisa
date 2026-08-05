@@ -2,6 +2,7 @@
 
 <html lang="en">
 <head>
+<base href="/">
 <!-- Exact approved mobile header restored; visibility only override -->
 <meta charset="utf-8"/>
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
@@ -11,7 +12,7 @@ gtag('js', new Date());
 gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 <link crossorigin="" href="https://cdn.jsdelivr.net" rel="preconnect"/>
 <link href="//cdn.jsdelivr.net" rel="dns-prefetch"/>
-<title>PipSePaisa — Forex Education &amp; Trading Tools</title>
+<title>Broker Reviews | PipSePaisa</title>
 <link href="favicon.png" rel="icon"/>
 <link as="image" fetchpriority="high" href="hero-bg-light.webp" rel="preload"/>
 <link href="public-upgrades.css?v=20260722-brand-dark-hero-v3" rel="stylesheet"/>
@@ -1677,13 +1678,13 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 }
 </style>
 <link href="psp-public-v40.css?v=20260805-v43" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v43"></script>
-<link rel="canonical" href="https://pipsepaisa.com/">
+<link rel="canonical" href="https://pipsepaisa.com/broker-reviews">
 </head>
 <body class="page-home">
 <header class="topbar">
 <div class="container nav">
 <a class="brand" href="#home"><img alt="PipSePaisa logo" decoding="async" fetchpriority="high" loading="eager" src="favicon.png"/><span>PipSePaisa</span></a>
-<nav class="menu"><a class="active" href="/">Home</a><a href="/courses">Courses</a><a class="broker-reviews-link" href="/broker-reviews">Broker Reviews</a><a href="/become-partner">Become Partner</a><a href="/trading-tools">Trading Tools &amp; Services</a></nav>
+<nav class="menu"><a href="/">Home</a><a href="/courses">Courses</a><a class="broker-reviews-link active" href="/broker-reviews">Broker Reviews</a><a href="/become-partner">Become Partner</a><a href="/trading-tools">Trading Tools &amp; Services</a></nav>
 <div class="nav-actions">
 <button aria-label="Theme" class="theme-btn" type="button">☀️</button>
 <button class="btn" id="mainLoginButton" onclick="event.preventDefault();openLandingAuth('login');" type="button">Login</button>
@@ -2295,20 +2296,6 @@ document.addEventListener('DOMContentLoaded',function(){
 }
 </style>
 <script defer="" src="psp-public-performance-v40.js?v=20260804-v40"></script>
-
-<script id="pspCleanRouteV43">
-(function(){
-  const q=new URLSearchParams(location.search);
-  const restore=q.get('psp_route');
-  if(restore){q.delete('psp_route');history.replaceState(history.state,'',restore+(q.toString()?'?'+q.toString():'')+location.hash);}
-})();
-</script>
-
-<script id="pspAuthRouteV43">
-document.addEventListener('DOMContentLoaded',function(){
-  const mode=new URLSearchParams(location.search).get('psp_auth');
-  if(mode==='login'||mode==='signup')setTimeout(function(){if(typeof openLandingAuth==='function')openLandingAuth(mode);},120);
-},{once:true});
-</script>
+<script>document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){document.getElementById('broker-comparison')?.scrollIntoView({block:'start'});},80);},{once:true});</script>
 </body>
 </html>
