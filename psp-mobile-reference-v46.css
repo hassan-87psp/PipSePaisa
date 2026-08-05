@@ -1704,3 +1704,48 @@ img{max-width:100%}
     line-height:1!important;
   }
 }
+
+/* ============================================================
+   V50 — THREE TARGETED MOBILE FIXES ONLY
+   1) Courses hero: move artwork/divider right for wider copy area
+   2) Become Partner hero: move curved artwork right for wider copy area
+   Desktop and every other public section are intentionally untouched.
+   ============================================================ */
+@media (max-width:480px){
+  /* Courses: preserve approved height/composition, only widen the left copy. */
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy{
+    width:64%!important;
+    padding-left:8px!important;
+    padding-right:5px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-art{
+    width:40%!important;
+    right:0!important;
+    left:auto!important;
+    border-radius:52% 0 0 62% / 42% 0 0 70%!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-gold-curve{
+    left:-13px!important;
+    width:31px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-mentor-portrait{
+    right:-7%!important;
+  }
+
+  /* Partner: artwork is a full baked background; scale it slightly narrower
+     and pin it right so the curved divider moves right without changing height. */
+  html:not(.psp-desktop-mobile-view) body.page-partner .hero-box > .hero-visual.partner-hero-visual{
+    width:100%!important;
+    inset:0!important;
+    background-size:94% 100%!important;
+    background-position:right center!important;
+    background-repeat:no-repeat!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-partner .hero-box > .hero-copy{
+    position:relative!important;
+    z-index:8!important;
+    width:62%!important;
+    padding-left:9px!important;
+    padding-right:5px!important;
+  }
+}

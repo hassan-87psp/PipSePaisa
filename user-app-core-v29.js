@@ -227,6 +227,8 @@
       document.getElementById('sidebar').classList.remove('open');
       const overlay = document.getElementById('sidebarOverlay');
       if (overlay) overlay.style.display = 'none';
+      document.documentElement.classList.remove('psp-sidebar-open');
+      document.body.classList.remove('psp-sidebar-open');
     }
     
     document.querySelectorAll('.menu-item, .submenu-item').forEach(m => m.classList.remove('active'));
@@ -285,8 +287,15 @@
   function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
-    sidebar.classList.toggle('open');
-    if (overlay) overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+    const willOpen = !sidebar.classList.contains('open');
+    sidebar.classList.toggle('open', willOpen);
+    if (overlay) overlay.style.display = willOpen ? 'block' : 'none';
+    document.documentElement.classList.toggle('psp-sidebar-open', willOpen);
+    document.body.classList.toggle('psp-sidebar-open', willOpen);
+    if (willOpen) {
+      const menu = sidebar.querySelector('.menu');
+      if (menu) menu.scrollTop = 0;
+    }
   }
   
   function toggleSubmenu(el) {
