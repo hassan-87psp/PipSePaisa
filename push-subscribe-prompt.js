@@ -5,11 +5,31 @@ if(window.top!==window.self)return;
 
 const APP_ID="18a97e55-9d93-4193-b60b-fe8e621f5d12";
 const SDK_URL="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+const SDK_TIMEOUT_MS=12000;
+const INIT_TIMEOUT_MS=12000;
+const SUBSCRIBE_TIMEOUT_MS=15000;
+
 let OneSignalRef=null;
 let starting=false;
+let sdkPromise=null;
+let initPromise=null;
+let subscriptionListenerAttached=false;
 
 function secure(){
   return location.protocol==="https:"||location.hostname==="localhost";
+}
+
+function wait(ms){
+  return new Promise(function(resolve){setTimeout(resolve,ms);});
+}
+
+function withTimeout(promise,ms,message){
+  return Promise.race([
+    promise,
+    new Promise(function(_,reject){
+      setTimeout(function(){reject(new Error(message));},ms);
+    })
+  ]);
 }
 
 function hidePwa(){
@@ -23,7 +43,6 @@ function restorePwa(){
   const pwa=document.getElementById("pwaInstallBanner");
   if(!pwa||pwa.dataset.notificationPromptHidden!=="1")return;
   delete pwa.dataset.notificationPromptHidden;
-  // beforeinstallprompt will show it again when available.
 }
 
 function removePrompt(){
@@ -37,47 +56,137 @@ function removePrompt(){
 }
 
 function loadSdk(){
-  return new Promise(function(resolve,reject){
-    if(window.OneSignalDeferred&&document.querySelector('script[src="'+SDK_URL+'"]')){
-      resolve();
+  if(sdkPromise)return sdkPromise;
+
+  sdkPromise=withTimeout(new Promise(function(resolve,reject){
+    window.OneSignalDeferred=window.OneSignalDeferred||[];
+
+    let script=document.querySelector('script[src="'+SDK_URL+'"]');
+    if(script){
+      if(script.dataset.pspLoaded==="1"||script.readyState==="complete"){
+        resolve();
+        return;
+      }
+      script.addEventListener("load",function(){
+        script.dataset.pspLoaded="1";
+        resolve();
+      },{once:true});
+      script.addEventListener("error",function(){
+        reject(new Error("Notification service could not load. Check your internet and try again."));
+      },{once:true});
       return;
     }
-    window.OneSignalDeferred=window.OneSignalDeferred||[];
-    const script=document.createElement("script");
+
+    script=document.createElement("script");
     script.src=SDK_URL;
-    script.defer=true;
-    script.onload=resolve;
-    script.onerror=function(){reject(new Error("OneSignal SDK could not load."));};
+    script.async=true;
+    script.dataset.pspOneSignal="1";
+    script.onload=function(){
+      script.dataset.pspLoaded="1";
+      resolve();
+    };
+    script.onerror=function(){
+      reject(new Error("Notification service could not load. Check your internet and try again."));
+    };
     document.head.appendChild(script);
+  }),SDK_TIMEOUT_MS,"Notification service took too long to load. Please try again.").catch(function(error){
+    sdkPromise=null;
+    const failed=document.querySelector('script[data-psp-one-signal="1"]');
+    if(failed&&failed.dataset.pspLoaded!=="1")failed.remove();
+    throw error;
   });
+
+  return sdkPromise;
+}
+
+function readPushState(os){
+  const push=os&&os.User&&os.User.PushSubscription;
+  if(!push)return {optedIn:false,id:""};
+
+  let optedIn=false;
+  let id="";
+  try{
+    optedIn=!!push.optedIn;
+    id=String(push.id||"").trim();
+  }catch(_){
+    optedIn=false;
+    id="";
+  }
+  return {optedIn:optedIn,id:id};
+}
+
+function attachSubscriptionListener(os){
+  if(subscriptionListenerAttached)return;
+  const push=os&&os.User&&os.User.PushSubscription;
+  if(!push||typeof push.addEventListener!=="function")return;
+
+  push.addEventListener("change",function(event){
+    const current=event&&event.current?event.current:null;
+    const active=!!(current&&current.optedIn&&current.id);
+    if(!active)return;
+
+    const bar=document.getElementById("pspNotifyInstallBar");
+    if(!bar)return;
+    const btn=bar.querySelector(".psp-notify-enable");
+    const copy=bar.querySelector(".psp-notify-copy span");
+    if(btn){
+      btn.disabled=true;
+      btn.textContent="Subscribed ✓";
+    }
+    if(copy)copy.textContent="Notifications are enabled on this device.";
+    setTimeout(removePrompt,900);
+  });
+  subscriptionListenerAttached=true;
 }
 
 async function oneSignal(){
   if(OneSignalRef)return OneSignalRef;
-  await loadSdk();
+  if(initPromise)return initPromise;
 
-  return new Promise(function(resolve,reject){
-    window.OneSignalDeferred=window.OneSignalDeferred||[];
-    window.OneSignalDeferred.push(async function(OneSignal){
-      try{
-        if(!window.__PIPSEPAISA_ONESIGNAL_READY__){
-          await OneSignal.init({
-            appId:APP_ID,
-            serviceWorkerPath:"/OneSignalSDKWorker.js",
-            serviceWorkerUpdaterPath:"/OneSignalSDKUpdaterWorker.js",
-            serviceWorkerParam:{scope:"/"},
-            notifyButton:{enable:false},
-            autoResubscribe:true
-          });
-          window.__PIPSEPAISA_ONESIGNAL_READY__=true;
+  initPromise=(async function(){
+    await loadSdk();
+
+    const os=await withTimeout(new Promise(function(resolve,reject){
+      window.OneSignalDeferred=window.OneSignalDeferred||[];
+      window.OneSignalDeferred.push(async function(OneSignal){
+        try{
+          if(!window.__PIPSEPAISA_ONESIGNAL_READY__){
+            await OneSignal.init({
+              appId:APP_ID,
+              serviceWorkerPath:"/OneSignalSDKWorker.js",
+              serviceWorkerUpdaterPath:"/OneSignalSDKUpdaterWorker.js",
+              serviceWorkerParam:{scope:"/"},
+              notifyButton:{enable:false},
+              autoResubscribe:true
+            });
+            window.__PIPSEPAISA_ONESIGNAL_READY__=true;
+          }
+          resolve(OneSignal);
+        }catch(error){
+          reject(error);
         }
-        OneSignalRef=OneSignal;
-        resolve(OneSignal);
-      }catch(error){
-        reject(error);
-      }
-    });
+      });
+    }),INIT_TIMEOUT_MS,"Notification service could not start. Please refresh and try again.");
+
+    OneSignalRef=os;
+    attachSubscriptionListener(os);
+    return os;
+  })().catch(function(error){
+    initPromise=null;
+    throw error;
   });
+
+  return initPromise;
+}
+
+async function waitForActiveSubscription(os){
+  const started=Date.now();
+  while(Date.now()-started<SUBSCRIBE_TIMEOUT_MS){
+    const state=readPushState(os);
+    if(state.optedIn&&state.id)return state;
+    await wait(300);
+  }
+  return readPushState(os);
 }
 
 async function realSubscriptionActive(){
@@ -85,11 +194,26 @@ async function realSubscriptionActive(){
   if(Notification.permission!=="granted")return false;
   try{
     const os=await oneSignal();
-    const state=os?.User?.PushSubscription?.optedIn;
-    return typeof state==="function" ? !!(await state()) : !!state;
+    const state=readPushState(os);
+    return !!(state.optedIn&&state.id);
   }catch(_){
     return false;
   }
+}
+
+function userMessage(error){
+  const raw=String(error&&error.message?error.message:error||"");
+  const lower=raw.toLowerCase();
+  if(lower.includes("service worker")||lower.includes("registration")){
+    return "Browser notification setup could not finish. Refresh the page and tap Try again.";
+  }
+  if(lower.includes("permission")||lower.includes("allowed")){
+    return "Please allow notifications in your browser settings, then tap Try again.";
+  }
+  if(lower.includes("load")||lower.includes("internet")||lower.includes("network")){
+    return "Notification service could not load. Check your internet and tap Try again.";
+  }
+  return raw||"Could not enable notifications. Please try again.";
 }
 
 function showPrompt(){
@@ -138,43 +262,52 @@ function showPrompt(){
     starting=true;
     btn.disabled=true;
     btn.textContent="Subscribing...";
+    copy.textContent="Connecting this device securely…";
 
     try{
       const os=await oneSignal();
+      let state=readPushState(os);
+      if(state.optedIn&&state.id){
+        btn.textContent="Subscribed ✓";
+        copy.textContent="Notifications are already enabled on this device.";
+        setTimeout(removePrompt,700);
+        return;
+      }
 
       if(Notification.permission!=="granted"){
-        await os.Notifications.requestPermission();
+        await withTimeout(
+          Promise.resolve(os.Notifications.requestPermission()),
+          25000,
+          "Notification permission request timed out."
+        );
       }
 
       if(Notification.permission!=="granted"){
         throw new Error("Notification permission was not allowed.");
       }
 
-      const optIn=os?.User?.PushSubscription?.optIn;
-      if(typeof optIn==="function"){
-        await optIn.call(os.User.PushSubscription);
+      const push=os&&os.User&&os.User.PushSubscription;
+      if(push&&typeof push.optIn==="function"){
+        await withTimeout(
+          Promise.resolve(push.optIn()),
+          12000,
+          "Device registration took too long."
+        );
       }
 
-      let active=false;
-      for(let i=0;i<24;i++){
-        const state=os?.User?.PushSubscription?.optedIn;
-        active=typeof state==="function" ? !!(await state()) : !!state;
-        if(active)break;
-        await new Promise(function(resolve){setTimeout(resolve,250);});
-      }
-
-      if(!active){
-        throw new Error("Subscription was not created. Please try again.");
+      state=await waitForActiveSubscription(os);
+      if(!(state.optedIn&&state.id)){
+        throw new Error("Device registration is still pending. Tap Try again in a moment.");
       }
 
       btn.textContent="Subscribed ✓";
       copy.textContent="Notifications are now enabled on this device.";
-      setTimeout(removePrompt,1000);
+      setTimeout(removePrompt,900);
     }catch(error){
       console.warn("PipSePaisa notification subscribe error:",error);
       btn.disabled=false;
       btn.textContent="Try again";
-      copy.textContent=error?.message||"Could not enable notifications.";
+      copy.textContent=userMessage(error);
     }finally{
       starting=false;
     }
@@ -184,12 +317,9 @@ function showPrompt(){
 async function start(){
   if(!secure())return;
 
-  // Show the subscribe box first. Never block its appearance on SDK loading.
   hidePwa();
-  setTimeout(showPrompt,1600);
+  setTimeout(showPrompt,1200);
 
-  // Check subscription in the background. Remove the box only when
-  // OneSignal confirms this browser is genuinely opted in.
   const checkState=async function(){
     try{
       const active=await realSubscriptionActive();
@@ -199,9 +329,9 @@ async function start(){
     }
   };
   if("requestIdleCallback" in window){
-    requestIdleCallback(checkState,{timeout:5000});
+    requestIdleCallback(checkState,{timeout:3500});
   }else{
-    setTimeout(checkState,3200);
+    setTimeout(checkState,2200);
   }
 }
 
