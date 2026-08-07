@@ -27,7 +27,7 @@
     <div class="brand"><img src="/icon-192.png" alt="PipSePaisa"><div><strong>PipSePaisa</strong><span>TEAM PERFORMANCE PANEL</span></div></div>
     <h1>Team Login</h1>
     <p class="lead">View your assigned link performance and the clients attributed to your link.</p>
-    <div class="field"><label>Username or Email</label><input id="loginId" autocomplete="username" placeholder="rabiafx"></div>
+    <div class="field"><label>Username</label><input id="loginId" autocomplete="username" placeholder="rabiafx"></div>
     <div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password"></div>
     <button class="primary" id="loginBtn">Sign In</button>
     <div class="auth-msg" id="authMsg"></div>
@@ -71,22 +71,44 @@
 const SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
 const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const BASE='https://pipsepaisa.com';
-const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:'pipsepaisa-team-auth-v55',persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let dashboard=null,clients=[];
+const SESSION_KEY='pipsepaisa-team-session-v56';
+const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+let dashboard=null,clients=[],sessionToken=localStorage.getItem(SESSION_KEY)||'';
 const $=id=>document.getElementById(id);const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const fmt=v=>Number(v||0).toLocaleString();
 function setView(logged){$('boot').classList.add('hidden');$('authView').classList.toggle('hidden',logged);$('appView').classList.toggle('hidden',!logged)}
 function message(text,bad){const e=$('authMsg');e.textContent=text||'';e.className='auth-msg '+(bad?'bad':'ok')}
 function date(v){if(!v)return '—';try{return new Date(v).toLocaleString();}catch(_){return '—'}}
 function buildUrl(d){if(!d)return '';const p=d.destination_path||'/';return BASE+p+(p.includes('?')?'&':'?')+'ref='+encodeURIComponent(d.link_slug||'')}
-async function resolveEmail(login){if(login.includes('@'))return login.toLowerCase();const {data,error}=await client.rpc('psp_team_resolve_login',{p_username:login});if(error)throw error;const row=Array.isArray(data)?data[0]:data;if(!row?.email)throw new Error('Username or password is incorrect.');return row.email;}
-async function signIn(){const btn=$('loginBtn'),login=$('loginId').value.trim(),password=$('loginPassword').value;if(!login||!password)return message('Enter your username/email and password.',true);btn.disabled=true;btn.textContent='Signing in…';message('');try{const email=await resolveEmail(login);const {data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;if(!data?.user)throw new Error('Could not sign in.');await loadPanel();}catch(e){message(/confirm/i.test(e.message||'')?'Please verify your email first, then sign in.':(e.message||'Sign in failed.'),true);await client.auth.signOut();setView(false);}finally{btn.disabled=false;btn.textContent='Sign In'}}
-async function loadPanel(){const {data,error}=await client.rpc('psp_team_my_dashboard');if(error)throw error;const row=Array.isArray(data)?data[0]:data;if(!row){await client.auth.signOut();setView(false);throw new Error('This account does not have active Team Panel access.');}dashboard=row;renderDashboard();setView(true);await loadClients();}
+function clearSession(){sessionToken='';localStorage.removeItem(SESSION_KEY);dashboard=null;clients=[];}
+function rpcRow(data){return Array.isArray(data)?data[0]:data;}
+async function signIn(){
+  const btn=$('loginBtn'),username=$('loginId').value.trim(),password=$('loginPassword').value;
+  if(!username||!password)return message('Enter your username and password.',true);
+  btn.disabled=true;btn.textContent='Signing in…';message('');
+  try{
+    const {data,error}=await client.rpc('psp_team_login_v56',{p_username:username,p_password:password});
+    if(error)throw error;
+    const row=rpcRow(data);if(!row?.session_token)throw new Error('Username or password is incorrect.');
+    sessionToken=row.session_token;localStorage.setItem(SESSION_KEY,sessionToken);
+    await loadPanel();
+  }catch(e){clearSession();message(e.message||'Username or password is incorrect.',true);setView(false);}
+  finally{btn.disabled=false;btn.textContent='Sign In';}
+}
+async function loadPanel(){
+  if(!sessionToken)throw new Error('Please sign in.');
+  const {data,error}=await client.rpc('psp_team_my_dashboard_v56',{p_session_token:sessionToken});
+  if(error)throw error;
+  const row=rpcRow(data);
+  if(!row){clearSession();setView(false);throw new Error('This Team Panel session is inactive or expired. Please sign in again.');}
+  dashboard=row;renderDashboard();setView(true);await loadClients();
+}
 function renderDashboard(){const d=dashboard;$('memberName').textContent=d.display_name||'Team Member';$('memberUsername').textContent='@'+(d.username||'team');$('statClicks').textContent=fmt(d.total_clicks);$('statUnique').textContent=fmt(d.unique_visitors);$('statSignups').textContent=fmt(d.signups);$('statEnrollments').textContent=fmt(d.enrollments);$('statConversion').textContent=Number(d.conversion_rate||0).toFixed(1)+'%';$('linkName').textContent=d.link_name||'—';$('linkSource').textContent=d.source||'—';$('linkCampaign').textContent=d.campaign||'—';$('linkDestination').textContent=d.destination_path||'—';$('linkUrl').textContent=buildUrl(d);$('linkStatus').textContent=d.link_is_active?'Active':'Disabled';$('linkStatus').className='status '+(d.link_is_active?'on':'off')}
-async function loadClients(){const tbody=$('clientTable');tbody.innerHTML='<tr><td colspan="6" class="empty">Loading clients…</td></tr>';const {data,error}=await client.rpc('psp_team_my_clients',{p_limit:1000});if(error){tbody.innerHTML='<tr><td colspan="6" class="empty">'+esc(error.message)+'</td></tr>';return}clients=data||[];renderClients();}
+async function loadClients(){const tbody=$('clientTable');tbody.innerHTML='<tr><td colspan="6" class="empty">Loading clients…</td></tr>';const {data,error}=await client.rpc('psp_team_my_clients_v56',{p_session_token:sessionToken,p_limit:1000});if(error){tbody.innerHTML='<tr><td colspan="6" class="empty">'+esc(error.message)+'</td></tr>';return}clients=data||[];renderClients();}
 function renderClients(){const q=$('clientSearch').value.trim().toLowerCase();const rows=clients.filter(c=>!q||[c.full_name,c.email,c.whatsapp,c.courses].some(v=>String(v||'').toLowerCase().includes(q)));$('clientCount').textContent=rows.length+' client'+(rows.length===1?'':'s')+' shown · '+clients.length+' total attributed.';const tbody=$('clientTable');if(!rows.length){tbody.innerHTML='<tr><td colspan="6" class="empty">No matching referred clients.</td></tr>';return}tbody.innerHTML=rows.map(c=>`<tr><td><div class="client-name">${esc(c.full_name||'User')}</div><div class="muted">${fmt(c.enrollment_count)} enrollment${Number(c.enrollment_count)===1?'':'s'}</div></td><td>${esc(c.email||'—')}</td><td>${esc(c.whatsapp||'—')}</td><td>${esc(date(c.signup_at))}</td><td><span class="verify ${c.email_verified?'yes':'no'}">${c.email_verified?'Verified':'Not Verified'}</span></td><td>${esc(c.courses||'—')}<div class="muted">${c.latest_enrollment_at?'Latest: '+date(c.latest_enrollment_at):''}</div></td></tr>`).join('')}
-async function refresh(){const b=$('refreshBtn');b.disabled=true;b.textContent='Refreshing…';try{await loadPanel();}catch(e){alert(e.message||'Could not refresh.')}finally{b.disabled=false;b.textContent='↻ Refresh'}}
-$('loginBtn').onclick=signIn;$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});$('logoutBtn').onclick=async()=>{await client.auth.signOut();dashboard=null;clients=[];setView(false)};$('refreshBtn').onclick=refresh;$('clientSearch').addEventListener('input',renderClients);$('copyLinkBtn').onclick=async()=>{const text=$('linkUrl').textContent;try{await navigator.clipboard.writeText(text);$('copyLinkBtn').textContent='Copied ✓';setTimeout(()=>$('copyLinkBtn').textContent='Copy Link',1200)}catch(_){}}
-(async()=>{try{const {data}=await client.auth.getSession();if(data?.session){await loadPanel();}else setView(false);}catch(e){message(e.message||'Could not open Team Panel.',true);setView(false)}})();
+async function refresh(){const b=$('refreshBtn');b.disabled=true;b.textContent='Refreshing…';try{await loadPanel();}catch(e){clearSession();setView(false);message(e.message||'Could not refresh.',true)}finally{b.disabled=false;b.textContent='↻ Refresh'}}
+async function logout(){const token=sessionToken;clearSession();setView(false);if(token){try{await client.rpc('psp_team_logout_v56',{p_session_token:token});}catch(_){}}}
+$('loginBtn').onclick=signIn;$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});$('logoutBtn').onclick=logout;$('refreshBtn').onclick=refresh;$('clientSearch').addEventListener('input',renderClients);$('copyLinkBtn').onclick=async()=>{const text=$('linkUrl').textContent;try{await navigator.clipboard.writeText(text);$('copyLinkBtn').textContent='Copied ✓';setTimeout(()=>$('copyLinkBtn').textContent='Copy Link',1200)}catch(_){}}
+(async()=>{try{if(sessionToken)await loadPanel();else setView(false);}catch(e){clearSession();message(e.message||'Please sign in.',true);setView(false)}})();
 })();
 </script>
 </body>
