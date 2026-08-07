@@ -119,7 +119,7 @@ function copySignalWA(id){
   function fb(){try{var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done();}catch(e){alert(txt);}}
   try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(fb);}else fb();}catch(e){fb();}
 }
-function waBtn(id){return '<button onclick="event.stopPropagation();copySignalWA(\''+id+'\')" title="Copy for WhatsApp" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border:none;border-radius:9px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-weight:800;font-size:12px;cursor:pointer;">📲 Copy</button>';}
+function waBtn(id){return '';}
 async function loadPerformance(){
   if(!sb)return;
   var hi=document.getElementById('perfHello');if(hi&&currentProfile){var nm=((currentProfile.full_name||currentProfile.email||'Trader')+'').split(' ')[0];hi.textContent='Welcome 👋';}
@@ -525,10 +525,7 @@ function openArt(i){
   box.style.maxWidth=hasImg?'1040px':'680px';
   box.style.padding=hasImg?'0':'26px';
   const closeBtn='<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">'+
-    '<button onclick="closeArt()" style="padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-weight:600;cursor:pointer;font-family:inherit">Close</button>'+
-    (hasImg?'<button onclick="downloadChartImg(\''+(a.image||'')+'\',\''+((a.title||'chart').replace(/[^a-zA-Z0-9 _-]/g,'').slice(0,40)||'chart')+'\')" style="padding:10px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border:none;border-radius:8px;color:#0a0e1a;font-weight:800;cursor:pointer;font-family:inherit">⬇️ Download</button>':'')+
-    '<button onclick="copyChartText('+i+')" style="padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--gold);border-radius:8px;color:var(--gold);font-weight:700;cursor:pointer;font-family:inherit">📋 Copy</button>'+
-  '</div>';
+    '<button onclick="closeArt()" style="padding:10px 20px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-weight:600;cursor:pointer;font-family:inherit">Close</button>'+  '</div>';
   // Language: dono languages hon to toggle dikhao
   const hasBoth=!!(a.content&&a.contentUr);
   let lang='en';
