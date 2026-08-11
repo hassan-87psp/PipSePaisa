@@ -81,31 +81,38 @@ function installSignupFix(){
     if(!agreed)return fail('Please agree to the terms');
     const client=db();if(!client)return fail('Connection problem. Please reload the page.');
 
-    window.__pspSignupPending=true;
-    sessionStorage.setItem('psp-signup-pending','1');
-    sessionStorage.setItem('psp-manual-signin-required','1');
-    window.__pspPendingVerificationEmail=email;
-    if(typeof window.showSignupVerificationScreen==='function')window.showSignupVerificationScreen(email);
-    keepSignupVerificationVisible();
-
+    const btn=document.getElementById('signupBtn');
+    if(btn){btn.disabled=true;btn.textContent='⏳ Creating account...';}
     try{
       const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
       const {data,error}=await client.auth.signUp({
         email,password,
-        options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:fullName,username,phone,whatsapp:phone,role:'user',portal:(window.PSP_PORTAL_MODE==='mentor'?'mentor':'user'),...(window.PSPTrack?.authMetadata?.()||{})}}
+        options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:fullName,username,phone,whatsapp:phone,role:'user',portal:(window.PSP_PORTAL_MODE==='mentor'?'mentor':'user'),psp_auto_enroll_course:'basic',...(window.PSPTrack?.authMetadata?.()||{})}}
       });
       if(error)throw error;
+      if(Array.isArray(data?.user?.identities)&&data.user.identities.length===0)throw new Error('An account already exists with this email. Please sign in.');
       try{if(data?.user?.id)await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
-      if(Array.isArray(data?.user?.identities)&&data.user.identities.length===0)throw new Error('An account already exists with this email. Please sign in, or resend verification if it is still unverified.');
+      try{if(data?.user?.id)await window.PSPTrack?.enrollment?.('basic',data.user.id,{source:'home-signup'});}catch(_){}
       if(data?.session){try{await client.auth.signOut({scope:'local'});}catch(_){}}
-      const box=document.getElementById('verifyResendMessage');
-      if(box){box.style.display='block';box.style.background='var(--green-bg)';box.style.color='var(--green)';box.textContent='✅ Verification email sent. Please check Inbox, Spam or Promotions.';}
-    }catch(error){
+
       stopSignupScreenKeeper(true);
+      sessionStorage.setItem('psp-manual-signin-required','1');
+      const form=document.getElementById('authForm-signup');
+      if(form){
+        const safeEmail=String(email).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        form.innerHTML=`<div style="text-align:center;padding:14px 4px 8px"><div style="font-size:42px;margin-bottom:10px">📧</div><h3 style="margin:0 0 7px">Check Your Email</h3><h4 style="margin:0 0 9px;color:var(--green);font-size:16px">Thank You for Joining!</h4><p style="color:var(--text-secondary);line-height:1.6;margin:0 0 8px">A verification link has been sent to <strong>${safeEmail}</strong>.</p><p style="color:var(--text-secondary);line-height:1.6;margin:0 0 8px">Please follow our WhatsApp Channel for important course updates, market insights, and announcements.</p><p style="font-size:12px;color:var(--text-muted);margin:10px 0 0">Redirecting you to our WhatsApp Channel...</p></div>`;
+      }
+      const title=document.getElementById('authTitle'),sub=document.getElementById('authSubtitle');
+      if(title)title.textContent='Check Your Email';
+      if(sub)sub.textContent='Thank you for joining PipSePaisa';
+      setTimeout(()=>{window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';},1000);
+    }catch(error){
       let msg=error?.message||'Signup failed. Please try again.';
       if(/already|registered|exists/i.test(msg))msg='An account already exists with this email. Please sign in.';
       if(/rate|seconds|security purposes/i.test(msg))msg='Please wait about 60 seconds before requesting another verification email.';
-      restoreSignupFormWithError(msg);
+      fail(msg);
+    }finally{
+      if(btn){btn.disabled=false;btn.textContent='✨ Create Free Account';}
     }
   };
 

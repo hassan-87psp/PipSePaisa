@@ -17,77 +17,6 @@
   let accountWasCreated=false;
   let paymentMethods=[];
 
-  const PENDING_FREE_KEY='psp_pending_free_course_enrollment_v45';
-  const PENDING_FREE_MAX_AGE=7*24*60*60*1000;
-  let pendingFreeEnrollmentBusy=false;
-
-  function readPendingFreeEnrollment(){
-    try{
-      const row=JSON.parse(localStorage.getItem(PENDING_FREE_KEY)||'null');
-      if(!row||row.course_key!=='basic')return null;
-      const created=Date.parse(row.created_at||'');
-      if(!created||Date.now()-created>PENDING_FREE_MAX_AGE){localStorage.removeItem(PENDING_FREE_KEY);return null;}
-      return row;
-    }catch(_){return null;}
-  }
-  function writePendingFreeEnrollment(values,extra={}){
-    const attr=window.PSPTrack?.getAttribution?.()||null;
-    const previous=readPendingFreeEnrollment()||{};
-    const row={
-      version:45,course_key:'basic',course_name:'Basic Forex Course',
-      name:String(values?.name||previous.name||'').trim(),
-      phone:String(values?.phone||previous.phone||'').trim(),
-      email:String(values?.email||previous.email||'').trim().toLowerCase(),
-      experience:String(values?.experience||previous.experience||'').trim(),
-      goal:String(values?.goal||previous.goal||'').trim(),
-      state:extra.state||previous.state||'awaiting_verification',
-      user_id:extra.user_id||previous.user_id||null,
-      referral:attr||previous.referral||null,
-      created_at:previous.created_at||new Date().toISOString(),
-      updated_at:new Date().toISOString()
-    };
-    try{localStorage.setItem(PENDING_FREE_KEY,JSON.stringify(row));sessionStorage.setItem('psp_intended_route','basic');}catch(_){ }
-    return row;
-  }
-  function clearPendingFreeEnrollment(){
-    try{localStorage.removeItem(PENDING_FREE_KEY);sessionStorage.removeItem('psp_pending_free_course_login');}catch(_){ }
-  }
-  function setPendingFreeState(state){
-    const row=readPendingFreeEnrollment();
-    if(!row)return null;
-    row.state=state;row.updated_at=new Date().toISOString();
-    try{localStorage.setItem(PENDING_FREE_KEY,JSON.stringify(row));}catch(_){ }
-    return row;
-  }
-  function pendingFromUserMetadata(user){
-    const meta=user?.user_metadata||{};
-    if(meta.pending_course_key!=='basic')return null;
-    return {
-      version:45,course_key:'basic',course_name:'Basic Forex Course',
-      name:meta.full_name||meta.name||'',phone:meta.pending_course_whatsapp||meta.phone||'',
-      email:user?.email||'',experience:meta.pending_course_experience||'',goal:meta.pending_course_goal||'',
-      state:'verified_waiting_login',user_id:user?.id||null,
-      referral:meta.pending_course_referral_slug?{slug:meta.pending_course_referral_slug,source:meta.pending_course_referral_source||null,campaign:meta.pending_course_referral_campaign||null,link_id:meta.pending_course_referral_link_id||null}:null,
-      created_at:meta.pending_course_created_at||new Date().toISOString(),updated_at:new Date().toISOString()
-    };
-  }
-  function setVerificationSuccessUI(email){
-    const icon=document.querySelector('#ceStepSuccess .ce-success-icon');
-    if(icon)icon.textContent='📧';
-    const title=document.getElementById('ceSuccessTitle');
-    const text=document.getElementById('ceSuccessText');
-    if(title)title.textContent='Check Your Email';
-    if(text)text.textContent=`A verification link has been sent to ${email}. Verify your email, then sign in once. Your Basic Forex Course enrollment will complete automatically.`;
-    const actions=document.querySelector('#ceStepSuccess .ce-actions');
-    if(actions)actions.innerHTML='<button class="ce-btn secondary" type="button" onclick="closeCourseEnrollment()">Close</button>';
-    showStep('ceStepSuccess');
-  }
-  function restoreSuccessActions(){
-    const icon=document.querySelector('#ceStepSuccess .ce-success-icon');if(icon)icon.textContent='🎉';
-    const actions=document.querySelector('#ceStepSuccess .ce-actions');
-    if(actions)actions.innerHTML='<button class="ce-btn secondary" type="button" onclick="closeCourseEnrollment()">Close</button><button class="ce-btn primary" type="button" onclick="openMyCoursesFromEnrollment()">Open My Courses</button>';
-  }
-
   function getClient(){
     if(client)return client;
     try{
@@ -332,7 +261,7 @@
             </div>
             <div class="ce-payment" id="ceNewPayment"></div>
             <div class="ce-message" id="ceNewMessage"></div>
-            <div class="ce-actions"><button class="ce-btn secondary" type="button" onclick="courseEnrollmentBack()">Back</button><button class="ce-btn primary" id="ceNewSubmitBtn" type="button" onclick="courseEnrollmentCreateAndEnroll()">Create Account & Enroll</button></div>
+            <div class="ce-actions"><button class="ce-btn primary" id="ceNewSubmitBtn" type="button" onclick="courseEnrollmentCreateAndEnroll()">Sign Up</button><button class="ce-btn secondary" type="button" onclick="courseEnrollmentAlreadyUserRedirect()">Already a User</button></div>
           </section>
 
           <section class="ce-step" id="ceStepDetails">
@@ -658,85 +587,7 @@
     return {row:data};
   }
 
-  async function routeToBasicCourse(){
-    try{sessionStorage.setItem('psp_intended_route','basic');}catch(_){ }
-    const app=document.getElementById('mainApp');
-    const appVisible=!!(app&&getComputedStyle(app).display!=='none');
-    if(appVisible){
-      const nav=document.querySelector('.menu-item[data-page="mycourses"],.menu-item[data-page="learn"]');
-      if(typeof window.openMyCoursesPage==='function')window.openMyCoursesPage(nav);
-      else if(typeof window.showPage==='function')window.showPage('mycourses',nav||undefined);
-      setTimeout(()=>{if(typeof window.openCourseDetail==='function')window.openCourseDetail('basic');},180);
-      return;
-    }
-    if(typeof window.pspApplyIntendedRoute==='function')setTimeout(()=>window.pspApplyIntendedRoute(),180);
-  }
-
-  window.PSPAutoCompletePendingFreeEnrollment=async function(options={}){
-    if(pendingFreeEnrollmentBusy)return {ok:false,busy:true};
-    pendingFreeEnrollmentBusy=true;
-    try{
-      const sb=getClient();if(!sb)return {ok:false,reason:'no-client'};
-      let user=options.user||null;
-      if(!user){const current=await sb.auth.getSession();user=current.data?.session?.user||null;}
-      if(!user)return {ok:false,reason:'no-user'};
-      let pending=readPendingFreeEnrollment()||pendingFromUserMetadata(user);
-      if(!pending||pending.course_key!=='basic')return {ok:false,reason:'no-pending'};
-      if(pending.email&&user.email&&pending.email.toLowerCase()!==user.email.toLowerCase())return {ok:false,reason:'email-mismatch'};
-      if(pending.referral&&window.PSPTrack?.restoreAttribution)window.PSPTrack.restoreAttribution(pending.referral);
-      selectedCourse=COURSE_INFO.basic;activeUser=user;
-      await loadProfile(user);
-      const meta=user.user_metadata||{};
-      const fallbackName=(user.email||'Student').split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,ch=>ch.toUpperCase());
-      const values={
-        name:String(pending.name||activeProfile?.full_name||meta.full_name||meta.name||fallbackName).trim(),
-        phone:String(pending.phone||activeProfile?.whatsapp||activeProfile?.phone||meta.phone||meta.whatsapp||'').trim(),
-        email:user.email||pending.email||'',
-        experience:String(pending.experience||meta.pending_course_experience||'').trim(),
-        goal:String(pending.goal||meta.pending_course_goal||'').trim(),
-        paymentMethod:null,transactionId:null
-      };
-      if(!values.name||!values.phone||!values.experience||!values.goal){
-        writePendingFreeEnrollment(values,{state:'needs_details',user_id:user.id});
-        try{sessionStorage.setItem('psp_intended_route','basic');}catch(_){ }
-        return {ok:false,reason:'missing-details'};
-      }
-      const result=await saveEnrollment(values,null);
-      if(!result.already){
-        try{await window.PSPTrack?.enrollment?.('basic',user.id,{enrollment_id:result.row?.id||null,course_type:'free',automatic:true});}catch(_){}
-        const jobs=[sendCourseEmail('free_course_enrolled',values,{enrollment_id:result.row?.id||undefined,automatic:true}),registerZoomCourse(values)];
-        Promise.all(jobs).then(results=>{
-          const zoom=results[1];
-          try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:zoom?.data||{}}));}catch(_){ }
-        }).catch(error=>console.warn('Background course setup needs attention:',error));
-      }
-      clearPendingFreeEnrollment();
-      try{await sb.auth.updateUser({data:{pending_course_key:null,pending_course_experience:null,pending_course_goal:null,pending_course_whatsapp:null,pending_course_created_at:null}});}catch(_){ }
-      try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:'basic',automatic:true}}));}catch(_){ }
-      if(window.pipToast)window.pipToast(result.already?'Basic Forex Course is already active.':'Basic Forex Course enrollment completed automatically.','ok');
-      await routeToBasicCourse();
-      return {ok:true,result};
-    }catch(error){
-      console.warn('Automatic free-course enrollment failed:',error);
-      setPendingFreeState('retry_after_login');
-      if(window.pipToast)window.pipToast('Login successful, but course enrollment needs another attempt. Open My Courses to continue.','err');
-      return {ok:false,error};
-    }finally{pendingFreeEnrollmentBusy=false;}
-  };
-
-  function bindPendingFreeEnrollmentAuth(){
-    const sb=getClient();if(!sb?.auth||window.__pspPendingFreeAuthBound)return;
-    window.__pspPendingFreeAuthBound=true;
-    sb.auth.onAuthStateChange((event,session)=>{
-      if((event==='SIGNED_IN'||event==='INITIAL_SESSION')&&session?.user){
-        setTimeout(()=>window.PSPAutoCompletePendingFreeEnrollment?.({user:session.user,reason:event}),180);
-      }
-    });
-    setTimeout(()=>window.PSPAutoCompletePendingFreeEnrollment?.({reason:'initial-check'}),350);
-  }
-
   function showSuccess(result,notify=true){
-    restoreSuccessActions();
     let title='Congratulations!';
     let text='';
     if(result.already){
@@ -778,7 +629,6 @@
     overlay.setAttribute('aria-hidden','true');
     showStep('');
     accountWasCreated=false;paidProfileConfirmed=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
-    restoreSuccessActions();
     setCourseText();resetQuestionFields('ceNew');resetQuestionFields('ceDetails');
     ['ceLoginMessage','ceNewMessage','ceDetailsMessage'].forEach(id=>setMessage(id,'',''));
     await Promise.all([loadPaymentMethods(),currentSession()]);
@@ -796,7 +646,8 @@
         showStep('ceStepDetails');
       }
     }else{
-      showStep('ceStepChoice');
+      showStep('ceStepNew');
+      setTimeout(()=>document.getElementById('ceNewName')?.focus(),60);
     }
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden','false');
@@ -823,8 +674,17 @@
     setTimeout(()=>document.getElementById('ceNewName')?.focus(),60);
   };
 
+  window.courseEnrollmentAlreadyUserRedirect=function(){
+    const title=document.getElementById('ceSuccessTitle');
+    const text=document.getElementById('ceSuccessText');
+    if(title)title.textContent='Thank You!';
+    if(text)text.textContent='Please follow our WhatsApp Channel for the latest updates. Redirecting you now...';
+    showStep('ceStepSuccess');
+    setTimeout(()=>{window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';},1000);
+  };
+
   window.courseEnrollmentBack=function(){
-    showStep('ceStepChoice');
+    showStep('ceStepNew');
   };
 
   window.courseEnrollmentLogin=async function(){
@@ -850,7 +710,7 @@
     const values={
       name:document.getElementById('ceNewName').value.trim(),
       phone:document.getElementById('ceNewPhone').value.trim(),
-      email:document.getElementById('ceNewEmail').value.trim(),
+      email:document.getElementById('ceNewEmail').value.trim().toLowerCase(),
       password:document.getElementById('ceNewPassword').value,
       password2:document.getElementById('ceNewPassword2').value,
       experience:answerValue('ceNewExperience','ceNewExperienceOther'),
@@ -866,39 +726,41 @@
     if(!values.experience||!values.goal){setMessage('ceNewMessage','error','Please answer both enrollment questions.');return;}
     if(selectedCourse.type==='paid'&&(!paymentMethods.length||!values.transactionId||!receipt)){setMessage('ceNewMessage','error','Select an available payment method, enter the transaction ID and upload the payment receipt.');return;}
     if(selectedCourse.type==='paid'){const check=validateReceiptFile(receipt);if(!check.ok){setMessage('ceNewMessage','error',check.message);return;}}
-    setBusy('ceNewSubmitBtn',true,'Creating Account...','Create Account & Enroll');
+
+    setBusy('ceNewSubmitBtn',true,'Creating account...','Sign Up');
     try{
       const sb=getClient();if(!sb)throw new Error('Connection problem. Please reload and try again.');
       const username=values.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
-      const attr=window.PSPTrack?.getAttribution?.()||null;
-      const pendingMeta={
-        pending_course_key:selectedCourse.type==='free'?'basic':null,
-        pending_course_experience:selectedCourse.type==='free'?values.experience:null,
-        pending_course_goal:selectedCourse.type==='free'?values.goal:null,
-        pending_course_whatsapp:selectedCourse.type==='free'?values.phone:null,
-        pending_course_created_at:selectedCourse.type==='free'?new Date().toISOString():null,
-        pending_course_referral_slug:attr?.slug||null,
-        pending_course_referral_source:attr?.source||null,
-        pending_course_referral_campaign:attr?.campaign||null,
-        pending_course_referral_link_id:attr?.link_id||null
+      const meta={
+        full_name:values.name,username,phone:values.phone,whatsapp:values.phone,role:'user',
+        psp_auto_enroll_course:selectedCourse.key,
+        psp_enrollment_experience:values.experience,
+        psp_enrollment_goal:values.goal||'',
+        psp_enrollment_payment_method:values.paymentMethod||'',
+        psp_enrollment_transaction_id:values.transactionId||'',
+        ...(window.PSPTrack?.authMetadata?.()||{})
       };
-      const {data,error}=await sb.auth.signUp({email:values.email,password:values.password,options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:values.name,username,phone:values.phone,role:'user',...(window.PSPTrack?.authMetadata?.()||{}),...pendingMeta}}});
+      const {data,error}=await sb.auth.signUp({email:values.email,password:values.password,options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:meta}});
       if(error)throw error;
-      if(selectedCourse.type==='free')writePendingFreeEnrollment(values,{state:data?.session?'verified_waiting_login':'awaiting_verification',user_id:data?.user?.id||null});
-      try{if(data?.user?.id)await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
-      activeUser=data?.session?.user||data?.user||null;
-      if(data?.session){
-        await window.PSPAutoCompletePendingFreeEnrollment?.({user:data.session.user,reason:'signup-session'});
-        return;
-      }
-      setVerificationSuccessUI(values.email);
-      return;
+      if(!data?.user)throw new Error('Account could not be created.');
+      if(Array.isArray(data.user.identities)&&data.user.identities.length===0)throw new Error('This email is already registered.');
+      try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
+      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,data.user.id,{source:'course-signup'});}catch(_){}
+      if(data?.session){try{await sb.auth.signOut({scope:'local'});}catch(_){}}
+      sessionStorage.setItem('psp-manual-signin-required','1');
+
+      const title=document.getElementById('ceSuccessTitle');
+      const text=document.getElementById('ceSuccessText');
+      if(title)title.textContent='Check Your Email';
+      if(text)text.textContent='Thank You for Joining! Please follow our WhatsApp Channel for important course updates, market insights, and announcements. Redirecting you to our WhatsApp Channel...';
+      showStep('ceStepSuccess');
+      setTimeout(()=>{window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';},1000);
     }catch(error){
       let msg=error?.message||'Account creation failed.';
-      if(/already|registered|exists/i.test(msg))msg='This email is already registered. Go back and choose “Yes, I’m Already a User”.';
+      if(/already|registered|exists/i.test(msg))msg='This email is already registered. Please use the “Already a User” button.';
       showStep('ceStepNew');
       setMessage('ceNewMessage','error',msg);
-    }finally{setBusy('ceNewSubmitBtn',false,'Creating Account...','Create Account & Enroll');}
+    }finally{setBusy('ceNewSubmitBtn',false,'Creating account...','Sign Up');}
   };
 
   window.courseEnrollmentSubmitExisting=async function(){
@@ -939,31 +801,31 @@
         await loadProfile(activeUser);
       }
       const result=await saveEnrollment(values,receipt);
-      if(!result.already){
-        try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser?.id,{enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){}
+      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser?.id,{enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){}
+      if(!result.already || (selectedCourse.type==='free'&&result.updated)){
         const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
+        const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
+        if(selectedCourse.type==='free')jobs.push(registerZoomCourse(values));
+        const jobResults=await Promise.all(jobs);
+        const emailResult=jobResults[0];
+        if(!emailResult.ok){
+          console.warn('Enrollment saved but email delivery failed. Check send-course-email logs.',emailResult.error);
+          const note=emailResult.detail||emailResult.error?.message||'Email delivery failed.';
+          if(window.pipToast)window.pipToast(`Enrollment saved. Email not sent: ${note}`,'err');
+        }
         if(selectedCourse.type==='free'){
-          Promise.all([sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined}),registerZoomCourse(values)]).then(jobResults=>{
-            const emailResult=jobResults[0],zoomResult=jobResults[1];
-            if(!emailResult?.ok)console.warn('Enrollment saved but email delivery failed.',emailResult?.error);
-            if(zoomResult?.ok){
-              if(window.pipToast)window.pipToast('Zoom registration for all 9 classes is confirmed.','ok');
-            }else{
-              console.warn('Course enrolled but Zoom registration needs attention.',zoomResult?.error);
-            }
-            try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:zoomResult?.data||{}}));}catch(_){ }
-          }).catch(error=>console.warn('Background course setup needs attention:',error));
-        }else{
-          const emailResult=await sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined});
-          if(!emailResult.ok){
-            console.warn('Enrollment saved but email delivery failed. Check send-course-email logs.',emailResult.error);
-            const note=emailResult.detail||emailResult.error?.message||'Email delivery failed.';
-            if(window.pipToast)window.pipToast(`Enrollment saved. Email not sent: ${note}`,'err');
+          const zoomResult=jobResults[1];
+          if(zoomResult?.ok){
+            if(window.pipToast)window.pipToast('Enrollment complete. Zoom registration for all 9 classes is confirmed.','ok');
+          }else{
+            console.warn('Course enrolled but Zoom registration needs attention.',zoomResult?.error);
+            const note=zoomResult?.detail||zoomResult?.error?.message||'Zoom registration failed.';
+            if(window.pipToast)window.pipToast(`Course enrolled. Zoom registration needs attention: ${note}`,'err');
           }
+          try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:zoomResult?.data||{}}));}catch(_){ }
         }
       }
       showSuccess(result);
-      if(selectedCourse.type==='free')setTimeout(()=>openMyCoursesFromEnrollment(),650);
     }catch(error){
       const msg=/course_enrollments/i.test(error?.message||'')
         ?'Course enrollment is not installed yet. Run Query 44 in Supabase, then try again.'
@@ -983,7 +845,7 @@
       window.setTimeout(function(){document.getElementById('page-mycourses')?.scrollIntoView({behavior:'smooth',block:'start'});},80);
       return;
     }
-    const target='/?open=basic';
+    const target='./?open=basic';
     if(window.top&&window.top!==window)window.top.location.href=target;
     else window.location.href=target;
   };
@@ -1011,5 +873,5 @@
     }
   });
   document.addEventListener('keydown',event=>{if(event.key==='Escape')closeCourseEnrollment();});
-  document.addEventListener('DOMContentLoaded',()=>{injectModal();bindPendingFreeEnrollmentAuth();},{once:true});
+  document.addEventListener('DOMContentLoaded',injectModal);
 })();
