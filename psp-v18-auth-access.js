@@ -18,13 +18,7 @@ function revealApp(){document.documentElement.classList.remove('psp-v20-booting'
 function setResolving(on){document.body?.classList.toggle('psp-access-resolving',!!on);}
 window.pspV20RevealApp=revealApp;
 
-// ---------- SIGNUP: instant Check Your Email screen, no auto close/switch ----------
-function restoreSignupFormWithError(message){
-  const form=document.getElementById('authForm-signup');
-  if(form?.dataset.originalHtml){form.innerHTML=form.dataset.originalHtml;delete form.dataset.originalHtml;}
-  if(typeof window.switchAuthTab==='function')window.switchAuthTab('signup');
-  setTimeout(()=>window.showAuthMessage?.('error',message,'authMessageSignup'),0);
-}
+// ---------- SIGNUP: direct account creation + instant authenticated session ----------
 function stopSignupScreenKeeper(clearPending=false){
   clearInterval(signupScreenKeeper);signupScreenKeeper=null;
   if(clearPending){
@@ -44,24 +38,6 @@ function fullyResetSignupVerification(clearEmail=true){
   }
   if(clearEmail)window.__pspPendingVerificationEmail='';
   if(typeof window.resetAuthModalState==='function')window.resetAuthModalState();
-}
-function keepSignupVerificationVisible(){
-  clearInterval(signupScreenKeeper);
-  signupScreenKeeper=setInterval(()=>{
-    if(!(window.__pspSignupPending||sessionStorage.getItem('psp-signup-pending')==='1')){stopSignupScreenKeeper(false);return;}
-    const modal=document.getElementById('modal-auth');
-    const signup=document.getElementById('authForm-signup');
-    const login=document.getElementById('authForm-login');
-    const forgot=document.getElementById('authForm-forgot');
-    if(modal)modal.classList.add('active');
-    if(signup)signup.style.display='block';
-    if(login)login.style.display='none';
-    if(forgot)forgot.style.display='none';
-    const title=document.getElementById('authTitle'),sub=document.getElementById('authSubtitle');
-    if(title)title.textContent='Verify Your Email';
-    if(sub)sub.textContent='One quick step to activate your account';
-    document.body.style.overflow='hidden';
-  },350);
 }
 function installSignupFix(){
   if(typeof window.signupUser!=='function'||window.__pspV20SignupFixed)return;
@@ -85,32 +61,26 @@ function installSignupFix(){
     if(btn){btn.disabled=true;btn.textContent='⏳ Creating account...';}
     try{
       const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
-      const {data,error}=await client.auth.signUp({
-        email,password,
-        options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:fullName,username,phone,whatsapp:phone,role:'user',portal:(window.PSP_PORTAL_MODE==='mentor'?'mentor':'user'),psp_auto_enroll_course:'basic',...(window.PSPTrack?.authMetadata?.()||{})}}
-      });
-      if(error)throw error;
-      if(Array.isArray(data?.user?.identities)&&data.user.identities.length===0)throw new Error('An account already exists with this email. Please sign in.');
-      try{if(data?.user?.id)await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
-      try{if(data?.user?.id)await window.PSPTrack?.enrollment?.('basic',data.user.id,{source:'home-signup'});}catch(_){}
-      if(data?.session){try{await client.auth.signOut({scope:'local'});}catch(_){}}
+      const metadata={full_name:fullName,username,phone,whatsapp:phone,role:'user',portal:'user',psp_auto_enroll_course:'basic',...(window.PSPTrack?.authMetadata?.()||{})};
+      if(typeof window.PSPDirectSignup!=='function')throw new Error('Signup system did not load correctly. Please refresh and try again.');
+      const data=await window.PSPDirectSignup(client,{email,password,metadata});
+      if(!data?.user)throw new Error('Account could not be created.');
+      try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
+      try{await window.PSPTrack?.enrollment?.('basic',data.user.id,{source:'home-signup'});}catch(_){}
 
       stopSignupScreenKeeper(true);
-      sessionStorage.setItem('psp-manual-signin-required','1');
       const form=document.getElementById('authForm-signup');
       if(form){
-        const safeEmail=String(email).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-        form.innerHTML=`<div style="text-align:center;padding:14px 4px 8px"><div style="font-size:42px;margin-bottom:10px">📧</div><h3 style="margin:0 0 7px">Check Your Email</h3><h4 style="margin:0 0 9px;color:var(--green);font-size:16px">Thank You for Joining!</h4><p style="color:var(--text-secondary);line-height:1.6;margin:0 0 8px">A verification link has been sent to <strong>${safeEmail}</strong>.</p><p style="color:var(--text-secondary);line-height:1.6;margin:0 0 8px">Please follow our WhatsApp Channel for important course updates, market insights, and announcements.</p><p style="font-size:12px;color:var(--text-muted);margin:10px 0 0">Redirecting you to our WhatsApp Channel...</p></div>`;
+        form.innerHTML=`<div style="text-align:center;padding:14px 4px 8px"><div style="font-size:42px;margin-bottom:10px">✅</div><h3 style="margin:0 0 7px">Account Created</h3><h4 style="margin:0 0 9px;color:var(--green);font-size:16px">Thank You for Joining!</h4><p style="color:var(--text-secondary);line-height:1.6;margin:0 0 8px">You are logged in and your account is ready.</p><p style="color:var(--text-secondary);line-height:1.6;margin:0 0 8px">Please follow our WhatsApp Channel for important course updates, market insights, and announcements.</p><p style="font-size:12px;color:var(--text-muted);margin:10px 0 0">Redirecting you to our WhatsApp Channel...</p></div>`;
       }
       const title=document.getElementById('authTitle'),sub=document.getElementById('authSubtitle');
-      if(title)title.textContent='Check Your Email';
-      if(sub)sub.textContent='Thank you for joining PipSePaisa';
+      if(title)title.textContent='Account Created';
+      if(sub)sub.textContent='You are logged in to PipSePaisa';
       setTimeout(()=>{window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';},1000);
     }catch(error){
       let msg=error?.message||'Signup failed. Please try again.';
       if(/already|registered|exists/i.test(msg))msg='An account already exists with this email. Please sign in.';
-      if(/rate|seconds|security purposes/i.test(msg))msg='Please wait about 60 seconds before requesting another verification email.';
-      fail(msg);
+            fail(msg);
     }finally{
       if(btn){btn.disabled=false;btn.textContent='✨ Create Free Account';}
     }
@@ -123,10 +93,6 @@ function installSignupFix(){
   if(typeof window.loginUser==='function'&&!window.__pspV20LoginWrapped){
     window.__pspV20LoginWrapped=true;const originalLogin=window.loginUser;
     window.loginUser=async function(){stopSignupScreenKeeper(true);sessionStorage.removeItem('psp-manual-signin-required');accessResolved=false;setResolving(true);try{return await originalLogin.apply(this,arguments);}finally{setTimeout(loadAccessStatus,80);}};
-  }
-  if(typeof window.restoreSignupAndOpenLogin==='function'&&!window.__pspV20RestoreWrapped){
-    window.__pspV20RestoreWrapped=true;const originalRestore=window.restoreSignupAndOpenLogin;
-    window.restoreSignupAndOpenLogin=function(){stopSignupScreenKeeper(true);sessionStorage.removeItem('psp-manual-signin-required');return originalRestore.apply(this,arguments);};
   }
   if(!window.__pspV20AuthCloseIntent){
     window.__pspV20AuthCloseIntent=true;

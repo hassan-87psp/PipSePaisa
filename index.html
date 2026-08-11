@@ -1064,6 +1064,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="psp-v29-final.css?v=20260802-v29-final">
 <link rel="stylesheet" href="psp-v30-hotfix.css?v=20260803-v30-hotfix">
 <script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
+<script src="psp-direct-signup-v1.js?v=20260811-v1"></script>
 </head>
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
@@ -2997,7 +2998,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20260803-v30-hotfix"></script>
+<script src="user-app-core-v29.js?v=20260811-v31-direct-login"></script>
 
 <script id="mentorPortalAiJs">
 (function(){
@@ -3319,7 +3320,7 @@ window.addEventListener('message',function(event){
   if(typeof window.openAuthModal==='function'){ window.openAuthModal(); if(event.data.mode==='signup'&&typeof window.switchAuthTab==='function') window.switchAuthTab('signup'); }
 });
 </script>
-<script src="course-enrollment.js?v=20260811-v43-whatsapp-signup"></script>
+<script src="course-enrollment.js?v=20260811-v44-direct-login"></script>
 <script src="course-marketplace-v3.js?v=20260802-v29-final"></script>
 
 
@@ -3374,7 +3375,7 @@ window.addEventListener('message',function(event){
 
 <style id="pspNoTopTickerFinal">#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker{display:none!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}</style>
 <script id="pspNoTopTickerFinalScript">(function(){function clean(){document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker').forEach(function(n){n.remove();});}document.addEventListener('DOMContentLoaded',clean);window.addEventListener('pageshow',clean);setTimeout(clean,250);setTimeout(clean,1200);})();</script>
-<script src="psp-v18-auth-access.js?v=20260811-v43-whatsapp-signup"></script>
+<script src="psp-v18-auth-access.js?v=20260811-v44-direct-login"></script>
 <script src="psp-v29-final.js?v=20260802-v29-final"></script>
 </body>
 </html>

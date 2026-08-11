@@ -3151,7 +3151,7 @@
   }
 
   function openAuthModal() {
-    // Always open a fresh auth form. A previous "Check Your Email" screen
+    // Always open a fresh auth form and clear any stale signup state.
     // must never remain stuck after closing/reopening the modal.
     resetSignupVerificationState(true);
     resetAuthModalState();
@@ -3245,93 +3245,43 @@
     btn.disabled = true; btn.textContent = '⏳ Creating account...';
     try {
       const username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
-      const { data, error } = await sb.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: 'https://www.pipsepaisa.com/email-verified.html',
-          data: { full_name: fullName, username, phone, whatsapp: phone, role: 'user', portal: (window.PSP_PORTAL_MODE === 'mentor' ? 'mentor' : 'user'), ...(window.PSPTrack?.authMetadata?.()||{}) }
-        }
-      });
-      if (error) throw error;
-      try { if (data?.user?.id) await window.PSPTrack?.signup?.(data.user.id); } catch (_) {}
+      const metadata = { full_name: fullName, username, phone, whatsapp: phone, role: 'user', portal: 'user', psp_auto_enroll_course: 'basic', ...(window.PSPTrack?.authMetadata?.()||{}) };
+      if (typeof window.PSPDirectSignup !== 'function') throw new Error('Signup system did not load correctly. Please refresh and try again.');
+      const data = await window.PSPDirectSignup(sb, { email, password, metadata });
+      if (!data?.user || !data?.session) throw new Error('Account was created, but the login session could not be started.');
+      try { await window.PSPTrack?.signup?.(data.user.id); } catch (_) {}
+      try { await window.PSPTrack?.enrollment?.('basic', data.user.id, {source:'home-signup'}); } catch (_) {}
 
-      // Supabase can intentionally return an obfuscated user for an existing email.
-      const identities = data?.user?.identities;
-      if (Array.isArray(identities) && identities.length === 0) {
-        showAuthMessage('error', 'An account already exists with this email. Please sign in, or resend verification if it is still unverified.', 'authMessageSignup');
-        document.getElementById('loginEmail').value = email;
-        return;
-      }
-      showSignupVerificationScreen(email);
+      currentUser = data.user;
+      currentProfile = {
+        id: data.user.id,
+        full_name: data.user.user_metadata?.full_name || (data.user.email||'User').split('@')[0],
+        username: data.user.user_metadata?.username || (data.user.email||'User').split('@')[0],
+        email: data.user.email || '',
+        role: 'user',
+        is_premium: false,
+        member_type: 'free'
+      };
+      updateAuthUI();
+      showAuthMessage('success', 'Account created. You are logged in.');
+      closeModal('auth');
+      enterApp();
+      resetAuthModalState();
+      setTimeout(function(){
+        Promise.resolve(loadUserProfile(data.user)).catch(function(error){
+          console.warn('Signup profile load failed:', error);
+          try { updateAuthUI(); } catch (e) {}
+        });
+      },0);
+      setTimeout(function(){ if (typeof window.pspApplyIntendedRoute === 'function') window.pspApplyIntendedRoute(); },0);
     } catch (error) {
       console.error('Signup error:', error);
       let msg = error?.message || 'Signup failed. Please try again.';
       if (/already|registered|exists/i.test(msg)) msg = 'An account already exists with this email. Please sign in.';
-      if (/rate|seconds|security purposes/i.test(msg)) msg = 'Please wait about 60 seconds before requesting another verification email.';
       showAuthMessage('error', msg, 'authMessageSignup');
     } finally {
       btn.disabled = false; btn.textContent = '✨ Create Free Account';
     }
-  }
-
-  function showSignupVerificationScreen(email) {
-    const form = document.getElementById('authForm-signup');
-    if (!form) return;
-    window.__pspPendingVerificationEmail = email;
-    form.dataset.originalHtml = form.dataset.originalHtml || form.innerHTML;
-    form.innerHTML = `
-      <div style="text-align:center;padding:8px 2px 4px">
-        <div style="width:62px;height:62px;border-radius:50%;display:grid;place-items:center;margin:0 auto 15px;background:var(--gold-bg);font-size:28px">📧</div>
-        <h3 style="margin:0 0 8px;font-size:20px">Check Your Email</h3>
-        <p style="margin:0 0 8px;color:var(--text-muted);line-height:1.6">We sent a verification link to:</p>
-        <div style="font-weight:800;color:var(--gold);word-break:break-all;margin-bottom:16px">${email.replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]))}</div>
-        <p style="font-size:12px;color:var(--text-muted);line-height:1.6;margin:0 0 18px">Open the email and click the verification button. Also check Spam or Promotions.</p>
-        <div id="verifyResendMessage" style="display:none;margin-bottom:12px;padding:10px;border-radius:9px;font-size:12px"></div>
-        <button class="btn" style="width:100%;margin-bottom:10px" id="resendVerifyBtn" onclick="resendSignupVerification()">Resend Verification Email</button>
-        <button class="btn btn-secondary" style="width:100%;margin-bottom:10px" onclick="restoreSignupAndOpenSignup()">Use a different email</button>
-        <button class="btn btn-secondary" style="width:100%" onclick="restoreSignupAndOpenLogin()">Back to Sign In</button>
-      </div>`;
-    document.getElementById('authTitle').textContent = 'Verify Your Email';
-    document.getElementById('authSubtitle').textContent = 'One quick step to activate your account';
-  }
-
-  async function resendSignupVerification() {
-    const email = window.__pspPendingVerificationEmail;
-    const box = document.getElementById('verifyResendMessage');
-    const btn = document.getElementById('resendVerifyBtn');
-    if (!email || !sb) return;
-    btn.disabled = true; btn.textContent = 'Sending...';
-    try {
-      const { error } = await sb.auth.resend({ type: 'signup', email, options: { emailRedirectTo: 'https://www.pipsepaisa.com/email-verified.html' } });
-      if (error) throw error;
-      box.style.display='block'; box.style.background='var(--green-bg)'; box.style.color='var(--green)'; box.textContent='✅ Verification email sent again. Please check Inbox and Spam.';
-    } catch (error) {
-      box.style.display='block'; box.style.background='var(--red-bg)'; box.style.color='var(--red)';
-      box.textContent = /rate|seconds|security purposes/i.test(error?.message||'') ? 'Please wait about 60 seconds, then try again.' : (error?.message || 'Could not resend verification email.');
-    } finally { btn.disabled=false; btn.textContent='Resend Verification Email'; }
-  }
-
-  function restoreSignupAndOpenSignup() {
-    const email = window.__pspPendingVerificationEmail || '';
-    resetSignupVerificationState(true);
-    switchAuthTab('signup');
-    const signupEmail = document.getElementById('signupEmail');
-    if (signupEmail) {
-      signupEmail.value = email;
-      setTimeout(() => {
-        signupEmail.focus();
-        signupEmail.select();
-      }, 30);
-    }
-  }
-
-  function restoreSignupAndOpenLogin() {
-    const email = window.__pspPendingVerificationEmail || '';
-    resetSignupVerificationState(true);
-    switchAuthTab('login');
-    const loginEmail = document.getElementById('loginEmail');
-    if (loginEmail) loginEmail.value = email;
   }
 
   // ============ LOGIN ============
@@ -3357,7 +3307,7 @@
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
       if (!data || !data.user || !data.session) {
-        throw new Error('Login session was not created. Please verify your email and try again.');
+        throw new Error('Login session was not created. Please try again.');
       }
 
       currentUser = data.user;
@@ -3389,7 +3339,7 @@
       console.error('Login error:', error);
       let msg = error && error.message ? error.message : 'Login failed';
       if (/email not confirmed|email.*confirm/i.test(msg)) {
-        msg = 'Your email is not verified yet. Please check Inbox/Spam, or use Resend Verification from Sign Up.';
+        msg = 'This older account is not active yet. Please contact PipSePaisa support.';
       } else if (/invalid login credentials/i.test(msg) || /invalid/i.test(msg)) {
         msg = 'Wrong email or password.';
       } else if (/fetch|network/i.test(msg)) {
@@ -4833,7 +4783,7 @@
       const user = result.data?.user || null;
       const session = result.data?.session || null;
       if (!user || !session) {
-        throw new Error('Login session was not created. Please verify your email and try again.');
+        throw new Error('Login session was not created. Please try again.');
       }
 
       currentUser = user;
@@ -4938,7 +4888,7 @@
           const user=result.data?.user||null;
           const session=result.data?.session||null;
           if(!user||!session){
-            throw new Error('Login session was not created. Please verify your email and try again.');
+            throw new Error('Login session was not created. Please try again.');
           }
 
           // Do not wait for profile/database queries before opening the app.

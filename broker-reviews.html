@@ -1681,6 +1681,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <link href="psp-public-v40.css?v=20260805-v44" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v45"></script>
 <link rel="canonical" href="https://pipsepaisa.com/broker-reviews">
 <link href="/psp-nav-v44.css?v=20260805-v44" rel="stylesheet"/><link href="/psp-mobile-reference-v46.css?v=20260805-v48" rel="stylesheet"/>
+<script src="psp-direct-signup-v1.js?v=20260811-v1"></script>
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -2157,28 +2158,6 @@ async function landingForgotPassword(){
   }finally{btn.disabled=false;btn.textContent='📧 Send Reset Link';}
 }
 
-let landingSignupOriginalHtml='';
-let landingPendingVerificationEmail='';
-function showLandingSignupVerificationScreen(email){
-  const panel=document.getElementById('landingSignupPanel');
-  if(!panel)return;
-  if(!landingSignupOriginalHtml)landingSignupOriginalHtml=panel.innerHTML;
-  landingPendingVerificationEmail=email||'';
-  const safeEmail=String(email||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  panel.innerHTML=`<div style="text-align:center;padding:12px 4px"><div style="font-size:42px;margin-bottom:10px">📧</div><h3 style="margin:0 0 8px">Check Your Email</h3><p style="color:var(--muted);line-height:1.6">We are sending a verification link to <strong>${safeEmail}</strong>.</p><p style="font-size:12px;color:var(--muted);margin-bottom:16px">The signup window will stay here. Verify your email, then sign in manually.</p><button type="button" class="landing-auth-submit landing-change-email-btn" onclick="restoreLandingSignupForm()" style="margin-top:2px">Use a different email</button></div>`;
-}
-function restoreLandingSignupForm(){
-  const panel=document.getElementById('landingSignupPanel');
-  if(!panel||!landingSignupOriginalHtml)return;
-  const oldEmail=landingPendingVerificationEmail;
-  panel.innerHTML=landingSignupOriginalHtml;
-  switchLandingAuth('signup');
-  const emailInput=document.getElementById('landingSignupEmail');
-  if(emailInput){
-    emailInput.value=oldEmail;
-    setTimeout(()=>{emailInput.focus();emailInput.select();},40);
-  }
-}
 async function landingSignupUser(){
   const fullName=document.getElementById('landingSignupName')?.value.trim();
   const email=document.getElementById('landingSignupEmail')?.value.trim().toLowerCase();
@@ -2190,24 +2169,25 @@ async function landingSignupUser(){
   if(password.length<6){showLandingAuthMessage('error','Password must be at least 6 characters.','landingSignupMessage');return;}
   if(password!==password2){showLandingAuthMessage('error','Passwords do not match.','landingSignupMessage');return;}
   if(!landingSb){showLandingAuthMessage('error','Connection problem. Please reload and try again.','landingSignupMessage');return;}
+  if(typeof window.PSPDirectSignup!=='function'){showLandingAuthMessage('error','Signup system did not load correctly. Please refresh and try again.','landingSignupMessage');return;}
 
-  // Instant feedback: keep the signup panel open and allow email correction.
-  const panel=document.getElementById('landingSignupPanel');
-  const original=panel?.innerHTML||landingSignupOriginalHtml||'';
-  showLandingSignupVerificationScreen(email);
-  sessionStorage.setItem('psp-manual-signin-required','1');
+  const btn=document.getElementById('landingSignupBtn');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Creating account...';}
   try{
     const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
-    const {data,error}=await landingSb.auth.signUp({email,password,options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:fullName,username,phone,role:'user',...(window.PSPTrack?.authMetadata?.()||{})}}});
-    if(error)throw error;
-    if(!data?.user)throw new Error('Account could not be created.');
+    const metadata={full_name:fullName,username,phone,whatsapp:phone,role:'user',...(window.PSPTrack?.authMetadata?.()||{})};
+    const data=await window.PSPDirectSignup(landingSb,{email,password,metadata});
+    if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
     try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
-    if(data?.session){try{await landingSb.auth.signOut({scope:'local'});}catch(_){}}
+
+    showLandingAuthMessage('success','Account created. You are logged in.','landingSignupMessage');
+    setTimeout(()=>{window.location.href='https://www.pipsepaisa.com/';},500);
   }catch(error){
-    if(panel)panel.innerHTML=original;
     let msg=error?.message||'Signup failed. Please try again.';
     if(/already|registered|exists/i.test(msg))msg='This email is already registered. Please log in.';
     showLandingAuthMessage('error',msg,'landingSignupMessage');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='✨ Create Free Account';}
   }
 }
 document.getElementById('landingAuthOverlay')?.addEventListener('click',event=>{if(event.target.id==='landingAuthOverlay')closeLandingAuth();});

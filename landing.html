@@ -1678,6 +1678,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 </style>
 <link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
 <link rel="canonical" href="https://pipsepaisa.com/">
+<script src="psp-direct-signup-v1.js?v=20260811-v1"></script>
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -2154,28 +2155,6 @@ async function landingForgotPassword(){
   }finally{btn.disabled=false;btn.textContent='📧 Send Reset Link';}
 }
 
-let landingSignupOriginalHtml='';
-let landingPendingVerificationEmail='';
-function showLandingSignupVerificationScreen(email){
-  const panel=document.getElementById('landingSignupPanel');
-  if(!panel)return;
-  if(!landingSignupOriginalHtml)landingSignupOriginalHtml=panel.innerHTML;
-  landingPendingVerificationEmail=email||'';
-  const safeEmail=String(email||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  panel.innerHTML=`<div style="text-align:center;padding:12px 4px"><div style="font-size:42px;margin-bottom:10px">📧</div><h3 style="margin:0 0 8px">Check Your Email</h3><p style="color:var(--muted);line-height:1.6">We are sending a verification link to <strong>${safeEmail}</strong>.</p><p style="font-size:12px;color:var(--muted);margin-bottom:16px">The signup window will stay here. Verify your email, then sign in manually.</p><button type="button" class="landing-auth-submit landing-change-email-btn" onclick="restoreLandingSignupForm()" style="margin-top:2px">Use a different email</button></div>`;
-}
-function restoreLandingSignupForm(){
-  const panel=document.getElementById('landingSignupPanel');
-  if(!panel||!landingSignupOriginalHtml)return;
-  const oldEmail=landingPendingVerificationEmail;
-  panel.innerHTML=landingSignupOriginalHtml;
-  switchLandingAuth('signup');
-  const emailInput=document.getElementById('landingSignupEmail');
-  if(emailInput){
-    emailInput.value=oldEmail;
-    setTimeout(()=>{emailInput.focus();emailInput.select();},40);
-  }
-}
 async function landingSignupUser(){
   const fullName=document.getElementById('landingSignupName')?.value.trim();
   const email=document.getElementById('landingSignupEmail')?.value.trim().toLowerCase();
@@ -2187,28 +2166,23 @@ async function landingSignupUser(){
   if(password.length<6){showLandingAuthMessage('error','Password must be at least 6 characters.','landingSignupMessage');return;}
   if(password!==password2){showLandingAuthMessage('error','Passwords do not match.','landingSignupMessage');return;}
   if(!landingSb){showLandingAuthMessage('error','Connection problem. Please reload and try again.','landingSignupMessage');return;}
+  if(typeof window.PSPDirectSignup!=='function'){showLandingAuthMessage('error','Signup system did not load correctly. Please refresh and try again.','landingSignupMessage');return;}
 
   const btn=document.getElementById('landingSignupBtn');
   if(btn){btn.disabled=true;btn.textContent='⏳ Creating account...';}
   try{
     const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
-    const {data,error}=await landingSb.auth.signUp({email,password,options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:{full_name:fullName,username,phone,whatsapp:phone,role:'user',psp_auto_enroll_course:'basic',...(window.PSPTrack?.authMetadata?.()||{})}}});
-    if(error)throw error;
-    if(!data?.user)throw new Error('Account could not be created.');
-    if(Array.isArray(data.user.identities)&&data.user.identities.length===0)throw new Error('This email is already registered. Please log in.');
+    const metadata={full_name:fullName,username,phone,whatsapp:phone,role:'user',psp_auto_enroll_course:'basic',...(window.PSPTrack?.authMetadata?.()||{})};
+    const data=await window.PSPDirectSignup(landingSb,{email,password,metadata});
+    if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
     try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
     try{await window.PSPTrack?.enrollment?.('basic',data.user.id,{source:'website-signup'});}catch(_){}
-    if(data?.session){try{await landingSb.auth.signOut({scope:'local'});}catch(_){}}
-    sessionStorage.setItem('psp-manual-signin-required','1');
 
     const panel=document.getElementById('landingSignupPanel');
-    if(panel){
-      const safeEmail=String(email).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-      panel.innerHTML=`<div style="text-align:center;padding:14px 4px"><div style="font-size:42px;margin-bottom:10px">📧</div><h3 style="margin:0 0 7px">Check Your Email</h3><h4 style="margin:0 0 9px;color:#16a34a;font-size:16px">Thank You for Joining!</h4><p style="color:var(--muted);line-height:1.6;margin:0 0 8px">A verification link has been sent to <strong>${safeEmail}</strong>.</p><p style="color:var(--muted);line-height:1.6;margin:0 0 8px">Please follow our WhatsApp Channel for important course updates, market insights, and announcements.</p><p style="font-size:12px;color:var(--muted);margin-top:10px">Redirecting you to our WhatsApp Channel...</p></div>`;
-    }
+    if(panel)panel.innerHTML=`<div style="text-align:center;padding:14px 4px"><div style="font-size:42px;margin-bottom:10px">✅</div><h3 style="margin:0 0 7px">Account Created</h3><h4 style="margin:0 0 9px;color:#16a34a;font-size:16px">Thank You for Joining!</h4><p style="color:var(--muted);line-height:1.6;margin:0 0 8px">You are logged in and your account is ready.</p><p style="color:var(--muted);line-height:1.6;margin:0 0 8px">Please follow our WhatsApp Channel for important course updates, market insights, and announcements.</p><p style="font-size:12px;color:var(--muted);margin-top:10px">Redirecting you to our WhatsApp Channel...</p></div>`;
     const title=document.getElementById('landingAuthTitle'),sub=document.getElementById('landingAuthSubtitle');
-    if(title)title.textContent='Check Your Email';
-    if(sub)sub.textContent='Thank you for joining PipSePaisa';
+    if(title)title.textContent='Account Created';
+    if(sub)sub.textContent='You are logged in to PipSePaisa';
     setTimeout(()=>{window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';},1000);
   }catch(error){
     let msg=error?.message||'Signup failed. Please try again.';

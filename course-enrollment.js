@@ -675,12 +675,7 @@
   };
 
   window.courseEnrollmentAlreadyUserRedirect=function(){
-    const title=document.getElementById('ceSuccessTitle');
-    const text=document.getElementById('ceSuccessText');
-    if(title)title.textContent='Thank You!';
-    if(text)text.textContent='Please follow our WhatsApp Channel for the latest updates. Redirecting you now...';
-    showStep('ceStepSuccess');
-    setTimeout(()=>{window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';},1000);
+    window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';
   };
 
   window.courseEnrollmentBack=function(){
@@ -740,20 +735,34 @@
         psp_enrollment_transaction_id:values.transactionId||'',
         ...(window.PSPTrack?.authMetadata?.()||{})
       };
-      const {data,error}=await sb.auth.signUp({email:values.email,password:values.password,options:{emailRedirectTo:'https://www.pipsepaisa.com/email-verified.html',data:meta}});
-      if(error)throw error;
-      if(!data?.user)throw new Error('Account could not be created.');
-      if(Array.isArray(data.user.identities)&&data.user.identities.length===0)throw new Error('This email is already registered.');
+      if(typeof window.PSPDirectSignup!=='function')throw new Error('Signup system did not load correctly. Please refresh and try again.');
+      const data=await window.PSPDirectSignup(sb,{email:values.email,password:values.password,metadata:meta});
+      if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
+      activeUser=data.user;
+      accountWasCreated=true;
+      await loadProfile(activeUser);
+
+      const result=await saveEnrollment(values,receipt);
       try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
-      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,data.user.id,{source:'course-signup'});}catch(_){}
-      if(data?.session){try{await sb.auth.signOut({scope:'local'});}catch(_){}}
-      sessionStorage.setItem('psp-manual-signin-required','1');
+      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,data.user.id,{source:'course-signup',enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){}
+
+      if(!result.already || (selectedCourse.type==='free'&&result.updated)){
+        const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
+        const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
+        if(selectedCourse.type==='free')jobs.push(registerZoomCourse(values));
+        const jobResults=await Promise.all(jobs);
+        if(!jobResults[0]?.ok)console.warn('Enrollment saved but email delivery failed.',jobResults[0]?.error||jobResults[0]);
+        if(selectedCourse.type==='free'&&!jobResults[1]?.ok)console.warn('Course enrolled but Zoom registration needs attention.',jobResults[1]?.error||jobResults[1]);
+      }
 
       const title=document.getElementById('ceSuccessTitle');
       const text=document.getElementById('ceSuccessText');
-      if(title)title.textContent='Check Your Email';
-      if(text)text.textContent='Thank You for Joining! Please follow our WhatsApp Channel for important course updates, market insights, and announcements. Redirecting you to our WhatsApp Channel...';
+      if(title)title.textContent='Account Created';
+      if(text)text.textContent=selectedCourse.type==='free'
+        ?'Thank You for Joining! You are logged in and enrolled in the Basic Forex Course. Please follow our WhatsApp Channel for important course updates, market insights, and announcements. Redirecting you now...'
+        :'Thank You for Joining! You are logged in and your payment receipt has been submitted for verification. Please follow our WhatsApp Channel for important course updates and announcements. Redirecting you now...';
       showStep('ceStepSuccess');
+      try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));}catch(_){ }
       setTimeout(()=>{window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';},1000);
     }catch(error){
       let msg=error?.message||'Account creation failed.';
