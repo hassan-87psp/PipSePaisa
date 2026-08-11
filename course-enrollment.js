@@ -423,28 +423,15 @@
   }
 
   async function loadProfile(user){
+    // Intentionally do not fetch profile/enrollment details for this enrollment UI.
     activeProfile=null;
     activeEnrollmentFallback=null;
-    if(!user)return;
-    try{
-      const client=getClient();
-      const [profileResult,enrollmentResult]=await Promise.all([
-        client.from('profiles').select('*').eq('id',user.id).maybeSingle(),
-        client.from('course_enrollments').select('full_name,whatsapp,email,experience,learning_goal,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(1).maybeSingle()
-      ]);
-      activeProfile=profileResult?.data||null;
-      activeEnrollmentFallback=enrollmentResult?.data||null;
-    }catch(_){
-      activeProfile=null;
-      activeEnrollmentFallback=null;
-    }
   }
 
   async function currentSession(){
     const sb=getClient();if(!sb)return null;
     const {data}=await sb.auth.getSession();
     activeUser=data?.session?.user||null;
-    if(activeUser)await loadProfile(activeUser);
     return activeUser;
   }
 
@@ -472,44 +459,38 @@
 
   function fillExistingDetails(){
     const meta=activeUser?.user_metadata||{};
-    const panel=panelProfile()||{};
     const email=document.getElementById('ceDetailsEmail');
     const passwordWrap=document.getElementById('ceDetailsPasswordWrap');
+    const nameField=document.getElementById('ceDetailsName');
+    const phoneField=document.getElementById('ceDetailsPhone');
+
+    const accountFields=[nameField?.closest('.ce-field'),phoneField?.closest('.ce-field'),email?.closest('.ce-field'),passwordWrap];
 
     if(activeUser){
-      const fallbackName=(activeUser.email||'').split('@')[0].replace(/[._-]+/g,' ').replace(/\b\w/g,ch=>ch.toUpperCase());
-      const fullName=firstValue(
-        activeProfile?.full_name,activeProfile?.name,activeProfile?.display_name,activeProfile?.username,
-        panel.full_name,panel.name,panel.display_name,panel.username,
-        meta.full_name,meta.name,meta.display_name,meta.username,
-        activeEnrollmentFallback?.full_name,
-        fallbackName
-      );
-      const phone=firstValue(
-        activeProfile?.whatsapp,activeProfile?.whatsapp_number,activeProfile?.phone,activeProfile?.phone_number,activeProfile?.mobile,activeProfile?.mobile_number,
-        panel.whatsapp,panel.whatsapp_number,panel.phone,panel.phone_number,panel.mobile,panel.mobile_number,
-        meta.whatsapp,meta.whatsapp_number,meta.phone,meta.phone_number,meta.mobile,meta.mobile_number,
-        activeEnrollmentFallback?.whatsapp
-      );
-
-      const nameField=document.getElementById('ceDetailsName');
-      const phoneField=document.getElementById('ceDetailsPhone');
-      if(nameField){nameField.value=fullName;nameField.readOnly=true;nameField.classList.add('ce-readonly');}
-      if(phoneField){phoneField.value=phone;phoneField.readOnly=true;phoneField.classList.add('ce-readonly');}
+      // Do not fetch or expose account profile details on this screen.
+      const sessionName=firstValue(meta.full_name,meta.name,meta.username,(activeUser.email||'').split('@')[0]);
+      const sessionPhone=firstValue(meta.whatsapp,meta.phone);
+      if(nameField){nameField.value=sessionName;nameField.readOnly=true;}
+      if(phoneField){phoneField.value=sessionPhone;phoneField.readOnly=true;}
+      if(email){email.value=activeUser.email||'';email.readOnly=true;}
+      accountFields.forEach(el=>{if(el)el.style.display='none';});
       resetQuestionFields('ceDetails');
       document.getElementById('ceDetailsExperienceWrap').style.display='grid';
       document.getElementById('ceDetailsGoalWrap').style.display='grid';
-      if(email){email.value=activeUser.email||activeEnrollmentFallback?.email||'';email.readOnly=true;email.classList.add('ce-readonly');}
-      if(passwordWrap)passwordWrap.style.display='none';
       const payment=document.getElementById('ceExistingPayment');
       const submit=document.getElementById('ceDetailsSubmitBtn');
-      if(selectedCourse?.type==='paid'&&!paidProfileConfirmed){if(payment)payment.style.display='none';if(submit)submit.textContent='Confirm & Continue to Payment';}
+      if(selectedCourse?.type==='paid'&&!paidProfileConfirmed){if(payment)payment.style.display='none';if(submit)submit.textContent='Continue to Payment';}
       else {if(payment)payment.style.display='';if(submit)submit.textContent=selectedCourse?.type==='free'?'Confirm Free Enrollment':'Submit Payment for Approval';}
-      document.getElementById('ceSignedIn').textContent='Profile details fetched from your PipSePaisa account';
+      const signed=document.getElementById('ceSignedIn');
+      if(signed){signed.textContent='You are signed in. Complete the enrollment questions below.';}
+      const heading=signed?.nextElementSibling;if(heading)heading.textContent='Enrollment Details';
     }else{
+      accountFields.forEach(el=>{if(el)el.style.display='';});
+      if(nameField){nameField.value='';nameField.readOnly=false;}
+      if(phoneField){phoneField.value='';phoneField.readOnly=false;}
       if(email){email.value='';email.readOnly=false;}
       if(passwordWrap)passwordWrap.style.display='';
-      document.getElementById('ceSignedIn').textContent='Enter your existing PipSePaisa account details';
+      const signed=document.getElementById('ceSignedIn');if(signed)signed.textContent='Enter your existing PipSePaisa account details';
     }
   }
 
@@ -631,24 +612,15 @@
     accountWasCreated=false;paidProfileConfirmed=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
     setCourseText();resetQuestionFields('ceNew');resetQuestionFields('ceDetails');
     ['ceLoginMessage','ceNewMessage','ceDetailsMessage'].forEach(id=>setMessage(id,'',''));
-    await Promise.all([loadPaymentMethods(),currentSession()]);
-    renderPaymentSections();
-    if(activeUser){
-      const oldEnrollment=await existingEnrollment();
-      const alreadyApproved=oldEnrollment && (oldEnrollment.enrollment_status==='enrolled' || oldEnrollment.payment_status==='approved' || oldEnrollment.payment_status==='paid');
-      const alreadyPending=oldEnrollment && selectedCourse.type==='paid' && (oldEnrollment.payment_status==='pending' || oldEnrollment.enrollment_status==='pending');
-      if(alreadyApproved && selectedCourse.type==='paid'){
-        showSuccess({already:true,row:oldEnrollment});
-      }else if(alreadyPending){
-        showSuccess({pending:true,row:oldEnrollment});
-      }else{
-        fillExistingDetails();
-        showStep('ceStepDetails');
-      }
-    }else{
-      showStep('ceStepNew');
-      setTimeout(()=>document.getElementById('ceNewName')?.focus(),60);
+    // Keep the enrollment modal identical for every visitor, including users who
+    // already have a PipSePaisa session in this browser. Do not read the session,
+    // profile or existing enrollment just to render this form.
+    if(selectedCourse.type==='paid'){
+      await loadPaymentMethods();
+      renderPaymentSections();
     }
+    showStep('ceStepNew');
+    setTimeout(()=>document.getElementById('ceNewName')?.focus(),60);
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';
@@ -664,7 +636,6 @@
     accountWasCreated=false;
     if(existing){
       if(!activeUser)await currentSession();
-      if(activeUser)await loadProfile(activeUser);
       fillExistingDetails();
       showStep('ceStepDetails');
       setTimeout(()=>document.getElementById('ceDetailsName')?.focus(),60);
@@ -693,7 +664,7 @@
       const {data,error}=await sb.auth.signInWithPassword({email,password});
       if(error)throw error;
       activeUser=data?.user||null;if(!activeUser)throw new Error('Login could not be completed.');
-      await loadProfile(activeUser);fillExistingDetails();setMessage('ceLoginMessage','','');showStep('ceStepDetails');
+      fillExistingDetails();setMessage('ceLoginMessage','','');showStep('ceStepDetails');
     }catch(error){
       let msg=error?.message||'Login failed.';
       if(/invalid login credentials|invalid/i.test(msg))msg='Email or password is incorrect.';
@@ -735,26 +706,35 @@
         psp_enrollment_transaction_id:values.transactionId||'',
         ...(window.PSPTrack?.authMetadata?.()||{})
       };
-      if(typeof window.PSPDirectSignup!=='function')throw new Error('Signup system did not load correctly. Please refresh and try again.');
-      const data=await window.PSPDirectSignup(sb,{email:values.email,password:values.password,metadata:meta});
-      if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
+      // Fast path: Confirm Email is disabled in Supabase, so signUp returns an
+      // authenticated session in a single Auth request. This removes the old
+      // Edge Function create-user + second sign-in round trip from course signup.
+      const signup=await sb.auth.signUp({
+        email:values.email,
+        password:values.password,
+        options:{data:meta}
+      });
+      if(signup.error)throw signup.error;
+      if(!signup.data?.user||!signup.data?.session){
+        throw new Error('Direct login is not available. Please confirm that Supabase “Confirm Email” is OFF.');
+      }
+      const data=signup.data;
       activeUser=data.user;
       accountWasCreated=true;
-      await loadProfile(activeUser);
 
+      // Save enrollment immediately after the one-step authenticated signup.
       const result=await saveEnrollment(values,receipt);
-      try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
-      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,data.user.id,{source:'course-signup',enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){}
 
-      if(!result.already || (selectedCourse.type==='free'&&result.updated)){
-        const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
-        const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
-        if(selectedCourse.type==='free')jobs.push(registerZoomCourse(values));
-        const jobResults=await Promise.all(jobs);
-        if(!jobResults[0]?.ok)console.warn('Enrollment saved but email delivery failed.',jobResults[0]?.error||jobResults[0]);
-        if(selectedCourse.type==='free'&&!jobResults[1]?.ok)console.warn('Course enrolled but Zoom registration needs attention.',jobResults[1]?.error||jobResults[1]);
-      }
+      // Non-blocking welcome/PIN email. It must never delay the enrollment UI.
+      try{
+        setTimeout(()=>{
+          sb.functions.invoke('send-course-email',{body:{type:'pin_access_welcome',user_name:values.name}})
+            .catch(error=>console.warn('PIN welcome email could not be sent:',error));
+        },0);
+      }catch(_){ }
 
+      // Show success immediately after the account + enrollment are saved.
+      // Tracking, course email and Zoom registration continue in the background.
       const title=document.getElementById('ceSuccessTitle');
       const text=document.getElementById('ceSuccessText');
       if(title)title.textContent='Account Created';
@@ -763,6 +743,20 @@
         :'Thank You for Joining! You are logged in and your payment receipt has been submitted for verification. Please follow our WhatsApp Channel for important course updates and announcements. Redirecting you now...';
       showStep('ceStepSuccess');
       try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));}catch(_){ }
+      setTimeout(()=>{
+        Promise.resolve().then(async()=>{
+          try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
+          try{await window.PSPTrack?.enrollment?.(selectedCourse.key,data.user.id,{source:'course-signup',enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){}
+          if(!result.already || (selectedCourse.type==='free'&&result.updated)){
+            const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
+            const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
+            if(selectedCourse.type==='free')jobs.push(registerZoomCourse(values));
+            const jobResults=await Promise.all(jobs);
+            if(!jobResults[0]?.ok)console.warn('Enrollment saved but email delivery failed.',jobResults[0]?.error||jobResults[0]);
+            if(selectedCourse.type==='free'&&!jobResults[1]?.ok)console.warn('Course enrolled but Zoom registration needs attention.',jobResults[1]?.error||jobResults[1]);
+          }
+        }).catch(error=>console.warn('Post-enrollment background task failed.',error));
+      },0);
       setTimeout(()=>{window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';},1000);
     }catch(error){
       let msg=error?.message||'Account creation failed.';
@@ -784,7 +778,7 @@
       transactionId:document.getElementById('ceExistingTransactionId')?.value.trim()||null
     };
     const receipt=document.getElementById('ceExistingReceipt')?.files?.[0]||null;
-    if(!values.name||!values.phone||!values.email){setMessage('ceDetailsMessage','error','Your profile must include name, email and WhatsApp number before enrollment.');return;}
+    if(!activeUser&&(!values.name||!values.phone||!values.email)){setMessage('ceDetailsMessage','error','Please complete your account details before enrollment.');return;}
     if(!values.experience||!values.goal){setMessage('ceDetailsMessage','error','Please answer both enrollment questions.');return;}
     if(!activeUser&&!values.password){setMessage('ceDetailsMessage','error','Please enter your PipSePaisa password.');return;}
     if(activeUser&&selectedCourse.type==='paid'&&!paidProfileConfirmed){
@@ -807,7 +801,6 @@
         if(login.error)throw login.error;
         activeUser=login.data?.user||null;
         if(!activeUser)throw new Error('Login could not be completed.');
-        await loadProfile(activeUser);
       }
       const result=await saveEnrollment(values,receipt);
       try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser?.id,{enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){}
