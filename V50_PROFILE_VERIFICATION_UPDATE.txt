@@ -1,0 +1,25 @@
+PipSePaisa V50 — Profile / Verification Update
+Date: 12 August 2026
+
+Changes
+1. Email Verification is mandatory. It is never shown as Optional.
+2. Admin can enable/disable temporary Free Access after signup.
+3. Admin can set the temporary Free Access duration in days (2/5/7 quick presets + custom 1–365 days).
+4. Temporary Free Access is calculated from the user's signup/account creation time.
+5. After the Free Access period expires, protected services lock unless broker proof is Pending or Approved.
+6. Rejected verification locks protected services immediately, even if signup Free Access time remains.
+7. Existing Account Verification email-verified/approved records are preserved.
+8. Legacy users who genuinely verified through the old Supabase confirmation-email flow are backfilled as email verified.
+9. Profile verification UI redesigned. Get Free All Access is now a separate prominent required card.
+10. Email confirmation page uses a fast direct database RPC first, with the existing Edge Function as fallback to reduce verification wait time.
+
+Supabase
+- V49 SQL (51...) must already be installed.
+- Run only: 52_ACCOUNT_VERIFICATION_TRIAL_AND_FAST_VERIFY.sql
+- Existing request-account-verification Edge Function remains unchanged.
+- Existing confirm-account-verification Edge Function can remain deployed; V50 uses it as a fallback.
+- Confirm Email in Supabase Auth remains OFF because signup is still direct-login; PipSePaisa's Profile verification is separate.
+
+GitHub Test Branch
+- Upload the V50 patch to v49-account-verification (or rename branch if desired).
+- Do NOT merge the PR to main until testing is complete.
