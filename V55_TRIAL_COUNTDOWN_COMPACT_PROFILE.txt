@@ -1,0 +1,8 @@
+PipSePaisa V55
+
+- Admin can grant 7/10/custom-day temporary access to a specific user by email/User ID.
+- Rejected users remain locked unless Admin explicitly grants a manual trial.
+- User Profile shows a second-by-second Free Access countdown.
+- Profile verification UI is more compact.
+- Run 54_USER_TRIAL_AND_COMPACT_PROFILE.sql in Supabase SQL Editor.
+- No Edge Function redeploy is required.
