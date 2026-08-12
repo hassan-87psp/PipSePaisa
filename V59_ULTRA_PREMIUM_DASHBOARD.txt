@@ -1,0 +1,27 @@
+PipSePaisa V59 — Ultra Premium Compact Dashboard
+
+MAIN FIX
+- Fixed the huge blank area on Dashboard.
+- Root cause was a CSS class collision: the dashboard grid used class "main",
+  while the website already has global .main { min-height:100vh; margin-left:260px; }.
+- Dashboard grids now use isolated class names and also include a compatibility override.
+
+UI IMPROVEMENTS
+- Latest Signal + Next Live Class now stay at natural content height.
+- Market Analysis + Journal start immediately below instead of leaving a huge gap.
+- More compact premium spacing throughout.
+- Refined shadows, accent gradients, top highlight, stat icon treatments and hover/press animations.
+- Recent Activity is capped to 5 latest items and uses a compact scrollable live feed.
+- Keeps live PKT date/time, Account status, exact Signal status/result, Opened/Updated time,
+  TP progress, Next Live Class details/countdown/progress, Analysis timestamps and Journal Snapshot.
+
+PRESERVED
+- My Courses remains first.
+- New Dashboard remains separate.
+- Old original Dashboard remains Journal.
+- Performance remains unchanged.
+- Admin Access Approvals / verified badges remain preserved.
+
+DEPLOYMENT
+- Upload this patch to the existing v49-account-verification test branch.
+- No Supabase SQL or Edge Function update is required.
