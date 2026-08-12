@@ -122,7 +122,7 @@ function copySignalWA(id){
 function waBtn(id){return '';}
 async function loadPerformance(){
   if(!sb)return;
-  var hi=document.getElementById('perfHello');if(hi&&currentProfile){var nm=((currentProfile.full_name||currentProfile.email||'Trader')+'').split(' ')[0];hi.textContent='Welcome 👋';}
+  var hi=document.getElementById('perfHello');if(hi&&currentProfile){var nm=((currentProfile.full_name||currentProfile.email||'Trader')+'').split(' ')[0];hi.textContent='Journal Overview';}
   try{
     var sr=await sb.from('signals').select('*').order('created_at',{ascending:false});
     var rows=sr.data||[];

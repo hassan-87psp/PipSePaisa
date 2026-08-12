@@ -235,7 +235,7 @@
     if (el) el.classList.add('active');
     
     const titles = {
-      dashboard: 'Dashboard', performance: 'Performance', trades: 'My Trades',
+      dashboard: 'Dashboard', journal: 'Trading Journal', performance: 'Journal', trades: 'My Trades',
       analysis: 'Trades Analysis', aireport: 'AI Report', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex', mycourses: 'My Courses',
       signals: 'Signals', articles: 'Charts & Articles', vipplans: 'VIP Plans',
@@ -245,6 +245,7 @@
     document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
     document.getElementById('sidebar').classList.remove('open');
     
+    if (page === 'journal') { try{ updateDashboard(); buildCalendar(); }catch(e){} }
     if (page === 'analysis') updateAnalysis();
     if (page === 'news' && newsRawData.length === 0) loadNews();
     if (page === 'news') loadAdminNews();
@@ -279,10 +280,11 @@
 
   /* scroll tab-shift feature removed */
 
-  function goPerformanceHome() {
-    var perfItem = document.querySelector('.menu-item[data-page="performance"]');
-    showPage('performance', perfItem);
+  function goDashboardHome() {
+    var item = document.querySelector('.menu-item[data-page="dashboard"]');
+    showPage('dashboard', item);
   }
+  function goPerformanceHome() { goDashboardHome(); }
   
   function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');

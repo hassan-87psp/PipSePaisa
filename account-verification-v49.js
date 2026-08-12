@@ -1,7 +1,7 @@
 /* PipSePaisa V55 — Account Verification + Admin Trial Countdown */
 (function(){
   'use strict';
-  const PROTECTED=new Set(['performance','addtrade','signals','charts','articles','newshub','strength','trades','analysis','tools','aireport','news','chats','vipplans','aitools','vipindicators','vipea']);
+  const PROTECTED=new Set(['journal','performance','addtrade','signals','charts','articles','newshub','strength','trades','analysis','tools','aireport','news','chats','vipplans','aitools','vipindicators','vipea']);
   let state=null,loading=false,channel=null,authSub=null,installed=false,countdownTimer=null;
   const q=(s,r=document)=>r.querySelector(s),qa=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
