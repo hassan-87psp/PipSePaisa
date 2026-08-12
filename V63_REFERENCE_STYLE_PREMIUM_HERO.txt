@@ -1,0 +1,30 @@
+PipSePaisa V63 — Reference-Style Premium Compact Hero
+
+FIXED ROOT CAUSE
+- index.html was still loading user-dashboard-v56.css/js with the old v59 cache key.
+- Updated both asset cache keys to V63, so browsers fetch the new files immediately.
+
+WELCOME HERO
+- Rebuilt with a new isolated .psp63-welcome class to avoid old/global CSS collisions.
+- Hard desktop height: 146px, so the huge blank gap cannot return.
+- Layout follows the provided reference:
+  * Left: WELCOME BACK, username, subtitle, date/time/live
+  * Center: animated orange market line + rising bars + premium globe graphic
+  * Right: Account access/verified card
+- Removed PIPSEPAISA COMMAND CENTER.
+- Premium cursor-follow lighting remains.
+- Chart draw, bar-rise and subtle globe-float animations added.
+- Responsive tablet/mobile fallback included.
+
+PRESERVED
+- V60 premium lighting
+- Compact dashboard cards
+- Latest Signal status/result/date-time
+- Next Live Class details/countdown
+- My Courses first
+- Dashboard / Journal / Performance mapping
+- Admin verification/Access Approvals changes
+
+DEPLOYMENT
+- Upload all 3 patch files to the same v49-account-verification test branch.
+- No Supabase SQL or Edge Function changes are required.

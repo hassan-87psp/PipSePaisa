@@ -148,7 +148,61 @@ async function load(force=false){
     const av=window.PSPAccountVerification?.getState?.(),allowed=!!av?.can_access;
     const active=signals.filter(isLiveSignal).length,todayCharts=charts.filter(x=>pktDateKey(x.created_at)===todayPKT()).length;
     root.innerHTML=`<div class="psp58-home">
-      <section class="psp58-hero"><div class="psp58-orb one"></div><div class="psp58-orb two"></div><div class="psp58-hero-row"><div class="psp58-hero-copy"><h2>Welcome, ${esc(userName(user))} <span class="psp58-wave">👋</span></h2><p>Your live market, learning and account overview — updated in real time.</p><div class="psp58-live-time"><span>📅 <b id="psp58DashboardDate">${esc(fmtPKT(new Date(),'date'))}</b></span><span>🕘 <b id="psp58DashboardClock">${esc(fmtPKT(new Date(),'time'))} PKT</b></span><span class="psp58-live-dot">LIVE</span></div></div>${accessHTML()}</div></section>
+      <div class="psp63-welcome">
+        <div class="psp63-welcome-copy">
+          <span class="psp63-welcome-kicker">WELCOME BACK,</span>
+          <h2>${esc(userName(user))} <span class="psp58-wave">👋</span></h2>
+          <p>Your live market, learning and account overview — updated in real time.</p>
+          <div class="psp58-live-time">
+            <span>📅 <b id="psp58DashboardDate">${esc(fmtPKT(new Date(),'date'))}</b></span>
+            <span>🕘 <b id="psp58DashboardClock">${esc(fmtPKT(new Date(),'time'))} PKT</b></span>
+            <span class="psp58-live-dot">LIVE</span>
+          </div>
+        </div>
+        <div class="psp63-market-art" aria-hidden="true">
+          <svg viewBox="0 0 520 150" role="presentation">
+            <defs>
+              <linearGradient id="psp63Bar" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#fb9201" stop-opacity=".92"/>
+                <stop offset="100%" stop-color="#fb9201" stop-opacity=".12"/>
+              </linearGradient>
+              <linearGradient id="psp63Line" x1="0" x2="1">
+                <stop offset="0%" stop-color="#fb9201" stop-opacity=".38"/>
+                <stop offset="100%" stop-color="#fb9201"/>
+              </linearGradient>
+            </defs>
+            <g class="psp63-bars">
+              <rect x="18" y="112" width="13" height="21" rx="2" fill="url(#psp63Bar)"/>
+              <rect x="43" y="102" width="13" height="31" rx="2" fill="url(#psp63Bar)"/>
+              <rect x="68" y="92" width="13" height="41" rx="2" fill="url(#psp63Bar)"/>
+              <rect x="93" y="74" width="13" height="59" rx="2" fill="url(#psp63Bar)"/>
+              <rect x="118" y="84" width="13" height="49" rx="2" fill="url(#psp63Bar)"/>
+              <rect x="143" y="61" width="13" height="72" rx="2" fill="url(#psp63Bar)"/>
+              <rect x="168" y="49" width="13" height="84" rx="2" fill="url(#psp63Bar)"/>
+            </g>
+            <path class="psp63-chart-line" d="M15 101 C41 99 48 61 74 76 S112 89 131 65 S163 74 185 52 S213 59 232 38" fill="none" stroke="url(#psp63Line)" stroke-width="3" stroke-linecap="round"/>
+            <g fill="#fb9201">
+              <circle cx="15" cy="101" r="3"/><circle cx="74" cy="76" r="3"/><circle cx="131" cy="65" r="3"/><circle cx="185" cy="52" r="3"/><circle cx="232" cy="38" r="3"/>
+            </g>
+            <g class="psp63-globe" transform="translate(345 75)">
+              <circle cx="0" cy="0" r="58" fill="none" stroke="#fb9201" stroke-opacity=".18" stroke-width="1.5"/>
+              <ellipse cx="0" cy="0" rx="31" ry="58" fill="none" stroke="#fb9201" stroke-opacity=".15"/>
+              <ellipse cx="0" cy="0" rx="11" ry="58" fill="none" stroke="#fb9201" stroke-opacity=".13"/>
+              <ellipse cx="0" cy="0" rx="58" ry="24" fill="none" stroke="#fb9201" stroke-opacity=".15"/>
+              <ellipse cx="0" cy="0" rx="58" ry="43" fill="none" stroke="#fb9201" stroke-opacity=".10"/>
+              <path d="M-45 -12 L-33 -29 L-12 -35 L-4 -18 L13 -13 L7 4 L18 14 L2 23 L-10 18 L-19 35 L-34 20 Z" fill="#fb9201" fill-opacity=".16"/>
+              <path d="M12 -33 L29 -29 L42 -15 L32 0 L45 14 L25 24 L17 42 L5 29 L11 9 L-2 0 Z" fill="#fb9201" fill-opacity=".13"/>
+              <circle cx="-32" cy="-23" r="2.2" fill="#fb9201" fill-opacity=".75"/>
+              <circle cx="-12" cy="-31" r="1.8" fill="#fb9201" fill-opacity=".55"/>
+              <circle cx="16" cy="-22" r="2.1" fill="#fb9201" fill-opacity=".65"/>
+              <circle cx="34" cy="-8" r="1.7" fill="#fb9201" fill-opacity=".6"/>
+              <circle cx="22" cy="19" r="2" fill="#fb9201" fill-opacity=".55"/>
+              <circle cx="-18" cy="24" r="1.8" fill="#fb9201" fill-opacity=".6"/>
+            </g>
+          </svg>
+        </div>
+        <div class="psp63-access-wrap">${accessHTML()}</div>
+      </div>
       <section class="psp58-stats"><div class="psp58-stat signal" onclick="psp58Nav('signals')"><span class="ico">📡</span><div><span class="lab">Active Signals</span><b class="val" data-count="${active}">0</b><small>${active?'Live setups & partial TPs':'No live setup right now'}</small></div><span class="go">→</span></div><div class="psp58-stat charts" onclick="psp58Nav('articles')"><span class="ico">📈</span><div><span class="lab">Today’s Charts</span><b class="val" data-count="${todayCharts}">0</b><small>PKT market analysis</small></div><span class="go">→</span></div><div class="psp58-stat articles" onclick="psp58Nav('articles')"><span class="ico">📝</span><div><span class="lab">Recent Articles</span><b class="val" data-count="${articles.length}">0</b><small>Education & insights</small></div><span class="go">→</span></div><div class="psp58-stat courses" onclick="navMyCoursesV58()"><span class="ico">🎓</span><div><span class="lab">My Courses</span><b class="val" data-count="${enrollments.length}">0</b><small>Course access & classes</small></div><span class="go">→</span></div></section>
       <section class="psp59-grid-primary"><div class="psp58-card featured"><div class="psp58-card-head"><div><span class="eyebrow">MARKET SIGNAL</span><h3>Latest Signal</h3></div><button class="psp58-link" onclick="psp58Nav('signals')">View All →</button></div>${signalHTML(signals[0],allowed)}</div><div class="psp58-card class-card"><div class="psp58-card-head"><div><span class="eyebrow">LIVE LEARNING</span><h3>Next Live Class</h3></div><button class="psp58-link" onclick="navMyCoursesV58()">My Courses →</button></div>${nextClassHTML(classes,enrollments,courses)}</div></section>
       <section class="psp59-grid-secondary"><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">MARKET INTELLIGENCE</span><h3>Latest Market Analysis</h3></div><button class="psp58-link" onclick="psp58Nav('articles')">Explore →</button></div>${analysisHTML(charts,articles,allowed)}</div><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">YOUR TRADING JOURNAL</span><h3>Journal Snapshot</h3></div><button class="psp58-link" onclick="psp58Nav('journal')">Open Journal →</button></div>${journalHTML(trades,allowed)}<div class="psp58-tools"><button onclick="psp58Nav('newshub')">📡 <span>World News Hub</span></button><button onclick="psp58Nav('strength')">💪 <span>Strength Meter</span></button><button onclick="psp58Nav('charts')">📊 <span>Live Charts</span></button><button onclick="psp58Nav('aireport')">🤖 <span>AI Report</span></button></div></div></section>
@@ -168,7 +222,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 (function(){
   'use strict';
   let boundRoot=null,observer=null,raf=0;
-  const selector='.psp58-hero,.psp58-stat,.psp58-card,.psp58-access,.psp58-analysis-item,.psp58-tools button';
+  const selector='.psp63-welcome,.psp58-stat,.psp58-card,.psp58-access,.psp58-analysis-item,.psp58-tools button';
   function supportsFinePointer(){try{return window.matchMedia('(hover:hover) and (pointer:fine)').matches}catch(_){return false}}
   function addLight(el){
     if(!el||el.dataset.psp60Light==='1')return;

@@ -139,3 +139,128 @@
   #psp56Dashboard .psp58-hero{padding:13px 14px!important}
   #psp56Dashboard .psp58-hero-row{align-items:flex-start!important}
 }
+
+
+/* PipSePaisa V63 — compact reference-style premium Welcome banner */
+#psp56Dashboard .psp63-welcome{
+  --psp60-x:50%;--psp60-y:50%;
+  position:relative!important;
+  isolation:isolate;
+  overflow:hidden!important;
+  width:100%!important;
+  height:146px!important;
+  min-height:146px!important;
+  max-height:146px!important;
+  margin:0!important;
+  padding:16px 18px!important;
+  border:1px solid rgba(251,146,1,.26)!important;
+  border-radius:18px!important;
+  display:grid!important;
+  grid-template-columns:minmax(330px,1.08fr) minmax(300px,.92fr) auto!important;
+  align-items:center!important;
+  gap:18px!important;
+  background:
+    radial-gradient(340px circle at 76% 10%,rgba(251,146,1,.085),transparent 72%),
+    linear-gradient(115deg,rgba(251,146,1,.09),rgba(255,255,255,.86) 42%,var(--bg-card) 100%)!important;
+  box-shadow:0 12px 34px rgba(15,23,42,.065)!important;
+}
+[data-theme="dark"] #psp56Dashboard .psp63-welcome{
+  background:
+    radial-gradient(340px circle at 76% 10%,rgba(251,146,1,.10),transparent 72%),
+    linear-gradient(115deg,rgba(251,146,1,.10),rgba(15,23,42,.48) 44%,var(--bg-card) 100%)!important;
+}
+#psp56Dashboard .psp63-welcome:before{
+  content:"";
+  position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:linear-gradient(105deg,transparent 16%,rgba(255,255,255,.23) 45%,transparent 66%);
+  transform:translateX(-115%);
+  animation:psp58Shine 8s ease-in-out infinite;
+}
+#psp56Dashboard .psp63-welcome-copy,
+#psp56Dashboard .psp63-market-art,
+#psp56Dashboard .psp63-access-wrap{position:relative;z-index:2;min-width:0}
+#psp56Dashboard .psp63-welcome-copy{align-self:center}
+#psp56Dashboard .psp63-welcome-kicker{
+  display:block;margin:0 0 4px;
+  color:var(--gold);font-size:8.5px;font-weight:950;
+  letter-spacing:1.05px;text-transform:uppercase;
+}
+#psp56Dashboard .psp63-welcome h2{
+  margin:0 0 4px!important;
+  padding:0!important;
+  font-size:25px!important;line-height:1.08!important;
+  color:var(--text-primary)!important;letter-spacing:-.45px!important;
+}
+#psp56Dashboard .psp63-welcome p{
+  margin:0!important;max-width:520px;
+  color:var(--text-muted);font-size:10.5px;line-height:1.3;
+}
+#psp56Dashboard .psp63-welcome .psp58-live-time{margin-top:10px!important;gap:6px!important}
+#psp56Dashboard .psp63-welcome .psp58-live-time>span{padding:5px 8px!important;font-size:8px!important}
+#psp56Dashboard .psp63-welcome .psp58-live-time b{font-size:8.5px!important}
+#psp56Dashboard .psp63-market-art{
+  height:112px;display:flex;align-items:center;justify-content:center;
+  opacity:.96;pointer-events:none;
+}
+#psp56Dashboard .psp63-market-art svg{display:block;width:min(100%,520px);height:100%;overflow:visible}
+#psp56Dashboard .psp63-chart-line{
+  stroke-dasharray:420;stroke-dashoffset:420;
+  animation:psp63DrawChart 1.5s cubic-bezier(.2,.8,.2,1) .15s forwards;
+}
+#psp56Dashboard .psp63-bars rect{transform-box:fill-box;transform-origin:center bottom;animation:psp63BarRise .7s both}
+#psp56Dashboard .psp63-bars rect:nth-child(2){animation-delay:.08s}
+#psp56Dashboard .psp63-bars rect:nth-child(3){animation-delay:.14s}
+#psp56Dashboard .psp63-bars rect:nth-child(4){animation-delay:.20s}
+#psp56Dashboard .psp63-bars rect:nth-child(5){animation-delay:.26s}
+#psp56Dashboard .psp63-bars rect:nth-child(6){animation-delay:.32s}
+#psp56Dashboard .psp63-bars rect:nth-child(7){animation-delay:.38s}
+#psp56Dashboard .psp63-globe{transform-box:fill-box;transform-origin:center;animation:psp63GlobeFloat 5.5s ease-in-out infinite}
+#psp56Dashboard .psp63-access-wrap{display:flex;justify-content:flex-end;align-items:center}
+#psp56Dashboard .psp63-access-wrap .psp58-access{
+  min-width:214px;max-width:238px;padding:10px 11px;border-radius:14px;
+  background:color-mix(in srgb,var(--bg-card) 91%,transparent);
+  box-shadow:0 9px 23px rgba(15,23,42,.05);
+}
+#psp56Dashboard .psp63-access-wrap .psp58-access-icon{width:32px;height:32px;flex-basis:32px}
+#psp56Dashboard .psp63-access-wrap .psp58-access b{font-size:10.5px}
+#psp56Dashboard .psp63-access-wrap .psp58-access span:not(.psp58-access-icon){font-size:8px}
+
+@media (hover:hover) and (pointer:fine){
+  #psp56Dashboard .psp63-welcome>.psp60-hover-light{
+    z-index:1!important;
+    background:radial-gradient(320px circle at var(--psp60-x) var(--psp60-y),rgba(251,146,1,.13),rgba(251,146,1,.045) 40%,transparent 72%)!important;
+  }
+  #psp56Dashboard .psp63-welcome>.psp60-hover-light:after{
+    background:radial-gradient(240px circle at var(--psp60-x) var(--psp60-y),rgba(255,190,80,.78),rgba(251,146,1,.25) 38%,transparent 72%)!important;
+  }
+  #psp56Dashboard .psp63-welcome.psp60-lit{
+    box-shadow:0 17px 40px rgba(15,23,42,.085),0 0 34px rgba(251,146,1,.05)!important;
+  }
+  #psp56Dashboard .psp63-welcome>*:not(.psp60-hover-light){position:relative;z-index:2}
+}
+@keyframes psp63DrawChart{to{stroke-dashoffset:0}}
+@keyframes psp63BarRise{from{transform:scaleY(.15);opacity:.12}to{transform:scaleY(1);opacity:1}}
+@keyframes psp63GlobeFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+@media(max-width:1180px){
+  #psp56Dashboard .psp63-welcome{
+    grid-template-columns:minmax(320px,1.2fr) minmax(220px,.8fr) auto!important;
+  }
+  #psp56Dashboard .psp63-market-art .psp63-globe{display:none}
+}
+@media(max-width:900px){
+  #psp56Dashboard .psp63-welcome{
+    height:auto!important;min-height:132px!important;max-height:none!important;
+    grid-template-columns:1fr auto!important;
+  }
+  #psp56Dashboard .psp63-market-art{display:none!important}
+}
+@media(max-width:700px){
+  #psp56Dashboard .psp63-welcome{
+    min-height:0!important;height:auto!important;
+    padding:13px 14px!important;grid-template-columns:1fr!important;gap:10px!important;
+  }
+  #psp56Dashboard .psp63-access-wrap{justify-content:stretch}
+  #psp56Dashboard .psp63-access-wrap .psp58-access{width:100%;max-width:none}
+  #psp56Dashboard .psp63-welcome h2{font-size:21px!important}
+}
