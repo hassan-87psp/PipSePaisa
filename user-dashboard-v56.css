@@ -264,3 +264,38 @@
   #psp56Dashboard .psp63-access-wrap .psp58-access{width:100%;max-width:none}
   #psp56Dashboard .psp63-welcome h2{font-size:21px!important}
 }
+
+
+/* PipSePaisa V64 — dashboard box balance + compact hero + clean feed */
+#psp56Dashboard .psp63-welcome{
+  height:126px!important;
+  min-height:126px!important;
+  max-height:126px!important;
+  padding:14px 18px!important;
+  grid-template-columns:minmax(320px,1.05fr) minmax(260px,.95fr) auto!important;
+  gap:14px!important;
+}
+#psp56Dashboard .psp63-market-art{height:92px!important}
+#psp56Dashboard .psp63-welcome-copy{align-self:center!important}
+#psp56Dashboard .psp63-welcome h2{margin-bottom:3px!important}
+#psp56Dashboard .psp63-welcome p{font-size:10px!important}
+#psp56Dashboard .psp59-grid-primary,
+#psp56Dashboard .psp59-grid-secondary{align-items:stretch!important;grid-auto-rows:1fr}
+#psp56Dashboard .psp59-grid-primary>.psp58-card,
+#psp56Dashboard .psp59-grid-secondary>.psp58-card{display:flex!important;flex-direction:column!important;height:100%!important}
+#psp56Dashboard .psp59-grid-primary>.psp58-card{min-height:270px!important}
+#psp56Dashboard .psp59-grid-secondary>.psp58-card{min-height:190px!important}
+#psp56Dashboard .psp58-card.featured .psp58-signal,
+#psp56Dashboard .psp58-card.class-card .psp58-class,
+#psp56Dashboard .psp59-grid-secondary>.psp58-card .psp58-analysis-list,
+#psp56Dashboard .psp59-grid-secondary>.psp58-card .psp58-journal,
+#psp56Dashboard .psp59-grid-secondary>.psp58-card .psp58-tools{width:100%}
+#psp56Dashboard .psp59-grid-secondary>.psp58-card .psp58-tools{margin-top:auto}
+#psp56Dashboard .activity-card{display:none!important}
+@media(max-width:900px){
+  #psp56Dashboard .psp63-welcome{height:auto!important;min-height:120px!important;max-height:none!important}
+}
+@media(max-width:700px){
+  #psp56Dashboard .psp59-grid-primary>.psp58-card,
+  #psp56Dashboard .psp59-grid-secondary>.psp58-card{min-height:0!important}
+}

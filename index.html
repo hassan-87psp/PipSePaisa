@@ -679,6 +679,12 @@ html.psp-v20-booting body::after{content:"";position:fixed;left:50%;top:50%;z-in
   .settings-tabs { display: flex; gap: 4px; padding: 4px; background: var(--bg-elevated); border-radius: 10px; margin-bottom: 16px; }
   .settings-tab { padding: 8px 16px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 8px; border: none; background: transparent; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
   .settings-tab.active { background: var(--gold); color: #0a0e1a; }
+
+  /* V64 — Compact centered profile page */
+  #page-settings { max-width: 1120px; margin: 0 auto; }
+  #page-settings .profile-card, #page-settings .card { width: 100%; }
+  #page-settings .settings-tabs { max-width: 280px; }
+  #portalBrandSub { display: none !important; }
   
   .checklist-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--bg-elevated); border-radius: 8px; margin-bottom: 6px; }
   .checklist-item input[type="checkbox"] { width: 16px; height: 16px; }
@@ -1097,7 +1103,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <img class="brand-logo-img" src="icon-192.png" alt="PipSePaisa logo">
       <div class="brand-text">
         <h1>PipSePaisa</h1>
-        <p id="portalBrandSub">User Panel</p>
+        <p id="portalBrandSub" style="display:none"></p>
       </div>
     </div>
     
@@ -3088,7 +3094,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     const mentorMode=window.PSP_PORTAL_MODE==='mentor';
     document.documentElement.dataset.portal=mentorMode?'mentor':'user';
     const nav=document.getElementById('mentorAiToolsNav');if(nav)nav.style.display=mentorMode?'':'none';
-    const sub=document.getElementById('portalBrandSub');if(sub)sub.textContent=mentorMode?'Mentor Site':'User Panel';
+    const sub=document.getElementById('portalBrandSub');if(sub){sub.textContent='';sub.style.display='none';}
     document.title=mentorMode?'PipSePaisa Mentor Site':'PipSePaisa User Panel';
     const authSub=document.getElementById('authSubtitle');if(authSub&&mentorMode)authSub.textContent='Login to your Mentor Site';
     const landing=document.querySelector('#landingPage iframe');
