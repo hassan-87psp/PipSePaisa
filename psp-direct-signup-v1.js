@@ -41,16 +41,10 @@
       throw new Error('Account was created, but the login session could not be started. Please sign in once.');
     }
 
-    try{
-      const welcomeName=String(metadata.full_name||'').trim()||email.split('@')[0]||'Student';
-      setTimeout(()=>{
-        client.functions.invoke('send-course-email',{body:{type:'pin_access_welcome',user_name:welcomeName}})
-          .then(result=>{if(result?.error)console.warn('PIN welcome email could not be sent:',result.error);})
-          .catch(error=>console.warn('PIN welcome email could not be sent:',error));
-      },0);
-    }catch(_){ }
+    // V49: legacy Free Access PIN welcome email removed. Account verification is initiated from Profile.
 
-    if(String(metadata.psp_auto_enroll_course||'').toLowerCase()==='basic'){
+
+    if(!options?.skipAutoEnrollment && String(metadata.psp_auto_enroll_course||'').toLowerCase()==='basic'){
       try{
         const fullName=String(metadata.full_name||'').trim()||email.split('@')[0];
         const phone=String(metadata.whatsapp||metadata.phone||'').trim()||null;

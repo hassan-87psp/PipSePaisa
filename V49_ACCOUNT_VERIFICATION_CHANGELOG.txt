@@ -1,0 +1,21 @@
+PipSePaisa V49 — Account Verification + Free All Access
+
+- Signup stays direct-login; Supabase Confirm Email stays OFF.
+- Settings merged/renamed to Profile; Profile is placed directly above Login/Logout in User Panel footer.
+- Profile Details remain at top; Security remains inside the same Profile page.
+- New Account Verification section below Profile Details.
+- Verify Account sends custom post-login verification email.
+- User Panel brand area shows Verify Account / Pending / Action Required / Account Verified status.
+- New separate /free-access/ page with Exness, DPrime, XM links.
+- Select Your Broker dropdown + Trading Account ID.
+- Existing-account button included.
+- New /broker-shift/ page with 3 broker-specific editable shift guides.
+- Available Deposit field with Admin-configurable recommendation (default $300).
+- Private broker-email screenshot proof upload.
+- Proof submission grants temporary protected-service access while status is Pending.
+- Admin Account Verification page with Direct Access vs Verification Required mode.
+- Admin sees user/broker/account ID/deposit/proof/status/submission/rejection details.
+- Admin Approve keeps full access permanently.
+- Admin Reject locks protected services and sends user back to Upload Again / Contact Admin flow.
+- Old Free Access PIN front-end gate disabled; legacy PIN welcome email trigger removed.
+- Existing V48 conversion formula and Team Panel privacy changes preserved.

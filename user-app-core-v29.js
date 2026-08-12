@@ -148,8 +148,8 @@
   // ============ NAVIGATION ============
   // V30: only tabs explicitly enabled by admin are shown. While settings load,
   // controlled tabs fail closed so a new user never sees disabled pages flash.
-  var PSP_SITE_TAB_KEYS=['performance','addtrade','trades','analysis','aireport','charts','chats','signals','articles','vipplans','news','newshub','strength','tools','learn','vipindicators','vipea','banners','aitools','settings','about','announce','support'];
-  var PSP_ALWAYS_VISIBLE_TABS={dashboard:true,mycourses:true};
+  var PSP_SITE_TAB_KEYS=['performance','addtrade','trades','analysis','aireport','charts','chats','signals','articles','vipplans','news','newshub','strength','tools','learn','vipindicators','vipea','banners','aitools','about','announce','support'];
+  var PSP_ALWAYS_VISIBLE_TABS={dashboard:true,mycourses:true,settings:true};
   var _disabledTabs={};
   var _tabSettingsReady=false;
   var _tabSettingsRetryTimer=null;
@@ -240,7 +240,7 @@
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex', mycourses: 'My Courses',
       signals: 'Signals', articles: 'Charts & Articles', vipplans: 'VIP Plans',
       support: 'Support', announce: 'Announcements', aitools: 'AI Tools',
-      settings: 'Settings', about: 'About'
+      settings: 'Profile', about: 'About'
     };
     document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
     document.getElementById('sidebar').classList.remove('open');
@@ -2772,7 +2772,7 @@
     { cat: 'Tools', icon: '💰', title: 'Profit / Loss', desc: 'P/L calculator', calc: 'pl' },
     { cat: 'Tools', icon: '🏦', title: 'Margin Calculator', desc: 'Required margin', calc: 'margin' },
     { cat: 'Tools', icon: '📈', title: 'Compounding', desc: 'Compound growth', calc: 'compound' },
-    { cat: 'Account', icon: '⚙️', title: 'Settings', desc: 'Preferences and profile', page: 'settings' },
+    { cat: 'Account', icon: '👤', title: 'Profile', desc: 'Profile and account verification', page: 'settings' },
     { cat: 'Account', icon: '🎓', title: 'Learn Forex', desc: 'Education resources', page: 'learn' },
     { cat: 'Account', icon: 'ℹ️', title: 'About', desc: 'About the platform', page: 'about' },
   ];

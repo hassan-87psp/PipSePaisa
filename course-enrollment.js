@@ -725,13 +725,7 @@
       // Save enrollment immediately after the one-step authenticated signup.
       const result=await saveEnrollment(values,receipt);
 
-      // Non-blocking welcome/PIN email. It must never delay the enrollment UI.
-      try{
-        setTimeout(()=>{
-          sb.functions.invoke('send-course-email',{body:{type:'pin_access_welcome',user_name:values.name}})
-            .catch(error=>console.warn('PIN welcome email could not be sent:',error));
-        },0);
-      }catch(_){ }
+      // V49: verification email is sent only when the user clicks Verify Account in Profile.
 
       // Show success immediately after the account + enrollment are saved.
       // Tracking, course email and Zoom registration continue in the background.

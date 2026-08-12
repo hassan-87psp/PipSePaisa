@@ -403,6 +403,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="admin-v28-fixes.css?v=20260801-v28-final">
 <link rel="stylesheet" href="course-marketplace-v3.css?v=20260802-v29-admin-preview">
 <link rel="stylesheet" href="admin-v29-final.css?v=20260802-v29-final">
+<link rel="stylesheet" href="admin-account-verification-v49.css?v=20260812-v49">
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
@@ -2487,7 +2488,7 @@ const SITE_TAB_DEFS=[
  ['news','📰 Economic News'],['newshub','📡 World News Hub'],['strength','💪 Currency Strength'],
  ['tools','🔧 Tools'],['learn','🎓 Learn Forex'],['vipindicators','⭐ VIP Indicators'],['vipea','🤖 VIP EAs'],
  ['banners','🖼️ Banners'],
- ['aitools','🤖 AI Tools'],['settings','⚙️ Settings'],['about','ℹ️ About'],['announce','📢 Announcements'],['support','💬 Support']
+ ['aitools','🤖 AI Tools'],['about','ℹ️ About'],['announce','📢 Announcements'],['support','💬 Support']
 ];
 
 async function uploadLandingAsset(file,prefix){
@@ -2596,7 +2597,7 @@ const MENTOR_ACCESS_DEFS=[
  ['chats','✉️ Member Chats','Direct member chats'],
  ['messages','💬 Messages','Broadcast messages'],
  ['notifications','🔔 Notifications','Mentor notifications'],
- ['settings','⚙️ Settings','Profile and preferences']
+ ['settings','👤 Profile','Profile and account verification']
 ];
 const MENTOR_DEFAULT_ON={dashboard:true,signals:true,charts:true,articles:true,settings:true};
 window.mentorAccessState = window.mentorAccessState || {};
@@ -3776,7 +3777,8 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 <script src="admin-v28-fixes.js?v=20260801-v28-final"></script>
 <script src="admin-v29-final.js?v=20260802-v29-final"></script>
 <script src="admin-users-v53.js?v=20260805-v53"></script>
-<script src="link-manager-v42.js?v=20260805-v44"></script>
-<script src="team-performance-admin-v56.js?v=20260807-v56"></script>
+<script src="link-manager-v42.js?v=20260811-v48-conversion"></script>
+<script src="team-performance-admin-v56.js?v=20260811-v48-conversion"></script>
+<script src="admin-account-verification-v49.js?v=20260812-v49"></script>
 </body>
 </html>
