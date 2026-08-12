@@ -1,0 +1,12 @@
+PipSePaisa V53
+
+Root cause fixed:
+- The page declared a Supabase constant named URL.
+- Button navigation also called new URL(...), so the string constant shadowed the browser URL constructor.
+- Renamed the Supabase constant and explicitly used window.URL for navigation.
+
+Fixes both:
+- If You Already Have an Account, Click Here
+- Continue to Verification
+
+No Supabase SQL or Edge Function update required.
