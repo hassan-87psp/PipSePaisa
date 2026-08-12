@@ -108,3 +108,34 @@
 @keyframes psp60VerifiedGlow{0%,100%{box-shadow:0 0 0 rgba(16,185,129,0)}50%{box-shadow:0 0 18px rgba(16,185,129,.16)}}
 @keyframes psp60CountdownSweep{0%,70%{left:-70px;opacity:0}78%{opacity:1}94%,100%{left:calc(100% + 70px);opacity:0}}
 @media(prefers-reduced-motion:reduce){.psp60-hover-light{display:none!important}.psp58-access.verified .psp58-access-icon,.psp58-class-countdown:after{animation:none!important}}
+
+/* PipSePaisa V62 — hard compact Welcome hero fix */
+#psp56Dashboard .psp58-hero{
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:16px 20px!important;
+  display:block!important;
+}
+#psp56Dashboard .psp58-hero-row{
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  align-items:center!important;
+}
+#psp56Dashboard .psp58-hero-copy{
+  min-height:0!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+}
+#psp56Dashboard .psp58-hero h2{margin:0 0 4px!important}
+#psp56Dashboard .psp58-hero p{margin:0!important}
+#psp56Dashboard .psp58-live-time{margin-top:9px!important}
+@media(max-width:700px){
+  #psp56Dashboard .psp58-hero{padding:13px 14px!important}
+  #psp56Dashboard .psp58-hero-row{align-items:flex-start!important}
+}

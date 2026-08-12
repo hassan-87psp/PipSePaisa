@@ -1,0 +1,13 @@
+PipSePaisa V62 — Compact Welcome Hero Fix
+
+FIXED
+- Removed “PIPSEPAISA COMMAND CENTER”.
+- Welcome hero forced to compact content height (no inherited large min-height).
+- Premium cursor lighting preserved.
+- All other dashboard content and functionality preserved.
+
+PATCH FILES
+- user-dashboard-v56.css
+- user-dashboard-v56.js
+
+No Supabase SQL or Edge Function update required.
