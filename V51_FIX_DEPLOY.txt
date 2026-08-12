@@ -1,0 +1,22 @@
+PipSePaisa V51 — Verification / Broker Access Fix
+
+GITHUB TEST BRANCH
+- Keep using: v49-account-verification
+- Do NOT merge to main yet.
+- Upload the V51 patch files directly to this branch and commit to the SAME branch.
+
+SUPABASE
+- Run: 53_ACCOUNT_VERIFICATION_COMPAT_AND_BROKER_FIX.sql
+- This SQL is safe after V49 SQL 51 and works whether V50 SQL 52 was run or not.
+- No Edge Function redeploy is required for this V51 fix.
+
+WHAT V51 FIXES
+- Previously email-verified legacy users remain verified and are not asked again.
+- Temporary signup access defaults to 7 days and remains Admin-configurable.
+- Existing unverified users receive the rollout grace window instead of being instantly expired due to an old signup date.
+- Exness/DPrime/XM links are present and clickable immediately, even before Supabase settings finish loading.
+- Admin broker links still override the built-in fallback links.
+- Existing-account button works after broker selection; Trading Account ID can be entered on the next page.
+- Get Free All Access step is always visible and clickable; if email is not verified it clearly routes the user to Step 1 instead of acting like a dead button.
+- Broker shift page always exposes the currently selected broker link.
+- Email verification uses direct SQL RPC first and redirects to Profile quickly after success.
