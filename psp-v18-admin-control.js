@@ -222,9 +222,9 @@ function installCourseEditor(){
 }
 
 function init(){
-  injectStyles();ensureModal();injectPinSettings();installCourseEditor();loadPinSettings();setTimeout(()=>window.loadAdminUsers?.(),400);
+  injectStyles();ensureModal();installCourseEditor();setTimeout(()=>window.loadAdminUsers?.(),400);
   if(window.MutationObserver&&!window.__pspV20AdminObserver){
-    window.__pspV20AdminObserver=new MutationObserver(()=>{injectPinSettings();installCourseEditor();});
+    window.__pspV20AdminObserver=new MutationObserver(()=>{installCourseEditor();});
     window.__pspV20AdminObserver.observe(document.body,{childList:true,subtree:true});
   }
 }
