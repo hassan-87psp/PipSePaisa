@@ -235,7 +235,7 @@
     if (el) el.classList.add('active');
     
     const titles = {
-      dashboard: 'Dashboard', journal: 'Trading Journal', performance: 'Journal', trades: 'My Trades',
+      dashboard: 'Dashboard', journal: 'Journal', performance: 'Performance', trades: 'My Trades',
       analysis: 'Trades Analysis', aireport: 'AI Report', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex', mycourses: 'My Courses',
       signals: 'Signals', articles: 'Charts & Articles', vipplans: 'VIP Plans',

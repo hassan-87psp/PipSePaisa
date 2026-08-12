@@ -1,0 +1,31 @@
+PipSePaisa V58 — Final Combined Update
+
+USER PANEL
+- My Courses is the first/top item in the Main Menu.
+- New Dashboard remains a separate premium home/overview.
+- The OLD original Dashboard (trade P&L / charts / calendar / journal data) is now Journal.
+- Performance is restored exactly as Performance and is no longer renamed to Journal.
+- Premium Dashboard redesign:
+  * smooth entrance, hover, live/pulse and counter animations
+  * live PKT date + time
+  * Active Signals / Today's Charts / Recent Articles / My Courses cards
+  * Latest Signal with exact status: Active, TP1, TP2, TP3, BE, SL, Closed, Cancelled
+  * signal opened + updated date/time in PKT
+  * Entry, SL, TP1, TP2, TP3 and TP progress
+  * Next Live Class with class number, title, subtitle, course, instructor, date, time,
+    live/upcoming status, countdown and course progress
+  * Latest Market Analysis with publish date/time
+  * Journal Snapshot linked to Journal (not Performance)
+  * Quick Tools + Recent Activity with timestamps
+- Basic Course class-title fallback uses the approved 9 new catchy titles and existing schedule.
+
+ADMIN PANEL
+- Registered Users shows a green “✓ Account Verified” badge for approved accounts.
+- Email Verified / Verify Required / Pending Review / Action Required remain distinct.
+- Review/Open Approvals column is removed from Users.
+- Approval/rejection workflow stays in the separate Access Approvals tab.
+- Access Settings remains separate.
+
+DEPLOYMENT
+- Upload the patch to the existing v49-account-verification test branch.
+- No Supabase SQL or Edge Function update is required for V58.

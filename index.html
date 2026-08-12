@@ -1035,32 +1035,33 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 
 <style id="finalSidebarOrderLock">
 #sidebar .menu{display:flex!important;flex-direction:column!important}
-#sidebar .menu-item[data-page="dashboard"]{order:1}
-#sidebar .menu-item[data-page="mycourses"]{order:2}
-#sidebar .menu-item[data-page="performance"]{order:3}
+#sidebar .menu-item[data-page="mycourses"]{order:1}
+#sidebar .menu-item[data-page="dashboard"]{order:2}
+#sidebar .menu-item[data-page="journal"]{order:3}
 #sidebar .menu-item[data-tabkey="addtrade"]{order:4}
-#sidebar .menu-item[data-page="signals"]{order:5}
-#sidebar .menu-item[data-page="charts"]{order:6}
-#sidebar .menu-item[data-page="articles"]{order:7}
-#sidebar .menu-item[data-page="newshub"]{order:8}
-#sidebar .menu-item[data-page="strength"]{order:9}
-#sidebar .menu-item[data-page="trades"]{order:10}
-#sidebar .menu-item[data-page="analysis"]{order:11}
-#sidebar .menu-item[data-page="tools"]{order:12}
-#sidebar .menu-item[data-page="aireport"]{order:13}
-#sidebar .menu-item[data-page="news"]{order:14}
-#sidebar .menu-item[data-page="chats"]{order:15}
-#sidebar .menu-item[data-page="vipplans"]{order:16}
-#sidebar .menu-item[data-page="aitools"]{order:17}
-#sidebar .menu-item[data-tabkey="vipindicators"]{order:18}
-#sidebar .menu-item[data-tabkey="vipea"]{order:19}
+#sidebar .menu-item[data-page="performance"]{order:5}
+#sidebar .menu-item[data-page="signals"]{order:6}
+#sidebar .menu-item[data-page="charts"]{order:7}
+#sidebar .menu-item[data-page="articles"]{order:8}
+#sidebar .menu-item[data-page="newshub"]{order:9}
+#sidebar .menu-item[data-page="strength"]{order:10}
+#sidebar .menu-item[data-page="trades"]{order:11}
+#sidebar .menu-item[data-page="analysis"]{order:12}
+#sidebar .menu-item[data-page="tools"]{order:13}
+#sidebar .menu-item[data-page="aireport"]{order:14}
+#sidebar .menu-item[data-page="news"]{order:15}
+#sidebar .menu-item[data-page="chats"]{order:16}
+#sidebar .menu-item[data-page="vipplans"]{order:17}
+#sidebar .menu-item[data-page="aitools"]{order:18}
+#sidebar .menu-item[data-tabkey="vipindicators"]{order:19}
+#sidebar .menu-item[data-tabkey="vipea"]{order:20}
 </style>
 
 <style id="pspCoursePageIsolationCss">#page-mycourses:not(.active){display:none!important}#page-mycourses.active{display:block!important}.brand-logo-img{width:42px;height:42px;object-fit:contain;display:block;flex:0 0 42px;border-radius:10px}</style>
 <link rel="stylesheet" href="course-marketplace-v3.css?v=20260801-v28-final">
 <link rel="stylesheet" href="psp-v18-auth-access.css?v=20260731-v19-fix">
 <link rel="stylesheet" href="account-verification-v49.css?v=20260812-v56">
-<link rel="stylesheet" href="user-dashboard-v56.css?v=20260812-v56">
+<link rel="stylesheet" href="user-dashboard-v56.css?v=20260812-v58-premium">
 <link rel="stylesheet" href="psp-v20-final.css?v=20260731-v20-final">
 <link rel="stylesheet" href="psp-v28-fixes.css?v=20260801-v28-final">
 <link rel="stylesheet" href="psp-v29-final.css?v=20260802-v29-final">
@@ -1112,10 +1113,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     <div class="menu-label">Main Menu</div>
     
     <nav class="menu">
+      <div class="menu-item" data-page="mycourses" onclick="return openMyCoursesPage(this,event)"><span class="menu-icon">🎓</span><strong>My Courses</strong></div>
       <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">🏠</span>Dashboard</div>
-      <div class="menu-item" data-page="mycourses" onclick="return openMyCoursesPage(this,event)"><span class="menu-icon">🎓</span>My Courses</div>
+      <div class="menu-item" data-page="journal" onclick="showPage('journal', this)"><span class="menu-icon">📔</span>Journal</div>
       <div class="menu-item" data-tabkey="addtrade" onclick="openAddTradeModal()" style="background: linear-gradient(135deg, var(--gold-bg), transparent); border: 1px solid rgba(245,158,11,0.3);"><span class="menu-icon">➕</span><strong>Add Trade</strong></div>
-      <div class="menu-item" data-page="performance" onclick="showPage('performance', this)"><span class="menu-icon">📔</span>Journal</div>
+      <div class="menu-item" data-page="performance" onclick="showPage('performance', this)"><span class="menu-icon">🏆</span>Performance</div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts &amp; Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
@@ -1191,12 +1193,12 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     
     <div class="content" id="content">
       
-      <!-- ========== DASHBOARD ========== -->
+      <!-- ========== PERFORMANCE ========== -->
       <div class="page" id="page-performance">
         <div id="perfHero" style="position:relative;overflow:hidden;border-radius:20px;padding:22px 24px;margin-bottom:18px;background:linear-gradient(135deg,rgba(245,158,11,.16),rgba(16,185,129,.06),transparent);border:1px solid rgba(245,158,11,.25);">
-          <div style="font-size:13px;color:var(--gold);font-weight:800;letter-spacing:.5px;text-transform:uppercase;">Trading Journal</div>
-          <div id="perfHello" style="font-size:24px;font-weight:900;margin-top:4px;">Journal Overview</div>
-          <div style="font-size:13px;color:var(--text-muted);margin-top:3px;">Track signal performance, pips, pairs and recent activity in one place.</div>
+          <div style="font-size:13px;color:var(--gold);font-weight:800;letter-spacing:.5px;text-transform:uppercase;">PipSePaisa Performance</div>
+          <div id="perfHello" style="font-size:24px;font-weight:900;margin-top:4px;">Welcome 👋</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:3px;">Your live overview — signals, charts, news &amp; results in one place.</div>
         </div>
         <div id="perfResults"></div>
       </div>
@@ -3005,7 +3007,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20260812-v56-dashboard-journal"></script>
+<script src="user-app-core-v29.js?v=20260812-v58-dashboard-journal-performance"></script>
 
 <script id="mentorPortalAiJs">
 (function(){
@@ -3219,7 +3221,7 @@ window.addEventListener('appinstalled', () => {
 .art-modal-box .body p{margin-bottom:14px}
 </style>
 <div id="artModal" onclick="if(event.target===this)closeArt()"><div class="art-modal-box" id="artModalBox"></div></div>
-<script src="user-signals-core-v29.js?v=20260812-v56-journal"></script>
+<script src="user-signals-core-v29.js?v=20260812-v58-performance-restore"></script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getElementById('landingPage'),f=document.getElementById('siteFooter');if(lp&&f){f.style.marginLeft='0';f.style.width='100%';lp.appendChild(f);}}catch(e){}});
 </script>
@@ -3385,6 +3387,6 @@ window.addEventListener('message',function(event){
 <script src="psp-v49-auth-compat.js?v=20260812-v49"></script>
 <script src="psp-v29-final.js?v=20260802-v29-final"></script>
 <script src="account-verification-v49.js?v=20260812-v56"></script>
-<script src="user-dashboard-v56.js?v=20260812-v56"></script>
+<script src="user-dashboard-v56.js?v=20260812-v58-premium"></script>
 </body>
 </html>
