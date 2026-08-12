@@ -1,0 +1,31 @@
+PipSePaisa V60 — Luxury Cursor-Light Premium Dashboard
+
+NEW PREMIUM INTERACTION
+- Cursor-follow radial lighting on Dashboard hero, stat cards, main cards,
+  account-status card, market-analysis rows and quick-tool buttons.
+- Light originates exactly under the mouse pointer and follows the cursor.
+- Localized illuminated border follows the same cursor position.
+- Very subtle 3D tilt/lift on premium cards for depth.
+- Smooth fade when the pointer leaves.
+- Stronger but tasteful lighting on Latest Signal and Next Live Class cards.
+- Premium Verified / Live / Countdown breathing and sweep effects.
+- Button light-sweep interaction.
+- Uses PipSePaisa orange/gold styling; no RGB/gaming look.
+- Pointer lighting automatically stays off on touch/mobile devices.
+- Respects prefers-reduced-motion accessibility setting.
+
+PRESERVED
+- V59 compact Dashboard and huge blank-space fix.
+- Latest Signal status/results, TP progress and date/time.
+- Next Live Class details, date/time and countdown.
+- Live PKT Dashboard clock/date.
+- My Courses first.
+- New Dashboard separate.
+- Old original Dashboard = Journal.
+- Performance unchanged.
+- Admin Account Verified badges + separate Access Approvals.
+
+DEPLOYMENT
+- Upload/replace the patch files on the existing v49-account-verification test branch.
+- Hard refresh after deployment.
+- No Supabase SQL or Edge Function update required.

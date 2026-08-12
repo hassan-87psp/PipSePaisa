@@ -163,3 +163,51 @@ function init(){wrap();setTimeout(()=>{wrap();if(q('#page-dashboard')?.classList
 window.PSPUserDashboard={load};window.psp58Nav=nav;window.goDashboardHome=function(){nav('dashboard')};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
+
+/* PipSePaisa V60 — cursor-follow luxury lighting */
+(function(){
+  'use strict';
+  let boundRoot=null,observer=null,raf=0;
+  const selector='.psp58-hero,.psp58-stat,.psp58-card,.psp58-access,.psp58-analysis-item,.psp58-tools button';
+  function supportsFinePointer(){try{return window.matchMedia('(hover:hover) and (pointer:fine)').matches}catch(_){return false}}
+  function addLight(el){
+    if(!el||el.dataset.psp60Light==='1')return;
+    el.dataset.psp60Light='1';
+    if(getComputedStyle(el).position==='static')el.style.position='relative';
+    const layer=document.createElement('i');layer.className='psp60-hover-light';layer.setAttribute('aria-hidden','true');el.appendChild(layer);
+  }
+  function decorate(root){if(root&&supportsFinePointer())root.querySelectorAll(selector).forEach(addLight)}
+  function update(el,e){
+    const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
+    const x=Math.max(0,Math.min(r.width,e.clientX-r.left)),y=Math.max(0,Math.min(r.height,e.clientY-r.top));
+    el.style.setProperty('--psp60-x',x+'px');el.style.setProperty('--psp60-y',y+'px');
+    if(el.matches('.psp58-card,.psp58-stat,.psp58-access')){
+      const nx=(x/r.width-.5),ny=(y/r.height-.5);
+      el.style.setProperty('--psp60-ry',(nx*1.7).toFixed(2)+'deg');
+      el.style.setProperty('--psp60-rx',(-ny*1.25).toFixed(2)+'deg');
+    }
+  }
+  function bind(root){
+    if(!supportsFinePointer()||!root)return;
+    decorate(root);
+    if(boundRoot===root)return;
+    boundRoot=root;
+    root.addEventListener('pointermove',function(e){
+      const el=e.target.closest(selector);if(!el||!root.contains(el))return;
+      if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{update(el,e);el.classList.add('psp60-lit')});
+    },{passive:true});
+    root.addEventListener('pointerover',function(e){const el=e.target.closest(selector);if(el&&root.contains(el)){addLight(el);update(el,e);el.classList.add('psp60-lit')}},{passive:true});
+    root.addEventListener('pointerout',function(e){
+      const el=e.target.closest(selector);if(!el||!root.contains(el))return;
+      if(e.relatedTarget&&el.contains(e.relatedTarget))return;
+      el.classList.remove('psp60-lit');el.style.setProperty('--psp60-rx','0deg');el.style.setProperty('--psp60-ry','0deg');
+    },{passive:true});
+    if(observer)observer.disconnect();
+    observer=new MutationObserver(()=>requestAnimationFrame(()=>decorate(root)));
+    observer.observe(root,{childList:true,subtree:true});
+  }
+  function refresh(){const root=document.querySelector('#psp56Dashboard');if(root)bind(root)}
+  const old=window.PSPUserDashboard&&window.PSPUserDashboard.load;
+  if(old){window.PSPUserDashboard.load=async function(){const r=await old.apply(this,arguments);requestAnimationFrame(refresh);return r}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refresh,250));else setTimeout(refresh,250);
+})();
