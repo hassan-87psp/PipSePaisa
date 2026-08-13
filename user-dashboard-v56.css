@@ -433,3 +433,165 @@
   #psp56Dashboard .psp59-grid-primary>.psp58-card,
   #psp56Dashboard .psp59-grid-secondary>.psp58-card{min-height:0!important}
 }
+
+/* ================================================================
+   PipSePaisa V67 — Inertial Luxury Fintech Interaction Layer
+   ================================================================ */
+#psp56Dashboard{
+  --psp67-ease:cubic-bezier(.22,.8,.24,1);
+  --psp67-orange:#fb9201;
+}
+
+/* Slower, silkier card motion. Motion is driven by the V67 RAF engine. */
+@media (hover:hover) and (pointer:fine){
+  #psp56Dashboard .psp58-card,
+  #psp56Dashboard .psp58-stat,
+  #psp56Dashboard .psp58-access{
+    --psp67-lift:0px;
+    --psp67-shadow-x:0px;
+    --psp67-shadow-y:12px;
+    transform:perspective(1200px) rotateX(var(--psp60-rx,0deg)) rotateY(var(--psp60-ry,0deg)) translateY(var(--psp67-lift,0px))!important;
+    transform-style:preserve-3d;
+    will-change:transform,box-shadow;
+    transition:border-color .34s ease,background .42s ease!important;
+  }
+  #psp56Dashboard .psp58-card.psp60-lit{
+    border-color:rgba(251,146,1,.32)!important;
+    box-shadow:var(--psp67-shadow-x) var(--psp67-shadow-y) 42px rgba(15,23,42,.095),0 0 0 1px rgba(251,146,1,.035),0 0 34px rgba(251,146,1,.065)!important;
+  }
+  #psp56Dashboard .psp58-stat.psp60-lit{
+    border-color:rgba(251,146,1,.34)!important;
+    box-shadow:var(--psp67-shadow-x) var(--psp67-shadow-y) 34px rgba(15,23,42,.085),0 0 24px rgba(251,146,1,.06)!important;
+  }
+  #psp56Dashboard .psp58-access.psp60-lit{
+    box-shadow:var(--psp67-shadow-x) var(--psp67-shadow-y) 30px rgba(15,23,42,.075),0 0 22px rgba(251,146,1,.05)!important;
+  }
+  #psp56Dashboard .psp58-card:hover,
+  #psp56Dashboard .psp58-stat:hover{transform:perspective(1200px) rotateX(var(--psp60-rx,0deg)) rotateY(var(--psp60-ry,0deg)) translateY(var(--psp67-lift,0px))!important}
+
+  /* smooth trailing light */
+  #psp56Dashboard .psp60-hover-light{transition:opacity .42s ease!important}
+  #psp56Dashboard .psp60-hover-light:before{
+    content:"";position:absolute;inset:-35%;pointer-events:none;opacity:0;
+    background:linear-gradient(112deg,transparent 38%,rgba(255,255,255,.32) 48%,rgba(251,146,1,.10) 53%,transparent 62%);
+    transform:translateX(-42%) rotate(4deg);
+    transition:opacity .28s ease,transform .75s var(--psp67-ease);
+  }
+  #psp56Dashboard .psp60-lit>.psp60-hover-light:before{opacity:.7;transform:translateX(34%) rotate(4deg)}
+
+  /* magnetic CTA movement */
+  #psp56Dashboard .psp58-link,
+  #psp56Dashboard .psp58-primary,
+  #psp56Dashboard .psp58-tools button{
+    --psp67-mx:0px;--psp67-my:0px;
+    transform:translate3d(var(--psp67-mx),var(--psp67-my),0)!important;
+    transition:color .25s ease,border-color .25s ease,background .25s ease,box-shadow .25s ease!important;
+    will-change:transform;
+  }
+  #psp56Dashboard .psp58-link.psp67-magnetic{color:#e98300;text-shadow:0 0 16px rgba(251,146,1,.18)}
+  #psp56Dashboard .psp58-primary.psp67-magnetic{box-shadow:0 12px 25px rgba(251,146,1,.20),0 0 20px rgba(251,146,1,.08)}
+
+  /* focus the hovered inner tile, soften its siblings */
+  #psp56Dashboard .psp58-levels:has(>div.psp60-lit)>div:not(.psp60-lit),
+  #psp56Dashboard .psp58-class-info:has(>div.psp60-lit)>div:not(.psp60-lit),
+  #psp56Dashboard .psp58-class-datetime:has(>div.psp60-lit)>div:not(.psp60-lit),
+  #psp56Dashboard .psp58-journal:has(>div.psp60-lit)>div:not(.psp60-lit),
+  #psp56Dashboard .psp58-tp-progress:has(>span.psp60-lit)>span:not(.psp60-lit){opacity:.62;filter:saturate(.78);transform:scale(.992)}
+}
+
+/* Premium inner glass border */
+#psp56Dashboard .psp58-levels>div,
+#psp56Dashboard .psp58-class-info>div,
+#psp56Dashboard .psp58-class-datetime>div,
+#psp56Dashboard .psp58-journal>div,
+#psp56Dashboard .psp58-analysis-item,
+#psp56Dashboard .psp58-tools button{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.48),inset 0 -1px 0 rgba(15,23,42,.025);
+}
+[data-theme="dark"] #psp56Dashboard .psp58-levels>div,
+[data-theme="dark"] #psp56Dashboard .psp58-class-info>div,
+[data-theme="dark"] #psp56Dashboard .psp58-class-datetime>div,
+[data-theme="dark"] #psp56Dashboard .psp58-journal>div,
+[data-theme="dark"] #psp56Dashboard .psp58-analysis-item,
+[data-theme="dark"] #psp56Dashboard .psp58-tools button{box-shadow:inset 0 1px 0 rgba(255,255,255,.055)}
+
+/* Accurate seven-day micro sparklines (derived from loaded rows). */
+#psp56Dashboard .psp58-stat{overflow:hidden}
+#psp56Dashboard .psp67-spark{width:64px;height:25px;margin-left:auto;opacity:.72;flex:0 0 auto;overflow:visible}
+#psp56Dashboard .psp67-spark polygon{fill:rgba(251,146,1,.075)}
+#psp56Dashboard .psp67-spark polyline{fill:none;stroke:rgba(251,146,1,.74);stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 4px rgba(251,146,1,.12))}
+#psp56Dashboard .psp67-line-icon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round}
+#psp56Dashboard .psp67-line-icon{color:var(--gold)!important;background:linear-gradient(145deg,rgba(251,146,1,.13),rgba(251,146,1,.045))!important;border:1px solid rgba(251,146,1,.16)}
+
+/* Signal status glow language */
+#psp56Dashboard .psp58-status.live{animation:psp67LiveGlow 2.7s ease-in-out infinite}
+#psp56Dashboard .psp58-status.win{animation:psp67WinGlow 3.2s ease-in-out infinite}
+#psp56Dashboard .psp58-status.loss{animation:psp67LossGlow 3.2s ease-in-out infinite}
+@keyframes psp67LiveGlow{0%,100%{box-shadow:0 0 0 rgba(16,185,129,0)}50%{box-shadow:0 0 19px rgba(16,185,129,.16)}}
+@keyframes psp67WinGlow{0%,100%{box-shadow:0 0 0 rgba(16,185,129,0)}50%{box-shadow:0 0 16px rgba(16,185,129,.12)}}
+@keyframes psp67LossGlow{0%,100%{box-shadow:0 0 0 rgba(239,68,68,0)}50%{box-shadow:0 0 16px rgba(239,68,68,.11)}}
+
+/* Animated signal TP timeline */
+#psp56Dashboard .psp58-tp-progress{position:relative;isolation:isolate}
+#psp56Dashboard .psp58-tp-progress:before,
+#psp56Dashboard .psp58-tp-progress:after{content:"";position:absolute;left:6%;right:6%;top:50%;height:2px;transform:translateY(-50%);border-radius:999px;z-index:0;pointer-events:none}
+#psp56Dashboard .psp58-tp-progress:before{background:color-mix(in srgb,var(--border) 75%,transparent)}
+#psp56Dashboard .psp58-tp-progress:after{right:auto;width:calc(var(--psp67-tp,0%) * .88);max-width:88%;background:linear-gradient(90deg,#10b981,var(--gold));box-shadow:0 0 12px rgba(16,185,129,.16);transition:width .85s var(--psp67-ease)}
+#psp56Dashboard .psp58-tp-progress>span{position:relative;z-index:1;background:var(--bg-card)}
+#psp56Dashboard .psp58-tp-progress>span.hit{animation:psp67TpPop .55s var(--psp67-ease) both}
+@keyframes psp67TpPop{0%{transform:scale(.96);filter:brightness(.96)}65%{transform:scale(1.035)}100%{transform:scale(1)}}
+
+/* Course progress ring + countdown travel bar */
+#psp56Dashboard .psp67-course-progress{display:grid;grid-template-columns:42px 1fr;align-items:center;gap:10px}
+#psp56Dashboard .psp67-ring{--pct:0;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--gold) calc(var(--pct)*1%),rgba(148,163,184,.13) 0);position:relative;box-shadow:0 5px 13px rgba(251,146,1,.10)}
+#psp56Dashboard .psp67-ring:after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--bg-card);box-shadow:inset 0 0 0 1px var(--border)}
+#psp56Dashboard .psp67-ring span{position:relative;z-index:1;font-size:7.5px;font-weight:950;color:var(--text-primary)}
+#psp56Dashboard .psp67-progress-copy{display:grid;gap:5px;min-width:0}
+#psp56Dashboard .psp67-class-timer{height:3px;border-radius:999px;background:rgba(148,163,184,.12);overflow:hidden;margin-top:-3px}
+#psp56Dashboard .psp67-class-timer i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,rgba(251,146,1,.32),var(--gold));box-shadow:0 0 10px rgba(251,146,1,.18);transition:width 1s linear;position:relative}
+#psp56Dashboard .psp67-class-timer i:after{content:"";position:absolute;right:0;top:50%;width:5px;height:5px;border-radius:50%;background:#fff;transform:translate(1px,-50%);box-shadow:0 0 8px rgba(251,146,1,.5)}
+
+/* Journal real win-rate ring */
+#psp56Dashboard .psp67-win-cell{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px}
+#psp56Dashboard .psp67-mini-ring{--pct:0;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#10b981 calc(var(--pct)*1%),rgba(148,163,184,.13) 0);position:relative;flex:0 0 auto}
+#psp56Dashboard .psp67-mini-ring:after{content:"";position:absolute;inset:5px;border-radius:50%;background:var(--bg-card)}
+#psp56Dashboard .psp67-mini-ring b{position:relative;z-index:1!important;font-size:8px!important;color:var(--text-primary)!important}
+
+/* Premium first-load skeleton instead of empty flash */
+#psp56Dashboard .psp67-skeleton{display:grid;gap:10px;animation:psp67Fade .28s ease both}
+#psp56Dashboard .psp67-skeleton .sk,
+#psp56Dashboard .psp67-skeleton .sk-row i,
+#psp56Dashboard .psp67-skeleton .sk-grid>div{position:relative;overflow:hidden;background:linear-gradient(110deg,var(--bg-card),var(--bg-elevated),var(--bg-card));border:1px solid var(--border);border-radius:15px}
+#psp56Dashboard .psp67-skeleton .sk:after,
+#psp56Dashboard .psp67-skeleton .sk-row i:after,
+#psp56Dashboard .psp67-skeleton .sk-grid>div:after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(251,146,1,.07),rgba(255,255,255,.20),transparent);animation:psp67Shimmer 1.25s ease-in-out infinite}
+#psp56Dashboard .psp67-skeleton .sk-hero{height:126px}
+#psp56Dashboard .psp67-skeleton .sk-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+#psp56Dashboard .psp67-skeleton .sk-row i{height:70px;display:block}
+#psp56Dashboard .psp67-skeleton .sk-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:14px}
+#psp56Dashboard .psp67-skeleton .sk-grid>div{height:265px}
+#psp56Dashboard .psp67-skeleton .sk-grid.small>div{height:188px}
+@keyframes psp67Shimmer{100%{transform:translateX(100%)}}
+@keyframes psp67Fade{from{opacity:0}to{opacity:1}}
+
+/* softer staggered entry */
+#psp56Dashboard .psp58-home .psp58-card,
+#psp56Dashboard .psp58-home .psp58-stat{animation-duration:.58s!important;animation-timing-function:cubic-bezier(.2,.75,.25,1)!important}
+
+@media(max-width:1100px){
+  #psp56Dashboard .psp67-spark{display:none}
+  #psp56Dashboard .psp67-skeleton .sk-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  #psp56Dashboard .psp67-skeleton .sk-row{grid-template-columns:repeat(2,1fr)}
+  #psp56Dashboard .psp67-course-progress{grid-template-columns:36px 1fr}
+  #psp56Dashboard .psp67-ring{width:34px;height:34px}
+}
+@media(prefers-reduced-motion:reduce){
+  #psp56Dashboard .psp58-status.live,#psp56Dashboard .psp58-status.win,#psp56Dashboard .psp58-status.loss,#psp56Dashboard .psp58-tp-progress>span.hit{animation:none!important}
+  #psp56Dashboard .psp67-skeleton *:after{animation:none!important}
+}
+
+/* Hero financial art: subtle pointer parallax, still calm and institutional. */
+#psp56Dashboard .psp63-welcome{--psp67-parallax-x:0px;--psp67-parallax-y:0px}
+#psp56Dashboard .psp63-market-art{transform:translate3d(var(--psp67-parallax-x),var(--psp67-parallax-y),0);transition:transform .65s cubic-bezier(.22,.8,.24,1);will-change:transform}

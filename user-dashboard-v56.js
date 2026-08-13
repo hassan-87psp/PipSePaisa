@@ -36,6 +36,25 @@ function pktDateKey(v){const d=dt(v);if(!d)return'';try{return new Intl.DateTime
 function todayPKT(){return pktDateKey(new Date())}
 function relative(v){const d=dt(v);if(!d)return'';const sec=Math.round((Date.now()-d.getTime())/1000);if(sec<60)return'just now';if(sec<3600)return Math.floor(sec/60)+'m ago';if(sec<86400)return Math.floor(sec/3600)+'h ago';return Math.floor(sec/86400)+'d ago'}
 function remaining(sec){sec=Math.max(0,Math.floor(Number(sec)||0));const d=Math.floor(sec/86400),h=Math.floor((sec%86400)/3600),m=Math.floor((sec%3600)/60),s=sec%60;if(d)return`${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`;if(h)return`${h}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;return`${m}m ${String(s).padStart(2,'0')}s`}
+function psp67Icon(type){
+  const icons={
+    signal:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12a7 7 0 0 1 7-7m-7 7a7 7 0 0 0 7 7m0-10a3 3 0 0 0-3 3 3 3 0 0 0 3 3m0-6v6m4-9 3-3m-3 15 3 3"/></svg>',
+    charts:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9m5 10V5m5 14v-7m5 7V3M3 19h18"/></svg>',
+    articles:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6zM9 9h6M9 13h6M9 17h4"/></svg>',
+    courses:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 8 9-4 9 4-9 4zM6 10v5c3 2 9 2 12 0v-5M21 9v6"/></svg>'
+  };return icons[type]||icons.signal;
+}
+function psp67Series(items){
+  const out=[0,0,0,0,0,0,0],now=Date.now(),day=86400000;
+  (items||[]).forEach(x=>{const t=new Date(x.created_at||x.updated_at||0).getTime();if(!Number.isFinite(t))return;const ago=Math.floor((now-t)/day);if(ago>=0&&ago<7)out[6-ago]++});return out;
+}
+function psp67Spark(series){
+  const a=(series||[]).map(Number),max=Math.max(1,...a),w=82,h=28,pad=3;
+  const pts=a.map((v,i)=>`${(pad+i*(w-pad*2)/(a.length-1)).toFixed(1)},${(h-pad-(v/max)*(h-pad*2)).toFixed(1)}`).join(' ');
+  const area=`${pad},${h-pad} ${pts} ${w-pad},${h-pad}`;
+  return `<svg class="psp67-spark" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polygon points="${area}"/><polyline points="${pts}"/></svg>`;
+}
+function psp67Skeleton(){return `<div class="psp67-skeleton"><div class="sk sk-hero"></div><div class="sk-row"><i></i><i></i><i></i><i></i></div><div class="sk-grid"><div></div><div></div></div><div class="sk-grid small"><div></div><div></div></div></div>`}
 function statusInfo(s){
   const raw=String(s?.status||'active').toLowerCase(),tp=Number(s?.tp_hit||0),pips=Number(s?.result_pips);
   if(raw==='sl'||raw==='sl_hit')return{label:'SL HIT',cls:'loss',sub:Number.isFinite(pips)?`${pips>0?'+':''}${pips} pips`:'Stop loss reached',final:true};
@@ -62,11 +81,11 @@ function signalHTML(s,allowed){
   if(!allowed)return '<div class="psp58-empty"><span>🔒</span><b>Signal details are locked</b><small>Use active Free Access or complete account verification.</small><button onclick="PSPAccountVerification.goProfile()">Open Profile →</button></div>';
   const sell=/sell/i.test(s.direction||''),st=statusInfo(s),created=s.created_at,updated=s.updated_at||s.modified_at||created;
   const levels=[['Entry',s.entry_price],['Stop Loss',s.stop_loss],['TP1',s.take_profit1],['TP2',s.take_profit2],['TP3',s.take_profit3]].map(([a,b])=>`<div><span>${a}</span><b>${esc(b??'—')}</b></div>`).join('');
-  const progress=[1,2,3].map(i=>`<span class="${Number(s.tp_hit||0)>=i||String(s.status).toLowerCase()==='tp'+i?'hit':''}">${Number(s.tp_hit||0)>=i||String(s.status).toLowerCase()==='tp'+i?'✓ ':''}TP${i}</span>`).join('');
+  const tpDone=Math.max(0,Math.min(3,Number(s.tp_hit||0)));const progress=[1,2,3].map(i=>`<span class="${tpDone>=i||String(s.status).toLowerCase()==='tp'+i?'hit':''}">${tpDone>=i||String(s.status).toLowerCase()==='tp'+i?'✓ ':''}TP${i}</span>`).join('');
   return `<div class="psp58-signal ${st.cls}">
     <div class="psp58-signal-top"><div><span class="psp58-pair">${esc(s.pair||'Market')}</span><span class="psp58-dir ${sell?'sell':'buy'}">${sell?'SELL':'BUY'}</span></div><span class="psp58-status ${st.cls}">${st.label}</span></div>
     <div class="psp58-status-copy"><b>${esc(st.sub)}</b><span>${st.final?'Final result recorded':'Live status updates automatically'}</span></div>
-    <div class="psp58-tp-progress">${progress}</div>
+    <div class="psp58-tp-progress" style="--psp67-tp:${Math.round(tpDone/3*100)}%">${progress}</div>
     <div class="psp58-levels">${levels}</div>
     <div class="psp58-meta"><span>Opened <b>${esc(fmtPKT(created))} PKT</b></span><span>Updated <b>${esc(fmtPKT(updated))} PKT</b></span></div>
   </div>`;
@@ -86,6 +105,9 @@ function nextClassHTML(classes,enrollments,courses){
   const key=String(n.course_key||'basic').toLowerCase(),course=(courses||[]).find(c=>String(c.course_key||'').toLowerCase()===key)||{};
   const all=pool.filter(x=>String(x.course_key||'basic').toLowerCase()===key),done=all.filter(x=>new Date(x.scheduled_at).getTime()<now).length,pct=all.length?Math.min(100,Math.round(done/all.length*100)):0;
   const at=new Date(n.scheduled_at).getTime(),diff=at-now,live=diff<=15*60000&&diff>-150*60000;
+  const prev=all.filter(x=>new Date(x.scheduled_at).getTime()<at).sort((a,b)=>new Date(b.scheduled_at)-new Date(a.scheduled_at))[0];
+  const timerStart=prev?new Date(prev.scheduled_at).getTime():Math.min(now,at-86400000);
+  const timerPct=at>timerStart?Math.max(0,Math.min(100,Math.round((now-timerStart)/(at-timerStart)*100))):100;
   return `<div class="psp58-class">
     <div class="psp58-class-top"><span class="psp58-class-no">CLASS ${String(n.class_number||'').padStart(2,'0')}</span><span class="psp58-class-status ${live?'live':'upcoming'}">${live?'● LIVE / STARTING':'UPCOMING'}</span></div>
     <div class="psp58-class-title">${esc(classTitle(n))}</div>
@@ -93,7 +115,8 @@ function nextClassHTML(classes,enrollments,courses){
     <div class="psp58-class-info"><div><span>Course</span><b>${esc(course.title||(key==='basic'?'Basic Forex Course':'Forex Course'))}</b></div><div><span>Instructor</span><b>${esc(course.mentor_name||'Sajid Khan Ghori')}</b></div></div>
     <div class="psp58-class-datetime"><div><span>📅 Date</span><b>${esc(fmtPKT(n.scheduled_at,'date'))}</b></div><div><span>🕘 Time</span><b>${esc(fmtPKT(n.scheduled_at,'time').replace(/:\d{2}(?=\s|$)/,''))} PKT</b></div></div>
     <div class="psp58-class-countdown" data-class-at="${esc(n.scheduled_at)}">${diff>0?'Starts in '+remaining(diff/1000):'Class time is active'}</div>
-    <div class="psp58-progress"><i style="width:${pct}%"></i></div><div class="psp58-progress-meta"><span>Course progress</span><b>${done} / ${all.length} classes</b></div>
+    <div class="psp67-class-timer"><i data-class-window-start="${timerStart}" data-class-window-end="${at}" style="width:${timerPct}%"></i></div>
+    <div class="psp67-course-progress"><div class="psp67-ring" style="--pct:${pct}"><span>${pct}%</span></div><div class="psp67-progress-copy"><div class="psp58-progress"><i style="width:${pct}%"></i></div><div class="psp58-progress-meta"><span>Course progress</span><b>${done} / ${all.length} classes</b></div></div></div>
     <button class="psp58-primary" onclick="navMyCoursesV58()">Open My Course →</button>
   </div>`;
 }
@@ -108,7 +131,7 @@ function journalHTML(trades,allowed){
   if(!allowed)return '<div class="psp58-empty compact"><span>🔒</span><b>Journal snapshot locked</b><small>Activate account access to view your stats.</small></div>';
   const rows=trades||[],wins=rows.filter(t=>Number(t.pnl??t.pips??0)>0).length,total=rows.length,wr=total?Math.round(wins/total*100):0;
   const weekAgo=Date.now()-7*86400000,week=rows.filter(t=>new Date(t.date||t.created_at||0).getTime()>=weekAgo).reduce((a,t)=>a+Number(t.pnl??t.pips??0),0),last=rows[0],lastP=last?Number(last.pnl??last.pips??0):null;
-  return `<div class="psp58-journal"><div><span>This Week</span><b class="${week>=0?'pos':'neg'}">${week>=0?'+':''}${Math.round(week*10)/10}</b></div><div><span>Win Rate</span><b>${wr}%</b></div><div><span>Total Trades</span><b>${total}</b></div><div><span>Last Trade</span><b class="${lastP==null?'':lastP>=0?'pos':'neg'}">${lastP==null?'—':(lastP>=0?'+':'')+lastP}</b></div></div>`;
+  return `<div class="psp58-journal"><div><span>This Week</span><b class="${week>=0?'pos':'neg'}">${week>=0?'+':''}${Math.round(week*10)/10}</b></div><div class="psp67-win-cell"><span>Win Rate</span><div class="psp67-mini-ring" style="--pct:${wr}"><b>${wr}%</b></div></div><div><span>Total Trades</span><b>${total}</b></div><div><span>Last Trade</span><b class="${lastP==null?'':lastP>=0?'pos':'neg'}">${lastP==null?'—':(lastP>=0?'+':'')+lastP}</b></div></div>`;
 }
 function activityHTML(signals,charts,articles){
   let a=[];(signals||[]).slice(0,4).forEach(x=>{const st=statusInfo(x);a.push({ico:st.cls==='loss'?'🛑':st.final?'✅':'📡',t:(x.pair||'Signal')+' '+String(x.direction||'').toUpperCase(),m:st.label+(st.sub?' • '+st.sub:''),d:x.updated_at||x.created_at,cls:st.cls})});
@@ -123,6 +146,7 @@ function tick(){
   const root=q('#psp56Dashboard');if(!root||!q('#page-dashboard')?.classList.contains('active'))return;
   const now=new Date();const de=q('#psp58DashboardDate');if(de)de.textContent=fmtPKT(now,'date');const ce=q('#psp58DashboardClock');if(ce)ce.textContent=fmtPKT(now,'time')+' PKT';
   root.querySelectorAll('[data-class-at]').forEach(el=>{const t=dt(el.dataset.classAt);if(!t)return;const diff=(t.getTime()-Date.now())/1000;el.textContent=diff>0?'Starts in '+remaining(diff):diff>-9000?'Class time is active':'Class completed'});
+  root.querySelectorAll('[data-class-window-start]').forEach(el=>{const s=Number(el.dataset.classWindowStart),e=Number(el.dataset.classWindowEnd),n=Date.now();if(!Number.isFinite(s)||!Number.isFinite(e)||e<=s)return;el.style.width=Math.max(0,Math.min(100,(n-s)/(e-s)*100))+'%'});
   root.querySelectorAll('[data-access-expires]').forEach(box=>{const exp=dt(box.dataset.accessExpires),out=box.querySelector('.psp58-access-count');if(!exp||!out)return;const left=(exp.getTime()-Date.now())/1000;out.textContent=left>0?remaining(left)+' remaining':'Free Access expired'});
 }
 function startClock(){if(clockTimer)clearInterval(clockTimer);tick();clockTimer=setInterval(tick,1000)}
@@ -130,7 +154,7 @@ window.navMyCoursesV58=function(){const el=q('#sidebar .menu-item[data-page="myc
 async function load(force=false){
   const root=q('#psp56Dashboard');if(!root)return;if(loading)return;if(!force&&Date.now()-lastLoad<12000){startClock();return}
   const c=db();if(!c){root.innerHTML='<div class="psp58-empty"><span>◌</span><b>Dashboard is waiting for connection…</b></div>';return}
-  loading=true;lastLoad=Date.now();root.classList.add('is-loading');
+  loading=true;lastLoad=Date.now();if(!q('.psp58-home',root))root.innerHTML=psp67Skeleton();root.classList.add('is-loading');
   try{
     try{await window.PSPAccountVerification?.load?.(true)}catch(_){}
     const sess=await c.auth.getSession(),user=sess?.data?.session?.user;if(!user)return;
@@ -203,7 +227,7 @@ async function load(force=false){
         </div>
         <div class="psp63-access-wrap">${accessHTML()}</div>
       </div>
-      <section class="psp58-stats"><div class="psp58-stat signal" onclick="psp58Nav('signals')"><span class="ico">📡</span><div><span class="lab">Active Signals</span><b class="val" data-count="${active}">0</b><small>${active?'Live setups & partial TPs':'No live setup right now'}</small></div><span class="go">→</span></div><div class="psp58-stat charts" onclick="psp58Nav('articles')"><span class="ico">📈</span><div><span class="lab">Today’s Charts</span><b class="val" data-count="${todayCharts}">0</b><small>PKT market analysis</small></div><span class="go">→</span></div><div class="psp58-stat articles" onclick="psp58Nav('articles')"><span class="ico">📝</span><div><span class="lab">Recent Articles</span><b class="val" data-count="${articles.length}">0</b><small>Education & insights</small></div><span class="go">→</span></div><div class="psp58-stat courses" onclick="navMyCoursesV58()"><span class="ico">🎓</span><div><span class="lab">My Courses</span><b class="val" data-count="${enrollments.length}">0</b><small>Course access & classes</small></div><span class="go">→</span></div></section>
+      <section class="psp58-stats"><div class="psp58-stat signal" onclick="psp58Nav('signals')"><span class="ico psp67-line-icon">${psp67Icon('signal')}</span><div><span class="lab">Active Signals</span><b class="val" data-count="${active}">0</b><small>${active?'Live setups & partial TPs':'No live setup right now'}</small></div>${psp67Spark(psp67Series(signals))}<span class="go">→</span></div><div class="psp58-stat charts" onclick="psp58Nav('articles')"><span class="ico psp67-line-icon">${psp67Icon('charts')}</span><div><span class="lab">Today’s Charts</span><b class="val" data-count="${todayCharts}">0</b><small>PKT market analysis</small></div>${psp67Spark(psp67Series(charts))}<span class="go">→</span></div><div class="psp58-stat articles" onclick="psp58Nav('articles')"><span class="ico psp67-line-icon">${psp67Icon('articles')}</span><div><span class="lab">Recent Articles</span><b class="val" data-count="${articles.length}">0</b><small>Education & insights</small></div>${psp67Spark(psp67Series(articles))}<span class="go">→</span></div><div class="psp58-stat courses" onclick="navMyCoursesV58()"><span class="ico psp67-line-icon">${psp67Icon('courses')}</span><div><span class="lab">My Courses</span><b class="val" data-count="${enrollments.length}">0</b><small>Course access & classes</small></div>${psp67Spark(psp67Series(enrollments))}<span class="go">→</span></div></section>
       <section class="psp59-grid-primary"><div class="psp58-card featured"><div class="psp58-card-head"><div><span class="eyebrow">MARKET SIGNAL</span><h3>Latest Signal</h3></div><button class="psp58-link" onclick="psp58Nav('signals')">View All →</button></div>${signalHTML(signals[0],allowed)}</div><div class="psp58-card class-card"><div class="psp58-card-head"><div><span class="eyebrow">LIVE LEARNING</span><h3>Next Live Class</h3></div><button class="psp58-link" onclick="navMyCoursesV58()">My Courses →</button></div>${nextClassHTML(classes,enrollments,courses)}</div></section>
       <section class="psp59-grid-secondary"><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">MARKET INTELLIGENCE</span><h3>Latest Market Analysis</h3></div><button class="psp58-link" onclick="psp58Nav('articles')">Explore →</button></div>${analysisHTML(charts,articles,allowed)}</div><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">YOUR TRADING JOURNAL</span><h3>Journal Snapshot</h3></div><button class="psp58-link" onclick="psp58Nav('journal')">Open Journal →</button></div>${journalHTML(trades,allowed)}<div class="psp58-tools"><button onclick="psp58Nav('newshub')">📡 <span>World News Hub</span></button><button onclick="psp58Nav('strength')">💪 <span>Strength Meter</span></button><button onclick="psp58Nav('charts')">📊 <span>Live Charts</span></button><button onclick="psp58Nav('aireport')">🤖 <span>AI Report</span></button></div></div></section>
     </div>`;
@@ -217,50 +241,25 @@ window.PSPUserDashboard={load};window.psp58Nav=nav;window.goDashboardHome=functi
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 
-/* PipSePaisa V60 — cursor-follow luxury lighting */
+/* PipSePaisa V67 — inertial luxury interaction engine */
 (function(){
   'use strict';
-  let boundRoot=null,observer=null,raf=0;
-  const selector='.psp63-welcome,.psp58-stat,.psp58-card,.psp58-access,.psp58-analysis-item,.psp58-tools button,.psp58-levels>div,.psp58-class-info>div,.psp58-class-datetime>div,.psp58-journal>div,.psp58-tp-progress>span,.psp58-status-copy,.psp58-class-countdown';
-  function supportsFinePointer(){try{return window.matchMedia('(hover:hover) and (pointer:fine)').matches}catch(_){return false}}
-  function addLight(el){
-    if(!el||el.dataset.psp60Light==='1')return;
-    el.dataset.psp60Light='1';
-    if(getComputedStyle(el).position==='static')el.style.position='relative';
-    const layer=document.createElement('i');layer.className='psp60-hover-light';layer.setAttribute('aria-hidden','true');el.appendChild(layer);
-  }
-  function decorate(root){if(root&&supportsFinePointer())root.querySelectorAll(selector).forEach(addLight)}
-  function update(el,e){
-    const r=el.getBoundingClientRect();if(!r.width||!r.height)return;
-    const x=Math.max(0,Math.min(r.width,e.clientX-r.left)),y=Math.max(0,Math.min(r.height,e.clientY-r.top));
-    el.style.setProperty('--psp60-x',x+'px');el.style.setProperty('--psp60-y',y+'px');
-    if(el.matches('.psp58-card,.psp58-stat,.psp58-access')){
-      const nx=(x/r.width-.5),ny=(y/r.height-.5);
-      el.style.setProperty('--psp60-ry',(nx*1.7).toFixed(2)+'deg');
-      el.style.setProperty('--psp60-rx',(-ny*1.25).toFixed(2)+'deg');
-    }
-  }
-  function bind(root){
-    if(!supportsFinePointer()||!root)return;
-    decorate(root);
-    if(boundRoot===root)return;
-    boundRoot=root;
-    root.addEventListener('pointermove',function(e){
-      const el=e.target.closest(selector);if(!el||!root.contains(el))return;
-      if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{update(el,e);el.classList.add('psp60-lit')});
-    },{passive:true});
-    root.addEventListener('pointerover',function(e){const el=e.target.closest(selector);if(el&&root.contains(el)){addLight(el);update(el,e);el.classList.add('psp60-lit')}},{passive:true});
-    root.addEventListener('pointerout',function(e){
-      const el=e.target.closest(selector);if(!el||!root.contains(el))return;
-      if(e.relatedTarget&&el.contains(e.relatedTarget))return;
-      el.classList.remove('psp60-lit');el.style.setProperty('--psp60-rx','0deg');el.style.setProperty('--psp60-ry','0deg');
-    },{passive:true});
-    if(observer)observer.disconnect();
-    observer=new MutationObserver(()=>requestAnimationFrame(()=>decorate(root)));
-    observer.observe(root,{childList:true,subtree:true});
-  }
-  function refresh(){const root=document.querySelector('#psp56Dashboard');if(root)bind(root)}
-  const old=window.PSPUserDashboard&&window.PSPUserDashboard.load;
-  if(old){window.PSPUserDashboard.load=async function(){const r=await old.apply(this,arguments);requestAnimationFrame(refresh);return r}}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refresh,250));else setTimeout(refresh,250);
+  const lightSelector='.psp63-welcome,.psp58-stat,.psp58-card,.psp58-access,.psp58-analysis-item,.psp58-tools button,.psp58-levels>div,.psp58-class-info>div,.psp58-class-datetime>div,.psp58-journal>div,.psp58-tp-progress>span,.psp58-status-copy,.psp58-class-countdown';
+  const tiltSelector='.psp58-card,.psp58-stat,.psp58-access';
+  const magneticSelector='.psp58-link,.psp58-primary,.psp58-tools button';
+  let root=null,observer=null,raf=0;
+  const states=new Map();
+  function fine(){try{return matchMedia('(hover:hover) and (pointer:fine)').matches&&!matchMedia('(prefers-reduced-motion:reduce)').matches}catch(_){return false}}
+  function st(el){if(!states.has(el))states.set(el,{x:50,y:50,tx:50,ty:50,rx:0,ry:0,trx:0,try:0,lift:0,tlift:0,sx:0,sy:12,tsx:0,tsy:12,mx:0,my:0,tmx:0,tmy:0,hover:false});return states.get(el)}
+  function light(el){if(!el||el.dataset.psp67Light==='1')return;el.dataset.psp67Light='1';const i=document.createElement('i');i.className='psp60-hover-light';i.setAttribute('aria-hidden','true');el.appendChild(i)}
+  function decorate(){if(!root||!fine())return;root.querySelectorAll(lightSelector).forEach(light)}
+  function targets(el,e){const r=el.getBoundingClientRect(),s=st(el);if(!r.width||!r.height)return;const x=Math.max(0,Math.min(r.width,e.clientX-r.left)),y=Math.max(0,Math.min(r.height,e.clientY-r.top)),nx=x/r.width-.5,ny=y/r.height-.5;s.tx=x;s.ty=y;s.hover=true;s.tlift=el.matches(tiltSelector)?-2.1:-1.15;s.tsx=-nx*7;s.tsy=12-ny*5;if(el.matches(tiltSelector)){s.try=nx*1.15;s.trx=-ny*.8}if(el.matches('.psp63-welcome')){el.style.setProperty('--psp67-parallax-x',(-nx*6).toFixed(2)+'px');el.style.setProperty('--psp67-parallax-y',(-ny*4).toFixed(2)+'px')}el.classList.add('psp60-lit')}
+  function magnet(el,e){const r=el.getBoundingClientRect(),s=st(el);if(!r.width||!r.height)return;s.tmx=(e.clientX-(r.left+r.width/2))*.045;s.tmy=(e.clientY-(r.top+r.height/2))*.06;el.classList.add('psp67-magnetic')}
+  function leave(el){const s=st(el),r=el.getBoundingClientRect();s.hover=false;s.tx=r.width/2;s.ty=r.height/2;s.trx=0;s.try=0;s.tlift=0;s.tsx=0;s.tsy=12;s.tmx=0;s.tmy=0;if(el.matches('.psp63-welcome')){el.style.setProperty('--psp67-parallax-x','0px');el.style.setProperty('--psp67-parallax-y','0px')}el.classList.remove('psp60-lit','psp67-magnetic')}
+  function lerp(a,b,k){return a+(b-a)*k}
+  function loop(){let moving=false;states.forEach((s,el)=>{if(!el.isConnected){states.delete(el);return}s.x=lerp(s.x,s.tx,.14);s.y=lerp(s.y,s.ty,.14);s.rx=lerp(s.rx,s.trx,.11);s.ry=lerp(s.ry,s.try,.11);s.lift=lerp(s.lift,s.tlift,.12);s.sx=lerp(s.sx,s.tsx,.1);s.sy=lerp(s.sy,s.tsy,.1);s.mx=lerp(s.mx,s.tmx,.17);s.my=lerp(s.my,s.tmy,.17);el.style.setProperty('--psp60-x',s.x+'px');el.style.setProperty('--psp60-y',s.y+'px');el.style.setProperty('--psp60-rx',s.rx.toFixed(3)+'deg');el.style.setProperty('--psp60-ry',s.ry.toFixed(3)+'deg');el.style.setProperty('--psp67-lift',s.lift.toFixed(2)+'px');el.style.setProperty('--psp67-shadow-x',s.sx.toFixed(2)+'px');el.style.setProperty('--psp67-shadow-y',s.sy.toFixed(2)+'px');el.style.setProperty('--psp67-mx',s.mx.toFixed(2)+'px');el.style.setProperty('--psp67-my',s.my.toFixed(2)+'px');if(Math.abs(s.rx-s.trx)>.01||Math.abs(s.ry-s.try)>.01||Math.abs(s.x-s.tx)>.2||Math.abs(s.y-s.ty)>.2||Math.abs(s.lift-s.tlift)>.03||Math.abs(s.mx-s.tmx)>.03||Math.abs(s.my-s.tmy)>.03)moving=true});raf=requestAnimationFrame(loop)}
+  function bind(){root=document.querySelector('#psp56Dashboard');if(!root||!fine())return;decorate();if(root.dataset.psp67Bound==='1')return;root.dataset.psp67Bound='1';root.addEventListener('pointermove',e=>{const el=e.target.closest(lightSelector);if(el&&root.contains(el)){light(el);targets(el,e)}const b=e.target.closest(magneticSelector);if(b&&root.contains(b))magnet(b,e)},{passive:true});root.addEventListener('pointerout',e=>{const el=e.target.closest(lightSelector);if(el&&root.contains(el)&&!(e.relatedTarget&&el.contains(e.relatedTarget)))leave(el);const b=e.target.closest(magneticSelector);if(b&&root.contains(b)&&!(e.relatedTarget&&b.contains(e.relatedTarget)))leave(b)},{passive:true});observer=new MutationObserver(()=>requestAnimationFrame(decorate));observer.observe(root,{childList:true,subtree:true});if(!raf)raf=requestAnimationFrame(loop)}
+  function refresh(){bind()}
+  const old=window.PSPUserDashboard&&window.PSPUserDashboard.load;if(old)window.PSPUserDashboard.load=async function(){const r=await old.apply(this,arguments);requestAnimationFrame(refresh);return r};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refresh,220));else setTimeout(refresh,220);
 })();

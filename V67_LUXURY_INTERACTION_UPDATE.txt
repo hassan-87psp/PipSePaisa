@@ -1,0 +1,33 @@
+PipSePaisa V67 — Luxury Inertial Dashboard Interaction
+
+DASHBOARD PREMIUM UPGRADES
+- Replaced abrupt hover with smooth inertial cursor-follow motion.
+- Main cards lift only about 2px and tilt very subtly.
+- Cursor light trails smoothly instead of jumping.
+- Dynamic shadow shifts naturally with cursor position.
+- Card returns softly to rest when pointer leaves.
+- Magnetic CTA motion for View All / Explore / My Courses / Open Course / Quick Tools.
+- Inner highlight sweep and glass-border depth.
+- Entry, SL, TP, Class Info, Date/Time, Journal stats and Quick Tools retain premium local lighting.
+- Hovered inner tile gains focus while sibling tiles soften slightly.
+- Status-specific glow for Active/TP/SL states.
+- Animated TP1→TP2→TP3 timeline progress.
+- Real 7-day micro sparklines derived from loaded Signals/Charts/Articles/Enrollments.
+- Real Journal win-rate mini ring.
+- Course progress ring plus live inter-class countdown progress bar.
+- Cleaner line icons in top stat cards.
+- Premium skeleton shimmer on first Dashboard load.
+- Softer staggered entrance animations and existing count-up numbers preserved.
+- Hero financial illustration gains subtle cursor parallax while keeping its slow ambient animation.
+- Touch/mobile devices do not use cursor effects; reduced-motion preference is respected.
+
+PRESERVED
+- V66 exact aligned two-column borders and equal-height paired cards.
+- Live Feed/Recent Activity remains removed.
+- Compact Profile width and sidebar User Panel text removal preserved.
+- Article image upload UID/RLS-safe Admin + Mentor fix preserved.
+- Journal/Performance/Dashboard mapping and Admin verification fixes preserved.
+
+DEPLOYMENT
+Replace the files from the patch ZIP on the existing test branch and hard refresh.
+No Supabase SQL or Edge Function update is required for V67.
