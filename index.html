@@ -1092,62 +1092,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
      ======================================================================== -->
 <div id="landingPage" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg-main);">
 
-  <iframe id="pspLandingFrame" src="landing.html?v=20260813-v78-home-mobile-981-reference" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <iframe src="landing.html?v=20260813-v78-home-mobile-final" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
 </div>
-
-<style id="pspV78ExactHomeMobileReference">
-/* V78: Home landing only. Render the approved 981px reference canvas on phones and scale it to the device width. */
-@media (max-width: 768px){
-  #landingPage.psp-v78-mobile-reference{overflow:hidden!important;}
-  #landingPage.psp-v78-mobile-reference #pspLandingFrame{
-    position:absolute!important;
-    top:0!important;
-    left:0!important;
-    transform-origin:top left!important;
-    border:0!important;
-    display:block!important;
-    max-width:none!important;
-  }
-}
-</style>
-<script id="pspV78ExactHomeMobileReferenceScript">
-(function(){
-  var REFERENCE_WIDTH = 981;
-  function applyReferenceHome(){
-    var host = document.getElementById('landingPage');
-    var frame = document.getElementById('pspLandingFrame');
-    if(!host || !frame) return;
-    var mobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
-    if(mobile){
-      var vw = Math.max(1, document.documentElement.clientWidth || window.innerWidth || 360);
-      var vh = Math.max(1, window.innerHeight || document.documentElement.clientHeight || 640);
-      var scale = vw / REFERENCE_WIDTH;
-      host.classList.add('psp-v78-mobile-reference');
-      host.style.overflow = 'hidden';
-      frame.style.width = REFERENCE_WIDTH + 'px';
-      frame.style.maxWidth = 'none';
-      frame.style.height = Math.ceil(vh / scale) + 'px';
-      frame.style.transform = 'scale(' + scale + ')';
-      frame.style.transformOrigin = 'top left';
-    }else{
-      host.classList.remove('psp-v78-mobile-reference');
-      host.style.overflow = '';
-      frame.style.width = '100%';
-      frame.style.maxWidth = '';
-      frame.style.height = '100%';
-      frame.style.transform = '';
-      frame.style.transformOrigin = '';
-    }
-  }
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', applyReferenceHome, {once:true});
-  }else{
-    applyReferenceHome();
-  }
-  window.addEventListener('resize', applyReferenceHome, {passive:true});
-  window.addEventListener('orientationchange', function(){ setTimeout(applyReferenceHome, 80); }, {passive:true});
-})();
-</script>
 
 <div class="app" id="mainApp" style="display:none;">
 <div id="sidebarOverlay" onclick="toggleSidebar()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:180;"></div>

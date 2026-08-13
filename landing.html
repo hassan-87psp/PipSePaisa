@@ -4,17 +4,7 @@
 <head>
 <!-- Exact approved mobile header restored; visibility only override -->
 <meta charset="utf-8"/>
-<meta content="width=device-width,initial-scale=1" id="pspLandingViewport" name="viewport"/>
-<script id="pspV78LandingViewport">
-(function(){
-  var mobile = /Android|iPhone|iPod|IEMobile|Opera Mini|Mobile/i.test(navigator.userAgent || '') || Math.min(screen.width || 9999, screen.height || 9999) <= 768;
-  if(mobile){
-    var vp = document.getElementById('pspLandingViewport');
-    if(vp) vp.setAttribute('content','width=981');
-    document.documentElement.classList.add('psp-v78-reference-981');
-  }
-})();
-</script>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
 <link crossorigin="" href="https://www.googletagmanager.com" rel="preconnect"/><link href="//www.googletagmanager.com" rel="dns-prefetch"/><script async="" src="https://www.googletagmanager.com/gtag/js?id=G-5M0NKERDHF"></script><script id="pspGoogleAnalyticsV40">window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
@@ -1929,6 +1919,29 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 </section>
 </main>
 <footer><div class="container"><div class="footer-grid"><div><div class="footer-brand">PipSePaisa</div><p>Forex education, professional learning, practical trading tools and business support designed to help traders and partners grow with knowledge and discipline.</p></div><div><h4>Quick Links</h4><ul><li><a href="/">Home</a></li><li><a href="/partner">Become Partner</a></li><li><a href="/courses">Courses</a></li></ul></div><div><h4>Resources</h4><ul><li><a href="/trading-tools">Trading Tools &amp; Services</a></li><li><a href="/courses#courses">Course Enrollment</a></li><li><a href="/sign-in">Login</a></li></ul></div><div><h4>Connect</h4><ul><li>Facebook</li><li>Instagram</li><li>WhatsApp Channel</li></ul></div></div><div class="disclaimer">Educational content only. Trading involves risk and results may vary. Broker conditions, commissions and promotions depend on region, account type and official terms.</div></div></footer>
+<footer class="psp-home-mobile-footer" aria-label="PipSePaisa mobile footer">
+  <div class="psp-m-footer-inner">
+    <div class="psp-m-footer-grid">
+      <div class="psp-m-footer-brandcol">
+        <a class="psp-m-footer-brand" href="/">
+          <img src="favicon.png" alt="PipSePaisa logo"/>
+          <strong><span>Pip</span>SePaisa</strong>
+        </a>
+        <p>Practical Forex education, structured learning resources and professional business support built around knowledge, discipline and responsible decision-making.</p>
+        <div class="psp-m-footer-socials">
+          <button type="button" aria-label="Facebook" onclick="document.getElementById('socialFacebook')?.click()">f</button>
+          <button type="button" aria-label="Instagram" onclick="document.getElementById('socialInstagram')?.click()">◎</button>
+          <button type="button" aria-label="WhatsApp" onclick="document.getElementById('socialWhatsapp')?.click()">◉</button>
+        </div>
+      </div>
+      <div class="psp-m-footer-col"><h4>QUICK LINKS</h4><a href="/">Home</a><a href="/courses">Courses</a><a href="/partner">Become a Partner</a><a href="/trading-tools">Tools &amp; Services</a></div>
+      <div class="psp-m-footer-col"><h4>LEARNING</h4><a href="/courses">Course Library</a><a href="/trading-tools">Trading Resources</a><a href="/partner">Partner Programs</a><a href="/sign-in">Member Login</a></div>
+      <div class="psp-m-footer-col"><h4>CONTACT</h4><button type="button" onclick="document.getElementById('socialWhatsapp')?.click()">WhatsApp Support</button><button type="button" onclick="document.getElementById('socialInstagram')?.click()">Instagram</button><button type="button" onclick="document.getElementById('socialFacebook')?.click()">Facebook</button></div>
+    </div>
+    <div class="psp-m-footer-risk">Risk notice: All content is for educational purposes only. Trading involves risk. Broker terms, bonuses and promotions vary by region and account type.</div>
+    <div class="psp-m-footer-bottom"><span>© 2026 <b>PipSePaisa.</b> All rights reserved.</span><span>Education • Discipline • Responsible Growth</span></div>
+  </div>
+</footer>
 <div aria-hidden="true" class="landing-auth-overlay" id="landingAuthOverlay">
 <div aria-labelledby="landingAuthTitle" aria-modal="true" class="landing-auth-card" role="dialog">
 <button aria-label="Close login popup" class="landing-auth-close" onclick="closeLandingAuth()" type="button">×</button>
@@ -2291,6 +2304,7 @@ document.addEventListener('DOMContentLoaded',function(){
   }
 }
 </style>
+<link href="home-mobile-v78.css?v=20260813-v78-final" rel="stylesheet"/>
 <script defer="" src="psp-public-performance-v40.js?v=20260804-v40"></script>
 </body>
 </html>
