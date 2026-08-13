@@ -1,0 +1,20 @@
+PipSePaisa V73 — Trade Delete + Mobile UI Regression Fix
+
+1. My Trades delete button fixed:
+   - works with numeric or UUID trade IDs
+   - branded confirm has native-confirm fallback
+   - deletes only the signed-in user's trade
+   - detects a blocked/no-match delete instead of silently hiding it
+   - refreshes dashboard, table, calendar and analysis after success
+
+2. Mobile UI locked back to the approved compact behaviour:
+   - full-width main panel with no horizontal page overflow
+   - full-height mobile sidebar/drawer with inner menu scrolling only
+   - background locked while drawer is open
+   - stable 2-column mobile stats and 1-column content grids
+   - trade table scrolls horizontally inside its own container
+   - dashboard cards remain single-column and do not inherit desktop hover transforms
+   - desktop layout is unchanged (rules apply only <= 768px)
+
+3. Existing V72 clean URLs, broker flow, Free Course access and all other current changes are preserved.
+4. No new Supabase SQL or Edge Function deployment is required for V73.

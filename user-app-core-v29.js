@@ -755,21 +755,55 @@
   }
   
   async function deleteTrade(id) {
-    if (!(await window.pspConfirm('Delete this trade permanently?'))) return;
-    
-    if (currentUser) {
-      // Delete from database
-      const { error } = await sb.from('trades').delete().eq('id', id);
-      if (error) {
-        alert('❌ Error deleting: ' + error.message);
+    const tradeId = String(id ?? '').trim();
+    if (!tradeId) {
+      alert('❌ Unable to identify this trade. Please refresh and try again.');
+      return;
+    }
+
+    let confirmed = false;
+    try {
+      confirmed = window.pspConfirm
+        ? await window.pspConfirm('Delete this trade permanently?')
+        : window.confirm('Delete this trade permanently?');
+    } catch (e) {
+      confirmed = window.confirm('Delete this trade permanently?');
+    }
+    if (!confirmed) return;
+
+    try {
+      if (!currentUser || !sb) {
+        alert('❌ Your account session is not ready. Please refresh and try again.');
         return;
       }
+
+      // Delete only the signed-in user's row. Returning the id lets us detect an
+      // RLS/no-match delete instead of silently hiding the row until refresh.
+      const { data, error } = await sb
+        .from('trades')
+        .delete()
+        .eq('id', tradeId)
+        .eq('user_id', currentUser.id)
+        .select('id');
+
+      if (error) {
+        alert('❌ Error deleting trade: ' + error.message);
+        return;
+      }
+      if (!Array.isArray(data) || data.length === 0) {
+        alert('❌ Trade was not deleted. Please refresh and try again.');
+        return;
+      }
+
+      trades = trades.filter(t => String(t.id) !== tradeId);
+      updateDashboard();
+      updateTradesTable();
+      buildCalendar();
+      try { if (typeof updateAnalysis === 'function') updateAnalysis(); } catch (_) {}
+      alert('✅ Trade deleted successfully.');
+    } catch (e) {
+      alert('❌ Error deleting trade: ' + (e?.message || e));
     }
-    
-    trades = trades.filter(t => t.id !== id);
-    updateDashboard();
-    updateTradesTable();
-    buildCalendar();
   }
   
   // Load all trades from database for current user
@@ -919,7 +953,8 @@
   }
   
   function viewTradeDetail(id) {
-    const t = trades.find(x => x.id === id);
+    const tradeId = String(id ?? '').trim();
+    const t = trades.find(x => String(x.id) === tradeId);
     if (!t) return;
     document.getElementById('tradeDetailContent').innerHTML = `
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
@@ -1059,8 +1094,8 @@
         <td style="font-size: 11px;">${t.emotion}</td>
         <td class="notes-cell"><div class="notes-preview">${notesPreview}</div></td>
         <td>
-          <button class="action-btn" onclick="viewTradeDetail(${t.id})" title="View">👁️</button>
-          <button class="action-btn delete" onclick="deleteTrade(${t.id})" title="Delete">🗑️</button>
+          <button class="action-btn" data-trade-id="${String(t.id)}" onclick="viewTradeDetail(this.dataset.tradeId)" title="View">👁️</button>
+          <button class="action-btn delete" data-trade-id="${String(t.id)}" onclick="deleteTrade(this.dataset.tradeId)" title="Delete">🗑️</button>
         </td>
       </tr>`;
     }).join('');
