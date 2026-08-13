@@ -1,0 +1,14 @@
+PipSePaisa V72 — Broker Proof + Clean Page URLs
+
+1. Get Free All Access page now also collects Available Deposit (USD) + required Proof of Deposit for NEW-account flow.
+2. Existing-account button still works without selecting a broker; broker can be selected on the next page.
+3. New-account deposit proof uploads before moving to /brokershift and is reused there automatically (user may replace it).
+4. Both verification headers now use Home-page style PipSePaisa branding, including orange “Se”.
+5. XM existing-account guide visibly includes the final client link: https://affs.click/ReVHj.
+6. Top Get Broker Link dropdown and bottom Selected Broker dropdown are synced BOTH ways.
+7. Broker Confirmation Email Proof is OPTIONAL; Proof of Deposit remains REQUIRED.
+8. Added SQL 57_BROKER_OPTIONAL_EMAIL_CLEAN_ROUTES.sql to make broker email proof optional in the submission RPC.
+9. Added clean user-panel page URLs (examples: /dashboard, /journal, /my-courses, /signals, /profile).
+10. Added /brokershift clean alias while retaining /broker-shift for compatibility.
+11. Existing V71 Free Course unlock behavior is preserved.
+12. Existing final broker links remain: Exness https://one.exnessonelink.com/a/be2kjlypr9 | DPrime https://my.dooprime.com/links/go/72929 | XM client https://affs.click/ReVHj | XM partner https://affs.click/VAVGX.
