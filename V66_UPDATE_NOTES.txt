@@ -1,0 +1,23 @@
+PipSePaisa V66 — Premium Aligned Dashboard + Article Upload Fix
+
+Dashboard
+- Primary and secondary dashboard rows now use the exact same 2-column split.
+- Market Signal right border aligns with Market Intelligence right border.
+- Live Learning left border aligns with Trading Journal left border.
+- Cards in each row stretch to equal height.
+- Journal Snapshot spacing/gutters cleaned up.
+- Live Feed / Recent Activity remains removed.
+- Premium cursor-follow lighting extended to Entry, SL, TP, TP progress, class info/date-time, countdown, journal stat boxes and quick tool buttons.
+- Subtle lift/glow/border illumination on hover.
+
+Profile / Sidebar
+- USER PANEL label remains removed.
+- Profile page content remains centered and compact (max 1060px).
+
+Article image upload
+- Admin and Mentor article uploads now store images under auth UID folders in the charts bucket, matching RLS-safe upload structure.
+- Example: <auth.uid>/articles/admin_... and <auth.uid>/articles/mentor_...
+
+Deploy
+- Replace the patch files on the current test branch.
+- Hard refresh after deployment.

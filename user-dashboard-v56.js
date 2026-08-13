@@ -221,7 +221,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 (function(){
   'use strict';
   let boundRoot=null,observer=null,raf=0;
-  const selector='.psp63-welcome,.psp58-stat,.psp58-card,.psp58-access,.psp58-analysis-item,.psp58-tools button';
+  const selector='.psp63-welcome,.psp58-stat,.psp58-card,.psp58-access,.psp58-analysis-item,.psp58-tools button,.psp58-levels>div,.psp58-class-info>div,.psp58-class-datetime>div,.psp58-journal>div,.psp58-tp-progress>span,.psp58-status-copy,.psp58-class-countdown';
   function supportsFinePointer(){try{return window.matchMedia('(hover:hover) and (pointer:fine)').matches}catch(_){return false}}
   function addLight(el){
     if(!el||el.dataset.psp60Light==='1')return;

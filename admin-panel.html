@@ -3690,8 +3690,10 @@ async function adminArticleUpload(inp){
   const prev=document.getElementById('artImgPreview'); if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--text-muted)">Uploading...</span>';
   try{
     const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
-    const path='articles/admin_'+Date.now()+'.'+ext;
-    const up=await sb.storage.from('charts').upload(path,file,{upsert:true});
+    const {data:{user}}=await sb.auth.getUser();
+    if(!user){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">Upload failed: Please sign in again.</span>';return;}
+    const path=user.id+'/articles/admin_'+Date.now()+'.'+ext;
+    const up=await sb.storage.from('charts').upload(path,file,{upsert:false,contentType:file.type||undefined});
     if(up.error){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">Upload failed: '+up.error.message+'</span>';return;}
     const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
     document.getElementById('artImage').value=url;

@@ -299,3 +299,137 @@
   #psp56Dashboard .psp59-grid-primary>.psp58-card,
   #psp56Dashboard .psp59-grid-secondary>.psp58-card{min-height:0!important}
 }
+
+
+/* PipSePaisa V66 — exact aligned dashboard columns + premium inner lighting */
+#psp56Dashboard .psp59-grid-primary,
+#psp56Dashboard .psp59-grid-secondary{
+  grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;
+  gap:14px!important;
+  align-items:stretch!important;
+  grid-auto-rows:1fr!important;
+}
+#psp56Dashboard .psp59-grid-primary>.psp58-card,
+#psp56Dashboard .psp59-grid-secondary>.psp58-card{
+  align-self:stretch!important;
+  height:100%!important;
+  min-width:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+#psp56Dashboard .psp59-grid-primary>.psp58-card{min-height:265px!important}
+#psp56Dashboard .psp59-grid-secondary>.psp58-card{min-height:188px!important}
+#psp56Dashboard .psp58-card.featured>.psp58-signal,
+#psp56Dashboard .psp58-card.class-card>.psp58-class{
+  flex:1 1 auto!important;
+}
+#psp56Dashboard .psp58-card.featured>.psp58-signal{
+  display:flex!important;
+  flex-direction:column!important;
+}
+#psp56Dashboard .psp58-card.featured>.psp58-signal .psp58-meta{margin-top:auto!important;padding-top:8px}
+
+/* Journal Snapshot spacing — even gutters and breathing room */
+#psp56Dashboard .psp58-journal{
+  gap:9px!important;
+  margin:0 0 10px!important;
+}
+#psp56Dashboard .psp58-journal>div{
+  min-height:58px!important;
+  padding:10px 11px!important;
+  border-radius:11px!important;
+}
+#psp56Dashboard .psp58-tools{
+  gap:9px!important;
+  margin-top:0!important;
+  padding-top:0!important;
+}
+#psp56Dashboard .psp58-tools button{
+  min-height:39px!important;
+  padding:9px 12px!important;
+  border-radius:10px!important;
+}
+#psp56Dashboard .psp59-grid-secondary>.psp58-card:last-child .psp58-tools{margin-top:auto!important}
+
+/* Premium interactive inner boxes */
+#psp56Dashboard .psp58-levels>div,
+#psp56Dashboard .psp58-class-info>div,
+#psp56Dashboard .psp58-class-datetime>div,
+#psp56Dashboard .psp58-journal>div,
+#psp56Dashboard .psp58-tp-progress>span,
+#psp56Dashboard .psp58-status-copy,
+#psp56Dashboard .psp58-class-countdown,
+#psp56Dashboard .psp58-tools button{
+  position:relative!important;
+  isolation:isolate;
+  overflow:hidden!important;
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),border-color .22s ease,box-shadow .22s ease,background .22s ease!important;
+}
+#psp56Dashboard .psp58-levels>div:before,
+#psp56Dashboard .psp58-class-info>div:before,
+#psp56Dashboard .psp58-class-datetime>div:before,
+#psp56Dashboard .psp58-journal>div:before,
+#psp56Dashboard .psp58-tools button:before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.42;
+  background:linear-gradient(125deg,rgba(255,255,255,.18),transparent 42%,rgba(251,146,1,.025));
+}
+@media (hover:hover) and (pointer:fine){
+  #psp56Dashboard .psp58-levels>div>.psp60-hover-light,
+  #psp56Dashboard .psp58-class-info>div>.psp60-hover-light,
+  #psp56Dashboard .psp58-class-datetime>div>.psp60-hover-light,
+  #psp56Dashboard .psp58-journal>div>.psp60-hover-light,
+  #psp56Dashboard .psp58-tp-progress>span>.psp60-hover-light,
+  #psp56Dashboard .psp58-status-copy>.psp60-hover-light,
+  #psp56Dashboard .psp58-class-countdown>.psp60-hover-light,
+  #psp56Dashboard .psp58-tools button>.psp60-hover-light{
+    background:radial-gradient(150px circle at var(--psp60-x) var(--psp60-y),rgba(251,146,1,.20),rgba(251,146,1,.055) 38%,transparent 72%)!important;
+  }
+  #psp56Dashboard .psp58-levels>div>.psp60-hover-light:after,
+  #psp56Dashboard .psp58-class-info>div>.psp60-hover-light:after,
+  #psp56Dashboard .psp58-class-datetime>div>.psp60-hover-light:after,
+  #psp56Dashboard .psp58-journal>div>.psp60-hover-light:after,
+  #psp56Dashboard .psp58-tp-progress>span>.psp60-hover-light:after,
+  #psp56Dashboard .psp58-status-copy>.psp60-hover-light:after,
+  #psp56Dashboard .psp58-class-countdown>.psp60-hover-light:after{
+    background:radial-gradient(105px circle at var(--psp60-x) var(--psp60-y),rgba(255,196,92,.72),rgba(251,146,1,.20) 36%,transparent 72%)!important;
+  }
+  #psp56Dashboard .psp58-levels>div.psp60-lit,
+  #psp56Dashboard .psp58-class-info>div.psp60-lit,
+  #psp56Dashboard .psp58-class-datetime>div.psp60-lit,
+  #psp56Dashboard .psp58-journal>div.psp60-lit,
+  #psp56Dashboard .psp58-status-copy.psp60-lit,
+  #psp56Dashboard .psp58-class-countdown.psp60-lit{
+    transform:translateY(-2px)!important;
+    border-color:rgba(251,146,1,.42)!important;
+    box-shadow:0 9px 22px rgba(15,23,42,.07),0 0 24px rgba(251,146,1,.085)!important;
+  }
+  #psp56Dashboard .psp58-tp-progress>span.psp60-lit{
+    transform:translateY(-1px) scale(1.008)!important;
+    border-color:rgba(251,146,1,.36)!important;
+    box-shadow:0 7px 18px rgba(251,146,1,.075)!important;
+  }
+  #psp56Dashboard .psp58-tools button.psp60-lit{
+    transform:translateY(-2px)!important;
+    border-color:rgba(251,146,1,.44)!important;
+    color:var(--gold)!important;
+    box-shadow:0 9px 22px rgba(15,23,42,.06),0 0 22px rgba(251,146,1,.075)!important;
+  }
+  #psp56Dashboard .psp58-levels>div>*:not(.psp60-hover-light),
+  #psp56Dashboard .psp58-class-info>div>*:not(.psp60-hover-light),
+  #psp56Dashboard .psp58-class-datetime>div>*:not(.psp60-hover-light),
+  #psp56Dashboard .psp58-journal>div>*:not(.psp60-hover-light),
+  #psp56Dashboard .psp58-tp-progress>span>*:not(.psp60-hover-light),
+  #psp56Dashboard .psp58-status-copy>*:not(.psp60-hover-light),
+  #psp56Dashboard .psp58-class-countdown>*:not(.psp60-hover-light),
+  #psp56Dashboard .psp58-tools button>*:not(.psp60-hover-light){position:relative;z-index:2}
+}
+
+/* No Live Feed on dashboard */
+#psp56Dashboard .activity-card{display:none!important}
+
+@media(max-width:1100px){
+  #psp56Dashboard .psp59-grid-primary,
+  #psp56Dashboard .psp59-grid-secondary{grid-template-columns:1fr!important}
+  #psp56Dashboard .psp59-grid-primary>.psp58-card,
+  #psp56Dashboard .psp59-grid-secondary>.psp58-card{min-height:0!important}
+}
