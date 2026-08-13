@@ -1867,3 +1867,302 @@ img{max-width:100%}
     white-space:nowrap!important;
   }
 }
+
+
+/* ============================================================
+   V78 FINAL HOME MOBILE REFERENCE LOCK
+   Fixes the V77 regression and matches the supplied 100624/100626/100628
+   reference composition. HOME MOBILE ONLY. Desktop and other pages untouched.
+   ============================================================ */
+@media (max-width:768px){
+  html:not(.psp-desktop-mobile-view) body.page-home{
+    overflow-x:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .container{
+    width:calc(100% - 12px)!important;
+    max-width:none!important;
+    margin-left:6px!important;
+    margin-right:6px!important;
+  }
+
+  /* Header: compact desktop-style row exactly like the supplied mobile reference. */
+  html:not(.psp-desktop-mobile-view) body.page-home .topbar{position:relative!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .nav{
+    height:31px!important;min-height:31px!important;padding:0!important;gap:3px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .brand{gap:3px!important;font-size:8px!important;white-space:nowrap!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .brand img{width:21px!important;height:21px!important;border-radius:5px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .menu,
+  html:not(.psp-desktop-mobile-view) body.page-home .menu.is-open{
+    display:flex!important;flex:1 1 auto!important;min-width:0!important;align-items:center!important;justify-content:center!important;gap:1px!important;white-space:nowrap!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .menu a{
+    display:block!important;padding:10px 3px 9px!important;font-size:5.6px!important;line-height:1!important;font-weight:800!important;border:0!important;text-decoration:none!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .mobile-menu{display:none!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .nav-actions{display:flex!important;gap:3px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .theme-btn{display:grid!important;width:21px!important;height:21px!important;font-size:10px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .nav .btn{min-height:21px!important;padding:4px 9px!important;border-radius:6px!important;font-size:6.5px!important;box-shadow:none!important}
+
+  /* Section rhythm from the approved reference. */
+  html:not(.psp-desktop-mobile-view) body.page-home .section,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-showcase,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-showcase,
+  html:not(.psp-desktop-mobile-view) body.page-home .services-premium,
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-section,
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-spotlight-section{padding:17px 0!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .section-heading{max-width:100%!important;margin:0 auto 9px!important;padding:0 4px!important;text-align:center!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .section-heading .small{font-size:5.7px!important;letter-spacing:.11em!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .section-heading h2{margin:3px 0 4px!important;font-size:16px!important;line-height:1.05!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .section-heading p{margin:0!important;font-size:5.8px!important;line-height:1.35!important}
+
+  /* Hero reference proportions. */
+  html:not(.psp-desktop-mobile-view) body.page-home .hero{padding:7px 0 6px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner{
+    height:166px!important;min-height:166px!important;max-height:166px!important;border-radius:8px!important;background-size:cover!important;background-position:center top!important;overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-text-layer{
+    width:61%!important;max-width:61%!important;height:100%!important;padding:7px 7px 5px!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner h1{margin:0 0 3px!important;font-size:15.8px!important;line-height:.95!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-eyebrow{margin:0 0 3px!important;padding:2px 4px!important;font-size:4.5px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-course{width:100%!important;margin:0 0 3px!important;padding:2px 4px!important;font-size:4.4px!important;line-height:1.08!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote{width:100%!important;height:39px!important;min-height:39px!important;max-height:39px!important;margin:0 0 3px!important;padding:4px 12px 3px!important;border-radius:4px!important;overflow:hidden!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote strong{font-size:3.9px!important;line-height:1.08!important;margin:0 0 1px!important;padding:0!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote p{font-size:3.45px!important;line-height:1.16!important;-webkit-line-clamp:3!important;margin:0!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta{align-self:flex-start!important;min-height:16px!important;margin:0!important;padding:3px 8px!important;border-radius:4px!important;font-size:5.2px!important}
+
+  /* Three broker banners in one row. */
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-grid,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-logo-grid{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;overflow:visible!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-card,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-logo-card,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-logo-card picture{
+    width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:3/1!important;border-radius:7px!important;overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-logo-card img{display:block!important;width:100%!important;height:auto!important;aspect-ratio:3/1!important;object-fit:cover!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-card-footer{display:none!important}
+
+  /* Community: exactly three compact cards. */
+  html:not(.psp-desktop-mobile-view) body.page-home .social-grid,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-grid-three{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .social-card,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-platform{min-height:0!important;padding:8px 3px!important;border-radius:8px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .social-icon{width:20px!important;height:20px!important;margin:0 auto 3px!important;border-radius:6px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .social-icon svg{width:11px!important;height:11px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .social-card h3,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-platform h3{margin:0 0 1px!important;font-size:6.7px!important;line-height:1.1!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .social-card p,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-platform p{font-size:4.8px!important;line-height:1.15!important}
+
+  /* Services: all three artwork cards visible in a single row. */
+  html:not(.psp-desktop-mobile-view) body.page-home .services-banner-grid{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;overflow:visible!important;padding:0!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .service-banner-card{display:block!important;width:auto!important;min-width:0!important;border-radius:7px!important;overflow:hidden!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .service-banner-card img{display:block!important;width:100%!important;height:auto!important;aspect-ratio:2400/1054!important;object-fit:cover!important;border-radius:7px!important}
+
+  /* Mentor: left portrait + right copy. */
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-spotlight{display:grid!important;grid-template-columns:43% 57%!important;height:128px!important;min-height:128px!important;border-radius:9px!important;overflow:hidden!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-portrait{height:128px!important;min-height:128px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-person{height:126px!important;max-height:126px!important;bottom:-2px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-content{height:128px!important;padding:7px 6px!important;overflow:hidden!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-eyebrow{font-size:3.8px!important;margin-bottom:1px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-content h2{font-size:11.4px!important;line-height:1!important;margin:2px 0 3px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-description{font-size:3.8px!important;line-height:1.22!important;margin:0 0 3px!important;-webkit-line-clamp:4!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-highlights{gap:2px!important;margin:0 0 3px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-highlights span{padding:1px 2px!important;font-size:2.8px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-cta{min-height:13px!important;padding:2px 4px!important;font-size:3.4px!important;border-radius:3px!important}
+
+  /* Partner reference: two equal cards on top, one wider Social Media card centered below. */
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-grid{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;overflow:visible!important;padding:0!important;align-items:start!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-item{min-width:0!important;width:auto!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-item:nth-child(3){grid-column:1/-1!important;width:72%!important;justify-self:center!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-card,
+  html:not(.psp-desktop-mobile-view) body.page-home .visual-promo-card{display:block!important;width:100%!important;max-width:none!important;border-radius:7px!important;overflow:hidden!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-card img,
+  html:not(.psp-desktop-mobile-view) body.page-home .visual-promo-card img{display:block!important;width:100%!important;height:auto!important;aspect-ratio:600/350!important;object-fit:cover!important}
+
+  /* Broker Reviews: full desktop-style table fitted into the mobile viewport. */
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-table-wrap{overflow:hidden!important;border-radius:7px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table{display:table!important;width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table thead{display:table-header-group!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table tbody{display:table-row-group!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table tr{display:table-row!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table th,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table td{display:table-cell!important;padding:4px 1px!important;font-size:3.55px!important;line-height:1.14!important;text-align:center!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table th{font-size:3.05px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table td::before{display:none!important;content:none!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-name img{display:block!important;width:46px!important;max-width:94%!important;height:20px!important;object-fit:contain!important;margin:0 auto!important;background:transparent!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table .badge{padding:1px 2px!important;font-size:2.9px!important;line-height:1.08!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-bonus-note{margin:4px 2px 2px!important;font-size:3.6px!important;line-height:1.2!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-data-note{margin:2px!important;font-size:3.1px!important;line-height:1.2!important}
+
+  /* Orange CTA under the table — do not hide it. */
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-section .cta{
+    display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;min-height:42px!important;margin-top:8px!important;padding:7px 9px!important;border-radius:7px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-section .cta h3{margin:0 0 1px!important;font-size:9px!important;line-height:1.05!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-section .cta p{margin:0!important;font-size:3.8px!important;line-height:1.2!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-section .cta .btn{flex:0 0 auto!important;min-height:16px!important;padding:3px 6px!important;border-radius:4px!important;font-size:4.2px!important}
+
+  /* Public footer from the reference. Brand block first, then 3 link columns. */
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer{
+    display:block!important;background:#081321!important;color:#e7ebf2!important;border-top:2px solid #F88702!important;padding:17px 0 8px!important;margin:0!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-grid{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px 9px!important;align-items:start!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-brand-block{grid-column:1/-1!important;width:47%!important;max-width:47%!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-brand{display:flex!important;align-items:center!important;gap:5px!important;color:#fff!important;font-size:9px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-brand img{display:block!important;width:18px!important;height:18px!important;object-fit:contain!important;border-radius:4px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-brand strong{font-size:9px!important;color:#fff!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-grid p{margin:5px 0!important;font-size:4.7px!important;line-height:1.35!important;color:#9fa9ba!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-socials{display:flex!important;gap:4px!important;margin-top:6px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-socials a{display:grid!important;place-items:center!important;width:13px!important;height:13px!important;border:1px solid #263247!important;border-radius:3px!important;background:#111e30!important;color:#f9a21b!important;font-size:6px!important;font-weight:900!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer h4{margin:0 0 5px!important;font-size:5.4px!important;line-height:1!important;letter-spacing:.12em!important;text-transform:uppercase!important;color:#f5a623!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer ul{display:flex!important;flex-direction:column!important;gap:4px!important;margin:0!important;padding:0!important;list-style:none!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer li{margin:0!important;font-size:4.6px!important;line-height:1.2!important;color:#9fa9ba!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer li a{color:#9fa9ba!important;text-decoration:none!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .disclaimer{margin-top:12px!important;padding:7px!important;border:1px solid #1c2b41!important;border-radius:5px!important;font-size:3.6px!important;line-height:1.3!important;color:#8995a8!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .copyright{display:flex!important;flex-direction:row!important;justify-content:space-between!important;gap:6px!important;margin-top:7px!important;padding-top:7px!important;border-top:1px solid #14233a!important;font-size:3.5px!important;line-height:1.2!important;color:#718097!important}
+}
+
+
+/* ============================================================
+   V79 CROSS-BROWSER MOBILE RENDER LOCK
+   Keep the approved Chrome mobile Home composition visually stable in
+   Samsung Internet, Android WebView/in-app browsers, Chrome, Edge, Firefox
+   and iOS Safari. HOME MOBILE ONLY; desktop and other pages untouched.
+   ============================================================ */
+@media (max-width:768px){
+  /*
+     Samsung Internet / Android WebViews may enlarge very small text even when
+     the CSS pixel viewport is identical. The V78 reference intentionally uses
+     compact typography to fit the approved 3-column composition, so browser
+     text autosizing must be disabled for this page only.
+  */
+  html,
+  html body.page-home,
+  html body.page-home *{
+    -webkit-text-size-adjust:none!important;
+    text-size-adjust:none!important;
+  }
+
+  html:not(.psp-desktop-mobile-view),
+  html:not(.psp-desktop-mobile-view) body.page-home{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:0!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    overflow-x:hidden!important;
+    overscroll-behavior-x:none;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-home{
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    font-synthesis:none;
+    font-kerning:normal;
+    font-variant-ligatures:normal;
+    touch-action:pan-y pinch-zoom;
+  }
+
+  /* Keep form controls/buttons on the exact same type scale as page text. */
+  html:not(.psp-desktop-mobile-view) body.page-home button,
+  html:not(.psp-desktop-mobile-view) body.page-home input,
+  html:not(.psp-desktop-mobile-view) body.page-home select,
+  html:not(.psp-desktop-mobile-view) body.page-home textarea{
+    font:inherit;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+
+  /* Normalize browser-specific inline text wrapping/reflow. */
+  html:not(.psp-desktop-mobile-view) body.page-home .menu a,
+  html:not(.psp-desktop-mobile-view) body.page-home .nav .btn,
+  html:not(.psp-desktop-mobile-view) body.page-home .brand,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta,
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-cta,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-section .cta .btn{
+    -webkit-hyphens:none!important;
+    hyphens:none!important;
+    word-break:keep-all!important;
+    overflow-wrap:normal!important;
+  }
+
+  /* Prevent browser defaults from adding unexpected margins to compact text. */
+  html:not(.psp-desktop-mobile-view) body.page-home h1,
+  html:not(.psp-desktop-mobile-view) body.page-home h2,
+  html:not(.psp-desktop-mobile-view) body.page-home h3,
+  html:not(.psp-desktop-mobile-view) body.page-home h4,
+  html:not(.psp-desktop-mobile-view) body.page-home p{
+    text-rendering:geometricPrecision;
+  }
+
+  /* Stable image sizing in browsers that resolve intrinsic dimensions differently. */
+  html:not(.psp-desktop-mobile-view) body.page-home img,
+  html:not(.psp-desktop-mobile-view) body.page-home picture,
+  html:not(.psp-desktop-mobile-view) body.page-home svg{
+    max-width:100%;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home img{
+    -webkit-user-drag:none;
+  }
+
+  /* Chromium/Samsung occasionally gives flex children a min-content width. */
+  html:not(.psp-desktop-mobile-view) body.page-home .nav > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .menu > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-grid > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-logo-grid > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-grid > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-grid-three > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .services-banner-grid > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-grid > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .footer-grid > *{
+    min-width:0!important;
+    max-width:100%;
+  }
+
+  /* Lock the header geometry so Samsung text autosizing cannot collapse gaps. */
+  html:not(.psp-desktop-mobile-view) body.page-home .topbar .container.nav{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .menu,
+  html:not(.psp-desktop-mobile-view) body.page-home .menu.is-open{
+    overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .menu a{
+    flex:0 0 auto!important;
+  }
+
+  /* Table: keep browser font inflation from changing column geometry. */
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table *{
+    -webkit-text-size-adjust:none!important;
+    text-size-adjust:none!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Prevent tap highlight/auto-link decoration from changing the approved appearance. */
+  html:not(.psp-desktop-mobile-view) body.page-home a,
+  html:not(.psp-desktop-mobile-view) body.page-home button{
+    -webkit-tap-highlight-color:transparent;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home a[x-apple-data-detectors],
+  html:not(.psp-desktop-mobile-view) body.page-home a[href^="tel:"],
+  html:not(.psp-desktop-mobile-view) body.page-home a[href^="mailto:"]{
+    color:inherit!important;
+    text-decoration:none!important;
+    font:inherit!important;
+  }
+}

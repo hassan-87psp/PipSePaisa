@@ -42,7 +42,7 @@ html.psp-v20-booting body::after{content:"";position:fixed;left:50%;top:50%;z-in
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PipSePaisa User Panel</title>
 <script>
   window.PSP_PORTAL_MODE = (new URLSearchParams(location.search).get('portal') === 'mentor') ? 'mentor' : 'user';
@@ -1090,9 +1090,9 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <!-- ========================================================================
      LANDING PAGE - Shows on first visit (sessionStorage check)
      ======================================================================== -->
-<div id="landingPage" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg-main);">
+<div id="landingPage" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg-main);overflow:hidden;">
 
-  <iframe src="landing.html?v=20260813-v79-shared-public-mobile" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <iframe src="landing.html?v=20260814-v79-cross-browser-mobile-lock" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
 </div>
 
 <div class="app" id="mainApp" style="display:none;">
@@ -3229,8 +3229,23 @@ window.addEventListener('appinstalled', () => {
 </style>
 <div id="artModal" onclick="if(event.target===this)closeArt()"><div class="art-modal-box" id="artModalBox"></div></div>
 <script src="user-signals-core-v29.js?v=20260812-v58-performance-restore"></script>
-<script>
-document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getElementById('landingPage'),f=document.getElementById('siteFooter');if(!lp||!f)return;function syncLandingFooter(){var landingVisible=getComputedStyle(lp).display!=='none';f.style.display=landingVisible?'none':'';if(!landingVisible){f.style.marginLeft='260px';f.style.width='auto';}}syncLandingFooter();if(window.MutationObserver){new MutationObserver(syncLandingFooter).observe(lp,{attributes:true,attributeFilter:['style','class']});}}catch(e){}});
+<script id="pspV78LandingFooterIsolation">
+/* V78: The logged-in dashboard footer must never be moved inside the public landing overlay.
+   landing.html already owns its public footer. Keeping the two footers isolated prevents the
+   dashboard footer from appearing in the middle of the mobile Home page. */
+document.addEventListener('DOMContentLoaded',function(){
+  try{
+    var lp=document.getElementById('landingPage');
+    var f=document.getElementById('siteFooter');
+    if(!lp||!f)return;
+    function sync(){
+      var landingVisible=getComputedStyle(lp).display!=='none';
+      f.style.display=landingVisible?'none':'';
+    }
+    if(window.MutationObserver){new MutationObserver(sync).observe(lp,{attributes:true,attributeFilter:['style','class']});}
+    sync();
+  }catch(e){}
+});
 </script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getElementById('landingPage');if(!lp)return;var orbs=document.createElement('div');orbs.style.cssText='position:absolute;top:0;left:0;right:0;height:720px;overflow:hidden;pointer-events:none;z-index:-1';orbs.innerHTML='<div class="pip-orb" style="width:240px;height:240px;background:rgba(245,158,11,.45);left:5%;top:90px;animation:pipFloatY 9s ease-in-out infinite"></div><div class="pip-orb" style="width:200px;height:200px;background:rgba(16,185,129,.38);right:7%;top:150px;animation:pipFloatX 12s ease-in-out infinite"></div><div class="pip-orb" style="width:160px;height:160px;background:rgba(245,158,11,.30);left:42%;top:30px;animation:pipFloatY 11s ease-in-out infinite"></div>';lp.insertBefore(orbs,lp.firstChild);var els=lp.querySelectorAll('section, .card, [class*="hero"], [class*="feature"], [class*="stat"]');els.forEach(function(e){e.classList.add('pip-reveal')});var io=new IntersectionObserver(function(ents){ents.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}})},{threshold:.1});els.forEach(function(e){io.observe(e)});setTimeout(function(){els.forEach(function(e){e.classList.add('in')})},1600);}catch(e){}});
