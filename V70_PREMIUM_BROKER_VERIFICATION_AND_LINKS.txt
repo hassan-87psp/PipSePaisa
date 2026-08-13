@@ -1,0 +1,30 @@
+PipSePaisa V70 — Premium Broker Verification & Broker Links
+Date: 13 August 2026
+
+Implemented:
+1. Redesigned /free-access/ with a premium light PipSePaisa fintech UI.
+2. Correct client/account broker links:
+   - Exness: https://one.exnessonelink.com/a/be2kjlypr9
+   - DPrime: https://my.dooprime.com/links/go/72929
+   - XM: https://affs.click/ReVHj
+3. Added Copy buttons beside all three broker links on /free-access/.
+4. Redesigned /broker-shift/ with premium UI.
+5. Removed the old Open Broker Link and Change Broker buttons from the verification hero.
+6. Added top "Get Broker Link" selector + visible referral link + Copy Link button.
+7. Top broker selection automatically controls the Selected Broker field in Submit Broker Proof.
+8. Replaced Account Type with required Email Subject.
+9. Added required Proof of Deposit upload while retaining Broker Confirmation Email Proof.
+10. Available Deposit in Your Account (USD) remains required.
+11. Final Exness, DPrime and XM instructions added; all three instruction cards stay equal height on desktop.
+12. Admin Access Approvals now displays Email Subject, Deposit Proof and Broker Email proof.
+13. Home "Choose Your Preferred Broker" cards now open the correct broker account links from the whole card.
+14. Become Partner links updated:
+   - Exness Partner: https://one.exnessonelink.com/a/be2kjlypr9
+   - DPrime Partner: https://my.dooprime.com/links/go/72929
+   - XM Partner: https://affs.click/VAVGX
+15. Normal XM account links are kept separate from the XM Partner link.
+16. Added 56_BROKER_VERIFICATION_PREMIUM_FLOW.sql for Email Subject + Deposit Proof persistence and updated submission RPC.
+
+Supabase requirement:
+Run 56_BROKER_VERIFICATION_PREMIUM_FLOW.sql in the existing Supabase SQL Editor before testing the new proof submission form.
+No Edge Function changes are required for this V70 broker-verification update.

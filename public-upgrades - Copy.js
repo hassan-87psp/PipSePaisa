@@ -140,9 +140,9 @@
       else if(a.getAttribute('href')==='#')a.href='landing.html';
     });
     const partnerLinks=[
-      ['DPrime','Open DPrime Partner Account →','https://www.dooprime.com/introducing-broker'],
-      ['XM','Open XM Partner Account →','https://partners.xm.com/registration'],
-      ['Exness','Open Exness Partner Account →','https://www.exnessaffiliates.com/']
+      ['DPrime','Open DPrime Partner Account →','https://my.dooprime.com/links/go/72929'],
+      ['XM','Open XM Partner Account →','https://affs.click/VAVGX'],
+      ['Exness','Open Exness Partner Account →','https://one.exnessonelink.com/a/be2kjlypr9']
     ];
     document.querySelectorAll('.partner-detail .partner-info').forEach((box,index)=>{
       const link=box.querySelector(':scope > a.login');

@@ -2,7 +2,7 @@
   'use strict';
   const LINKS={
     dprime:'https://my.dooprime.com/links/go/72929',
-    xmClient:'https://affs.click/BvyF2',xmPartner:'https://affs.click/vKyT2',
+    xmClient:'https://affs.click/ReVHj',xmPartner:'https://affs.click/VAVGX',
     exness:'https://one.exnessonelink.com/a/be2kjlypr9',
     vantage:'https://vigco.co/la-com-inv/opun7U0W',
     hfm:'https://www.grouphf.com/Pipsepaisa?refid=3'

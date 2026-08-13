@@ -141,21 +141,22 @@
       else if(a.matches('.facebook,#socialFacebook'))a.href='https://www.facebook.com/share/1AUgXGtVYy/';
       else if(a.matches('.instagram,#socialInstagram'))a.href='https://www.instagram.com/pipsepaisa/';
       else if(a.matches('.whatsapp,#socialWhatsapp'))a.href='https://wa.me/601156961157';
-      else if(a.closest('.broker-grid,.broker-logo-grid,.partner-promo-grid'))a.href='/partner.html?psp_route=/become-partner#partner-programs';
+      else if(a.closest('#landingBrokerGrid')){const t=((a.textContent||'')+' '+(a.querySelector('img')?.alt||'')).toLowerCase();if(t.includes('exness'))a.href='https://one.exnessonelink.com/a/be2kjlypr9';else if(t.includes('dprime')||t.includes('d prime'))a.href='https://my.dooprime.com/links/go/72929';else if(t.includes('xm'))a.href='https://affs.click/ReVHj';a.target='_blank';a.rel='noopener';}
+      else if(a.closest('.partner-promo-grid'))a.href='/partner.html?psp_route=/become-partner#partner-programs';
       else if(a.closest('.resource-card'))a.href='./';
       else if(a.getAttribute('href')==='#')a.href='/';
     });
     const partnerLinks=[
-      ['DPrime','Open DPrime Partner Account →','https://www.dooprime.com/introducing-broker'],
-      ['XM','Open XM Partner Account →','https://pipsepaisa.com'],
-      ['Exness','Open Exness Partner Account →','https://www.exnessaffiliates.com/']
+      ['DPrime','Open DPrime Partner Account →','https://my.dooprime.com/links/go/72929'],
+      ['XM','Open XM Partner Account →','https://affs.click/VAVGX'],
+      ['Exness','Open Exness Partner Account →','https://one.exnessonelink.com/a/be2kjlypr9']
     ];
     document.querySelectorAll('.partner-detail .partner-info').forEach((box,index)=>{
       const link=box.querySelector(':scope > a.login');
       const data=partnerLinks[index];
       if(link&&data){link.textContent=data[1];link.href=data[2];link.target='_blank';link.rel='noopener';}
     });
-    document.querySelectorAll('.broker-card-footer span').forEach(el=>{el.textContent='View Program →'});
+    document.querySelectorAll('#landingBrokerGrid .broker-card-footer span').forEach(el=>{el.textContent='Open Account →'});
   }
 
   function upgradePartnerBanners(){
