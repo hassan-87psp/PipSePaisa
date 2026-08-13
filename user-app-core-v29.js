@@ -777,25 +777,30 @@
         return;
       }
 
-      // Delete only the signed-in user's row. Returning the id lets us detect an
-      // RLS/no-match delete instead of silently hiding the row until refresh.
-      const { data, error } = await sb
+      // Use an exact row count instead of DELETE ... RETURNING so the action
+      // does not depend on a separate SELECT policy for returned rows.
+      const { error, count } = await sb
         .from('trades')
-        .delete()
+        .delete({ count: 'exact' })
         .eq('id', tradeId)
-        .eq('user_id', currentUser.id)
-        .select('id');
+        .eq('user_id', currentUser.id);
 
       if (error) {
         alert('❌ Error deleting trade: ' + error.message);
         return;
       }
-      if (!Array.isArray(data) || data.length === 0) {
-        alert('❌ Trade was not deleted. Please refresh and try again.');
-        return;
+
+      // If the API reports no affected row, reload once before showing an error.
+      if (count === 0) {
+        await loadTradesFromDB();
+        if (trades.some(t => String(t.id) === tradeId)) {
+          alert('❌ Trade was not deleted. Please run the V74 Supabase trade-delete policy update, then try again.');
+          return;
+        }
+      } else {
+        trades = trades.filter(t => String(t.id) !== tradeId);
       }
 
-      trades = trades.filter(t => String(t.id) !== tradeId);
       updateDashboard();
       updateTradesTable();
       buildCalendar();
@@ -805,7 +810,9 @@
       alert('❌ Error deleting trade: ' + (e?.message || e));
     }
   }
-  
+  // Explicit global export keeps table actions reliable on every clean route.
+  window.deleteTrade = deleteTrade;
+
   // Load all trades from database for current user
   async function loadTradesFromDB() {
     if (!currentUser || !sb) return;
@@ -1095,7 +1102,7 @@
         <td class="notes-cell"><div class="notes-preview">${notesPreview}</div></td>
         <td>
           <button class="action-btn" data-trade-id="${String(t.id)}" onclick="viewTradeDetail(this.dataset.tradeId)" title="View">👁️</button>
-          <button class="action-btn delete" data-trade-id="${String(t.id)}" onclick="deleteTrade(this.dataset.tradeId)" title="Delete">🗑️</button>
+          <button type="button" class="action-btn delete" data-trade-id="${String(t.id)}" onclick="window.deleteTrade(this.dataset.tradeId); return false;" title="Delete">🗑️</button>
         </td>
       </tr>`;
     }).join('');

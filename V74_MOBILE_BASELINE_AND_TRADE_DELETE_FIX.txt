@@ -1,0 +1,20 @@
+PipSePaisa V74 — Mobile Baseline Restore + Trade Delete Database Fix
+
+1. Mobile user-panel UI is restored to the exact pre-V73 responsive baseline:
+   - removed the V73 emergency mobile override block
+   - restored the same psp-v28-fixes.css mobile behavior used in the previously approved build
+   - desktop styles and V72/V73 feature changes remain untouched
+
+2. My Trades delete is hardened:
+   - explicit global deleteTrade export for clean-route pages
+   - exact delete row-count handling
+   - no DELETE RETURNING dependency
+   - V74 SQL adds the authenticated user-own-row DELETE RLS policy
+
+3. Existing V72 broker verification, clean URLs, Free Course behavior and V73 feature work are preserved.
+
+Deployment:
+- Run 58_TRADES_DELETE_RLS_FIX.sql once in Supabase SQL Editor.
+- Upload V74 patch over V73.
+- Hard refresh / clear site cache on mobile once.
+- No Edge Function redeploy is required.
