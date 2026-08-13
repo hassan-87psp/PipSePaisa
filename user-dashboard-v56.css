@@ -51,7 +51,7 @@
 @media(max-width:700px){.psp58-home{gap:8px}.psp58-hero{padding:14px}.psp58-card{padding:11px}.psp58-stats{gap:6px}.psp58-stat{padding:10px}.psp58-card.activity-card .psp58-activity{max-height:300px}}
 
 /* PipSePaisa V60 — cursor-follow luxury lighting + micro depth */
-@media (hover:hover) and (pointer:fine){
+@media (any-hover:hover) and (any-pointer:fine){
   .psp58-hero,.psp58-stat,.psp58-card,.psp58-access,.psp58-analysis-item,.psp58-tools button{
     --psp60-x:50%;--psp60-y:50%;--psp60-rx:0deg;--psp60-ry:0deg;
     isolation:isolate;
@@ -225,7 +225,7 @@
 #psp56Dashboard .psp63-access-wrap .psp58-access b{font-size:10.5px}
 #psp56Dashboard .psp63-access-wrap .psp58-access span:not(.psp58-access-icon){font-size:8px}
 
-@media (hover:hover) and (pointer:fine){
+@media (any-hover:hover) and (any-pointer:fine){
   #psp56Dashboard .psp63-welcome>.psp60-hover-light{
     z-index:1!important;
     background:radial-gradient(320px circle at var(--psp60-x) var(--psp60-y),rgba(251,146,1,.13),rgba(251,146,1,.045) 40%,transparent 72%)!important;
@@ -373,7 +373,7 @@
   content:"";position:absolute;inset:0;pointer-events:none;opacity:.42;
   background:linear-gradient(125deg,rgba(255,255,255,.18),transparent 42%,rgba(251,146,1,.025));
 }
-@media (hover:hover) and (pointer:fine){
+@media (any-hover:hover) and (any-pointer:fine){
   #psp56Dashboard .psp58-levels>div>.psp60-hover-light,
   #psp56Dashboard .psp58-class-info>div>.psp60-hover-light,
   #psp56Dashboard .psp58-class-datetime>div>.psp60-hover-light,
@@ -443,7 +443,7 @@
 }
 
 /* Slower, silkier card motion. Motion is driven by the V67 RAF engine. */
-@media (hover:hover) and (pointer:fine){
+@media (any-hover:hover) and (any-pointer:fine){
   #psp56Dashboard .psp58-card,
   #psp56Dashboard .psp58-stat,
   #psp56Dashboard .psp58-access{
@@ -595,3 +595,99 @@
 /* Hero financial art: subtle pointer parallax, still calm and institutional. */
 #psp56Dashboard .psp63-welcome{--psp67-parallax-x:0px;--psp67-parallax-y:0px}
 #psp56Dashboard .psp63-market-art{transform:translate3d(var(--psp67-parallax-x),var(--psp67-parallax-y),0);transition:transform .65s cubic-bezier(.22,.8,.24,1);will-change:transform}
+
+
+/* ================================================================
+   PipSePaisa V68 — Hybrid Pointer + Clearly Visible Luxury Hover
+   Works on Windows/touch laptops when a real mouse/trackpad is present.
+   ================================================================ */
+@media (any-hover:hover) and (any-pointer:fine){
+  /* CSS fallback: premium response is visible even before/without JS light. */
+  #psp56Dashboard .psp58-card{
+    transition:border-color .42s cubic-bezier(.22,.8,.24,1),
+               box-shadow .48s cubic-bezier(.22,.8,.24,1),
+               background .48s cubic-bezier(.22,.8,.24,1)!important;
+  }
+  #psp56Dashboard .psp58-card:hover{
+    border-color:rgba(251,146,1,.46)!important;
+    box-shadow:0 20px 52px rgba(15,23,42,.105),
+               0 0 0 1px rgba(251,146,1,.075),
+               0 0 42px rgba(251,146,1,.115)!important;
+  }
+  #psp56Dashboard .psp58-card.featured:hover{
+    box-shadow:0 20px 52px rgba(15,23,42,.105),
+               0 0 0 1px rgba(16,185,129,.08),
+               0 0 40px rgba(16,185,129,.075),
+               0 0 32px rgba(251,146,1,.08)!important;
+  }
+  #psp56Dashboard .psp58-stat:hover{
+    border-color:rgba(251,146,1,.48)!important;
+    box-shadow:0 16px 38px rgba(15,23,42,.095),0 0 30px rgba(251,146,1,.11)!important;
+  }
+
+  /* Stronger cursor-follow light, still soft and institutional. */
+  #psp56Dashboard .psp58-card>.psp60-hover-light{
+    background:radial-gradient(360px circle at var(--psp60-x) var(--psp60-y),
+      rgba(251,146,1,.235),rgba(251,146,1,.085) 34%,transparent 70%)!important;
+  }
+  #psp56Dashboard .psp58-card.featured>.psp60-hover-light{
+    background:radial-gradient(370px circle at var(--psp60-x) var(--psp60-y),
+      rgba(16,185,129,.15),rgba(251,146,1,.18) 34%,rgba(251,146,1,.055) 50%,transparent 72%)!important;
+  }
+  #psp56Dashboard .psp58-card.class-card>.psp60-hover-light{
+    background:radial-gradient(370px circle at var(--psp60-x) var(--psp60-y),
+      rgba(255,190,80,.26),rgba(251,146,1,.11) 38%,transparent 72%)!important;
+  }
+  #psp56Dashboard .psp58-card>.psp60-hover-light:after{
+    background:radial-gradient(270px circle at var(--psp60-x) var(--psp60-y),
+      rgba(255,210,130,.98),rgba(251,146,1,.48) 34%,transparent 72%)!important;
+  }
+  #psp56Dashboard .psp58-stat>.psp60-hover-light{
+    background:radial-gradient(220px circle at var(--psp60-x) var(--psp60-y),
+      rgba(251,146,1,.24),rgba(251,146,1,.08) 38%,transparent 72%)!important;
+  }
+
+  /* Inner data tiles: obvious but elegant local illumination. */
+  #psp56Dashboard .psp58-levels>div:hover,
+  #psp56Dashboard .psp58-class-info>div:hover,
+  #psp56Dashboard .psp58-class-datetime>div:hover,
+  #psp56Dashboard .psp58-journal>div:hover,
+  #psp56Dashboard .psp58-status-copy:hover,
+  #psp56Dashboard .psp58-class-countdown:hover,
+  #psp56Dashboard .psp58-tools button:hover{
+    border-color:rgba(251,146,1,.52)!important;
+    background:linear-gradient(145deg,
+      color-mix(in srgb,var(--bg-elevated) 90%,#fb9201 10%),
+      color-mix(in srgb,var(--bg-card) 97%,#fb9201 3%))!important;
+    box-shadow:0 10px 25px rgba(15,23,42,.075),0 0 28px rgba(251,146,1,.12)!important;
+  }
+  #psp56Dashboard .psp58-levels>div>.psp60-hover-light,
+  #psp56Dashboard .psp58-class-info>div>.psp60-hover-light,
+  #psp56Dashboard .psp58-class-datetime>div>.psp60-hover-light,
+  #psp56Dashboard .psp58-journal>div>.psp60-hover-light,
+  #psp56Dashboard .psp58-status-copy>.psp60-hover-light,
+  #psp56Dashboard .psp58-class-countdown>.psp60-hover-light,
+  #psp56Dashboard .psp58-tools button>.psp60-hover-light{
+    background:radial-gradient(175px circle at var(--psp60-x) var(--psp60-y),
+      rgba(255,190,80,.30),rgba(251,146,1,.10) 42%,transparent 74%)!important;
+  }
+  #psp56Dashboard .psp58-levels>div>.psp60-hover-light:after,
+  #psp56Dashboard .psp58-class-info>div>.psp60-hover-light:after,
+  #psp56Dashboard .psp58-class-datetime>div>.psp60-hover-light:after,
+  #psp56Dashboard .psp58-journal>div>.psp60-hover-light:after,
+  #psp56Dashboard .psp58-status-copy>.psp60-hover-light:after,
+  #psp56Dashboard .psp58-class-countdown>.psp60-hover-light:after{
+    background:radial-gradient(125px circle at var(--psp60-x) var(--psp60-y),
+      rgba(255,220,155,.96),rgba(251,146,1,.42) 38%,transparent 73%)!important;
+  }
+
+  /* Smooth headings and icon micro-motion. */
+  #psp56Dashboard .psp58-card-head h3,
+  #psp56Dashboard .psp58-stat .ico,
+  #psp56Dashboard .psp58-stat .go{
+    transition:transform .45s cubic-bezier(.22,.8,.24,1),filter .42s ease,color .35s ease!important;
+  }
+  #psp56Dashboard .psp58-card.psp60-lit .psp58-card-head h3{transform:translateX(2px)}
+  #psp56Dashboard .psp58-stat.psp60-lit .ico{transform:translateY(-1px) scale(1.06);filter:drop-shadow(0 6px 12px rgba(251,146,1,.22))}
+  #psp56Dashboard .psp58-stat.psp60-lit .go{transform:translateX(2px);color:var(--gold)}
+}

@@ -1,0 +1,11 @@
+PipSePaisa V68 — Visible Premium Hover Fix
+
+- Fixed hover engine on Windows/hybrid touch laptops by using any-pointer:fine / any-hover:hover.
+- Added CSS fallback so premium hover is visible even if JS cursor-follow layer does not initialize.
+- Stronger but tasteful cursor-follow orange/gold light.
+- Smoother inertial tilt/lift and shadow movement.
+- Stronger local light on Entry, SL, TP, class info/date-time, Journal and quick-tool tiles.
+- New cache-busting key in index.html.
+- All V67/V66 layout, alignment, profile, article upload and dashboard fixes are preserved.
+
+No Supabase/SQL/Edge Function update required.
