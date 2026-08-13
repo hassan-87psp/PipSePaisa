@@ -25,21 +25,47 @@
 
   async function resolveClientId(client,userId){
     if(!client||!userId)return '';
-    try{
-      const {data,error}=await client.rpc('psp_my_client_identity');
-      if(!error){const row=firstRow(data);if(row?.client_id)return String(row.client_id);}
-    }catch(_){ }
-    try{
-      const {data,error}=await client.from('profiles').select('client_id').eq('id',userId).maybeSingle();
-      if(!error&&data?.client_id)return String(data.client_id);
-    }catch(_){ }
+    for(let attempt=0;attempt<5;attempt++){
+      try{
+        const {data,error}=await client.rpc('psp_my_client_identity');
+        if(!error){const row=firstRow(data);if(row?.client_id)return String(row.client_id);}
+      }catch(_){ }
+      try{
+        const {data,error}=await client.from('profiles').select('client_id').eq('id',userId).maybeSingle();
+        if(!error&&data?.client_id)return String(data.client_id);
+      }catch(_){ }
+      if(attempt<4)await new Promise(resolve=>setTimeout(resolve,120));
+    }
     return '';
   }
 
-  async function resolveReferralTarget(client){
-    const attr=window.PSPTrack?.getAttribution?.();
-    const slug=String(attr?.slug||'').trim();
-    if(!client||!slug)return null;
+  async function resolveReferralTarget(client,userId){
+    if(!client)return null;
+
+    // V76: prefer the authenticated user's signup metadata. This survives the
+    // clean-URL redirect and fixes course signups where the browser URL no longer
+    // contains ?ref= by the time signup finishes.
+    if(userId){
+      try{
+        const {data,error}=await client.rpc('psp_my_referral_redirect_target_v76');
+        if(!error){
+          const row=firstRow(data);
+          if(row?.whatsapp_number){
+            const digits=cleanWaNumber(row.whatsapp_number);
+            if(digits.length>=8)return {...row,whatsapp_digits:digits};
+          }
+        }
+      }catch(_){ }
+    }
+
+    let slug=String(window.PSPTrack?.getAttribution?.()?.slug||'').trim();
+    if(!slug&&userId){
+      try{
+        const {data}=await client.auth.getUser();
+        slug=String(data?.user?.user_metadata?.referral_slug||'').trim();
+      }catch(_){ }
+    }
+    if(!slug)return null;
     try{
       const {data,error}=await client.rpc('psp_referral_redirect_target',{p_slug:slug});
       if(error)return null;
@@ -55,7 +81,7 @@
     channelUrl:PSP_WHATSAPP_CHANNEL,
     async resolve(client,userId){
       const clientId=await resolveClientId(client,userId);
-      const referral=await resolveReferralTarget(client);
+      const referral=await resolveReferralTarget(client,userId);
       if(!referral){
         return {mode:'channel',url:PSP_WHATSAPP_CHANNEL,clientId,linkName:''};
       }

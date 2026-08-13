@@ -727,14 +727,30 @@
 
       // V49: verification email is sent only when the user clicks Verify Account in Profile.
 
+      // V76: resolve the post-signup destination before showing success.
+      // Referral signups go to the tracked link owner's WhatsApp; direct signups
+      // keep the normal PipSePaisa WhatsApp Channel fallback.
+      const postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id)||{
+        mode:'channel',
+        url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',
+        clientId:''
+      };
+      const postCopy=window.PSPPostSignup?.successCopy?.(postSignup)||{
+        detail:'You are logged in and your account is ready.',
+        note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',
+        redirect:'Redirecting you to our WhatsApp Channel...'
+      };
+
       // Show success immediately after the account + enrollment are saved.
       // Tracking, course email and Zoom registration continue in the background.
       const title=document.getElementById('ceSuccessTitle');
       const text=document.getElementById('ceSuccessText');
       if(title)title.textContent='Account Created';
-      if(text)text.textContent=selectedCourse.type==='free'
-        ?'Thank You for Joining! You are logged in and enrolled in the Basic Forex Course. Please follow our WhatsApp Channel for important course updates, market insights, and announcements. Redirecting you now...'
-        :'Thank You for Joining! You are logged in and your payment receipt has been submitted for verification. Please follow our WhatsApp Channel for important course updates and announcements. Redirecting you now...';
+      if(text)text.innerHTML=postSignup.mode==='referral'
+        ?`Thank You for Joining! You are registered for the course.<br><strong>${postCopy.detail}</strong><br>${postCopy.note}<br><small>${postCopy.redirect}</small>`
+        :(selectedCourse.type==='free'
+          ?'Thank You for Joining! You are logged in and enrolled in the Basic Forex Course. Please follow our WhatsApp Channel for important course updates, market insights, and announcements. Redirecting you now...'
+          :'Thank You for Joining! You are logged in and your payment receipt has been submitted for verification. Please follow our WhatsApp Channel for important course updates and announcements. Redirecting you now...');
       showStep('ceStepSuccess');
       try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));}catch(_){ }
       setTimeout(()=>{
@@ -751,7 +767,7 @@
           }
         }).catch(error=>console.warn('Post-enrollment background task failed.',error));
       },0);
-      setTimeout(()=>{window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';},1000);
+      setTimeout(()=>{window.location.href=postSignup.url;},1000);
     }catch(error){
       let msg=error?.message||'Account creation failed.';
       if(/already|registered|exists/i.test(msg))msg='This email is already registered. Please use the “Already a User” button.';

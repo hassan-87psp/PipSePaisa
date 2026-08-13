@@ -49,6 +49,7 @@
       .lm-stat{padding:17px;border:1px solid var(--border);border-radius:15px;background:var(--bg-card);box-shadow:var(--shadow-sm)}
       .lm-stat span{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);font-weight:800}.lm-stat strong{display:block;font-size:27px;margin-top:6px}.lm-form-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:12px}.lm-form-grid .wide{grid-column:span 2}.lm-form-grid label{display:block;font-size:11px;color:var(--text-muted);font-weight:750;margin:0 0 6px}.lm-form-grid input,.lm-form-grid select,.lm-form-grid textarea{width:100%;padding:11px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-elevated);color:var(--text);font:inherit}.lm-preview{display:flex;align-items:center;gap:10px;padding:12px;border:1px dashed var(--gold);border-radius:11px;background:var(--gold-bg);word-break:break-all}.lm-link{font-size:12px;font-weight:750;color:var(--gold-dark)}.lm-status{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800}.lm-status.on{background:var(--green-bg);color:var(--green)}.lm-status.off{background:var(--red-bg);color:var(--red)}.lm-actions{display:flex;gap:6px;flex-wrap:wrap}.lm-btn{border:1px solid var(--border);border-radius:8px;padding:7px 9px;background:var(--bg-card);color:var(--text);cursor:pointer;font-size:11px;font-weight:750}.lm-btn:hover{border-color:var(--gold);color:var(--gold-dark)}.lm-clean-links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.lm-clean{padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--bg-elevated)}.lm-clean strong{display:block;margin-bottom:5px}.lm-clean code{font-size:11px;color:var(--text-muted)}
       .lm-modal{position:fixed;inset:0;z-index:5000;background:rgba(3,9,20,.65);display:none;place-items:center;padding:18px}.lm-modal.open{display:grid}.lm-modal-card{width:min(850px,100%);max-height:84vh;overflow:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;box-shadow:0 30px 80px rgba(0,0,0,.35)}.lm-modal-head{display:flex;justify-content:space-between;align-items:center;padding:17px 19px;border-bottom:1px solid var(--border)}.lm-modal-body{padding:18px}.lm-event{display:grid;grid-template-columns:120px 130px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}.lm-event b{text-transform:capitalize}.lm-empty{padding:28px;text-align:center;color:var(--text-muted)}
+      .lm-wa-card{width:min(470px,100%);overflow:hidden;background:var(--bg-card);border:1px solid rgba(245,158,11,.32);border-radius:20px;box-shadow:0 28px 80px rgba(0,0,0,.34)}.lm-wa-top{padding:20px 20px 13px;background:linear-gradient(135deg,var(--gold-bg),transparent);border-bottom:1px solid var(--border)}.lm-wa-icon{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.25);font-size:21px;margin-bottom:11px}.lm-wa-top h3{margin:0;color:var(--text);font-size:18px}.lm-wa-top p{margin:6px 0 0;color:var(--text-muted);font-size:11px;line-height:1.55}.lm-wa-body{padding:18px 20px 20px}.lm-wa-body label{display:block;font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px}.lm-wa-body input{width:100%;box-sizing:border-box;padding:12px 13px;border-radius:11px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text);font:inherit;outline:none}.lm-wa-body input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,158,11,.12)}.lm-wa-hint{margin-top:8px;color:var(--text-muted);font-size:10px;line-height:1.45}.lm-wa-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}.lm-wa-actions .primary{background:var(--gold);border-color:var(--gold);color:#111827}.lm-wa-link-name{display:inline-flex;margin-top:9px;padding:5px 8px;border-radius:999px;background:var(--bg-elevated);border:1px solid var(--border);font-size:9px;font-weight:850;color:var(--gold-dark)}
       @media(max-width:900px){.lm-grid{grid-template-columns:1fr 1fr}.lm-form-grid{grid-template-columns:1fr}.lm-form-grid .wide{grid-column:auto}.lm-clean-links{grid-template-columns:1fr 1fr}.lm-event{grid-template-columns:90px 100px 1fr}}
       @media(max-width:560px){.lm-grid,.lm-clean-links{grid-template-columns:1fr}.lm-actions{min-width:190px}.lm-event{grid-template-columns:1fr;gap:3px}}
     `;
@@ -99,6 +100,7 @@
         <div class="table-wrap"><table class="data-table"><thead><tr><th>Link</th><th>Source</th><th>Destination</th><th>Clicks</th><th>Unique</th><th>Signups</th><th>Enrollments</th><th>Conversion</th><th>Status</th><th>Actions</th></tr></thead><tbody id="lmTable"><tr><td colspan="10">Open Link Manager to load data.</td></tr></tbody></table></div>
       </div>
       <div class="lm-modal" id="lmModal"><div class="lm-modal-card"><div class="lm-modal-head"><div><strong id="lmModalTitle">Link Details</strong><div style="font-size:11px;color:var(--text-muted)" id="lmModalSub"></div></div><button class="lm-btn" id="lmCloseModal">✕ Close</button></div><div class="lm-modal-body" id="lmModalBody"></div></div></div>
+      <div class="lm-modal" id="lmWhatsappModal"><div class="lm-wa-card"><div class="lm-wa-top"><div class="lm-wa-icon">💬</div><h3>Referral WhatsApp</h3><p>Set the WhatsApp number that should receive clients who sign up through this tracked link.</p><span class="lm-wa-link-name" id="lmWhatsappLinkName">Tracked Link</span></div><div class="lm-wa-body"><label>WhatsApp Number with Country Code</label><input id="lmWhatsappEditInput" placeholder="+60 11-5655 1989" inputmode="tel" autocomplete="tel"><div class="lm-wa-hint">Leave this blank to use the PipSePaisa WhatsApp Channel fallback.</div><div class="lm-wa-actions"><button class="lm-btn" type="button" id="lmWhatsappCancel">Cancel</button><button class="lm-btn primary" type="button" id="lmWhatsappSave">Save WhatsApp</button></div></div></div></div>
     `;
     content.appendChild(page);
     bindUi();renderCleanLinks();
@@ -121,6 +123,10 @@
     document.getElementById('lmRefreshBtn').onclick=loadLinks;
     document.getElementById('lmCloseModal').onclick=()=>document.getElementById('lmModal').classList.remove('open');
     document.getElementById('lmModal').addEventListener('click',e=>{if(e.target.id==='lmModal')e.currentTarget.classList.remove('open');});
+    document.getElementById('lmWhatsappCancel').onclick=()=>closeWhatsappModal();
+    document.getElementById('lmWhatsappSave').onclick=saveWhatsappModal;
+    document.getElementById('lmWhatsappModal').addEventListener('click',e=>{if(e.target.id==='lmWhatsappModal')closeWhatsappModal();});
+    document.getElementById('lmWhatsappEditInput').addEventListener('keydown',e=>{if(e.key==='Enter')saveWhatsappModal();if(e.key==='Escape')closeWhatsappModal();});
     updatePreview();
   }
   function updatePreview(){
@@ -187,16 +193,32 @@
   }
   window.copyLinkV42=async function(url){await copyText(url);toast('Link copied.','ok');};
   window.copyTrackedLinkV42=async function(slug,destination){await copyText(trackedUrl(destination,slug));toast('Tracked link copied.','ok');};
-  window.setTrackedLinkWhatsAppV75=async function(id,current){
-    const value=prompt('Referral WhatsApp number (with country code). Leave blank to use WhatsApp Channel fallback.',current||'');
-    if(value===null)return;
-    const whatsapp=normalizeWhatsapp(value);
-    if(!validWhatsapp(whatsapp))return toast('WhatsApp number looks invalid. Please use a full number with country code.','err');
-    const client=getSb();const {error}=await client.from('tracked_links').update({whatsapp_number:whatsapp||null}).eq('id',id);
-    if(error)return toast(error.message,'err');
-    toast(whatsapp?'Referral WhatsApp saved.':'WhatsApp removed. This link will use the channel fallback.','ok');
-    loadLinks();
+  let editingWhatsappLinkId='';
+  function closeWhatsappModal(){const modal=document.getElementById('lmWhatsappModal');if(modal)modal.classList.remove('open');editingWhatsappLinkId='';}
+  window.setTrackedLinkWhatsAppV75=function(id,current){
+    const row=statsRows.find(x=>String(x.id)===String(id));
+    editingWhatsappLinkId=String(id||'');
+    const modal=document.getElementById('lmWhatsappModal'),input=document.getElementById('lmWhatsappEditInput'),name=document.getElementById('lmWhatsappLinkName');
+    if(name)name.textContent=row?`${row.name} · ref=${row.slug}`:'Tracked Link';
+    if(input)input.value=current||row?.whatsapp_number||'';
+    if(modal)modal.classList.add('open');
+    setTimeout(()=>{input?.focus();input?.select();},60);
   };
+  async function saveWhatsappModal(){
+    if(!editingWhatsappLinkId)return closeWhatsappModal();
+    const input=document.getElementById('lmWhatsappEditInput');
+    const whatsapp=normalizeWhatsapp(input?.value||'');
+    if(!validWhatsapp(whatsapp))return toast('WhatsApp number looks invalid. Please use a full number with country code.','err');
+    const btn=document.getElementById('lmWhatsappSave');if(btn){btn.disabled=true;btn.textContent='Saving…';}
+    try{
+      const client=getSb();const {error}=await client.from('tracked_links').update({whatsapp_number:whatsapp||null}).eq('id',editingWhatsappLinkId);
+      if(error)throw error;
+      closeWhatsappModal();
+      toast(whatsapp?'Referral WhatsApp saved.':'WhatsApp removed. This link will use the channel fallback.','ok');
+      await loadLinks();
+    }catch(error){toast(error.message||'Could not save WhatsApp number.','err');}
+    finally{if(btn){btn.disabled=false;btn.textContent='Save WhatsApp';}}
+  }
   window.toggleTrackedLinkV42=async function(id,isActive){const client=getSb();const {error}=await client.from('tracked_links').update({is_active:isActive}).eq('id',id);if(error)return toast(error.message,'err');toast(isActive?'Link enabled.':'Link disabled.','ok');loadLinks();};
   window.deleteTrackedLinkV42=async function(id){
     const ok=window.pspConfirm?await window.pspConfirm('Delete this tracked link and all of its analytics?'):confirm('Delete this tracked link?');if(!ok)return;
