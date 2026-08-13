@@ -1680,6 +1680,84 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><link href="psp-mobile-reference-v46.css?v=20260814-v79-cross-browser-mobile-lock" media="(max-width: 768px)" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
 <link rel="canonical" href="https://pipsepaisa.com/">
 <script src="psp-direct-signup-v1.js?v=20260813-v76-referral-fix"></script>
+
+<style id="pspV80HomeToolsFooterMatch">
+/* V80 targeted fix: Home uses the same footer layout as Trading Tools & Services. */
+body.page-home footer.tools-footer-match{
+  background:#07101f!important;
+  color:#d7dfec!important;
+  padding:42px 0 20px!important;
+  margin:0!important;
+  border:0!important;
+}
+body.page-home footer.tools-footer-match .container{
+  width:min(100% - 40px,1180px)!important;
+  max-width:1180px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+body.page-home footer.tools-footer-match .footer-grid{
+  display:grid!important;
+  grid-template-columns:1.6fr 1fr 1fr 1fr!important;
+  gap:35px!important;
+  align-items:start!important;
+}
+body.page-home footer.tools-footer-match .footer-brand{
+  font-size:25px!important;
+  font-weight:900!important;
+  color:#fff!important;
+}
+body.page-home footer.tools-footer-match .footer-grid p{
+  margin:1em 0!important;
+  color:#aeb8ca!important;
+  line-height:1.7!important;
+  font-size:13px!important;
+}
+body.page-home footer.tools-footer-match .footer-grid h4{
+  color:#fff!important;
+  margin:0 0 13px!important;
+  font-size:inherit!important;
+  letter-spacing:normal!important;
+  text-transform:none!important;
+}
+body.page-home footer.tools-footer-match .footer-grid ul{
+  list-style:none!important;
+  padding:0!important;
+  margin:0!important;
+  display:grid!important;
+  gap:9px!important;
+  color:#b9c3d4!important;
+  font-size:13px!important;
+}
+body.page-home footer.tools-footer-match .footer-grid li{
+  margin:0!important;
+  color:#b9c3d4!important;
+  font-size:13px!important;
+  line-height:1.35!important;
+}
+body.page-home footer.tools-footer-match a{
+  color:inherit!important;
+  text-decoration:none!important;
+}
+body.page-home footer.tools-footer-match a:hover{color:#ff9813!important}
+body.page-home footer.tools-footer-match .disclaimer{
+  display:block!important;
+  margin-top:27px!important;
+  padding-top:18px!important;
+  border-top:1px solid #263449!important;
+  color:#8996aa!important;
+  font-size:11px!important;
+  line-height:1.6!important;
+  text-align:center!important;
+}
+@media(max-width:950px){
+  body.page-home footer.tools-footer-match .footer-grid{grid-template-columns:1fr 1fr!important}
+}
+@media(max-width:650px){
+  body.page-home footer.tools-footer-match .container{width:min(100% - 20px,1180px)!important}
+  body.page-home footer.tools-footer-match .footer-grid{grid-template-columns:1fr!important}
+}
+</style>
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -1919,7 +1997,51 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 </div>
 </section>
 </main>
-<footer class="public-footer"><div class="container"><div class="footer-grid"><div class="footer-brand-block"><div class="footer-brand"><img src="icon-192.png" alt="PipSePaisa logo"/><strong>PipSePaisa</strong></div><p>Practical Forex education, structured learning resources and professional business support built around knowledge, discipline and responsible decision-making.</p><div class="footer-socials"><a href="https://www.facebook.com/share/1AUgXGtVYy/" target="_blank" rel="noopener" aria-label="Facebook">f</a><a href="https://www.instagram.com/pipsepaisa/" target="_blank" rel="noopener" aria-label="Instagram">◎</a><a href="https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v" target="_blank" rel="noopener" aria-label="WhatsApp Channel">◉</a></div></div><div><h4>Quick Links</h4><ul><li><a href="/">Home</a></li><li><a href="/courses">Courses</a></li><li><a href="/partner">Become a Partner</a></li><li><a href="/trading-tools">Tools &amp; Services</a></li></ul></div><div><h4>Learning</h4><ul><li><a href="/courses">Course Library</a></li><li><a href="/trading-tools">Trading Resources</a></li><li><a href="/partner">Partner Programs</a></li><li><a href="/sign-in">Member Login</a></li></ul></div><div><h4>Contact</h4><ul><li><a href="https://wa.me/601156961157" target="_blank" rel="noopener">WhatsApp Support</a></li><li><a href="https://www.instagram.com/pipsepaisa/" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://www.facebook.com/share/1AUgXGtVYy/" target="_blank" rel="noopener">Facebook</a></li></ul></div></div><div class="disclaimer">Risk notice: All content is for educational purposes only. Trading involves risk. Broker conditions and promotions vary by region and account type.</div><div class="copyright"><span>© 2026 <strong>PipSePaisa</strong>. All rights reserved.</span><span>Education • Discipline • Responsible Growth</span></div></div></footer>
+<footer class="tools-footer-match">
+<div class="container">
+<div class="footer-grid">
+<div>
+<div class="footer-brand">PipSePaisa</div>
+<p>
+              Forex education, professional learning, practical trading tools
+              and business support designed to help traders and partners grow
+              with knowledge and discipline.
+            </p>
+</div>
+<div>
+<h4>Quick Links</h4>
+<ul>
+<li><a href="/landing.html?psp_route=/">Home</a></li>
+<li><a href="/partner.html?psp_route=/become-partner">Become Partner</a></li>
+<li><a href="/courses.html?psp_route=/courses">Courses</a></li>
+</ul>
+</div>
+<div>
+<h4>Resources</h4>
+<ul>
+<li>
+<a href="/tools-services.html?psp_route=/trading-tools">Trading Tools &amp; Services</a>
+</li>
+<li><a href="/courses.html?psp_route=/courses#courses">Course Enrollment</a></li>
+<li><a href="/landing.html?psp_route=/sign-in&amp;psp_auth=login">Login</a></li>
+</ul>
+</div>
+<div>
+<h4>Connect</h4>
+<ul>
+<li>Facebook</li>
+<li>Instagram</li>
+<li>WhatsApp Channel</li>
+</ul>
+</div>
+</div>
+<div class="disclaimer">
+          Educational content only. Trading involves risk and results may vary.
+          Broker conditions, commissions and promotions depend on region,
+          account type and official terms.
+        </div>
+</div>
+</footer>
 <div aria-hidden="true" class="landing-auth-overlay" id="landingAuthOverlay">
 <div aria-labelledby="landingAuthTitle" aria-modal="true" class="landing-auth-card" role="dialog">
 <button aria-label="Close login popup" class="landing-auth-close" onclick="closeLandingAuth()" type="button">×</button>
@@ -2207,7 +2329,7 @@ document.addEventListener('DOMContentLoaded',syncPartnerPromoTheme);
 const partnerThemeObserver=new MutationObserver(syncPartnerPromoTheme);
 partnerThemeObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
 </script>
-<script defer="" src="public-upgrades.js?v=20260813-v70"></script>
+<script defer="" src="public-upgrades.js?v=20260814-v80-targeted-footer"></script>
 <script>
 (function(){
   const spotlight=document.querySelector('.mentor-spotlight');

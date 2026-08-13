@@ -264,6 +264,8 @@
   }
 
   function upgradeFooter(){
+    /* V80: Home intentionally reuses the exact Trading Tools & Services footer. */
+    if(document.body.classList.contains('page-home')) return;
     document.querySelectorAll('footer').forEach(footer=>{footer.className='psp-footer';footer.innerHTML=footerMarkup()});
   }
 

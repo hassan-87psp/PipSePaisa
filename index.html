@@ -1092,7 +1092,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
      ======================================================================== -->
 <div id="landingPage" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg-main);overflow:hidden;">
 
-  <iframe src="landing.html?v=20260814-v79-cross-browser-mobile-lock" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <iframe src="landing.html?v=20260814-v80-targeted-fixes" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
 </div>
 
 <div class="app" id="mainApp" style="display:none;">
@@ -3410,5 +3410,64 @@ window.addEventListener('message',function(event){
 <script src="psp-v29-final.js?v=20260802-v29-final"></script>
 <script src="account-verification-v49.js?v=20260813-v72-clean-routes"></script>
 <script src="user-dashboard-v56.js?v=20260813-v71-free-course-unlocked"></script>
+
+<style id="pspV80MobileDrawerLock">
+/* V80 targeted fix: keep the mobile More drawer locked to the viewport.
+   Only the drawer menu itself scrolls; the dashboard behind it stays still. */
+@media (max-width:768px){
+  html.psp-sidebar-open,
+  body.psp-sidebar-open{
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
+    max-height:100dvh!important;
+  }
+  #sidebar{
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    bottom:0!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow:hidden!important;
+    overscroll-behavior:contain!important;
+  }
+  #sidebar .menu{
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+    touch-action:pan-y!important;
+  }
+  #sidebarOverlay{
+    position:fixed!important;
+    inset:0!important;
+    overscroll-behavior:none!important;
+    touch-action:none!important;
+  }
+}
+</style>
+<script id="pspV80BottomHomeReliability">
+/* V80 targeted fix: Home in the logged-in mobile bottom bar always returns to Dashboard,
+   including after visiting Tools. No other navigation behavior is changed. */
+(function(){
+  function closeDrawer(){
+    var sidebar=document.getElementById('sidebar');
+    var overlay=document.getElementById('sidebarOverlay');
+    if(sidebar) sidebar.classList.remove('open');
+    if(overlay) overlay.style.display='none';
+    document.documentElement.classList.remove('psp-sidebar-open');
+    document.body.classList.remove('psp-sidebar-open');
+  }
+  window.ubnGo=function(page,el){
+    closeDrawer();
+    var item=document.querySelector('.menu-item[data-page="'+page+'"]');
+    if(typeof window.showPage==='function'){
+      window.showPage(page,item||el||undefined);
+      if(typeof window.ubnSync==='function') window.ubnSync(page);
+    }
+  };
+})();
+</script>
 </body>
 </html>
