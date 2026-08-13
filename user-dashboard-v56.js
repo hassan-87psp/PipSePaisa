@@ -101,29 +101,33 @@ function classTitle(n){const num=Number(n?.class_number||0);if(String(n?.course_
 function classSubtitle(n){const num=Number(n?.class_number||0);if(String(n?.course_key||'').toLowerCase()==='basic'&&BASIC_TITLES[num])return BASIC_TITLES[num][1];return n?.subtitle||''}
 function nextClassHTML(classes,enrollments,courses){
   const now=Date.now(),keys=new Set((enrollments||[]).filter(activeEnrollment).map(e=>String(e.course_key||'basic').toLowerCase()));
+  // V71: the Basic Forex Course is public/free learning and must stay visible even
+  // when verification-protected services are locked or the user has not enrolled yet.
+  keys.add('basic');
   let pool=(classes||[]).filter(x=>x&&x.is_active!==false&&x.scheduled_at);
-  if(!pool.length)pool=FALLBACK_BASIC.slice();
-  if(keys.size)pool=pool.filter(x=>keys.has(String(x.course_key||'basic').toLowerCase()));
-  else return '<div class="psp58-empty"><span>🎓</span><b>No enrolled live course yet</b><small>Enroll in a course to see your next class here.</small><button onclick="navMyCoursesV58()">Open My Courses →</button></div>';
+  if(!pool.some(x=>String(x.course_key||'basic').toLowerCase()==='basic'))pool=pool.concat(FALLBACK_BASIC.slice());
+  pool=pool.filter(x=>keys.has(String(x.course_key||'basic').toLowerCase()));
   pool.sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
   const n=pool.find(x=>new Date(x.scheduled_at).getTime()>now-90*60000);
-  if(!n)return '<div class="psp58-empty"><span>✅</span><b>No upcoming class scheduled</b><small>Your enrolled course currently has no future live class.</small><button onclick="navMyCoursesV58()">Open My Courses →</button></div>';
+  if(!n)return '<div class="psp58-empty"><span>✅</span><b>No upcoming class scheduled</b><small>The Free Basic Course remains available in My Courses with its full schedule and details.</small><button onclick="openFreeCourseV71()">Open Free Course →</button></div>';
   const key=String(n.course_key||'basic').toLowerCase(),course=(courses||[]).find(c=>String(c.course_key||'').toLowerCase()===key)||{};
+  const basicEnrollment=(enrollments||[]).some(e=>String(e?.course_key||'').toLowerCase()==='basic');
+  const freePreview=key==='basic'&&!basicEnrollment;
   const all=pool.filter(x=>String(x.course_key||'basic').toLowerCase()===key),done=all.filter(x=>new Date(x.scheduled_at).getTime()<now).length,pct=all.length?Math.min(100,Math.round(done/all.length*100)):0;
   const at=new Date(n.scheduled_at).getTime(),diff=at-now,live=diff<=15*60000&&diff>-150*60000;
   const prev=all.filter(x=>new Date(x.scheduled_at).getTime()<at).sort((a,b)=>new Date(b.scheduled_at)-new Date(a.scheduled_at))[0];
   const timerStart=prev?new Date(prev.scheduled_at).getTime():Math.min(now,at-86400000);
   const timerPct=at>timerStart?Math.max(0,Math.min(100,Math.round((now-timerStart)/(at-timerStart)*100))):100;
   return `<div class="psp58-class">
-    <div class="psp58-class-top"><span class="psp58-class-no">CLASS ${String(n.class_number||'').padStart(2,'0')}</span><span class="psp58-class-status ${live?'live':'upcoming'}">${live?'● LIVE / STARTING':'UPCOMING'}</span></div>
+    <div class="psp58-class-top"><span class="psp58-class-no">${freePreview?'FREE COURSE • ':''}CLASS ${String(n.class_number||'').padStart(2,'0')}</span><span class="psp58-class-status ${live?'live':'upcoming'}">${live?'● LIVE / STARTING':'UPCOMING'}</span></div>
     <div class="psp58-class-title">${esc(classTitle(n))}</div>
     ${classSubtitle(n)?`<div class="psp58-class-sub">${esc(classSubtitle(n))}</div>`:''}
     <div class="psp58-class-info"><div><span>Course</span><b>${esc(course.title||(key==='basic'?'Basic Forex Course':'Forex Course'))}</b></div><div><span>Instructor</span><b>${esc(course.mentor_name||'Sajid Khan Ghori')}</b></div></div>
     <div class="psp58-class-datetime"><div><span>📅 Date</span><b>${esc(fmtPKT(n.scheduled_at,'date'))}</b></div><div><span>🕘 Time</span><b>${esc(fmtPKT(n.scheduled_at,'time').replace(/:\d{2}(?=\s|$)/,''))} PKT</b></div></div>
     <div class="psp58-class-countdown" data-class-at="${esc(n.scheduled_at)}">${diff>0?'Starts in '+remaining(diff/1000):'Class time is active'}</div>
     <div class="psp67-class-timer"><i data-class-window-start="${timerStart}" data-class-window-end="${at}" style="width:${timerPct}%"></i></div>
-    <div class="psp67-course-progress"><div class="psp67-ring" style="--pct:${pct}"><span>${pct}%</span></div><div class="psp67-progress-copy"><div class="psp58-progress"><i style="width:${pct}%"></i></div><div class="psp58-progress-meta"><span>Course progress</span><b>${done} / ${all.length} classes</b></div></div></div>
-    <button class="psp58-primary" onclick="navMyCoursesV58()">Open My Course →</button>
+    <div class="psp67-course-progress"><div class="psp67-ring" style="--pct:${pct}"><span>${pct}%</span></div><div class="psp67-progress-copy"><div class="psp58-progress"><i style="width:${pct}%"></i></div><div class="psp58-progress-meta"><span>${freePreview?'Free course schedule':'Course progress'}</span><b>${done} / ${all.length} classes</b></div></div></div>
+    <button class="psp58-primary" onclick="${key==='basic'?'openFreeCourseV71()':'navMyCoursesV58()'}">${key==='basic'?'Open Free Course →':'Open My Course →'}</button>
   </div>`;
 }
 function analysisHTML(charts,articles,allowed){
@@ -157,6 +161,12 @@ function tick(){
 }
 function startClock(){if(clockTimer)clearInterval(clockTimer);tick();clockTimer=setInterval(tick,1000)}
 window.navMyCoursesV58=function(){const el=q('#sidebar .menu-item[data-page="mycourses"]');if(el)el.click();else nav('mycourses')};
+window.openFreeCourseV71=function(){
+  const el=q('#sidebar .menu-item[data-page="mycourses"]');
+  if(el)el.click();else nav('mycourses');
+  setTimeout(()=>{try{if(typeof window.openCourseDetail==='function')window.openCourseDetail('basic')}catch(_){}},140);
+  return false;
+};
 async function load(force=false){
   const root=q('#psp56Dashboard');if(!root)return;if(loading)return;if(!force&&Date.now()-lastLoad<12000){startClock();return}
   const c=db();if(!c){root.innerHTML='<div class="psp58-empty"><span>◌</span><b>Dashboard is waiting for connection…</b></div>';return}
