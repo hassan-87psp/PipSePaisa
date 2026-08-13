@@ -17,6 +17,68 @@
     return message;
   }
 
+
+  const PSP_WHATSAPP_CHANNEL='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';
+
+  function firstRow(data){return Array.isArray(data)?(data[0]||null):(data||null);}
+  function cleanWaNumber(value){return String(value||'').replace(/\D/g,'');}
+
+  async function resolveClientId(client,userId){
+    if(!client||!userId)return '';
+    try{
+      const {data,error}=await client.rpc('psp_my_client_identity');
+      if(!error){const row=firstRow(data);if(row?.client_id)return String(row.client_id);}
+    }catch(_){ }
+    try{
+      const {data,error}=await client.from('profiles').select('client_id').eq('id',userId).maybeSingle();
+      if(!error&&data?.client_id)return String(data.client_id);
+    }catch(_){ }
+    return '';
+  }
+
+  async function resolveReferralTarget(client){
+    const attr=window.PSPTrack?.getAttribution?.();
+    const slug=String(attr?.slug||'').trim();
+    if(!client||!slug)return null;
+    try{
+      const {data,error}=await client.rpc('psp_referral_redirect_target',{p_slug:slug});
+      if(error)return null;
+      const row=firstRow(data);
+      if(!row?.whatsapp_number)return null;
+      const digits=cleanWaNumber(row.whatsapp_number);
+      if(digits.length<8)return null;
+      return {...row,whatsapp_digits:digits};
+    }catch(_){return null;}
+  }
+
+  window.PSPPostSignup={
+    channelUrl:PSP_WHATSAPP_CHANNEL,
+    async resolve(client,userId){
+      const clientId=await resolveClientId(client,userId);
+      const referral=await resolveReferralTarget(client);
+      if(!referral){
+        return {mode:'channel',url:PSP_WHATSAPP_CHANNEL,clientId,linkName:''};
+      }
+      const message=`Hi, maine signup kar liya hai aur course me registration bhi kar li hai. Ye meri Client ID hai: ${clientId||'Pending'}. Kindly verify kar dein.`;
+      const url=`https://wa.me/${referral.whatsapp_digits}?text=${encodeURIComponent(message)}`;
+      return {mode:'referral',url,clientId,linkName:String(referral.link_name||''),whatsapp:String(referral.whatsapp_number||''),message};
+    },
+    successCopy(result){
+      if(result?.mode==='referral'){
+        return {
+          detail:`Aapki Client ID: ${result.clientId||'Pending'}`,
+          note:'Aapko verification ke liye referral WhatsApp chat par redirect kiya ja raha hai.',
+          redirect:'Redirecting to WhatsApp verification...'
+        };
+      }
+      return {
+        detail:'You are logged in and your account is ready.',
+        note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',
+        redirect:'Redirecting you to our WhatsApp Channel...'
+      };
+    }
+  };
+
   window.PSPDirectSignup=async function(client,options){
     if(!client)throw new Error('Connection problem. Please reload and try again.');
     const email=String(options?.email||'').trim().toLowerCase();

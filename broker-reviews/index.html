@@ -1681,7 +1681,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <link href="psp-public-v40.css?v=20260805-v44" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v45"></script>
 <link rel="canonical" href="https://pipsepaisa.com/broker-reviews">
 <link href="/psp-nav-v44.css?v=20260805-v44" rel="stylesheet"/><link href="/psp-mobile-reference-v46.css?v=20260805-v48" rel="stylesheet"/>
-<script src="/psp-direct-signup-v1.js?v=20260811-v2-fast"></script>
+<script src="/psp-direct-signup-v1.js?v=20260813-v75-client-id"></script>
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -2180,8 +2180,10 @@ async function landingSignupUser(){
     if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
     try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
 
-    showLandingAuthMessage('success','Account created. You are logged in.','landingSignupMessage');
-    setTimeout(()=>{window.location.href='https://www.pipsepaisa.com/';},500);
+    const postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+    const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'Account created.',redirect:'Redirecting you to our WhatsApp Channel...'};
+    showLandingAuthMessage('success',postSignup.mode==='referral'?`${copy.detail} ${copy.redirect}`:'Account created. Redirecting you to our WhatsApp Channel...','landingSignupMessage');
+    setTimeout(()=>{window.location.href=postSignup.url;},1000);
   }catch(error){
     let msg=error?.message||'Signup failed. Please try again.';
     if(/already|registered|exists/i.test(msg))msg='This email is already registered. Please log in.';

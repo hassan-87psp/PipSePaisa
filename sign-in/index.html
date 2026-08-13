@@ -1679,7 +1679,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 </style>
 <link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
 <link rel="canonical" href="https://pipsepaisa.com/sign-in">
-<script src="/psp-direct-signup-v1.js?v=20260811-v2-fast"></script>
+<script src="/psp-direct-signup-v1.js?v=20260813-v75-client-id"></script>
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -2178,13 +2178,14 @@ async function landingSignupUser(){
     if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
     try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
     try{await window.PSPTrack?.enrollment?.('basic',data.user.id,{source:'website-signup'});}catch(_){}
-
+    const postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+    const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
     const panel=document.getElementById('landingSignupPanel');
-    if(panel)panel.innerHTML=`<div style="text-align:center;padding:14px 4px"><div style="font-size:42px;margin-bottom:10px">✅</div><h3 style="margin:0 0 7px">Account Created</h3><h4 style="margin:0 0 9px;color:#16a34a;font-size:16px">Thank You for Joining!</h4><p style="color:var(--muted);line-height:1.6;margin:0 0 8px">You are logged in and your account is ready.</p><p style="color:var(--muted);line-height:1.6;margin:0 0 8px">Please follow our WhatsApp Channel for important course updates, market insights, and announcements.</p><p style="font-size:12px;color:var(--muted);margin-top:10px">Redirecting you to our WhatsApp Channel...</p></div>`;
+    if(panel)panel.innerHTML=`<div style="text-align:center;padding:14px 4px"><div style="font-size:42px;margin-bottom:10px">✅</div><h3 style="margin:0 0 7px">Account Created</h3><h4 style="margin:0 0 9px;color:#16a34a;font-size:16px">Thank You for Joining!</h4><p style="color:var(--muted);line-height:1.6;margin:0 0 8px;font-weight:${postSignup.mode==='referral'?'800':'400'}">${copy.detail}</p><p style="color:var(--muted);line-height:1.6;margin:0 0 8px">${copy.note}</p><p style="font-size:12px;color:var(--muted);margin-top:10px">${copy.redirect}</p></div>`;
     const title=document.getElementById('landingAuthTitle'),sub=document.getElementById('landingAuthSubtitle');
     if(title)title.textContent='Account Created';
-    if(sub)sub.textContent='You are logged in to PipSePaisa';
-    setTimeout(()=>{window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';},1000);
+    if(sub)sub.textContent=postSignup.mode==='referral'?'Client ID created — opening WhatsApp verification':'You are logged in to PipSePaisa';
+    setTimeout(()=>{window.location.href=postSignup.url;},1000);
   }catch(error){
     let msg=error?.message||'Signup failed. Please try again.';
     if(/already|registered|exists/i.test(msg))msg='This email is already registered. Please log in.';

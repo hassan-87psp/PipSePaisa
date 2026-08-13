@@ -11,8 +11,11 @@
   function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
   function toast(message,type){if(window.pipToast)window.pipToast(message,type);else alert(message);}
   function fmt(n){return Number(n||0).toLocaleString();}
+  function conversionRate(enrollments,signups){const s=Number(signups||0),e=Number(enrollments||0);return s>0?(e/s)*100:0;}
   function date(value){if(!value)return '—';try{return new Date(value).toLocaleString();}catch(_){return '—';}}
   function slugify(value){return String(value||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80);}
+  function normalizeWhatsapp(value){return String(value||'').trim().replace(/\s+/g,' ');}
+  function validWhatsapp(value){const digits=String(value||'').replace(/\D/g,'');return !value||digits.length>=8&&digits.length<=16;}
   function trackedUrl(destination,slug){const path=String(destination||'/');const join=path.includes('?')?'&':'?';return BASE_DOMAIN+path+join+'ref='+encodeURIComponent(slug);}
   function getSb(){
     try{
@@ -79,6 +82,7 @@
           <div><label>Link Name *</label><input id="lmName" placeholder="Free Course WhatsApp August"></div>
           <div><label>Destination Page *</label><select id="lmDestination"><option value="/">Home</option><option value="/courses">Courses</option><option value="/become-partner">Become Partner</option><option value="/broker-reviews">Broker Reviews</option><option value="/trading-tools">Trading Tools & Services</option><option value="/sign-in">Sign In</option><option value="/sign-up">Sign Up</option><option value="/free-course">Free Course — Signup + Enrollment</option><option value="custom">Custom Path</option></select></div>
           <div><label>Source</label><select id="lmSource"><option>WhatsApp</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>Email</option><option>Google</option><option>Other</option></select></div>
+          <div><label>Referral WhatsApp Number</label><input id="lmWhatsapp" placeholder="+60 11-5655 1989"></div>
           <div class="wide" id="lmCustomWrap" style="display:none"><label>Custom Destination</label><input id="lmCustomDestination" placeholder="/courses#courses"></div>
           <div><label>Campaign</label><input id="lmCampaign" placeholder="august-free-course"></div>
           <div class="wide"><label>Team Member / Reference Code *</label><input id="lmSlug" placeholder="person-1"></div>
@@ -134,18 +138,20 @@
     if(destination==='custom')destination=document.getElementById('lmCustomDestination').value.trim();
     const source=document.getElementById('lmSource').value.trim();
     const campaign=document.getElementById('lmCampaign').value.trim();
+    const whatsapp=normalizeWhatsapp(document.getElementById('lmWhatsapp')?.value||'');
     const notes=document.getElementById('lmNotes').value.trim();
     if(!name)return toast('Link name is required.','err');
     if(!/^[a-z0-9][a-z0-9-]{1,78}[a-z0-9]$/.test(slug))return toast('Reference code must contain 3–80 lowercase letters, numbers or hyphens.','err');
     if(!destination.startsWith('/'))return toast('Destination must start with /.','err');
+    if(!validWhatsapp(whatsapp))return toast('WhatsApp number looks invalid. Please use a full number with country code.','err');
     const btn=document.getElementById('lmCreateBtn');btn.disabled=true;btn.textContent='Creating…';
     try{
       let userId=null;try{userId=(await client.auth.getUser()).data?.user?.id||window.currentAdmin?.id||null;}catch(_){ }
-      const {error}=await client.from('tracked_links').insert({name,slug,destination_path:destination,destination_label:document.getElementById('lmDestination').selectedOptions[0]?.text||destination,source,campaign:campaign||null,notes:notes||null,created_by:userId});
+      const {error}=await client.from('tracked_links').insert({name,slug,destination_path:destination,destination_label:document.getElementById('lmDestination').selectedOptions[0]?.text||destination,source,campaign:campaign||null,whatsapp_number:whatsapp||null,notes:notes||null,created_by:userId});
       if(error)throw error;
       await copyText(trackedUrl(destination,slug));
       toast('Tracked link created and copied.','ok');
-      ['lmName','lmCampaign','lmSlug','lmNotes'].forEach(id=>document.getElementById(id).value='');
+      ['lmName','lmCampaign','lmSlug','lmWhatsapp','lmNotes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
       updatePreview();await loadLinks();
     }catch(error){
       const msg=/duplicate|unique/i.test(error.message||'')?'This reference code already exists. Choose another one.':error.message;
@@ -170,9 +176,9 @@
     if(!statsRows.length){tbody.innerHTML='<tr><td colspan="10" class="lm-empty">No tracked links yet. Create your first link above.</td></tr>';return;}
     tbody.innerHTML=statsRows.map(x=>`<tr>
       <td><strong>${esc(x.name)}</strong><div style="font-size:10px;color:var(--text-muted);margin-top:3px">${esc(x.destination_path)}?ref=${esc(x.slug)}${x.campaign?' · '+esc(x.campaign):''}</div></td>
-      <td>${esc(x.source||'—')}</td><td>${esc(x.destination_path)}</td><td><strong>${fmt(x.total_clicks)}</strong></td><td>${fmt(x.unique_visitors)}</td><td>${fmt(x.signups)}</td><td>${fmt(x.enrollments)}</td><td>${Number(x.signup_conversion_rate||0).toFixed(1)}%</td>
+      <td>${esc(x.source||'—')}<div style="font-size:9px;color:var(--text-muted);margin-top:4px">${x.whatsapp_number?'WhatsApp: '+esc(x.whatsapp_number):'Channel fallback'}</div></td><td>${esc(x.destination_path)}</td><td><strong>${fmt(x.total_clicks)}</strong></td><td>${fmt(x.unique_visitors)}</td><td>${fmt(x.signups)}</td><td>${fmt(x.enrollments)}</td><td>${conversionRate(x.enrollments,x.signups).toFixed(1)}%</td>
       <td><span class="lm-status ${x.is_active?'on':'off'}">${x.is_active?'Active':'Disabled'}</span></td>
-      <td><div class="lm-actions"><button class="lm-btn" onclick="copyTrackedLinkV42('${esc(x.slug)}','${esc(x.destination_path)}')">Copy</button><button class="lm-btn" onclick="viewTrackedLinkV42('${x.id}')">Details</button><button class="lm-btn" onclick="toggleTrackedLinkV42('${x.id}',${x.is_active?'false':'true'})">${x.is_active?'Disable':'Enable'}</button><button class="lm-btn" onclick="deleteTrackedLinkV42('${x.id}')">Delete</button></div></td>
+      <td><div class="lm-actions"><button class="lm-btn" onclick="copyTrackedLinkV42('${esc(x.slug)}','${esc(x.destination_path)}')">Copy</button><button class="lm-btn" onclick="setTrackedLinkWhatsAppV75('${x.id}','${esc(x.whatsapp_number||'')}')">WhatsApp</button><button class="lm-btn" onclick="viewTrackedLinkV42('${x.id}')">Details</button><button class="lm-btn" onclick="toggleTrackedLinkV42('${x.id}',${x.is_active?'false':'true'})">${x.is_active?'Disable':'Enable'}</button><button class="lm-btn" onclick="deleteTrackedLinkV42('${x.id}')">Delete</button></div></td>
     </tr>`).join('');
   }
 
@@ -181,6 +187,16 @@
   }
   window.copyLinkV42=async function(url){await copyText(url);toast('Link copied.','ok');};
   window.copyTrackedLinkV42=async function(slug,destination){await copyText(trackedUrl(destination,slug));toast('Tracked link copied.','ok');};
+  window.setTrackedLinkWhatsAppV75=async function(id,current){
+    const value=prompt('Referral WhatsApp number (with country code). Leave blank to use WhatsApp Channel fallback.',current||'');
+    if(value===null)return;
+    const whatsapp=normalizeWhatsapp(value);
+    if(!validWhatsapp(whatsapp))return toast('WhatsApp number looks invalid. Please use a full number with country code.','err');
+    const client=getSb();const {error}=await client.from('tracked_links').update({whatsapp_number:whatsapp||null}).eq('id',id);
+    if(error)return toast(error.message,'err');
+    toast(whatsapp?'Referral WhatsApp saved.':'WhatsApp removed. This link will use the channel fallback.','ok');
+    loadLinks();
+  };
   window.toggleTrackedLinkV42=async function(id,isActive){const client=getSb();const {error}=await client.from('tracked_links').update({is_active:isActive}).eq('id',id);if(error)return toast(error.message,'err');toast(isActive?'Link enabled.':'Link disabled.','ok');loadLinks();};
   window.deleteTrackedLinkV42=async function(id){
     const ok=window.pspConfirm?await window.pspConfirm('Delete this tracked link and all of its analytics?'):confirm('Delete this tracked link?');if(!ok)return;
@@ -195,7 +211,7 @@
     const client=getSb();const {data,error}=await client.from('tracked_link_events').select('event_type,created_at,course_key,visitor_id,user_id,page_path').eq('link_id',id).order('created_at',{ascending:false}).limit(100);
     if(error){body.innerHTML='<div class="lm-empty" style="color:var(--red)">'+esc(error.message)+'</div>';return;}
     const events=data||[];
-    body.innerHTML=`<div class="lm-grid" style="margin-bottom:14px"><div class="lm-stat"><span>Clicks</span><strong>${fmt(row.total_clicks)}</strong></div><div class="lm-stat"><span>Unique</span><strong>${fmt(row.unique_visitors)}</strong></div><div class="lm-stat"><span>Signups</span><strong>${fmt(row.signups)}</strong></div><div class="lm-stat"><span>Enrollments</span><strong>${fmt(row.enrollments)}</strong></div></div>`+(events.length?events.map(e=>`<div class="lm-event"><b>${esc(e.event_type)}</b><span>${esc(date(e.created_at))}</span><span>${e.course_key?'Course: '+esc(e.course_key)+' · ':''}${e.user_id?'User conversion':'Visitor '+esc((e.visitor_id||'').slice(0,14))}</span></div>`).join(''):'<div class="lm-empty">No activity recorded yet.</div>');
+    body.innerHTML=`<div class="lm-grid" style="margin-bottom:14px"><div class="lm-stat"><span>Clicks</span><strong>${fmt(row.total_clicks)}</strong></div><div class="lm-stat"><span>Unique</span><strong>${fmt(row.unique_visitors)}</strong></div><div class="lm-stat"><span>Signups</span><strong>${fmt(row.signups)}</strong></div><div class="lm-stat"><span>Enrollments</span><strong>${fmt(row.enrollments)}</strong></div></div><div class="lm-preview" style="margin-bottom:14px"><span>💬</span><span class="lm-link">Referral WhatsApp: ${esc(row.whatsapp_number||'Not set — WhatsApp Channel fallback')}</span></div>`+(events.length?events.map(e=>`<div class="lm-event"><b>${esc(e.event_type)}</b><span>${esc(date(e.created_at))}</span><span>${e.course_key?'Course: '+esc(e.course_key)+' · ':''}${e.user_id?'User conversion':'Visitor '+esc((e.visitor_id||'').slice(0,14))}</span></div>`).join(''):'<div class="lm-empty">No activity recorded yet.</div>');
   };
 
   function installShowPageHook(){
