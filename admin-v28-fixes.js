@@ -67,9 +67,9 @@ function updateCoursePreview(){
   const price=Number(document.getElementById('coursePrice')?.value||0);
   const thumb=resolveCourseThumb(document.getElementById('courseThumbnail')?.value,premium);
   const modules=premium?[
-    'Introduction to Forex Trading','Candlestick Patterns and Price Behaviour','Market Sentiment Analysis','Trading Psychology and Risk Management','Foundations of Technical Analysis','Understanding Technical Indicators','Fundamentals of Fundamental Analysis','Trading Strategies — Part 1','Trading Strategies — Part 2'
+    'FINANCIAL MARKETS BLUEPRINT','THE LANGUAGE OF PRICE INTELLIGENCE','DECODING AND DISSECTING CANDLESTICKS','EXPLORING TRADER'S TOOLKIT','TRADING WITH MARKET PULSE','UNDERSTANDING REAL MARKET DRIVERS','ULTIMATE SUCCESS CODE — THE MINDSET','BUILDING YOUR TRADING EDGE','MASTER THE ART OF TRADING'
   ]:[
-    'Introduction to Forex Trading','Candlestick Patterns and Price Behaviour','Market Sentiment Analysis','Trading Psychology and Risk Management','Foundations of Technical Analysis','Understanding Technical Indicators','Fundamentals of Fundamental Analysis','Trading Strategies — Part 1','Trading Strategies — Part 2'
+    'FINANCIAL MARKETS BLUEPRINT','THE LANGUAGE OF PRICE INTELLIGENCE','DECODING AND DISSECTING CANDLESTICKS','EXPLORING TRADER'S TOOLKIT','TRADING WITH MARKET PULSE','UNDERSTANDING REAL MARKET DRIVERS','ULTIMATE SUCCESS CODE — THE MINDSET','BUILDING YOUR TRADING EDGE','MASTER THE ART OF TRADING'
   ];
   const outcomes=premium?['Advanced structure and liquidity','Professional execution models','Risk and exposure management','Repeatable trading playbook']:['Forex market foundations','Practical chart reading','Risk-management habits','Beginner trading roadmap'];
   preview.innerHTML=`

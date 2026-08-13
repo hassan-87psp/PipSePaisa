@@ -193,7 +193,7 @@
     if(button){button.disabled=false;button.textContent=originalText||'Generate Class Links';button.classList.remove('is-loading');}
     if(result.ok){
       const ready=Number(result.data?.registered||result.data?.results?.filter?.(item=>item?.join_url)?.length||0);
-      showZoomRegistrationResult(true,`${ready}/9 unique Zoom links are ready in your course panel.`);
+      const target=Number(result.data?.eligible_count||9);const completed=Number(result.data?.completed_count||0);showZoomRegistrationResult(true,`${ready}/${target} upcoming Zoom links are ready in your course panel.${completed?` ${completed} completed class${completed===1?' was':'es were'} skipped.`:''}`);
     }else{
       let note=result.detail||result.error?.message||'Zoom registration needs attention.';
       if(/^bad request$/i.test(String(note).trim())){

@@ -15,15 +15,15 @@ const defaults={
     requirements:['This course is suitable even if you are completely new to forex.','A mobile phone or computer with internet access.','A willingness to practise on a demo account and follow risk-management rules.'],
     audience:['Complete beginners starting their Forex journey.','Traders who want to rebuild their foundation correctly.','Students who prefer structured, practical learning.'],
     modules:[
-      {title:'Introduction to Forex Trading',duration:'90 min',summary:'Understand the Forex market, currency pairs, brokers, spreads and leverage.',points:['How the Forex market works','Major market participants','Currency pairs and trading sessions']},
-      {title:'Candlestick Patterns and Price Behaviour',duration:'90 min',summary:'Read buyer and seller pressure through candles, rejection and momentum.',points:['Candlestick structure','Rejection and momentum','Core reversal patterns']},
-      {title:'Market Sentiment Analysis',duration:'90 min',summary:'Build a market bias by understanding bullish, bearish and crowd behaviour.',points:['Bullish vs bearish sentiment','Fear, greed and crowd behaviour','News reaction and bias']},
-      {title:'Trading Psychology and Risk Management',duration:'90 min',summary:'Develop discipline and protect capital with practical risk rules.',points:['Position sizing and stop loss','Discipline and execution','Managing fear and overtrading']},
-      {title:'Foundations of Technical Analysis',duration:'90 min',summary:'Learn trends, levels, structure and the foundations of chart analysis.',points:['Trend identification','Support and resistance','Basic market structure']},
-      {title:'Understanding Technical Indicators',duration:'90 min',summary:'Use indicators as confirmation tools without depending on them blindly.',points:['Moving averages','RSI and momentum','MACD confirmation']},
-      {title:'Fundamentals of Fundamental Analysis',duration:'90 min',summary:'Understand economic events and policy decisions that move currencies and gold.',points:['Interest rates and inflation','CPI, NFP and central banks','Using the economic calendar']},
-      {title:'Trading Strategies — Part 1',duration:'90 min',summary:'Create a simple, repeatable trading plan with clear entry and exit rules.',points:['Setup selection','Entry and stop-loss rules','Take-profit structure']},
-      {title:'Trading Strategies — Part 2',duration:'90 min',summary:'Refine entries, exits and trade management using stronger confirmation.',points:['Advanced confirmations','Trade management rules','Exit planning and review']}
+      {title:"FINANCIAL MARKETS BLUEPRINT",duration:'90 min',summary:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:"2026-08-10T21:00:00+05:00",points:["Global financial markets", "Forex ecosystem", "Market participants"]},
+      {title:"THE LANGUAGE OF PRICE INTELLIGENCE",duration:'90 min',summary:"Mastering Technical Analysis",scheduled_at:"2026-08-13T21:00:00+05:00",points:["Support & resistance", "Trend lines and structure", "Technical analysis foundations"]},
+      {title:"DECODING AND DISSECTING CANDLESTICKS",duration:'90 min',summary:"Cracking the Hidden Price Behaviors",scheduled_at:"2026-08-15T21:00:00+05:00",points:["Candlestick structure", "Price behaviour", "Rejection and momentum"]},
+      {title:"EXPLORING TRADER'S TOOLKIT",duration:'90 min',summary:"Mastering Technical Indicators",scheduled_at:"2026-08-17T21:00:00+05:00",points:["Technical indicators", "Confirmation tools", "Indicator interpretation"]},
+      {title:"TRADING WITH MARKET PULSE",duration:'90 min',summary:"Reading Market Sentiment",scheduled_at:"2026-08-18T21:00:00+05:00",points:["Market sentiment", "Bullish vs bearish bias", "Reading market pulse"]},
+      {title:"UNDERSTANDING REAL MARKET DRIVERS",duration:'90 min',summary:"Understanding Fundamental Analysis",scheduled_at:"2026-08-20T21:00:00+05:00",points:["Economic market drivers", "Fundamental events", "Central-bank and data impact"]},
+      {title:"ULTIMATE SUCCESS CODE — THE MINDSET",duration:'90 min',summary:"Psychology, Risk & Capital Management",scheduled_at:"2026-08-24T21:00:00+05:00",points:["Trading psychology", "Risk management", "Capital management"]},
+      {title:"BUILDING YOUR TRADING EDGE",duration:'90 min',summary:"Developing High-Probability Trading Strategies",scheduled_at:"2026-08-25T21:00:00+05:00",points:["Strategy development", "High-probability setups", "Entry and exit rules"]},
+      {title:"MASTER THE ART OF TRADING",duration:'90 min',summary:"Advanced Strategies, Execution & Trade Management",scheduled_at:"2026-08-27T18:00:00+05:00",points:["Advanced execution", "Trade management", "Professional trading process"]}
     ],
     learn:['Understand how the Forex market and currency pairs work.','Read candlestick behaviour, trends and important price levels.','Use technical indicators as confirmation rather than dependency.','Prepare for economic news and fundamental market events.','Build a repeatable trading strategy with clear risk rules.','Develop discipline, patience and a professional trading routine.'],
     achievement:['Understand forex market structure and price movement clearly.','Identify stronger entry and exit areas with confidence.','Use technical tools and chart analysis in a practical way.','Build better risk-management and trading-discipline habits.','Improve decision-making using real market examples.','Develop a repeatable trading approach for consistent learning.']
@@ -55,6 +55,27 @@ const defaults={
     achievement:['Read institutional structure and liquidity with greater clarity.','Build high-quality entry models using confirmation and timing.','Combine order flow, supply, demand and multi-timeframe analysis.','Improve risk, exposure and position-management decisions.','Use correlations and macro context to strengthen directional bias.','Create and review a professional, repeatable trading playbook.']
   }
 };
+
+
+const BASIC_LIVE_SCHEDULE=[
+  {course_key:'basic',class_number:1,title:"FINANCIAL MARKETS BLUEPRINT",subtitle:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:"2026-08-10T21:00:00+05:00",is_active:true},
+  {course_key:'basic',class_number:2,title:"THE LANGUAGE OF PRICE INTELLIGENCE",subtitle:"Mastering Technical Analysis",scheduled_at:"2026-08-13T21:00:00+05:00",is_active:true},
+  {course_key:'basic',class_number:3,title:"DECODING AND DISSECTING CANDLESTICKS",subtitle:"Cracking the Hidden Price Behaviors",scheduled_at:"2026-08-15T21:00:00+05:00",is_active:true},
+  {course_key:'basic',class_number:4,title:"EXPLORING TRADER'S TOOLKIT",subtitle:"Mastering Technical Indicators",scheduled_at:"2026-08-17T21:00:00+05:00",is_active:true},
+  {course_key:'basic',class_number:5,title:"TRADING WITH MARKET PULSE",subtitle:"Reading Market Sentiment",scheduled_at:"2026-08-18T21:00:00+05:00",is_active:true},
+  {course_key:'basic',class_number:6,title:"UNDERSTANDING REAL MARKET DRIVERS",subtitle:"Understanding Fundamental Analysis",scheduled_at:"2026-08-20T21:00:00+05:00",is_active:true},
+  {course_key:'basic',class_number:7,title:"ULTIMATE SUCCESS CODE — THE MINDSET",subtitle:"Psychology, Risk & Capital Management",scheduled_at:"2026-08-24T21:00:00+05:00",is_active:true},
+  {course_key:'basic',class_number:8,title:"BUILDING YOUR TRADING EDGE",subtitle:"Developing High-Probability Trading Strategies",scheduled_at:"2026-08-25T21:00:00+05:00",is_active:true},
+  {course_key:'basic',class_number:9,title:"MASTER THE ART OF TRADING",subtitle:"Advanced Strategies, Execution & Trade Management",scheduled_at:"2026-08-27T18:00:00+05:00",is_active:true}
+];
+const BASIC_SCHEDULE_BY_NUMBER=new Map(BASIC_LIVE_SCHEDULE.map(x=>[x.class_number,x]));
+const CLASS_COMPLETION_GRACE_MS=3*60*60*1000;
+function basicScheduleRow(n){return BASIC_SCHEDULE_BY_NUMBER.get(Number(n))||null;}
+function classIsCompleted(row){const d=row&&row.scheduled_at?new Date(row.scheduled_at):null;return !!(d&&Number.isFinite(d.getTime())&&Date.now()>d.getTime()+CLASS_COMPLETION_GRACE_MS);}
+function classScheduleText(row){
+  const d=row&&row.scheduled_at?new Date(row.scheduled_at):null;if(!d||!Number.isFinite(d.getTime()))return 'Date & time to be announced';
+  try{const date=d.toLocaleDateString('en-GB',{timeZone:'Asia/Karachi',day:'2-digit',month:'short',year:'numeric'});const time=d.toLocaleTimeString('en-US',{timeZone:'Asia/Karachi',hour:'numeric',minute:'2-digit',hour12:true});return `${date} • ${time} PKT`;}catch(_){return String(row.scheduled_at||'');}
+}
 
 let courseData={basic:{...defaults.basic},advanced:{...defaults.advanced}};
 let enrollmentState={basic:'not_enrolled',advanced:'not_enrolled'};
@@ -101,17 +122,8 @@ async function getEnrollment(key){
   }catch(e){console.warn('Course enrollment state unavailable',e);return null;}
 }
 function defaultClasses(key){
-  return Array.from({length:9},(_,index)=>({
-    course_key:key,
-    class_number:index+1,
-    title:`Class ${index+1}`,
-    zoom_url:'',
-    join_url:'',
-    registration_status:'not_registered',
-    scheduled_at:null,
-    zoom_error_message:'',
-    is_active:true
-  }));
+  if(key==='basic')return BASIC_LIVE_SCHEDULE.map(row=>({...row,zoom_url:'',join_url:'',registration_status:'not_registered',zoom_error_message:''}));
+  return Array.from({length:9},(_,index)=>({course_key:key,class_number:index+1,title:`Class ${index+1}`,zoom_url:'',join_url:'',registration_status:'not_registered',scheduled_at:null,zoom_error_message:'',is_active:true}));
 }
 async function loadCourseClasses(){
   courseClasses.basic=defaultClasses('basic');
@@ -125,7 +137,7 @@ async function loadCourseClasses(){
         const rows=(r.data||[]).filter(x=>x.course_key===key&&x.is_active!==false);
         if(rows.length){
           const byNumber=new Map(rows.map(row=>[Number(row.class_number),row]));
-          courseClasses[key]=defaultClasses(key).map(base=>({...base,...(byNumber.get(base.class_number)||{})}));
+          courseClasses[key]=defaultClasses(key).map(base=>{const row=byNumber.get(base.class_number)||{};return key==='basic'?({...base,...row,title:base.title,subtitle:base.subtitle,scheduled_at:base.scheduled_at}):({...base,...row});});
         }
       });
     }
@@ -160,6 +172,9 @@ async function loadCourseClasses(){
         ...base,
         ...catalog,
         ...registration,
+        title:base.title,
+        subtitle:base.subtitle,
+        scheduled_at:base.scheduled_at,
         zoom_url:registration.join_url||'',
         join_url:registration.join_url||'',
         registration_status:registration.registration_status||'not_registered',
@@ -365,44 +380,57 @@ function stickyAccessPanel(c,state){
 function classAccessPanel(c,state){
   if(state!=='approved')return '';
   const rows=(courseClasses[c.key]&&courseClasses[c.key].length?courseClasses[c.key]:defaultClasses(c.key));
-  const readyCount=rows.filter(x=>/^https?:\/\//i.test(String(x.join_url||x.zoom_url||''))).length;
   const isBasic=c.key==='basic';
+  const upcomingRows=rows.filter(row=>!classIsCompleted(row));
+  const targetCount=isBasic?upcomingRows.length:rows.length;
+  const readyCount=(isBasic?upcomingRows:rows).filter(x=>/^https?:\/\//i.test(String(x.join_url||x.zoom_url||''))).length;
   const generating=isBasic&&window.__pspZoomGenerating===true;
-  const failedCount=rows.filter(row=>/^(failed|error|rejected)$/i.test(String(row.registration_status||''))).length;
-  const pendingCount=rows.filter(row=>/^(pending|processing|registering)$/i.test(String(row.registration_status||''))).length;
-  const showRetry=isBasic&&readyCount<9&&!generating&&pendingCount===0;
-  const retryText=readyCount>0?'Retry Missing Links':'Generate Class Links';
+  const failedCount=upcomingRows.filter(row=>/^(failed|error|rejected)$/i.test(String(row.registration_status||''))).length;
+  const pendingCount=upcomingRows.filter(row=>/^(pending|processing|registering)$/i.test(String(row.registration_status||''))).length;
+  const showRetry=isBasic&&targetCount>0&&readyCount<targetCount&&!generating&&pendingCount===0;
+  const retryText=readyCount>0?'Retry Missing Links':'Generate Upcoming Links';
   const progress=generating||pendingCount>0
-    ?'<div class="psp-zoom-progress" role="status"><span class="psp-zoom-spinner"></span><span>Generating your personal class links…</span></div>'
+    ?'<div class="psp-zoom-progress" role="status"><span class="psp-zoom-spinner"></span><span>Generating your personal upcoming class links…</span></div>'
     :'';
+  const linkSummary=isBasic?`${readyCount}/${targetCount} Upcoming Links Ready`:`${readyCount}/${rows.length} Links Ready`;
   return `<section class="psp-live-class-card" id="pspLiveClassCard" aria-label="${esc(c.title)} live classes">
-    <div class="psp-live-class-head"><div><span>LIVE CLASS ACCESS</span><h3>Your 9 Classes</h3></div><b>${readyCount}/9 Links Ready</b></div>
-    <p>${isBasic?'Your personal Zoom links are generated automatically after enrollment. Each link is unique to your account.':'Select a class to view its live-class access.'}</p>
+    <div class="psp-live-class-head"><div><span>LIVE CLASS ACCESS</span><h3>Your 9 Classes</h3></div><b>${linkSummary}</b></div>
+    <p>${isBasic?'Completed classes stay visible as Completed. New students only receive personal Zoom links for upcoming classes.':'Select a class to view its live-class access.'}</p>
     ${progress}
     ${showRetry?`<button type="button" class="psp-zoom-retry-btn" onclick="return window.retryZoomCourseRegistration?.(event)">${retryText}</button>`:''}
-    ${isBasic&&failedCount>0&&!generating?`<div class="psp-zoom-small-note">${failedCount} link${failedCount===1?'':'s'} need another attempt.</div>`:''}
+    ${isBasic&&failedCount>0&&!generating?`<div class="psp-zoom-small-note">${failedCount} upcoming link${failedCount===1?'':'s'} need another attempt.</div>`:''}
     <div class="psp-live-class-list">${rows.map((row,index)=>{
+      const completed=classIsCompleted(row);
       const url=String(row.join_url||row.zoom_url||'').trim();
-      const safeUrl=/^https?:\/\//i.test(url)?url:'';
-      const title=(c.modules&&c.modules[index]&&c.modules[index].title)||row.title||`Class ${index+1}`;
+      const safeUrl=!completed&&/^https?:\/\//i.test(url)?url:'';
+      const canonical=isBasic?basicScheduleRow(row.class_number):null;
+      const title=canonical?.title||(c.modules&&c.modules[index]&&c.modules[index].title)||row.title||`Class ${index+1}`;
+      const subtitle=canonical?.subtitle||row.subtitle||'';
       const status=String(row.registration_status||'not_registered');
-      const failed=/^(failed|error|rejected)$/i.test(status);
-      const pending=generating||/^(pending|processing|registering)$/i.test(status);
-      const stateText=safeUrl?'Zoom Ready':failed?'Registration Failed':pending?'Generating':'Link Pending';
-      const panel=safeUrl
-        ?`<a href="${esc(safeUrl)}" target="_blank" rel="noopener">Join Webinar →</a>`
-        :failed
-          ?`<span>${esc(row.zoom_error_message||'Zoom registration failed. Use the retry button above.')}</span>`
-          :'<span>Your unique Zoom link is being generated automatically.</span>';
-      return `<div class="psp-live-class-row ${safeUrl?'has-link':failed?'failed':'waiting'}"><button type="button" class="psp-live-class-toggle"><span><i>${String(index+1).padStart(2,'0')}</i><strong>${esc(title)}</strong></span><span class="psp-live-class-state">${stateText}⌄</span></button><div class="psp-live-class-panel">${panel}</div></div>`;
+      const failed=!completed&&/^(failed|error|rejected)$/i.test(status);
+      const pending=!completed&&(generating||/^(pending|processing|registering)$/i.test(status));
+      const stateText=completed?'✓ COMPLETED':safeUrl?'Zoom Ready':failed?'Registration Failed':pending?'Generating':'Link Pending';
+      const panel=completed
+        ?`<span class="psp-class-completed-note">✓ This class is completed. No new Zoom link is generated for completed classes.</span>`
+        :safeUrl
+          ?`<a href="${esc(safeUrl)}" target="_blank" rel="noopener">Join Webinar →</a>`
+          :failed
+            ?`<span>${esc(row.zoom_error_message||'Zoom registration failed. Use the retry button above.')}</span>`
+            :'<span>Your unique Zoom link is generated automatically for this upcoming class.</span>';
+      return `<div class="psp-live-class-row ${completed?'completed':safeUrl?'has-link':failed?'failed':'waiting'}"><button type="button" class="psp-live-class-toggle"><span><i>${String(index+1).padStart(2,'0')}</i><span class="psp-live-class-title-wrap"><strong>${esc(title)}</strong>${subtitle?`<small>${esc(subtitle)}</small>`:''}<em>📅 ${esc(classScheduleText(row))}</em></span></span><span class="psp-live-class-state">${stateText}${completed?'':'⌄'}</span></button><div class="psp-live-class-panel">${panel}</div></div>`;
     }).join('')}</div>
   </section>`;
 }
 
-
 function moduleRows(c,unlocked){
   if(c.type==='paid'&&!unlocked){return `<div class="psp-course-locked-roadmap"><div class="psp-course-locked-intro"><div class="lock">🔒</div><div><h4>Advanced Modules Locked</h4><p>Module details unlock after payment approval. You can still preview the complete learning roadmap below.</p></div></div>${c.modules.map((m,i)=>`<div class="psp-module-row locked"><div class="psp-module-toggle"><span><strong>${String(i+1).padStart(2,'0')}. ${esc(m.title)}</strong></span><span class="psp-locked-label">🔒 Locked</span></div></div>`).join('')}</div>`;}
-  return `<div class="psp-module-list">${c.modules.map((m,i)=>`<div class="psp-module-row"><button class="psp-module-toggle" type="button"><span><strong>${String(i+1).padStart(2,'0')}. ${esc(m.title)}</strong></span><span style="display:flex;align-items:center;gap:10px"><small>${esc(m.duration)}</small><span class="psp-module-arrow">⌄</span></span></button><div class="psp-module-panel"><div>${esc(m.summary)}</div><div class="psp-module-points">${m.points.map(p=>`<span><b style="color:#d97706">✓</b>${esc(p)}</span>`).join('')}</div></div></div>`).join('')}</div>`;
+  return `<div class="psp-module-list">${c.modules.map((m,i)=>{
+    const schedule=c.key==='basic'?(basicScheduleRow(i+1)||{scheduled_at:m.scheduled_at,title:m.title,subtitle:m.summary}):null;
+    const completed=schedule?classIsCompleted(schedule):false;
+    const scheduleLine=schedule?`<small class="psp-module-schedule">📅 ${esc(classScheduleText(schedule))}</small>`:'';
+    const stateBadge=schedule&&completed?'<span class="psp-module-completed">✓ COMPLETED</span>':'';
+    return `<div class="psp-module-row ${completed?'completed':''}"><button class="psp-module-toggle" type="button"><span><strong>${String(i+1).padStart(2,'0')}. ${esc(m.title)}</strong>${m.summary?`<small class="psp-module-subtitle">${esc(m.summary)}</small>`:''}</span><span class="psp-module-right">${stateBadge}${scheduleLine}<small>${esc(m.duration)}</small><span class="psp-module-arrow">⌄</span></span></button><div class="psp-module-panel"><div>${esc(m.summary)}</div>${schedule?`<div class="psp-module-live-datetime"><b>Live Class</b><span>📅 ${esc(classScheduleText(schedule))}</span>${completed?'<em>Completed</em>':'<em>Upcoming</em>'}</div>`:''}<div class="psp-module-points">${m.points.map(p=>`<span><b style="color:#d97706">✓</b>${esc(p)}</span>`).join('')}</div></div></div>`;
+  }).join('')}</div>`;
 }
 function detailMarkup(c){
   const state=enrollmentState[c.key];const unlocked=c.type==='free'||state==='approved';

@@ -356,80 +356,7 @@ function courseCard(row){
   </article>`;
 }
 
-const FREE_COURSE_MODULES=[
-  {
-    title:'Introduction to Forex Trading',
-    category:'Forex Foundations',
-    duration:'75 Minutes',
-    sub:'Understand the market, its participants and the essential language every trader needs.',
-    points:['How the Forex market works','Currency pairs and trading sessions','Brokers, spreads and leverage'],
-    outcomes:['Identify major Forex market participants','Recognize key currency-pair categories','Understand basic trading terminology']
-  },
-  {
-    title:'Candlestick Patterns and Price Behaviour',
-    category:'Technical Analysis',
-    duration:'90 Minutes',
-    sub:'Read buyer and seller pressure through candles, rejection and basic price behaviour.',
-    points:['Candlestick structure','Rejection and momentum','Core reversal patterns'],
-    outcomes:['Read bullish and bearish candle pressure','Spot common rejection signals','Recognize basic reversal setups']
-  },
-  {
-    title:'Market Sentiment Analysis',
-    category:'Market Psychology',
-    duration:'80 Minutes',
-    sub:'Build a clear market bias by understanding bullish, bearish and risk-driven behaviour.',
-    points:['Bullish vs bearish sentiment','Fear, greed and crowd behaviour','News reaction and market bias'],
-    outcomes:['Define the current market bias','Interpret crowd-driven behaviour','Combine sentiment with price action']
-  },
-  {
-    title:'Trading Psychology and Risk Management',
-    category:'Risk & Mindset',
-    duration:'95 Minutes',
-    sub:'Develop discipline and protect capital with practical risk rules and emotional control.',
-    points:['Position sizing and stop loss','Discipline and execution','Managing fear and overtrading'],
-    outcomes:['Calculate safer trade risk','Follow a disciplined trading routine','Reduce emotional trading mistakes']
-  },
-  {
-    title:'Trading Strategies — Part 2',
-    category:'Strategy Development',
-    duration:'100 Minutes',
-    sub:'Refine entries, exits and trade management using stronger confirmation techniques.',
-    points:['Advanced confirmations','Trade management rules','Exit planning and review'],
-    outcomes:['Filter weaker trade setups','Manage open positions with structure','Review strategy performance clearly']
-  },
-  {
-    title:'Foundations of Technical Analysis',
-    category:'Technical Analysis',
-    duration:'90 Minutes',
-    sub:'Learn how to read trends, levels and market structure before planning a trade.',
-    points:['Trend identification','Support and resistance','Basic market structure'],
-    outcomes:['Classify bullish and bearish trends','Mark important price levels','Read basic structural shifts']
-  },
-  {
-    title:'Understanding Technical Indicators',
-    category:'Indicators',
-    duration:'85 Minutes',
-    sub:'Use popular indicators as confirmation tools without depending on them blindly.',
-    points:['Moving averages','RSI and momentum','MACD confirmation'],
-    outcomes:['Use indicators as confirmation','Avoid indicator over-dependence','Combine momentum with price action']
-  },
-  {
-    title:'Fundamentals of Fundamental Analysis',
-    category:'Fundamental Analysis',
-    duration:'100 Minutes',
-    sub:'Understand the economic events and policy decisions that move currencies and gold.',
-    points:['Interest rates and inflation','CPI, NFP and central banks','Using the economic calendar'],
-    outcomes:['Recognize high-impact economic events','Understand central-bank influence','Prepare for scheduled news releases']
-  },
-  {
-    title:'Trading Strategies — Part 1',
-    category:'Trading Strategy',
-    duration:'95 Minutes',
-    sub:'Create a simple, repeatable trading plan with clear entries, risk and targets.',
-    points:['Setup selection','Entry and stop-loss rules','Take-profit structure'],
-    outcomes:['Build a repeatable trade plan','Apply clear entry and exit rules','Set structured targets and risk']
-  }
-];
+const FREE_COURSE_MODULES=[{"title":"FINANCIAL MARKETS BLUEPRINT","category":"Live Forex Class","duration":"90 Minutes","sub":"Understanding the Ecosystem of Global Financial Markets","scheduled_at":"2026-08-10T21:00:00+05:00","points":["Global financial markets","Forex ecosystem","Market participants"],"outcomes":["Understanding the Ecosystem of Global Financial Markets","Apply the lesson with practical market examples","Build structured trading knowledge"]},{"title":"THE LANGUAGE OF PRICE INTELLIGENCE","category":"Live Forex Class","duration":"90 Minutes","sub":"Mastering Technical Analysis","scheduled_at":"2026-08-13T21:00:00+05:00","points":["Support & resistance","Trend lines and structure","Technical analysis foundations"],"outcomes":["Mastering Technical Analysis","Apply the lesson with practical market examples","Build structured trading knowledge"]},{"title":"DECODING AND DISSECTING CANDLESTICKS","category":"Live Forex Class","duration":"90 Minutes","sub":"Cracking the Hidden Price Behaviors","scheduled_at":"2026-08-15T21:00:00+05:00","points":["Candlestick structure","Price behaviour","Rejection and momentum"],"outcomes":["Cracking the Hidden Price Behaviors","Apply the lesson with practical market examples","Build structured trading knowledge"]},{"title":"EXPLORING TRADER'S TOOLKIT","category":"Live Forex Class","duration":"90 Minutes","sub":"Mastering Technical Indicators","scheduled_at":"2026-08-17T21:00:00+05:00","points":["Technical indicators","Confirmation tools","Indicator interpretation"],"outcomes":["Mastering Technical Indicators","Apply the lesson with practical market examples","Build structured trading knowledge"]},{"title":"TRADING WITH MARKET PULSE","category":"Live Forex Class","duration":"90 Minutes","sub":"Reading Market Sentiment","scheduled_at":"2026-08-18T21:00:00+05:00","points":["Market sentiment","Bullish vs bearish bias","Reading market pulse"],"outcomes":["Reading Market Sentiment","Apply the lesson with practical market examples","Build structured trading knowledge"]},{"title":"UNDERSTANDING REAL MARKET DRIVERS","category":"Live Forex Class","duration":"90 Minutes","sub":"Understanding Fundamental Analysis","scheduled_at":"2026-08-20T21:00:00+05:00","points":["Economic market drivers","Fundamental events","Central-bank and data impact"],"outcomes":["Understanding Fundamental Analysis","Apply the lesson with practical market examples","Build structured trading knowledge"]},{"title":"ULTIMATE SUCCESS CODE — THE MINDSET","category":"Live Forex Class","duration":"90 Minutes","sub":"Psychology, Risk & Capital Management","scheduled_at":"2026-08-24T21:00:00+05:00","points":["Trading psychology","Risk management","Capital management"],"outcomes":["Psychology, Risk & Capital Management","Apply the lesson with practical market examples","Build structured trading knowledge"]},{"title":"BUILDING YOUR TRADING EDGE","category":"Live Forex Class","duration":"90 Minutes","sub":"Developing High-Probability Trading Strategies","scheduled_at":"2026-08-25T21:00:00+05:00","points":["Strategy development","High-probability setups","Entry and exit rules"],"outcomes":["Developing High-Probability Trading Strategies","Apply the lesson with practical market examples","Build structured trading knowledge"]},{"title":"MASTER THE ART OF TRADING","category":"Live Forex Class","duration":"90 Minutes","sub":"Advanced Strategies, Execution & Trade Management","scheduled_at":"2026-08-27T18:00:00+05:00","points":["Advanced execution","Trade management","Professional trading process"],"outcomes":["Advanced Strategies, Execution & Trade Management","Apply the lesson with practical market examples","Build structured trading knowledge"]}];
 
 
 const ADVANCED_COURSE_MODULES=[
@@ -575,6 +502,10 @@ function courseModuleDetailsMarkup(module){
     </div>
   </div>`;
 }
+
+function legacyClassScheduleText(value){const d=value?new Date(value):null;if(!d||!Number.isFinite(d.getTime()))return 'Date & time to be announced';try{return d.toLocaleDateString('en-GB',{timeZone:'Asia/Karachi',day:'2-digit',month:'short',year:'numeric'})+' • '+d.toLocaleTimeString('en-US',{timeZone:'Asia/Karachi',hour:'numeric',minute:'2-digit',hour12:true})+' PKT';}catch(_){return String(value||'');}}
+function legacyClassCompleted(module){const d=module?.scheduled_at?new Date(module.scheduled_at):null;return !!(d&&Number.isFinite(d.getTime())&&Date.now()>d.getTime()+3*60*60*1000);}
+
 function courseModuleCardMarkup(module,index,options){
   const paid=!!options.paid;
   const level=options.level||'Beginner';
@@ -582,9 +513,12 @@ function courseModuleCardMarkup(module,index,options){
   const approved=!paid||state==='approved';
   const actionTitle=paid?'Course Unlocked':'Ready to Start?';
   const actionText=paid?'Your payment is approved. Module access is active.':'Secure your seat and start learning with confidence.';
+  const completed=!paid&&legacyClassCompleted(module);
   const actionButton=paid
     ? `<button class="course-register-btn" type="button" onclick="openEnrolledCourse()">Open Module →</button>`
-    : `<button class="course-register-btn" type="button" onclick="openCourseEnrollmentFromModules('basic')">Register for Module →</button>`;
+    : completed
+      ? `<button class="course-register-btn" type="button" disabled style="opacity:.7;cursor:default">✓ Class Completed</button>`
+      : `<button class="course-register-btn" type="button" onclick="openCourseEnrollmentFromModules('basic')">Register for Module →</button>`;
   return `<article class="course-module-card premium-accordion-card" data-module-index="${index}">
     <div class="course-mentor-wrap">
       <img class="course-mentor-img" src="sajid-ghori.webp" alt="Sajid Ghori">
@@ -598,7 +532,7 @@ function courseModuleCardMarkup(module,index,options){
       <div class="course-module-meta">
         <div class="course-module-meta-item"><span class="course-module-meta-icon">◷</span><div class="course-module-meta-copy"><span>Duration</span><strong>${esc(module.duration||'90 Minutes')}</strong></div></div>
         <div class="course-module-meta-item"><span class="course-module-meta-icon">▥</span><div class="course-module-meta-copy"><span>Level</span><strong>${esc(level)}</strong></div></div>
-        <div class="course-module-meta-item"><span class="course-module-meta-icon">▣</span><div class="course-module-meta-copy"><span>Format</span><strong>Live Session</strong></div></div>
+        <div class="course-module-meta-item"><span class="course-module-meta-icon">▣</span><div class="course-module-meta-copy"><span>Live Class</span><strong>${esc(legacyClassScheduleText(module.scheduled_at))}</strong></div></div>
       </div>
       <button class="course-details-toggle" type="button" aria-expanded="false" onclick="toggleCourseModuleDetails(this)"><span>View Details</span><span class="course-details-arrow">⌄</span></button>
       ${courseModuleDetailsMarkup(module)}

@@ -2,15 +2,15 @@
 'use strict';
 
 const BASIC_MODULES=[
-  ['Introduction to Forex Trading','Understand the Forex market, currency pairs, brokers, spreads and leverage.'],
-  ['Candlestick Patterns and Price Behaviour','Read buyer and seller pressure through candles, rejection and momentum.'],
-  ['Market Sentiment Analysis','Build a market bias by understanding bullish, bearish and crowd behaviour.'],
-  ['Trading Psychology and Risk Management','Develop discipline and protect capital with practical risk rules.'],
-  ['Foundations of Technical Analysis','Learn trends, levels, structure and the foundations of chart analysis.'],
-  ['Understanding Technical Indicators','Use indicators as confirmation tools without depending on them blindly.'],
-  ['Fundamentals of Fundamental Analysis','Understand economic events and policy decisions that move currencies and gold.'],
-  ['Trading Strategies — Part 1','Create a simple, repeatable trading plan with clear entry and exit rules.'],
-  ['Trading Strategies — Part 2','Refine entries, exits and trade management using stronger confirmation.']
+  ['FINANCIAL MARKETS BLUEPRINT','Understand the Forex market, currency pairs, brokers, spreads and leverage.'],
+  ['THE LANGUAGE OF PRICE INTELLIGENCE','Read buyer and seller pressure through candles, rejection and momentum.'],
+  ['DECODING AND DISSECTING CANDLESTICKS','Build a market bias by understanding bullish, bearish and crowd behaviour.'],
+  ['EXPLORING TRADER'S TOOLKIT','Develop discipline and protect capital with practical risk rules.'],
+  ['TRADING WITH MARKET PULSE','Learn trends, levels, structure and the foundations of chart analysis.'],
+  ['UNDERSTANDING REAL MARKET DRIVERS','Use indicators as confirmation tools without depending on them blindly.'],
+  ['ULTIMATE SUCCESS CODE — THE MINDSET','Understand economic events and policy decisions that move currencies and gold.'],
+  ['BUILDING YOUR TRADING EDGE','Create a simple, repeatable trading plan with clear entry and exit rules.'],
+  ['MASTER THE ART OF TRADING','Refine entries, exits and trade management using stronger confirmation.']
 ];
 const ADVANCED_MODULES=[
   ['Advanced Market Structure and Liquidity','Study institutional structure, liquidity behaviour and confirmation.'],

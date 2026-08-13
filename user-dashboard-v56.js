@@ -6,20 +6,26 @@ const q=(s,r=document)=>r.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const PKT_TZ='Asia/Karachi';
 const BASIC_TITLES={
-  1:['FINANCIAL MARKETS BLUEPRINT','Understanding the Ecosystem of Global Financial Markets'],
-  2:['THE LANGUAGE OF PRICE INTELLIGENCE','Mastering Technical Analysis'],
-  3:['DECODING AND DISSECTING CANDLESTICKS','Cracking the Hidden Price Behaviors'],
-  4:["EXPLORING TRADER'S TOOLKIT",'Mastering Technical Indicators'],
-  5:['MAKE MONEY WITH MARKET PULSE','Reading Market Sentiment'],
-  6:['UNDERSTANDING REAL MARKET DRIVERS','Understanding Fundamental Analysis'],
-  7:['ULTIMATE SUCCESS CODE - THE MINDSET','Psychology, Risk & Capital Management'],
-  8:['BUILDING YOUR TRADING EDGE','Developing High-Probability Trading Strategies'],
-  9:['MASTER THE ART OF WEALTH CREATION','Advanced Strategies, Execution & Trade Management']
+  1:["FINANCIAL MARKETS BLUEPRINT","Understanding the Ecosystem of Global Financial Markets"],
+  2:["THE LANGUAGE OF PRICE INTELLIGENCE","Mastering Technical Analysis"],
+  3:["DECODING AND DISSECTING CANDLESTICKS","Cracking the Hidden Price Behaviors"],
+  4:["EXPLORING TRADER'S TOOLKIT","Mastering Technical Indicators"],
+  5:["TRADING WITH MARKET PULSE","Reading Market Sentiment"],
+  6:["UNDERSTANDING REAL MARKET DRIVERS","Understanding Fundamental Analysis"],
+  7:["ULTIMATE SUCCESS CODE — THE MINDSET","Psychology, Risk & Capital Management"],
+  8:["BUILDING YOUR TRADING EDGE","Developing High-Probability Trading Strategies"],
+  9:["MASTER THE ART OF TRADING","Advanced Strategies, Execution & Trade Management"],
 };
 const FALLBACK_BASIC=[
-  ['2026-08-10T21:00:00+05:00',1],['2026-08-11T21:00:00+05:00',2],['2026-08-13T21:00:00+05:00',3],
-  ['2026-08-17T21:00:00+05:00',4],['2026-08-18T21:00:00+05:00',5],['2026-08-20T21:00:00+05:00',6],
-  ['2026-08-24T21:00:00+05:00',7],['2026-08-25T21:00:00+05:00',8],['2026-08-27T18:00:00+05:00',9]
+  ["2026-08-10T21:00:00+05:00",1],
+  ["2026-08-13T21:00:00+05:00",2],
+  ["2026-08-15T21:00:00+05:00",3],
+  ["2026-08-17T21:00:00+05:00",4],
+  ["2026-08-18T21:00:00+05:00",5],
+  ["2026-08-20T21:00:00+05:00",6],
+  ["2026-08-24T21:00:00+05:00",7],
+  ["2026-08-25T21:00:00+05:00",8],
+  ["2026-08-27T18:00:00+05:00",9]
 ].map(([scheduled_at,class_number])=>({course_key:'basic',class_number,scheduled_at,is_active:true,title:BASIC_TITLES[class_number][0],subtitle:BASIC_TITLES[class_number][1]}));
 function db(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(_){return null}}
 function nav(page){const item=q('#sidebar .menu-item[data-page="'+page+'"]');if(typeof window.showPage==='function')window.showPage(page,item||undefined)}

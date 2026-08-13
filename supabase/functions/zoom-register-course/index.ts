@@ -31,15 +31,15 @@ type Webinar = {
 type ZoomResponse = Record<string, unknown>;
 
 const FALLBACK_WEBINARS: Webinar[] = [
-  { course_key: COURSE_KEY, class_number: 1, title: "Introduction to Forex Trading", webinar_id: "95218229808", scheduled_at: "2026-08-10T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 2, title: "Candlestick Patterns and Price Behaviour", webinar_id: "99634407954", scheduled_at: "2026-08-11T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 3, title: "Market Sentiment Analysis", webinar_id: "95989125870", scheduled_at: "2026-08-13T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 4, title: "Trading Psychology and Risk Management", webinar_id: "91008283331", scheduled_at: "2026-08-17T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 5, title: "Foundations of Technical Analysis", webinar_id: "95576754571", scheduled_at: "2026-08-18T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 6, title: "Understanding Technical Indicators", webinar_id: "92765710480", scheduled_at: "2026-08-20T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 7, title: "Fundamentals of Fundamental Analysis", webinar_id: "94186031860", scheduled_at: "2026-08-24T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 8, title: "Trading Strategies — Part 1", webinar_id: "92146765977", scheduled_at: "2026-08-25T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 9, title: "Trading Strategies — Part 2", webinar_id: "97711722838", scheduled_at: "2026-08-27T18:00:00+05:00" },
+  { course_key: COURSE_KEY, class_number: 1, title: "FINANCIAL MARKETS BLUEPRINT", webinar_id: "95218229808", scheduled_at: "2026-08-10T21:00:00+05:00" },
+  { course_key: COURSE_KEY, class_number: 2, title: "THE LANGUAGE OF PRICE INTELLIGENCE", webinar_id: "99634407954", scheduled_at: "2026-08-13T21:00:00+05:00" },
+  { course_key: COURSE_KEY, class_number: 3, title: "DECODING AND DISSECTING CANDLESTICKS", webinar_id: "95989125870", scheduled_at: "2026-08-15T21:00:00+05:00" },
+  { course_key: COURSE_KEY, class_number: 4, title: "EXPLORING TRADER'S TOOLKIT", webinar_id: "91008283331", scheduled_at: "2026-08-17T21:00:00+05:00" },
+  { course_key: COURSE_KEY, class_number: 5, title: "TRADING WITH MARKET PULSE", webinar_id: "95576754571", scheduled_at: "2026-08-18T21:00:00+05:00" },
+  { course_key: COURSE_KEY, class_number: 6, title: "UNDERSTANDING REAL MARKET DRIVERS", webinar_id: "92765710480", scheduled_at: "2026-08-20T21:00:00+05:00" },
+  { course_key: COURSE_KEY, class_number: 7, title: "ULTIMATE SUCCESS CODE — THE MINDSET", webinar_id: "94186031860", scheduled_at: "2026-08-24T21:00:00+05:00" },
+  { course_key: COURSE_KEY, class_number: 8, title: "BUILDING YOUR TRADING EDGE", webinar_id: "92146765977", scheduled_at: "2026-08-25T21:00:00+05:00" },
+  { course_key: COURSE_KEY, class_number: 9, title: "MASTER THE ART OF TRADING", webinar_id: "97711722838", scheduled_at: "2026-08-27T18:00:00+05:00" }
 ];
 
 function jsonResponse(data: unknown, status = 200): Response {
@@ -277,10 +277,26 @@ Deno.serve(async (req: Request) => {
       .eq("is_active", true)
       .order("class_number", { ascending: true });
 
-    const webinars: Webinar[] =
-      !catalogResult.error && Array.isArray(catalogResult.data) && catalogResult.data.length
-        ? catalogResult.data as Webinar[]
-        : FALLBACK_WEBINARS;
+    const catalogByClass = new Map<number, Webinar>(
+      (!catalogResult.error && Array.isArray(catalogResult.data) ? catalogResult.data : []).map((row: Webinar) => [Number(row.class_number), row]),
+    );
+    const webinars: Webinar[] = FALLBACK_WEBINARS.map((base) => {
+      const catalog = catalogByClass.get(Number(base.class_number));
+      return {
+        ...base,
+        webinar_id: String(catalog?.webinar_id || base.webinar_id),
+        title: base.title,
+        scheduled_at: base.scheduled_at,
+      };
+    });
+    const completionGraceMs = 3 * 60 * 60 * 1000;
+    const isCompleted = (webinar: Webinar) => {
+      if (!webinar.scheduled_at) return false;
+      const scheduled = new Date(webinar.scheduled_at).getTime();
+      return Number.isFinite(scheduled) && Date.now() > scheduled + completionGraceMs;
+    };
+    const completedWebinars = webinars.filter(isCompleted);
+    const eligibleWebinars = webinars.filter((webinar) => !isCompleted(webinar));
 
     const existingResult = await supabaseAdmin
       .from("zoom_course_registrations")
@@ -301,10 +317,20 @@ Deno.serve(async (req: Request) => {
       ]),
     );
 
-    const zoomAccessToken = await getZoomAccessToken();
-    const results: ZoomResponse[] = [];
+    const zoomAccessToken = eligibleWebinars.length ? await getZoomAccessToken() : "";
+    const results: ZoomResponse[] = completedWebinars.map((webinar) => ({
+      class_no: webinar.class_number,
+      title: webinar.title,
+      webinar_id: webinar.webinar_id,
+      scheduled_at: webinar.scheduled_at,
+      success: true,
+      skipped: true,
+      status: "completed",
+      join_url: null,
+      message: "Completed class skipped. No new Zoom link generated.",
+    }));
 
-    for (const webinar of webinars) {
+    for (const webinar of eligibleWebinars) {
       const cached = existingByClass.get(Number(webinar.class_number));
       if (
         cached &&
@@ -432,6 +458,8 @@ Deno.serve(async (req: Request) => {
     const registered = results.filter((item) => item.status === "registered").length;
     const pending = results.filter((item) => item.status === "pending").length;
     const failed = results.filter((item) => item.status === "failed").length;
+    const completed = completedWebinars.length;
+    const eligibleCount = eligibleWebinars.length;
 
     console.log("Zoom registration summary", {
       user_id: user.id,
@@ -442,21 +470,24 @@ Deno.serve(async (req: Request) => {
 
     return jsonResponse(
       {
-        success: failed === 0 && registered === webinars.length,
-        complete: registered === webinars.length,
+        success: failed === 0 && registered === eligibleCount,
+        complete: registered === eligibleCount,
         message:
-          registered === webinars.length
-            ? "All 9 unique Zoom links are ready."
+          registered === eligibleCount
+            ? `All ${eligibleCount} upcoming unique Zoom links are ready.${completed ? ` ${completed} completed class${completed === 1 ? " was" : "es were"} skipped.` : ""}`
             : failed
-            ? "Some Zoom registrations failed. Check the returned class errors."
-            : "Zoom accepted the registrations, but some links are pending approval.",
+            ? "Some upcoming Zoom registrations failed. Check the returned class errors."
+            : "Zoom accepted the upcoming registrations, but some links are pending approval.",
         enrollment_id: enrollment.id,
         registered,
         pending,
         failed,
+        completed_count: completed,
+        eligible_count: eligibleCount,
+        total_classes: webinars.length,
         results,
       },
-      failed === 0 && registered === webinars.length ? 200 : 207,
+      failed === 0 && registered === eligibleCount ? 200 : 207,
     );
   } catch (error) {
     console.error("zoom-register-course error", error);

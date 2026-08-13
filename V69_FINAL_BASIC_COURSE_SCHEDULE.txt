@@ -1,0 +1,54 @@
+PipSePaisa V69 — Final Basic Forex Course Schedule
+
+FINAL SCHEDULE
+01 — FINANCIAL MARKETS BLUEPRINT
+Understanding the Ecosystem of Global Financial Markets
+10 August 2026 | 9:00 PM PKT
+
+02 — THE LANGUAGE OF PRICE INTELLIGENCE
+Mastering Technical Analysis
+13 August 2026 | 9:00 PM PKT
+
+03 — DECODING AND DISSECTING CANDLESTICKS
+Cracking the Hidden Price Behaviors
+15 August 2026 | 9:00 PM PKT
+
+04 — EXPLORING TRADER'S TOOLKIT
+Mastering Technical Indicators
+17 August 2026 | 9:00 PM PKT
+
+05 — TRADING WITH MARKET PULSE
+Reading Market Sentiment
+18 August 2026 | 9:00 PM PKT
+
+06 — UNDERSTANDING REAL MARKET DRIVERS
+Understanding Fundamental Analysis
+20 August 2026 | 9:00 PM PKT
+
+07 — ULTIMATE SUCCESS CODE — THE MINDSET
+Psychology, Risk & Capital Management
+24 August 2026 | 9:00 PM PKT
+
+08 — BUILDING YOUR TRADING EDGE
+Developing High-Probability Trading Strategies
+25 August 2026 | 9:00 PM PKT
+
+09 — MASTER THE ART OF TRADING
+Advanced Strategies, Execution & Trade Management
+27 August 2026 | 6:00 PM PKT
+
+BEHAVIOUR
+- Completed classes remain visible with a green COMPLETED state.
+- Completed classes do not show a Join Webinar button.
+- New students do not get new Zoom registrant links for classes that have already completed.
+- A class is treated as completed after its scheduled start + 3 hours.
+- Upcoming classes still receive account-specific Zoom links.
+- Course Content shows Date + Time (PKT) for every Basic Course class.
+- Dashboard Next Live Class uses the same canonical schedule/titles.
+
+DEPLOYMENT REQUIRED
+1. Upload V69 project patch files.
+2. Run 55_BASIC_COURSE_FINAL_SCHEDULE.sql in Supabase SQL Editor.
+3. Redeploy the existing Edge Function: zoom-register-course using the included updated index.ts.
+4. Keep Verify JWT setting as it is currently configured for this function.
+5. Hard refresh the website after deployment.
