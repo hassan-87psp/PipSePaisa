@@ -186,7 +186,7 @@ async function loadCourseClasses(){
   }
 }
 
-async function loadCourseData(){
+async function loadCourseDataFresh(){
   const db=client();
   let rows=[];
   if(db){
@@ -242,6 +242,21 @@ async function loadCourseData(){
   enrollmentState.basic=normalize(b,'basic');
   enrollmentState.advanced=normalize(a,'advanced');
 }
+
+let courseDataLoadPromise=null;
+let courseDataLoadedAt=0;
+async function loadCourseData(force=false){
+  const now=Date.now();
+  if(!force&&courseDataLoadedAt&&(now-courseDataLoadedAt)<5000)return;
+  if(courseDataLoadPromise)return courseDataLoadPromise;
+  courseDataLoadPromise=(async()=>{
+    await loadCourseDataFresh();
+    courseDataLoadedAt=Date.now();
+  })();
+  try{return await courseDataLoadPromise;}
+  finally{courseDataLoadPromise=null;}
+}
+
 async function loadEnrollmentStatesOnly(courseKey){
   const keys=courseKey&&courseData[courseKey]?[courseKey]:['basic','advanced'];
   const rows=await Promise.all(keys.map(key=>getEnrollment(key)));

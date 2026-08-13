@@ -37,10 +37,6 @@ html.psp-v20-booting body::after{content:"";position:fixed;left:50%;top:50%;z-in
   }catch(e){}
 })();
 </script>
-
-<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PipSePaisa User Panel</title>
@@ -1068,7 +1064,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="course-marketplace-v3.css?v=20260801-v28-final">
 <link rel="stylesheet" href="psp-v18-auth-access.css?v=20260731-v19-fix">
 <link rel="stylesheet" href="account-verification-v49.css?v=20260812-v56">
-<link rel="stylesheet" href="user-dashboard-v56.css?v=20260813-v68-visible-luxury-hover">
+<link rel="stylesheet" href="user-dashboard-v56.css?v=20260814-v81-speed-footer">
 <link rel="stylesheet" href="psp-v20-final.css?v=20260731-v20-final">
 <link rel="stylesheet" href="psp-v28-fixes.css?v=20260813-v74-mobile-baseline-restore">
 <link rel="stylesheet" href="psp-v29-final.css?v=20260802-v29-final">
@@ -1092,7 +1088,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
      ======================================================================== -->
 <div id="landingPage" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg-main);overflow:hidden;">
 
-  <iframe src="landing.html?v=20260814-v80-targeted-fixes" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <iframe src="landing.html?v=20260814-v81-speed-footer" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
 </div>
 
 <div class="app" id="mainApp" style="display:none;">
@@ -3014,7 +3010,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20260813-v74-trade-delete-rls"></script>
+<script src="user-app-core-v29.js?v=20260814-v81-speed"></script>
 
 <script id="mentorPortalAiJs">
 (function(){
@@ -3311,10 +3307,17 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 @media(max-width:768px){
   body.ubn-on #userBottomNav{display:flex}
   body.ubn-on #mainApp{padding-bottom:84px}
-  /* sidebar khule to wo bottom nav ke UPAR aaye, aur Logout tak sab buttons nav se upar dikhen */
+  /* V80: mobile side drawer stays locked to the viewport. Only its menu scrolls. */
+  html.psp-sidebar-open,body.psp-sidebar-open{overflow:hidden!important;height:100%!important;overscroll-behavior:none!important}
+  .sidebar{
+    position:fixed!important;top:0!important;left:0!important;bottom:0!important;
+    height:100vh!important;height:100dvh!important;max-height:100dvh!important;
+    padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important;
+    overflow:hidden!important;overscroll-behavior:contain!important;touch-action:pan-y!important;
+  }
+  .sidebar .menu{min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important}
   .sidebar.open{z-index:1600!important}
-  #sidebarOverlay{z-index:1550!important}
-  .sidebar{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important}
+  #sidebarOverlay{position:fixed!important;inset:0!important;z-index:1550!important;touch-action:none!important}
   .page{padding-bottom:14px}
 }
 </style>
@@ -3352,7 +3355,7 @@ window.addEventListener('message',function(event){
 });
 </script>
 <script src="course-enrollment.js?v=20260813-v76-referral-fix"></script>
-<script src="course-marketplace-v3.js?v=20260802-v29-final"></script>
+<script src="course-marketplace-v3.js?v=20260814-v81-speed"></script>
 
 
 <script>
@@ -3406,68 +3409,9 @@ window.addEventListener('message',function(event){
 
 <style id="pspNoTopTickerFinal">#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker{display:none!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}</style>
 <script id="pspNoTopTickerFinalScript">(function(){function clean(){document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker').forEach(function(n){n.remove();});}document.addEventListener('DOMContentLoaded',clean);window.addEventListener('pageshow',clean);setTimeout(clean,250);setTimeout(clean,1200);})();</script>
-<script src="psp-v49-auth-compat.js?v=20260812-v49"></script>
+<script src="psp-v49-auth-compat.js?v=20260814-v81-speed"></script>
 <script src="psp-v29-final.js?v=20260802-v29-final"></script>
 <script src="account-verification-v49.js?v=20260813-v72-clean-routes"></script>
 <script src="user-dashboard-v56.js?v=20260813-v71-free-course-unlocked"></script>
-
-<style id="pspV80MobileDrawerLock">
-/* V80 targeted fix: keep the mobile More drawer locked to the viewport.
-   Only the drawer menu itself scrolls; the dashboard behind it stays still. */
-@media (max-width:768px){
-  html.psp-sidebar-open,
-  body.psp-sidebar-open{
-    overflow:hidden!important;
-    overscroll-behavior:none!important;
-    max-height:100dvh!important;
-  }
-  #sidebar{
-    position:fixed!important;
-    top:0!important;
-    left:0!important;
-    bottom:0!important;
-    height:100dvh!important;
-    max-height:100dvh!important;
-    overflow:hidden!important;
-    overscroll-behavior:contain!important;
-  }
-  #sidebar .menu{
-    min-height:0!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    overscroll-behavior:contain!important;
-    -webkit-overflow-scrolling:touch!important;
-    touch-action:pan-y!important;
-  }
-  #sidebarOverlay{
-    position:fixed!important;
-    inset:0!important;
-    overscroll-behavior:none!important;
-    touch-action:none!important;
-  }
-}
-</style>
-<script id="pspV80BottomHomeReliability">
-/* V80 targeted fix: Home in the logged-in mobile bottom bar always returns to Dashboard,
-   including after visiting Tools. No other navigation behavior is changed. */
-(function(){
-  function closeDrawer(){
-    var sidebar=document.getElementById('sidebar');
-    var overlay=document.getElementById('sidebarOverlay');
-    if(sidebar) sidebar.classList.remove('open');
-    if(overlay) overlay.style.display='none';
-    document.documentElement.classList.remove('psp-sidebar-open');
-    document.body.classList.remove('psp-sidebar-open');
-  }
-  window.ubnGo=function(page,el){
-    closeDrawer();
-    var item=document.querySelector('.menu-item[data-page="'+page+'"]');
-    if(typeof window.showPage==='function'){
-      window.showPage(page,item||el||undefined);
-      if(typeof window.ubnSync==='function') window.ubnSync(page);
-    }
-  };
-})();
-</script>
 </body>
 </html>

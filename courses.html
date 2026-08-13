@@ -166,7 +166,7 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 <link href="mobile-reference-layout.css?v=20260727-exact-v3" rel="stylesheet"/>
 <link href="psp-final-fixes.css?v=20260728-click-payment-v6" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="push-subscribe-prompt.css?v=20260813-v79-compact" rel="stylesheet"/>
+<link href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5" rel="stylesheet"/>
 <style id="psp-nav-consistency-v38">
 .topbar .nav{min-height:72px}
 .topbar .brand{font-size:20px;font-weight:900}
@@ -178,8 +178,7 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
   html.psp-desktop-mobile-view .topbar .menu a{font-size:15px;padding:11px 15px}
 }
 </style>
-<link href="psp-public-v40.css?v=20260813-v79" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v45"></script>
-<link href="/psp-nav-v44.css?v=20260813-v79" rel="stylesheet"/><link href="/psp-mobile-reference-v46.css?v=20260813-v79" rel="stylesheet"/>
+<link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
 <script src="psp-direct-signup-v1.js?v=20260813-v76-referral-fix"></script>
 </head>
 <body class="page-courses">
@@ -496,7 +495,21 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
     </script>
 <script defer="" src="public-upgrades.js?v=20260727-all-fixes-v1"></script>
 <script defer="" src="course-enrollment.js?v=20260813-v76-referral-fix"></script>
-<script defer="" src="push-subscribe-prompt.js?v=20260813-v79-compact"></script>
+<script defer="" src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
 <script defer="" src="psp-public-performance-v40.js?v=20260804-v40"></script>
+
+<script id="pspV81NavPrefetch">
+(function(){
+  const done=new Set();
+  function warm(a){
+    if(!a||!a.href||a.target==='_blank')return;
+    let u;try{u=new URL(a.href,location.href)}catch(_){return}
+    if(u.origin!==location.origin||u.pathname===location.pathname||done.has(u.href))return;
+    done.add(u.href);const l=document.createElement('link');l.rel='prefetch';l.href=u.href;l.as='document';document.head.appendChild(l);
+  }
+  document.addEventListener('pointerenter',e=>warm(e.target.closest&&e.target.closest('.menu a')),true);
+  document.addEventListener('touchstart',e=>warm(e.target.closest&&e.target.closest('.menu a')),{passive:true,capture:true});
+})();
+</script>
 </body>
 </html>

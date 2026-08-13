@@ -2016,6 +2016,27 @@
   // =============================================
 
   // ============ TRADINGVIEW CHART ============
+  let tradingViewLibraryPromise=null;
+  function ensureTradingViewLibrary(){
+    if(window.TradingView&&typeof window.TradingView.widget==='function')return Promise.resolve();
+    if(tradingViewLibraryPromise)return tradingViewLibraryPromise;
+    tradingViewLibraryPromise=new Promise((resolve,reject)=>{
+      const existing=document.querySelector('script[data-psp-tradingview-lib="1"]');
+      if(existing){
+        existing.addEventListener('load',()=>resolve(),{once:true});
+        existing.addEventListener('error',()=>reject(new Error('TradingView failed to load')),{once:true});
+        return;
+      }
+      const script=document.createElement('script');
+      script.src='https://s3.tradingview.com/tv.js';
+      script.async=true;
+      script.dataset.pspTradingviewLib='1';
+      script.onload=()=>resolve();
+      script.onerror=()=>{tradingViewLibraryPromise=null;reject(new Error('TradingView failed to load'));};
+      document.head.appendChild(script);
+    });
+    return tradingViewLibraryPromise;
+  }
   function loadChart() {
     const symbol = document.getElementById('chartSymbol').value;
     const tfEl = document.getElementById('chartTimeframe');
@@ -2028,10 +2049,7 @@
     innerDiv.id = uniqueId;
     innerDiv.style.cssText = 'width: 100%; height: 100%;';
     container.appendChild(innerDiv);
-    const script = document.createElement('script');
-    script.src = 'https://s3.tradingview.com/tv.js';
-    script.async = true;
-    script.onload = function() {
+    ensureTradingViewLibrary().then(function(){
       try {
         new TradingView.widget({
           autosize: true, symbol: symbol, interval: interval, timezone: 'Asia/Karachi',
@@ -2044,11 +2062,9 @@
       } catch(e) {
         container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Chart loading failed. Please refresh.</div>';
       }
-    };
-    script.onerror = function() {
+    }).catch(function(){
       container.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted);">Could not load TradingView. Please check your internet.</div>';
-    };
-    document.head.appendChild(script);
+    });
     const result = document.getElementById('analysisResultSection');
     const prompt = document.getElementById('analyzePromptSection');
     if (result) result.style.display = 'none';
@@ -2506,7 +2522,9 @@
   const CURRENCY_FLAGS = { USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', JPY: '🇯🇵', AUD: '🇦🇺', CAD: '🇨🇦', CHF: '🇨🇭', NZD: '🇳🇿' };
   const CURRENCY_NAMES = { USD: 'US Dollar', EUR: 'Euro', GBP: 'British Pound', JPY: 'Japanese Yen', AUD: 'Australian Dollar', CAD: 'Canadian Dollar', CHF: 'Swiss Franc', NZD: 'New Zealand Dollar' };
   
-  async function loadStrength() {
+  let strengthLoadPromise=null;
+  let strengthLoadedAt=0;
+  async function loadStrengthFresh() {
     const container = document.getElementById('strengthBarsContainer');
     if (!container) return;
     container.innerHTML = '<div class="empty-state" style="height: 200px;"><div class="empty-icon">📊</div><div>Calculating currency strength...</div></div>';
@@ -2524,6 +2542,7 @@
         
         if (data.strengths && data.strengths.length > 0) {
           renderStrengthFromAPI(data.strengths, data.latest_date);
+          strengthLoadedAt=Date.now();
           return;
         }
         throw new Error('Empty response');
@@ -2548,6 +2567,14 @@
         </div>
         <button class="btn btn-secondary btn-sm" onclick="loadStrength()" style="margin-top:14px;">🔄 Retry</button>
       </div>`;
+  }
+  
+  async function loadStrength(force=false){
+    if(!force&&strengthLoadedAt&&(Date.now()-strengthLoadedAt)<60000)return;
+    if(strengthLoadPromise)return strengthLoadPromise;
+    strengthLoadPromise=loadStrengthFresh();
+    try{return await strengthLoadPromise;}
+    finally{strengthLoadPromise=null;}
   }
   
   function renderStrengthFromAPI(strengths, latestDate) {

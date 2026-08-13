@@ -145,9 +145,9 @@ function initV49AuthCompat(){
     if(attempts>=16)clearInterval(t);
   },400);
   // V49 verification controls access separately. Do not run the legacy PIN/free-trial gate.
-  setTimeout(revealApp,1200);
+  setTimeout(revealApp,280);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(initV49AuthCompat,20));else setTimeout(initV49AuthCompat,20);
-window.addEventListener('pageshow',()=>setTimeout(revealApp,500));
-setTimeout(revealApp,4500);
+window.addEventListener('pageshow',()=>setTimeout(revealApp,100));
+setTimeout(revealApp,1800);
 })();

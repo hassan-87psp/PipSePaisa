@@ -499,5 +499,19 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 <script defer="" src="course-enrollment.js?v=20260813-v76-referral-fix"></script>
 <script defer="" src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
 <script defer="" src="psp-public-performance-v40.js?v=20260804-v40"></script>
+
+<script id="pspV81NavPrefetch">
+(function(){
+  const done=new Set();
+  function warm(a){
+    if(!a||!a.href||a.target==='_blank')return;
+    let u;try{u=new URL(a.href,location.href)}catch(_){return}
+    if(u.origin!==location.origin||u.pathname===location.pathname||done.has(u.href))return;
+    done.add(u.href);const l=document.createElement('link');l.rel='prefetch';l.href=u.href;l.as='document';document.head.appendChild(l);
+  }
+  document.addEventListener('pointerenter',e=>warm(e.target.closest&&e.target.closest('.menu a')),true);
+  document.addEventListener('touchstart',e=>warm(e.target.closest&&e.target.closest('.menu a')),{passive:true,capture:true});
+})();
+</script>
 </body>
 </html>
