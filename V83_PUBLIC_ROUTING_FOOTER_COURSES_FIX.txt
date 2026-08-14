@@ -1,0 +1,29 @@
+PipSePaisa V83 — Public Routing + Footer + Courses Mobile Restore
+Date: 14 Aug 2026
+Base: V82 speed-only UI preserved
+
+Changes (focused only):
+1. Public navigation now uses real clean top-level URLs:
+   /, /courses, /broker-reviews, /become-partner, /trading-tools
+2. Public navigation links force top-level navigation so pages no longer remain trapped inside the Home iframe.
+   This also fixes Trading Tools -> Home and restores proper URL paths in the address bar.
+3. Existing active/orange nav state is preserved on each public page.
+4. Home/Landing footer is now the exact upgraded footer structure used by Trading Tools & Services.
+5. Internal/logged-in app footer (#siteFooter) is permanently hidden; no footer should appear inside User Panel pages.
+6. Courses mobile UI CSS/layout was not redesigned. The approved responsive UI is preserved; opening /courses now occurs as a real top-level page instead of inside the landing iframe, preventing the iframe/mobile layout regression.
+7. V82 performance/speed changes are preserved.
+8. No database SQL or Edge Function changes.
+
+Files changed:
+- index.html
+- landing.html
+- public-upgrades.js
+- courses.html
+- courses/index.html
+- broker-reviews.html
+- broker-reviews/index.html
+- partner.html
+- partner/index.html
+- become-partner/index.html
+- tools-services.html
+- trading-tools/index.html

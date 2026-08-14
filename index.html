@@ -1074,6 +1074,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="psp-v30-hotfix.css?v=20260803-v30-hotfix">
 <script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
 <script src="psp-direct-signup-v1.js?v=20260813-v76-referral-fix"></script>
+
+<style id="pspV83InternalFooterLock">#siteFooter{display:none!important}</style>
 </head>
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
@@ -1091,7 +1093,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
      ======================================================================== -->
 <div id="landingPage" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg-main);overflow:hidden;">
 
-  <iframe src="landing.html?v=20260814-v82-speed-only" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <iframe src="landing.html?v=20260814-v83-routing-footer-lock" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
 </div>
 
 <div class="app" id="mainApp" style="display:none;">
@@ -2645,7 +2647,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </div>
 
 <!-- Footer -->
-<footer id="siteFooter" style="margin-left:260px;background:var(--bg-card);border-top:1px solid var(--border);padding:24px 32px;position:relative;z-index:1;width:auto;box-sizing:border-box;">
+<footer id="siteFooter" hidden style="display:none!important;margin-left:260px;background:var(--bg-card);border-top:1px solid var(--border);padding:24px 32px;position:relative;z-index:1;width:auto;box-sizing:border-box;">
   <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:24px;">
     <div>
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
