@@ -247,7 +247,7 @@ let courseDataLoadPromise=null;
 let courseDataLoadedAt=0;
 async function loadCourseData(force=false){
   const now=Date.now();
-  if(!force&&courseDataLoadedAt&&(now-courseDataLoadedAt)<5000)return;
+  if(!force&&courseDataLoadedAt&&(now-courseDataLoadedAt)<15000)return;
   if(courseDataLoadPromise)return courseDataLoadPromise;
   courseDataLoadPromise=(async()=>{
     await loadCourseDataFresh();
@@ -590,13 +590,16 @@ function openPage(item){
   ensureShell();
   const nav=item||document.querySelector('.menu-item[data-page="mycourses"],.menu-item[data-page="learn"]');
   if(nav){nav.dataset.page='mycourses';nav.innerHTML='<span class="menu-icon">🎓</span>My Courses';}
-  if(typeof window.showPage==='function')window.showPage('mycourses',nav);
-  else{
+  if(typeof window.showPage==='function'){
+    window.showPage('mycourses',nav);
+    window.backToCourseMarketplace();
+    return false;
+  }else{
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.getElementById('page-mycourses')?.classList.add('active');
     document.querySelectorAll('.menu-item').forEach(x=>x.classList.remove('active'));nav?.classList.add('active');
+    window.backToCourseMarketplace();window.loadMyCourses();return false;
   }
-  window.backToCourseMarketplace();window.loadMyCourses();return false;
 }
 window.openMyCoursesPage=function(item,event){if(event)event.preventDefault();return openPage(item);};
 

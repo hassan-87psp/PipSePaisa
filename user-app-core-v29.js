@@ -245,34 +245,44 @@
     document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
     document.getElementById('sidebar').classList.remove('open');
     
-    if (page === 'journal') { try{ updateDashboard(); buildCalendar(); }catch(e){} }
-    if (page === 'analysis') updateAnalysis();
-    if (page === 'news' && newsRawData.length === 0) loadNews();
-    if (page === 'news') loadAdminNews();
-    if (page === 'learn') loadCourses();
-    if (page === 'mycourses' && typeof window.loadMyCourses==='function') window.loadMyCourses();
-    if (page === 'newshub' && window.nhInitLoad) window.nhInitLoad();
-    if (page === 'strength') loadStrength();
-    if (page === 'charts') loadChart();
-    if (page === 'vipplans') loadVipPlans();
-    if (page === 'support') loadSupport();
     if (page === 'community') { showPage('chats', document.querySelector('[data-page=chats]')); return; }
-    if (page === 'chats') uTabSwitch(_uTab||'comm');
-    if (page === 'aireport') loadCachedAIReport();
-    if (page === 'aitools') initMentorAiTools();
-    if (page === 'announce') loadAnnouncements();
-    if (page === 'signals') loadSignalsFromDB();
-    if (page === 'performance') {
-      loadPerformance();
-      setTimeout(ensurePerformanceGraphVisible, 80);
-      setTimeout(ensurePerformanceGraphVisible, 350);
-      setTimeout(function(){ try{ if(equityChart){ equityChart.resize(); equityChart.update('none'); } }catch(e){} }, 100);
-    }
-    if (page === 'articles') loadArticlesFromDB();
-    if (page === 'tools' && window.currentToolsTab === 'banners') loadBanners();
-    if (page === 'market') { loadGoldPrice(); loadMarketTicker(); }
-    if (page === 'settings') updateSettingsProfile();
-    
+
+    // Performance-only: paint the selected page first, then start expensive data/chart work.
+    // This keeps the exact same UI while making tab/page switching feel immediate.
+    window.__pspPageLoadToken=(window.__pspPageLoadToken||0)+1;
+    const pspPageLoadToken=window.__pspPageLoadToken;
+    const runPageWork=function(){
+      if(pspPageLoadToken!==window.__pspPageLoadToken)return;
+      if (page === 'journal') { try{ updateDashboard(); buildCalendar(); }catch(e){} }
+      if (page === 'analysis') updateAnalysis();
+      if (page === 'news' && newsRawData.length === 0) loadNews();
+      if (page === 'news') loadAdminNews();
+      if (page === 'learn') loadCourses();
+      if (page === 'mycourses' && typeof window.loadMyCourses==='function') window.loadMyCourses();
+      if (page === 'newshub' && window.nhInitLoad) window.nhInitLoad();
+      if (page === 'strength') loadStrength();
+      if (page === 'charts') loadChart();
+      if (page === 'vipplans') loadVipPlans();
+      if (page === 'support') loadSupport();
+      if (page === 'chats') uTabSwitch(_uTab||'comm');
+      if (page === 'aireport') loadCachedAIReport();
+      if (page === 'aitools') initMentorAiTools();
+      if (page === 'announce') loadAnnouncements();
+      if (page === 'signals') loadSignalsFromDB();
+      if (page === 'performance') {
+        loadPerformance();
+        setTimeout(ensurePerformanceGraphVisible, 80);
+        setTimeout(ensurePerformanceGraphVisible, 350);
+        setTimeout(function(){ try{ if(equityChart){ equityChart.resize(); equityChart.update('none'); } }catch(e){} }, 100);
+      }
+      if (page === 'articles') loadArticlesFromDB();
+      if (page === 'tools' && window.currentToolsTab === 'banners') loadBanners();
+      if (page === 'market') { loadGoldPrice(); loadMarketTicker(); }
+      if (page === 'settings') updateSettingsProfile();
+    };
+    if(typeof requestAnimationFrame==='function')requestAnimationFrame(function(){setTimeout(runPageWork,0);});
+    else setTimeout(runPageWork,0);
+
     window.scrollTo(0, 0);
   }
   

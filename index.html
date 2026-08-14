@@ -37,6 +37,7 @@ html.psp-v20-booting body::after{content:"";position:fixed;left:50%;top:50%;z-in
   }catch(e){}
 })();
 </script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PipSePaisa User Panel</title>
@@ -55,6 +56,8 @@ html.psp-v20-booting body::after{content:"";position:fixed;left:50%;top:50%;z-in
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co" crossorigin>
 <link rel="preconnect" href="https://cdn.onesignal.com" crossorigin>
+<link rel="preconnect" href="https://s3.tradingview.com" crossorigin>
+<link rel="dns-prefetch" href="//pipsepaisa-api.vercel.app">
 <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -1064,7 +1067,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="course-marketplace-v3.css?v=20260801-v28-final">
 <link rel="stylesheet" href="psp-v18-auth-access.css?v=20260731-v19-fix">
 <link rel="stylesheet" href="account-verification-v49.css?v=20260812-v56">
-<link rel="stylesheet" href="user-dashboard-v56.css?v=20260814-v81-speed-footer">
+<link rel="stylesheet" href="user-dashboard-v56.css?v=20260813-v68-visible-luxury-hover">
 <link rel="stylesheet" href="psp-v20-final.css?v=20260731-v20-final">
 <link rel="stylesheet" href="psp-v28-fixes.css?v=20260813-v74-mobile-baseline-restore">
 <link rel="stylesheet" href="psp-v29-final.css?v=20260802-v29-final">
@@ -1088,7 +1091,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
      ======================================================================== -->
 <div id="landingPage" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg-main);overflow:hidden;">
 
-  <iframe src="landing.html?v=20260814-v81-speed-footer" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <iframe src="landing.html?v=20260814-v82-speed-only" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
 </div>
 
 <div class="app" id="mainApp" style="display:none;">
@@ -3010,7 +3013,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20260814-v81-speed"></script>
+<script src="user-app-core-v29.js?v=20260814-v82-speed-only"></script>
 
 <script id="mentorPortalAiJs">
 (function(){
@@ -3355,7 +3358,7 @@ window.addEventListener('message',function(event){
 });
 </script>
 <script src="course-enrollment.js?v=20260813-v76-referral-fix"></script>
-<script src="course-marketplace-v3.js?v=20260814-v81-speed"></script>
+<script src="course-marketplace-v3.js?v=20260814-v82-speed-only"></script>
 
 
 <script>
@@ -3409,7 +3412,7 @@ window.addEventListener('message',function(event){
 
 <style id="pspNoTopTickerFinal">#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker{display:none!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}</style>
 <script id="pspNoTopTickerFinalScript">(function(){function clean(){document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker').forEach(function(n){n.remove();});}document.addEventListener('DOMContentLoaded',clean);window.addEventListener('pageshow',clean);setTimeout(clean,250);setTimeout(clean,1200);})();</script>
-<script src="psp-v49-auth-compat.js?v=20260814-v81-speed"></script>
+<script src="psp-v49-auth-compat.js?v=20260814-v82-speed-only"></script>
 <script src="psp-v29-final.js?v=20260802-v29-final"></script>
 <script src="account-verification-v49.js?v=20260813-v72-clean-routes"></script>
 <script src="user-dashboard-v56.js?v=20260813-v71-free-course-unlocked"></script>

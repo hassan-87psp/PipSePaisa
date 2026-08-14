@@ -691,7 +691,3 @@
   #psp56Dashboard .psp58-stat.psp60-lit .ico{transform:translateY(-1px) scale(1.06);filter:drop-shadow(0 6px 12px rgba(251,146,1,.22))}
   #psp56Dashboard .psp58-stat.psp60-lit .go{transform:translateX(2px);color:var(--gold)}
 }
-
-
-/* V81: internal app has no public footer */
-#siteFooter{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}
