@@ -1,0 +1,24 @@
+PipSePaisa V82 — Final Public Mobile + Footer QA
+Date: 14 Aug 2026
+Base: V81 speed/footer cleanup
+
+Implemented only the requested areas:
+1. Courses mobile layout switched to the approved compact reference composition.
+   - hero remains side-by-side
+   - 3 broker cards stay in one row
+   - Basic + Advanced courses stay side-by-side
+   - 4 learning benefit cards stay in one row
+   - 3 social cards stay in one row
+   - no horizontal page overflow
+2. Canonical public footer made identical across Home/Landing, Courses, Broker Reviews, and Trading Tools & Services.
+3. Authenticated User Panel footer remains hidden.
+4. Existing V81 speed/performance work and other UI/functions were preserved.
+
+Local visual/structural QA:
+- Courses checked at widths 320, 360, 390, 412, 430 and 768 px.
+- document scroll width matched viewport width at every tested width.
+- Courses grid remained 2 columns.
+- Broker grid remained 3 columns.
+- Learning-benefit grid remained 4 columns.
+- Public footer remained 4 compact columns.
+- Footer grid/height normalized across Home, Courses, Broker Reviews and Tools at mobile width.
