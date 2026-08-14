@@ -30,15 +30,15 @@
     const path=(location.pathname||'/').replace(/\/+$/,'')||'/';
     const defs=[
       ['Home','/','/'],
-      ['Courses','/courses.html?psp_route=/courses','/courses'],
-      ['Broker Reviews','/broker-reviews.html?psp_route=/broker-reviews','/broker-reviews'],
-      ['Become Partner','/partner.html?psp_route=/become-partner','/become-partner'],
-      ['Trading Tools & Services','/tools-services.html?psp_route=/trading-tools','/trading-tools']
+      ['Courses','/courses','/courses'],
+      ['Broker Reviews','/broker-reviews','/broker-reviews'],
+      ['Become Partner','/become-partner','/become-partner'],
+      ['Trading Tools & Services','/trading-tools','/trading-tools']
     ];
-    const activePath=path==='/partner'?'/become-partner':(path==='/free-course'?'/courses':path);
+    const activePath=({'/partner':'/become-partner','/partner.html':'/become-partner','/courses.html':'/courses','/broker-reviews.html':'/broker-reviews','/tools-services.html':'/trading-tools'}[path]||(path==='/free-course'?'/courses':path));
     menu.replaceChildren(...defs.map(([label,href,cleanPath])=>{
       const a=document.createElement('a');
-      a.href=href;a.textContent=label;
+      a.href=href;a.textContent=label;a.target='_top';
       if(cleanPath==='/broker-reviews')a.classList.add('broker-reviews-link');
       if((cleanPath==='/'&&activePath==='/')||(cleanPath!=='/'&&activePath===cleanPath))a.classList.add('active');
       return a;
@@ -137,12 +137,12 @@
 
   function fixLinks(){
     document.querySelectorAll('a').forEach(a=>{
-      if(a.matches('.topbar .login'))a.href='/landing.html?psp_route=/sign-in&psp_auth=login';
+      if(a.matches('.topbar .login')){a.href='/sign-in';a.target='_top';}
       else if(a.matches('.facebook,#socialFacebook'))a.href='https://www.facebook.com/share/1AUgXGtVYy/';
       else if(a.matches('.instagram,#socialInstagram'))a.href='https://www.instagram.com/pipsepaisa/';
       else if(a.matches('.whatsapp,#socialWhatsapp'))a.href='https://wa.me/601156961157';
       else if(a.closest('#landingBrokerGrid')){const t=((a.textContent||'')+' '+(a.querySelector('img')?.alt||'')).toLowerCase();if(t.includes('exness'))a.href='https://one.exnessonelink.com/a/be2kjlypr9';else if(t.includes('dprime')||t.includes('d prime'))a.href='https://my.dooprime.com/links/go/72929';else if(t.includes('xm'))a.href='https://affs.click/ReVHj';a.target='_blank';a.rel='noopener';}
-      else if(a.closest('.partner-promo-grid'))a.href='/partner.html?psp_route=/become-partner#partner-programs';
+      else if(a.closest('.partner-promo-grid')){a.href='/become-partner#partner-programs';a.target='_top';}
       else if(a.closest('.resource-card'))a.href='./';
       else if(a.getAttribute('href')==='#')a.href='/';
     });
@@ -267,32 +267,6 @@
     document.querySelectorAll('footer').forEach(footer=>{footer.className='psp-footer';footer.innerHTML=footerMarkup()});
   }
 
-
-  function normalizePublicRoutesV83(){
-    const map=[
-      [/^\/landing\.html(?:\?.*)?$/,'/'],
-      [/^\/courses\.html(?:\?.*)?(#.*)?$/,'/courses$1'],
-      [/^\/broker-reviews\.html(?:\?.*)?$/,'/broker-reviews'],
-      [/^\/partner\.html(?:\?.*)?(#.*)?$/,'/become-partner$1'],
-      [/^\/tools-services\.html(?:\?.*)?(#.*)?$/,'/trading-tools$1']
-    ];
-    document.querySelectorAll('a[href]').forEach(a=>{
-      let href=a.getAttribute('href')||'';
-      if(!href||href[0]==='#'||/^(?:https?:|mailto:|tel:|javascript:)/i.test(href))return;
-      if(href==='/partner')href='/become-partner';
-      if(href.includes('psp_route=/courses'))href='/courses'+(href.includes('#courses')?'#courses':'');
-      else if(href.includes('psp_route=/become-partner'))href='/become-partner'+(href.includes('#partner-programs')?'#partner-programs':'');
-      else if(href.includes('psp_route=/trading-tools'))href='/trading-tools'+(href.includes('#tools')?'#tools':'');
-      else if(href.includes('psp_route=/broker-reviews'))href='/broker-reviews';
-      else if(href.includes('psp_route=/sign-in'))href='/sign-in';
-      else {
-        for(const [rx,to] of map){if(rx.test(href)){href=href.replace(rx,to);break;}}
-      }
-      a.setAttribute('href',href);
-      if(href==='/'||/^\/(?:courses|broker-reviews|become-partner|trading-tools|sign-in|sign-up|free-course)(?:[\/#?]|$)/.test(href))a.setAttribute('target','_top');
-    });
-  }
-
   function improveSEO(){
     const map={
       '/':['PipSePaisa — Forex Education & Trading Tools','Learn Forex through structured courses, practical tools and responsible market education from PipSePaisa.'],
@@ -383,7 +357,6 @@
     upgradePartnerBanners();
     upgradeCourseProcessBanners();
     setupBrokerThemePreview();
-    normalizePublicRoutesV83();
     upgradeFooter();
     improveSEO();
     upgradeToolsHero();
