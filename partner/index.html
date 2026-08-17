@@ -446,12 +446,12 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 <body class="page-partner">
 <header class="topbar">
 <div class="container nav">
-<a class="brand" href="/" target="_top"><img alt="PipSePaisa visual" decoding="async" fetchpriority="high" loading="eager" src="favicon.png" width="32" height="32"><span>PipSePaisa</span></a>
+<a class="brand" href="/"><img alt="PipSePaisa visual" decoding="async" fetchpriority="high" loading="eager" src="favicon.png" width="32" height="32"><span>PipSePaisa</span></a>
 <nav class="menu">
-<a class="" href="/" target="_top">Home</a><a class="" href="/courses" target="_top">Courses</a><a class="broker-reviews-link" href="/broker-reviews" target="_top">Broker Reviews</a><a class="active" href="/become-partner" target="_top">Become Partner</a><a class="" href="/trading-tools" target="_top">Trading Tools &amp; Services</a>
+<a class="" href="/">Home</a><a class="" href="/courses.html?psp_route=/courses">Courses</a><a class="broker-reviews-link" href="/broker-reviews.html?psp_route=/broker-reviews">Broker Reviews</a><a class="active" href="/partner.html?psp_route=/become-partner">Become Partner</a><a class="" href="/tools-services.html?psp_route=/trading-tools">Trading Tools &amp; Services</a>
 </nav>
 <div class="actions">
-<button class="theme-btn" id="themeBtn">🌙</button><a class="login" href="/sign-in">Login</a>
+<button class="theme-btn" id="themeBtn">🌙</button><a class="login" href="/landing.html?psp_route=/sign-in&amp;psp_auth=login">Login</a>
 </div>
 </div>
 </header>
@@ -661,7 +661,7 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
                   </p>
 </div>
 </div>
-<a class="login" href="https://affs.click/VAVGX" rel="noopener" target="_blank">Open XM Partner Account →</a>
+<a class="login" href="https://affs.click/CrNti" rel="noopener" target="_blank">Open XM Partner Account →</a>
 </div>
 </article>
 <article class="partner-detail">
@@ -741,7 +741,7 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 <span>Practical Learning</span>
 <span>Risk-Focused</span>
 </div>
-<a class="login" href="/courses">Explore Courses →</a>
+<a class="login" href="/courses.html?psp_route=/courses">Explore Courses →</a>
 </div>
 <div aria-label="Sir Sajid Ghori, Forex Educator and Mentor" class="cta-art">
 <svg aria-hidden="true" class="cta-gold-curve" preserveaspectratio="none" viewbox="0 0 120 460">
@@ -808,18 +808,18 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 <h4>Quick Links</h4>
 <ul>
 <li><a href="/">Home</a></li>
-<li><a href="/become-partner">Become Partner</a></li>
-<li><a href="/courses">Courses</a></li>
+<li><a href="/partner.html?psp_route=/become-partner">Become Partner</a></li>
+<li><a href="/courses.html?psp_route=/courses">Courses</a></li>
 </ul>
 </div>
 <div>
 <h4>Resources</h4>
 <ul>
 <li>
-<a href="/trading-tools">Trading Tools &amp; Services</a>
+<a href="/tools-services.html?psp_route=/trading-tools">Trading Tools &amp; Services</a>
 </li>
-<li><a href="/courses#courses">Course Enrollment</a></li>
-<li><a href="/sign-in">Login</a></li>
+<li><a href="/courses.html?psp_route=/courses#courses">Course Enrollment</a></li>
+<li><a href="/landing.html?psp_route=/sign-in&amp;psp_auth=login">Login</a></li>
 </ul>
 </div>
 <div>
@@ -860,7 +860,7 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
       );
       document.querySelectorAll(".reveal").forEach((x) => o.observe(x));
     </script>
-<script defer="" src="public-upgrades.js?v=20260814-v84-public-routing-stable"></script>
+<script defer="" src="public-upgrades.js?v=20260817-v82-links"></script>
 <script defer="" src="push-subscribe-prompt.js?v=20260805-compact-v47"></script>
 <script defer="" src="psp-public-performance-v40.js?v=20260805-v47"></script>
 
@@ -872,7 +872,7 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 })();
 </script>
 
-<script id="pspV82NavPrefetch">
+<script id="pspV81NavPrefetch">
 (function(){
   const done=new Set();
   function warm(a){
@@ -881,8 +881,8 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
     if(u.origin!==location.origin||u.pathname===location.pathname||done.has(u.href))return;
     done.add(u.href);const l=document.createElement('link');l.rel='prefetch';l.href=u.href;l.as='document';document.head.appendChild(l);
   }
-  document.addEventListener('pointerenter',e=>warm(e.target.closest&&e.target.closest('a[href]')),true);
-  document.addEventListener('touchstart',e=>warm(e.target.closest&&e.target.closest('a[href]')),{passive:true,capture:true});
+  document.addEventListener('pointerenter',e=>warm(e.target.closest&&e.target.closest('.menu a')),true);
+  document.addEventListener('touchstart',e=>warm(e.target.closest&&e.target.closest('.menu a')),{passive:true,capture:true});
 })();
 </script>
 </body>
