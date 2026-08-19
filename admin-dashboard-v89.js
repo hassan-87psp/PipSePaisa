@@ -13,8 +13,8 @@ function money(v){return '$'+num(v).toLocaleString(undefined,{minimumFractionDig
 function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v}
 function uniq(rows,key){var s=new Set();(rows||[]).forEach(function(r){var v=r&&r[key];if(v!=null&&v!=='')s.add(String(v))});return s.size}
 function isRejected(r){return ['rejected','revoked','cancelled'].indexOf(String((r&&r.payment_status)||'').toLowerCase())>-1||['rejected','cancelled'].indexOf(String((r&&r.enrollment_status)||'').toLowerCase())>-1}
-function isPaidCourse(r){return r&&(String(r.course_key||'').toLowerCase()==='advanced'||String(r.course_type||'').toLowerCase()==='paid')}
-function isFreeCourse(r){return r&&(String(r.course_key||'').toLowerCase()==='basic'||String(r.course_type||'').toLowerCase()==='free')}
+function isPaidCourse(r){return r&&String(r.course_key||'').toLowerCase()==='advanced'&&String(r.course_type||'').toLowerCase()==='paid'}
+function isFreeCourse(r){return r&&String(r.course_key||'').toLowerCase()==='basic'&&String(r.course_type||'').toLowerCase()==='free'}
 function isApprovedPaid(r){return isPaidCourse(r)&&String(r.payment_status||'').toLowerCase()==='approved'&&num(r.price)>0}
 function isPendingPaid(r){return isPaidCourse(r)&&(String(r.payment_status||'').toLowerCase()==='pending'||(String(r.enrollment_status||'').toLowerCase()==='pending'&&!isRejected(r)))}
 function rowDate(r){return new Date(r.reviewed_at||r.access_granted_at||r.updated_at||r.submitted_at||r.created_at||0)}
