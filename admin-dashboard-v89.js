@@ -15,7 +15,7 @@ function uniq(rows,key){var s=new Set();(rows||[]).forEach(function(r){var v=r&&
 function isRejected(r){return ['rejected','revoked','cancelled'].indexOf(String((r&&r.payment_status)||'').toLowerCase())>-1||['rejected','cancelled'].indexOf(String((r&&r.enrollment_status)||'').toLowerCase())>-1}
 function isPaidCourse(r){return r&&(String(r.course_key||'').toLowerCase()==='advanced'||String(r.course_type||'').toLowerCase()==='paid')}
 function isFreeCourse(r){return r&&(String(r.course_key||'').toLowerCase()==='basic'||String(r.course_type||'').toLowerCase()==='free')}
-function isApprovedPaid(r){return isPaidCourse(r)&&(String(r.payment_status||'').toLowerCase()==='approved'||String(r.enrollment_status||'').toLowerCase()==='enrolled')}
+function isApprovedPaid(r){return isPaidCourse(r)&&String(r.payment_status||'').toLowerCase()==='approved'&&num(r.price)>0}
 function isPendingPaid(r){return isPaidCourse(r)&&(String(r.payment_status||'').toLowerCase()==='pending'||(String(r.enrollment_status||'').toLowerCase()==='pending'&&!isRejected(r)))}
 function rowDate(r){return new Date(r.reviewed_at||r.access_granted_at||r.updated_at||r.submitted_at||r.created_at||0)}
 function validDate(d){return d instanceof Date&&!isNaN(d.getTime())}
@@ -101,7 +101,7 @@ function install(){
  return true;
 }
 
-function approvedRevenueThisMonth(approved){var now=new Date();return approved.filter(function(r){return sameMonth(rowDate(r),now)}).reduce(function(s,r){var p=num(r.price);return s+(p>0?p:200)},0)}
+function approvedRevenueThisMonth(approved){var now=new Date();return approved.filter(function(r){return sameMonth(rowDate(r),now)}).reduce(function(s,r){var p=num(r.price);return s+(p>0?p:0)},0)}
 function pendingGeneralPayments(rows){return (rows||[]).filter(function(r){var st=status(r.status||r.payment_status||r.request_status);return st==='pending'||st==='submitted'||st==='review'}).length}
 function pendingVerifications(rows){return (rows||[]).filter(function(r){return status(r.submission_status)==='pending'}).length}
 function activeSignals(rows){return (rows||[]).filter(function(r){return status(r.status||'active')==='active'&&r.is_official!==false}).length}
@@ -140,7 +140,7 @@ function renderSignups(){
 
 function renderActivity(){
  var items=[];
- cache.enrollments.forEach(function(r){var d=rowDate(r);if(!validDate(d))return;if(isApprovedPaid(r))items.push({d:d,ico:'✅',title:(r.full_name||r.email||'Student')+' course payment approved',sub:(r.course_name||'Paid course')+' · '+money(num(r.price)||200)});else if(isPendingPaid(r))items.push({d:d,ico:'🧾',title:(r.full_name||r.email||'Student')+' submitted course payment',sub:(r.course_name||'Paid course')+' · Pending review'})});
+ cache.enrollments.forEach(function(r){var d=rowDate(r);if(!validDate(d))return;if(isApprovedPaid(r))items.push({d:d,ico:'✅',title:(r.full_name||r.email||'Student')+' course payment approved',sub:(r.course_name||'Paid course')+' · '+money(num(r.price))});else if(isPendingPaid(r))items.push({d:d,ico:'🧾',title:(r.full_name||r.email||'Student')+' submitted course payment',sub:(r.course_name||'Paid course')+' · Pending review'})});
  cache.verifications.forEach(function(r){if(status(r.submission_status)==='not_submitted')return;var d=rowDate(r);if(!validDate(d))return;items.push({d:d,ico:'🔐',title:(r.broker||'Broker')+' verification '+(r.submission_status||'submitted'),sub:(r.trading_account_id?'Account '+r.trading_account_id:'Access verification request')})});
  cache.signals.slice(0,20).forEach(function(r){var d=new Date(r.created_at);if(!validDate(d))return;items.push({d:d,ico:'📡',title:(r.pair||'Market')+' '+String(r.direction||'signal').toUpperCase(),sub:'Signal · '+String(r.status||'active')})});
  items.sort(function(a,b){return b.d-a.d});items=items.slice(0,7);var box=document.getElementById('pdRecentActivity');if(!box)return;if(!items.length){box.innerHTML='<div class="pd-empty">No recent activity found.</div>';return}box.innerHTML=items.map(function(x){return '<div class="pd-list-item"><div class="pd-list-ico">'+x.ico+'</div><div class="pd-list-copy"><strong>'+esc(x.title)+'</strong><span>'+esc(x.sub)+'</span></div><div class="pd-list-time">'+esc(fmtShort(x.d))+'</div></div>'}).join('');
@@ -156,7 +156,7 @@ function renderGrowthChart(){
  var c=chartDefaults();charts.growth=new Chart(canvas,{type:'line',data:{labels:labels,datasets:[{label:'New Users',data:values,borderColor:c.accent,backgroundColor:'rgba(251,146,1,.10)',fill:true,tension:.36,pointRadius:3,pointHoverRadius:5,borderWidth:2.2,pointBackgroundColor:c.accent}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{displayColors:false}},scales:{y:{beginAtZero:true,ticks:{precision:0,color:c.text,font:{size:9}},grid:{color:c.grid}},x:{ticks:{color:c.text,font:{size:8},maxRotation:0,autoSkip:true,maxTicksLimit:growthMode==='daily'?7:8},grid:{display:false}}}}});
 }
 function renderRevenueChart(){
- var canvas=document.getElementById('pdRevenueChart');if(!canvas||typeof Chart==='undefined')return;destroy('revenue');var now=startMonth(new Date()),labels=[],values=[],approved=cache.enrollments.filter(isApprovedPaid);for(var m=5;m>=0;m--){var d=addMonths(now,-m),next=addMonths(d,1),v=approved.filter(function(r){var x=rowDate(r);return validDate(x)&&x>=d&&x<next}).reduce(function(s,r){var p=num(r.price);return s+(p>0?p:200)},0);labels.push(d.toLocaleDateString('en-US',{month:'short'}));values.push(v)}var c=chartDefaults();charts.revenue=new Chart(canvas,{type:'bar',data:{labels:labels,datasets:[{data:values,backgroundColor:'rgba(16,185,129,.70)',borderColor:c.green,borderWidth:1,borderRadius:7,maxBarThickness:38}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return money(ctx.raw)}}}},scales:{y:{beginAtZero:true,ticks:{color:c.text,font:{size:9},callback:function(v){return '$'+v}},grid:{color:c.grid}},x:{ticks:{color:c.text,font:{size:9}},grid:{display:false}}}}});
+ var canvas=document.getElementById('pdRevenueChart');if(!canvas||typeof Chart==='undefined')return;destroy('revenue');var now=startMonth(new Date()),labels=[],values=[],approved=cache.enrollments.filter(isApprovedPaid);for(var m=5;m>=0;m--){var d=addMonths(now,-m),next=addMonths(d,1),v=approved.filter(function(r){var x=rowDate(r);return validDate(x)&&x>=d&&x<next}).reduce(function(s,r){var p=num(r.price);return s+(p>0?p:0)},0);labels.push(d.toLocaleDateString('en-US',{month:'short'}));values.push(v)}var c=chartDefaults();charts.revenue=new Chart(canvas,{type:'bar',data:{labels:labels,datasets:[{data:values,backgroundColor:'rgba(16,185,129,.70)',borderColor:c.green,borderWidth:1,borderRadius:7,maxBarThickness:38}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return money(ctx.raw)}}}},scales:{y:{beginAtZero:true,ticks:{color:c.text,font:{size:9},callback:function(v){return '$'+v}},grid:{color:c.grid}},x:{ticks:{color:c.text,font:{size:9}},grid:{display:false}}}}});
 }
 function renderCharts(){renderGrowthChart();renderRevenueChart()}
 
