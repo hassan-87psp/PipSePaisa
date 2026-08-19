@@ -1,4 +1,4 @@
-/* PipSePaisa V97 — Infinity official HTTPS API; only merchant API key is required for provider auth. */
+/* PipSePaisa V100 — repaired course catalog + dynamic Admin pricing + direct Infinity checkout. */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -7,7 +7,6 @@ const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUP
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SECRET_KEY") ?? "";
 const INFINITY_API_KEY = Deno.env.get("INFINITY_API_KEY") ?? "";
 const INFINITY_API_BASE_URL = "https://api.infinitymoneysolutions.com";
-const INFINITY_ADVANCED_COURSE_AMOUNT = Deno.env.get("INFINITY_ADVANCED_COURSE_AMOUNT") ?? "";
 const INFINITY_PROVIDER_CURRENCY = (Deno.env.get("INFINITY_PROVIDER_CURRENCY") ?? "PKR").trim().toUpperCase() || "PKR";
 const SITE_URL = (Deno.env.get("SITE_URL") ?? "https://www.pipsepaisa.com").replace(/\/$/, "");
 
@@ -130,21 +129,65 @@ Deno.serve(async (req: Request) => {
       return json({ success: false, error: "Local Bank Transfer is temporarily unavailable.", request_id: requestTrace }, 503);
     }
 
-    // Confirm the course is still published/open when the catalog row exists.
+    // Read the latest course pricing from Admin > Courses. Infinity's amount is
+    // never stored in an Edge Function secret, so Admin can change the Local
+    // Bank PKR price/discount without redeploying Supabase.
     const courseResult = await service.from("courses").select("*");
-    if (!courseResult.error && Array.isArray(courseResult.data) && courseResult.data.length) {
-      const row = courseResult.data.find((x: Record<string, unknown>) =>
-        String(x.course_key ?? "").toLowerCase() === "advanced" ||
-        /advanced forex course/i.test(String(x.title ?? ""))
-      ) as Record<string, unknown> | undefined;
-      if (row) {
-        if (row.is_published === false || row.published === false) {
-          return json({ success: false, error: "This course is not currently published.", request_id: requestTrace }, 409);
-        }
-        if (row.enrollment_open === false || row.enrollments_open === false) {
-          return json({ success: false, error: "Enrollment for this course is currently closed.", request_id: requestTrace }, 409);
-        }
-      }
+    if (courseResult.error) {
+      console.error(`[${requestTrace}] course catalog read failed`, courseResult.error);
+      return json({
+        success: false,
+        error: "Local Bank Transfer is temporarily unavailable. Please try another payment method or try again later.",
+        code: "COURSE_PRICING_UNAVAILABLE",
+        request_id: requestTrace,
+      }, 503);
+    }
+    const courseRows = Array.isArray(courseResult.data) ? courseResult.data : [];
+    const courseRow = (
+      courseRows.find((x: Record<string, unknown>) =>
+        String(x.course_key ?? "").trim().toLowerCase() === "advanced"
+      ) ||
+      courseRows.find((x: Record<string, unknown>) =>
+        /advanced.*forex|forex.*advanced/i.test(String(x.title ?? ""))
+      ) ||
+      courseRows.find((x: Record<string, unknown>) =>
+        x.is_premium === true && Number(x.display_order ?? 0) === 2
+      ) ||
+      courseRows.find((x: Record<string, unknown>) => x.is_premium === true)
+    ) as Record<string, unknown> | undefined;
+    if (!courseRow) {
+      // The old Admin UI can render fallback course cards even when public.courses
+      // is empty. Query 62 seeds the canonical DB rows. Keep this diagnostic only
+      // in server logs and never expose database details to students.
+      console.error(`[${requestTrace}] Advanced Course DB row missing. courses rows=${courseRows.length}. Run Query 62.`);
+      return json({
+        success: false,
+        error: "Local Bank Transfer is temporarily unavailable. Please try another payment method or try again later.",
+        code: "COURSE_CATALOG_MISSING",
+        request_id: requestTrace,
+      }, 503);
+    }
+    if (courseRow.is_published === false) {
+      return json({ success: false, error: "This course is not currently published.", code: "COURSE_NOT_PUBLISHED", request_id: requestTrace }, 409);
+    }
+    if (courseRow.enrollment_open === false) {
+      return json({ success: false, error: "Enrollment for this course is currently closed.", code: "COURSE_ENROLLMENT_CLOSED", request_id: requestTrace }, 409);
+    }
+    const currentCourseAmount = Number(courseRow.price ?? 0);
+    const currentCourseCurrency = String(courseRow.currency ?? "USD").trim().toUpperCase() || "USD";
+    const providerAmount = Number(courseRow.local_bank_price_pkr ?? 0);
+    const providerCurrency = INFINITY_PROVIDER_CURRENCY;
+    if (!Number.isFinite(currentCourseAmount) || currentCourseAmount <= 0) {
+      return json({ success: false, error: "This paid course does not have a valid current price.", request_id: requestTrace }, 409);
+    }
+    if (!Number.isFinite(providerAmount) || providerAmount <= 0) {
+      console.error(`[${requestTrace}] Admin Local Bank PKR price is missing for the Advanced Course.`);
+      return json({
+        success: false,
+        error: "Local Bank Transfer is temporarily unavailable. Please try another payment method or try again later.",
+        code: "LOCAL_BANK_PRICE_NOT_CONFIGURED",
+        request_id: requestTrace,
+      }, 503);
     }
 
     let enrollmentQuery = service
@@ -153,54 +196,127 @@ Deno.serve(async (req: Request) => {
       .eq("user_id", user.id)
       .eq("course_key", "advanced");
     if (enrollmentId) enrollmentQuery = enrollmentQuery.eq("id", enrollmentId);
-    const enrollmentResult = await enrollmentQuery.maybeSingle();
-    if (enrollmentResult.error || !enrollmentResult.data) {
+    let enrollmentResult = await enrollmentQuery.maybeSingle();
+    if (enrollmentResult.error) {
+      console.error(`[${requestTrace}] enrollment lookup failed`, enrollmentResult.error);
       return json({
         success: false,
-        error: "Complete the course enrollment details before starting Local Bank Transfer.",
+        error: "Local Bank Transfer could not start right now. Please try again later.",
+        code: "ENROLLMENT_LOOKUP_FAILED",
         request_id: requestTrace,
-      }, 409);
+      }, 503);
     }
 
-    const enrollment = enrollmentResult.data as Record<string, unknown>;
-    if (String(enrollment.course_type ?? "") !== "paid" || Number(enrollment.price ?? 0) <= 0) {
-      return json({ success: false, error: "This is not a paid course enrollment.", request_id: requestTrace }, 400);
+    // V99 direct checkout: a signed-in student does not need to complete a
+    // second enrollment questionnaire before Local Bank Transfer. If no paid
+    // enrollment exists yet, create the pending enrollment server-side and
+    // continue immediately to Infinity's hosted page.
+    let enrollment = enrollmentResult.data as Record<string, unknown> | null;
+    if (!enrollment && enrollmentId) {
+      const fallback = await service
+        .from("course_enrollments")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("course_key", "advanced")
+        .maybeSingle();
+      if (!fallback.error && fallback.data) enrollment = fallback.data as Record<string, unknown>;
     }
 
-    // Infinity Local Bank Transfer is a local-currency collection flow. The
-    // website course price remains USD 200 for access/revenue reporting; the
-    // provider amount is configured server-side so a USD value is never
-    // accidentally treated as PKR by the hosted bank page.
-    const courseCurrency = String(enrollment.currency ?? "USD").trim().toUpperCase() || "USD";
-    const courseAmount = Number(enrollment.price ?? 0);
-    let providerAmount = courseAmount;
-    let providerCurrency = courseCurrency;
-    if (courseCurrency !== "PKR") {
-      providerAmount = Number(INFINITY_ADVANCED_COURSE_AMOUNT);
-      providerCurrency = INFINITY_PROVIDER_CURRENCY;
-      if (!Number.isFinite(providerAmount) || providerAmount <= 0) {
-        console.error(`[${requestTrace}] Local Bank Transfer provider amount is not configured.`);
+    if (!enrollment) {
+      const customerNameForEnrollment = String(
+        profileResult.data?.full_name ??
+        profileResult.data?.name ??
+        user.user_metadata?.full_name ??
+        user.user_metadata?.name ??
+        user.email?.split("@")[0] ??
+        "PipSePaisa Student"
+      ).trim();
+      const customerPhone = String(
+        profileResult.data?.whatsapp ??
+        profileResult.data?.phone ??
+        user.user_metadata?.whatsapp ??
+        user.user_metadata?.phone ??
+        ""
+      ).trim();
+      const created = await service
+        .from("course_enrollments")
+        .insert({
+          user_id: user.id,
+          course_key: "advanced",
+          course_name: String(courseRow.title ?? "Advanced Forex Course"),
+          course_type: "paid",
+          price: currentCourseAmount,
+          currency: currentCourseCurrency,
+          full_name: customerNameForEnrollment || "PipSePaisa Student",
+          email: user.email ?? null,
+          whatsapp: customerPhone || null,
+          experience: null,
+          learning_goal: null,
+          payment_method: "Local Bank Transfer",
+          payment_provider: "infinity",
+          payment_status: "pending",
+          enrollment_status: "pending",
+          updated_at: new Date().toISOString(),
+        })
+        .select("*")
+        .single();
+      if (created.error || !created.data) {
+        console.error(`[${requestTrace}] direct enrollment creation failed`, created.error);
         return json({
           success: false,
-          error: "Local Bank Transfer is temporarily unavailable. Please try another payment method or try again later.",
-          code: "PAYMENT_PROVIDER_AMOUNT_NOT_CONFIGURED",
+          error: "Local Bank Transfer could not start right now. Please try again later.",
+          code: "DIRECT_ENROLLMENT_CREATE_FAILED",
           request_id: requestTrace,
         }, 503);
       }
+      enrollment = created.data as Record<string, unknown>;
     }
 
+    if (String(enrollment.course_type ?? "") !== "paid" || Number(enrollment.price ?? 0) <= 0) {
+      return json({ success: false, error: "This is not a paid course enrollment.", request_id: requestTrace }, 400);
+    }
     if (String(enrollment.payment_status ?? "") === "approved" || String(enrollment.enrollment_status ?? "") === "enrolled") {
       return json({ success: false, error: "Your paid course access is already active.", already_approved: true, request_id: requestTrace }, 409);
     }
 
+    // V98 Query 60 defines prepare_infinity_payment with THREE parameters.
+    // V98.1 accidentally called the old five-parameter signature, which caused
+    // Local Bank Transfer to stop before Infinity returned redirect_url.
     const prep = await service.rpc("prepare_infinity_payment", {
       p_user_id: user.id,
       p_enrollment_id: String(enrollment.id),
       p_course_key: "advanced",
-      p_provider_amount: providerAmount,
-      p_provider_currency: providerCurrency,
     });
-    if (prep.error) throw new Error(prep.error.message);
+    if (prep.error) {
+      console.error(`[${requestTrace}] prepare_infinity_payment(uuid,uuid,text) failed`, prep.error);
+      const rawPrep = String(prep.error.message ?? "");
+      if (/local bank transfer price is not configured/i.test(rawPrep)) {
+        return json({
+          success: false,
+          error: "Local Bank Transfer price is not configured yet. Please contact support or use another payment method.",
+          code: "LOCAL_BANK_PRICE_NOT_CONFIGURED",
+          request_id: requestTrace,
+        }, 409);
+      }
+      if (/not currently published/i.test(rawPrep)) {
+        return json({ success: false, error: "This course is not currently published.", code: "COURSE_NOT_PUBLISHED", request_id: requestTrace }, 409);
+      }
+      if (/enrollment.*closed/i.test(rawPrep)) {
+        return json({ success: false, error: "Enrollment for this course is currently closed.", code: "COURSE_ENROLLMENT_CLOSED", request_id: requestTrace }, 409);
+      }
+      if (/course access is already active/i.test(rawPrep)) {
+        return json({ success: false, error: "Your paid course access is already active.", code: "COURSE_ALREADY_ACTIVE", already_approved: true, request_id: requestTrace }, 409);
+      }
+      if (/function public\.prepare_infinity_payment|schema cache|could not find the function|PGRST202/i.test(rawPrep)) {
+        return json({
+          success: false,
+          error: "Local Bank Transfer is temporarily unavailable. Please try again later.",
+          code: "INFINITY_RPC_NOT_READY",
+          request_id: requestTrace,
+        }, 503);
+      }
+      throw new Error(rawPrep || "Infinity payment preparation failed.");
+    }
     const payment = Array.isArray(prep.data) ? prep.data[0] : prep.data;
     if (!payment?.request_id) throw new Error("Could not prepare the Local Bank Transfer request.");
 
