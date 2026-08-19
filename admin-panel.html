@@ -438,6 +438,61 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @media(max-width:1100px){#page-revenue .cr-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){#page-revenue .cr-subtabs{width:100%}#page-revenue .cr-subtabs button{flex:1;padding:9px 8px}#page-revenue .cr-summary-grid{grid-template-columns:1fr 1fr}#page-revenue .cr-share-summary{grid-template-columns:1fr}}
 
+/* V88 premium monthly finance dashboard — scoped to Company Revenue only */
+#page-revenue{--cr-gold:#f59e0b;--cr-orange:#d97706;--cr-green:#10b981;--cr-red:#ef4444;--cr-blue:#3b82f6;--cr-purple:#8b5cf6}
+#page-revenue .cr-hero{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 20px;margin-bottom:14px;border:1px solid rgba(245,158,11,.28);border-radius:16px;background:linear-gradient(135deg,rgba(245,158,11,.09),rgba(255,255,255,.02) 55%,rgba(59,130,246,.05));box-shadow:0 12px 35px rgba(15,23,42,.05)}
+#page-revenue .cr-eyebrow{font-size:9px;font-weight:900;letter-spacing:.13em;color:var(--gold);margin-bottom:5px}
+#page-revenue .cr-hero-title{font-size:20px;font-weight:900;color:var(--text-primary);letter-spacing:-.02em}
+#page-revenue .cr-hero-sub{font-size:11px;color:var(--text-muted);margin-top:5px;max-width:740px;line-height:1.5}
+#page-revenue .cr-period-panel{display:flex;align-items:flex-end;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+#page-revenue .cr-month-field{min-width:175px;margin:0}
+#page-revenue .cr-icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:9px;background:var(--bg-card);color:var(--text-primary);font-size:20px;cursor:pointer;display:grid;place-items:center}
+#page-revenue .cr-month-pill{height:34px;display:inline-flex;align-items:center;padding:0 11px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:.08em;border:1px solid}
+#page-revenue .cr-month-pill.open{color:var(--green);background:rgba(16,185,129,.09);border-color:rgba(16,185,129,.28)}
+#page-revenue .cr-month-pill.closed{color:var(--red);background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25)}
+#page-revenue .cr-premium-tabs{width:100%;overflow:auto;scrollbar-width:none;padding:5px;background:linear-gradient(180deg,var(--bg-elevated),rgba(245,158,11,.025));position:sticky;top:0;z-index:5}
+#page-revenue .cr-premium-tabs::-webkit-scrollbar{display:none}
+#page-revenue .cr-premium-tabs button{white-space:nowrap;min-width:max-content}
+#page-revenue .cr-premium-tabs button.active{background:linear-gradient(135deg,var(--bg-card),rgba(245,158,11,.09));border:1px solid rgba(245,158,11,.22);color:var(--gold)}
+#page-revenue .cr-kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:14px}
+#page-revenue .cr-kpi{position:relative;overflow:hidden;padding:16px;border-radius:14px;border:1px solid var(--border);background:var(--bg-card);box-shadow:0 10px 25px rgba(15,23,42,.04)}
+#page-revenue .cr-kpi:after{content:"";position:absolute;width:100px;height:100px;border-radius:50%;right:-44px;top:-44px;opacity:.09;background:currentColor}
+#page-revenue .cr-kpi.income{color:var(--cr-green)}#page-revenue .cr-kpi.expense{color:var(--cr-red)}#page-revenue .cr-kpi.profit{color:var(--cr-gold)}#page-revenue .cr-kpi.retained{color:var(--cr-blue)}#page-revenue .cr-kpi.pending{color:var(--cr-purple)}
+#page-revenue .cr-kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.cr-kpi-top span{font-size:19px}.cr-kpi-top em{font-style:normal;font-size:8px;font-weight:900;letter-spacing:.11em;padding:5px 7px;border-radius:999px;background:currentColor;color:#fff}
+#page-revenue .cr-kpi-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--text-muted)}
+#page-revenue .cr-kpi-value{font-size:23px;line-height:1.15;font-weight:900;color:var(--text-primary);margin:5px 0 4px;font-variant-numeric:tabular-nums}
+#page-revenue .cr-kpi-meta{font-size:9px;color:var(--text-muted)}
+#page-revenue .cr-dashboard-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.75fr);gap:14px;margin-bottom:14px}
+#page-revenue .cr-chart-card{min-height:300px}.cr-chart-wrap{height:235px;margin-top:10px;position:relative}.cr-chart-wrap-small{height:235px}
+#page-revenue .cr-mini-badge{font-size:9px;font-weight:900;color:var(--gold);border:1px solid rgba(245,158,11,.25);background:var(--gold-bg);padding:5px 8px;border-radius:999px}
+#page-revenue .cr-sajid-card{background:linear-gradient(135deg,var(--bg-card),rgba(245,158,11,.055))}
+#page-revenue .cr-sajid-grid,#page-revenue .cr-glance-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+#page-revenue .cr-sajid-grid>div,#page-revenue .cr-glance-grid>div{padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:space-between;gap:10px}
+#page-revenue .cr-sajid-grid span,#page-revenue .cr-glance-grid span{font-size:10px;color:var(--text-muted)}
+#page-revenue .cr-sajid-grid strong,#page-revenue .cr-glance-grid strong{font-size:12px;color:var(--text-primary);font-variant-numeric:tabular-nums}
+#page-revenue .cr-sajid-grid .total{grid-column:1/-1;border-color:rgba(245,158,11,.28);background:var(--gold-bg)}#page-revenue .cr-sajid-grid .total strong{font-size:16px;color:var(--gold)}
+#page-revenue .cr-note-premium{border-left:3px solid var(--gold);background:linear-gradient(90deg,var(--gold-bg),transparent)}
+#page-revenue .cr-inline-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+#page-revenue .cr-breakdown-panels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+#page-revenue .cr-breakdown-head{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;padding:8px 10px;border-radius:8px}.cr-breakdown-head.income{color:var(--green);background:rgba(16,185,129,.08)}.cr-breakdown-head.expense{color:var(--red);background:rgba(239,68,68,.07)}
+#page-revenue .cr-ledger-filters{display:grid;grid-template-columns:2fr repeat(4,minmax(125px,1fr));gap:8px;margin:12px 0}
+#page-revenue .cr-ledger-filters input,#page-revenue .cr-ledger-filters select{min-width:0}
+#page-revenue .cr-status-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 7px;border-radius:999px;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.cr-status-badge.paid{color:#047857;background:#d1fae5}.cr-status-badge.pending{color:#b45309;background:#fef3c7}.cr-status-badge.partial{color:#7c3aed;background:#ede9fe}
+#page-revenue .cr-payment-meta{font-size:9px;color:var(--text-muted);line-height:1.4}.cr-payment-meta strong{color:var(--text-secondary)}
+#page-revenue .cr-report-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px;margin-bottom:14px;border-radius:14px;background:linear-gradient(135deg,#0b1730,#12233e);color:#fff;border-top:3px solid var(--gold)}
+#page-revenue .cr-report-hero h3{font-size:22px;margin:2px 0 4px}.cr-report-hero p{font-size:10px;color:#aebbd0;margin:0}.cr-report-hero .cr-eyebrow{color:#fbbf24}
+#page-revenue .cr-report-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:14px}.cr-report-grid>div{padding:12px;border:1px solid var(--border);background:var(--bg-card);border-radius:10px}.cr-report-grid span{display:block;font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:5px}.cr-report-grid strong{font-size:14px;font-variant-numeric:tabular-nums}
+#page-revenue .cr-modal{position:fixed;inset:0;z-index:10050;background:rgba(2,6,23,.66);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px}.cr-modal.show{display:flex}.cr-modal-card{width:min(680px,96vw);max-height:90vh;overflow:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 30px 80px rgba(0,0,0,.28)}
+#page-revenue .cr-receipt-modal-card{width:min(900px,96vw)}.cr-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}.cr-modal-x{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--bg-elevated);font-size:20px;cursor:pointer;color:var(--text-primary)}.cr-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.cr-receipt-preview{min-height:320px;margin-top:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-elevated);display:grid;place-items:center;overflow:hidden}.cr-receipt-preview img{max-width:100%;max-height:65vh;object-fit:contain}.cr-receipt-preview iframe{width:100%;height:65vh;border:0;background:#fff}
+#page-revenue .cr-lock-banner{display:none;padding:10px 13px;margin-bottom:12px;border:1px solid rgba(239,68,68,.25);background:rgba(239,68,68,.06);color:var(--red);border-radius:10px;font-size:10px;font-weight:700}.cr-month-closed #page-revenue .cr-lockable{position:relative}.cr-month-closed #page-revenue .cr-lockable:after{content:"MONTH CLOSED — REOPEN TO EDIT";position:absolute;inset:0;background:rgba(255,255,255,.62);backdrop-filter:blur(1px);display:grid;place-items:center;color:#b91c1c;font-size:10px;font-weight:900;letter-spacing:.08em;border-radius:inherit;z-index:4}
+#page-revenue .cr-table-wrap .data-table{min-width:920px}
+#page-revenue .cr-actions{flex-wrap:wrap}
+#page-revenue .cr-comp-summary{grid-template-columns:1fr 1fr}
+#page-revenue .cr-share-summary{grid-template-columns:1fr 1fr}
+@media(max-width:1280px){#page-revenue .cr-kpi-grid{grid-template-columns:repeat(3,1fr)}#page-revenue .cr-report-grid{grid-template-columns:repeat(3,1fr)}#page-revenue .cr-ledger-filters{grid-template-columns:2fr repeat(2,1fr)}}
+@media(max-width:900px){#page-revenue .cr-hero{align-items:flex-start;flex-direction:column}#page-revenue .cr-period-panel{justify-content:flex-start;width:100%}#page-revenue .cr-dashboard-grid{grid-template-columns:1fr}#page-revenue .cr-kpi-grid{grid-template-columns:1fr 1fr}#page-revenue .cr-ledger-filters{grid-template-columns:1fr 1fr}#page-revenue .cr-report-grid{grid-template-columns:1fr 1fr}.cr-chart-wrap{height:220px}}
+@media(max-width:600px){#page-revenue .cr-hero{padding:14px}#page-revenue .cr-hero-title{font-size:17px}#page-revenue .cr-period-panel{display:grid;grid-template-columns:34px 1fr 34px;align-items:end}#page-revenue .cr-period-panel .btn,#page-revenue .cr-period-panel .cr-month-pill{grid-column:span 1}#page-revenue .cr-month-field{min-width:0}#page-revenue .cr-kpi-grid{grid-template-columns:1fr 1fr;gap:8px}#page-revenue .cr-kpi{padding:12px}#page-revenue .cr-kpi-value{font-size:18px}#page-revenue .cr-sajid-grid,#page-revenue .cr-glance-grid,#page-revenue .cr-breakdown-panels,#page-revenue .cr-comp-summary,#page-revenue .cr-share-summary,#page-revenue .cr-report-grid{grid-template-columns:1fr}#page-revenue .cr-ledger-filters{grid-template-columns:1fr}#page-revenue .cr-report-hero{align-items:flex-start;flex-direction:column}#page-revenue .cr-chart-card{min-height:270px}.cr-chart-wrap{height:205px}}
+
 </style>
 </head>
 <body><style id="darkfix-css">
@@ -1451,193 +1506,212 @@ select option{background:#0f1729;color:#e8eaf0}
       
       <!-- ========== COMPANY REVENUE ========== -->
       <div class="page" id="page-revenue">
-        <div class="cr-toolbar">
+        <div class="cr-hero">
           <div>
-            <div class="card-title">💰 Company Revenue & Profit Sharing</div>
-            <div class="card-meta" style="margin-top:5px;">Track commissions, course revenue, salaries, expenses and partner profit shares. Company totals are calculated in USD.</div>
+            <div class="cr-eyebrow">FINANCE CONTROL CENTER</div>
+            <div class="cr-hero-title">💰 Company Revenue Dashboard</div>
+            <div class="cr-hero-sub">Monthly income, expenses, payroll, partner payouts and profit reporting — all company totals in USD.</div>
           </div>
-          <div class="cr-filter">
-            <div class="form-group">
-              <label>Revenue Period</label>
-              <input type="month" id="crMonth" onchange="loadCompanyRevenue()">
+          <div class="cr-period-panel">
+            <button class="cr-icon-btn" type="button" onclick="crShiftMonth(-1)" title="Previous month">‹</button>
+            <div class="form-group cr-month-field"><label>Accounting Month</label><input type="month" id="crMonth" onchange="loadCompanyRevenue()"></div>
+            <button class="cr-icon-btn" type="button" onclick="crShiftMonth(1)" title="Next month">›</button>
+            <button class="btn btn-secondary btn-sm" type="button" onclick="crSetCurrentMonth()">Current Month</button>
+            <span class="cr-month-pill open" id="crMonthStatus">OPEN</span>
+            <button class="btn btn-sm" id="crMonthLockBtn" type="button" onclick="crToggleMonthLock()">🔒 Close Month</button>
+          </div>
+        </div>
+
+        <div class="cr-subtabs cr-premium-tabs">
+          <button type="button" class="active" id="crTabDashboard" onclick="crSwitchTab('dashboard')">📊 Dashboard</button>
+          <button type="button" id="crTabTransactions" onclick="crSwitchTab('transactions')">💳 Transactions</button>
+          <button type="button" id="crTabCompensation" onclick="crSwitchTab('compensation')">👥 Staff & Compensation</button>
+          <button type="button" id="crTabPayouts" onclick="crSwitchTab('payouts')">🤝 Partner Payouts</button>
+          <button type="button" id="crTabReports" onclick="crSwitchTab('reports')">📄 Reports & Audit</button>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div id="crViewDashboard">
+          <div class="cr-kpi-grid">
+            <div class="cr-kpi income"><div class="cr-kpi-top"><span>↗</span><em>INCOME</em></div><div class="cr-kpi-label">Total Income</div><div class="cr-kpi-value" id="crTotalIncome">$0.00</div><div class="cr-kpi-meta" id="crIncomeMeta">Selected month</div></div>
+            <div class="cr-kpi expense"><div class="cr-kpi-top"><span>↘</span><em>EXPENSES</em></div><div class="cr-kpi-label">Total Expenses</div><div class="cr-kpi-value" id="crTotalExpenses">$0.00</div><div class="cr-kpi-meta">Marketing + Salaries + Other</div></div>
+            <div class="cr-kpi profit"><div class="cr-kpi-top"><span>◆</span><em>NET</em></div><div class="cr-kpi-label">Net Company Profit</div><div class="cr-kpi-value" id="crNetProfit">$0.00</div><div class="cr-kpi-meta">Income minus expenses</div></div>
+            <div class="cr-kpi retained"><div class="cr-kpi-top"><span>▣</span><em>RETAINED</em></div><div class="cr-kpi-label">Company Retained</div><div class="cr-kpi-value" id="crCompanyRetained">$0.00</div><div class="cr-kpi-meta">After configured profit shares</div></div>
+            <div class="cr-kpi pending"><div class="cr-kpi-top"><span>◷</span><em>PENDING</em></div><div class="cr-kpi-label">Pending Payables</div><div class="cr-kpi-value" id="crPendingPayables">$0.00</div><div class="cr-kpi-meta">Unpaid expenses + payout balances</div></div>
+          </div>
+
+          <div class="cr-dashboard-grid">
+            <div class="card cr-chart-card">
+              <div class="card-header"><div><div class="card-title">📈 12-Month Finance Trend</div><div class="card-meta">Income, expenses and net profit by month</div></div><span class="cr-mini-badge">USD</span></div>
+              <div class="cr-chart-wrap"><canvas id="crTrendChart"></canvas></div>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="crSetCurrentMonth()">Current Month</button>
-            <button class="btn btn-secondary btn-sm" onclick="crSetAllTime()">All Time</button>
-          </div>
-        </div>
-
-        <div class="cr-subtabs">
-          <button type="button" class="active" id="crTabOverview" onclick="crSwitchTab('overview')">Revenue & Expenses</button>
-          <button type="button" id="crTabCompensation" onclick="crSwitchTab('compensation')">Staff & Compensation</button>
-        </div>
-
-        <div id="crViewOverview">
-          <div class="stats-grid cr-summary-grid">
-            <div class="stat-card"><div class="stat-header"><div class="stat-icon green">↗</div><span class="stat-tag">Income</span></div><div class="stat-label">Total Income</div><div class="stat-value" id="crTotalIncome">$0.00</div><div class="stat-meta" id="crIncomeMeta">Selected period</div></div>
-            <div class="stat-card"><div class="stat-header"><div class="stat-icon red">↘</div><span class="stat-tag">Costs</span></div><div class="stat-label">Total Expenses</div><div class="stat-value" id="crTotalExpenses">$0.00</div><div class="stat-meta">Marketing + Salaries + Other</div></div>
-            <div class="stat-card"><div class="stat-header"><div class="stat-icon gold">◆</div><span class="stat-tag">Net</span></div><div class="stat-label">Net Company Profit</div><div class="stat-value" id="crNetProfit">$0.00</div><div class="stat-meta">Income minus expenses</div></div>
-            <div class="stat-card"><div class="stat-header"><div class="stat-icon blue">▣</div><span class="stat-tag">Retained</span></div><div class="stat-label">Company Retained</div><div class="stat-value" id="crCompanyRetained">$0.00</div><div class="stat-meta">After configured profit shares</div></div>
+            <div class="card cr-chart-card">
+              <div class="card-header"><div><div class="card-title">🧩 Income Source Mix</div><div class="card-meta" id="crSourceChartMeta">Selected month income sources</div></div></div>
+              <div class="cr-chart-wrap cr-chart-wrap-small"><canvas id="crSourceChart"></canvas></div>
+            </div>
           </div>
 
-          <div class="cr-note" style="margin-bottom:14px;">
-            <strong>Company Currency: USD.</strong> All revenue, expenses, net profit and partner shares are calculated in USD. Staff salaries can be saved in <strong>USD or PKR</strong>; PKR salaries are converted to USD using the saved PKR-per-USD rate when posted.
-          </div>
-          <div class="cr-note" style="margin-bottom:14px;">
-            <strong>Course Revenue:</strong> Enter the <strong>gross course revenue in USD</strong>. Any active Course Revenue share configured under <strong>Staff & Compensation</strong> is deducted automatically, and only the company's net course revenue is added to Total Income.
-          </div>
-
-          <div class="two-col">
+          <div class="cr-dashboard-grid">
+            <div class="card cr-sajid-card">
+              <div class="card-header"><div><div class="card-title">⭐ Sajid Bhai Compensation</div><div class="card-meta">Salary + configured revenue/profit share for this month</div></div><button class="btn btn-secondary btn-sm" onclick="crSwitchTab('compensation')">Manage</button></div>
+              <div class="cr-sajid-grid">
+                <div><span>Salary</span><strong id="crSajidSalary">$0.00</strong></div>
+                <div><span>Share Amount</span><strong id="crSajidShare">$0.00</strong></div>
+                <div class="total"><span>Total Payable</span><strong id="crSajidTotal">$0.00</strong></div>
+                <div><span>Paid / Recorded</span><strong id="crSajidPaid">$0.00</strong></div>
+              </div>
+              <div class="cr-helper" id="crSajidMeta">Add “Sajid Bhai” under Staff & Compensation to activate this summary.</div>
+            </div>
             <div class="card">
-              <div class="card-header">
-                <div><div class="card-title">➕ Add Income / Expense</div><div class="card-meta" style="margin-top:4px;">Record every company transaction.</div></div>
-                <button class="btn btn-secondary btn-sm" id="crCancelEditBtn" onclick="crResetEntryForm()" style="display:none;">Cancel Edit</button>
+              <div class="card-header"><div><div class="card-title">⚡ Month at a Glance</div><div class="card-meta">Fast overview of the selected accounting month</div></div></div>
+              <div class="cr-glance-grid">
+                <div><span>Transactions</span><strong id="crTxnCount">0</strong></div>
+                <div><span>Paid Expenses</span><strong id="crPaidExpenseTotal">$0.00</strong></div>
+                <div><span>Pending Expenses</span><strong id="crPendingExpenseTotal">$0.00</strong></div>
+                <div><span>Partner Allocation</span><strong id="crPartnerAllocationInline">$0.00</strong></div>
+                <div><span>Course Share Deducted</span><strong id="crCourseShareDashboard">$0.00</strong></div>
+                <div><span>Month Status</span><strong id="crMonthStatusText">Open</strong></div>
               </div>
+            </div>
+          </div>
+
+          <div class="cr-note cr-note-premium"><strong>Monthly accounting:</strong> every transaction is assigned to its own accounting month. Closing a month locks its finance ledger from accidental edits until Admin reopens it.</div>
+        </div>
+
+        <!-- TRANSACTIONS -->
+        <div id="crViewTransactions" style="display:none;">
+          <div class="two-col">
+            <div class="card cr-lockable">
+              <div class="card-header"><div><div class="card-title">➕ Add Income / Expense</div><div class="card-meta">Record a company transaction for <span id="crEntryMonthLabel">this month</span>.</div></div><button class="btn btn-secondary btn-sm" id="crCancelEditBtn" onclick="crResetEntryForm()" style="display:none;">Cancel Edit</button></div>
               <div class="cr-form-grid">
-                <div class="form-group">
-                  <label>Type</label>
-                  <select id="crType" onchange="crSyncCategories();crSyncEntryFields()">
-                    <option value="income">Income</option>
-                    <option value="expense">Expense</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>Category</label>
-                  <select id="crCategory" onchange="crSyncEntryFields()"></select>
-                </div>
-                <div class="form-group" id="crSalaryPersonWrap" style="display:none;">
-                  <label>Salary For</label>
-                  <select id="crSalaryPerson">
-                    <option value="">Select staff member</option>
-                  </select>
-                  <div class="cr-helper">Staff names are taken from Staff &amp; Compensation.</div>
-                </div>
-                <div class="form-group" id="crOtherDetailsWrap" style="display:none;">
-                  <label id="crOtherDetailsLabel">Other Expense Details</label>
-                  <input type="text" id="crOtherDetails" maxlength="160" placeholder="e.g. Office supplies, software subscription, transport">
-                  <div class="cr-helper">Specify exactly what this Other item is.</div>
-                </div>
-                <div class="form-group">
-                  <label id="crAmountLabel">Amount</label>
-                  <input type="number" id="crAmount" min="0.01" step="0.01" placeholder="0.00">
-                  <div class="cr-helper" id="crAmountHelper"></div>
-                </div>
-                <div class="form-group">
-                  <label>Date</label>
-                  <input type="date" id="crEntryDate">
-                </div>
+                <div class="form-group"><label>Type</label><select id="crType" onchange="crSyncCategories();crSyncEntryFields()"><option value="income">Income</option><option value="expense">Expense</option></select></div>
+                <div class="form-group"><label>Category</label><select id="crCategory" onchange="crSyncEntryFields()"></select></div>
+                <div class="form-group" id="crMarketingSubWrap" style="display:none;"><label>Marketing Type</label><select id="crMarketingSub" onchange="crSyncEntryFields()"><option>Facebook Ads</option><option>Instagram Ads</option><option>Google Ads</option><option>Design & Creative</option><option>Influencer / Content</option><option>Events</option><option>Software / Tools</option><option>Other Marketing</option></select></div>
+                <div class="form-group" id="crSalaryPersonWrap" style="display:none;"><label>Salary For</label><select id="crSalaryPerson"><option value="">Select staff member</option></select><div class="cr-helper">Names come from Staff & Compensation.</div></div>
+                <div class="form-group" id="crOtherDetailsWrap" style="display:none;"><label id="crOtherDetailsLabel">Other Expense Details</label><input type="text" id="crOtherDetails" maxlength="160" placeholder="What is this expense?"><div class="cr-helper">Write the exact custom item.</div></div>
+                <div class="form-group"><label id="crAmountLabel">Amount (USD)</label><input type="number" id="crAmount" min="0.01" step="0.01" placeholder="0.00"><div class="cr-helper" id="crAmountHelper"></div></div>
+                <div class="form-group"><label>Transaction Date</label><input type="date" id="crEntryDate"></div>
+                <div class="form-group"><label>Payment Status</label><select id="crPaymentStatus" onchange="crSyncPaymentFields()"><option value="paid">Paid / Settled</option><option value="pending">Pending</option></select></div>
+                <div class="form-group cr-payment-field"><label>Payment Method</label><select id="crPaymentMethod"><option value="">Select method</option><option>Bank Transfer</option><option>Cash</option><option>USDT</option><option>Card</option><option>Other</option></select></div>
+                <div class="form-group cr-payment-field"><label>Payment Date</label><input type="date" id="crPaymentDate"></div>
+                <div class="form-group cr-payment-field"><label>Payment Reference</label><input type="text" id="crPaymentReference" maxlength="120" placeholder="Bank ref / TXID / receipt no."></div>
               </div>
-              <div class="form-group">
-                <label>Note / Details</label>
-                <textarea id="crNote" rows="3" placeholder="Optional details, invoice period, campaign, staff name, etc."></textarea>
-                <div class="cr-helper">Use the note field to identify an “Other Income” or “Other Expense” item clearly.</div>
-              </div>
-              <div class="form-group" id="crReceiptWrap" style="display:none;">
-                <label>Expense Receipt / Slip <span style="font-weight:500;color:var(--text-muted)">(Optional)</span></label>
-                <input type="file" id="crReceiptFile" accept="image/jpeg,image/png,image/webp,application/pdf">
-                <div class="cr-helper" id="crReceiptHelper">Upload JPG, PNG, WEBP or PDF up to 10 MB.</div>
-              </div>
+              <div class="form-group"><label>Note / Details</label><textarea id="crNote" rows="3" placeholder="Invoice period, campaign, client, reason, etc."></textarea></div>
+              <div class="form-group" id="crReceiptWrap" style="display:none;"><label>Expense Receipt / Slip <span style="font-weight:500;color:var(--text-muted)">(Optional)</span></label><input type="file" id="crReceiptFile" accept="image/jpeg,image/png,image/webp,application/pdf"><div class="cr-helper" id="crReceiptHelper">Upload JPG, PNG, WEBP or PDF up to 10 MB.</div></div>
               <button class="btn" id="crSaveEntryBtn" onclick="crSaveEntry()">+ Add Transaction</button>
               <div class="cr-status" id="crEntryStatus"></div>
             </div>
 
             <div class="card">
-              <div class="card-header">
-                <div><div class="card-title">🤝 Partner Profit Shares</div><div class="card-meta" style="margin-top:4px;">Set each partner's percentage of net company profit.</div></div>
-                <button class="btn btn-secondary btn-sm" id="crCancelPartnerBtn" onclick="crResetPartnerForm()" style="display:none;">Cancel Edit</button>
+              <div class="card-title">📌 Monthly Breakdown</div>
+              <div class="cr-breakdown-panels">
+                <div><div class="cr-breakdown-head income">Income Sources</div><div id="crIncomeBreakdown"></div></div>
+                <div><div class="cr-breakdown-head expense">Expense Categories</div><div id="crExpenseBreakdown"></div></div>
               </div>
-              <div class="cr-form-grid">
-                <div class="form-group">
-                  <label>Partner Name</label>
-                  <input type="text" id="crPartnerName" maxlength="80" placeholder="e.g. Partner A">
-                </div>
-                <div class="form-group">
-                  <label>Share %</label>
-                  <input type="number" id="crPartnerPercent" min="0" max="100" step="0.01" placeholder="0">
-                </div>
-              </div>
-              <button class="btn" id="crSavePartnerBtn" onclick="crSavePartner()">+ Add Partner</button>
-              <div class="cr-status" id="crPartnerStatus"></div>
-              <div class="cr-share-summary">
-                <div><span>Total configured profit share</span><strong id="crShareTotal">0%</strong></div>
-                <div><span>Total Partner Allocation</span><strong id="crPartnerAllocationInline">$0.00</strong></div>
-              </div>
-              <div class="cr-helper" id="crProfitShareMeta" style="margin:0 0 10px;"></div>
-              <div class="cr-table-wrap">
-                <table class="data-table">
-                  <thead><tr><th>Partner</th><th>Share</th><th>Current Share Amount (USD)</th><th>Actions</th></tr></thead>
-                  <tbody id="crPartnerBody"><tr><td colspan="4" class="cr-empty">No partners configured yet.</td></tr></tbody>
-                </table>
-              </div>
+              <div class="cr-note" style="margin-top:12px;"><strong>Course Revenue:</strong> enter gross revenue. Configured Course Revenue shares are deducted automatically before company income is counted.</div>
             </div>
-          </div>
-
-          <div class="two-col">
-            <div class="card"><div class="card-title">↗ Income Breakdown</div><div id="crIncomeBreakdown" style="margin-top:12px;"></div></div>
-            <div class="card"><div class="card-title">↘ Expense Breakdown</div><div id="crExpenseBreakdown" style="margin-top:12px;"></div></div>
           </div>
 
           <div class="card">
-            <div class="card-header">
-              <div><div class="card-title">📒 Revenue Ledger</div><div class="card-meta" id="crLedgerMeta" style="margin-top:4px;">Selected period transactions</div></div>
-              <button class="btn btn-secondary btn-sm" onclick="loadCompanyRevenue()">↻ Refresh</button>
+            <div class="card-header"><div><div class="card-title">📒 Monthly Revenue Ledger</div><div class="card-meta" id="crLedgerMeta">Selected month transactions</div></div><div class="cr-inline-actions"><button class="btn btn-secondary btn-sm" onclick="crExportCsv()">⬇ CSV</button><button class="btn btn-secondary btn-sm" onclick="loadCompanyRevenue()">↻ Refresh</button></div></div>
+            <div class="cr-ledger-filters">
+              <input type="search" id="crLedgerSearch" placeholder="Search category, note, staff, reference..." oninput="crFilterLedger()">
+              <select id="crFilterType" onchange="crFilterLedger()"><option value="">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select>
+              <select id="crFilterCategory" onchange="crFilterLedger()"><option value="">All Categories</option></select>
+              <select id="crFilterStatus" onchange="crFilterLedger()"><option value="">All Statuses</option><option value="paid">Paid</option><option value="pending">Pending</option></select>
+              <select id="crFilterStaff" onchange="crFilterLedger()"><option value="">All Staff</option></select>
+              <input type="date" id="crFilterFrom" onchange="crFilterLedger()" title="From date">
+              <input type="date" id="crFilterTo" onchange="crFilterLedger()" title="To date">
             </div>
-            <div class="cr-table-wrap">
-              <table class="data-table">
-                <thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Note</th><th>Amount (USD)</th><th>Receipt</th><th>Actions</th></tr></thead>
-                <tbody id="crLedgerBody"><tr><td colspan="7" class="cr-empty">Loading...</td></tr></tbody>
-              </table>
-            </div>
+            <div class="cr-table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Details</th><th>Amount</th><th>Status</th><th>Payment</th><th>Receipt</th><th>Actions</th></tr></thead><tbody id="crLedgerBody"><tr><td colspan="9" class="cr-empty">Loading...</td></tr></tbody></table></div>
           </div>
         </div>
 
+        <!-- STAFF & COMPENSATION -->
         <div id="crViewCompensation" style="display:none;">
-          <div class="cr-note" style="margin-bottom:14px;">
-            Save staff names once. Fixed salaries can then be posted to the selected month without typing names again. For Sajid Bhai, set the fixed salary and Course Revenue share here to see <strong>Salary + Share = Total Payable</strong> together.
-          </div>
+          <div class="cr-note cr-note-premium"><strong>Recurring payroll:</strong> save each person once. The selected month automatically shows who is due; Admin only confirms/post salaries. PKR salaries retain the exact historical PKR/USD rate used when posted.</div>
           <div class="two-col">
-            <div class="card">
-              <div class="card-header">
-                <div><div class="card-title">👥 Staff & Partner Compensation</div><div class="card-meta" style="margin-top:4px;">Save recurring names, fixed salary and optional revenue/profit share.</div></div>
-                <button class="btn btn-secondary btn-sm" id="crCancelPersonBtn" onclick="crResetPersonForm()" style="display:none;">Cancel Edit</button>
-              </div>
+            <div class="card cr-lockable">
+              <div class="card-header"><div><div class="card-title">👥 Staff & Compensation Setup</div><div class="card-meta">Fixed salary, currency and optional course/company share.</div></div><button class="btn btn-secondary btn-sm" id="crCancelPersonBtn" onclick="crResetPersonForm()" style="display:none;">Cancel Edit</button></div>
               <div class="cr-form-grid">
                 <div class="form-group"><label>Name</label><input type="text" id="crPersonName" maxlength="80" placeholder="e.g. Sajid Bhai"></div>
                 <div class="form-group"><label>Fixed Monthly Salary</label><input type="number" id="crPersonSalary" min="0" step="0.01" placeholder="0.00"></div>
                 <div class="form-group"><label>Salary Currency</label><select id="crPersonSalaryCurrency" onchange="crSyncSalaryCurrency()"><option value="USD">USD ($)</option><option value="PKR">PKR (Rs)</option></select></div>
-                <div class="form-group" id="crSalaryFxWrap" style="display:none;"><label>PKR per 1 USD</label><input type="number" id="crPersonSalaryFx" min="0.000001" step="0.01" placeholder="e.g. 280"><div class="cr-helper">Used only to convert this PKR salary into the USD company accounts.</div></div>
+                <div class="form-group" id="crSalaryFxWrap" style="display:none;"><label>PKR per 1 USD</label><input type="number" id="crPersonSalaryFx" min="0.000001" step="0.01" placeholder="e.g. 280"><div class="cr-helper">This rate is saved into the salary transaction when posted.</div></div>
                 <div class="form-group"><label>Share Type</label><select id="crPersonShareType" onchange="crSyncPersonShareFields()"><option value="none">No Share</option><option value="course_revenue">Course Revenue</option><option value="company_profit">Company Profit</option></select></div>
                 <div class="form-group"><label>Share %</label><input type="number" id="crPersonSharePercent" min="0" max="100" step="0.01" placeholder="0"></div>
+                <div class="form-group"><label>Recurring Salary</label><select id="crRecurringSalary"><option value="true">Yes — prepare monthly</option><option value="false">No</option></select></div>
+                <div class="form-group"><label>Salary Due Day</label><input type="number" id="crSalaryDueDay" min="1" max="28" step="1" value="1"><div class="cr-helper">Day 1–28 of each month.</div></div>
               </div>
-              <div class="cr-helper">Salary can be USD or PKR. PKR salaries are converted to USD for company expense/profit calculations. Course Revenue share is deducted before company course income is counted. Company Profit share is included in the same final profit allocation limit as Partner Profit Shares.</div>
-              <button class="btn" id="crSavePersonBtn" onclick="crSavePerson()" style="margin-top:12px;">+ Add Person</button>
-              <div class="cr-status" id="crPersonStatus"></div>
+              <button class="btn" id="crSavePersonBtn" onclick="crSavePerson()">+ Add Person</button><div class="cr-status" id="crPersonStatus"></div>
             </div>
 
-            <div class="card">
-              <div class="card-header">
-                <div><div class="card-title">🧾 Monthly Salary Posting</div><div class="card-meta" id="crCompPeriodMeta" style="margin-top:4px;">Select a month to post fixed salaries.</div></div>
-                <button class="btn btn-secondary btn-sm" onclick="crPostAllSalaries()">Post Monthly Salaries</button>
-              </div>
+            <div class="card cr-lockable">
+              <div class="card-header"><div><div class="card-title">🧾 Monthly Salary Queue</div><div class="card-meta" id="crCompPeriodMeta">Selected month recurring payroll</div></div><button class="btn btn-secondary btn-sm" onclick="crPostAllSalaries()">Post All Due Salaries</button></div>
               <div class="cr-comp-summary">
                 <div><span>Gross Course Revenue</span><strong id="crGrossCourseTotal">$0.00</strong></div>
                 <div><span>Course Share Deducted</span><strong id="crCourseShareTotal">$0.00</strong></div>
-                <div><span>Fixed Salaries (USD Eq.)</span><strong id="crFixedSalaryTotal">$0.00</strong></div>
+                <div><span>Recurring Salaries (USD Eq.)</span><strong id="crFixedSalaryTotal">$0.00</strong></div>
+                <div><span>Salaries Posted</span><strong id="crSalaryPostedCount">0 / 0</strong></div>
               </div>
-              <div class="cr-helper">Salary becomes a company expense when it is posted for the selected month. Upload the salary slip after posting.</div>
+              <div class="cr-helper">Posted salary becomes an expense for this month. Payment status can be updated from the transaction ledger.</div>
             </div>
           </div>
 
           <div class="card">
-            <div class="card-header">
-              <div><div class="card-title">💼 Compensation Breakdown</div><div class="card-meta">Salary, share amount and total payable for the selected month.</div></div>
-              <button class="btn btn-secondary btn-sm" onclick="loadCompanyRevenue()">↻ Refresh</button>
+            <div class="card-header"><div><div class="card-title">💼 Compensation Breakdown</div><div class="card-meta">Salary + share + payment visibility for the selected month.</div></div><button class="btn btn-secondary btn-sm" onclick="loadCompanyRevenue()">↻ Refresh</button></div>
+            <div class="cr-table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Salary</th><th>Share</th><th>Share Due</th><th>Total Payable</th><th>Salary Status</th><th>Share Paid</th><th>Slip</th><th>Actions</th></tr></thead><tbody id="crCompBody"><tr><td colspan="9" class="cr-empty">No staff configured yet.</td></tr></tbody></table></div>
+          </div>
+        </div>
+
+        <!-- PARTNER PAYOUTS -->
+        <div id="crViewPayouts" style="display:none;">
+          <div class="cr-dashboard-grid">
+            <div class="card">
+              <div class="card-header"><div><div class="card-title">🤝 Partner Profit Share Setup</div><div class="card-meta">Configure each partner's share of net company profit.</div></div><button class="btn btn-secondary btn-sm" id="crCancelPartnerBtn" onclick="crResetPartnerForm()" style="display:none;">Cancel Edit</button></div>
+              <div class="cr-form-grid"><div class="form-group"><label>Partner Name</label><input type="text" id="crPartnerName" maxlength="80" placeholder="e.g. Partner A"></div><div class="form-group"><label>Share %</label><input type="number" id="crPartnerPercent" min="0" max="100" step="0.01" placeholder="0"></div></div>
+              <button class="btn" id="crSavePartnerBtn" onclick="crSavePartner()">+ Add Partner</button><div class="cr-status" id="crPartnerStatus"></div>
+              <div class="cr-share-summary"><div><span>Total Configured Share</span><strong id="crShareTotal">0%</strong></div><div><span>Total Partner Allocation</span><strong id="crPartnerAllocationPayout">$0.00</strong></div></div>
+              <div class="cr-helper" id="crProfitShareMeta"></div>
             </div>
-            <div class="cr-table-wrap">
-              <table class="data-table">
-                <thead><tr><th>Name</th><th>Salary</th><th>Share</th><th>Share Amount</th><th>Total Payable</th><th>Salary Status</th><th>Slip</th><th>Actions</th></tr></thead>
-                <tbody id="crCompBody"><tr><td colspan="8" class="cr-empty">No staff configured yet.</td></tr></tbody>
-              </table>
+            <div class="card">
+              <div class="card-title">💸 Payout Summary</div>
+              <div class="cr-glance-grid" style="margin-top:14px;"><div><span>Total Due</span><strong id="crPartnerDueTotal">$0.00</strong></div><div><span>Total Paid</span><strong id="crPartnerPaidTotal">$0.00</strong></div><div><span>Outstanding</span><strong id="crPartnerBalanceTotal">$0.00</strong></div><div><span>Paid Partners</span><strong id="crPartnerPaidCount">0</strong></div></div>
+              <div class="cr-note" style="margin-top:14px;">Closing a month snapshots partner amounts due. Payment records can still be updated after month close.</div>
             </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div><div class="card-title">💰 Partner Payout Tracking</div><div class="card-meta">Due, paid and outstanding balance for the selected month.</div></div><button class="btn btn-secondary btn-sm" onclick="crSyncPayoutDue()">Sync Amounts Due</button></div>
+            <div class="cr-table-wrap"><table class="data-table"><thead><tr><th>Partner</th><th>Share</th><th>Amount Due</th><th>Paid</th><th>Balance</th><th>Status</th><th>Payment</th><th>Receipt</th><th>Actions</th></tr></thead><tbody id="crPartnerBody"><tr><td colspan="9" class="cr-empty">No partners configured yet.</td></tr></tbody></table></div>
+          </div>
+        </div>
+
+        <!-- REPORTS & AUDIT -->
+        <div id="crViewReports" style="display:none;">
+          <div class="cr-report-hero">
+            <div><div class="cr-eyebrow">MONTHLY PROFIT REPORT</div><h3 id="crReportMonthTitle">Selected Month</h3><p>Income, expenses, profit, partner shares, outstanding amounts and audit history.</p></div>
+            <div class="cr-inline-actions"><button class="btn" onclick="crExportCsv()">⬇ Export CSV</button><button class="btn btn-secondary" onclick="crExportPdf()">🖨 Export PDF</button></div>
+          </div>
+          <div class="cr-report-grid">
+            <div><span>Total Income</span><strong id="crReportIncome">$0.00</strong></div><div><span>Total Expenses</span><strong id="crReportExpenses">$0.00</strong></div><div><span>Net Profit</span><strong id="crReportProfit">$0.00</strong></div><div><span>Partner Allocation</span><strong id="crReportAllocation">$0.00</strong></div><div><span>Company Retained</span><strong id="crReportRetained">$0.00</strong></div><div><span>Outstanding Payables</span><strong id="crReportOutstanding">$0.00</strong></div>
+          </div>
+          <div class="two-col">
+            <div class="card"><div class="card-header"><div><div class="card-title">💱 PKR / USD Rate History</div><div class="card-meta">Exact exchange rates saved with posted PKR salaries.</div></div></div><div class="cr-table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Staff</th><th>PKR Salary</th><th>PKR / USD</th><th>USD Equivalent</th></tr></thead><tbody id="crFxBody"><tr><td colspan="5" class="cr-empty">No PKR salary history this month.</td></tr></tbody></table></div></div>
+            <div class="card"><div class="card-header"><div><div class="card-title">🛡 Finance Audit Log</div><div class="card-meta">Who changed what and when.</div></div></div><div class="cr-table-wrap"><table class="data-table"><thead><tr><th>Time</th><th>Action</th><th>Area</th><th>Record</th></tr></thead><tbody id="crAuditBody"><tr><td colspan="4" class="cr-empty">No audit records yet.</td></tr></tbody></table></div></div>
+          </div>
+        </div>
+
+        <!-- Receipt Preview -->
+        <div class="cr-modal" id="crReceiptModal" onclick="if(event.target===this)crCloseReceiptModal()">
+          <div class="cr-modal-card cr-receipt-modal-card"><div class="cr-modal-head"><div><strong>Receipt / Slip Preview</strong><div class="cr-helper">Private signed preview</div></div><button class="cr-modal-x" onclick="crCloseReceiptModal()">×</button></div><div id="crReceiptPreview" class="cr-receipt-preview"></div><div class="cr-modal-actions"><a class="btn btn-secondary" id="crReceiptDownload" target="_blank" rel="noopener">Open / Download</a><button class="btn" onclick="crCloseReceiptModal()">Done</button></div></div>
+        </div>
+
+        <!-- Payout Modal -->
+        <div class="cr-modal" id="crPayoutModal" onclick="if(event.target===this)crClosePayoutModal()">
+          <div class="cr-modal-card"><div class="cr-modal-head"><div><strong id="crPayoutTitle">Record Payout</strong><div class="cr-helper" id="crPayoutMeta"></div></div><button class="cr-modal-x" onclick="crClosePayoutModal()">×</button></div>
+            <input type="hidden" id="crPayoutType"><input type="hidden" id="crPayoutId">
+            <div class="cr-form-grid"><div class="form-group"><label>Amount Due (USD)</label><input type="number" id="crPayoutDue" readonly></div><div class="form-group"><label>Total Paid To Date (USD)</label><input type="number" id="crPayoutPaid" min="0" step="0.01"></div><div class="form-group"><label>Payment Method</label><select id="crPayoutMethod"><option value="">Select method</option><option>Bank Transfer</option><option>Cash</option><option>USDT</option><option>Card</option><option>Other</option></select></div><div class="form-group"><label>Payment Date</label><input type="date" id="crPayoutDate"></div><div class="form-group"><label>Reference</label><input type="text" id="crPayoutReference" placeholder="Bank ref / TXID"></div><div class="form-group"><label>Receipt / Slip</label><input type="file" id="crPayoutReceipt" accept="image/jpeg,image/png,image/webp,application/pdf"></div></div>
+            <div class="form-group"><label>Note</label><textarea id="crPayoutNote" rows="2" placeholder="Optional payout note"></textarea></div><div class="cr-modal-actions"><button class="btn btn-secondary" onclick="crClosePayoutModal()">Cancel</button><button class="btn" onclick="crSavePayout()">Save Payout</button></div><div class="cr-status" id="crPayoutStatus"></div>
           </div>
         </div>
       </div>
@@ -2693,6 +2767,225 @@ function crPickSalarySlip(personId){var salary=crSalaryEntryFor(personId);if(!sa
 function crRenderCompensation(calc){var body=document.getElementById('crCompBody'),month=crMonthStart(),fixedTotal=crPeople.filter(function(p){return p.active!==false;}).reduce(function(s,p){return s+crSalaryUsd(p);},0);document.getElementById('crGrossCourseTotal').textContent=crUsd(calc.grossCourse);document.getElementById('crCourseShareTotal').textContent=crUsd(calc.courseDeduction);document.getElementById('crFixedSalaryTotal').textContent=crUsd(month?fixedTotal:0);document.getElementById('crCompPeriodMeta').textContent=month?crPeriodLabel()+' fixed salaries · company accounts in USD':'Select a month to post fixed salaries.';if(!crPeople.length){body.innerHTML='<tr><td colspan="8" class="cr-empty">No staff configured yet.</td></tr>';return;}body.innerHTML=crPeople.map(function(p){var salaryOriginal=month?crNum(p.monthly_salary):0,cur=crSalaryCurrency(p),fx=crSalaryFx(p),salaryUsd=month?crSalaryUsd(p):0,shareType=p.share_type||'none',share=shareType==='course_revenue'?calc.grossCourse*(crNum(p.share_percent)/100):(shareType==='company_profit'?calc.distributable*(crNum(p.share_percent)/100):0),salaryRow=crSalaryEntryFor(p.id);if(salaryRow){salaryUsd=crNum(salaryRow.amount);salaryOriginal=crNum(salaryRow.original_amount!=null?salaryRow.original_amount:p.monthly_salary);cur=String(salaryRow.original_currency||cur).toUpperCase();fx=crNum(salaryRow.fx_units_per_usd||fx);}var totalUsd=salaryUsd+share,shareLabel=shareType==='course_revenue'?'Course Revenue':(shareType==='company_profit'?'Company Profit':'No Share'),status=!month?'Select month':(salaryOriginal<=0?'No salary':(salaryRow?'Posted':'Not posted')),salaryDisplay=crCurrencyMoney(salaryOriginal,cur)+(cur==='PKR'&&salaryOriginal>0?'<div class="cr-helper">≈ '+crUsd(salaryUsd)+(fx>0?' · '+crMoney(fx)+' PKR/USD':'')+'</div>':''),slip=salaryRow&&salaryRow.receipt_path?'<button class="action-btn" onclick="crOpenReceipt(\''+crEsc(salaryRow.receipt_path)+'\')">View Slip</button>':'—',actions='<div class="cr-actions"><button class="action-btn" title="Edit" onclick="crEditPerson(\''+p.id+'\')">✏️</button><button class="action-btn delete" title="Remove" onclick="crDeletePerson(\''+p.id+'\')">🗑️</button>'+(month&&salaryOriginal>0&&!salaryRow?'<button class="action-btn" onclick="crPostSalary(\''+p.id+'\')">Post Salary</button>':'')+(month&&salaryRow?'<button class="action-btn" onclick="crPickSalarySlip(\''+p.id+'\')">Upload Slip</button>':'')+'</div>';return '<tr><td><strong>'+crEsc(p.person_name)+'</strong></td><td>'+salaryDisplay+'</td><td>'+crEsc(shareLabel)+'<div class="cr-helper">'+crMoney(p.share_percent)+'%</div></td><td>'+crUsd(share)+'</td><td><strong>'+crUsd(totalUsd)+'</strong>'+(cur==='PKR'&&salaryOriginal>0?'<div class="cr-helper">includes '+crCurrencyMoney(salaryOriginal,'PKR')+' salary</div>':'')+'</td><td>'+crEsc(status)+'</td><td>'+slip+'</td><td>'+actions+'</td></tr>';}).join('');}
 function crRenderRevenue(){var calc=crCalc();document.getElementById('crTotalIncome').textContent=crUsd(calc.income);document.getElementById('crTotalExpenses').textContent=crUsd(calc.expenses);var netEl=document.getElementById('crNetProfit');netEl.textContent=crUsd(calc.net);netEl.style.color=calc.net<0?'var(--red)':'var(--text-primary)';document.getElementById('crCompanyRetained').textContent=crUsd(calc.retained);document.getElementById('crShareTotal').textContent=crMoney(calc.totalPct)+'%';document.getElementById('crPartnerAllocationInline').textContent=crUsd(calc.allocation);document.getElementById('crProfitShareMeta').textContent=calc.staffProfitPct>0?('Includes '+crMoney(calc.staffProfitPct)+'% staff Company Profit share from Staff & Compensation.'):'Partner allocation is calculated from net company profit.';document.getElementById('crIncomeMeta').textContent=crPeriodLabel();document.getElementById('crLedgerMeta').textContent=crPeriodLabel()+' transactions';document.getElementById('crIncomeBreakdown').innerHTML=crBreakdown(crEntries,'income');document.getElementById('crExpenseBreakdown').innerHTML=crBreakdown(crEntries,'expense');var pBody=document.getElementById('crPartnerBody');if(!crPartners.length)pBody.innerHTML='<tr><td colspan="4" class="cr-empty">No partners configured yet.</td></tr>';else pBody.innerHTML=crPartners.map(function(p){var share=calc.distributable*(crNum(p.share_percent)/100);return '<tr><td><strong>'+crEsc(p.partner_name)+'</strong></td><td>'+crMoney(p.share_percent)+'%</td><td><strong class="cr-amount">'+crUsd(share)+'</strong></td><td><div class="cr-actions"><button class="action-btn" title="Edit" onclick="crEditPartner(\''+p.id+'\')">✏️</button><button class="action-btn delete" title="Delete" onclick="crDeletePartner(\''+p.id+'\')">🗑️</button></div></td></tr>';}).join('');var lBody=document.getElementById('crLedgerBody');if(!crEntries.length)lBody.innerHTML='<tr><td colspan="7" class="cr-empty">No revenue records for this period.</td></tr>';else lBody.innerHTML=crEntries.map(function(r){var isIncome=r.entry_type==='income',course=isIncome&&crIsCourseCategory(r.category),note=crEsc(r.note||'—')+(course&&crNum(r.share_deduction_amount)>0?'<div class="cr-helper">Gross '+crUsd(r.gross_amount)+' · Share deducted '+crUsd(r.share_deduction_amount)+'</div>':''),receipt=r.receipt_path?'<button class="action-btn" onclick="crOpenReceipt(\''+crEsc(r.receipt_path)+'\')">View</button>':'—';return '<tr><td>'+crEsc(r.entry_date||'—')+'</td><td><span class="badge '+(isIncome?'active':'banned')+'">'+(isIncome?'Income':'Expense')+'</span></td><td><strong>'+crEsc(crIsCourseCategory(r.category)?'Total Courses Revenue':(r.category||'—'))+'</strong></td><td>'+note+'</td><td><strong class="cr-amount '+(isIncome?'cr-positive':'cr-negative')+'">'+(isIncome?'+':'-')+crUsd(r.amount)+'</strong></td><td>'+receipt+'</td><td><div class="cr-actions"><button class="action-btn" title="Edit" onclick="crEditEntry(\''+r.id+'\')">✏️</button><button class="action-btn delete" title="Delete" onclick="crDeleteEntry(\''+r.id+'\')">🗑️</button></div></td></tr>';}).join('');crRenderCompensation(calc);crSyncEntryFields();}
 async function loadCompanyRevenue(){if(!sb)return;if(!crRevenueBooted){crRevenueBooted=true;var month=document.getElementById('crMonth');if(month&&!month.value)month.value=crThisMonth();crSyncCategories();crSyncEntryFields();crSyncPersonShareFields();crSyncSalaryCurrency();var d=document.getElementById('crEntryDate');if(d&&!d.value)d.value=crToday();}var body=document.getElementById('crLedgerBody');if(body)body.innerHTML='<tr><td colspan="7" class="cr-empty">Loading...</td></tr>';var query=sb.from('company_finance_entries').select('*').order('entry_date',{ascending:false}).order('created_at',{ascending:false}),monthVal=(document.getElementById('crMonth')||{}).value||'';if(monthVal){var parts=monthVal.split('-'),y=Number(parts[0]),m=Number(parts[1]),start=monthVal+'-01',next=new Date(y,m,1),end=next.getFullYear()+'-'+String(next.getMonth()+1).padStart(2,'0')+'-01';query=query.gte('entry_date',start).lt('entry_date',end);}var results=await Promise.all([query,sb.from('company_profit_partners').select('*').eq('active',true).order('created_at',{ascending:true}),sb.from('company_compensation_people').select('*').eq('active',true).order('created_at',{ascending:true})]);if(results[0].error){console.error('Company revenue load error',results[0].error);body.innerHTML='<tr><td colspan="7" class="cr-empty" style="color:var(--red)">'+crEsc(results[0].error.message||'Could not load revenue data.')+'</td></tr>';return;}if(results[1].error){crSetStatus('crPartnerStatus',results[1].error.message||'Could not load partner shares.',true);return;}if(results[2].error){crSetStatus('crPersonStatus',results[2].error.message||'Could not load compensation settings.',true);return;}crEntries=results[0].data||[];crPartners=results[1].data||[];crPeople=results[2].data||[];crRenderRevenue();crSwitchTab(crActiveTab);}
+
+// ========== COMPANY REVENUE V88 — PREMIUM MONTHLY FINANCE OVERRIDES ==========
+var crPayouts = [], crStaffPayouts = [], crClosures = [], crAuditRows = [], crTrendEntries = [];
+var crTrendChartInstance = null, crSourceChartInstance = null;
+crActiveTab = 'dashboard';
+
+function crMonthValue(){ var el=document.getElementById('crMonth'); return (el&&el.value)||crThisMonth(); }
+function crSelectedPeriod(){ return crMonthValue()+'-01'; }
+function crMonthFromDate(v){ if(!v) return ''; return String(v).slice(0,7)+'-01'; }
+function crDefaultEntryDate(){ var m=crMonthValue(), today=crToday(); return today.slice(0,7)===m?today:m+'-01'; }
+function crSelectedMonthClosed(){ var pm=crSelectedPeriod(); return crClosures.some(function(x){return String(x.period_month)===pm;}); }
+function crPaymentBadge(status){ status=String(status||'paid').toLowerCase(); return '<span class="cr-status-badge '+crEsc(status)+'">'+(status==='paid'?'✓ Paid':status==='partial'?'◐ Partial':'◷ Pending')+'</span>'; }
+function crPayoutStatus(due,paid){ due=crNum(due);paid=crNum(paid); if(due<=0||paid>=due-.005)return 'paid'; if(paid>0)return 'partial'; return 'pending'; }
+function crEntryPerson(row){ if(!row||!row.compensation_person_id)return null; return crPeople.find(function(p){return String(p.id)===String(row.compensation_person_id);})||null; }
+function crStaffPayoutFor(personId){ return crStaffPayouts.find(function(x){return String(x.person_id)===String(personId);})||null; }
+function crPartnerPayoutFor(partnerId){ return crPayouts.find(function(x){return String(x.partner_id)===String(partnerId);})||null; }
+function crSalaryEntryDate(person){ var d=Math.min(28,Math.max(1,Number(person&&person.salary_due_day)||1)); return crMonthValue()+'-'+String(d).padStart(2,'0'); }
+function crCalc(){
+  var income=crEntries.filter(function(x){return x.entry_type==='income';}).reduce(function(s,x){return s+crNum(x.amount);},0),expenses=crEntries.filter(function(x){return x.entry_type==='expense';}).reduce(function(s,x){return s+crNum(x.amount);},0),net=income-expenses,distributable=Math.max(net,0),partnerPct=crPartnerSharePercent(),staffProfitPct=crStaffProfitSharePercent(),totalPct=partnerPct+staffProfitPct,grossCourse=crEntries.filter(function(x){return x.entry_type==='income'&&crIsCourseCategory(x.category);}).reduce(function(s,x){return s+crNum(x.gross_amount!=null?x.gross_amount:(crNum(x.amount)+crNum(x.share_deduction_amount)));},0),courseDeduction=crEntries.filter(function(x){return x.entry_type==='income'&&crIsCourseCategory(x.category);}).reduce(function(s,x){return s+crNum(x.share_deduction_amount);},0),allocation;
+  if(crSelectedMonthClosed()){allocation=crPayouts.reduce(function(s,x){return s+crNum(x.amount_due);},0)+crStaffPayouts.filter(function(x){return x.share_type==='company_profit';}).reduce(function(s,x){return s+crNum(x.amount_due);},0);}else allocation=distributable*(totalPct/100);
+  return{income:income,expenses:expenses,net:net,distributable:distributable,partnerPct:partnerPct,staffProfitPct:staffProfitPct,totalPct:totalPct,allocation:allocation,retained:net-allocation,grossCourse:grossCourse,courseDeduction:courseDeduction};
+}
+function crShareDueForPerson(person,calc){ if(!person||person.active===false)return 0; var pct=crNum(person.share_percent); if(person.share_type==='course_revenue')return calc.grossCourse*(pct/100); if(person.share_type==='company_profit')return calc.distributable*(pct/100); return 0; }
+function crPartnerDue(partner,calc){ var snap=crPartnerPayoutFor(partner.id); if(crSelectedMonthClosed()&&snap)return crNum(snap.amount_due); return calc.distributable*(crNum(partner.share_percent)/100); }
+function crStaffShareDue(person,calc){ var snap=crStaffPayoutFor(person.id); if(crSelectedMonthClosed()&&snap)return crNum(snap.amount_due); return crShareDueForPerson(person,calc); }
+
+function crSwitchTab(tab){
+  var tabs=['dashboard','transactions','compensation','payouts','reports'];
+  if(tabs.indexOf(tab)<0)tab='dashboard'; crActiveTab=tab;
+  tabs.forEach(function(t){ var b=document.getElementById('crTab'+t.charAt(0).toUpperCase()+t.slice(1)),v=document.getElementById('crView'+t.charAt(0).toUpperCase()+t.slice(1)); if(b)b.classList.toggle('active',t===tab); if(v)v.style.display=t===tab?'block':'none'; });
+  if(tab==='dashboard')setTimeout(crRenderCharts,0);
+}
+
+function crShiftMonth(delta){ var el=document.getElementById('crMonth'); if(!el)return; var p=crMonthValue().split('-'),d=new Date(Number(p[0]),Number(p[1])-1+delta,1); el.value=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); loadCompanyRevenue(); }
+function crSetCurrentMonth(){ var el=document.getElementById('crMonth'); if(el)el.value=crThisMonth(); loadCompanyRevenue(); }
+function crSetAllTime(){ crSetCurrentMonth(); }
+
+function crSyncPaymentFields(){ var status=(document.getElementById('crPaymentStatus')||{}).value||'paid'; document.querySelectorAll('#page-revenue .cr-payment-field').forEach(function(el){el.style.display=status==='paid'?'block':'none';}); if(status==='paid'){var pd=document.getElementById('crPaymentDate');if(pd&&!pd.value)pd.value=(document.getElementById('crEntryDate')||{}).value||crDefaultEntryDate();} }
+
+function crSyncEntryFields(){
+  var type=(document.getElementById('crType')||{}).value||'income',cat=(document.getElementById('crCategory')||{}).value||'',receipt=document.getElementById('crReceiptWrap'),label=document.getElementById('crAmountLabel'),helper=document.getElementById('crAmountHelper'),salaryWrap=document.getElementById('crSalaryPersonWrap'),salarySelect=document.getElementById('crSalaryPerson'),otherWrap=document.getElementById('crOtherDetailsWrap'),otherLabel=document.getElementById('crOtherDetailsLabel'),otherInput=document.getElementById('crOtherDetails'),marketingWrap=document.getElementById('crMarketingSubWrap'),marketing=document.getElementById('crMarketingSub'),isSalary=type==='expense'&&cat==='Salaries',isMarketing=type==='expense'&&cat==='Marketing',isOther=cat==='Other Expenses'||cat==='Other Income'||(isMarketing&&marketing&&marketing.value==='Other Marketing');
+  if(receipt)receipt.style.display=type==='expense'?'block':'none';
+  if(label)label.textContent=(type==='income'&&crIsCourseCategory(cat))?'Gross Course Revenue (USD)':'Amount (USD)';
+  if(helper)helper.textContent=(type==='income'&&crIsCourseCategory(cat))?(crMoney(crCourseSharePercent())+'% configured Course Revenue share will be deducted automatically.'):(isSalary?'Select whose salary this payment is for. Fixed salaries can also be posted from Staff & Compensation.':'');
+  if(marketingWrap)marketingWrap.style.display=isMarketing?'block':'none';
+  if(salaryWrap)salaryWrap.style.display=isSalary?'block':'none';
+  if(salarySelect){var keep=salarySelect.value||'';salarySelect.innerHTML='<option value="">Select staff member</option>'+crPeople.filter(function(p){return p.active!==false;}).map(function(p){return '<option value="'+crEsc(p.id)+'">'+crEsc(p.person_name)+'</option>';}).join('');if(keep&&crPeople.some(function(p){return String(p.id)===String(keep);}))salarySelect.value=keep;}
+  if(otherWrap)otherWrap.style.display=isOther?'block':'none';
+  if(otherLabel)otherLabel.textContent=cat==='Other Income'?'Other Income Details':(isMarketing?'Other Marketing Details':'Other Expense Details');
+  if(otherInput){otherInput.placeholder=cat==='Other Income'?'e.g. Sponsorship, rebate, miscellaneous income':(isMarketing?'e.g. Event sponsorship, creator fee':'e.g. Office supplies, software subscription, transport');if(!isOther)otherInput.value='';}
+  var ps=document.getElementById('crPaymentStatus'); if(ps&&!crEditingEntryId)ps.value=type==='expense'?'pending':'paid';
+  crSyncPaymentFields();
+}
+
+function crResetEntryForm(){
+  crEditingEntryId=null;crEditingReceiptPath=null;
+  var t=document.getElementById('crType');if(t)t.value='income';crSyncCategories();
+  var a=document.getElementById('crAmount');if(a)a.value='';var d=document.getElementById('crEntryDate');if(d)d.value=crDefaultEntryDate();
+  ['crNote','crOtherDetails','crPaymentReference'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var sp=document.getElementById('crSalaryPerson');if(sp)sp.value='';var ms=document.getElementById('crMarketingSub');if(ms)ms.selectedIndex=0;
+  var st=document.getElementById('crPaymentStatus');if(st)st.value='paid';var pm=document.getElementById('crPaymentMethod');if(pm)pm.value='';var pd=document.getElementById('crPaymentDate');if(pd)pd.value='';
+  var f=document.getElementById('crReceiptFile');if(f)f.value='';var h=document.getElementById('crReceiptHelper');if(h)h.textContent='Upload JPG, PNG, WEBP or PDF up to 10 MB.';
+  var b=document.getElementById('crSaveEntryBtn');if(b)b.textContent='+ Add Transaction';var c=document.getElementById('crCancelEditBtn');if(c)c.style.display='none';
+  crSyncEntryFields();crSetStatus('crEntryStatus','',false);
+}
+
+function crResetPersonForm(){
+  crEditingPersonId=null;var n=document.getElementById('crPersonName');if(n)n.value='';var s=document.getElementById('crPersonSalary');if(s)s.value='';var cur=document.getElementById('crPersonSalaryCurrency');if(cur)cur.value='USD';var fx=document.getElementById('crPersonSalaryFx');if(fx)fx.value='1';var t=document.getElementById('crPersonShareType');if(t)t.value='none';var p=document.getElementById('crPersonSharePercent');if(p)p.value='0';var rec=document.getElementById('crRecurringSalary');if(rec)rec.value='true';var due=document.getElementById('crSalaryDueDay');if(due)due.value='1';crSyncSalaryCurrency();crSyncPersonShareFields();var b=document.getElementById('crSavePersonBtn');if(b)b.textContent='+ Add Person';var c=document.getElementById('crCancelPersonBtn');if(c)c.style.display='none';crSetStatus('crPersonStatus','',false);
+}
+
+async function crOpenReceipt(path){
+  if(!path)return;var r=await sb.storage.from('company-expense-receipts').createSignedUrl(path,600);if(r.error){alert('Could not open receipt: '+r.error.message);return;}
+  var url=r.data.signedUrl,preview=document.getElementById('crReceiptPreview'),dl=document.getElementById('crReceiptDownload'),modal=document.getElementById('crReceiptModal');if(dl)dl.href=url;
+  var lower=String(path).toLowerCase();if(preview)preview.innerHTML=lower.endsWith('.pdf')?'<iframe src="'+crEsc(url)+'"></iframe>':'<img src="'+crEsc(url)+'" alt="Receipt preview">';if(modal)modal.classList.add('show');
+}
+function crCloseReceiptModal(){var m=document.getElementById('crReceiptModal'),p=document.getElementById('crReceiptPreview');if(m)m.classList.remove('show');if(p)p.innerHTML='';}
+
+async function crSaveEntry(){
+  if(!sb)return crSetStatus('crEntryStatus','Database is not connected.',true);if(crSelectedMonthClosed())return crSetStatus('crEntryStatus','This month is closed. Reopen it before changing transactions.',true);
+  var type=document.getElementById('crType').value,category=document.getElementById('crCategory').value,inputAmount=Number(document.getElementById('crAmount').value),entryDate=document.getElementById('crEntryDate').value,note=(document.getElementById('crNote').value||'').trim(),salaryPersonId=(document.getElementById('crSalaryPerson')||{}).value||'',otherDetails=((document.getElementById('crOtherDetails')||{}).value||'').trim(),marketing=(document.getElementById('crMarketingSub')||{}).value||'',paymentStatus=(document.getElementById('crPaymentStatus')||{}).value||'paid',paymentMethod=((document.getElementById('crPaymentMethod')||{}).value||'').trim(),paymentDate=((document.getElementById('crPaymentDate')||{}).value||''),paymentReference=((document.getElementById('crPaymentReference')||{}).value||'').trim(),file=(document.getElementById('crReceiptFile').files||[])[0],isSalary=type==='expense'&&category==='Salaries',isMarketing=type==='expense'&&category==='Marketing',isOther=category==='Other Expenses'||category==='Other Income'||(isMarketing&&marketing==='Other Marketing');
+  if(!category||!Number.isFinite(inputAmount)||inputAmount<=0||!entryDate)return crSetStatus('crEntryStatus','Please enter category, valid amount and date.',true);if(crMonthFromDate(entryDate)!==crSelectedPeriod())return crSetStatus('crEntryStatus','Transaction date must be inside the selected accounting month.',true);if(isSalary&&!salaryPersonId)return crSetStatus('crEntryStatus','Please select whose salary this payment is for.',true);if(isOther&&!otherDetails)return crSetStatus('crEntryStatus','Please specify the custom item.',true);
+  var selectedPerson=isSalary?crPeople.find(function(p){return String(p.id)===String(salaryPersonId);}):null;if(isSalary&&!selectedPerson)return crSetStatus('crEntryStatus','Selected staff member could not be found.',true);
+  var subcategory=isSalary?(selectedPerson?selectedPerson.person_name:''):(isMarketing?(marketing==='Other Marketing'?otherDetails:marketing):((category==='Other Expenses'||category==='Other Income')?otherDetails:null));
+  if(isSalary){var base='Salary - '+selectedPerson.person_name;note=note?base+' — '+note:base;}else if((category==='Other Expenses'||category==='Other Income')&&otherDetails){note=note?otherDetails+' — '+note:otherDetails;}else if(isMarketing&&subcategory){note=note?subcategory+' — '+note:subcategory;}
+  var duplicate=crEntries.find(function(x){return x.id!==crEditingEntryId&&x.entry_type===type&&String(x.category)===String(category)&&crNum(x.amount)===inputAmount&&String(x.entry_date)===entryDate&&String(x.compensation_person_id||'')===String(salaryPersonId||'')&&String(x.subcategory||'')===String(subcategory||'');});
+  if(duplicate){var ok=typeof window.pspConfirm==='function'?await window.pspConfirm('Potential duplicate detected for the same date, category and amount. Save it anyway?'):confirm('Potential duplicate detected. Save anyway?');if(!ok)return;}
+  var amount=inputAmount,gross=null,deduction=null;if(type==='income'&&crIsCourseCategory(category)){var pct=crCourseSharePercent();if(pct>100.000001)return crSetStatus('crEntryStatus','Course Revenue shares cannot exceed 100%.',true);gross=inputAmount;deduction=gross*(pct/100);amount=Math.max(0,gross-deduction);}
+  var receiptPath=crEditingReceiptPath||null;try{if(type==='expense'&&file)receiptPath=await crUploadReceipt(file,'expenses');}catch(e){return crSetStatus('crEntryStatus',e.message||String(e),true);}
+  if(paymentStatus!=='paid'){paymentMethod=null;paymentDate=null;paymentReference=null;}else if(!paymentDate)paymentDate=entryDate;
+  var payload={entry_type:type,category:category,subcategory:subcategory||null,amount:amount,gross_amount:gross,share_deduction_amount:deduction,entry_date:entryDate,period_month:crSelectedPeriod(),note:note||null,receipt_path:type==='expense'?receiptPath:null,compensation_person_id:isSalary?salaryPersonId:null,payment_status:paymentStatus,payment_method:paymentMethod||null,payment_date:paymentDate||null,payment_reference:paymentReference||null,updated_at:new Date().toISOString()};
+  var res=crEditingEntryId?await sb.from('company_finance_entries').update(payload).eq('id',crEditingEntryId):await sb.from('company_finance_entries').insert(payload);if(res.error){console.error('Revenue save error',res.error);return crSetStatus('crEntryStatus',res.error.message||'Could not save transaction.',true);}var msg=crEditingEntryId?'Transaction updated.':'Transaction added.';crResetEntryForm();crSetStatus('crEntryStatus',msg,false);await loadCompanyRevenue();
+}
+
+function crEditEntry(id){
+  if(crSelectedMonthClosed()){alert('This month is closed. Reopen it before editing transactions.');return;}var row=crEntries.find(function(x){return x.id===id;});if(!row)return;crEditingEntryId=id;crEditingReceiptPath=row.receipt_path||null;document.getElementById('crType').value=row.entry_type;crSyncCategories(row.category);document.getElementById('crAmount').value=crIsCourseCategory(row.category)?crNum(row.gross_amount||row.amount):row.amount;document.getElementById('crEntryDate').value=row.entry_date;
+  var note=row.note||'',isSalary=row.entry_type==='expense'&&row.category==='Salaries',isMarketing=row.entry_type==='expense'&&row.category==='Marketing',isOther=row.category==='Other Expenses'||row.category==='Other Income';
+  crSyncEntryFields();var salarySelect=document.getElementById('crSalaryPerson');if(isSalary&&salarySelect&&row.compensation_person_id)salarySelect.value=row.compensation_person_id;
+  if(isMarketing){var options=Array.from(document.getElementById('crMarketingSub').options).map(function(o){return o.value;});if(row.subcategory&&options.indexOf(row.subcategory)>=0)document.getElementById('crMarketingSub').value=row.subcategory;else{document.getElementById('crMarketingSub').value='Other Marketing';document.getElementById('crOtherDetails').value=row.subcategory||'';}}
+  if(isOther)document.getElementById('crOtherDetails').value=row.subcategory||note.split(' — ')[0]||'';
+  if(isSalary){var person=crEntryPerson(row),prefix=person?'Salary - '+person.person_name:'';document.getElementById('crNote').value=prefix&&note.indexOf(prefix)===0?note.slice(prefix.length).replace(/^\s*—\s*/,''):note;}else if(isOther||isMarketing){var sub=row.subcategory||'';document.getElementById('crNote').value=sub&&note.indexOf(sub)===0?note.slice(sub.length).replace(/^\s*—\s*/,''):note;}else document.getElementById('crNote').value=note;
+  document.getElementById('crPaymentStatus').value=row.payment_status||'paid';document.getElementById('crPaymentMethod').value=row.payment_method||'';document.getElementById('crPaymentDate').value=row.payment_date||'';document.getElementById('crPaymentReference').value=row.payment_reference||'';crSyncEntryFields();crSyncPaymentFields();
+  if(row.receipt_path)document.getElementById('crReceiptHelper').innerHTML='Existing receipt attached. <button type="button" class="action-btn" onclick="crOpenReceipt(\''+crEsc(row.receipt_path)+'\')">Preview</button> Select a new file only to replace it.';document.getElementById('crSaveEntryBtn').textContent='Save Changes';document.getElementById('crCancelEditBtn').style.display='inline-flex';crSwitchTab('transactions');document.getElementById('crSaveEntryBtn').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+async function crDeleteEntry(id){ if(crSelectedMonthClosed()){alert('This month is closed. Reopen it before deleting transactions.');return;}var ok=typeof window.pspConfirm==='function'?await window.pspConfirm('Delete this company transaction?'):confirm('Delete this company transaction?');if(!ok)return;var row=crEntries.find(function(x){return x.id===id;}),res=await sb.from('company_finance_entries').delete().eq('id',id);if(res.error){alert(res.error.message||'Could not delete transaction.');return;}if(row&&row.receipt_path)sb.storage.from('company-expense-receipts').remove([row.receipt_path]).catch(function(){});if(crEditingEntryId===id)crResetEntryForm();await loadCompanyRevenue(); }
+
+async function crSavePerson(){
+  if(!sb)return crSetStatus('crPersonStatus','Database is not connected.',true);var name=(document.getElementById('crPersonName').value||'').trim(),salary=Number(document.getElementById('crPersonSalary').value||0),salaryCurrency=(document.getElementById('crPersonSalaryCurrency').value||'USD').toUpperCase(),salaryFx=salaryCurrency==='PKR'?Number(document.getElementById('crPersonSalaryFx').value||0):1,shareType=document.getElementById('crPersonShareType').value,percent=shareType==='none'?0:Number(document.getElementById('crPersonSharePercent').value||0),recurring=(document.getElementById('crRecurringSalary').value||'true')==='true',dueDay=Number(document.getElementById('crSalaryDueDay').value||1);
+  if(!name||!Number.isFinite(salary)||salary<0||['USD','PKR'].indexOf(salaryCurrency)<0||!Number.isFinite(salaryFx)||salaryFx<=0||!Number.isFinite(percent)||percent<0||percent>100||!Number.isFinite(dueDay)||dueDay<1||dueDay>28)return crSetStatus('crPersonStatus','Enter a valid name, salary, currency/rate, share and due day.',true);
+  var courseOther=crPeople.filter(function(p){return p.id!==crEditingPersonId&&p.active!==false&&p.share_type==='course_revenue';}).reduce(function(s,p){return s+crNum(p.share_percent);},0);if(shareType==='course_revenue'&&courseOther+percent>100.000001)return crSetStatus('crPersonStatus','Combined Course Revenue shares cannot exceed 100%.',true);var profitOther=crPeople.filter(function(p){return p.id!==crEditingPersonId&&p.active!==false&&p.share_type==='company_profit';}).reduce(function(s,p){return s+crNum(p.share_percent);},0)+crPartnerSharePercent();if(shareType==='company_profit'&&profitOther+percent>100.000001)return crSetStatus('crPersonStatus','Combined company profit shares cannot exceed 100%.',true);
+  var payload={person_name:name,monthly_salary:salary,salary_currency:salaryCurrency,salary_fx_rate:salaryFx,share_type:shareType,share_percent:percent,recurring_salary:recurring,salary_due_day:dueDay,active:true,updated_at:new Date().toISOString()},res=crEditingPersonId?await sb.from('company_compensation_people').update(payload).eq('id',crEditingPersonId):await sb.from('company_compensation_people').insert(payload);if(res.error)return crSetStatus('crPersonStatus',res.error.message||'Could not save person.',true);var msg=crEditingPersonId?'Compensation updated.':'Person added.';crResetPersonForm();crSetStatus('crPersonStatus',msg,false);await loadCompanyRevenue();
+}
+function crEditPerson(id){var row=crPeople.find(function(x){return x.id===id;});if(!row)return;crEditingPersonId=id;document.getElementById('crPersonName').value=row.person_name||'';document.getElementById('crPersonSalary').value=crNum(row.monthly_salary);document.getElementById('crPersonSalaryCurrency').value=crSalaryCurrency(row);document.getElementById('crPersonSalaryFx').value=crSalaryCurrency(row)==='PKR'?crNum(row.salary_fx_rate):1;document.getElementById('crPersonShareType').value=row.share_type||'none';document.getElementById('crPersonSharePercent').value=crNum(row.share_percent);document.getElementById('crRecurringSalary').value=row.recurring_salary===false?'false':'true';document.getElementById('crSalaryDueDay').value=Number(row.salary_due_day)||1;crSyncSalaryCurrency();crSyncPersonShareFields();document.getElementById('crSavePersonBtn').textContent='Save Changes';document.getElementById('crCancelPersonBtn').style.display='inline-flex';}
+
+async function crPostSalary(personId){
+  if(crSelectedMonthClosed()){alert('This month is closed. Reopen it before posting salary.');return;}var person=crPeople.find(function(x){return x.id===personId;});if(!person||crNum(person.monthly_salary)<=0)return;if(crSalaryEntryFor(personId)){alert('Salary is already posted for '+crPeriodLabel()+'.');return;}var cur=crSalaryCurrency(person),fx=crSalaryFx(person),usd=crSalaryUsd(person);if(cur==='PKR'&&fx<=0){alert('Set a valid PKR per 1 USD rate for '+person.person_name+' first.');return;}var note='Salary - '+person.person_name+(cur==='PKR'?(' ('+crCurrencyMoney(person.monthly_salary,'PKR')+' @ '+crMoney(fx)+' PKR/USD)'):'');var payload={entry_type:'expense',category:'Salaries',subcategory:person.person_name,amount:usd,currency:'USD',original_amount:crNum(person.monthly_salary),original_currency:cur,fx_units_per_usd:cur==='PKR'?fx:1,entry_date:crSalaryEntryDate(person),note:note,compensation_person_id:person.id,period_month:crSelectedPeriod(),payment_status:'pending',updated_at:new Date().toISOString()},r=await sb.from('company_finance_entries').insert(payload);if(r.error){alert('Could not post salary: '+r.error.message);return;}await loadCompanyRevenue();
+}
+async function crPostAllSalaries(){
+  if(crSelectedMonthClosed()){alert('This month is closed. Reopen it before posting salaries.');return;}var list=crPeople.filter(function(p){return p.active!==false&&p.recurring_salary!==false&&crNum(p.monthly_salary)>0&&!crSalaryEntryFor(p.id);});if(!list.length){alert('All recurring fixed salaries are already posted for this month.');return;}var invalid=list.find(function(p){return crSalaryCurrency(p)==='PKR'&&crSalaryFx(p)<=0;});if(invalid){alert('Set a valid PKR per 1 USD rate for '+invalid.person_name+' first.');return;}var payload=list.map(function(p){var cur=crSalaryCurrency(p),fx=crSalaryFx(p),usd=crSalaryUsd(p),note='Salary - '+p.person_name+(cur==='PKR'?(' ('+crCurrencyMoney(p.monthly_salary,'PKR')+' @ '+crMoney(fx)+' PKR/USD)'):'');return{entry_type:'expense',category:'Salaries',subcategory:p.person_name,amount:usd,currency:'USD',original_amount:crNum(p.monthly_salary),original_currency:cur,fx_units_per_usd:cur==='PKR'?fx:1,entry_date:crSalaryEntryDate(p),note:note,compensation_person_id:p.id,period_month:crSelectedPeriod(),payment_status:'pending',updated_at:new Date().toISOString()};}),r=await sb.from('company_finance_entries').insert(payload);if(r.error){alert('Could not post salaries: '+r.error.message);return;}await loadCompanyRevenue();
+}
+
+function crPickSalarySlip(personId){var salary=crSalaryEntryFor(personId);if(!salary){alert('Post this salary first, then upload the payment slip.');return;}var input=document.createElement('input');input.type='file';input.accept='image/jpeg,image/png,image/webp,application/pdf';input.onchange=async function(){var file=(input.files||[])[0];if(!file)return;try{var path=await crUploadReceipt(file,'salaries'),r=await sb.from('company_finance_entries').update({receipt_path:path,updated_at:new Date().toISOString()}).eq('id',salary.id);if(r.error)throw r.error;await loadCompanyRevenue();}catch(e){alert('Slip upload failed: '+(e.message||e));}};input.click();}
+
+function crRenderCompensation(calc){
+  var body=document.getElementById('crCompBody'),fixedPeople=crPeople.filter(function(p){return p.active!==false&&p.recurring_salary!==false&&crNum(p.monthly_salary)>0;}),fixedTotal=fixedPeople.reduce(function(s,p){return s+crSalaryUsd(p);},0),posted=fixedPeople.filter(function(p){return !!crSalaryEntryFor(p.id);}).length;
+  document.getElementById('crGrossCourseTotal').textContent=crUsd(calc.grossCourse);document.getElementById('crCourseShareTotal').textContent=crUsd(calc.courseDeduction);document.getElementById('crFixedSalaryTotal').textContent=crUsd(fixedTotal);document.getElementById('crSalaryPostedCount').textContent=posted+' / '+fixedPeople.length;document.getElementById('crCompPeriodMeta').textContent=crPeriodLabel()+' recurring payroll · company accounts in USD';
+  if(!crPeople.length){body.innerHTML='<tr><td colspan="9" class="cr-empty">No staff configured yet.</td></tr>';return;}
+  body.innerHTML=crPeople.map(function(p){var salaryRow=crSalaryEntryFor(p.id),salaryOriginal=salaryRow?crNum(salaryRow.original_amount!=null?salaryRow.original_amount:p.monthly_salary):crNum(p.monthly_salary),cur=salaryRow?String(salaryRow.original_currency||crSalaryCurrency(p)).toUpperCase():crSalaryCurrency(p),fx=salaryRow?crNum(salaryRow.fx_units_per_usd||crSalaryFx(p)):crSalaryFx(p),salaryUsd=salaryRow?crNum(salaryRow.amount):crSalaryUsd(p),share=crStaffShareDue(p,calc),staffP=crStaffPayoutFor(p.id),sharePaid=staffP?crNum(staffP.amount_paid):0,totalUsd=salaryUsd+share,salaryDisplay=crCurrencyMoney(salaryOriginal,cur)+(cur==='PKR'&&salaryOriginal>0?'<div class="cr-helper">≈ '+crUsd(salaryUsd)+' · '+crMoney(fx)+' PKR/USD</div>':''),shareLabel=p.share_type==='course_revenue'?'Course Revenue':(p.share_type==='company_profit'?'Company Profit':'No Share'),salaryStatus=salaryRow?crPaymentBadge(salaryRow.payment_status||'pending'):(p.recurring_salary===false?'Manual':'Not posted'),slip=salaryRow&&salaryRow.receipt_path?'<button class="action-btn" onclick="crOpenReceipt(\''+crEsc(salaryRow.receipt_path)+'\')">Preview</button>':'—',actions='<div class="cr-actions"><button class="action-btn" onclick="crEditPerson(\''+p.id+'\')">✏️</button>'+(crNum(p.monthly_salary)>0&&!salaryRow&&!crSelectedMonthClosed()?'<button class="action-btn" onclick="crPostSalary(\''+p.id+'\')">Post Salary</button>':'')+(salaryRow?'<button class="action-btn" onclick="crEditEntry(\''+salaryRow.id+'\')">Payment</button>':'')+(salaryRow?'<button class="action-btn" onclick="crPickSalarySlip(\''+p.id+'\')">Slip</button>':'')+(share>0?'<button class="action-btn" onclick="crOpenPayout(\'staff\',\''+p.id+'\')">Pay Share</button>':'')+'</div>';return '<tr><td><strong>'+crEsc(p.person_name)+'</strong><div class="cr-helper">'+(p.recurring_salary===false?'Manual salary':'Recurring · due day '+(p.salary_due_day||1))+'</div></td><td>'+salaryDisplay+'</td><td>'+crEsc(shareLabel)+'<div class="cr-helper">'+crMoney(p.share_percent)+'%</div></td><td><strong>'+crUsd(share)+'</strong></td><td><strong>'+crUsd(totalUsd)+'</strong></td><td>'+salaryStatus+'</td><td>'+crUsd(sharePaid)+'</td><td>'+slip+'</td><td>'+actions+'</td></tr>';}).join('');
+}
+
+function crLedgerRowsFiltered(){
+  var q=((document.getElementById('crLedgerSearch')||{}).value||'').trim().toLowerCase(),type=(document.getElementById('crFilterType')||{}).value||'',cat=(document.getElementById('crFilterCategory')||{}).value||'',status=(document.getElementById('crFilterStatus')||{}).value||'',staff=(document.getElementById('crFilterStaff')||{}).value||'',from=(document.getElementById('crFilterFrom')||{}).value||'',to=(document.getElementById('crFilterTo')||{}).value||'';
+  return crEntries.filter(function(r){var person=crEntryPerson(r),hay=[r.category,r.subcategory,r.note,r.payment_method,r.payment_reference,person&&person.person_name].join(' ').toLowerCase(),date=String(r.entry_date||'');return(!q||hay.indexOf(q)>=0)&&(!type||r.entry_type===type)&&(!cat||r.category===cat)&&(!status||(r.payment_status||'paid')===status)&&(!staff||String(r.compensation_person_id||'')===staff)&&(!from||date>=from)&&(!to||date<=to);});
+}
+function crFilterLedger(){crRenderLedger(crLedgerRowsFiltered());}
+function crRenderLedger(rows){
+  var body=document.getElementById('crLedgerBody');if(!body)return;if(!rows.length){body.innerHTML='<tr><td colspan="9" class="cr-empty">No matching transactions for this month.</td></tr>';return;}
+  body.innerHTML=rows.map(function(r){var isIncome=r.entry_type==='income',course=isIncome&&crIsCourseCategory(r.category),person=crEntryPerson(r),sub=r.subcategory?'<div class="cr-helper">'+crEsc(r.subcategory)+'</div>':'',detail=crEsc(r.note||'—')+(course&&crNum(r.share_deduction_amount)>0?'<div class="cr-helper">Gross '+crUsd(r.gross_amount)+' · share deducted '+crUsd(r.share_deduction_amount)+'</div>':'')+(person?'<div class="cr-helper">Staff: '+crEsc(person.person_name)+'</div>':''),payment=crPaymentBadge(r.payment_status||'paid')+'<div class="cr-payment-meta">'+(r.payment_status==='paid'?('<strong>'+crEsc(r.payment_method||'Method not set')+'</strong><br>'+crEsc(r.payment_date||'')+(r.payment_reference?'<br>'+crEsc(r.payment_reference):'')):'Awaiting payment')+'</div>',receipt=r.receipt_path?'<button class="action-btn" onclick="crOpenReceipt(\''+crEsc(r.receipt_path)+'\')">Preview</button>':'—',actions='<div class="cr-actions"><button class="action-btn" title="Edit" onclick="crEditEntry(\''+r.id+'\')">✏️</button><button class="action-btn delete" title="Delete" onclick="crDeleteEntry(\''+r.id+'\')">🗑️</button></div>';return '<tr><td>'+crEsc(r.entry_date||'—')+'</td><td><span class="badge '+(isIncome?'active':'banned')+'">'+(isIncome?'Income':'Expense')+'</span></td><td><strong>'+crEsc(crIsCourseCategory(r.category)?'Total Courses Revenue':(r.category||'—'))+'</strong>'+sub+'</td><td>'+detail+'</td><td><strong class="cr-amount '+(isIncome?'cr-positive':'cr-negative')+'">'+(isIncome?'+':'-')+crUsd(r.amount)+'</strong></td><td>'+crPaymentBadge(r.payment_status||'paid')+'</td><td>'+payment.replace(crPaymentBadge(r.payment_status||'paid'),'')+'</td><td>'+receipt+'</td><td>'+actions+'</td></tr>';}).join('');
+}
+
+function crRenderFilterOptions(){
+  var cat=document.getElementById('crFilterCategory'),staff=document.getElementById('crFilterStaff');if(cat){var keep=cat.value,cats=Array.from(new Set(crEntries.map(function(x){return x.category;}).filter(Boolean))).sort();cat.innerHTML='<option value="">All Categories</option>'+cats.map(function(x){return '<option value="'+crEsc(x)+'">'+crEsc(x)+'</option>';}).join('');if(cats.indexOf(keep)>=0)cat.value=keep;}if(staff){var keepS=staff.value;staff.innerHTML='<option value="">All Staff</option>'+crPeople.map(function(p){return '<option value="'+crEsc(p.id)+'">'+crEsc(p.person_name)+'</option>';}).join('');if(crPeople.some(function(p){return String(p.id)===String(keepS);}))staff.value=keepS;}
+}
+
+function crRenderPartnerPayouts(calc){
+  var body=document.getElementById('crPartnerBody'),dueTotal=0,paidTotal=0,paidCount=0;if(!body)return;
+  if(!crPartners.length){body.innerHTML='<tr><td colspan="9" class="cr-empty">No partners configured yet.</td></tr>';}else body.innerHTML=crPartners.map(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=row?crNum(row.amount_paid):0,balance=Math.max(0,due-paid),status=crPayoutStatus(due,paid);dueTotal+=due;paidTotal+=paid;if(status==='paid'&&due>0)paidCount++;var payMeta=row&&row.payment_method?'<div class="cr-payment-meta"><strong>'+crEsc(row.payment_method)+'</strong><br>'+crEsc(row.payment_date||'')+(row.payment_reference?'<br>'+crEsc(row.payment_reference):'')+'</div>':'—',receipt=row&&row.receipt_path?'<button class="action-btn" onclick="crOpenReceipt(\''+crEsc(row.receipt_path)+'\')">Preview</button>':'—';return '<tr><td><strong>'+crEsc(p.partner_name)+'</strong></td><td>'+crMoney(p.share_percent)+'%</td><td><strong>'+crUsd(due)+'</strong></td><td>'+crUsd(paid)+'</td><td><strong class="'+(balance>0?'cr-negative':'cr-positive')+'">'+crUsd(balance)+'</strong></td><td>'+crPaymentBadge(status)+'</td><td>'+payMeta+'</td><td>'+receipt+'</td><td><div class="cr-actions"><button class="action-btn" onclick="crOpenPayout(\'partner\',\''+p.id+'\')">Payment</button><button class="action-btn" onclick="crEditPartner(\''+p.id+'\')">✏️</button><button class="action-btn delete" onclick="crDeletePartner(\''+p.id+'\')">🗑️</button></div></td></tr>';}).join('');
+  document.getElementById('crPartnerDueTotal').textContent=crUsd(dueTotal);document.getElementById('crPartnerPaidTotal').textContent=crUsd(paidTotal);document.getElementById('crPartnerBalanceTotal').textContent=crUsd(Math.max(0,dueTotal-paidTotal));document.getElementById('crPartnerPaidCount').textContent=String(paidCount);document.getElementById('crPartnerAllocationPayout').textContent=crUsd(calc.distributable*(crPartnerSharePercent()/100));
+}
+
+function crOpenPayout(type,id){
+  var calc=crCalc(),entity,row,due,name;if(type==='partner'){entity=crPartners.find(function(x){return String(x.id)===String(id);});row=crPartnerPayoutFor(id);due=entity?crPartnerDue(entity,calc):0;name=entity&&entity.partner_name;}else{entity=crPeople.find(function(x){return String(x.id)===String(id);});row=crStaffPayoutFor(id);due=entity?crStaffShareDue(entity,calc):0;name=entity&&entity.person_name;}
+  if(!entity)return;document.getElementById('crPayoutType').value=type;document.getElementById('crPayoutId').value=id;document.getElementById('crPayoutTitle').textContent=(type==='partner'?'Partner Payout — ':'Staff Share Payout — ')+name;document.getElementById('crPayoutMeta').textContent=crPeriodLabel();document.getElementById('crPayoutDue').value=crNum(row&&row.amount_due)||due;document.getElementById('crPayoutPaid').value=crNum(row&&row.amount_paid);document.getElementById('crPayoutMethod').value=(row&&row.payment_method)||'';document.getElementById('crPayoutDate').value=(row&&row.payment_date)||crToday();document.getElementById('crPayoutReference').value=(row&&row.payment_reference)||'';document.getElementById('crPayoutNote').value=(row&&row.note)||'';document.getElementById('crPayoutReceipt').value='';crSetStatus('crPayoutStatus','',false);document.getElementById('crPayoutModal').classList.add('show');
+}
+function crClosePayoutModal(){var m=document.getElementById('crPayoutModal');if(m)m.classList.remove('show');}
+async function crSavePayout(){
+  var type=document.getElementById('crPayoutType').value,id=document.getElementById('crPayoutId').value,due=Number(document.getElementById('crPayoutDue').value||0),paid=Number(document.getElementById('crPayoutPaid').value||0),method=(document.getElementById('crPayoutMethod').value||'').trim(),date=document.getElementById('crPayoutDate').value,ref=(document.getElementById('crPayoutReference').value||'').trim(),note=(document.getElementById('crPayoutNote').value||'').trim(),file=(document.getElementById('crPayoutReceipt').files||[])[0];if(!Number.isFinite(paid)||paid<0||paid>due+.01)return crSetStatus('crPayoutStatus','Paid amount must be between $0 and the amount due.',true);var current=type==='partner'?crPartnerPayoutFor(id):crStaffPayoutFor(id),receipt=current&&current.receipt_path||null;try{if(file)receipt=await crUploadReceipt(file,type==='partner'?'partner-payouts':'staff-share-payouts');}catch(e){return crSetStatus('crPayoutStatus',e.message||String(e),true);}var payload={period_month:crSelectedPeriod(),amount_due:due,amount_paid:paid,payment_status:crPayoutStatus(due,paid),payment_method:paid>0?(method||null):null,payment_date:paid>0?(date||crToday()):null,payment_reference:paid>0?(ref||null):null,receipt_path:receipt,note:note||null,updated_at:new Date().toISOString()};if(type==='partner')payload.partner_id=id;else{payload.person_id=id;var staffPerson=crPeople.find(function(p){return String(p.id)===String(id);});payload.share_type=staffPerson&&staffPerson.share_type||'none';}var table=type==='partner'?'company_partner_payouts':'company_staff_share_payouts',conflict=type==='partner'?'partner_id,period_month':'person_id,period_month',r=await sb.from(table).upsert(payload,{onConflict:conflict});if(r.error)return crSetStatus('crPayoutStatus',r.error.message||'Could not save payout.',true);crClosePayoutModal();await loadCompanyRevenue();
+}
+
+async function crSyncPayoutDue(silent){
+  if(!sb)return;if(crSelectedMonthClosed()){if(!silent)alert('This month is closed. Amounts due are already locked for this month.');return false;}var calc=crCalc(),pm=crSelectedPeriod(),partnerRows=crPartners.map(function(p){var existing=crPartnerPayoutFor(p.id);return{partner_id:p.id,period_month:pm,amount_due:calc.distributable*(crNum(p.share_percent)/100),amount_paid:crNum(existing&&existing.amount_paid),payment_status:crPayoutStatus(calc.distributable*(crNum(p.share_percent)/100),crNum(existing&&existing.amount_paid)),payment_method:existing&&existing.payment_method||null,payment_date:existing&&existing.payment_date||null,payment_reference:existing&&existing.payment_reference||null,receipt_path:existing&&existing.receipt_path||null,note:existing&&existing.note||null,updated_at:new Date().toISOString()};}),staffRows=crPeople.filter(function(p){return p.active!==false&&p.share_type!=='none'&&crNum(p.share_percent)>0;}).map(function(p){var existing=crStaffPayoutFor(p.id),due=crShareDueForPerson(p,calc);return{person_id:p.id,period_month:pm,share_type:p.share_type||'none',amount_due:due,amount_paid:crNum(existing&&existing.amount_paid),payment_status:crPayoutStatus(due,crNum(existing&&existing.amount_paid)),payment_method:existing&&existing.payment_method||null,payment_date:existing&&existing.payment_date||null,payment_reference:existing&&existing.payment_reference||null,receipt_path:existing&&existing.receipt_path||null,note:existing&&existing.note||null,updated_at:new Date().toISOString()};});
+  if(partnerRows.length){var p=await sb.from('company_partner_payouts').upsert(partnerRows,{onConflict:'partner_id,period_month'});if(p.error){if(!silent)alert('Could not sync partner payouts: '+p.error.message);return false;}}
+  if(staffRows.length){var s=await sb.from('company_staff_share_payouts').upsert(staffRows,{onConflict:'person_id,period_month'});if(s.error){if(!silent)alert('Could not sync staff share payouts: '+s.error.message);return false;}}
+  if(!silent)await loadCompanyRevenue();return true;
+}
+
+async function crToggleMonthLock(){ if(crSelectedMonthClosed())return crReopenMonth();return crCloseMonth(); }
+async function crCloseMonth(){
+  var missing=crPeople.filter(function(p){return p.active!==false&&p.recurring_salary!==false&&crNum(p.monthly_salary)>0&&!crSalaryEntryFor(p.id);});if(missing.length){alert('Post all recurring salaries before closing this month. Pending: '+missing.map(function(p){return p.person_name;}).join(', '));return;}var pending=crEntries.filter(function(r){return r.entry_type==='expense'&&(r.payment_status||'paid')==='pending';});if(pending.length){alert('Settle or mark all expense/salary payments as Paid before closing the month. Pending items: '+pending.length);return;}
+  var ok=typeof window.pspConfirm==='function'?await window.pspConfirm('Close '+crPeriodLabel()+'? Transactions and salary posting will be locked until you reopen the month.'):confirm('Close this month?');if(!ok)return;var synced=await crSyncPayoutDue(true);if(synced===false)return;var r=await sb.from('company_month_closures').insert({period_month:crSelectedPeriod(),note:'Month closed from Company Revenue dashboard'});if(r.error){alert(r.error.message||'Could not close month.');return;}await loadCompanyRevenue();
+}
+async function crReopenMonth(){var ok=typeof window.pspConfirm==='function'?await window.pspConfirm('Reopen '+crPeriodLabel()+' for editing?'):confirm('Reopen this month?');if(!ok)return;var r=await sb.from('company_month_closures').delete().eq('period_month',crSelectedPeriod());if(r.error){alert(r.error.message||'Could not reopen month.');return;}await loadCompanyRevenue();}
+function crApplyMonthStatus(){var closed=crSelectedMonthClosed(),pill=document.getElementById('crMonthStatus'),btn=document.getElementById('crMonthLockBtn'),txt=document.getElementById('crMonthStatusText');document.body.classList.toggle('cr-month-closed',closed);if(pill){pill.textContent=closed?'CLOSED':'OPEN';pill.className='cr-month-pill '+(closed?'closed':'open');}if(btn){btn.textContent=closed?'🔓 Reopen Month':'🔒 Close Month';btn.className='btn btn-sm '+(closed?'btn-secondary':'');}if(txt)txt.textContent=closed?'Closed':'Open';var label=document.getElementById('crEntryMonthLabel');if(label)label.textContent=crPeriodLabel();}
+
+function crRenderSajid(calc){var p=crPeople.find(function(x){return x.active!==false&&String(x.person_name||'').toLowerCase().indexOf('sajid')>=0;}),salary=0,share=0,paid=0,meta=document.getElementById('crSajidMeta');if(p){var row=crSalaryEntryFor(p.id),sp=crStaffPayoutFor(p.id);salary=row?crNum(row.amount):crSalaryUsd(p);share=crStaffShareDue(p,calc);paid=(row&&row.payment_status==='paid'?crNum(row.amount):0)+crNum(sp&&sp.amount_paid);if(meta)meta.textContent=p.person_name+' · '+(p.share_type==='course_revenue'?'Course Revenue share':p.share_type==='company_profit'?'Company Profit share':'No share configured')+' · '+crMoney(p.share_percent)+'%';}else if(meta)meta.textContent='Add “Sajid Bhai” under Staff & Compensation to activate this summary.';document.getElementById('crSajidSalary').textContent=crUsd(salary);document.getElementById('crSajidShare').textContent=crUsd(share);document.getElementById('crSajidTotal').textContent=crUsd(salary+share);document.getElementById('crSajidPaid').textContent=crUsd(paid);}
+
+function crRenderReports(calc,pendingPayables){document.getElementById('crReportMonthTitle').textContent=crPeriodLabel();document.getElementById('crReportIncome').textContent=crUsd(calc.income);document.getElementById('crReportExpenses').textContent=crUsd(calc.expenses);document.getElementById('crReportProfit').textContent=crUsd(calc.net);document.getElementById('crReportAllocation').textContent=crUsd(calc.allocation);document.getElementById('crReportRetained').textContent=crUsd(calc.retained);document.getElementById('crReportOutstanding').textContent=crUsd(pendingPayables);var fx=crEntries.filter(function(r){return r.entry_type==='expense'&&r.category==='Salaries'&&String(r.original_currency||'').toUpperCase()==='PKR'&&crNum(r.fx_units_per_usd)>0;}),fb=document.getElementById('crFxBody');fb.innerHTML=fx.length?fx.map(function(r){var p=crEntryPerson(r);return '<tr><td>'+crEsc(r.entry_date)+'</td><td>'+crEsc(p?p.person_name:(r.subcategory||'—'))+'</td><td>PKR '+crMoney(r.original_amount)+'</td><td>'+crMoney(r.fx_units_per_usd)+'</td><td>'+crUsd(r.amount)+'</td></tr>';}).join(''):'<tr><td colspan="5" class="cr-empty">No PKR salary history this month.</td></tr>';var ab=document.getElementById('crAuditBody'),rows=crAuditRows.filter(function(a){return !a.period_month||String(a.period_month)===crSelectedPeriod();}).slice(0,50);ab.innerHTML=rows.length?rows.map(function(a){var d=new Date(a.created_at);return '<tr><td>'+crEsc(d.toLocaleString())+'</td><td>'+crEsc(a.action)+'</td><td>'+crEsc(String(a.entity_table||'').replace('company_','').replace(/_/g,' '))+'</td><td>'+crEsc((a.entity_id||'—').slice(0,18))+'</td></tr>';}).join(''):'<tr><td colspan="4" class="cr-empty">No audit records for this month.</td></tr>';}
+
+function crRenderCharts(){
+  if(typeof Chart==='undefined')return;var canvas=document.getElementById('crTrendChart'),src=document.getElementById('crSourceChart');if(!canvas||!src)return;if(crTrendChartInstance){crTrendChartInstance.destroy();crTrendChartInstance=null;}if(crSourceChartInstance){crSourceChartInstance.destroy();crSourceChartInstance=null;}
+  var end=crMonthValue().split('-'),endDate=new Date(Number(end[0]),Number(end[1])-1,1),months=[];for(var i=11;i>=0;i--){var d=new Date(endDate.getFullYear(),endDate.getMonth()-i,1),key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01';months.push({key:key,label:d.toLocaleDateString(undefined,{month:'short',year:'2-digit'})});}
+  var trend=months.map(function(m){var rows=crTrendEntries.filter(function(r){return String(r.period_month||crMonthFromDate(r.entry_date))===m.key;}),inc=rows.filter(function(r){return r.entry_type==='income';}).reduce(function(s,r){return s+crNum(r.amount);},0),exp=rows.filter(function(r){return r.entry_type==='expense';}).reduce(function(s,r){return s+crNum(r.amount);},0);return{label:m.label,income:inc,expenses:exp,profit:inc-exp};});
+  crTrendChartInstance=new Chart(canvas,{type:'line',data:{labels:trend.map(function(x){return x.label;}),datasets:[{label:'Income',data:trend.map(function(x){return x.income;}),borderColor:'#10b981',backgroundColor:'rgba(16,185,129,.08)',tension:.35,fill:false},{label:'Expenses',data:trend.map(function(x){return x.expenses;}),borderColor:'#ef4444',backgroundColor:'rgba(239,68,68,.06)',tension:.35,fill:false},{label:'Net Profit',data:trend.map(function(x){return x.profit;}),borderColor:'#f59e0b',backgroundColor:'rgba(245,158,11,.07)',tension:.35,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:9}}},tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+crUsd(ctx.raw);}}}},scales:{x:{ticks:{font:{size:8}},grid:{display:false}},y:{ticks:{font:{size:8},callback:function(v){return '$'+Number(v).toLocaleString();}},grid:{color:'rgba(148,163,184,.12)'}}}}});
+  var map={};crEntries.filter(function(r){return r.entry_type==='income';}).forEach(function(r){var k=crIsCourseCategory(r.category)?'Courses':String(r.category||'Other').replace(' Commission','');map[k]=(map[k]||0)+crNum(r.amount);});var labels=Object.keys(map),values=labels.map(function(k){return map[k];});if(!labels.length){labels=['No income'];values=[1];}crSourceChartInstance=new Chart(src,{type:'doughnut',data:{labels:labels,datasets:[{data:values,backgroundColor:['#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef4444','#64748b'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:9}}},tooltip:{callbacks:{label:function(ctx){return labels[0]==='No income'?'No income recorded':ctx.label+': '+crUsd(ctx.raw);}}}}}});document.getElementById('crSourceChartMeta').textContent=crPeriodLabel()+' income sources';
+}
+
+function crRenderRevenue(){
+  var calc=crCalc(),pendingExpenses=crEntries.filter(function(r){return r.entry_type==='expense'&&(r.payment_status||'paid')==='pending';}).reduce(function(s,r){return s+crNum(r.amount);},0),partnerOutstanding=crPartners.reduce(function(s,p){var due=crPartnerDue(p,calc),row=crPartnerPayoutFor(p.id);return s+Math.max(0,due-crNum(row&&row.amount_paid));},0),staffOutstanding=crPeople.filter(function(p){return p.share_type!=='none';}).reduce(function(s,p){var due=crStaffShareDue(p,calc),row=crStaffPayoutFor(p.id);return s+Math.max(0,due-crNum(row&&row.amount_paid));},0),pendingPayables=pendingExpenses+partnerOutstanding+staffOutstanding,paidExpenses=crEntries.filter(function(r){return r.entry_type==='expense'&&(r.payment_status||'paid')==='paid';}).reduce(function(s,r){return s+crNum(r.amount);},0);
+  document.getElementById('crTotalIncome').textContent=crUsd(calc.income);document.getElementById('crTotalExpenses').textContent=crUsd(calc.expenses);document.getElementById('crNetProfit').textContent=crUsd(calc.net);document.getElementById('crCompanyRetained').textContent=crUsd(calc.retained);document.getElementById('crPendingPayables').textContent=crUsd(pendingPayables);document.getElementById('crIncomeMeta').textContent=crPeriodLabel();document.getElementById('crTxnCount').textContent=String(crEntries.length);document.getElementById('crPaidExpenseTotal').textContent=crUsd(paidExpenses);document.getElementById('crPendingExpenseTotal').textContent=crUsd(pendingExpenses);document.getElementById('crPartnerAllocationInline').textContent=crUsd(calc.allocation);document.getElementById('crCourseShareDashboard').textContent=crUsd(calc.courseDeduction);document.getElementById('crShareTotal').textContent=crMoney(calc.totalPct)+'%';document.getElementById('crProfitShareMeta').textContent=calc.staffProfitPct>0?('Includes '+crMoney(calc.staffProfitPct)+'% staff Company Profit share configured under Staff & Compensation.'):'Partner allocation is calculated from net company profit.';document.getElementById('crLedgerMeta').textContent=crPeriodLabel()+' transactions';
+  document.getElementById('crIncomeBreakdown').innerHTML=crBreakdown(crEntries,'income');document.getElementById('crExpenseBreakdown').innerHTML=crBreakdown(crEntries,'expense');
+  crRenderFilterOptions();crRenderLedger(crLedgerRowsFiltered());crRenderCompensation(calc);crRenderPartnerPayouts(calc);crRenderSajid(calc);crRenderReports(calc,pendingPayables);crApplyMonthStatus();crSyncEntryFields();setTimeout(crRenderCharts,0);
+}
+
+function crTrendStartDate(){var p=crMonthValue().split('-'),d=new Date(Number(p[0]),Number(p[1])-12,1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01';}
+function crTrendEndDate(){var p=crMonthValue().split('-'),d=new Date(Number(p[0]),Number(p[1]),1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01';}
+
+async function loadCompanyRevenue(){
+  if(!sb)return;if(!crRevenueBooted){crRevenueBooted=true;var month=document.getElementById('crMonth');if(month&&!month.value)month.value=crThisMonth();crSyncCategories();crSyncSalaryCurrency();crSyncPersonShareFields();crResetEntryForm();}
+  var pm=crSelectedPeriod(),body=document.getElementById('crLedgerBody');if(body)body.innerHTML='<tr><td colspan="9" class="cr-empty">Loading...</td></tr>';
+  var results=await Promise.all([
+    sb.from('company_finance_entries').select('*').eq('period_month',pm).order('entry_date',{ascending:false}).order('created_at',{ascending:false}),
+    sb.from('company_profit_partners').select('*').eq('active',true).order('created_at',{ascending:true}),
+    sb.from('company_compensation_people').select('*').eq('active',true).order('created_at',{ascending:true}),
+    sb.from('company_partner_payouts').select('*').eq('period_month',pm),
+    sb.from('company_staff_share_payouts').select('*').eq('period_month',pm),
+    sb.from('company_month_closures').select('*').eq('period_month',pm),
+    sb.from('company_finance_audit_log').select('*').order('created_at',{ascending:false}).limit(120),
+    sb.from('company_finance_entries').select('*').gte('period_month',crTrendStartDate()).lt('period_month',crTrendEndDate()).order('period_month',{ascending:true})
+  ]);
+  for(var i=0;i<results.length;i++){if(results[i].error){console.error('Company Revenue V88 load error',results[i].error);if(body)body.innerHTML='<tr><td colspan="9" class="cr-empty" style="color:var(--red)">'+crEsc(results[i].error.message||'Could not load company finance data.')+'</td></tr>';return;}}
+  crEntries=results[0].data||[];crPartners=results[1].data||[];crPeople=results[2].data||[];crPayouts=results[3].data||[];crStaffPayouts=results[4].data||[];crClosures=results[5].data||[];crAuditRows=results[6].data||[];crTrendEntries=results[7].data||[];
+  crRenderRevenue();crSwitchTab(crActiveTab);
+}
+
+function crCsvCell(v){var s=String(v==null?'':v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function crDownloadBlob(name,text,type){var blob=new Blob([text],{type:type||'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
+function crExportCsv(){var calc=crCalc(),lines=[['PipSePaisa Company Finance Report',crPeriodLabel()],['Total Income',calc.income],['Total Expenses',calc.expenses],['Net Profit',calc.net],['Partner Allocation',calc.allocation],['Company Retained',calc.retained],[],['TRANSACTIONS'],['Date','Type','Category','Subcategory','Details','Amount USD','Status','Method','Payment Date','Reference']];crEntries.forEach(function(r){lines.push([r.entry_date,r.entry_type,r.category,r.subcategory||'',r.note||'',r.amount,r.payment_status||'paid',r.payment_method||'',r.payment_date||'',r.payment_reference||'']);});lines.push([],['PARTNER PAYOUTS'],['Partner','Share %','Due','Paid','Balance','Status']);crPartners.forEach(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);lines.push([p.partner_name,p.share_percent,due,paid,Math.max(0,due-paid),crPayoutStatus(due,paid)]);});crDownloadBlob('PipSePaisa-Company-Revenue-'+crMonthValue()+'.csv',lines.map(function(r){return r.map(crCsvCell).join(',');}).join('\n'),'text/csv;charset=utf-8');}
+function crExportPdf(){var calc=crCalc(),w=window.open('','_blank');if(!w){alert('Please allow pop-ups to export the PDF report.');return;}var tx=crEntries.map(function(r){return '<tr><td>'+crEsc(r.entry_date)+'</td><td>'+crEsc(r.entry_type)+'</td><td>'+crEsc(r.category)+(r.subcategory?' — '+crEsc(r.subcategory):'')+'</td><td>'+crEsc(r.note||'')+'</td><td>$'+crMoney(r.amount)+'</td><td>'+crEsc(r.payment_status||'paid')+'</td></tr>';}).join(''),pp=crPartners.map(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);return '<tr><td>'+crEsc(p.partner_name)+'</td><td>'+crMoney(p.share_percent)+'%</td><td>$'+crMoney(due)+'</td><td>$'+crMoney(paid)+'</td><td>$'+crMoney(Math.max(0,due-paid))+'</td></tr>';}).join('');w.document.write('<!doctype html><html><head><title>PipSePaisa Company Revenue '+crEsc(crPeriodLabel())+'</title><style>body{font:12px Arial;color:#0f172a;padding:28px}h1{margin:0 0 4px}.sub{color:#64748b;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.box{border:1px solid #e2e8f0;border-radius:8px;padding:10px}.box span{display:block;color:#64748b;font-size:9px;text-transform:uppercase}.box strong{font-size:16px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border-bottom:1px solid #e2e8f0;padding:7px;text-align:left}th{background:#0b1730;color:#fff;font-size:9px}h2{margin-top:24px}@media print{button{display:none}}</style></head><body><h1>PipSePaisa — Company Revenue</h1><div class="sub">'+crEsc(crPeriodLabel())+' · Generated '+new Date().toLocaleString()+'</div><div class="grid"><div class="box"><span>Income</span><strong>$'+crMoney(calc.income)+'</strong></div><div class="box"><span>Expenses</span><strong>$'+crMoney(calc.expenses)+'</strong></div><div class="box"><span>Net Profit</span><strong>$'+crMoney(calc.net)+'</strong></div><div class="box"><span>Allocation</span><strong>$'+crMoney(calc.allocation)+'</strong></div><div class="box"><span>Retained</span><strong>$'+crMoney(calc.retained)+'</strong></div></div><h2>Transactions</h2><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Details</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+tx+'</tbody></table><h2>Partner Payouts</h2><table><thead><tr><th>Partner</th><th>Share</th><th>Due</th><th>Paid</th><th>Balance</th></tr></thead><tbody>'+pp+'</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>');w.document.close();}
+
 
 function showPage(page, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
