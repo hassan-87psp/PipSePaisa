@@ -1,0 +1,45 @@
+PipSePaisa V99 — Direct Paid Checkout + Infinity Redirect Fix
+
+WHAT THIS PATCH FIXES
+1) Signed-in paid-course users choose the payment method only once.
+2) Local Bank Transfer selection goes directly to the Infinity hosted payment page.
+3) The old Enrollment Details / second Payment Method screen is skipped for Local Bank Transfer.
+4) USDT TRC20 selection goes directly to the USDT payment details + Transaction ID + Receipt form.
+5) MANUAL / SECURE HOSTED badges are removed from the secondary payment picker.
+6) No password or account question is shown again for a user who is already signed in.
+7) V98.1 redirect bug fixed: Query 60 defines prepare_infinity_payment with 3 parameters, but the V98.1 Edge Function was still calling the old 5-parameter RPC signature.
+8) create-infinity-payment now creates/reuses the pending Advanced Course enrollment server-side, so Local Bank Transfer no longer needs enrollment questions before redirect.
+
+DEPLOY
+A) GITHUB
+Upload/replace course-enrollment.js and all HTML route files in this ZIP, preserving folders.
+The HTML files bump the course-enrollment.js cache version to v99.
+
+B) SUPABASE EDGE FUNCTION
+Replace/redeploy ONLY:
+  create-infinity-payment
+with:
+  supabase/functions/create-infinity-payment/index.ts
+
+Keep:
+  create-infinity-payment verify_jwt = true
+  infinity-payment-callback verify_jwt = false
+
+C) SQL
+No new V99 SQL is required IF Queries 58, 60 and 61 were already run successfully.
+Query 61 should identify the premium/Advanced course and set course_key=advanced.
+
+D) SECRETS
+No changes required. Keep the values already saved:
+  INFINITY_API_KEY
+  SITE_URL=https://www.pipsepaisa.com
+  INFINITY_PROVIDER_CURRENCY=PKR
+
+The Local Bank PKR price continues to come dynamically from Admin > Courses.
+
+EXPECTED FLOW
+Signed-in user -> Pay Now -> choose method
+  Local Bank Transfer -> Infinity hosted page directly
+  USDT TRC20 -> USDT details + transaction reference + receipt directly
+
+No second payment-method selection and no enrollment questionnaire in the paid checkout path.
