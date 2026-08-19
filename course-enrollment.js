@@ -1,12 +1,12 @@
-/* PipSePaisa V97 — Infinity Local Bank Transfer official API flow; no callback secret env required. */
+/* PipSePaisa V98 — logged-in-only enrollment + dynamic Admin pricing for Local Bank Transfer. */
 (function(){
   'use strict';
 
   const SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
   const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
   const COURSE_INFO={
-    basic:{key:'basic',name:'Basic Forex Course',type:'free',price:0,currency:'USD'},
-    advanced:{key:'advanced',name:'Advanced Forex Course',type:'paid',price:200,currency:'USD'}
+    basic:{key:'basic',name:'Basic Forex Course',type:'free',price:0,currency:'USD',localBankPricePkr:0},
+    advanced:{key:'advanced',name:'Advanced Forex Course',type:'paid',price:200,currency:'USD',localBankPricePkr:0}
   };
 
   let client=null;
@@ -31,6 +31,58 @@
       auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}
     });
     return client;
+  }
+
+  function moneyText(amount,currency){
+    const n=Number(amount||0);
+    const cur=String(currency||'USD').toUpperCase();
+    if(cur==='USD')return `$${n.toFixed(n%1?2:0)}`;
+    if(cur==='PKR')return `PKR ${n.toLocaleString('en-US',{maximumFractionDigits:2})}`;
+    return `${cur} ${n.toLocaleString('en-US',{maximumFractionDigits:2})}`;
+  }
+
+  async function loadCourseRuntimeInfo(courseKey){
+    const base=COURSE_INFO[courseKey];
+    if(!base)return null;
+    selectedCourse={...base};
+    const sb=getClient();
+    if(!sb)return selectedCourse;
+    try{
+      const {data,error}=await sb.from('courses').select('*').order('display_order',{ascending:true});
+      if(error)throw error;
+      const rows=Array.isArray(data)?data:[];
+      const row=rows.find(c=>String(c.course_key||'').toLowerCase()===courseKey)
+        || rows.find(c=>courseKey==='advanced'
+          ? /advanced.*forex|forex.*advanced/i.test(String(c.title||''))
+          : /basic.*forex|forex.*basic/i.test(String(c.title||'')));
+      if(!row)return selectedCourse;
+      if(row.title)selectedCourse.name=String(row.title);
+      const price=Number(row.price);
+      if(Number.isFinite(price)&&price>=0)selectedCourse.price=price;
+      const currency=String(row.currency||selectedCourse.currency||'USD').trim().toUpperCase();
+      if(currency)selectedCourse.currency=currency;
+      const localPkr=Number(row.local_bank_price_pkr);
+      selectedCourse.localBankPricePkr=Number.isFinite(localPkr)&&localPkr>0?localPkr:0;
+      selectedCourse.courseRowId=row.id||null;
+      selectedCourse.isPublished=row.is_published!==false&&row.published!==false;
+      selectedCourse.enrollmentOpen=row.enrollment_open!==false&&row.enrollments_open!==false;
+    }catch(error){
+      console.warn('Course pricing could not be refreshed from Admin settings. Using safe fallback.',error);
+    }
+    return selectedCourse;
+  }
+
+  function redirectToLoginForEnrollment(courseKey){
+    try{sessionStorage.setItem('pspPendingCourseEnrollment',String(courseKey||'advanced'));}catch(_){ }
+    const message='Please log in first. After login, return to the course and continue enrollment.';
+    if(window.pipToast)window.pipToast(message,'err');
+    try{
+      if(typeof window.openLandingAuth==='function'){window.openLandingAuth('login');return;}
+      if(typeof window.openAuth==='function'){window.openAuth('login');return;}
+    }catch(_){ }
+    const target='/landing.html#login';
+    if(window.top&&window.top!==window)window.top.location.href=target;
+    else window.location.href=target;
   }
 
   function localBankUserMessage(error){
@@ -254,56 +306,14 @@
         <div class="ce-body">
           <section class="ce-step" id="ceStepPaymentChoice"></section>
 
-          <section class="ce-step" id="ceStepChoice">
-            <div class="ce-course-summary"><div><strong id="ceChoiceCourseName">Course</strong><div style="font-size:12px;color:#64748b;margin-top:3px">Secure enrollment through PipSePaisa</div></div><div class="ce-price" id="ceChoicePrice">Free</div></div>
-            <h3 style="margin:0 0 7px">Are you already a PipSePaisa user?</h3>
-            <p style="margin:0 0 17px;color:#64748b;font-size:13px;line-height:1.55">Choose the option that matches your account status.</p>
-            <div class="ce-choice-grid">
-              <button class="ce-choice" type="button" onclick="courseEnrollmentChooseUser(true)"><strong>Yes, I’m Already a User</strong><span>Continue with your existing PipSePaisa account.</span></button>
-              <button class="ce-choice" type="button" onclick="courseEnrollmentChooseUser(false)"><strong>No, Create My Account</strong><span>Create your account and continue with the selected payment method.</span></button>
-            </div>
-            <div class="ce-actions" id="ceChangePaymentWrap" style="display:none;justify-content:flex-start;margin-top:15px"><button class="ce-btn secondary" type="button" onclick="courseEnrollmentShowPaymentChoice()">← Change Payment Method</button></div>
-          </section>
-
-          <section class="ce-step" id="ceStepLogin">
-            <div class="ce-course-summary"><strong id="ceLoginCourseName">Course</strong><span class="ce-price" id="ceLoginPrice">Free</span></div>
-            <h3 style="margin:0 0 13px">Login to Continue</h3>
-            <div class="ce-grid">
-              <div class="ce-field full"><label>Email Address</label><input id="ceLoginEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
-              <div class="ce-field full"><label>Password</label><input id="ceLoginPassword" type="password" autocomplete="current-password" placeholder="Your password"></div>
-            </div>
-            <div class="ce-message" id="ceLoginMessage"></div>
-            <div class="ce-actions"><button class="ce-btn secondary" type="button" onclick="courseEnrollmentBack()">Back</button><button class="ce-btn primary" id="ceLoginBtn" type="button" onclick="courseEnrollmentLogin()">Login & Continue</button></div>
-          </section>
-
-          <section class="ce-step" id="ceStepNew">
-            <div class="ce-course-summary"><strong id="ceNewCourseName">Course</strong><span class="ce-price" id="ceNewPrice">Free</span></div>
-            <h3 style="margin:0 0 13px">Create Account & Enroll</h3>
-            <div class="ce-grid">
-              <div class="ce-field"><label>Full Name</label><input id="ceNewName" type="text" autocomplete="name" placeholder="Your full name"></div>
-              <div class="ce-field"><label>WhatsApp Number</label><input id="ceNewPhone" type="tel" autocomplete="tel" placeholder="+92..."></div>
-              <div class="ce-field full"><label>Email Address</label><input id="ceNewEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
-              <div class="ce-field"><label>Password</label><input id="ceNewPassword" type="password" autocomplete="new-password" placeholder="Minimum 6 characters"></div>
-              <div class="ce-field"><label>Confirm Password</label><input id="ceNewPassword2" type="password" autocomplete="new-password" placeholder="Repeat password"></div>
-              <div class="ce-field full ce-question-field"><label>What is your current trading level?</label><select id="ceNewExperience" onchange="courseEnrollmentToggleOther('ceNewExperience','ceNewExperienceOtherWrap')"><option value="">Select one option</option><option value="Beginner — Never traded before">Beginner — Never traded before</option><option value="Basic Knowledge — Learning fundamentals">Basic Knowledge — Learning fundamentals</option><option value="Demo Trader — Practising on demo">Demo Trader — Practising on demo</option><option value="Live Trader — Trading with a real account">Live Trader — Trading with a real account</option><option value="Experienced Trader — Improving consistency">Experienced Trader — Improving consistency</option><option value="Other">Other</option></select></div>
-              <div class="ce-field full ce-other-field" id="ceNewExperienceOtherWrap" hidden><label>Please specify your trading level</label><input id="ceNewExperienceOther" type="text" placeholder="Write your answer"></div>
-              <div class="ce-field full ce-question-field"><label>What is your main goal from this course?</label><select id="ceNewGoal" onchange="courseEnrollmentToggleOther('ceNewGoal','ceNewGoalOtherWrap')"><option value="">Select one option</option><option value="Learn Forex from zero">Learn Forex from zero</option><option value="Improve entries and exits">Improve entries and exits</option><option value="Master risk management">Master risk management</option><option value="Build a complete trading strategy">Build a complete trading strategy</option><option value="Become a consistent trader">Become a consistent trader</option><option value="Other">Other</option></select></div>
-              <div class="ce-field full ce-other-field" id="ceNewGoalOtherWrap" hidden><label>Please specify your learning goal</label><input id="ceNewGoalOther" type="text" placeholder="Write your answer"></div>
-            </div>
-            <div class="ce-payment" id="ceNewPayment"></div>
-            <div class="ce-message" id="ceNewMessage"></div>
-            <div class="ce-actions"><button class="ce-btn primary" id="ceNewSubmitBtn" type="button" onclick="courseEnrollmentCreateAndEnroll()">Sign Up</button><button class="ce-btn secondary" type="button" onclick="courseEnrollmentAlreadyUserRedirect()">Already a User</button></div>
-          </section>
-
           <section class="ce-step" id="ceStepDetails">
             <div class="ce-course-summary"><strong id="ceDetailsCourseName">Course</strong><span class="ce-price" id="ceDetailsPrice">Free</span></div>
-            <div class="ce-signed-in" id="ceSignedIn">Enter your existing PipSePaisa account details</div>
-            <h3 style="margin:0 0 13px">Account & Enrollment Details</h3>
+            <div class="ce-signed-in" id="ceSignedIn">You are signed in.</div>
+            <h3 style="margin:0 0 13px">Enrollment Details</h3>
             <div class="ce-grid">
               <div class="ce-field"><label>Full Name</label><input id="ceDetailsName" type="text" autocomplete="name" placeholder="Your full name" readonly></div>
               <div class="ce-field"><label>WhatsApp Number</label><input id="ceDetailsPhone" type="tel" autocomplete="tel" placeholder="+92..." readonly></div>
               <div class="ce-field full"><label>Email Address</label><input id="ceDetailsEmail" type="email" autocomplete="email" placeholder="you@example.com" readonly></div>
-              <div class="ce-field full" id="ceDetailsPasswordWrap"><label>Password</label><input id="ceDetailsPassword" type="password" autocomplete="current-password" placeholder="Your PipSePaisa password"><small style="color:#64748b">Required only when you are not already signed in.</small></div>
               <div class="ce-field full ce-question-field" id="ceDetailsExperienceWrap"><label>What is your current trading level?</label><select id="ceDetailsExperience" onchange="courseEnrollmentToggleOther('ceDetailsExperience','ceDetailsExperienceOtherWrap')"><option value="">Select one option</option><option value="Beginner — Never traded before">Beginner — Never traded before</option><option value="Basic Knowledge — Learning fundamentals">Basic Knowledge — Learning fundamentals</option><option value="Demo Trader — Practising on demo">Demo Trader — Practising on demo</option><option value="Live Trader — Trading with a real account">Live Trader — Trading with a real account</option><option value="Experienced Trader — Improving consistency">Experienced Trader — Improving consistency</option><option value="Other">Other</option></select></div>
               <div class="ce-field full ce-other-field" id="ceDetailsExperienceOtherWrap" hidden><label>Please specify your trading level</label><input id="ceDetailsExperienceOther" type="text" placeholder="Write your answer"></div>
               <div class="ce-field full ce-question-field" id="ceDetailsGoalWrap"><label>What is your main goal from this course?</label><select id="ceDetailsGoal" onchange="courseEnrollmentToggleOther('ceDetailsGoal','ceDetailsGoalOtherWrap')"><option value="">Select one option</option><option value="Learn Forex from zero">Learn Forex from zero</option><option value="Improve entries and exits">Improve entries and exits</option><option value="Master risk management">Master risk management</option><option value="Build a complete trading strategy">Build a complete trading strategy</option><option value="Become a consistent trader">Become a consistent trader</option><option value="Other">Other</option></select></div>
@@ -323,12 +333,12 @@
     overlay.addEventListener('click',event=>{if(event.target===overlay)closeCourseEnrollment();});
   }
 
-  function priceText(course){return course.type==='free'?'100% Free':`$${course.price}`;}
+  function priceText(course){return course.type==='free'?'100% Free':moneyText(course.price,course.currency);}
   function setCourseText(){
     const text=selectedCourse?.name||'Course';
     const price=selectedCourse?priceText(selectedCourse):'';
-    ['ceChoiceCourseName','ceLoginCourseName','ceNewCourseName','ceDetailsCourseName'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=text;});
-    ['ceChoicePrice','ceLoginPrice','ceNewPrice','ceDetailsPrice'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=price;});
+    ['ceDetailsCourseName'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=text;});
+    ['ceDetailsPrice'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=price;});
   }
 
   window.courseEnrollmentToggleOther=function(selectId,wrapId){
@@ -465,12 +475,10 @@
     const manual=manualPaymentMethods();const local=infinityPaymentMethod();
     const cards=[
       ...manual.map((m,i)=>`<button type="button" class="ce-method-card" onclick="courseEnrollmentInitialPayment('manual',${i})"><div class="ce-method-top"><span class="ce-method-icon">${String(m.type||'').toLowerCase()==='crypto'?'₮':'💳'}</span><span class="ce-method-badge">Existing Method</span></div><strong>${escapeHtml(methodLabel(m))}</strong><small>Pay with the payment method already available on PipSePaisa.</small></button>`),
-      ...(local?[`<button type="button" class="ce-method-card" onclick="courseEnrollmentInitialPayment('infinity',0)"><div class="ce-method-top"><span class="ce-method-icon">🏦</span><span class="ce-method-badge">Local Bank</span></div><strong>Local Bank Transfer</strong><small>Secure hosted bank transfer with automatic payment verification and course activation.</small></button>`]:[])
+      ...(local?[`<button type="button" class="ce-method-card" onclick="courseEnrollmentInitialPayment('infinity',0)"><div class="ce-method-top"><span class="ce-method-icon">🏦</span><span class="ce-method-badge">Local Bank</span></div><strong>Local Bank Transfer</strong><small>${selectedCourse?.localBankPricePkr>0?`${moneyText(selectedCourse.localBankPricePkr,'PKR')} · `:''}Secure hosted bank transfer with automatic payment verification and course activation.</small></button>`]:[])
     ];
-    const helper=activeUser
-      ?'You are already signed in. Choose a payment method to continue with your enrollment.'
-      :'Select a payment method first. After that, sign in to your existing account or create a new one.';
-    step.innerHTML=`<div class="ce-course-summary"><div><strong>${escapeHtml(selectedCourse.name)}</strong><div style="font-size:12px;color:#64748b;margin-top:3px">Choose how you want to pay before continuing</div></div><div class="ce-price">$${Number(selectedCourse.price||200).toFixed(0)}</div></div><h3 style="margin:0 0 7px">How would you like to pay?</h3><p style="margin:0 0 14px;color:#64748b;font-size:13px;line-height:1.55">${helper}</p><div class="ce-method-grid">${cards.join('')||'<div class="ce-pay-empty">No active payment method is available. Please contact support.</div>'}</div>`;
+    const helper='You are already signed in. Choose a payment method to continue with your enrollment.';
+    step.innerHTML=`<div class="ce-course-summary"><div><strong>${escapeHtml(selectedCourse.name)}</strong><div style="font-size:12px;color:#64748b;margin-top:3px">Choose how you want to pay before continuing</div></div><div class="ce-price">${moneyText(selectedCourse.price,selectedCourse.currency)}</div></div><h3 style="margin:0 0 7px">How would you like to pay?</h3><p style="margin:0 0 14px;color:#64748b;font-size:13px;line-height:1.55">${helper}</p><div class="ce-method-grid">${cards.join('')||'<div class="ce-pay-empty">No active payment method is available. Please contact support.</div>'}</div>`;
   }
 
   window.courseEnrollmentInitialPayment=async function(kind,index){
@@ -479,20 +487,20 @@
     renderPaymentFlow('ceNew');renderPaymentFlow('ceExisting');
     const change=document.getElementById('ceChangePaymentWrap');if(change)change.style.display='flex';
 
-    // A signed-in user is already known to PipSePaisa, so never ask
-    // "Are you already a user?" again. Continue directly to enrollment/payment.
-    if(activeUser){
-      paidProfileConfirmed=true;
-      fillExistingDetails();
-      const payment=document.getElementById('ceExistingPayment');
-      if(payment)payment.style.display='';
-      renderPaymentFlow('ceExisting');
-      updatePaymentSubmitLabel('ceExisting');
-      showStep('ceStepDetails');
-      setTimeout(()=>document.getElementById('ceDetailsExperience')?.focus(),60);
-      return;
+    // Enrollment is login-only. Never ask "Already a user?", never request a
+    // password here, and never create an account inside this popup.
+    if(!activeUser){
+      await currentSession();
+      if(!activeUser){redirectToLoginForEnrollment(selectedCourse?.key||'advanced');return;}
     }
-    showStep('ceStepChoice');
+    paidProfileConfirmed=true;
+    fillExistingDetails();
+    const payment=document.getElementById('ceExistingPayment');
+    if(payment)payment.style.display='';
+    renderPaymentFlow('ceExisting');
+    updatePaymentSubmitLabel('ceExisting');
+    showStep('ceStepDetails');
+    setTimeout(()=>document.getElementById('ceDetailsExperience')?.focus(),60);
   };
 
   window.courseEnrollmentShowPaymentChoice=function(){
@@ -506,10 +514,10 @@
     const local=infinityPaymentMethod();
     const cards=[
       ...manual.map((m,i)=>`<button type="button" class="ce-method-card" data-pay-kind="manual" data-pay-index="${i}" onclick="courseEnrollmentSelectPayment('${prefix}','manual',${i})"><div class="ce-method-top"><span class="ce-method-icon">${String(m.type||'').toLowerCase()==='crypto'?'₮':'💳'}</span><span class="ce-method-badge">Manual</span></div><strong>${escapeHtml(methodLabel(m))}</strong><small>Use the existing payment method, then add your transaction reference and receipt.</small></button>`),
-      ...(local?[`<button type="button" class="ce-method-card" data-pay-kind="infinity" onclick="courseEnrollmentSelectPayment('${prefix}','infinity',0)"><div class="ce-method-top"><span class="ce-method-icon">🏦</span><span class="ce-method-badge">Secure Hosted</span></div><strong>Local Bank Transfer</strong><small>Continue to the secure hosted bank-transfer page. Verification and course access are automatic.</small></button>`]:[])
+      ...(local?[`<button type="button" class="ce-method-card" data-pay-kind="infinity" onclick="courseEnrollmentSelectPayment('${prefix}','infinity',0)"><div class="ce-method-top"><span class="ce-method-icon">🏦</span><span class="ce-method-badge">Secure Hosted</span></div><strong>Local Bank Transfer</strong><small>${selectedCourse?.localBankPricePkr>0?`${moneyText(selectedCourse.localBankPricePkr,'PKR')} · `:''}Continue to the secure hosted bank-transfer page. Verification and course access are automatic.</small></button>`]:[])
     ];
     if(!cards.length)return '<div class="ce-pay-empty">No active payment method is available. Please contact support.</div>';
-    return `<div class="ce-pay-heading"><h3>Payment Method</h3><span>Course Fee — ${selectedCourse?.currency||'USD'} ${Number(selectedCourse?.price||200).toFixed(0)}</span></div><div class="ce-method-grid" id="${prefix}PaymentPicker">${cards.join('')}</div><div class="ce-pay-flow" id="${prefix}PaymentFlow"></div>`;
+    return `<div class="ce-pay-heading"><h3>Payment Method</h3><span>Course Fee — ${moneyText(selectedCourse?.price,selectedCourse?.currency)}</span></div><div class="ce-method-grid" id="${prefix}PaymentPicker">${cards.join('')}</div><div class="ce-pay-flow" id="${prefix}PaymentFlow"></div>`;
   }
 
   function renderPaymentFlow(prefix){
@@ -524,7 +532,8 @@
     });
     if(!selected){flow.innerHTML='<div class="ce-pay-note">Select how you want to pay to continue.</div>';updatePaymentSubmitLabel(prefix);return;}
     if(selected.kind==='infinity'){
-      flow.innerHTML=`<div class="ce-provider-card"><h4>🏦 Local Bank Transfer</h4><p>You will be redirected to a secure hosted payment page. Receiving bank details, the exact local-bank amount and receipt upload are handled there. After the provider accepts the payment, your course unlocks automatically — no Admin approval is required.</p><div class="ce-provider-points"><div class="ce-provider-point">Secure hosted page</div><div class="ce-provider-point">Automatic verification</div><div class="ce-provider-point">Automatic course access</div></div></div>`;
+      const localAmount=selectedCourse?.localBankPricePkr>0?moneyText(selectedCourse.localBankPricePkr,'PKR'):'Set by Admin';
+      flow.innerHTML=`<div class="ce-provider-card"><h4>🏦 Local Bank Transfer</h4><p><strong>Amount: ${escapeHtml(localAmount)}</strong><br>You will be redirected to a secure hosted payment page. Receiving bank details and receipt upload are handled there. After the provider accepts the payment, your course unlocks automatically — no Admin approval is required.</p><div class="ce-provider-points"><div class="ce-provider-point">Admin-controlled price</div><div class="ce-provider-point">Automatic verification</div><div class="ce-provider-point">Automatic course access</div></div></div>`;
     }else{
       const method=selectedPaymentMethod(prefix);
       flow.innerHTML=`${paymentMethodDetails(method)}<div class="ce-grid" style="margin-top:12px"><div class="ce-field full"><label>Transaction ID / Reference</label><input id="${prefix}TransactionId" type="text" placeholder="Transaction reference"></div><div class="ce-field full"><label>Payment Receipt</label><input id="${prefix}Receipt" type="file" accept="image/jpeg,image/png,application/pdf,.jpg,.jpeg,.png,.pdf"><small style="color:#64748b">JPG, JPEG, PNG or PDF only — maximum 5 MB.</small></div></div>`;
@@ -582,8 +591,17 @@
 
   async function currentSession(){
     const sb=getClient();if(!sb)return null;
-    const {data}=await sb.auth.getSession();
-    activeUser=data?.session?.user||null;
+    activeUser=null;
+    try{
+      const {data,error}=await sb.auth.getSession();
+      if(!error)activeUser=data?.session?.user||null;
+    }catch(_){ }
+    if(!activeUser){
+      try{
+        const {data,error}=await sb.auth.refreshSession();
+        if(!error)activeUser=data?.session?.user||null;
+      }catch(_){ }
+    }
     return activeUser;
   }
 
@@ -637,12 +655,9 @@
       if(signed){signed.textContent='You are signed in. Complete the enrollment questions below.';}
       const heading=signed?.nextElementSibling;if(heading)heading.textContent='Enrollment Details';
     }else{
-      accountFields.forEach(el=>{if(el)el.style.display='';});
-      if(nameField){nameField.value='';nameField.readOnly=false;}
-      if(phoneField){phoneField.value='';phoneField.readOnly=false;}
-      if(email){email.value='';email.readOnly=false;}
-      if(passwordWrap)passwordWrap.style.display='';
-      const signed=document.getElementById('ceSignedIn');if(signed)signed.textContent='Enter your existing PipSePaisa account details';
+      accountFields.forEach(el=>{if(el)el.style.display='none';});
+      if(passwordWrap)passwordWrap.style.display='none';
+      const signed=document.getElementById('ceSignedIn');if(signed)signed.textContent='Please log in from the PipSePaisa login page to continue.';
     }
   }
 
@@ -734,7 +749,7 @@
         'Content-Type':'application/json',
         'apikey':SUPABASE_KEY,
         'Authorization':`Bearer ${session.access_token}`,
-        'x-client-info':'pipsepaisa-web-v97-infinity-official-api'
+        'x-client-info':'pipsepaisa-web-v98-dynamic-admin-price'
       },
       body:JSON.stringify({course_id:selectedCourse?.key||'advanced',enrollment_id:enrollmentRow?.id||null})
     });
@@ -800,31 +815,47 @@
       if(typeof window.closeAllCourseModulePopups==='function')window.closeAllCourseModulePopups();
     }catch(_){ }
     injectModal();
-    selectedCourse=COURSE_INFO[courseKey];
+    const base=COURSE_INFO[courseKey];
+    if(!base)return;
+
+    // Authentication belongs to the main PipSePaisa login flow, never the
+    // enrollment popup. A logged-out visitor is sent to login immediately.
+    activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
+    await currentSession();
+    if(!activeUser){
+      redirectToLoginForEnrollment(courseKey);
+      return;
+    }
+
+    await loadCourseRuntimeInfo(courseKey);
     if(!selectedCourse)return;
+    if(selectedCourse.isPublished===false){
+      if(window.pipToast)window.pipToast('This course is not currently available.','err');
+      return;
+    }
+    if(selectedCourse.enrollmentOpen===false){
+      if(window.pipToast)window.pipToast('Enrollment for this course is currently closed.','err');
+      return;
+    }
+
     const overlay=document.getElementById('courseEnrollmentOverlay');
     overlay.classList.remove('is-open');
     overlay.setAttribute('aria-hidden','true');
     showStep('');
-    accountWasCreated=false;paidProfileConfirmed=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
+    accountWasCreated=false;paidProfileConfirmed=false;activeProfile=null;activeEnrollmentFallback=null;
     setCourseText();resetQuestionFields('ceNew');resetQuestionFields('ceDetails');
     ['ceLoginMessage','ceNewMessage','ceDetailsMessage'].forEach(id=>setMessage(id,'',''));
-    // Detect the current session before choosing the enrollment path.
-    // Signed-in users skip all "already a user / create account" questions.
-    await currentSession();
+
     if(selectedCourse.type==='paid'){
       await loadPaymentMethods();
       renderPaymentSections();
       renderInitialPaymentChoice();
       showStep('ceStepPaymentChoice');
-    }else if(activeUser){
+    }else{
       paidProfileConfirmed=true;
       fillExistingDetails();
       showStep('ceStepDetails');
       setTimeout(()=>document.getElementById('ceDetailsExperience')?.focus(),60);
-    }else{
-      showStep('ceStepNew');
-      setTimeout(()=>document.getElementById('ceNewName')?.focus(),60);
     }
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden','false');
@@ -837,17 +868,13 @@
     document.body.style.overflow='';
   };
 
-  window.courseEnrollmentChooseUser=async function(existing){
-    accountWasCreated=false;
-    if(existing){
-      if(!activeUser)await currentSession();
-      fillExistingDetails();
-      showStep('ceStepDetails');
-      setTimeout(()=>document.getElementById('ceDetailsName')?.focus(),60);
-      return;
-    }
-    showStep('ceStepNew');
-    setTimeout(()=>document.getElementById('ceNewName')?.focus(),60);
+  window.courseEnrollmentChooseUser=async function(){
+    if(!activeUser)await currentSession();
+    if(!activeUser){redirectToLoginForEnrollment(selectedCourse?.key||'advanced');return;}
+    paidProfileConfirmed=true;
+    fillExistingDetails();
+    showStep('ceStepDetails');
+    setTimeout(()=>document.getElementById('ceDetailsExperience')?.focus(),60);
   };
 
   window.courseEnrollmentAlreadyUserRedirect=function(){
@@ -855,8 +882,11 @@
   };
 
   window.courseEnrollmentBack=function(){
-    showStep(selectedCourse?.type==='paid'?'ceStepChoice':'ceStepNew');
+    if(selectedCourse?.type==='paid'){renderInitialPaymentChoice();showStep('ceStepPaymentChoice');return;}
+    if(activeUser){showStep('ceStepDetails');return;}
+    redirectToLoginForEnrollment(selectedCourse?.key||'basic');
   };
+
 
   window.courseEnrollmentLogin=async function(){
     const email=document.getElementById('ceLoginEmail').value.trim();
@@ -980,9 +1010,8 @@
       transactionId:manual?(document.getElementById('ceExistingTransactionId')?.value.trim()||null):null
     };
     const receipt=manual?(document.getElementById('ceExistingReceipt')?.files?.[0]||null):null;
-    if(!activeUser&&(!values.name||!values.phone||!values.email)){setMessage('ceDetailsMessage','error','Please complete your account details before enrollment.');return;}
+    if(!activeUser){redirectToLoginForEnrollment(selectedCourse?.key||'advanced');return;}
     if(!values.experience||!values.goal){setMessage('ceDetailsMessage','error','Please answer both enrollment questions.');return;}
-    if(!activeUser&&!values.password){setMessage('ceDetailsMessage','error','Please enter your PipSePaisa password.');return;}
     if(activeUser&&selectedCourse.type==='paid'&&!paidProfileConfirmed){
       paidProfileConfirmed=true;
       const payment=document.getElementById('ceExistingPayment');if(payment){payment.style.display='';payment.classList.add('ce-payment-reveal');}
@@ -1003,11 +1032,7 @@
     if(values.paymentFlow!=='infinity'){const optimistic={already:false,pending:false};showSuccess(optimistic,false);}
     try{
       const sb=getClient();if(!sb)throw new Error('Connection problem. Please reload and try again.');
-      if(!activeUser){
-        const login=await sb.auth.signInWithPassword({email:values.email,password:values.password});
-        if(login.error)throw login.error;
-        activeUser=login.data?.user||null;if(!activeUser)throw new Error('Login could not be completed.');
-      }
+      if(!activeUser){redirectToLoginForEnrollment(selectedCourse?.key||'advanced');return;}
       const result=await saveEnrollment(values,receipt);
       try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser?.id,{enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){ }
 
@@ -1078,8 +1103,7 @@
     const choice=event.target.closest('.ce-choice');
     if(choice && choice.closest('#courseEnrollmentOverlay')){
       event.preventDefault();
-      const existing=/Already a User/i.test(choice.textContent||'');
-      window.courseEnrollmentChooseUser(existing);
+      window.courseEnrollmentChooseUser(true);
       return;
     }
     const copy=event.target.closest('.ce-copy');

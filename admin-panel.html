@@ -2060,17 +2060,17 @@ var APMS='padding:10px;border-radius:8px;background:var(--input-bg,#0d1322);bord
 async function loadAdminPayments(){
   const wrap=document.getElementById('apmWrap');if(!wrap)return;
   wrap.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">'+
-    '<div class="card"><h3 style="margin:0 0 12px">➕ Add Payment Method</h3><div style="display:grid;gap:11px">'+
-      '<select id="apmType" onchange="apmTypeChange()" style="'+APMS+'"><option value="easypaisa">EasyPaisa</option><option value="jazzcash">JazzCash</option><option value="bank">Bank Transfer</option><option value="crypto">Crypto (USDT TRC20)</option></select>'+
+    '<div class="card"><h3 style="margin:0 0 7px">➕ Add Manual Payment Method</h3><div style="font-size:11px;color:#94a0b8;margin-bottom:12px;line-height:1.55">Local Bank Transfer is built in and managed securely by the payment API. Add/edit only your manual methods here.</div><div style="display:grid;gap:11px">'+
+      '<select id="apmType" onchange="apmTypeChange()" style="'+APMS+'"><option value="easypaisa">EasyPaisa</option><option value="jazzcash">JazzCash</option><option value="bank">Bank Transfer</option><option value="crypto">Crypto (USDT TRC20)</option></select>'+ 
       '<input id="apmLabel" placeholder="Label (optional)" style="'+APMS+'">'+
       '<input id="apmTitle" class="apm-title" placeholder="Account Title" style="'+APMS+'">'+
       '<input id="apmNum" class="apm-num" placeholder="Account Number" style="'+APMS+'">'+
       '<input id="apmBank" class="apm-bank" placeholder="Bank Name" style="display:none;'+APMS+'">'+
       '<input id="apmWallet" class="apm-wallet" placeholder="Wallet Address (TRC20)" style="display:none;'+APMS+'">'+
       '<input id="apmNet" class="apm-net" placeholder="Network" value="TRC20" style="display:none;'+APMS+'">'+
-      '<button onclick="addAdminPM()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">💾 Save Method</button>'+
-    '</div></div>'+
-    '<div class="card"><h3 style="margin:0 0 12px">💳 Payment Methods</h3><div id="apmList">Loading...</div></div></div>';
+      '<button onclick="addAdminPM()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#FB9201,#e07e00);color:#0a0e1a;font-weight:800;cursor:pointer">💾 Save Method</button>'+ 
+    '</div></div>'+ 
+    '<div class="card"><h3 style="margin:0 0 7px">💳 Payment Methods</h3><div style="font-size:11px;color:#94a0b8;margin-bottom:12px">System methods are locked. Manual methods remain editable.</div><div id="apmList">Loading...</div></div></div>';
   apmTypeChange();loadAdminPMList();
 }
 function apmTypeChange(){var t=document.getElementById('apmType').value;var S=function(c,on){var e=document.querySelector(c);if(e)e.style.display=on?'block':'none';};S('.apm-bank',t==='bank');S('.apm-wallet',t==='crypto');S('.apm-net',t==='crypto');S('.apm-title',t!=='crypto');S('.apm-num',t!=='crypto');}
@@ -2078,27 +2078,39 @@ async function addAdminPM(){
   var t=document.getElementById('apmType').value;var v=function(id){return (document.getElementById(id).value||'').trim();};
   var defaultName={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'USDT TRC20'}[t]||'Payment Method';
   var displayName=v('apmLabel')||defaultName;
-  var obj={owner_id:currentAdmin.id,name:displayName,type:t,label:displayName,enabled:true};
+  var obj={owner_id:currentAdmin.id,name:displayName,type:t,label:displayName,enabled:true,is_system:false,system_key:null};
   if(t==='crypto'){obj.wallet=v('apmWallet');obj.network=v('apmNet')||'TRC20';if(!obj.wallet){alert('Wallet address required');return;}}
   else{obj.account_title=v('apmTitle');obj.account_number=v('apmNum');if(!obj.account_number){alert('Account number required');return;}if(t==='bank')obj.bank_name=v('apmBank');}
   var r=await sb.from('payment_methods').insert(obj);
   if(r.error){alert('Payment method could not be saved: '+r.error.message);return;} alert('Payment method saved successfully.');
-  ['apmLabel','apmTitle','apmNum','apmBank','apmWallet'].forEach(function(i){document.getElementById(i).value='';});
-  loadAdminPMList();
+  ['apmLabel','apmTitle','apmNum','apmBank','apmWallet'].forEach(function(i){document.getElementById(i).value='';});loadAdminPMList();
 }
 async function loadAdminPMList(){
   var box=document.getElementById('apmList');if(!box)return;
-  var r=await sb.from('payment_methods').select('*').eq('owner_id',currentAdmin.id).order('created_at',{ascending:false});
+  var r=await sb.from('payment_methods').select('*').order('created_at',{ascending:false});
   if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}
-  var data=r.data||[];if(!data.length){box.innerHTML='<div style="color:#94a0b8">No payment methods yet.</div>';return;}
+  var data=(r.data||[]).filter(function(m){return m.is_system===true||m.owner_id===currentAdmin.id;});
+  data.sort(function(a,b){return Number(b.is_system===true)-Number(a.is_system===true)||String(b.created_at||'').localeCompare(String(a.created_at||''));});
+  if(!data.length){box.innerHTML='<div style="color:#94a0b8">No payment methods yet.</div>';return;}
   box.innerHTML=data.map(function(m){
-    var tl={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'Crypto USDT'}[m.type]||m.type;
-    var det=m.type==='crypto'?(aEsc(m.wallet||'')+' ('+aEsc(m.network||'TRC20')+')'):(aEsc(m.account_title||'')+' · '+aEsc(m.account_number||'')+(m.bank_name?(' · '+aEsc(m.bank_name)):''));
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border,#1f2937)"><div><strong>'+aEsc(m.label||tl)+'</strong> <span style="font-size:10px;padding:2px 7px;border-radius:10px;background:'+(m.enabled?'rgba(16,185,129,.18);color:#10b981':'rgba(148,160,184,.18);color:#94a0b8')+'">'+(m.enabled?'ON':'OFF')+'</span><div style="font-size:12px;color:#94a0b8;margin-top:3px">'+tl+' · '+det+'</div></div><div style="display:flex;gap:6px"><button onclick="toggleAdminPM(\''+m.id+'\','+(m.enabled?'false':'true')+')" style="padding:5px 10px;border-radius:7px;background:transparent;border:1px solid var(--border,#1f2937);color:var(--text,#e8eaf0);cursor:pointer;font-size:12px">'+(m.enabled?'Disable':'Enable')+'</button><button onclick="delAdminPM(\''+m.id+'\')" style="padding:5px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div></div>';
+    var system=m.is_system===true||m.system_key==='infinity_local_bank'||m.type==='infinity';
+    var tl={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'Crypto USDT',infinity:'Local Bank Transfer'}[m.type]||m.type;
+    var det=system?'Secure hosted bank transfer · API managed':(m.type==='crypto'?(aEsc(m.wallet||'')+' ('+aEsc(m.network||'TRC20')+')'):(aEsc(m.account_title||'')+' · '+aEsc(m.account_number||'')+(m.bank_name?(' · '+aEsc(m.bank_name)):'')));
+    var status='<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:'+(m.enabled?'rgba(16,185,129,.18);color:#10b981':'rgba(148,160,184,.18);color:#94a0b8')+'">'+(m.enabled?'ON':'OFF')+'</span>';
+    var lock=system?' <span style="font-size:9px;padding:3px 7px;border-radius:999px;background:rgba(251,146,1,.14);color:#FB9201;font-weight:900;letter-spacing:.05em">SYSTEM · LOCKED</span>':'';
+    var actions=system?'<span style="font-size:11px;color:#94a0b8">🔒 Managed automatically</span>':'<div style="display:flex;gap:6px"><button onclick="toggleAdminPM(\''+m.id+'\','+(m.enabled?'false':'true')+')" style="padding:5px 10px;border-radius:7px;background:transparent;border:1px solid var(--border,#1f2937);color:var(--text,#e8eaf0);cursor:pointer;font-size:12px">'+(m.enabled?'Disable':'Enable')+'</button><button onclick="delAdminPM(\''+m.id+'\')" style="padding:5px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border,#1f2937)"><div><strong>'+aEsc(m.label||tl)+'</strong> '+status+lock+'<div style="font-size:12px;color:#94a0b8;margin-top:4px">'+tl+' · '+det+'</div></div>'+actions+'</div>';
   }).join('');
 }
-async function toggleAdminPM(id,on){await sb.from('payment_methods').update({enabled:on}).eq('id',id);loadAdminPMList();}
-async function delAdminPM(id){if(!(await window.pspConfirm('Delete this payment method?')))return;await sb.from('payment_methods').delete().eq('id',id);loadAdminPMList();}
+async function toggleAdminPM(id,on){
+  var r=await sb.from('payment_methods').update({enabled:on}).eq('id',id).eq('is_system',false);
+  if(r.error){alert('System-managed payment methods cannot be changed.');return;}loadAdminPMList();
+}
+async function delAdminPM(id){
+  if(!(await window.pspConfirm('Delete this payment method?')))return;
+  var r=await sb.from('payment_methods').delete().eq('id',id).eq('is_system',false);
+  if(r.error){alert('System-managed payment methods cannot be deleted.');return;}loadAdminPMList();
+}
 
 async function loadAdminPaymentReqs(){
   var wrap=document.getElementById('aprWrap');if(!wrap)return;
@@ -3550,6 +3562,8 @@ async function loadAdminCourses() {
       <p>${c.description || ''}</p>
       <div class="course-meta">
         <span>👥 ${c.enrollments_count || 0} enrolled</span>
+        ${c.is_premium?`<span>💵 $${Number(c.price||0).toFixed(0)}</span>`:''}
+        ${c.is_premium&&Number(c.local_bank_price_pkr||0)>0?`<span>🏦 PKR ${Number(c.local_bank_price_pkr||0).toLocaleString('en-US')}</span>`:''}
         ${statusBadge}
       </div>
       <div style="display: flex; gap: 6px; margin-top: 12px;">
@@ -3591,6 +3605,7 @@ function openCourseForm(course) {
     document.getElementById('courseThumbnail').value = course.thumbnail || '';
     { const _p=document.getElementById('courseThumbPrev'); if(_p)_p.innerHTML = course.thumbnail ? ('<div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap"><img src="'+course.thumbnail+'" style="width:240px;aspect-ratio:16/9;object-fit:contain;background:#0b1426;border-radius:10px;border:1px solid var(--border)"><button type="button" class="btn btn-secondary btn-sm" onclick="removeCourseThumbnail()">Remove</button></div>') : ''; const _f=document.getElementById('courseThumbFile'); if(_f)_f.value=''; }
     { const _price=document.getElementById('coursePrice'); if(_price)_price.value=Number(course.price!=null?course.price:(course.is_premium?200:0)); }
+    { const _lb=document.getElementById('courseLocalBankPrice'); if(_lb)_lb.value=Number(course.local_bank_price_pkr||0)>0?Number(course.local_bank_price_pkr):''; }
     document.getElementById('courseEmoji').value = course.thumbnail_emoji || '📚';
     document.getElementById('courseColor').value = course.thumbnail_color || 1;
     document.getElementById('courseYoutubeUrl').value = course.youtube_url || '';
@@ -3609,6 +3624,7 @@ function openCourseForm(course) {
     document.getElementById('courseOrder').value = '0';
     document.getElementById('courseEnrollments').value = '0';
     { const _price=document.getElementById('coursePrice'); if(_price)_price.value='0'; }
+    { const _lb=document.getElementById('courseLocalBankPrice'); if(_lb)_lb.value=''; }
     document.getElementById('coursePublished').checked = true;
     document.getElementById('coursePremium').checked = false;
   }
@@ -3653,14 +3669,18 @@ async function saveCourse() {
     enrollments_count: parseInt(document.getElementById('courseEnrollments').value) || 0,
     is_published: document.getElementById('coursePublished').checked,
     is_premium: document.getElementById('coursePremium').checked,
-    price: Math.max(0, parseFloat((document.getElementById('coursePrice')||{value:'0'}).value) || 0)
+    price: Math.max(0, parseFloat((document.getElementById('coursePrice')||{value:'0'}).value) || 0),
+    currency: 'USD',
+    local_bank_price_pkr: Math.max(0, parseFloat((document.getElementById('courseLocalBankPrice')||{value:'0'}).value) || 0)
   };
   
   let result = id 
     ? await sb.from('courses').update(data).eq('id', id)
     : await sb.from('courses').insert(data);
-  if(result.error && /price.*column|column.*price|schema cache.*price|modules_json|short_description/i.test(String(result.error.message||''))){
+  if(result.error && /price.*column|column.*price|local_bank_price_pkr|currency.*column|schema cache.*price|modules_json|short_description/i.test(String(result.error.message||''))){
     delete data.price;
+    delete data.currency;
+    delete data.local_bank_price_pkr;
     delete data.modules_json;
     delete data.short_description;
     result = id ? await sb.from('courses').update(data).eq('id', id) : await sb.from('courses').insert(data);
@@ -4143,7 +4163,8 @@ async function initCharts() {
     <div class="form-row">
       <div class="form-group"><label>Emoji Icon (fallback)</label><input type="text" id="courseEmoji" placeholder="📊" maxlength="2" value="📚"></div>
       <div class="form-group"><label>Color (fallback)</label><select id="courseColor"><option value="1">🟧 Gold</option><option value="2">🟦 Blue</option><option value="3">🟩 Green</option><option value="4">🟪 Purple</option><option value="5">🟥 Pink</option><option value="6">🔴 Red</option></select></div>
-      <div class="form-group"><label>Course Price (USD)</label><input type="number" min="0" step="1" id="coursePrice" value="0" placeholder="0 for free, 200 for paid"></div>
+      <div class="form-group"><label>Course Price (USD)</label><input type="number" min="0" step="0.01" id="coursePrice" value="0" placeholder="0 for free, 200 for paid"><div style="font-size:11px;color:var(--text-muted);margin-top:5px">Used for website price and Company Revenue accounting.</div></div>
+      <div class="form-group"><label>Local Bank Price (PKR)</label><input type="number" min="0" step="1" id="courseLocalBankPrice" value="" placeholder="e.g. 56000"><div style="font-size:11px;color:var(--text-muted);margin-top:5px">Infinity uses this exact amount. Change it here anytime for a discount — no Supabase Secret update required.</div></div>
       <div class="form-group" style="grid-column:1/-1"><label>Course Thumbnail — 1280 × 720 px (16:9)</label><input type="file" id="courseThumbFile" accept="image/png,image/jpeg,image/webp" onchange="uploadCourseThumb(this)"><input type="hidden" id="courseThumbnail"><div style="font-size:10px;color:var(--text-muted);margin-top:6px">This image is used in My Courses, the sticky access card and related-course cards.</div><div id="courseThumbPrev" style="margin-top:10px"></div></div>
     </div>
     <div class="form-group"><label>YouTube URL</label><input type="url" id="courseYoutubeUrl" placeholder="https://youtube.com/..."></div>
@@ -4350,7 +4371,7 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 }
 </script>
 
-<script src="course-enrollments-admin.js?v=20260731-v22-email-runtime-fix"></script>
+<script src="course-enrollments-admin.js?v=20260819-v98-dynamic-price"></script>
 <script src="admin-final-overrides.js?v=20260730-v13"></script>
 <script src="psp-v18-admin-control.js?v=20260731-v20-final"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
