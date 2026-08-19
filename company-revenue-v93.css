@@ -1,0 +1,57 @@
+/* PipSePaisa Company Revenue V93 — Premium Income Breakdown (19 Aug 2026) */
+#page-revenue .v90-no-sajid-card,
+#page-revenue .cr-v93-old-glance-hidden{display:none!important}
+
+#page-revenue .cr-v93-income-card{
+  position:relative;overflow:hidden;margin-bottom:14px;padding:0;
+  border:1px solid rgba(251,146,1,.28);
+  background:linear-gradient(145deg,var(--bg-card) 0%,var(--bg-card) 58%,rgba(251,146,1,.045) 100%);
+  box-shadow:0 14px 35px rgba(15,23,42,.055)
+}
+#page-revenue .cr-v93-income-card:before{
+  content:"";position:absolute;inset:0 auto auto 0;width:100%;height:3px;
+  background:linear-gradient(90deg,#FB9201,rgba(251,146,1,.18),transparent)
+}
+#page-revenue .cr-v93-income-head{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:17px 18px 14px;border-bottom:1px solid var(--border)
+}
+#page-revenue .cr-v93-kicker{font-size:8px;font-weight:900;letter-spacing:.13em;color:#FB9201;text-transform:uppercase;margin-bottom:4px}
+#page-revenue .cr-v93-title{font-size:17px;font-weight:900;color:var(--text-primary);letter-spacing:-.02em}
+#page-revenue .cr-v93-sub{font-size:10px;color:var(--text-muted);margin-top:4px;line-height:1.45}
+#page-revenue .cr-v93-month-control{display:flex;align-items:flex-end;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+#page-revenue .cr-v93-month-box{display:flex;flex-direction:column;gap:4px}
+#page-revenue .cr-v93-month-box label{font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+#page-revenue .cr-v93-month-box input{height:34px;min-width:165px;padding:0 10px;border:1px solid var(--border);border-radius:9px;background:var(--bg-card);color:var(--text-primary);font-size:11px;font-weight:700}
+#page-revenue .cr-v93-month-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:9px;background:var(--bg-card);color:var(--text-primary);font-size:18px;cursor:pointer;display:grid;place-items:center}
+#page-revenue .cr-v93-sync-pill{height:34px;display:inline-flex;align-items:center;gap:5px;padding:0 10px;border-radius:999px;border:1px solid rgba(16,185,129,.25);background:rgba(16,185,129,.08);color:var(--green);font-size:8px;font-weight:900;letter-spacing:.05em;white-space:nowrap}
+
+#page-revenue .cr-v93-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:14px 18px 0}
+#page-revenue .cr-v93-overview-item{padding:12px 13px;border-radius:11px;border:1px solid var(--border);background:var(--bg-elevated);min-width:0}
+#page-revenue .cr-v93-overview-item span{display:block;font-size:8px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+#page-revenue .cr-v93-overview-item strong{display:block;font-size:17px;font-weight:900;color:var(--text-primary);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#page-revenue .cr-v93-overview-item small{display:block;margin-top:4px;font-size:8px;color:var(--text-muted)}
+#page-revenue .cr-v93-overview-item.primary{border-color:rgba(251,146,1,.25);background:linear-gradient(135deg,var(--bg-elevated),rgba(251,146,1,.07))}
+#page-revenue .cr-v93-overview-item.primary strong{color:#FB9201}
+
+#page-revenue .cr-v93-source-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:14px 18px 18px}
+#page-revenue .cr-v93-source-card{position:relative;overflow:hidden;padding:14px 13px 12px;border:1px solid var(--border);border-radius:12px;background:var(--bg-card);min-height:146px;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+#page-revenue .cr-v93-source-card:hover{transform:translateY(-2px);border-color:rgba(251,146,1,.34);box-shadow:0 9px 22px rgba(15,23,42,.06)}
+#page-revenue .cr-v93-source-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:12px}
+#page-revenue .cr-v93-source-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--bg-elevated);font-size:16px;border:1px solid var(--border)}
+#page-revenue .cr-v93-pct{font-size:8px;font-weight:900;color:var(--text-muted);padding:5px 7px;border-radius:999px;background:var(--bg-elevated);white-space:nowrap}
+#page-revenue .cr-v93-source-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);line-height:1.35;min-height:24px}
+#page-revenue .cr-v93-source-amount{font-size:20px;font-weight:900;color:var(--text-primary);font-variant-numeric:tabular-nums;margin:3px 0 7px;letter-spacing:-.02em}
+#page-revenue .cr-v93-source-meta{font-size:8.5px;line-height:1.5;color:var(--text-muted);min-height:25px}
+#page-revenue .cr-v93-progress{height:4px;border-radius:99px;background:var(--bg-elevated);overflow:hidden;margin-top:10px}
+#page-revenue .cr-v93-progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#FB9201,#f59e0b);min-width:0}
+#page-revenue .cr-v93-source-card.course{border-color:rgba(251,146,1,.28);background:linear-gradient(145deg,var(--bg-card),rgba(251,146,1,.055))}
+#page-revenue .cr-v93-source-card.course .cr-v93-source-amount{color:#FB9201}
+#page-revenue .cr-v93-source-card.zero{opacity:.72}
+#page-revenue .cr-v93-income-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 18px;border-top:1px solid var(--border);background:rgba(251,146,1,.025);font-size:8.5px;color:var(--text-muted)}
+#page-revenue .cr-v93-income-foot strong{color:var(--text-secondary)}
+
+@media(max-width:1380px){#page-revenue .cr-v93-source-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1050px){#page-revenue .cr-v93-overview{grid-template-columns:repeat(2,minmax(0,1fr))}#page-revenue .cr-v93-source-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){#page-revenue .cr-v93-income-head{align-items:flex-start;flex-direction:column}#page-revenue .cr-v93-month-control{width:100%;justify-content:flex-start}#page-revenue .cr-v93-month-box{flex:1}#page-revenue .cr-v93-month-box input{width:100%;min-width:0}}
+@media(max-width:560px){#page-revenue .cr-v93-overview,#page-revenue .cr-v93-source-grid{grid-template-columns:1fr}#page-revenue .cr-v93-overview,#page-revenue .cr-v93-source-grid{padding-left:12px;padding-right:12px}#page-revenue .cr-v93-income-head{padding-left:12px;padding-right:12px}#page-revenue .cr-v93-sync-pill{display:none}#page-revenue .cr-v93-income-foot{align-items:flex-start;flex-direction:column;padding-left:12px;padding-right:12px}}
