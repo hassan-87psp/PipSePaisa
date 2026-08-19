@@ -1,10 +1,10 @@
+/* PipSePaisa V97 — Infinity callback with per-payment token; no global callback secret required. */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import nodemailer from "npm:nodemailer@6.10.1";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SECRET_KEY") ?? "";
-const INFINITY_CALLBACK_SECRET = Deno.env.get("INFINITY_CALLBACK_SECRET") ?? "";
 const SITE_URL = (Deno.env.get("SITE_URL") ?? "https://www.pipsepaisa.com").replace(/\/$/, "");
 
 const SMTP_HOST = Deno.env.get("SMTP_HOST") ?? "";
@@ -28,26 +28,6 @@ function esc(value: unknown): string {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
-}
-
-async function hmacHex(secret: string, value: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(value));
-  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
 }
 
 async function parsePayload(req: Request): Promise<Record<string, unknown>> {
@@ -122,8 +102,8 @@ Deno.serve(async (req: Request) => {
   const trace = crypto.randomUUID();
 
   try {
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !INFINITY_CALLBACK_SECRET) {
-      throw new Error("Infinity callback server secrets are incomplete.");
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      throw new Error("Callback service configuration is incomplete.");
     }
 
     const payload = await parsePayload(req);
@@ -144,15 +124,29 @@ Deno.serve(async (req: Request) => {
     }
 
     const suppliedToken = new URL(req.url).searchParams.get("token") ?? "";
-    const expectedToken = await hmacHex(INFINITY_CALLBACK_SECRET, requestIdRaw);
-    if (!suppliedToken || !timingSafeEqual(suppliedToken, expectedToken)) {
-      console.warn(`[${trace}] invalid callback token for request ${requestIdRaw}`);
+    if (!suppliedToken || suppliedToken.length < 32) {
+      console.warn(`[${trace}] callback token missing for request ${requestIdRaw}`);
       return json({ success: false, error: "Invalid callback token." }, 401);
     }
 
     const service = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     });
+
+    // Infinity's guide does not document a callback signature/HMAC. V97 therefore
+    // uses a random, per-payment callback token embedded only in the server-to-server
+    // callback URL. No extra INFINITY_CALLBACK_SECRET environment variable is needed.
+    const tokenCheck = await service
+      .from("course_payments")
+      .select("id")
+      .eq("provider", "infinity")
+      .eq("provider_request_id", Number(requestIdRaw))
+      .eq("provider_callback_token", suppliedToken)
+      .maybeSingle();
+    if (tokenCheck.error || !tokenCheck.data) {
+      console.warn(`[${trace}] invalid callback token for request ${requestIdRaw}`);
+      return json({ success: false, error: "Invalid callback token." }, 401);
+    }
 
     const final = await service.rpc("finalize_infinity_payment", {
       p_request_id: Number(requestIdRaw),

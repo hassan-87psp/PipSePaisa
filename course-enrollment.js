@@ -1,3 +1,4 @@
+/* PipSePaisa V97 — Infinity Local Bank Transfer official API flow; no callback secret env required. */
 (function(){
   'use strict';
 
@@ -17,6 +18,7 @@
   let accountWasCreated=false;
   let paymentMethods=[];
   let paymentSelections={ceNew:null,ceExisting:null};
+  let paymentStartInFlight=false;
 
   function getClient(){
     if(client)return client;
@@ -29,6 +31,31 @@
       auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}
     });
     return client;
+  }
+
+  function localBankUserMessage(error){
+    const raw=String(error?.message||error||'').trim();
+    if(/already active|already approved/i.test(raw))return 'Your paid course access is already active.';
+    if(/session.*expired|login session|authentication required|invalid or expired/i.test(raw))return 'Your login session has expired. Please sign in again and retry.';
+    if(/not active|disabled|suspended|blocked/i.test(raw))return 'This account is not active. Please contact support.';
+    if(/enrollment.*closed/i.test(raw))return 'Enrollment for this course is currently closed.';
+    if(/not currently published/i.test(raw))return 'This course is not currently available.';
+    if(/already being prepared/i.test(raw))return 'Your Local Bank Transfer is already being prepared. Please wait a few seconds and try again.';
+    if(/complete the course enrollment details/i.test(raw))return 'Please complete the enrollment details before continuing to Local Bank Transfer.';
+    if(/temporarily unavailable/i.test(raw))return 'Local Bank Transfer is temporarily unavailable. Please try another payment method or try again later.';
+    if(/INFINITY_|SUPABASE_|server secret|missing .*secret|not configured|edge function|function.*failed|rpc|relation|column|schema|permission|service role|api key|callback secret|failed \(5\d\d\)|\b5\d\d\b/i.test(raw)){
+      return 'Local Bank Transfer is temporarily unavailable. Please try another payment method or try again later.';
+    }
+    return raw || 'Local Bank Transfer could not start. Please try another payment method or try again later.';
+  }
+
+  function notifyCoursePaymentError(message){
+    const safe=String(message||'Local Bank Transfer is temporarily unavailable.').trim();
+    const now=Date.now();
+    const last=window.__pspCoursePaymentError||{};
+    if(last.message===safe && now-Number(last.at||0)<4500)return;
+    window.__pspCoursePaymentError={message:safe,at:now};
+    if(window.pipToast)window.pipToast(safe,'err');
   }
 
   async function getEmailSession(sb, forceRefresh=false){
@@ -440,14 +467,31 @@
       ...manual.map((m,i)=>`<button type="button" class="ce-method-card" onclick="courseEnrollmentInitialPayment('manual',${i})"><div class="ce-method-top"><span class="ce-method-icon">${String(m.type||'').toLowerCase()==='crypto'?'₮':'💳'}</span><span class="ce-method-badge">Existing Method</span></div><strong>${escapeHtml(methodLabel(m))}</strong><small>Pay with the payment method already available on PipSePaisa.</small></button>`),
       ...(local?[`<button type="button" class="ce-method-card" onclick="courseEnrollmentInitialPayment('infinity',0)"><div class="ce-method-top"><span class="ce-method-icon">🏦</span><span class="ce-method-badge">Local Bank</span></div><strong>Local Bank Transfer</strong><small>Secure hosted bank transfer with automatic payment verification and course activation.</small></button>`]:[])
     ];
-    step.innerHTML=`<div class="ce-course-summary"><div><strong>${escapeHtml(selectedCourse.name)}</strong><div style="font-size:12px;color:#64748b;margin-top:3px">Choose how you want to pay before continuing</div></div><div class="ce-price">$${Number(selectedCourse.price||200).toFixed(0)}</div></div><h3 style="margin:0 0 7px">How would you like to pay?</h3><p style="margin:0 0 14px;color:#64748b;font-size:13px;line-height:1.55">Select a payment method first. After that, continue with your existing account or create a new one.</p><div class="ce-method-grid">${cards.join('')||'<div class="ce-pay-empty">No active payment method is available. Please contact support.</div>'}</div>`;
+    const helper=activeUser
+      ?'You are already signed in. Choose a payment method to continue with your enrollment.'
+      :'Select a payment method first. After that, sign in to your existing account or create a new one.';
+    step.innerHTML=`<div class="ce-course-summary"><div><strong>${escapeHtml(selectedCourse.name)}</strong><div style="font-size:12px;color:#64748b;margin-top:3px">Choose how you want to pay before continuing</div></div><div class="ce-price">$${Number(selectedCourse.price||200).toFixed(0)}</div></div><h3 style="margin:0 0 7px">How would you like to pay?</h3><p style="margin:0 0 14px;color:#64748b;font-size:13px;line-height:1.55">${helper}</p><div class="ce-method-grid">${cards.join('')||'<div class="ce-pay-empty">No active payment method is available. Please contact support.</div>'}</div>`;
   }
 
-  window.courseEnrollmentInitialPayment=function(kind,index){
+  window.courseEnrollmentInitialPayment=async function(kind,index){
     paymentSelections.ceNew={kind,index:Number(index||0)};
     paymentSelections.ceExisting={kind,index:Number(index||0)};
     renderPaymentFlow('ceNew');renderPaymentFlow('ceExisting');
     const change=document.getElementById('ceChangePaymentWrap');if(change)change.style.display='flex';
+
+    // A signed-in user is already known to PipSePaisa, so never ask
+    // "Are you already a user?" again. Continue directly to enrollment/payment.
+    if(activeUser){
+      paidProfileConfirmed=true;
+      fillExistingDetails();
+      const payment=document.getElementById('ceExistingPayment');
+      if(payment)payment.style.display='';
+      renderPaymentFlow('ceExisting');
+      updatePaymentSubmitLabel('ceExisting');
+      showStep('ceStepDetails');
+      setTimeout(()=>document.getElementById('ceDetailsExperience')?.focus(),60);
+      return;
+    }
     showStep('ceStepChoice');
   };
 
@@ -690,15 +734,16 @@
         'Content-Type':'application/json',
         'apikey':SUPABASE_KEY,
         'Authorization':`Bearer ${session.access_token}`,
-        'x-client-info':'pipsepaisa-web-v95-infinity-ui'
+        'x-client-info':'pipsepaisa-web-v97-infinity-official-api'
       },
       body:JSON.stringify({course_id:selectedCourse?.key||'advanced',enrollment_id:enrollmentRow?.id||null})
     });
     let data={};
     try{data=await response.json();}catch(_){data={};}
     if(!response.ok||data?.success===false||!data?.redirect_url){
-      const error=new Error(data?.error||`Local Bank Transfer could not start (${response.status}).`);
+      const error=new Error(localBankUserMessage(data?.error||`Local Bank Transfer could not start (${response.status}).`));
       error.status=response.status;
+      error.code=data?.code||null;
       throw error;
     }
     try{sessionStorage.setItem('pspInfinityRequestId',String(data.request_id||''));}catch(_){ }
@@ -764,14 +809,19 @@
     accountWasCreated=false;paidProfileConfirmed=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
     setCourseText();resetQuestionFields('ceNew');resetQuestionFields('ceDetails');
     ['ceLoginMessage','ceNewMessage','ceDetailsMessage'].forEach(id=>setMessage(id,'',''));
-    // Keep the enrollment modal identical for every visitor, including users who
-    // already have a PipSePaisa session in this browser. Do not read the session,
-    // profile or existing enrollment just to render this form.
+    // Detect the current session before choosing the enrollment path.
+    // Signed-in users skip all "already a user / create account" questions.
+    await currentSession();
     if(selectedCourse.type==='paid'){
       await loadPaymentMethods();
       renderPaymentSections();
       renderInitialPaymentChoice();
       showStep('ceStepPaymentChoice');
+    }else if(activeUser){
+      paidProfileConfirmed=true;
+      fillExistingDetails();
+      showStep('ceStepDetails');
+      setTimeout(()=>document.getElementById('ceDetailsExperience')?.focus(),60);
     }else{
       showStep('ceStepNew');
       setTimeout(()=>document.getElementById('ceNewName')?.focus(),60);
@@ -908,9 +958,10 @@
       },0);
       setTimeout(()=>{window.location.href=postSignup.url;},1000);
     }catch(error){
-      let msg=error?.message||'Account creation failed.';
-      if(/already|registered|exists/i.test(msg))msg='This email is already registered. Please use the “Already a User” button.';
+      let msg=values.paymentFlow==='infinity'?localBankUserMessage(error):(error?.message||'Account creation failed.');
+      if(values.paymentFlow!=='infinity'&&/already|registered|exists/i.test(msg))msg='This email is already registered. Please use the “Already a User” button.';
       showStep('ceStepNew');setMessage('ceNewMessage','error',msg);
+      if(values.paymentFlow==='infinity')notifyCoursePaymentError(msg);
     }finally{setBusy('ceNewSubmitBtn',false,'Creating account...',normalLabel);updatePaymentSubmitLabel('ceNew');}
   };
 
@@ -943,6 +994,11 @@
     if(selectedCourse.type==='paid'&&!pay){setMessage('ceDetailsMessage','error','Choose a payment method to continue.');return;}
     if(selectedCourse.type==='paid'&&manual&&(!values.transactionId||!receipt)){setMessage('ceDetailsMessage','error','Enter the transaction ID and upload the payment receipt.');return;}
     if(selectedCourse.type==='paid'&&manual){const check=validateReceiptFile(receipt);if(!check.ok){setMessage('ceDetailsMessage','error',check.message);return;}}
+
+    if(paymentStartInFlight)return;
+    paymentStartInFlight=true;
+    const existingNormalLabel=values.paymentFlow==='infinity'?'Continue to Local Bank Transfer':'Submit Payment for Approval';
+    setBusy('ceDetailsSubmitBtn',true,values.paymentFlow==='infinity'?'Preparing Local Bank Transfer...':'Submitting...',existingNormalLabel);
 
     if(values.paymentFlow!=='infinity'){const optimistic={already:false,pending:false};showSuccess(optimistic,false);}
     try{
@@ -985,11 +1041,23 @@
       }
       showSuccess(result);
     }catch(error){
-      const msg=/course_enrollments/i.test(error?.message||'')
-        ?'Course payment setup is not installed yet. Run Query 58 in Supabase, deploy the payment functions, then try again.'
-        :(error?.message||'Enrollment could not be completed.');
-      showStep('ceStepDetails');setMessage('ceDetailsMessage','error',msg);if(window.pipToast)window.pipToast(msg,'err');
-    }finally{updatePaymentSubmitLabel('ceExisting');}
+      let msg;
+      if(values.paymentFlow==='infinity'){
+        msg=localBankUserMessage(error);
+      }else{
+        msg=/course_enrollments/i.test(error?.message||'')
+          ?'Course payment setup is temporarily unavailable. Please try again later.'
+          :(error?.message||'Enrollment could not be completed.');
+      }
+      showStep('ceStepDetails');
+      setMessage('ceDetailsMessage','error',msg);
+      if(values.paymentFlow==='infinity')notifyCoursePaymentError(msg);
+      else if(window.pipToast)window.pipToast(msg,'err');
+    }finally{
+      paymentStartInFlight=false;
+      setBusy('ceDetailsSubmitBtn',false,'Submitting...',existingNormalLabel);
+      updatePaymentSubmitLabel('ceExisting');
+    }
   };
 
   window.openMyCoursesFromEnrollment=function(){

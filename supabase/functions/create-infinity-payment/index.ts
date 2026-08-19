@@ -1,3 +1,4 @@
+/* PipSePaisa V97 — Infinity official HTTPS API; only merchant API key is required for provider auth. */
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -5,8 +6,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SECRET_KEY") ?? "";
 const INFINITY_API_KEY = Deno.env.get("INFINITY_API_KEY") ?? "";
-const INFINITY_API_BASE_URL = (Deno.env.get("INFINITY_API_BASE_URL") ?? "https://api.infinitymoneysolutions.com").replace(/\/$/, "");
-const INFINITY_CALLBACK_SECRET = Deno.env.get("INFINITY_CALLBACK_SECRET") ?? "";
+const INFINITY_API_BASE_URL = "https://api.infinitymoneysolutions.com";
 const INFINITY_ADVANCED_COURSE_AMOUNT = Deno.env.get("INFINITY_ADVANCED_COURSE_AMOUNT") ?? "";
 const INFINITY_PROVIDER_CURRENCY = (Deno.env.get("INFINITY_PROVIDER_CURRENCY") ?? "PKR").trim().toUpperCase() || "PKR";
 const SITE_URL = (Deno.env.get("SITE_URL") ?? "https://www.pipsepaisa.com").replace(/\/$/, "");
@@ -30,21 +30,33 @@ function requiredConfig() {
   if (!SUPABASE_ANON_KEY) missing.push("SUPABASE_ANON_KEY");
   if (!SUPABASE_SERVICE_ROLE_KEY) missing.push("SUPABASE_SERVICE_ROLE_KEY");
   if (!INFINITY_API_KEY) missing.push("INFINITY_API_KEY");
-  if (!INFINITY_CALLBACK_SECRET) missing.push("INFINITY_CALLBACK_SECRET");
-  if (missing.length) throw new Error(`Missing server secrets: ${missing.join(", ")}`);
+  if (missing.length) {
+    // Keep exact secret names in server logs only. Never expose them to students.
+    console.error("create-infinity-payment configuration incomplete:", missing.join(", "));
+    const error = new Error("PAYMENT_PROVIDER_NOT_CONFIGURED");
+    error.name = "PaymentProviderConfigError";
+    throw error;
+  }
 }
 
-async function hmacHex(secret: string, value: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const key = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(value));
-  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
+function safeStartError(error: unknown): { message: string; code: string } {
+  const raw = error instanceof Error ? error.message : String(error ?? "");
+  if (raw === "PAYMENT_PROVIDER_NOT_CONFIGURED") {
+    return {
+      message: "Local Bank Transfer is temporarily unavailable. Please try another payment method or try again later.",
+      code: "PAYMENT_PROVIDER_NOT_CONFIGURED",
+    };
+  }
+  if (raw === "PAYMENT_PROVIDER_CONNECTION_FAILED") {
+    return {
+      message: "Local Bank Transfer is temporarily unavailable. Please try again in a few moments.",
+      code: "PAYMENT_PROVIDER_CONNECTION_FAILED",
+    };
+  }
+  return {
+    message: "Local Bank Transfer could not start right now. Please try another payment method or try again later.",
+    code: "PAYMENT_START_FAILED",
+  };
 }
 
 function firstRedirect(payload: unknown): string {
@@ -167,9 +179,11 @@ Deno.serve(async (req: Request) => {
       providerAmount = Number(INFINITY_ADVANCED_COURSE_AMOUNT);
       providerCurrency = INFINITY_PROVIDER_CURRENCY;
       if (!Number.isFinite(providerAmount) || providerAmount <= 0) {
+        console.error(`[${requestTrace}] Local Bank Transfer provider amount is not configured.`);
         return json({
           success: false,
-          error: "Local Bank Transfer amount is not configured. Set INFINITY_ADVANCED_COURSE_AMOUNT in Supabase Secrets.",
+          error: "Local Bank Transfer is temporarily unavailable. Please try another payment method or try again later.",
+          code: "PAYMENT_PROVIDER_AMOUNT_NOT_CONFIGURED",
           request_id: requestTrace,
         }, 503);
       }
@@ -240,7 +254,21 @@ Deno.serve(async (req: Request) => {
     }
 
     const requestId = String(payment.request_id);
-    const callbackToken = await hmacHex(INFINITY_CALLBACK_SECRET, requestId);
+    const paymentRow = await service
+      .from("course_payments")
+      .select("provider_callback_token")
+      .eq("id", payment.payment_id)
+      .maybeSingle();
+    const callbackToken = String(paymentRow.data?.provider_callback_token ?? "").trim();
+    if (!callbackToken || callbackToken.length < 32) {
+      console.error(`[${requestTrace}] Per-payment callback token is missing for request ${requestId}.`);
+      return json({
+        success: false,
+        error: "Local Bank Transfer is temporarily unavailable. Please try another payment method or try again later.",
+        code: "PAYMENT_CALLBACK_TOKEN_MISSING",
+        request_id: requestTrace,
+      }, 503);
+    }
     const callbackUrl = `${SUPABASE_URL}/functions/v1/infinity-payment-callback?token=${encodeURIComponent(callbackToken)}`;
     const returnUrl = `${SITE_URL}/my-courses/?payment=return&course=advanced`;
 
@@ -271,7 +299,8 @@ Deno.serve(async (req: Request) => {
       try { providerPayload = raw ? JSON.parse(raw) : {}; }
       catch { providerPayload = { message: raw }; }
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Infinity API connection failed.";
+      const message = error instanceof Error ? error.message : "Provider connection failed.";
+      console.error(`[${requestTrace}] Infinity API connection failed`, error);
       await service.from("course_payments").update({
         status: "failed",
         provider_status: "failed",
@@ -282,7 +311,7 @@ Deno.serve(async (req: Request) => {
         provider_status: "failed",
         provider_last_error: message,
       }).eq("id", enrollment.id);
-      throw new Error(message);
+      throw new Error("PAYMENT_PROVIDER_CONNECTION_FAILED");
     }
 
     const redirectUrl = firstRedirect(providerPayload);
@@ -302,7 +331,13 @@ Deno.serve(async (req: Request) => {
         provider_status: "failed",
         provider_last_error: providerMessage,
       }).eq("id", enrollment.id);
-      return json({ success: false, error: providerMessage, request_id: requestTrace }, 502);
+      console.error(`[${requestTrace}] Infinity provider rejected create-request`, providerPayload);
+      return json({
+        success: false,
+        error: "Local Bank Transfer could not start right now. Please try another payment method or try again later.",
+        code: "PAYMENT_PROVIDER_REQUEST_FAILED",
+        request_id: requestTrace,
+      }, 502);
     }
 
     await service.from("course_payments").update({
@@ -332,9 +367,11 @@ Deno.serve(async (req: Request) => {
     });
   } catch (error) {
     console.error(`[${requestTrace}] create-infinity-payment failed`, error);
+    const safe = safeStartError(error);
     return json({
       success: false,
-      error: error instanceof Error ? error.message : "Could not start Local Bank Transfer.",
+      error: safe.message,
+      code: safe.code,
       request_id: requestTrace,
     }, 500);
   }
