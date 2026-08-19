@@ -404,6 +404,28 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="course-marketplace-v3.css?v=20260802-v29-admin-preview">
 <link rel="stylesheet" href="admin-v29-final.css?v=20260802-v29-final">
 <link rel="stylesheet" href="admin-account-verification-v49.css?v=20260812-v56">
+
+<style id="companyRevenueV84Styles">
+#page-revenue .cr-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+#page-revenue .cr-filter{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
+#page-revenue .cr-filter .form-group{margin:0;min-width:190px}
+#page-revenue .cr-note{padding:12px 14px;border:1px solid rgba(245,158,11,.24);background:var(--gold-bg);border-radius:10px;color:var(--text-secondary);font-size:12px;line-height:1.55}
+#page-revenue .cr-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#page-revenue .cr-breakdown-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
+#page-revenue .cr-breakdown-row:last-child{border-bottom:0}
+#page-revenue .cr-amount{font-weight:800;font-variant-numeric:tabular-nums}
+#page-revenue .cr-positive{color:var(--green)}
+#page-revenue .cr-negative{color:var(--red)}
+#page-revenue .cr-share-total{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;background:var(--bg-elevated);border:1px solid var(--border);font-size:12px;margin:10px 0 14px}
+#page-revenue .cr-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:10px}
+#page-revenue .cr-table-wrap .data-table{min-width:720px}
+#page-revenue .cr-empty{padding:24px;text-align:center;color:var(--text-muted);font-size:12px}
+#page-revenue .cr-helper{font-size:10px;color:var(--text-muted);margin-top:5px;line-height:1.45;text-transform:none;letter-spacing:0;font-weight:500}
+#page-revenue .cr-actions{display:flex;gap:4px;white-space:nowrap}
+#page-revenue .cr-status{min-height:18px;margin-top:8px;font-size:11px;color:var(--text-muted)}
+@media(max-width:900px){#page-revenue .two-col{grid-template-columns:1fr}#page-revenue .cr-form-grid{grid-template-columns:1fr}}
+@media(max-width:600px){#page-revenue .cr-toolbar{align-items:stretch}#page-revenue .cr-filter{width:100%}#page-revenue .cr-filter .form-group{flex:1;min-width:160px}#page-revenue .cr-filter .btn{justify-content:center}}
+</style>
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
@@ -466,6 +488,7 @@ select option{background:#0f1729;color:#e8eaf0}
     <nav class="menu">
       <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">📊</span>Dashboard</div>
       <div class="menu-item" data-page="analytics" onclick="showPage('analytics', this)"><span class="menu-icon">📈</span>Analytics</div>
+      <div class="menu-item" data-page="revenue" onclick="showPage('revenue', this)"><span class="menu-icon">💰</span>Company Revenue</div>
       
       <div class="menu-label">Users & Trades</div>
       <div class="menu-item" data-page="users" onclick="showPage('users', this)"><span class="menu-icon">👥</span>Users<span class="badge-count" id="sidebarUsersCount">0</span></div>
@@ -1409,6 +1432,123 @@ select option{background:#0f1729;color:#e8eaf0}
             <div id="anaQuizStats" style="margin-top: 14px;">
               <div class="empty-state" style="height: 100px;"><div style="font-size: 12px;">Loading...</div></div>
             </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ========== COMPANY REVENUE ========== -->
+      <div class="page" id="page-revenue">
+        <div class="cr-toolbar">
+          <div>
+            <div class="card-title">💰 Company Revenue & Profit Sharing</div>
+            <div class="card-meta" style="margin-top:5px;">Track commissions, course revenue, salaries, expenses and partner profit shares.</div>
+          </div>
+          <div class="cr-filter">
+            <div class="form-group">
+              <label>Revenue Period</label>
+              <input type="month" id="crMonth" onchange="loadCompanyRevenue()">
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="crSetCurrentMonth()">Current Month</button>
+            <button class="btn btn-secondary btn-sm" onclick="crSetAllTime()">All Time</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon green">↗</div><span class="stat-tag">Income</span></div><div class="stat-label">Total Income</div><div class="stat-value" id="crTotalIncome">0.00</div><div class="stat-meta" id="crIncomeMeta">Selected period</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon red">↘</div><span class="stat-tag">Costs</span></div><div class="stat-label">Total Expenses</div><div class="stat-value" id="crTotalExpenses">0.00</div><div class="stat-meta">Marketing + Salaries + Other</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon gold">◆</div><span class="stat-tag">Net</span></div><div class="stat-label">Net Company Profit</div><div class="stat-value" id="crNetProfit">0.00</div><div class="stat-meta">Income minus expenses</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon purple">%</div><span class="stat-tag">Shares</span></div><div class="stat-label">Partner Allocation</div><div class="stat-value" id="crPartnerAllocation">0.00</div><div class="stat-meta" id="crPartnerMeta">0% configured</div></div>
+          <div class="stat-card"><div class="stat-header"><div class="stat-icon blue">▣</div><span class="stat-tag">Retained</span></div><div class="stat-label">Company Retained</div><div class="stat-value" id="crCompanyRetained">0.00</div><div class="stat-meta">After partner shares</div></div>
+        </div>
+
+        <div class="cr-note" style="margin-bottom:14px;">
+          <strong>Course Revenue Rule:</strong> Enter <strong>Total Courses Revenue after Sajid Bhai's share has already been deducted</strong>. His course share will not be deducted again from the company profit calculation.
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">➕ Add Income / Expense</div><div class="card-meta" style="margin-top:4px;">Record every company transaction.</div></div>
+              <button class="btn btn-secondary btn-sm" id="crCancelEditBtn" onclick="crResetEntryForm()" style="display:none;">Cancel Edit</button>
+            </div>
+            <div class="cr-form-grid">
+              <div class="form-group">
+                <label>Type</label>
+                <select id="crType" onchange="crSyncCategories()">
+                  <option value="income">Income</option>
+                  <option value="expense">Expense</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Category</label>
+                <select id="crCategory"></select>
+              </div>
+              <div class="form-group">
+                <label>Amount</label>
+                <input type="number" id="crAmount" min="0.01" step="0.01" placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="crEntryDate">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Note / Details</label>
+              <textarea id="crNote" rows="3" placeholder="Optional details, invoice period, campaign, staff name, etc."></textarea>
+              <div class="cr-helper">Use the note field to identify an “Other Income” or “Other Expense” item clearly.</div>
+            </div>
+            <button class="btn" id="crSaveEntryBtn" onclick="crSaveEntry()">+ Add Transaction</button>
+            <div class="cr-status" id="crEntryStatus"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">🤝 Partner Profit Shares</div><div class="card-meta" style="margin-top:4px;">Set each partner's percentage of net company profit.</div></div>
+              <button class="btn btn-secondary btn-sm" id="crCancelPartnerBtn" onclick="crResetPartnerForm()" style="display:none;">Cancel Edit</button>
+            </div>
+            <div class="cr-form-grid">
+              <div class="form-group">
+                <label>Partner Name</label>
+                <input type="text" id="crPartnerName" maxlength="80" placeholder="e.g. Partner A">
+              </div>
+              <div class="form-group">
+                <label>Share %</label>
+                <input type="number" id="crPartnerPercent" min="0" max="100" step="0.01" placeholder="0">
+              </div>
+            </div>
+            <button class="btn" id="crSavePartnerBtn" onclick="crSavePartner()">+ Add Partner</button>
+            <div class="cr-status" id="crPartnerStatus"></div>
+            <div class="cr-share-total"><span>Total configured share</span><strong id="crShareTotal">0%</strong></div>
+            <div class="cr-table-wrap">
+              <table class="data-table">
+                <thead><tr><th>Partner</th><th>Share</th><th>Current Share Amount</th><th>Actions</th></tr></thead>
+                <tbody id="crPartnerBody"><tr><td colspan="4" class="cr-empty">No partners configured yet.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-title">↗ Income Breakdown</div>
+            <div id="crIncomeBreakdown" style="margin-top:12px;"></div>
+          </div>
+          <div class="card">
+            <div class="card-title">↘ Expense Breakdown</div>
+            <div id="crExpenseBreakdown" style="margin-top:12px;"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">📒 Revenue Ledger</div><div class="card-meta" id="crLedgerMeta" style="margin-top:4px;">Selected period transactions</div></div>
+            <button class="btn btn-secondary btn-sm" onclick="loadCompanyRevenue()">↻ Refresh</button>
+          </div>
+          <div class="cr-table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Note</th><th>Amount</th><th>Actions</th></tr></thead>
+              <tbody id="crLedgerBody"><tr><td colspan="6" class="cr-empty">Loading...</td></tr></tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -2410,6 +2550,205 @@ setInterval(function(){if(document.hidden)return;var p=document.getElementById('
   }catch(e){}
 })();
 
+// ========== COMPANY REVENUE V84 ==========
+const CR_INCOME_CATEGORIES = ['DPrime Commission','XM Commission','Exness Commission','Total Courses Revenue (Without Sajid Bhai Share)','Other Income'];
+const CR_EXPENSE_CATEGORIES = ['Marketing','Salaries','Other Expenses'];
+let crEntries = [];
+let crPartners = [];
+let crEditingEntryId = null;
+let crEditingPartnerId = null;
+let crRevenueBooted = false;
+
+function crEsc(value){
+  return String(value == null ? '' : value).replace(/[&<>'"]/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch];});
+}
+function crNum(value){ var n=Number(value); return Number.isFinite(n)?n:0; }
+function crMoney(value){
+  return crNum(value).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function crToday(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function crThisMonth(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function crPeriodLabel(){
+  var m=document.getElementById('crMonth');
+  if(!m || !m.value) return 'All time';
+  var parts=m.value.split('-');
+  var dt=new Date(Number(parts[0]),Number(parts[1])-1,1);
+  return dt.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+}
+function crSetStatus(id,msg,isError){
+  var el=document.getElementById(id); if(!el)return;
+  el.textContent=msg||'';
+  el.style.color=isError?'var(--red)':'var(--green)';
+}
+function crSyncCategories(selected){
+  var typeEl=document.getElementById('crType'), catEl=document.getElementById('crCategory');
+  if(!typeEl||!catEl)return;
+  var list=typeEl.value==='expense'?CR_EXPENSE_CATEGORIES:CR_INCOME_CATEGORIES;
+  catEl.innerHTML=list.map(function(x){return '<option value="'+crEsc(x)+'">'+crEsc(x)+'</option>';}).join('');
+  if(selected && list.indexOf(selected)>=0) catEl.value=selected;
+}
+function crSetCurrentMonth(){
+  var el=document.getElementById('crMonth'); if(el)el.value=crThisMonth();
+  loadCompanyRevenue();
+}
+function crSetAllTime(){
+  var el=document.getElementById('crMonth'); if(el)el.value='';
+  loadCompanyRevenue();
+}
+function crResetEntryForm(){
+  crEditingEntryId=null;
+  var t=document.getElementById('crType'); if(t)t.value='income';
+  crSyncCategories();
+  var a=document.getElementById('crAmount'); if(a)a.value='';
+  var d=document.getElementById('crEntryDate'); if(d)d.value=crToday();
+  var n=document.getElementById('crNote'); if(n)n.value='';
+  var b=document.getElementById('crSaveEntryBtn'); if(b)b.textContent='+ Add Transaction';
+  var c=document.getElementById('crCancelEditBtn'); if(c)c.style.display='none';
+  crSetStatus('crEntryStatus','',false);
+}
+function crResetPartnerForm(){
+  crEditingPartnerId=null;
+  var n=document.getElementById('crPartnerName'); if(n)n.value='';
+  var p=document.getElementById('crPartnerPercent'); if(p)p.value='';
+  var b=document.getElementById('crSavePartnerBtn'); if(b)b.textContent='+ Add Partner';
+  var c=document.getElementById('crCancelPartnerBtn'); if(c)c.style.display='none';
+  crSetStatus('crPartnerStatus','',false);
+}
+async function crSaveEntry(){
+  if(!sb)return crSetStatus('crEntryStatus','Database is not connected.',true);
+  var type=document.getElementById('crType').value;
+  var category=document.getElementById('crCategory').value;
+  var amount=Number(document.getElementById('crAmount').value);
+  var entryDate=document.getElementById('crEntryDate').value;
+  var note=(document.getElementById('crNote').value||'').trim();
+  if(!category || !Number.isFinite(amount) || amount<=0 || !entryDate){return crSetStatus('crEntryStatus','Please enter category, valid amount and date.',true);}
+  var payload={entry_type:type,category:category,amount:amount,entry_date:entryDate,note:note||null,updated_at:new Date().toISOString()};
+  var res;
+  if(crEditingEntryId) res=await sb.from('company_finance_entries').update(payload).eq('id',crEditingEntryId);
+  else res=await sb.from('company_finance_entries').insert(payload);
+  if(res.error){console.error('Revenue save error',res.error);return crSetStatus('crEntryStatus',res.error.message||'Could not save transaction.',true);}
+  var successMsg=crEditingEntryId?'Transaction updated.':'Transaction added.';
+  crResetEntryForm();
+  crSetStatus('crEntryStatus',successMsg,false);
+  await loadCompanyRevenue();
+}
+function crEditEntry(id){
+  var row=crEntries.find(function(x){return x.id===id;}); if(!row)return;
+  crEditingEntryId=id;
+  document.getElementById('crType').value=row.entry_type;
+  crSyncCategories(row.category);
+  document.getElementById('crAmount').value=row.amount;
+  document.getElementById('crEntryDate').value=row.entry_date;
+  document.getElementById('crNote').value=row.note||'';
+  document.getElementById('crSaveEntryBtn').textContent='Save Changes';
+  document.getElementById('crCancelEditBtn').style.display='inline-flex';
+  document.getElementById('page-revenue').scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function crDeleteEntry(id){
+  if(!confirm('Delete this revenue transaction?'))return;
+  var res=await sb.from('company_finance_entries').delete().eq('id',id);
+  if(res.error){alert(res.error.message||'Could not delete transaction.');return;}
+  if(crEditingEntryId===id)crResetEntryForm();
+  await loadCompanyRevenue();
+}
+async function crSavePartner(){
+  if(!sb)return crSetStatus('crPartnerStatus','Database is not connected.',true);
+  var name=(document.getElementById('crPartnerName').value||'').trim();
+  var percent=Number(document.getElementById('crPartnerPercent').value);
+  if(!name || !Number.isFinite(percent) || percent<0 || percent>100){return crSetStatus('crPartnerStatus','Enter a partner name and share between 0% and 100%.',true);}
+  var otherTotal=crPartners.filter(function(p){return p.id!==crEditingPartnerId && p.active!==false;}).reduce(function(sum,p){return sum+crNum(p.share_percent);},0);
+  if(otherTotal+percent>100.000001){return crSetStatus('crPartnerStatus','Total partner shares cannot exceed 100%.',true);}
+  var payload={partner_name:name,share_percent:percent,active:true,updated_at:new Date().toISOString()};
+  var res;
+  if(crEditingPartnerId)res=await sb.from('company_profit_partners').update(payload).eq('id',crEditingPartnerId);
+  else res=await sb.from('company_profit_partners').insert(payload);
+  if(res.error){console.error('Partner save error',res.error);return crSetStatus('crPartnerStatus',res.error.message||'Could not save partner.',true);}
+  var partnerMsg=crEditingPartnerId?'Partner share updated.':'Partner added.';
+  crResetPartnerForm();
+  crSetStatus('crPartnerStatus',partnerMsg,false);
+  await loadCompanyRevenue();
+}
+function crEditPartner(id){
+  var row=crPartners.find(function(x){return x.id===id;}); if(!row)return;
+  crEditingPartnerId=id;
+  document.getElementById('crPartnerName').value=row.partner_name||'';
+  document.getElementById('crPartnerPercent').value=crNum(row.share_percent);
+  document.getElementById('crSavePartnerBtn').textContent='Save Changes';
+  document.getElementById('crCancelPartnerBtn').style.display='inline-flex';
+}
+async function crDeletePartner(id){
+  if(!confirm('Delete this partner share?'))return;
+  var res=await sb.from('company_profit_partners').delete().eq('id',id);
+  if(res.error){alert(res.error.message||'Could not delete partner.');return;}
+  if(crEditingPartnerId===id)crResetPartnerForm();
+  await loadCompanyRevenue();
+}
+function crBreakdown(rows,type){
+  var map={};
+  rows.filter(function(x){return x.entry_type===type;}).forEach(function(x){map[x.category]=(map[x.category]||0)+crNum(x.amount);});
+  var order=type==='income'?CR_INCOME_CATEGORIES:CR_EXPENSE_CATEGORIES;
+  var html=order.filter(function(cat){return map[cat]>0;}).map(function(cat){return '<div class="cr-breakdown-row"><span>'+crEsc(cat)+'</span><strong class="cr-amount '+(type==='income'?'cr-positive':'cr-negative')+'">'+crMoney(map[cat])+'</strong></div>';}).join('');
+  return html||'<div class="cr-empty">No '+type+' recorded for this period.</div>';
+}
+function crRenderRevenue(){
+  var income=crEntries.filter(function(x){return x.entry_type==='income';}).reduce(function(s,x){return s+crNum(x.amount);},0);
+  var expenses=crEntries.filter(function(x){return x.entry_type==='expense';}).reduce(function(s,x){return s+crNum(x.amount);},0);
+  var net=income-expenses;
+  var distributable=Math.max(net,0);
+  var totalPct=crPartners.filter(function(p){return p.active!==false;}).reduce(function(s,p){return s+crNum(p.share_percent);},0);
+  var allocation=distributable*(totalPct/100);
+  var retained=net-allocation;
+  document.getElementById('crTotalIncome').textContent=crMoney(income);
+  document.getElementById('crTotalExpenses').textContent=crMoney(expenses);
+  var netEl=document.getElementById('crNetProfit'); netEl.textContent=crMoney(net); netEl.style.color=net<0?'var(--red)':'var(--text-primary)';
+  document.getElementById('crPartnerAllocation').textContent=crMoney(allocation);
+  document.getElementById('crCompanyRetained').textContent=crMoney(retained);
+  document.getElementById('crPartnerMeta').textContent=crMoney(totalPct)+'% configured';
+  document.getElementById('crShareTotal').textContent=crMoney(totalPct)+'%';
+  document.getElementById('crIncomeMeta').textContent=crPeriodLabel();
+  document.getElementById('crLedgerMeta').textContent=crPeriodLabel()+' transactions';
+  document.getElementById('crIncomeBreakdown').innerHTML=crBreakdown(crEntries,'income');
+  document.getElementById('crExpenseBreakdown').innerHTML=crBreakdown(crEntries,'expense');
+
+  var pBody=document.getElementById('crPartnerBody');
+  if(!crPartners.length){pBody.innerHTML='<tr><td colspan="4" class="cr-empty">No partners configured yet.</td></tr>';}
+  else pBody.innerHTML=crPartners.map(function(p){
+    var share=distributable*(crNum(p.share_percent)/100);
+    return '<tr><td><strong>'+crEsc(p.partner_name)+'</strong></td><td>'+crMoney(p.share_percent)+'%</td><td><strong class="cr-amount">'+crMoney(share)+'</strong></td><td><div class="cr-actions"><button class="action-btn" title="Edit" onclick="crEditPartner(\''+p.id+'\')">✏️</button><button class="action-btn delete" title="Delete" onclick="crDeletePartner(\''+p.id+'\')">🗑️</button></div></td></tr>';
+  }).join('');
+
+  var lBody=document.getElementById('crLedgerBody');
+  if(!crEntries.length){lBody.innerHTML='<tr><td colspan="6" class="cr-empty">No revenue records for this period.</td></tr>';}
+  else lBody.innerHTML=crEntries.map(function(r){
+    var isIncome=r.entry_type==='income';
+    return '<tr><td>'+crEsc(r.entry_date||'—')+'</td><td><span class="badge '+(isIncome?'active':'banned')+'">'+(isIncome?'Income':'Expense')+'</span></td><td><strong>'+crEsc(r.category||'—')+'</strong></td><td>'+crEsc(r.note||'—')+'</td><td><strong class="cr-amount '+(isIncome?'cr-positive':'cr-negative')+'">'+(isIncome?'+':'-')+crMoney(r.amount)+'</strong></td><td><div class="cr-actions"><button class="action-btn" title="Edit" onclick="crEditEntry(\''+r.id+'\')">✏️</button><button class="action-btn delete" title="Delete" onclick="crDeleteEntry(\''+r.id+'\')">🗑️</button></div></td></tr>';
+  }).join('');
+}
+async function loadCompanyRevenue(){
+  if(!sb)return;
+  if(!crRevenueBooted){
+    crRevenueBooted=true;
+    var month=document.getElementById('crMonth'); if(month && !month.value)month.value=crThisMonth();
+    crSyncCategories();
+    var d=document.getElementById('crEntryDate'); if(d && !d.value)d.value=crToday();
+  }
+  var body=document.getElementById('crLedgerBody'); if(body)body.innerHTML='<tr><td colspan="6" class="cr-empty">Loading...</td></tr>';
+  var q=sb.from('company_finance_entries').select('*').order('entry_date',{ascending:false}).order('created_at',{ascending:false});
+  var monthVal=(document.getElementById('crMonth')||{}).value||'';
+  if(monthVal){
+    var parts=monthVal.split('-'), y=Number(parts[0]), m=Number(parts[1]);
+    var start=monthVal+'-01';
+    var next=new Date(y,m,1); var end=next.getFullYear()+'-'+String(next.getMonth()+1).padStart(2,'0')+'-01';
+    q=q.gte('entry_date',start).lt('entry_date',end);
+  }
+  var results=await Promise.all([q,sb.from('company_profit_partners').select('*').eq('active',true).order('created_at',{ascending:true})]);
+  if(results[0].error){console.error('Company revenue load error',results[0].error);body.innerHTML='<tr><td colspan="6" class="cr-empty" style="color:var(--red)">'+crEsc(results[0].error.message||'Could not load revenue data.')+'</td></tr>';return;}
+  if(results[1].error){console.error('Partner shares load error',results[1].error);crSetStatus('crPartnerStatus',results[1].error.message||'Could not load partner shares.',true);return;}
+  crEntries=results[0].data||[];
+  crPartners=results[1].data||[];
+  crRenderRevenue();
+}
+
 function showPage(page, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const pageEl = document.getElementById('page-' + page);
@@ -2421,6 +2760,7 @@ function showPage(page, el) {
   const titles = {
     dashboard: ['Admin Dashboard', 'Overview of your platform'],
     analytics: ['Analytics & Reports', 'Detailed insights and trends'],
+    revenue: ['Company Revenue', 'Income, expenses and partner profit sharing'],
     users: ['User Management', 'Manage all registered users'],
     trades: ['All Trades', 'Live feed of user trading activity'],
     subscriptions: ['Subscriptions', 'Manage premium memberships and pricing'],
@@ -2453,6 +2793,7 @@ function showPage(page, el) {
   
   // Load real data for each page
   if (page === 'dashboard') loadDashboardStats();
+  if (page === 'revenue') loadCompanyRevenue();
   if (page === 'users') loadAdminUsers();
   if (page === 'trades') loadAdminTrades();
   if (page === 'courses') loadAdminCourses();
