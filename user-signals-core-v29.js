@@ -68,7 +68,26 @@ async function loadSignalsFromDB(){
     }
   }catch(_){}
 
-  const {data,error}=await sb.from('signals').select('*').order('created_at',{ascending:false});
+  // V114: use the verified-user RPC feed instead of relying on each user's
+  // table-level RLS path. This fixes cases where one verified account sees
+  // signals while another equally verified account receives an empty table.
+  let data=null,error=null;
+  try{
+    const feed=await sb.rpc('psp_user_signals_feed',{p_limit:250});
+    data=feed.data;
+    error=feed.error;
+  }catch(e){
+    error=e;
+  }
+
+  // Safe compatibility fallback while SQL migration is being deployed.
+  if(error){
+    console.warn('Signals RPC feed unavailable, trying legacy direct query:',error);
+    const legacy=await sb.from('signals').select('*').order('created_at',{ascending:false});
+    data=legacy.data;
+    error=legacy.error;
+  }
+
   if(error){
     console.error('Signals load failed:',error);
     g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">Signals could not be loaded. Please refresh once. If the issue continues, contact Admin.</div>';
@@ -84,8 +103,8 @@ async function loadSignalsFromDB(){
     locked:!canAccessContent('signal',audStr),
     entry:s.entry_price==null?'-':s.entry_price, sl:s.stop_loss==null?'-':s.stop_loss,
     tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2, tp3:s.take_profit3==null?'-':s.take_profit3, tp4:(s.take_profit4||''),
-    tpHit:s.tp_hit||0, rawStatus:(s.status||'active'), beMoved:!!s.be_moved, orderType:((s.order_type||'market')+'').toLowerCase(), pips:(s.result_pips==null?null:s.result_pips),
-    status:(s.status==='active'?'active':((s.status==='sl'||s.status==='closed'||s.status==='be')?'closed':'tp')),
+    tpHit:s.tp_hit||0, rawStatus:(s.status||'active'), beMoved:!!s.be_moved, orderType:((s.order_type||'market')+'').toLowerCase(), pips:(s.result_pips==null?null:s.result_pips), activatedAt:(s.activated_at||null), closingPrice:(s.closing_price==null?null:s.closing_price),
+    status:((s.status==='active'||s.status==='pending')?'active':((s.status==='sl'||s.status==='closed'||s.status==='be')?'closed':'tp')),
     cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:pspFmtDateTime(s.created_at),
     ts:s.created_at, closedTs:(s.closed_at||s.created_at)
   };});
@@ -162,7 +181,8 @@ async function loadPerformance(){
   if(!sb)return;
   var hi=document.getElementById('perfHello');if(hi&&currentProfile){var nm=((currentProfile.full_name||currentProfile.email||'Trader')+'').split(' ')[0];hi.textContent='Welcome 👋';}
   try{
-    var sr=await sb.from('signals').select('*').order('created_at',{ascending:false});
+    var sr=await sb.rpc('psp_user_signals_feed',{p_limit:250});
+    if(sr.error)sr=await sb.from('signals').select('*').order('created_at',{ascending:false});
     var rows=sr.data||[];
     window._SIGRAW=window._SIGRAW||{};rows.forEach(function(s){window._SIGRAW[s.id]=s;});
     renderPerfDash(rows);
@@ -2656,3 +2676,110 @@ function pspSigMobileShell(rows){
     setTimeout(refreshSignalsIfVisible,250);
   });
 })();
+
+
+// ============================================================================
+// PIPSEPAISA V114 — CONSISTENT VERIFIED-USER SIGNAL FEED
+// ============================================================================
+(function pspV114SignalFeedRefresh(){
+  if(window.__pspV114SignalFeedRefresh)return;
+  window.__pspV114SignalFeedRefresh=true;
+
+  // If account verification changes while the app is open, reload the signal feed.
+  window.addEventListener('pageshow',function(){
+    setTimeout(function(){
+      try{
+        var page=document.getElementById('page-signals');
+        if(page && page.classList.contains('active') && typeof loadSignalsFromDB==='function'){
+          loadSignalsFromDB();
+        }
+      }catch(_){}
+    },450);
+  });
+})();
+
+
+// ============================================================================
+// PIPSEPAISA V115 — PENDING ORDER + ACTIVE NOW USER UI
+// ============================================================================
+(function pspV115SignalLifecycleStyle(){
+  if(document.getElementById('psp-v115-signal-lifecycle'))return;
+  var s=document.createElement('style');
+  s.id='psp-v115-signal-lifecycle';
+  s.textContent=`
+    .psp-sig-badge.pending{background:rgba(251,146,1,.12)!important;color:#d97706!important;border-color:rgba(251,146,1,.28)!important}
+    .psp-sig-badge.active-now{background:rgba(251,146,1,.16)!important;color:#d97706!important;border-color:rgba(251,146,1,.34)!important}
+    .psp-v115-activation-notice{margin:0 0 9px;padding:8px 10px;border-radius:9px;background:rgba(251,146,1,.10);border:1px solid rgba(251,146,1,.30);color:#d97706;font-size:9px;font-weight:950;text-align:left;letter-spacing:.15px}
+    .psp-v115-pending-notice{margin:0 0 9px;padding:8px 10px;border-radius:9px;background:rgba(251,146,1,.07);border:1px dashed rgba(251,146,1,.34);color:#a56b00;font-size:9px;font-weight:900;text-align:left}
+  `;
+  document.head.appendChild(s);
+})();
+
+function pspSigActiveStatus(s){
+  if(s.rawStatus==='pending') return ['Pending','pending'];
+  if(s.rawStatus==='sl') return ['SL Hit','sl'];
+  if(s.rawStatus==='be') return ['BE Hit','be'];
+  if(s.tpHit>=3||s.rawStatus==='tp3') return ['Closed','closed'];
+  if(s.tpHit===2||s.rawStatus==='tp2') return ['TP2 Hit','tp'];
+  if(s.tpHit===1||s.rawStatus==='tp1') return ['TP1 Hit','tp'];
+  if(s.beMoved) return ['SL @ BE','be'];
+  if(s.activatedAt && s.orderType!=='market') return ['Active Now','active-now'];
+  return ['Active','active'];
+}
+
+function pspV115LifecycleNotice(s){
+  var type=pspSigTypeLabel(s);
+  if(s.rawStatus==='pending'){
+    return '<div class="psp-v115-pending-notice">⏳ '+vEsc(type)+' PENDING ORDER</div>';
+  }
+  if(s.rawStatus==='active' && s.activatedAt && s.orderType!=='market'){
+    return '<div class="psp-v115-activation-notice">⚡ '+vEsc(type)+' ACTIVE NOW</div>';
+  }
+  return '';
+}
+
+function pspSigMobileDetail(s){
+  var time=new Date(s.ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  var st=pspSigIsFinished(s)?pspSigClosedStatus(s):pspSigActiveStatus(s);
+  var detailClass='psp-detail-'+pspSigTypeKey(s);
+
+  if(s.locked){
+    return '<div class="psp-mobile-detail" data-id="'+vEsc(String(s.id))+'">'+
+      '<div class="psp-mobile-detail-card '+detailClass+'"><div class="psp-mobile-lock">'+
+        '<strong>🔒 VIP Signal</strong>Upgrade your access to view Entry, SL, TP levels and mentor note.'+
+      '</div></div></div>';
+  }
+
+  var note=pspSigNote(s);
+  var tp4=(s.tp4==null?'':String(s.tp4)).trim();
+  var tp4Html=!tp4?'-':(tp4.toLowerCase()==='open'
+    ? '<span style="color:#FB9201;font-weight:950">Open</span>'
+    : vEsc(tp4));
+
+  return '<div class="psp-mobile-detail" data-id="'+vEsc(String(s.id))+'">'+
+    '<div class="psp-mobile-detail-card '+detailClass+'">'+
+      pspV115LifecycleNotice(s)+
+      '<div class="psp-mobile-detail-top">'+
+        '<div>'+
+          '<div class="psp-mobile-side">'+pspSigTypePill(s)+'</div>'+
+          '<div class="psp-mobile-detail-time">'+vEsc(new Date(s.ts).toLocaleDateString('en-GB'))+'</div>'+
+        '</div>'+
+        '<div><div class="psp-mobile-detail-pair">'+vEsc(s.pair||'-')+'</div>'+
+          '<div class="psp-mobile-detail-time">'+vEsc(time)+'</div></div>'+
+      '</div>'+
+      '<div class="psp-mobile-levels">'+
+        '<div class="psp-mobile-lv"><b><span class="psp-sig-badge '+st[1]+'">'+vEsc(st[0])+'</span></b><span>Status</span></div>'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.entry||'-')+'</b><span>Entry</span></div>'+
+        '<div class="psp-mobile-lv"><b style="color:#ef4444">'+vEsc(s.sl||'-')+'</b><span>SL</span></div>'+
+        '<div class="psp-mobile-lv"><b style="color:'+(s.pips!=null?(Number(s.pips)>=0?'#10b981':'#ef4444'):'var(--text-primary)')+'">'+
+          (s.pips!=null?vEsc((Number(s.pips)>=0?'+':'')+s.pips):'Open')+'</b><span>Pips</span></div>'+
+      '</div>'+
+      '<div class="psp-mobile-tps">'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.tp1||'-')+'</b><span>TP1</span></div>'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.tp2||'-')+'</b><span>TP2</span></div>'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.tp3||'-')+'</b><span>TP3</span></div>'+
+        '<div class="psp-mobile-lv"><b>'+tp4Html+'</b><span>TP4</span></div>'+
+      '</div>'+
+      (note?'<div class="psp-mobile-note"><b>📝 Mentor Note:</b><br>'+vEsc(note)+'</div>':'')+
+    '</div></div>';
+}

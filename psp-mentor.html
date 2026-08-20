@@ -7,7 +7,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PSP Mentor Panel — PipSePaisa</title>
-<!-- PipSePaisa V111 Manage Action Confirmations: 2026-08-20 -->
+<!-- PipSePaisa V115 Full Signal Lifecycle System: 2026-08-20 -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -843,6 +843,31 @@ textarea.m110-field{resize:vertical;min-height:85px}
 }
 </style>
 
+
+<style id="psp-v115-signal-system">
+#pg-signals .m110-status.pending{background:rgba(251,146,1,.12);color:#d97706}
+#pg-signals .m110-status.active-now{background:rgba(251,146,1,.14);color:#d97706}
+.m115-history-edit{
+  border:1px solid rgba(251,146,1,.32);border-radius:12px;
+  background:rgba(251,146,1,.055);padding:12px
+}
+.m115-history-title{font-size:11px;font-weight:950;color:#d97706;margin-bottom:3px}
+.m115-history-sub{font-size:9px;color:#8792a7;line-height:1.45;margin-bottom:10px}
+.m115-history-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.m115-history-preview{
+  margin-top:9px;padding:8px 10px;border-radius:9px;
+  background:var(--card-bg,var(--bg-card,#fff));border:1px solid var(--border);
+  font-size:9px;color:var(--text)
+}
+.m115-pending-info{
+  padding:10px;border:1px solid rgba(251,146,1,.28);border-radius:10px;
+  background:rgba(251,146,1,.055);color:#9a6700;font-size:10px;margin-bottom:10px
+}
+@media(max-width:760px){
+  .m115-history-grid{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
@@ -1560,6 +1585,36 @@ function renderSignals(){
             <div class="m110-span-2" id="m110AutoPipsWrap">
               <div id="sgAutoPipsPreview">Pips will calculate automatically from Entry → SL / TP.</div>
             </div>
+            <div class="m110-span-2" id="m115HistoryEdit" style="display:none">
+              <div class="m115-history-edit">
+                <div class="m115-history-title">History Correction / Full Control</div>
+                <div class="m115-history-sub">For a finished signal you can correct the result, change its state, or move it back to Active/Pending. Automatic pips use the corrected Entry/SL/TP values.</div>
+                <div class="m115-history-grid">
+                  <div>
+                    <label class="m110-label">Signal State / Result</label>
+                    <select id="sgEditOutcome" class="m110-field" onchange="m115HistoryPreview()">
+                      <option value="closed">Closed (Manual)</option>
+                      <option value="tp3">TP3 Hit → Closed</option>
+                      <option value="sl">SL Hit → Closed</option>
+                      <option value="be">BE Hit → Closed</option>
+                      <option value="tp2">TP2 Hit → Active</option>
+                      <option value="tp1">TP1 Hit → Active</option>
+                      <option value="active">Active</option>
+                      <option value="pending">Pending Order</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="m110-label">Closing Price</label>
+                    <input id="sgClosingPrice" type="number" step="any" class="m110-field" placeholder="For manual Close" oninput="m115HistoryPreview()">
+                  </div>
+                  <div>
+                    <label class="m110-label">Result Pips Override</label>
+                    <input id="sgResultPips" type="number" step="any" class="m110-field" placeholder="Optional manual correction" oninput="m115HistoryPreview()">
+                  </div>
+                </div>
+                <div id="m115HistoryPreview" class="m115-history-preview">Result will be recalculated automatically.</div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="m110-modal-foot">
@@ -1606,12 +1661,14 @@ function m110BackdropClose(e,which){
 }
 
 function resetSignalForm(){
-  ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan'].forEach(function(i){
+  ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan','sgClosingPrice','sgResultPips'].forEach(function(i){
     const e=document.getElementById(i);if(e)e.value='';
   });
   const p=document.getElementById('sgPair');if(p)p.selectedIndex=0;
   const o=document.getElementById('sgOrderType');if(o)o.value='buy';
   const t=document.getElementById('sgNoteTpl');if(t)t.selectedIndex=0;
+  const hs=document.getElementById('m115HistoryEdit');if(hs)hs.style.display='none';
+  const oc=document.getElementById('sgEditOutcome');if(oc)oc.value='closed';
   mentorSignalPreviewPips();
 }
 
@@ -1687,6 +1744,11 @@ function m111BackdropClose(e){
 
 function m111ActionCopy(kind){
   const map={
+    activate:{
+      title:'Activate Pending Order?',
+      text:'This pending order will become Active for users and an activation notification will be sent.',
+      confirmText:'Yes, Activate Order'
+    },
     tp1:{
       title:'Confirm TP1 Hit',
       text:'Mark this signal as TP1 Hit? Pips will be calculated automatically.',
@@ -1742,12 +1804,13 @@ function m110TypeLabel(s){
 }
 function m110StatusInfo(s){
   const st=String(s.status||'active').toLowerCase();
+  if(st==='pending')return {label:'Pending',cls:'pending'};
   if(st==='sl'||st==='sl_hit')return {label:'SL Hit',cls:'loss'};
   if(st==='be')return {label:'BE Hit',cls:'be'};
-  if(st==='closed')return {label:'Closed',cls:'closed'};
+  if(st==='closed'||st==='tp3'||st==='tp_hit')return {label:'Closed',cls:'closed'};
   if(st==='tp1')return {label:'TP1 Hit',cls:'win'};
   if(st==='tp2')return {label:'TP2 Hit',cls:'win'};
-  if(st==='tp3'||st==='tp_hit')return {label:st==='tp3'?'TP3 Hit':'TP Hit',cls:'win'};
+  if(s.activated_at && String(s.order_type||'market').toLowerCase()!=='market')return {label:'Active Now',cls:'active-now'};
   if(s.be_moved)return {label:'SL → BE',cls:'live'};
   return {label:'Active',cls:'live'};
 }
@@ -1768,12 +1831,25 @@ function toggleMentorSignalNote(id){
   if(el)el.classList.toggle('open');
 }
 
+function m115OutcomeLabel(s){
+  const st=String(s.status||'active').toLowerCase();
+  if(Number(s.tp_hit||0)>=3||st==='tp3')return 'TP3 Hit';
+  if(st==='sl'||st==='sl_hit')return 'SL Hit';
+  if(st==='be')return 'BE Hit';
+  if(st==='closed')return 'Manual Close';
+  if(st==='tp2')return 'TP2 Hit';
+  if(st==='tp1')return 'TP1 Hit';
+  if(st==='pending')return 'Pending';
+  return 'Active';
+}
 function openManageSignal(id){
   const s=(window._mSigCache||[]).find(function(x){return String(x.id)===String(id);});
   if(!s)return;
   window._m110ManageId=id;
   const st=m110StatusInfo(s),pp=m110Pips(s);
-  const finished=['sl','sl_hit','closed','tp3','be'].includes(String(s.status||'').toLowerCase());
+  const raw=String(s.status||'active').toLowerCase();
+  const finished=['sl','sl_hit','closed','tp3','be'].includes(raw);
+  const pending=raw==='pending';
   const note=String(s.notes||'').trim();
   const body=document.getElementById('m110ManageBody');
   if(!body)return;
@@ -1792,9 +1868,15 @@ function openManageSignal(id){
       <div class="m110-level"><span>TP3</span><b>${m110Price(s.take_profit3)}</b></div>
       <div class="m110-level"><span>TP4</span><b>${String(s.take_profit4||'').toLowerCase()==='open'?'<span class="m110-open">Open</span>':m110Price(s.take_profit4)}</b></div>
     </div>
-    ${finished?`
+    ${pending?`
+      <div class="m115-pending-info">⏳ This is a pending ${esc(m110TypeLabel(s))} order. Activate it only when the entry/order is triggered.</div>
+      <div class="m110-manage-actions" style="grid-template-columns:2fr 1fr">
+        <button class="m110-action be" onclick="m110RunAction('activate')">⚡ Activate Order</button>
+        <button class="m110-action edit" onclick="m110EditFromManage()">Edit</button>
+      </div>
+    `:finished?`
       <div style="padding:10px;border:1px solid var(--border);border-radius:10px;color:#94a0b8;font-size:10px;margin-bottom:10px">
-        This signal is already finished. Result pips are saved automatically.
+        This signal is finished. Outcome: <b style="color:var(--text)">${esc(m115OutcomeLabel(s))}</b>. You still have full Edit control.
       </div>
     `:`
       <div class="m110-manage-actions">
@@ -1903,51 +1985,114 @@ async function createSignal(){
     else mentorAlert('Entry price, Stop Loss, and TP1 are required.');
     return;
   }
+
   const audArr=['free','premium','vip'];
-  if(!audArr.length)audArr.push('free');
   const isFreeOnly=audArr.length===1&&audArr[0]==='free';
-  const _otv=((document.getElementById('sgOrderType')||{}).value)||'buy';
-  const _parts=_otv.split('_');
-  const _dirO=_parts[0];
-  const _otype=(_parts.length>1)?_parts[1]:'market';
-  const obj={owner_id:ME.id,is_official:true,pair:pair,direction:_dirO.toUpperCase(),
-    entry_price:isNaN(entry)?null:entry,
-    stop_loss:parseFloat(val('sgSL'))||null,
-    take_profit1:parseFloat(val('sgTP1'))||null,
+  const orderVal=((document.getElementById('sgOrderType')||{}).value)||'buy';
+  const parts=orderVal.split('_');
+  const dir=parts[0];
+  const otype=(parts.length>1)?parts[1]:'market';
+  const isPendingOrder=otype==='limit'||otype==='stop';
+
+  const obj={
+    owner_id:ME.id,is_official:true,pair:pair,direction:dir.toUpperCase(),
+    entry_price:entry,
+    stop_loss:isNaN(slv)?null:slv,
+    take_profit1:isNaN(tp1v)?null:tp1v,
     take_profit2:parseFloat(val('sgTP2'))||null,
     take_profit3:parseFloat(val('sgTP3'))||null,
     take_profit4:(val('sgTP4')||'').trim()||null,
     notes:val('sgNotes')||null,
     audience:audArr.join(','),
-    access_level:audArr.indexOf('free')>=0?'free':'vip',
+    access_level:'free',
     plan_name:(!isFreeOnly)?(val('sgPlan')||null):null,
-    status:'active',tp_hit:0,order_type:_otype};
+    status:isPendingOrder?'pending':'active',
+    tp_hit:0,
+    order_type:otype,
+    be_moved:false
+  };
+
   const wasEditing=Boolean(editingSigId);
   let error=null;
+
   if(wasEditing){
-    delete obj.status;delete obj.tp_hit;delete obj.owner_id;delete obj.is_official;
+    delete obj.owner_id;delete obj.is_official;
+    const original=editingSigOriginal||{};
+
+    if(m115IsFinished(original)){
+      const outcome=(document.getElementById('sgEditOutcome')||{}).value||'closed';
+      const closeRaw=val('sgClosingPrice');
+      const closePrice=closeRaw!==''?Number(closeRaw):null;
+      const overrideRaw=val('sgResultPips');
+      const manualPips=overrideRaw!==''?Number(overrideRaw):null;
+      const now=new Date().toISOString();
+
+      obj.activated_at=original.activated_at||null;
+
+      if(outcome==='active'){
+        obj.status='active';obj.tp_hit=0;obj.result_pips=null;obj.closed_at=null;obj.closing_price=null;obj.be_moved=false;
+        if(isPendingOrder && !obj.activated_at)obj.activated_at=now;
+      }else if(outcome==='pending'){
+        obj.status='pending';obj.tp_hit=0;obj.result_pips=null;obj.closed_at=null;obj.closing_price=null;obj.be_moved=false;obj.activated_at=null;
+      }else if(outcome==='tp1'||outcome==='tp2'){
+        obj.status=outcome;obj.tp_hit=outcome==='tp1'?1:2;obj.closed_at=null;obj.closing_price=null;
+        const auto=m115AutoResultFor(outcome,null);
+        obj.result_pips=Number.isFinite(manualPips)?manualPips:auto;
+      }else if(outcome==='tp3'){
+        obj.status='closed';obj.tp_hit=3;obj.closed_at=original.closed_at||now;obj.closing_price=obj.take_profit3;
+        const auto=m115AutoResultFor('tp3',null);
+        obj.result_pips=Number.isFinite(manualPips)?manualPips:auto;
+      }else if(outcome==='sl'){
+        obj.status='sl';obj.tp_hit=0;obj.closed_at=original.closed_at||now;obj.closing_price=obj.stop_loss;
+        const auto=m115AutoResultFor('sl',null);
+        obj.result_pips=Number.isFinite(manualPips)?manualPips:auto;
+      }else if(outcome==='be'){
+        obj.status='be';obj.tp_hit=0;obj.closed_at=original.closed_at||now;obj.closing_price=obj.entry_price;obj.result_pips=Number.isFinite(manualPips)?manualPips:0;
+      }else{
+        obj.status='closed';obj.tp_hit=0;obj.closed_at=original.closed_at||now;
+        obj.closing_price=Number.isFinite(closePrice)?closePrice:(original.closing_price??null);
+        const auto=Number.isFinite(closePrice)?m115AutoResultFor('closed',closePrice):null;
+        obj.result_pips=Number.isFinite(manualPips)?manualPips:(auto!==null?auto:(original.result_pips??null));
+      }
+    }else{
+      // Normal active/pending edit keeps the current lifecycle status.
+      obj.status=original.status||obj.status;
+      obj.tp_hit=original.tp_hit||0;
+      obj.be_moved=!!original.be_moved;
+      delete obj.result_pips;
+    }
+
     const r=await sb.from('signals').update(obj).eq('id',editingSigId);
     error=r.error;
   }else{
     const r=await sb.from('signals').insert(obj);
     error=r.error;
   }
+
   if(error){
     if(window.pipToast)window.pipToast('Unable to '+(wasEditing?'update':'publish')+' the signal. Please try again.','err');
     else mentorAlert('Error: '+error.message);
     return;
   }
+
   if(wasEditing){
-    cancelSigEdit();
     if(window.pipToast)window.pipToast('Signal updated successfully.','ok');
     else mentorAlert('Signal updated successfully.');
   }else{
-    if(window.pipToast)window.pipToast('Signal published successfully.','ok');
-    else mentorAlert('Signal published successfully.');
-    try{await pspCreateNotificationAndPush('📊 New Signal Published',obj.pair+' '+obj.direction+' signal is now available.','signal','/?tab=signals',obj.audience||'all');}catch(_){ }
+    const typeText=(dir.toUpperCase()+(otype!=='market'?' '+otype.toUpperCase():''));
+    if(window.pipToast)window.pipToast(isPendingOrder?'Pending order published successfully.':'Signal published successfully.','ok');
+    else mentorAlert(isPendingOrder?'Pending order published successfully.':'Signal published successfully.');
+    try{
+      await pspCreateNotificationAndPush(
+        isPendingOrder?'⏳ Pending Order Published':'📊 New Signal Published',
+        obj.pair+' '+typeText+(isPendingOrder?' is waiting for activation.':' signal is now available.'),
+        'signal','/?tab=signals',obj.audience||'all'
+      );
+    }catch(_){ }
   }
-  ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
-  editingSigId=null;
+
+  ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan','sgClosingPrice','sgResultPips'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+  editingSigId=null;editingSigOriginal=null;
   closeCreateSignalModal();
   loadSignals();
 }
@@ -2029,6 +2174,59 @@ async function loadSignals(){
   `;
 }
 let editingSigId=null;
+let editingSigOriginal=null;
+
+function m115IsFinished(s){
+  const st=String(s?.status||'active').toLowerCase();
+  return ['sl','sl_hit','closed','tp3','be'].includes(st);
+}
+function m115OutcomeFromSignal(s){
+  const st=String(s?.status||'active').toLowerCase();
+  if(Number(s?.tp_hit||0)>=3||st==='tp3')return 'tp3';
+  if(st==='sl'||st==='sl_hit')return 'sl';
+  if(st==='be')return 'be';
+  if(st==='tp2')return 'tp2';
+  if(st==='tp1')return 'tp1';
+  if(st==='pending')return 'pending';
+  if(st==='active')return 'active';
+  return 'closed';
+}
+function m115FormSignal(){
+  const order=((document.getElementById('sgOrderType')||{}).value)||'buy';
+  const parts=order.split('_');
+  return {
+    pair:(document.getElementById('sgPair')||{}).value||'',
+    direction:String(parts[0]||'buy').toUpperCase(),
+    entry_price:Number((document.getElementById('sgEntry')||{}).value),
+    stop_loss:Number((document.getElementById('sgSL')||{}).value),
+    take_profit1:Number((document.getElementById('sgTP1')||{}).value),
+    take_profit2:Number((document.getElementById('sgTP2')||{}).value),
+    take_profit3:Number((document.getElementById('sgTP3')||{}).value)
+  };
+}
+function m115AutoResultFor(outcome,closePrice){
+  const s=m115FormSignal();
+  if(outcome==='be')return 0;
+  if(outcome==='sl')return pspSignalAutoPips(s,s.stop_loss);
+  if(outcome==='tp1')return pspSignalAutoPips(s,s.take_profit1);
+  if(outcome==='tp2')return pspSignalAutoPips(s,s.take_profit2);
+  if(outcome==='tp3')return pspSignalAutoPips(s,s.take_profit3);
+  if(outcome==='closed' && Number.isFinite(Number(closePrice)))return pspSignalAutoPips(s,Number(closePrice));
+  return null;
+}
+function m115HistoryPreview(){
+  const box=document.getElementById('m115HistoryPreview');if(!box)return;
+  const outcome=(document.getElementById('sgEditOutcome')||{}).value||'closed';
+  const closeRaw=(document.getElementById('sgClosingPrice')||{}).value;
+  const overrideRaw=(document.getElementById('sgResultPips')||{}).value;
+  const override=overrideRaw!==''?Number(overrideRaw):null;
+  const auto=m115AutoResultFor(outcome,closeRaw);
+  if(outcome==='active')box.textContent='This correction will move the signal back to Active and clear the old closed result.';
+  else if(outcome==='pending')box.textContent='This correction will move the signal back to Pending and clear the old closed result.';
+  else if(Number.isFinite(override))box.textContent='Manual result override: '+pspSignalFormatPips(override)+'.';
+  else if(auto!==null)box.textContent='Automatic corrected result: '+pspSignalFormatPips(auto)+'.';
+  else box.textContent='Enter Closing Price for a manual close, or enter Result Pips Override if needed.';
+}
 function editMentorSignal(id){
   const sg=(window._mSigCache||[]).find(function(x){return String(x.id)===String(id);});
   if(!sg){
@@ -2038,20 +2236,15 @@ function editMentorSignal(id){
   }
 
   editingSigId=id;
+  editingSigOriginal=sg;
   const modal=document.getElementById('m110SignalModal');
   if(modal)modal.classList.add('open');
   document.body.style.overflow='hidden';
 
   const set=function(i,v){const e=document.getElementById(i);if(e)e.value=(v==null?'':v);};
-  set('sgPair',sg.pair);
-  set('sgEntry',sg.entry_price);
-  set('sgSL',sg.stop_loss);
-  set('sgTP1',sg.take_profit1);
-  set('sgTP2',sg.take_profit2);
-  set('sgTP3',sg.take_profit3);
-  set('sgTP4',sg.take_profit4);
-  set('sgNotes',sg.notes);
-  set('sgPlan',sg.plan_name);
+  set('sgPair',sg.pair);set('sgEntry',sg.entry_price);set('sgSL',sg.stop_loss);
+  set('sgTP1',sg.take_profit1);set('sgTP2',sg.take_profit2);set('sgTP3',sg.take_profit3);
+  set('sgTP4',sg.take_profit4);set('sgNotes',sg.notes);set('sgPlan',sg.plan_name);
 
   const ot=document.getElementById('sgOrderType');
   if(ot){
@@ -2060,18 +2253,36 @@ function editMentorSignal(id){
     ot.value=t==='market'?d:(d+'_'+t);
   }
 
+  const isFinished=m115IsFinished(sg);
+  const hist=document.getElementById('m115HistoryEdit');
+  if(hist)hist.style.display=isFinished?'block':'none';
+  if(isFinished){
+    const outcome=m115OutcomeFromSignal(sg);
+    const oc=document.getElementById('sgEditOutcome');if(oc)oc.value=outcome;
+    let cp=sg.closing_price;
+    if(cp==null||cp===''){
+      if(outcome==='tp3')cp=sg.take_profit3;
+      else if(outcome==='sl')cp=sg.stop_loss;
+      else if(outcome==='be')cp=sg.entry_price;
+    }
+    set('sgClosingPrice',cp);
+    set('sgResultPips','');
+  }
+
   const title=document.getElementById('m110SignalTitle');
   const sub=document.getElementById('m110SignalSub');
   const btn=document.getElementById('sgPostBtn');
-  if(title)title.textContent='Edit Signal';
-  if(sub)sub.textContent='Update signal levels or mentor note.';
+  if(title)title.textContent=isFinished?'Edit History Signal':'Edit Signal';
+  if(sub)sub.textContent=isFinished?'Full correction mode — change levels, result, or reopen this signal.':'Update signal levels or mentor note.';
   if(btn)btn.textContent='💾 Update Signal';
 
   bindMentorAutoPipsPreview();
   mentorSignalPreviewPips();
+  if(isFinished)m115HistoryPreview();
 }
 function cancelSigEdit(){
   editingSigId=null;
+  editingSigOriginal=null;
   closeCreateSignalModal();
   const btn=document.getElementById('sgPostBtn');
   if(btn)btn.textContent='🚀 Publish Signal';
@@ -2086,12 +2297,13 @@ async function updateMentorSigStatus(id,kind){
 
   let obj={};
   let autoPips=null;
+  const now=new Date().toISOString();
 
-  if(kind==='be_move'){
-    // Moving SL to entry does not close the signal and does not add pips.
+  if(kind==='activate'){
+    obj={status:'active',activated_at:now,closed_at:null,closing_price:null,result_pips:null,tp_hit:0,be_moved:false};
+  }else if(kind==='be_move'){
     obj={be_moved:true};
   }else if(kind==='closed'){
-    // Manual close is the only action that needs an actual exit price.
     const raw=window.prompt('Enter closing price for '+(signal.pair||'this signal')+':','');
     if(raw===null)return;
     const closePrice=Number(String(raw).trim());
@@ -2106,19 +2318,11 @@ async function updateMentorSigStatus(id,kind){
       else mentorAlert('Unable to calculate pips for this signal.');
       return;
     }
-    obj={
-      status:'closed',
-      closed_at:new Date().toISOString(),
-      result_pips:autoPips
-    };
+    obj={status:'closed',closed_at:now,closing_price:closePrice,result_pips:autoPips};
   }else{
     const target=pspSignalTargetForAction(signal,kind);
-
-    if(kind==='be'){
-      autoPips=0;
-    }else{
-      autoPips=pspSignalAutoPips(signal,target);
-    }
+    if(kind==='be')autoPips=0;
+    else autoPips=pspSignalAutoPips(signal,target);
 
     if(autoPips===null){
       if(window.pipToast)window.pipToast('This signal does not have a valid '+kind.toUpperCase()+' price.','err');
@@ -2127,18 +2331,14 @@ async function updateMentorSigStatus(id,kind){
     }
 
     if(kind==='tp1'||kind==='tp2'){
-      obj={
-        status:kind,
-        tp_hit:kind==='tp1'?1:2,
-        result_pips:autoPips
-      };
-    }else{
-      obj={
-        status:kind,
-        closed_at:new Date().toISOString(),
-        result_pips:autoPips
-      };
-      if(kind==='tp3')obj.tp_hit=3;
+      obj={status:kind,tp_hit:kind==='tp1'?1:2,result_pips:autoPips};
+    }else if(kind==='tp3'){
+      // V115: TP3 is a finished trade. Main lifecycle status is CLOSED.
+      obj={status:'closed',tp_hit:3,closed_at:now,closing_price:signal.take_profit3,result_pips:autoPips};
+    }else if(kind==='sl'){
+      obj={status:'sl',closed_at:now,closing_price:signal.stop_loss,result_pips:autoPips};
+    }else if(kind==='be'){
+      obj={status:'be',closed_at:now,closing_price:signal.entry_price,result_pips:0};
     }
   }
 
@@ -2150,32 +2350,41 @@ async function updateMentorSigStatus(id,kind){
   }
 
   const pipSuffix=(autoPips!==null)?(' · '+pspSignalFormatPips(autoPips)):'';
+  const typeText=m110TypeLabel(signal);
   const successMessages={
+    activate:typeText+' is Active Now. Users have been notified.',
     tp1:'TP1 hit — '+pspSignalFormatPips(autoPips)+' calculated automatically.',
     tp2:'TP2 hit — '+pspSignalFormatPips(autoPips)+' calculated automatically.',
-    tp3:'TP3 hit — '+pspSignalFormatPips(autoPips)+' calculated automatically.',
+    tp3:'TP3 hit — signal Closed · '+pspSignalFormatPips(autoPips)+'.',
     be_move:'Stop loss moved to breakeven successfully.',
     be:'Breakeven hit — 0 pips.',
     sl:'Stop loss hit — '+pspSignalFormatPips(autoPips)+' calculated automatically.',
     closed:'Signal closed — '+pspSignalFormatPips(autoPips)+' calculated automatically.'
   };
 
-  const pushData={
-    tp1:['✅ TP1 Hit','TP1 hit'+pipSuffix],
-    tp2:['✅ TP2 Hit','TP2 hit'+pipSuffix],
-    tp3:['🏆 TP3 Hit','TP3 hit — signal closed'+pipSuffix],
-    be_move:['🔒 Stop Loss at Breakeven','Move your Stop Loss to the entry price.'],
-    be:['🔒 Breakeven Hit','Breakeven hit — signal closed · 0 pips'],
-    sl:['🛑 Stop Loss Hit','Stop loss hit — signal closed'+pipSuffix],
-    closed:['🔒 Signal Closed','Signal closed'+pipSuffix]
-  };
-
   const msg=successMessages[kind]||'Signal status updated successfully.';
   if(window.pipToast)window.pipToast(msg,'ok');else mentorAlert(msg);
 
   try{
-    const pd=pushData[kind];
-    if(pd)await pspCreateNotificationAndPush(pd[0],pd[1],'signal','/?tab=signals','all');
+    if(kind==='activate'){
+      await pspCreateNotificationAndPush(
+        '⚡ '+typeText+' ACTIVE NOW',
+        (signal.pair||'Signal')+' '+typeText+' is active now.',
+        'signal','/?tab=signals',signal.audience||'all'
+      );
+    }else{
+      const pushData={
+        tp1:['✅ TP1 Hit','TP1 hit'+pipSuffix],
+        tp2:['✅ TP2 Hit','TP2 hit'+pipSuffix],
+        tp3:['🏆 TP3 Hit','TP3 hit — signal closed'+pipSuffix],
+        be_move:['🔒 Stop Loss at Breakeven','Move your Stop Loss to the entry price.'],
+        be:['🔒 Breakeven Hit','Breakeven hit — signal closed · 0 pips'],
+        sl:['🛑 Stop Loss Hit','Stop loss hit — signal closed'+pipSuffix],
+        closed:['🔒 Signal Closed','Signal closed'+pipSuffix]
+      };
+      const pd=pushData[kind];
+      if(pd)await pspCreateNotificationAndPush(pd[0],pd[1],'signal','/?tab=signals',signal.audience||'all');
+    }
   }catch(_){ }
 
   closeManageSignalModal();

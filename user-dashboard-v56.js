@@ -63,14 +63,17 @@ function psp67Spark(series){
 function psp67Skeleton(){return `<div class="psp67-skeleton"><div class="sk sk-hero"></div><div class="sk-row"><i></i><i></i><i></i><i></i></div><div class="sk-grid"><div></div><div></div></div><div class="sk-grid small"><div></div><div></div></div></div>`}
 function statusInfo(s){
   const raw=String(s?.status||'active').toLowerCase(),tp=Number(s?.tp_hit||0),pips=Number(s?.result_pips);
-  if(raw==='sl'||raw==='sl_hit')return{label:'SL HIT',cls:'loss',sub:Number.isFinite(pips)?`${pips>0?'+':''}${pips} pips`:'Stop loss reached',final:true};
+  const ptxt=Number.isFinite(pips)?`${pips>0?'+':''}${pips} pips`:'';
+  if(raw==='pending')return{label:'PENDING',cls:'neutral',sub:'Waiting for order activation',final:false};
+  if(raw==='sl'||raw==='sl_hit')return{label:'SL HIT',cls:'loss',sub:ptxt||'Stop loss reached',final:true};
   if(raw==='cancelled'||raw==='canceled')return{label:'CANCELLED',cls:'neutral',sub:'Signal cancelled',final:true};
-  if(raw==='be'||raw==='breakeven')return{label:'BREAKEVEN',cls:'neutral',sub:Number.isFinite(pips)?`${pips>0?'+':''}${pips} pips`:'Closed at breakeven',final:true};
-  if(raw==='closed')return{label:'CLOSED',cls:Number.isFinite(pips)?(pips>=0?'win':'loss'):'neutral',sub:Number.isFinite(pips)?`${pips>0?'+':''}${pips} pips`:'Trade closed',final:true};
-  if(raw==='tp3'||tp>=3)return{label:'TP3 HIT',cls:'win',sub:Number.isFinite(pips)?`${pips>0?'+':''}${pips} pips`:'Final target reached',final:true};
+  if(raw==='be'||raw==='breakeven')return{label:'BREAKEVEN',cls:'neutral',sub:ptxt||'Closed at breakeven',final:true};
+  if((raw==='closed'&&tp>=3)||raw==='tp3'||tp>=3)return{label:'CLOSED',cls:'win',sub:'TP3 Hit'+(ptxt?' • '+ptxt:''),final:true};
+  if(raw==='closed')return{label:'CLOSED',cls:Number.isFinite(pips)?(pips>=0?'win':'loss'):'neutral',sub:ptxt||'Trade closed',final:true};
   if(raw==='tp2'||tp>=2)return{label:'TP2 HIT',cls:'win',sub:'Signal remains active after TP2',final:false};
   if(raw==='tp1'||tp>=1)return{label:'TP1 HIT',cls:'win',sub:'Signal remains active after TP1',final:false};
   if(s?.be_moved)return{label:'ACTIVE • BE',cls:'live',sub:'Stop loss protected at breakeven',final:false};
+  if(s?.activated_at && String(s?.order_type||'market').toLowerCase()!=='market')return{label:'ACTIVE NOW',cls:'live',sub:'Pending order has been activated',final:false};
   return{label:'ACTIVE',cls:'live',sub:'Live trade setup',final:false};
 }
 function isLiveSignal(s){const x=statusInfo(s);return !x.final}
@@ -257,7 +260,7 @@ async function load(force=false){
     try{await window.PSPAccountVerification?.load?.(true)}catch(_){}
     const sess=await c.auth.getSession(),user=sess?.data?.session?.user;if(!user)return;
     const all=await Promise.allSettled([
-      c.from('signals').select('*').order('created_at',{ascending:false}).limit(30),
+      c.rpc('psp_user_signals_feed',{p_limit:30}),
       c.from('charts').select('*').order('created_at',{ascending:false}).limit(8),
       c.from('articles').select('*').eq('is_published',true).order('created_at',{ascending:false}).limit(8),
       c.from('course_enrollments').select('*').eq('user_id',user.id).order('created_at',{ascending:false}),
@@ -266,7 +269,15 @@ async function load(force=false){
       c.from('courses').select('*').order('display_order',{ascending:true}).limit(10)
     ]);
     const data=i=>all[i].status==='fulfilled'&&!all[i].value.error?(all[i].value.data||[]):[];
-    const signals=data(0),charts=data(1),articles=data(2),enrollments=data(3),classes=data(4),trades=data(5),courses=data(6);
+    let signals=data(0);
+    if(all[0].status!=='fulfilled' || all[0].value?.error){
+      console.warn('Dashboard signal RPC feed unavailable, trying legacy query.',all[0].status==='fulfilled'?all[0].value?.error:all[0].reason);
+      try{
+        const legacySignals=await c.from('signals').select('*').order('created_at',{ascending:false}).limit(30);
+        if(!legacySignals.error)signals=legacySignals.data||[];
+      }catch(_){}
+    }
+    const charts=data(1),articles=data(2),enrollments=data(3),classes=data(4),trades=data(5),courses=data(6);
     const av=window.PSPAccountVerification?.getState?.(),allowed=!!av?.can_access;
     const active=signals.filter(isLiveSignal).length,todayCharts=charts.filter(x=>pktDateKey(x.created_at)===todayPKT()).length;
     root.innerHTML=`<div class="psp58-home">
