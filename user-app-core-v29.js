@@ -299,12 +299,45 @@
   function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
+    if (!sidebar) return;
+
     const willOpen = !sidebar.classList.contains('open');
+    const mobile = window.matchMedia ? window.matchMedia('(max-width: 768px)').matches : window.innerWidth <= 768;
+
+    if (mobile) {
+      const nav = document.getElementById('userBottomNav');
+      const navH = nav && getComputedStyle(nav).display !== 'none'
+        ? Math.max(0, Math.ceil(nav.getBoundingClientRect().height))
+        : 0;
+      document.documentElement.style.setProperty('--psp-mobile-nav-h', navH + 'px');
+    }
+
     sidebar.classList.toggle('open', willOpen);
     if (overlay) overlay.style.display = willOpen ? 'block' : 'none';
     document.documentElement.classList.toggle('psp-sidebar-open', willOpen);
     document.body.classList.toggle('psp-sidebar-open', willOpen);
-    if (willOpen) {
+
+    if (mobile) {
+      if (willOpen) {
+        window.__pspSidebarScrollY = window.scrollY || window.pageYOffset || 0;
+        document.body.style.position = 'fixed';
+        document.body.style.top = '-' + window.__pspSidebarScrollY + 'px';
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.width = '100%';
+
+        const menu = sidebar.querySelector('.menu');
+        if (menu) menu.scrollTop = 0;
+      } else {
+        const y = Number(window.__pspSidebarScrollY || 0);
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+        window.scrollTo(0, y);
+      }
+    } else if (willOpen) {
       const menu = sidebar.querySelector('.menu');
       if (menu) menu.scrollTop = 0;
     }
@@ -5396,3 +5429,58 @@
     const nhp = document.getElementById('page-newshub');
     if (nhp && nhp.classList.contains('active') && typeof nhLoad === 'function') { nhLoad(); }
   }, 5 * 60 * 1000); // 5 minutes
+
+
+/* PipSePaisa V106 — locked mobile drawer */
+(function(){
+  if(document.getElementById('psp-v106-mobile-drawer-style'))return;
+  var s=document.createElement('style');
+  s.id='psp-v106-mobile-drawer-style';
+  s.textContent=`
+  @media(max-width:768px){
+    .sidebar{
+      position:fixed!important;
+      top:0!important;
+      left:0!important;
+      bottom:var(--psp-mobile-nav-h,0px)!important;
+      height:auto!important;
+      max-height:none!important;
+      min-height:0!important;
+      box-sizing:border-box!important;
+      overflow:hidden!important;
+      padding-bottom:0!important;
+      overscroll-behavior:contain!important;
+    }
+    .sidebar.open{
+      transform:translate3d(0,0,0)!important;
+    }
+    .sidebar .menu{
+      flex:1 1 auto!important;
+      min-height:0!important;
+      overflow-y:auto!important;
+      overflow-x:hidden!important;
+      overscroll-behavior:contain!important;
+      -webkit-overflow-scrolling:touch!important;
+    }
+    .sidebar .sidebar-footer{
+      flex:0 0 auto!important;
+      padding-bottom:8px!important;
+    }
+    #sidebarOverlay{
+      position:fixed!important;
+      top:0!important;
+      left:0!important;
+      right:0!important;
+      bottom:var(--psp-mobile-nav-h,0px)!important;
+      height:auto!important;
+      overscroll-behavior:none!important;
+      touch-action:none!important;
+    }
+    html.psp-sidebar-open,
+    body.psp-sidebar-open{
+      overflow:hidden!important;
+      overscroll-behavior:none!important;
+    }
+  }`;
+  document.head.appendChild(s);
+})();

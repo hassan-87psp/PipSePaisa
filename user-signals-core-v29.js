@@ -2414,3 +2414,75 @@ function pspSignalPeriod(period){
 }
 
 
+// ============================================================================
+// PIPSEPAISA V106 — MOBILE RESULT FIT + LEFT-ALIGNED NOTE
+// 20 August 2026
+// ============================================================================
+
+(function pspV106SignalPolish(){
+  if(document.getElementById('psp-v106-signal-polish')) return;
+  var s=document.createElement('style');
+  s.id='psp-v106-signal-polish';
+  s.textContent=`
+    /* Desktop note: no centered empty gap; open from the LEFT side. */
+    .psp-note-dropdown-content{
+      margin-left:0!important;
+      margin-right:auto!important;
+      width:min(720px,72%)!important;
+      max-width:100%!important;
+    }
+
+    @media(max-width:760px){
+      /* Give Action enough width while keeping the whole result table on-screen. */
+      .psp-period-fit-row{
+        grid-template-columns:
+          1.12fr   /* Date */
+          .76fr    /* Pair */
+          .72fr    /* Status */
+          1.08fr   /* Action */
+          .60fr    /* Open */
+          .56fr    /* SL */
+          .58fr    /* TP */
+          .62fr!important; /* Result */
+      }
+
+      .psp-period-fit-row > div{
+        padding-left:1px!important;
+        padding-right:1px!important;
+        overflow:hidden!important;
+      }
+
+      /* BUY LIMIT / SELL LIMIT / BUY STOP / SELL STOP must never be clipped. */
+      .psp-period-fit-row .psp-type-pill{
+        width:100%!important;
+        max-width:100%!important;
+        min-width:0!important;
+        min-height:24px!important;
+        padding:3px 1px!important;
+        border-radius:7px!important;
+        font-size:5.7px!important;
+        line-height:1.04!important;
+        white-space:normal!important;
+        text-align:center!important;
+        overflow:visible!important;
+        word-break:normal!important;
+        overflow-wrap:normal!important;
+      }
+      .psp-period-fit-row .psp-type-pill:before{
+        display:none!important;
+      }
+
+      .psp-period-fit-row.head > div{
+        font-size:6.4px!important;
+      }
+      .psp-period-fit-row .date{font-size:6.3px!important}
+      .psp-period-fit-row .pair{font-size:7px!important}
+      .psp-period-fit-row .psp-sig-badge{
+        padding:2px 2px!important;
+        font-size:5.8px!important;
+      }
+    }
+  `;
+  document.head.appendChild(s);
+})();
+

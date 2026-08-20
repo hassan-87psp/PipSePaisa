@@ -82,6 +82,88 @@ function accessHTML(){
   if(st.direct_access_active){const exp=st.direct_access_expires_at?esc(st.direct_access_expires_at):'';return '<div class="psp58-access trial" data-access-expires="'+exp+'"><span class="psp58-access-icon">⚡</span><div><b>Free Access Active</b><span class="psp58-access-count">'+esc(remaining(st.direct_access_remaining_seconds))+' remaining</span></div><button onclick="PSPAccountVerification.goProfile()">Verify</button></div>'}
   return '<div class="psp58-access locked"><span class="psp58-access-icon">🔒</span><div><b>Verification Required</b><span>Complete verification to unlock services</span></div><button onclick="PSPAccountVerification.goProfile()">Verify Account</button></div>';
 }
+
+function psp106DashTypeKey(s){
+  const d=String(s?.direction||'buy').toLowerCase().includes('sell')?'sell':'buy';
+  const o=String(s?.order_type||s?.orderType||'market').toLowerCase();
+  if(o.includes('limit'))return d+'-limit';
+  if(o.includes('stop'))return d+'-stop';
+  return d;
+}
+function psp106DashTypeLabel(s){
+  const k=psp106DashTypeKey(s);
+  return ({
+    'buy':'BUY',
+    'buy-limit':'BUY LIMIT',
+    'buy-stop':'BUY STOP',
+    'sell':'SELL',
+    'sell-limit':'SELL LIMIT',
+    'sell-stop':'SELL STOP'
+  })[k]||'BUY';
+}
+function psp106DashTypePill(s){
+  const k=psp106DashTypeKey(s);
+  return `<span class="psp106-dash-type ${k}">${esc(psp106DashTypeLabel(s))}</span>`;
+}
+function psp106DashPips(s){
+  const n=Number(s?.pips);
+  if(!Number.isFinite(n))return {text:'Open',cls:'open'};
+  return {text:(n>=0?'+':'')+n,cls:n>=0?'pos':'neg'};
+}
+function psp106DashTp4(s){
+  const v=s?.take_profit4??s?.tp4??'';
+  if(String(v).trim().toLowerCase()==='open')return '<span class="psp106-tp4-open">Open</span>';
+  return esc(v||'—');
+}
+function psp106DashMobileSignal(s,allowed){
+  if(!allowed){
+    return `<div class="psp106-dash-lock">🔒 Signal details are locked. <button onclick="PSPAccountVerification.goProfile()">Verify Account</button></div>`;
+  }
+  const st=statusInfo(s),pp=psp106DashPips(s);
+  const opened=fmtPKT(s.created_at||s.updated_at);
+  const note=String(s.notes||s.note||'').trim();
+  return `<details class="psp106-dash-signal ${psp106DashTypeKey(s)}">
+    <summary>
+      <span class="dt">${esc(opened)}</span>
+      <b class="pair">${esc(s.pair||'Market')}</b>
+      <span class="status ${st.cls}">${esc(st.label)}</span>
+      <b class="profit ${pp.cls}">${esc(pp.text)}</b>
+      <span class="open">Open⌄</span>
+    </summary>
+    <div class="psp106-dash-detail">
+      <div class="psp106-dash-detail-head">
+        ${psp106DashTypePill(s)}
+        <b>${esc(s.pair||'Market')}</b>
+      </div>
+      <div class="psp106-dash-levels">
+        <div><span>Entry</span><b>${esc(s.entry_price??'—')}</b></div>
+        <div><span>SL</span><b class="sl">${esc(s.stop_loss??'—')}</b></div>
+        <div><span>TP1</span><b>${esc(s.take_profit1??'—')}</b></div>
+        <div><span>TP2</span><b>${esc(s.take_profit2??'—')}</b></div>
+        <div><span>TP3</span><b>${esc(s.take_profit3??'—')}</b></div>
+        <div><span>TP4</span><b>${psp106DashTp4(s)}</b></div>
+      </div>
+      ${note?`<div class="psp106-dash-note"><b>📝 Note:</b> ${esc(note)}</div>`:''}
+    </div>
+  </details>`;
+}
+function latestSignalsHTML(signals,allowed){
+  const live=(signals||[]).filter(isLiveSignal).slice(0,3);
+  const desktop=`<div class="psp106-latest-desktop">${signalHTML(live[0]||null,allowed)}</div>`;
+  let mobile='';
+  if(!live.length){
+    mobile='<div class="psp106-latest-mobile"><div class="psp106-dash-empty">📡 No active signal right now.</div></div>';
+  }else{
+    mobile=`<div class="psp106-latest-mobile">
+      <div class="psp106-dash-head">
+        <span>Date</span><span>Pair</span><span>Status</span><span>Profit</span><span>Open</span>
+      </div>
+      ${live.map(s=>psp106DashMobileSignal(s,allowed)).join('')}
+    </div>`;
+  }
+  return desktop+mobile;
+}
+
 function signalHTML(s,allowed){
   if(!s)return '<div class="psp58-empty"><span>📡</span><b>No signal published yet</b><small>New trade setups will appear here automatically.</small></div>';
   if(!allowed)return '<div class="psp58-empty"><span>🔒</span><b>Signal details are locked</b><small>Use active Free Access or complete account verification.</small><button onclick="PSPAccountVerification.goProfile()">Open Profile →</button></div>';
@@ -244,7 +326,7 @@ async function load(force=false){
         <div class="psp63-access-wrap">${accessHTML()}</div>
       </div>
       <section class="psp58-stats"><div class="psp58-stat signal" onclick="psp58Nav('signals')"><span class="ico psp67-line-icon">${psp67Icon('signal')}</span><div><span class="lab">Active Signals</span><b class="val" data-count="${active}">0</b><small>${active?'Live setups & partial TPs':'No live setup right now'}</small></div>${psp67Spark(psp67Series(signals))}<span class="go">→</span></div><div class="psp58-stat charts" onclick="psp58Nav('articles')"><span class="ico psp67-line-icon">${psp67Icon('charts')}</span><div><span class="lab">Today’s Charts</span><b class="val" data-count="${todayCharts}">0</b><small>PKT market analysis</small></div>${psp67Spark(psp67Series(charts))}<span class="go">→</span></div><div class="psp58-stat articles" onclick="psp58Nav('articles')"><span class="ico psp67-line-icon">${psp67Icon('articles')}</span><div><span class="lab">Recent Articles</span><b class="val" data-count="${articles.length}">0</b><small>Education & insights</small></div>${psp67Spark(psp67Series(articles))}<span class="go">→</span></div><div class="psp58-stat courses" onclick="navMyCoursesV58()"><span class="ico psp67-line-icon">${psp67Icon('courses')}</span><div><span class="lab">My Courses</span><b class="val" data-count="${enrollments.length}">0</b><small>Course access & classes</small></div>${psp67Spark(psp67Series(enrollments))}<span class="go">→</span></div></section>
-      <section class="psp59-grid-primary"><div class="psp58-card featured"><div class="psp58-card-head"><div><span class="eyebrow">MARKET SIGNAL</span><h3>Latest Signal</h3></div><button class="psp58-link" onclick="psp58Nav('signals')">View All →</button></div>${signalHTML(signals[0],allowed)}</div><div class="psp58-card class-card"><div class="psp58-card-head"><div><span class="eyebrow">LIVE LEARNING</span><h3>Next Live Class</h3></div><button class="psp58-link" onclick="navMyCoursesV58()">My Courses →</button></div>${nextClassHTML(classes,enrollments,courses)}</div></section>
+      <section class="psp59-grid-primary"><div class="psp58-card featured"><div class="psp58-card-head"><div><span class="eyebrow">MARKET SIGNAL</span><h3>Latest Signal</h3></div><button class="psp58-link" onclick="psp58Nav('signals')">View All →</button></div>${latestSignalsHTML(signals,allowed)}</div><div class="psp58-card class-card"><div class="psp58-card-head"><div><span class="eyebrow">LIVE LEARNING</span><h3>Next Live Class</h3></div><button class="psp58-link" onclick="navMyCoursesV58()">My Courses →</button></div>${nextClassHTML(classes,enrollments,courses)}</div></section>
       <section class="psp59-grid-secondary"><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">MARKET INTELLIGENCE</span><h3>Latest Market Analysis</h3></div><button class="psp58-link" onclick="psp58Nav('articles')">Explore →</button></div>${analysisHTML(charts,articles,allowed)}</div><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">YOUR TRADING JOURNAL</span><h3>Journal Snapshot</h3></div><button class="psp58-link" onclick="psp58Nav('journal')">Open Journal →</button></div>${journalHTML(trades,allowed)}<div class="psp58-tools"><button onclick="psp58Nav('newshub')">📡 <span>World News Hub</span></button><button onclick="psp58Nav('strength')">💪 <span>Strength Meter</span></button><button onclick="psp58Nav('charts')">📊 <span>Live Charts</span></button><button onclick="psp58Nav('aireport')">🤖 <span>AI Report</span></button></div></div></section>
     </div>`;
     animateCounters(root);startClock();
@@ -257,6 +339,7 @@ window.PSPUserDashboard={load};window.psp58Nav=nav;window.goDashboardHome=functi
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 
+/* PipSePaisa V106 — dashboard latest active signals mobile sync */
 /* PipSePaisa V67 — inertial luxury interaction engine */
 (function(){
   'use strict';
