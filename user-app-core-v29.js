@@ -217,6 +217,21 @@
   // Hide controlled tabs immediately, before Supabase/session resolution.
   _disabledTabs=pspBuildDisabledTabs([]);
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyTabVisibility,{once:true});else applyTabVisibility();
+  function pspReleaseMobileDrawerLock(){
+    try{
+      var hadFixed=document.body.style.position==='fixed';
+      var y=Number(window.__pspSidebarScrollY||0);
+      document.body.style.position='';
+      document.body.style.top='';
+      document.body.style.left='';
+      document.body.style.right='';
+      document.body.style.width='';
+      document.documentElement.classList.remove('psp-sidebar-open');
+      document.body.classList.remove('psp-sidebar-open');
+      if(hadFixed) setTimeout(function(){ try{window.scrollTo(0,y);}catch(_){} },0);
+    }catch(_){ }
+  }
+
   function showPage(page, el) {
     if(_disabledTabs[page] && page!=='dashboard'){ page='dashboard'; el=document.querySelector('.menu-item[data-page="dashboard"]'); }
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -224,11 +239,11 @@
     if (pageEl) pageEl.classList.add('active');
 
     if (window.innerWidth <= 768) {
-      document.getElementById('sidebar').classList.remove('open');
+      const side=document.getElementById('sidebar');
+      if(side) side.classList.remove('open');
       const overlay = document.getElementById('sidebarOverlay');
       if (overlay) overlay.style.display = 'none';
-      document.documentElement.classList.remove('psp-sidebar-open');
-      document.body.classList.remove('psp-sidebar-open');
+      pspReleaseMobileDrawerLock();
     }
     
     document.querySelectorAll('.menu-item, .submenu-item').forEach(m => m.classList.remove('active'));

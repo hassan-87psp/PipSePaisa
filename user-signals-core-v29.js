@@ -2521,7 +2521,7 @@ function pspSignalPeriod(period){
   function syncHeading(){
     if(!window.matchMedia || !window.matchMedia('(max-width:760px)').matches) return;
     document.querySelectorAll('#page-signals .psp-mobile-signals-title').forEach(function(el){
-      if(typeof sigView!=='undefined' && sigView==='active'){
+      if(typeof sigView!=='undefined' && sigView==='active' && el.textContent!=='Daily Active Signals'){
         el.textContent='Daily Active Signals';
       }
     });
@@ -2533,10 +2533,13 @@ function pspSignalPeriod(period){
     syncHeading();
   }
 
-  var page=document.getElementById('page-signals');
-  if(page && window.MutationObserver){
-    new MutationObserver(syncHeading).observe(page,{childList:true,subtree:true});
-  }
+  /*
+    V108 FIX:
+    Do NOT observe page-signals subtree and rewrite textContent on every mutation.
+    V107 could recursively retrigger MutationObserver while renderSignals() was
+    rebuilding the mobile Signals DOM, making the Signals tab appear stuck/not open.
+    The heading is already rendered correctly by pspSigMobileShell() below.
+  */
 })();
 
 /* Override mobile shell so the correct heading is rendered immediately. */
@@ -2560,9 +2563,30 @@ function pspSigMobileShell(rows){
     base();
     if(window.matchMedia && window.matchMedia('(max-width:760px)').matches){
       document.querySelectorAll('#page-signals .psp-mobile-signals-title').forEach(function(el){
-        if(sigView==='active') el.textContent='Daily Active Signals';
+        if(sigView==='active' && el.textContent!=='Daily Active Signals') el.textContent='Daily Active Signals';
       });
     }
   };
 })();
 
+
+
+// ============================================================================
+// PIPSEPAISA V108 — SIGNAL TAB OPEN STABILITY
+// ============================================================================
+(function pspV108SignalOpenStability(){
+  function ensureDockAfterOpen(){
+    try{
+      var page=document.getElementById('page-signals');
+      if(page && page.classList.contains('active') && typeof pspV104SyncPeriodDock==='function'){
+        pspV104SyncPeriodDock();
+      }
+    }catch(_){ }
+  }
+  document.addEventListener('click',function(e){
+    var t=e.target && e.target.closest ? e.target.closest('[data-page="signals"]') : null;
+    if(!t)return;
+    setTimeout(ensureDockAfterOpen,30);
+    setTimeout(ensureDockAfterOpen,180);
+  },true);
+})();

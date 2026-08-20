@@ -15,6 +15,18 @@ let sdkPromise=null;
 let initPromise=null;
 let subscriptionListenerAttached=false;
 
+
+const PSP_PUSH_SUBSCRIBED_KEY="psp_push_subscribed_v108";
+function rememberSubscribed(active){
+  try{
+    if(active)localStorage.setItem(PSP_PUSH_SUBSCRIBED_KEY,"1");
+    else localStorage.removeItem(PSP_PUSH_SUBSCRIBED_KEY);
+  }catch(_){ }
+}
+function rememberedSubscribed(){
+  try{return localStorage.getItem(PSP_PUSH_SUBSCRIBED_KEY)==="1";}catch(_){return false;}
+}
+
 function secure(){
   return location.protocol==="https:"||location.hostname==="localhost";
 }
@@ -124,6 +136,7 @@ function attachSubscriptionListener(os){
     const current=event&&event.current?event.current:null;
     const active=!!(current&&current.optedIn&&current.id);
     if(!active)return;
+    rememberSubscribed(true);
 
     const bar=document.getElementById("pspNotifyInstallBar");
     if(!bar)return;
@@ -268,6 +281,7 @@ function showPrompt(){
       const os=await oneSignal();
       let state=readPushState(os);
       if(state.optedIn&&state.id){
+        rememberSubscribed(true);
         btn.textContent="Subscribed ✓";
         copy.textContent="Notifications are already enabled on this device.";
         setTimeout(removePrompt,700);
@@ -300,6 +314,7 @@ function showPrompt(){
         throw new Error("Device registration is still pending. Tap Try again in a moment.");
       }
 
+      rememberSubscribed(true);
       btn.textContent="Subscribed ✓";
       copy.textContent="Notifications are now enabled on this device.";
       setTimeout(removePrompt,900);
@@ -317,22 +332,43 @@ function showPrompt(){
 async function start(){
   if(!secure())return;
 
-  hidePwa();
-  setTimeout(showPrompt,1200);
-
-  const checkState=async function(){
-    try{
-      const active=await realSubscriptionActive();
-      if(active)removePrompt();
-    }catch(error){
-      console.warn("OneSignal background state check failed:",error);
-    }
-  };
-  if("requestIdleCallback" in window){
-    requestIdleCallback(checkState,{timeout:3500});
-  }else{
-    setTimeout(checkState,2200);
+  /*
+    V108:
+    If this device already subscribed, do not create/show the prompt at all.
+    This prevents the old 1.2s flash on every refresh.
+  */
+  if("Notification" in window && Notification.permission==="granted" && rememberedSubscribed()){
+    // Trust the persisted successful subscription immediately for UX.
+    // Verify silently in the background; if it was revoked, allow the prompt next time.
+    setTimeout(async function(){
+      try{
+        const active=await realSubscriptionActive();
+        if(active)rememberSubscribed(true);
+        else rememberSubscribed(false);
+      }catch(_){ }
+    },1200);
+    return;
   }
+
+  // For users who subscribed before V108 (no local flag yet), check OneSignal FIRST.
+  // Only show the prompt after we know the device is not actively subscribed.
+  try{
+    const active=await realSubscriptionActive();
+    if(active){
+      rememberSubscribed(true);
+      removePrompt();
+      return;
+    }
+  }catch(error){
+    console.warn("OneSignal initial state check failed:",error);
+  }
+
+  // If permission was revoked/denied, any old remembered state is no longer valid.
+  if("Notification" in window && Notification.permission!=="granted"){
+    rememberSubscribed(false);
+  }
+
+  setTimeout(showPrompt,350);
 }
 
 if(document.readyState==="loading"){
