@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Broker Verification | PipSePaisa</title>
+<title>Existing Account Verification | PipSePaisa</title>
+<!-- PipSePaisa V112 Existing Account Only -->
 <link rel="icon" href="/favicon.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -15,9 +16,9 @@
 <header class="top"><a class="brand" href="/"><img src="/favicon.png" alt="PipSePaisa"><span class="brand-copy"><span class="brand-name">Pip<span class="se">Se</span>Paisa</span><small>ACCOUNT VERIFICATION</small></span></a><a class="back" href="/free-access/">← Broker Selection</a></header>
 <main class="wrap">
 <section class="hero">
-  <div class="eyebrow">Broker Account Verification</div>
-  <h1>Complete Your Free All Access Request</h1>
-  <p>Choose your broker link, follow the relevant account instructions, then submit your account details and proof for Admin verification.</p>
+  <div class="eyebrow">Existing Broker Account Verification</div>
+  <h1>Shift & Verify Your Existing Broker Account</h1>
+  <p>This page is only for users who already had a broker account. Follow the relevant partner-shift instructions, then submit your account details and proof for Admin verification.</p>
   <div class="broker-link-panel">
     <div><label class="field-label" for="topBroker">Get Broker Link</label><select id="topBroker"><option value="">Select Broker</option><option value="exness">Exness</option><option value="dprime">DPrime</option><option value="xm">XM</option></select></div>
     <div><label class="field-label">PipSePaisa Broker Link</label><div class="link-display"><a id="selectedBrokerLink" class="link-box" target="_blank" rel="noopener">Select a broker to view the PipSePaisa link</a><button id="copyBrokerLink" class="copy-btn" type="button" disabled>Copy Link</button></div></div>
@@ -48,6 +49,12 @@
 <script>
 const SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co',KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const sb=window.supabase.createClient(SUPABASE_URL,KEY,{auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}});let user=null,settings={},emailVerified=false;const params=new URLSearchParams(location.search);const existing=params.get('existing')==='1';let preUploadedDepositPath=params.get('deposit_path')||'';
+
+// V112: fresh/new accounts must complete verification on /free-access/.
+// This route is reserved for already-existing broker accounts only.
+if(!existing){
+  location.replace('/free-access/');
+}
 const DEFAULT_LINKS={exness:'https://one.exnessonelink.com/a/be2kjlypr9',dprime:'https://my.dooprime.com/links/go/72929',xm:'https://affs.click/tr9cq'};
 const $=id=>document.getElementById(id);
 function show(msg,type='info'){const e=$('msg');e.className='status '+type;e.innerHTML=msg}function showSubmit(msg,type='info'){const e=$('submitMsg');e.className='status '+type;e.innerHTML=msg;e.scrollIntoView({behavior:'smooth',block:'nearest'})}function withTimeout(promise,ms,label){return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+' timed out. Please try again.')),ms))])}function safeName(n){return String(n||'proof').replace(/[^a-zA-Z0-9._-]+/g,'-').slice(-90)}function cleanUrl(v,f,key){const x=String(v||'').trim();if(key==='xm'&&/affs\.click\/(BvyF2|ByvF2)/i.test(x))return DEFAULT_LINKS.xm;return /^https?:\/\//i.test(x)?x:f}function brokerLink(b){return cleanUrl(settings[b+'_link'],DEFAULT_LINKS[b]||DEFAULT_LINKS.exness,b)}

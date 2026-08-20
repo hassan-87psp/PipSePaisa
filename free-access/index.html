@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Free All Access | PipSePaisa</title>
+<!-- PipSePaisa V112 Fresh Account Direct Verification -->
 <link rel="icon" href="/favicon.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -22,7 +23,7 @@
   <article class="broker" data-broker-card="xm"><div class="broker-top"><strong>XM</strong><span class="broker-badge">XM</span></div><p>Open your XM trading account through the PipSePaisa referral link.</p><div class="link-shell"><div class="urltxt" id="xmUrlText">https://affs.click/tr9cq</div><button class="copy" type="button" data-copy="xm">Copy</button></div><div class="broker-actions"><a id="xmLink" class="broker-link" href="https://affs.click/tr9cq" target="_blank" rel="noopener">Open XM Account →</a><button class="choose" type="button" data-select="xm">Select XM</button></div></article>
 </section>
 <section class="card" id="selectionCard">
-  <div class="title-row"><div><div class="title">Select Your Broker</div><div class="sub">For a new account, select the broker, enter your Trading Account ID and upload deposit proof. If you already have a broker account, you can continue now without selecting a broker and choose it on the next page.</div></div><span class="step-chip">BROKER VERIFICATION</span></div>
+  <div class="title-row"><div><div class="title">Select Your Broker</div><div class="sub">For a fresh account opened through a PipSePaisa broker link, complete your verification here on this page. If you already had a broker account before, use the Existing Account button to continue with the partner-shift verification flow.</div></div><span class="step-chip">BROKER VERIFICATION</span></div>
   <div class="grid">
     <div class="field"><label>Broker</label><select id="broker"><option value="">Select your broker</option><option value="exness">Exness</option><option value="dprime">DPrime</option><option value="xm">XM</option></select></div>
     <div class="field"><label>Trading Account ID</label><input id="accountId" autocomplete="off" placeholder="Enter your Trading Account ID"></div>
@@ -30,7 +31,7 @@
   </div>
   <div class="upload"><span class="upload-badge">REQUIRED</span><strong>Proof of Deposit</strong><div class="muted">Upload a clear screenshot showing the available deposit in your broker account.</div><input id="depositProof" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
   <div class="required-note">Email Verification is mandatory before final broker proof submission. Your Admin-configured temporary access can remain active during the signup grace period.</div>
-  <div class="actions"><button id="existingBtn" class="btn secondary" type="button">If You Already Have an Account, Click Here</button><button id="continueBtn" class="btn primary" type="button">Continue to Verification →</button></div>
+  <div class="actions"><button id="existingBtn" class="btn secondary" type="button">If You Already Have an Account, Click Here</button><button id="continueBtn" class="btn primary" type="button">Complete Verification →</button></div>
 </section>
 </main>
 <script>
@@ -46,11 +47,92 @@ function withTimeout(promise,ms,label){return Promise.race([promise,new Promise(
 async function copyText(text,btn){try{await navigator.clipboard.writeText(text)}catch(_){const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}const old=btn.textContent;btn.textContent='Copied ✓';btn.classList.add('copied');setTimeout(()=>{btn.textContent=old;btn.classList.remove('copied')},1300)}
 function selectBroker(name,scroll=true){$('broker').value=name;document.querySelectorAll('[data-broker-card]').forEach(x=>x.classList.toggle('selected',x.dataset.brokerCard===name));if(scroll){$('selectionCard').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>$('accountId').focus(),250)}}
 function openExisting(){const b=$('broker')?.value||'',id=$('accountId')?.value.trim()||'';const u=new URL('/brokershift/',location.origin);if(b)u.searchParams.set('broker',b);if(id)u.searchParams.set('account_id',id);u.searchParams.set('existing','1');location.assign(u.toString())}
-async function continueNew(){const btn=$('continueBtn'),b=$('broker')?.value||'',id=$('accountId')?.value.trim()||'',dep=Number($('deposit')?.value),file=$('depositProof')?.files?.[0];if(!b){show('Please select your broker first.','bad');$('broker')?.focus();return}if(!id){show('Please enter your Trading Account ID after creating the new broker account.','bad');$('accountId')?.focus();return}if(!Number.isFinite(dep)||dep<0){show('Please enter the available deposit in your account.','bad');$('deposit')?.focus();return}if(!file){show('Please upload your Proof of Deposit.','bad');$('depositProof')?.focus();return}if(file.size>8*1024*1024){show('Proof of Deposit must be 8 MB or smaller.','bad');return}if(!sb){show('Account connection is still loading. Please try again in a moment.','bad');return}btn.disabled=true;const old=btn.textContent;btn.textContent='Uploading Deposit Proof…';try{const ses=await withTimeout(sb.auth.getSession(),8000,'Login check');const user=ses?.data?.session?.user;if(!user){location.replace('/profile');return}const path=user.id+'/'+Date.now()+'-deposit-'+safeName(file.name);const up=await withTimeout(sb.storage.from('verification-proofs').upload(path,file,{upsert:false,contentType:file.type||undefined}),20000,'Deposit proof upload');if(up.error)throw new Error('Deposit proof upload failed: '+up.error.message);const u=new URL('/brokershift/',location.origin);u.searchParams.set('broker',b);u.searchParams.set('account_id',id);u.searchParams.set('deposit',String(dep));u.searchParams.set('deposit_path',path);u.searchParams.set('existing','0');location.assign(u.toString())}catch(e){console.error(e);show(e.message||'Could not upload deposit proof. Please try again.','bad');btn.disabled=false;btn.textContent=old}}
+async function continueNew(){
+  const btn=$('continueBtn'),
+        b=$('broker')?.value||'',
+        id=$('accountId')?.value.trim()||'',
+        dep=Number($('deposit')?.value),
+        file=$('depositProof')?.files?.[0];
+
+  if(!b){show('Please select your broker first.','bad');$('broker')?.focus();return}
+  if(!id){show('Please enter your Trading Account ID after creating the new broker account.','bad');$('accountId')?.focus();return}
+  if(!Number.isFinite(dep)||dep<0){show('Please enter the available deposit in your account.','bad');$('deposit')?.focus();return}
+  if(!file){show('Please upload your Proof of Deposit.','bad');$('depositProof')?.focus();return}
+  if(file.size>8*1024*1024){show('Proof of Deposit must be 8 MB or smaller.','bad');return}
+  if(!sb){show('Account connection is still loading. Please try again in a moment.','bad');return}
+
+  btn.disabled=true;
+  const old=btn.textContent;
+  btn.textContent='Checking Verification…';
+
+  try{
+    const ses=await withTimeout(sb.auth.getSession(),8000,'Login check');
+    const user=ses?.data?.session?.user;
+    if(!user){location.replace('/profile');return}
+
+    const st=await withTimeout(sb.rpc('psp_get_access_status'),8000,'Verification status');
+    if(st.error)throw new Error(st.error.message||'Could not check verification status.');
+    const fresh=Array.isArray(st.data)?st.data[0]:(st.data||{});
+
+    if(fresh?.submission_status==='approved'){
+      show('Your account is already approved and permanent Full Access is active.','ok');
+      btn.textContent='Already Approved ✓';
+      return;
+    }
+
+    if(!fresh?.email_verified){
+      show('Please verify your email from Profile before completing broker verification.','bad');
+      btn.disabled=false;
+      btn.textContent=old;
+      return;
+    }
+
+    btn.textContent='Uploading Deposit Proof…';
+    const path=user.id+'/'+Date.now()+'-deposit-'+safeName(file.name);
+    const up=await withTimeout(
+      sb.storage.from('verification-proofs').upload(path,file,{
+        upsert:false,
+        contentType:file.type||undefined
+      }),
+      20000,
+      'Deposit proof upload'
+    );
+    if(up.error)throw new Error('Deposit proof upload failed: '+up.error.message);
+
+    btn.textContent='Submitting Verification…';
+
+    const r=await withTimeout(
+      sb.rpc('psp_submit_access_verification',{
+        p_broker:b,
+        p_trading_account_id:id,
+        p_available_deposit:dep,
+        p_email_subject:'New account opened through PipSePaisa broker link',
+        p_deposit_proof_path:path,
+        p_proof_path:'',
+        p_existing_account:false
+      }),
+      12000,
+      'Verification submission'
+    );
+
+    if(r.error)throw new Error(r.error.message||'Verification submission failed.');
+
+    show('Verification submitted successfully. Temporary access is active while Admin reviews your fresh broker account.','ok');
+    btn.textContent='Verification Submitted ✓';
+
+    // Fresh-account flow is COMPLETE here. Never send the user to /brokershift/.
+    setTimeout(()=>location.assign('/profile'),1100);
+  }catch(e){
+    console.error('Fresh broker verification failed',e);
+    show(e.message||'Could not complete verification. Please try again.','bad');
+    btn.disabled=false;
+    btn.textContent=old;
+  }
+}
 document.querySelectorAll('[data-select]').forEach(b=>b.addEventListener('click',()=>selectBroker(b.dataset.select)));
 document.querySelectorAll('[data-copy]').forEach(b=>b.addEventListener('click',()=>copyText(selectedUrl(b.dataset.copy),b)));
 $('broker').addEventListener('change',()=>{const v=$('broker').value;document.querySelectorAll('[data-broker-card]').forEach(x=>x.classList.toggle('selected',x.dataset.brokerCard===v))});
 $('existingBtn').addEventListener('click',openExisting);$('continueBtn').addEventListener('click',continueNew);setLinks();
-(async()=>{try{if(!window.supabase?.createClient){show('Account status is loading slowly. Broker selection still works; try again before continuing.','info');return}sb=window.supabase.createClient(SUPABASE_URL,KEY,{auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}});const ses=await sb.auth.getSession();if(!ses.data.session){location.replace('/profile');return}const st=await sb.rpc('psp_get_access_status');if(st.error){show('Account verification status could not be loaded. You can continue; verification will be checked on the next page.','info')}else{state=Array.isArray(st.data)?st.data[0]:st.data;emailReady=!!state?.email_verified;if(state?.submission_status==='approved')show('Your account is already approved and permanent Full Access is active.','ok');else if(state?.submission_status==='pending')show('Your verification is already pending. Temporary access is active while Admin reviews it.','info');else if(state?.submission_status==='rejected')show('Your previous verification was rejected. Correct the details and upload proof again.','bad');else if(!emailReady)show('Verify your email from Profile before final proof submission.','info')}try{const r=await sb.from('account_verification_settings').select('*').eq('id',1).maybeSingle();if(!r.error){setLinks(r.data||{});settings=r.data||{};$('recommend').textContent='Recommended: $'+Number(settings.recommended_deposit||300).toLocaleString()}}catch(_){}}catch(e){console.warn(e);show('Verification status could not be loaded right now. You can still select a broker and try again.','info')}})();
+(async()=>{try{if(!window.supabase?.createClient){show('Account status is loading slowly. Broker selection still works; try again before continuing.','info');return}sb=window.supabase.createClient(SUPABASE_URL,KEY,{auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}});const ses=await sb.auth.getSession();if(!ses.data.session){location.replace('/profile');return}const st=await sb.rpc('psp_get_access_status');if(st.error){show('Account verification status could not be loaded. You can still complete the form and try again.','info')}else{state=Array.isArray(st.data)?st.data[0]:st.data;emailReady=!!state?.email_verified;if(state?.submission_status==='approved')show('Your account is already approved and permanent Full Access is active.','ok');else if(state?.submission_status==='pending')show('Your verification is already pending. Temporary access is active while Admin reviews it.','info');else if(state?.submission_status==='rejected')show('Your previous verification was rejected. Correct the details and upload proof again.','bad');else if(!emailReady)show('Verify your email from Profile before final proof submission.','info')}try{const r=await sb.from('account_verification_settings').select('*').eq('id',1).maybeSingle();if(!r.error){setLinks(r.data||{});settings=r.data||{};$('recommend').textContent='Recommended: $'+Number(settings.recommended_deposit||300).toLocaleString()}}catch(_){}}catch(e){console.warn(e);show('Verification status could not be loaded right now. You can still select a broker and try again.','info')}})();
 </script>
 </body></html>
