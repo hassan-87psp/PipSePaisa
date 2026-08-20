@@ -2486,3 +2486,83 @@ function pspSignalPeriod(period){
   document.head.appendChild(s);
 })();
 
+
+// ============================================================================
+// PIPSEPAISA V107 — MOBILE ACTIVE SIGNALS CLEANUP
+// 20 August 2026
+// - Remove duplicate Active / History buttons on MOBILE only.
+// - Main mobile heading: "Daily Active Signals".
+// - Daily / Weekly / Monthly fixed dock remains the history/results entry point.
+// ============================================================================
+
+(function pspV107SignalCleanup(){
+  if(document.getElementById('psp-v107-mobile-signal-cleanup')) return;
+
+  var s=document.createElement('style');
+  s.id='psp-v107-mobile-signal-cleanup';
+  s.textContent=`
+    @media(max-width:760px){
+      /* History is already available from the fixed Daily / Weekly / Monthly dock. */
+      #page-signals .sig-filter-row > div:last-child{
+        display:none!important;
+        border-left:0!important;
+        padding-left:0!important;
+        margin:0!important;
+      }
+
+      /* Remove the empty row/gap left by the hidden view buttons. */
+      #page-signals .sig-filter-row{
+        row-gap:0!important;
+      }
+    }
+  `;
+  document.head.appendChild(s);
+
+  function syncHeading(){
+    if(!window.matchMedia || !window.matchMedia('(max-width:760px)').matches) return;
+    document.querySelectorAll('#page-signals .psp-mobile-signals-title').forEach(function(el){
+      if(typeof sigView!=='undefined' && sigView==='active'){
+        el.textContent='Daily Active Signals';
+      }
+    });
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',syncHeading,{once:true});
+  }else{
+    syncHeading();
+  }
+
+  var page=document.getElementById('page-signals');
+  if(page && window.MutationObserver){
+    new MutationObserver(syncHeading).observe(page,{childList:true,subtree:true});
+  }
+})();
+
+/* Override mobile shell so the correct heading is rendered immediately. */
+function pspSigMobileShell(rows){
+  var title=sigView==='history'?'Signal History':'Daily Active Signals';
+  pspV104SyncPeriodDock();
+
+  return '<div class="psp-sig-mobile-shell">'+
+    '<div class="psp-mobile-signals-title">'+title+'</div>'+
+    '<div class="psp-mobile-sig-table">'+
+      '<div class="psp-mobile-sig-head"><div>Date</div><div>Pair</div><div>Status</div><div>Profit</div><div>Open</div></div>'+
+      rows.map(pspSigMobileRow).join('')+
+    '</div>'+
+  '</div>';
+}
+
+/* Keep empty-state heading consistent too. */
+(function pspV107WrapSignalRenderer(){
+  var base=renderSignals;
+  renderSignals=function(){
+    base();
+    if(window.matchMedia && window.matchMedia('(max-width:760px)').matches){
+      document.querySelectorAll('#page-signals .psp-mobile-signals-title').forEach(function(el){
+        if(sigView==='active') el.textContent='Daily Active Signals';
+      });
+    }
+  };
+})();
+

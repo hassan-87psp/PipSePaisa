@@ -1,0 +1,77 @@
+PipSePaisa V107 — Mobile Signals Cleanup + Dashboard Auto Height
+20 August 2026
+
+THIS IS A CUMULATIVE PATCH.
+It includes all V106/V105 Signals + Mentor + Drawer fixes.
+
+NEW FIXES
+
+1) MOBILE DASHBOARD — LATEST SIGNAL CARD
+- Latest Signal card no longer copies the height of Next Live Class.
+- 1 active signal = card height only for 1 signal.
+- 2 active signals = card height only for 2 signals.
+- 3 active signals = card height only for 3 signals.
+- No large empty background area underneath the rows.
+- Maximum remains latest 3 active signals.
+
+2) MOBILE SIGNALS PAGE — REMOVE DUPLICATE VIEW BUTTONS
+- Top "Active" and "History" buttons are removed on MOBILE.
+- Category filters remain:
+  All | Forex | Gold | Crypto
+- Desktop Active / History controls remain unchanged.
+- History/results on mobile continue through the fixed:
+  Daily | Weekly | Monthly
+  buttons at the bottom.
+
+3) MOBILE HEADING
+- "Daily Signals" changed to:
+  "Daily Active Signals"
+- Grammar checked.
+
+ALL PREVIOUS FEATURES REMAIN
+- Fixed Daily / Weekly / Monthly dock.
+- Separate mobile result page with no horizontal scrolling.
+- BUY / BUY LIMIT / BUY STOP / SELL / SELL LIMIT / SELL STOP distinct colors.
+- TP4 + Open.
+- Note dropdown.
+- Mobile drawer locked/fixed.
+- Mobile Dashboard latest max 3 active signals.
+- Mentor single order dropdown.
+
+NOT TOUCHED
+- Signal database/schema.
+- Signal publishing backend.
+- Infinity / Local Bank API.
+- Payment Edge Functions.
+- Supabase Secrets.
+- Course/payment logic.
+
+DEPLOY
+1. Upload/replace ALL files in this V107 ZIP over the current site.
+2. V106/V105 do not need to be deployed separately.
+3. Hard refresh mobile and desktop.
+4. If using the installed PWA, fully close/reopen once.
+
+CACHE-BUMPED ROUTES
+- index.html
+- my-trades/index.html
+- support/index.html
+- profile/index.html
+- signals/index.html
+- dashboard/index.html
+- vip-plans/index.html
+- economic-news/index.html
+- charts-articles/index.html
+- ai-tools/index.html
+- trades-analysis/index.html
+- live-charts/index.html
+- my-courses/index.html
+- announcements/index.html
+- about/index.html
+- currency-strength/index.html
+- member-chats/index.html
+- tools/index.html
+- performance/index.html
+- journal/index.html
+- ai-report/index.html
+- world-news/index.html

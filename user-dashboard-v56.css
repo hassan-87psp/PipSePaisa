@@ -799,3 +799,47 @@
     color:var(--text-muted);text-align:center;font-size:9px;
   }
 }
+
+
+/* ==========================================================================
+   PIPSEPAISA V107 — MOBILE LATEST SIGNAL CARD AUTO HEIGHT
+   ========================================================================== */
+@media(max-width:700px){
+  /*
+    Older dashboard versions forced the two primary cards into equal 1fr rows.
+    That made Latest Signal as tall as the much larger Next Live Class card.
+    V107 restores true content-sized rows on mobile.
+  */
+  #psp56Dashboard .psp59-grid-primary{
+    grid-auto-rows:auto!important;
+    align-items:start!important;
+    align-content:start!important;
+  }
+
+  #psp56Dashboard .psp59-grid-primary>.psp58-card{
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    align-self:start!important;
+  }
+
+  #psp56Dashboard .psp59-grid-primary>.psp58-card.featured{
+    height:max-content!important;
+    min-height:0!important;
+    max-height:none!important;
+    align-self:start!important;
+    padding-bottom:11px!important;
+  }
+
+  #psp56Dashboard .psp59-grid-primary>.psp58-card.featured>.psp106-latest-mobile{
+    flex:0 0 auto!important;
+    height:auto!important;
+    min-height:0!important;
+  }
+
+  #psp56Dashboard .psp58-card.featured:before{
+    top:15px!important;
+    bottom:15px!important;
+  }
+}
+

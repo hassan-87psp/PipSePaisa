@@ -1,0 +1,89 @@
+PipSePaisa V106 — Mobile Signals Result Fit + Fixed Drawer + Dashboard Latest Signals
+20 August 2026
+
+THIS IS A CUMULATIVE PATCH.
+It includes all V105 signal UI / type-color changes plus the new fixes below.
+
+1) MOBILE DAILY / WEEKLY / MONTHLY RESULT PAGE
+- BUY LIMIT / SELL LIMIT / BUY STOP / SELL STOP no longer get cut.
+- Action column has more space.
+- Long signal type labels can wrap cleanly inside their colored pill.
+- No left/right horizontal scrolling is introduced.
+
+2) DESKTOP NOTE DROPDOWN
+- Note dropdown remains collapsed by default.
+- When opened, Note is LEFT aligned.
+- The large empty centered gap is removed.
+
+3) MOBILE SIDE DRAWER / MORE MENU
+- Sidebar is truly fixed to the viewport.
+- Background page is locked while the drawer is open.
+- Scrolling the page cannot move the drawer.
+- Only the drawer's inner menu can scroll when needed.
+- Drawer and dark overlay stop above the fixed bottom navigation.
+
+4) MOBILE DASHBOARD — LATEST SIGNALS
+- Old large single Latest Signal card is replaced on mobile by the same compact signal-row concept.
+- Maximum 3 latest ACTIVE signals.
+- 1 active signal = 1 row only.
+- 2 active signals = 2 rows only.
+- 3+ active signals = latest 3 rows.
+- Container height automatically matches the number of rows; no empty blank space.
+- Row columns: Date, Pair, Status, Profit, Open.
+- Tap Open to expand Entry, SL, TP1, TP2, TP3, TP4 and Mentor Note.
+- Uses the same distinct signal type colors:
+  BUY = Green
+  BUY LIMIT = Teal
+  BUY STOP = Blue
+  SELL = Red
+  SELL LIMIT = Orange
+  SELL STOP = Purple
+- View All continues to open the full Signals tab.
+- Desktop Dashboard keeps the existing desktop Latest Signal presentation.
+
+5) ALL PRIOR V105 FEATURES REMAIN
+- Desktop Active/History compact table.
+- TP4 + Open.
+- Note dropdown.
+- Fixed Daily / Weekly / Monthly mobile dock.
+- Separate mobile result page.
+- Green / Red / Net pips result.
+- Mentor single dropdown:
+  Buy, Sell, Buy Limit, Buy Stop, Sell Limit, Sell Stop.
+
+NOT TOUCHED
+- Signal database/schema.
+- Mentor signal publish/update backend.
+- Infinity / Local Bank API.
+- Payment Edge Functions.
+- Supabase Secrets.
+- Course payment logic.
+
+DEPLOY
+1. Upload/replace ALL files in this ZIP over the current V105 site.
+2. Hard refresh desktop and mobile.
+3. If using the installed PWA, fully close and reopen it once after deployment.
+
+CACHE-BUMPED ROUTES
+- index.html
+- my-trades/index.html
+- support/index.html
+- profile/index.html
+- signals/index.html
+- dashboard/index.html
+- vip-plans/index.html
+- economic-news/index.html
+- charts-articles/index.html
+- ai-tools/index.html
+- trades-analysis/index.html
+- live-charts/index.html
+- my-courses/index.html
+- announcements/index.html
+- about/index.html
+- currency-strength/index.html
+- member-chats/index.html
+- tools/index.html
+- performance/index.html
+- journal/index.html
+- ai-report/index.html
+- world-news/index.html
