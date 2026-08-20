@@ -37,7 +37,7 @@ function ensureFallbackModal(){
 }
 function inject(){
   if(!document.getElementById('aceV20Style')){const s=document.createElement('style');s.id='aceV20Style';s.textContent=`
-  .ace-filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}.ace-filters button{border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);border-radius:9px;padding:8px 11px;font-weight:800;cursor:pointer}.ace-filters button.active{background:var(--gold);color:#0a0e1a}.ace-count{display:inline-flex;min-width:20px;justify-content:center;margin-left:5px;padding:1px 5px;border-radius:999px;background:rgba(0,0,0,.13);font-size:8px}.ace-wrap{overflow:auto}.ace-table{width:100%;min-width:1280px;border-collapse:collapse}.ace-table th,.ace-table td{padding:10px;border-bottom:1px solid var(--border);font-size:11px;text-align:left;vertical-align:top}.ace-table th{font-size:9px;text-transform:uppercase;color:var(--text-muted)}.ace-pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900;text-transform:uppercase}.ace-pill.ok{background:var(--green-bg);color:var(--green)}.ace-pill.wait{background:var(--gold-bg);color:var(--gold)}.ace-pill.bad{background:var(--red-bg);color:var(--red)}.ace-actions{display:flex;flex-wrap:wrap;gap:5px}.ace-actions button{border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);padding:6px 8px;border-radius:7px;font-size:9px;font-weight:800;cursor:pointer}.ace-actions .ok{background:var(--green);color:#fff;border-color:var(--green)}.ace-actions .bad{color:var(--red);border-color:rgba(239,68,68,.4)}.ace-actions .gold{background:var(--gold);color:#111827;border-color:var(--gold)}.ace-edit-overlay{display:none;position:fixed;inset:0;z-index:41000;background:rgba(3,8,18,.72);backdrop-filter:blur(4px);padding:18px;align-items:center;justify-content:center}.ace-edit-overlay.open{display:flex}.ace-edit-card{width:min(640px,100%);max-height:90vh;overflow:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:22px;padding:0;box-shadow:0 30px 90px rgba(0,0,0,.35)}.ace-edit-head{display:flex;justify-content:space-between;gap:12px;padding:22px 24px 16px;border-bottom:1px solid var(--border)}.ace-edit-body{padding:20px 24px}.ace-edit-actions{display:flex;justify-content:flex-end;gap:8px;padding:0 24px 22px}.ace-edit-card input,.ace-edit-card select,.ace-edit-card textarea{width:100%;padding:11px;border:1px solid var(--border);border-radius:9px;background:var(--bg-elevated);color:var(--text-primary);margin-top:5px}.ace-edit-card label{display:block;font-size:10px;font-weight:800;color:var(--text-muted);margin-bottom:10px}.ace-edit-actions button{border:1px solid var(--border);border-radius:10px;padding:11px 15px;font-weight:900;cursor:pointer;background:var(--bg-elevated);color:var(--text-primary)}.ace-edit-actions .primary{background:var(--gold);border-color:var(--gold);color:#111827}`;document.head.appendChild(s)}
+  .ace-filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}.ace-filters button{border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);border-radius:9px;padding:8px 11px;font-weight:800;cursor:pointer}.ace-filters button.active{background:var(--gold);color:#0a0e1a}.ace-count{display:inline-flex;min-width:20px;justify-content:center;margin-left:5px;padding:1px 5px;border-radius:999px;background:rgba(0,0,0,.13);font-size:8px}.ace-wrap{overflow:auto}.ace-table{width:100%;min-width:1320px;border-collapse:collapse}.ace-table th,.ace-table td{padding:10px;border-bottom:1px solid var(--border);font-size:11px;text-align:left;vertical-align:top}.ace-table th{font-size:9px;text-transform:uppercase;color:var(--text-muted)}.ace-pill{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:900;text-transform:uppercase}.ace-pill.ok{background:var(--green-bg);color:var(--green)}.ace-pill.wait{background:var(--gold-bg);color:var(--gold)}.ace-pill.bad{background:var(--red-bg);color:var(--red)}.ace-actions{display:flex;flex-wrap:wrap;gap:5px}.ace-actions button{border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);padding:6px 8px;border-radius:7px;font-size:9px;font-weight:800;cursor:pointer}.ace-actions .ok{background:var(--green);color:#fff;border-color:var(--green)}.ace-actions .bad{color:var(--red);border-color:rgba(239,68,68,.4)}.ace-actions .gold{background:var(--gold);color:#111827;border-color:var(--gold)}.ace-edit-overlay{display:none;position:fixed;inset:0;z-index:41000;background:rgba(3,8,18,.72);backdrop-filter:blur(4px);padding:18px;align-items:center;justify-content:center}.ace-edit-overlay.open{display:flex}.ace-edit-card{width:min(640px,100%);max-height:90vh;overflow:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:22px;padding:0;box-shadow:0 30px 90px rgba(0,0,0,.35)}.ace-edit-head{display:flex;justify-content:space-between;gap:12px;padding:22px 24px 16px;border-bottom:1px solid var(--border)}.ace-edit-body{padding:20px 24px}.ace-edit-actions{display:flex;justify-content:flex-end;gap:8px;padding:0 24px 22px}.ace-edit-card input,.ace-edit-card select,.ace-edit-card textarea{width:100%;padding:11px;border:1px solid var(--border);border-radius:9px;background:var(--bg-elevated);color:var(--text-primary);margin-top:5px}.ace-edit-card label{display:block;font-size:10px;font-weight:800;color:var(--text-muted);margin-bottom:10px}.ace-edit-actions button{border:1px solid var(--border);border-radius:10px;padding:11px 15px;font-weight:900;cursor:pointer;background:var(--bg-elevated);color:var(--text-primary)}.ace-edit-actions .primary{background:var(--gold);border-color:var(--gold);color:#111827}`;document.head.appendChild(s)}
   const nav=document.querySelector('.sidebar nav.menu');if(nav&&!nav.querySelector('[data-page="course-enrollments"]')){const courses=nav.querySelector('[data-page="courses"]');const i=document.createElement('div');i.className='menu-item';i.dataset.page='course-enrollments';i.setAttribute('onclick',"showPage('course-enrollments',this)");i.innerHTML='<span class="menu-icon">🧾</span>Course Enrollments<span id="aceNavCount" style="margin-left:auto;background:var(--gold);color:#0a0e1a;border-radius:999px;padding:2px 6px;font-size:8px;font-weight:900">0</span>';if(courses)courses.insertAdjacentElement('afterend',i);else nav.appendChild(i)}
   const content=document.getElementById('content');if(content&&!document.getElementById('page-course-enrollments')){const p=document.createElement('div');p.className='page';p.id='page-course-enrollments';p.innerHTML='<div class="card"><div class="card-header"><div><div class="card-title">🧾 Course Enrollments</div><div class="card-meta">Review payment receipts, approve, edit, reject or revoke paid-course access</div></div></div><div class="ace-filters"><button class="active" data-filter="all">All <span class="ace-count" id="aceCountAll">0</span></button><button data-filter="free">Free <span class="ace-count" id="aceCountFree">0</span></button><button data-filter="paid-pending">Receipt Pending <span class="ace-count" id="aceCountPending">0</span></button><button data-filter="paid-approved">Paid Approved <span class="ace-count" id="aceCountApproved">0</span></button><button data-filter="rejected">Rejected / Revoked <span class="ace-count" id="aceCountRejected">0</span></button></div><div id="aceStandalone">Loading…</div></div>';content.appendChild(p)}
   if(!document.getElementById('aceEditOverlay')){const o=document.createElement('div');o.className='ace-edit-overlay';o.id='aceEditOverlay';o.innerHTML='<div class="ace-edit-card"><div class="ace-edit-head"><div><h2 style="margin:0">Edit Payment Receipt</h2><p style="margin:6px 0 0;color:var(--text-muted);font-size:11px">Update payment details, status or course access.</p></div><button type="button" class="psp-v20-modal-x" onclick="closeCoursePaymentEditor()">×</button></div><div class="ace-edit-body"><input type="hidden" id="aceEditId"><label>Payment Method<input id="aceEditMethod"></label><label>Transaction ID<input id="aceEditTxn"></label><label>Amount<input id="aceEditAmount" type="number" min="0"></label><label>Receipt URL<input id="aceEditReceipt"></label><label>Status<select id="aceEditStatus"><option value="pending">Payment Receipt Under Review</option><option value="approved">Approved / Course Unlocked</option><option value="rejected">Rejected</option><option value="revoked">Revoked / Course Locked</option></select></label><label>Reason<textarea id="aceEditReason" rows="3"></textarea></label></div><div class="ace-edit-actions"><button type="button" onclick="closeCoursePaymentEditor()">Cancel</button><button type="button" class="primary" onclick="saveCoursePaymentEdit()">Save Changes</button></div></div>';document.body.appendChild(o)}
@@ -46,8 +46,61 @@ function inject(){
 function pill(v){const x=String(v||'pending').toLowerCase(),c=['approved','enrolled','not_required'].includes(x)?'ok':['rejected','cancelled','revoked'].includes(x)?'bad':'wait';const label=x==='pending'?'Receipt Under Review':x.replaceAll('_',' ');return `<span class="ace-pill ${c}">${esc(label)}</span>`}
 function filtered(f){if(f==='free')return rows.filter(r=>r.course_type==='free'||r.course_key==='basic');if(f==='paid-pending')return rows.filter(r=>(r.course_type==='paid'||r.course_key==='advanced')&&r.payment_status==='pending');if(f==='paid-approved')return rows.filter(r=>(r.course_type==='paid'||r.course_key==='advanced')&&r.payment_status==='approved');if(f==='rejected')return rows.filter(r=>['rejected','revoked'].includes(r.payment_status)||['rejected','cancelled'].includes(r.enrollment_status));return rows}
 function counts(){const vals={aceCountAll:rows.length,aceCountFree:filtered('free').length,aceCountPending:filtered('paid-pending').length,aceCountApproved:filtered('paid-approved').length,aceCountRejected:filtered('rejected').length,aceNavCount:rows.length};Object.entries(vals).forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=v})}
-function actionHtml(r){const paid=r.course_type==='paid'||r.course_key==='advanced';if(!paid)return '<span style="color:var(--text-muted)">Free enrollment</span>';const id=r.id,st=r.payment_status||'pending';let a=`<button onclick="openCoursePaymentEditor('${id}')">Edit</button><button onclick="resendCourseStatusEmail('${id}')">Resend Email</button>`;if(st==='approved')a+=`<button class="bad" onclick="revokeCourseEnrollment('${id}')">Revoke</button>`;else a=`<button class="ok" onclick="approveCourseEnrollment('${id}')">Approve</button><button class="bad" onclick="rejectCourseEnrollment('${id}')">Reject</button>`+a;return `<div class="ace-actions">${a}</div>`}
-function render(filter='all'){const box=document.getElementById('aceStandalone');if(!box)return;const data=filtered(filter);counts();if(!data.length){box.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-muted)">No matching enrollments.</div>';return}box.innerHTML='<div class="ace-wrap"><table class="ace-table"><thead><tr><th>Student</th><th>Contact</th><th>Course</th><th>Experience / Goal</th><th>Payment</th><th>Transaction</th><th>Receipt</th><th>Payment Status</th><th>Enrollment</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>'+data.map(r=>{const paid=r.course_type==='paid'||r.course_key==='advanced';return `<tr><td><strong>${esc(r.full_name||'Member')}</strong><br>${esc(r.email||'')}</td><td>${esc(r.whatsapp||'—')}</td><td><strong>${esc(r.course_name||(paid?'Advanced Forex Course':'Basic Forex Course'))}</strong><br>${paid?`${esc(r.currency||'USD')} ${Number(r.price||200).toFixed(0)}`:'Free'}</td><td>${esc(r.experience||'—')}<br><small>${esc(r.learning_goal||'')}</small></td><td>${esc(r.payment_method||(paid?'Not added':'Not Required'))}</td><td>${esc(r.transaction_id||'—')}</td><td>${r.receipt_url?`<a href="${esc(r.receipt_url)}" target="_blank" rel="noopener">View Receipt ↗</a>`:'—'}</td><td>${pill(r.payment_status)}</td><td>${pill(r.enrollment_status)}</td><td>${dt(r.created_at)}</td><td>${actionHtml(r)}</td></tr>`}).join('')+'</tbody></table></div>'}
+function actionHtml(r){
+  const paid=r.course_type==='paid'||r.course_key==='advanced';
+  if(!paid)return '<span style="color:var(--text-muted)">Free enrollment</span>';
+
+  const id=r.id,st=String(r.payment_status||'pending').toLowerCase();
+  let actions='';
+
+  if(st==='approved'){
+    actions+=`<button onclick="openCoursePaymentEditor('${id}')">Edit</button>`;
+    actions+=`<button class="bad" onclick="rejectCourseEnrollment('${id}')">Decline</button>`;
+    actions+=`<button onclick="resendCourseStatusEmail('${id}')">Resend Email</button>`;
+  }else if(st==='rejected'||st==='revoked'){
+    actions+=`<button class="ok" onclick="approveCourseEnrollment('${id}')">Approve / Restore</button>`;
+    actions+=`<button onclick="openCoursePaymentEditor('${id}')">Edit</button>`;
+    actions+=`<button onclick="resendCourseStatusEmail('${id}')">Resend Email</button>`;
+  }else{
+    actions+=`<button class="ok" onclick="approveCourseEnrollment('${id}')">Approve</button>`;
+    actions+=`<button class="bad" onclick="rejectCourseEnrollment('${id}')">Decline</button>`;
+    actions+=`<button onclick="openCoursePaymentEditor('${id}')">Edit</button>`;
+  }
+
+  return `<div class="ace-actions">${actions}</div>`;
+}
+
+function render(filter='all'){
+  const box=document.getElementById('aceStandalone');if(!box)return;
+  const data=filtered(filter);counts();
+
+  if(!data.length){
+    box.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-muted)">No matching enrollments.</div>';
+    return;
+  }
+
+  box.innerHTML='<div class="ace-wrap"><table class="ace-table"><thead><tr>'+
+    '<th>Date</th><th>Student</th><th>Contact</th><th>Course</th><th>Experience / Goal</th>'+
+    '<th>Payment</th><th>Transaction</th><th>Receipt</th><th>Payment Status</th>'+
+    '<th>Enrollment</th><th>Actions</th></tr></thead><tbody>'+
+    data.map(r=>{
+      const paid=r.course_type==='paid'||r.course_key==='advanced';
+      return `<tr>
+        <td><strong>${dt(r.created_at)}</strong></td>
+        <td><strong>${esc(r.full_name||'Member')}</strong><br>${esc(r.email||'')}</td>
+        <td>${esc(r.whatsapp||'—')}</td>
+        <td><strong>${esc(r.course_name||(paid?'Advanced Forex Course':'Basic Forex Course'))}</strong><br>${paid?`${esc(r.currency||'USD')} ${Number(r.price||200).toFixed(0)}`:'Free'}</td>
+        <td>${esc(r.experience||'—')}<br><small>${esc(r.learning_goal||'')}</small></td>
+        <td>${esc(r.payment_method||(paid?'Not added':'Not Required'))}</td>
+        <td>${esc(r.transaction_id||'—')}</td>
+        <td>${r.receipt_url?`<a href="${esc(r.receipt_url)}" target="_blank" rel="noopener">View Receipt ↗</a>`:'—'}</td>
+        <td>${pill(r.payment_status)}</td>
+        <td>${pill(r.enrollment_status)}</td>
+        <td>${actionHtml(r)}</td>
+      </tr>`;
+    }).join('')+
+    '</tbody></table></div>';
+}
 window.loadAdminCourseEnrollments=async function(){inject();const client=db();if(!client)return;const box=document.getElementById('aceStandalone');if(box)box.textContent='Loading…';const r=await client.from('course_enrollments').select('*').order('created_at',{ascending:false});if(r.error){if(box)box.innerHTML=`<div style="color:var(--red)">${esc(r.error.message)}</div>`;return}rows=r.data||[];const f=document.querySelector('#page-course-enrollments [data-filter].active')?.dataset.filter||'all';render(f)};
 async function rowById(id){const {data,error}=await db().from('course_enrollments').select('*').eq('id',id).single();if(error){result(false,'Enrollment Not Found',error.message);return null}return data}
 async function getAdminEmailSession(client,forceRefresh=false){
@@ -84,15 +137,131 @@ async function sendEmail(type,row,extra={}){
   }
   console.error('Course status email failed',lastError);return {ok:false,error:lastError};
 }
-async function updateEnrollment(row,action,payload){
-  const client=db();const history=[...(Array.isArray(row.payment_history)?row.payment_history:[]),{action,reason:payload.reason||null,at:new Date().toISOString()}];const rpc=await client.rpc('psp_admin_update_course_enrollment',{p_enrollment_id:row.id,p_action:action,p_reason:payload.reason||null,p_payment_method:payload.payment_method||null,p_transaction_id:payload.transaction_id||null,p_amount:payload.price==null?null:Number(payload.price),p_receipt_url:payload.receipt_url||null});
-  if(!rpc.error){const fresh=await rowById(row.id);return {ok:true,row:fresh||{...row,...payload}};}
-  const fallback={...payload,payment_history:history,reviewed_at:new Date().toISOString(),updated_at:new Date().toISOString()};delete fallback.reason;
-  const out=await client.from('course_enrollments').update(fallback).eq('id',row.id).select().single();if(out.error)return {ok:false,error:out.error};return {ok:true,row:out.data};
+async function syncCourseRevenueV116(id){
+  const client=db();if(!client)return {ok:false};
+  try{
+    const r=await client.rpc('psp_sync_course_revenue_v116',{p_enrollment_id:id});
+    if(r.error){console.warn('Course revenue sync failed',r.error);return {ok:false,error:r.error}}
+    return {ok:true,data:r.data};
+  }catch(e){console.warn('Course revenue sync failed',e);return {ok:false,error:e}}
 }
-window.approveCourseEnrollment=async function(id){const row=await rowById(id);if(!row)return;const a=await ask({title:'Approve Payment Receipt',subtitle:row.full_name||row.email||'Student',body:'<div class="psp-v20-modal-note">The payment receipt will be approved, the paid course will unlock immediately, and the student will receive a “Payment Approved — Course Unlocked” email.</div>',confirmText:'Approve & Unlock'});if(!a)return;const up=await updateEnrollment(row,'approve',{payment_status:'approved',enrollment_status:'enrolled',access_granted_at:new Date().toISOString(),rejection_reason:null,revocation_reason:null,reviewed_at:new Date().toISOString()});if(!up.ok)return result(false,'Approval Failed',up.error.message);const mail=await sendEmail('payment_approved',up.row);await window.loadAdminCourseEnrollments();if(mail.ok)return result(true,'Payment Approved','Course access is unlocked and the approval email was sent.');result(false,'Course Unlocked — Email Failed',`The payment was approved, but the email could not be sent. ${mail.error?.message||''}${mail.error?.requestId?` Request ID: ${mail.error.requestId}`:''}`.trim(),{label:'Retry Email',action:()=>retryStatusEmail(up.row,'payment_approved')});};
-window.rejectCourseEnrollment=async function(id){const row=await rowById(id);if(!row)return;const a=await ask({title:'Reject Payment Receipt',subtitle:row.full_name||row.email||'Student',body:'<div class="psp-v20-modal-field"><label>Reason</label><textarea data-modal-field="reason" required rows="4">Payment receipt could not be verified.</textarea></div><div class="psp-v20-modal-note">The course will remain locked and the student will receive instructions to resubmit the payment receipt.</div>',confirmText:'Reject Receipt',danger:true});if(!a)return;const up=await updateEnrollment(row,'reject',{reason:a.reason,payment_status:'rejected',enrollment_status:'rejected',rejection_reason:a.reason,revocation_reason:null,access_granted_at:null,reviewed_at:new Date().toISOString()});if(!up.ok)return result(false,'Rejection Failed',up.error.message);const mail=await sendEmail('payment_rejected',up.row,{rejection_reason:a.reason});await window.loadAdminCourseEnrollments();result(mail.ok,mail.ok?'Payment Receipt Rejected':'Receipt Rejected — Email Failed',mail.ok?'The course remains locked and the rejection email was sent.':'The course remains locked, but the rejection email could not be sent.');};
-window.revokeCourseEnrollment=async function(id){const row=await rowById(id);if(!row)return;const a=await ask({title:'Revoke Approved Access',subtitle:row.full_name||row.email||'Student',body:'<div class="psp-v20-modal-field"><label>Reason</label><textarea data-modal-field="reason" required rows="4">Payment approval was cancelled by the admin.</textarea></div><div class="psp-v20-modal-note">The paid course will lock again. This action can be reversed by approving the payment again.</div>',confirmText:'Revoke & Lock',danger:true});if(!a)return;const up=await updateEnrollment(row,'revoke',{reason:a.reason,payment_status:'revoked',enrollment_status:'cancelled',revocation_reason:a.reason,rejection_reason:a.reason,access_granted_at:null,reviewed_at:new Date().toISOString()});if(!up.ok)return result(false,'Revoke Failed',up.error.message);const mail=await sendEmail('payment_revoked',up.row,{rejection_reason:a.reason});await window.loadAdminCourseEnrollments();result(mail.ok,mail.ok?'Access Revoked':'Access Revoked — Email Failed',mail.ok?'The course is locked again and the student was notified.':'The course is locked again, but the email could not be sent.');};
+async function updateEnrollment(row,action,payload){
+  const client=db();
+  const history=[...(Array.isArray(row.payment_history)?row.payment_history:[]),{
+    action,reason:payload.reason||null,at:new Date().toISOString()
+  }];
+
+  const rpc=await client.rpc('psp_admin_update_course_enrollment',{
+    p_enrollment_id:row.id,
+    p_action:action,
+    p_reason:payload.reason||null,
+    p_payment_method:payload.payment_method||null,
+    p_transaction_id:payload.transaction_id||null,
+    p_amount:payload.price==null?null:Number(payload.price),
+    p_receipt_url:payload.receipt_url||null
+  });
+
+  let fresh=null;
+  if(!rpc.error){
+    fresh=await rowById(row.id);
+  }else{
+    const fallback={...payload,payment_history:history,reviewed_at:new Date().toISOString(),updated_at:new Date().toISOString()};
+    delete fallback.reason;
+    const out=await client.from('course_enrollments').update(fallback).eq('id',row.id).select().single();
+    if(out.error)return {ok:false,error:out.error};
+    fresh=out.data;
+  }
+
+  // V116: one revenue row per approved paid enrollment; remove it when
+  // payment/access is declined/revoked, and rebuild it when re-approved.
+  await syncCourseRevenueV116(row.id);
+
+  return {ok:true,row:fresh||await rowById(row.id)||{...row,...payload}};
+}
+window.approveCourseEnrollment=async function(id){
+  const row=await rowById(id);if(!row)return;
+  const restoring=['rejected','revoked'].includes(String(row.payment_status||'').toLowerCase());
+  const a=await ask({
+    title:restoring?'Approve / Restore Payment':'Approve Payment Receipt',
+    subtitle:row.full_name||row.email||'Student',
+    body:'<div class="psp-v20-modal-note">The payment will be marked Approved, course access will be active, and Company Revenue will be synchronized automatically.</div>',
+    confirmText:restoring?'Approve & Restore':'Approve & Unlock'
+  });
+  if(!a)return;
+
+  const up=await updateEnrollment(row,'approve',{
+    payment_status:'approved',
+    enrollment_status:'enrolled',
+    access_granted_at:new Date().toISOString(),
+    rejection_reason:null,
+    revocation_reason:null,
+    reviewed_at:new Date().toISOString()
+  });
+  if(!up.ok)return result(false,'Approval Failed',up.error.message);
+
+  const mail=await sendEmail('payment_approved',up.row);
+  await window.loadAdminCourseEnrollments();
+  result(mail.ok,mail.ok?'Payment Approved':'Approved — Email Failed',
+    mail.ok?'Course access is active and Company Revenue is synchronized.':'Payment/access updated, but the email could not be sent.');
+};
+
+window.rejectCourseEnrollment=async function(id){
+  const row=await rowById(id);if(!row)return;
+  const wasApproved=String(row.payment_status||'').toLowerCase()==='approved';
+  const a=await ask({
+    title:wasApproved?'Decline Approved Payment':'Decline Payment Receipt',
+    subtitle:row.full_name||row.email||'Student',
+    body:'<div class="psp-v20-modal-field"><label>Reason</label><textarea data-modal-field="reason" required rows="4">'+
+      (wasApproved?'Payment approval was declined by Admin.':'Payment receipt could not be verified.')+
+      '</textarea></div><div class="psp-v20-modal-note">Course access will be removed and the related automatic Course Revenue entry will be removed. You can approve this payment again later.</div>',
+    confirmText:wasApproved?'Decline & Lock':'Decline Payment',
+    danger:true
+  });
+  if(!a)return;
+
+  const up=await updateEnrollment(row,'reject',{
+    reason:a.reason,
+    payment_status:'rejected',
+    enrollment_status:'rejected',
+    rejection_reason:a.reason,
+    revocation_reason:null,
+    access_granted_at:null,
+    reviewed_at:new Date().toISOString()
+  });
+  if(!up.ok)return result(false,'Decline Failed',up.error.message);
+
+  const mail=await sendEmail('payment_rejected',up.row,{rejection_reason:a.reason});
+  await window.loadAdminCourseEnrollments();
+  result(mail.ok,mail.ok?'Payment Declined':'Declined — Email Failed',
+    mail.ok?'Course access is locked and Company Revenue is synchronized.':'Payment/access updated, but the email could not be sent.');
+};
+
+window.revokeCourseEnrollment=async function(id){
+  const row=await rowById(id);if(!row)return;
+  const a=await ask({
+    title:'Revoke Course Access',
+    subtitle:row.full_name||row.email||'Student',
+    body:'<div class="psp-v20-modal-field"><label>Reason</label><textarea data-modal-field="reason" required rows="4">Course access was revoked by Admin.</textarea></div><div class="psp-v20-modal-note">The course will lock and Company Revenue will be synchronized. This can be reversed by approving again.</div>',
+    confirmText:'Revoke & Lock',danger:true
+  });
+  if(!a)return;
+
+  const up=await updateEnrollment(row,'revoke',{
+    reason:a.reason,
+    payment_status:'revoked',
+    enrollment_status:'cancelled',
+    revocation_reason:a.reason,
+    rejection_reason:a.reason,
+    access_granted_at:null,
+    reviewed_at:new Date().toISOString()
+  });
+  if(!up.ok)return result(false,'Revoke Failed',up.error.message);
+
+  const mail=await sendEmail('payment_revoked',up.row,{rejection_reason:a.reason});
+  await window.loadAdminCourseEnrollments();
+  result(mail.ok,mail.ok?'Access Revoked':'Revoked — Email Failed',
+    mail.ok?'Course access is locked and Company Revenue is synchronized.':'Access updated, but the email could not be sent.');
+};
 async function retryStatusEmail(row,type){const mail=await sendEmail(type,row,{rejection_reason:row.rejection_reason||row.revocation_reason||undefined});result(mail.ok,mail.ok?'Email Sent':'Email Still Failed',mail.ok?'The student email was sent successfully.':`Email failed: ${mail.error?.message||'Unknown error.'}${mail.error?.requestId?` Request ID: ${mail.error.requestId}`:''}`);}
 window.resendCourseStatusEmail=async function(id){const row=await rowById(id);if(!row)return;let type='payment_receipt_received';if(row.payment_status==='approved')type='payment_approved';else if(row.payment_status==='rejected')type='payment_rejected';else if(row.payment_status==='revoked')type='payment_revoked';const a=await ask({title:'Resend Status Email',subtitle:row.email||'',body:`<div class="psp-v20-modal-note">The current payment status email will be sent again to ${esc(row.email||'the student')}.</div>`,confirmText:'Send Email'});if(!a)return;await retryStatusEmail(row,type);};
 window.openCoursePaymentEditor=async function(id){const row=await rowById(id);if(!row)return;document.getElementById('aceEditId').value=id;document.getElementById('aceEditMethod').value=row.payment_method||'';document.getElementById('aceEditTxn').value=row.transaction_id||'';document.getElementById('aceEditAmount').value=Number(row.price||0);document.getElementById('aceEditReceipt').value=row.receipt_url||'';document.getElementById('aceEditStatus').value=['pending','approved','rejected','revoked'].includes(row.payment_status)?row.payment_status:'pending';document.getElementById('aceEditReason').value=row.rejection_reason||row.revocation_reason||'';document.getElementById('aceEditOverlay').classList.add('open')};

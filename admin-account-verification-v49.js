@@ -3,6 +3,8 @@
 'use strict';
 let settings=null, rows=[], profiles=new Map(), enabled=true, installed=false;
 let av85ModalState={type:null,uid:null};
+let av116Filter={status:'all',broker:'all',access:'all',search:''};
+let av116CountdownTimer=null;
 const q=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 function db(){try{return typeof sb!=='undefined'?sb:window.sb||null}catch(_){return window.sb||null}}
@@ -27,15 +29,79 @@ function approvalPage(){
   if(q('#page-verification'))return;
   const content=q('#content'); if(!content)return;
   const page=document.createElement('div'); page.className='page'; page.id='page-verification';
-  page.innerHTML='<div class="av49-grid"><div class="av49-stat"><span>Total Requests</span><strong id="av49Total">0</strong></div><div class="av49-stat"><span>Pending Review</span><strong id="av49Pending" style="color:#3b82f6">0</strong></div><div class="av49-stat"><span>Approved</span><strong id="av49Approved" style="color:#10b981">0</strong></div><div class="av49-stat"><span>Rejected</span><strong id="av49Rejected" style="color:#ef4444">0</strong></div></div><div class="card"><div class="card-header"><div><div class="card-title">✅ Access Verification Requests</div><div class="card-meta">Review broker proof, approve permanent access, reject with a reason, or grant temporary trial time.</div></div><button class="btn btn-secondary" onclick="PSPAdminVerification.loadRows()">↻ Refresh</button></div><div class="av49-table-wrap"><table class="av49-table"><thead><tr><th>User</th><th>Broker</th><th>Trading Account ID</th><th>Deposit</th><th>Email Subject</th><th>Proofs</th><th>Status</th><th>Submitted</th><th>Reason</th><th>Trial</th><th>Actions</th></tr></thead><tbody id="av49Body"><tr><td colspan="11">Loading…</td></tr></tbody></table></div></div>';
+  page.innerHTML=`
+    <div class="av49-grid">
+      <div class="av49-stat"><span>Total Requests</span><strong id="av49Total">0</strong></div>
+      <div class="av49-stat"><span>Pending Review</span><strong id="av49Pending" style="color:#3b82f6">0</strong></div>
+      <div class="av49-stat"><span>90-Day Active</span><strong id="av49Approved" style="color:#10b981">0</strong></div>
+      <div class="av49-stat"><span>Rejected</span><strong id="av49Rejected" style="color:#ef4444">0</strong></div>
+    </div>
+
+    <div class="card av116-card">
+      <div class="card-header av116-header">
+        <div>
+          <div class="card-title">✅ Access Verification Requests</div>
+          <div class="card-meta">Review account proof, grant 90-day access, change status later, or give temporary trial time.</div>
+        </div>
+        <div class="av116-head-actions">
+          <button class="btn btn-secondary" type="button" onclick="PSPAdminVerification.toggleFilters()">⚙ Filter</button>
+          <button class="btn btn-secondary" type="button" onclick="PSPAdminVerification.loadRows()">↻ Refresh</button>
+        </div>
+      </div>
+
+      <div id="av116Filters" class="av116-filters">
+        <div><label>Status</label><select id="av116Status">
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="approved">90-Day Active</option>
+          <option value="rejected">Rejected</option>
+          <option value="expired">Expired</option>
+        </select></div>
+        <div><label>Broker</label><select id="av116Broker">
+          <option value="all">All Brokers</option>
+          <option value="exness">Exness</option>
+          <option value="dprime">DPrime</option>
+          <option value="xm">XM</option>
+        </select></div>
+        <div><label>Access</label><select id="av116Access">
+          <option value="all">All Access</option>
+          <option value="approved">90-Day Access Active</option>
+          <option value="trial">Trial Active</option>
+          <option value="expired">Expired</option>
+        </select></div>
+        <div class="av116-search"><label>Search</label><input id="av116Search" placeholder="Name, email, account ID…"></div>
+        <button class="av116-reset" type="button" onclick="PSPAdminVerification.resetFilters()">Reset</button>
+      </div>
+
+      <div class="av49-table-wrap av116-table-wrap">
+        <table class="av49-table av116-table">
+          <thead><tr>
+            <th>User</th><th>Broker</th><th>Account ID</th><th>Deposit</th>
+            <th>Status</th><th>Access Time</th><th>Proof</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="av49Body"><tr><td colspan="8">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
   content.appendChild(page);
+
+  ['av116Status','av116Broker','av116Access'].forEach(id=>{
+    q('#'+id)?.addEventListener('change',function(){
+      av116Filter[id==='av116Status'?'status':id==='av116Broker'?'broker':'access']=this.value;
+      renderRows();
+    });
+  });
+  q('#av116Search')?.addEventListener('input',function(){
+    av116Filter.search=(this.value||'').trim().toLowerCase();
+    renderRows();
+  });
 }
 
 function settingsPage(){
   if(q('#page-accesssettings'))return;
   const content=q('#content'); if(!content)return;
   const page=document.createElement('div'); page.className='page'; page.id='page-accesssettings';
-  page.innerHTML=`<div class="card av50-access-control" style="margin-bottom:14px"><div class="card-header"><div><div class="card-title">⚡ Free Access After Signup</div><div class="card-meta">Set how long new users can use protected services while completing mandatory verification.</div></div><button class="btn" id="av49SaveSettings">💾 Save Access Settings</button></div><div class="av49-mode"><button type="button" id="av49ModeDirect"><b>Temporary Free Access Enabled</b><span>New users can use protected tabs for the configured number of days.</span></button><button type="button" id="av49ModeVerify"><b>No Temporary Access</b><span>Protected services lock immediately until verification is completed.</span></button></div><div class="av50-duration"><div class="form-group"><label>Default Free Access Duration (Days)</label><input id="av50AccessDays" type="number" min="1" max="365" value="7"><div class="av50-presets"><button type="button" data-days="2">2 Days</button><button type="button" data-days="5">5 Days</button><button type="button" data-days="7">7 Days</button><button type="button" data-days="10">10 Days</button></div></div><div class="av50-required-note"><b>🔐 Verification stays mandatory</b><span>Email verification + broker proof are required for permanent Full Access. Temporary access only controls the grace period.</span></div></div></div>
+  page.innerHTML=`<div class="card av50-access-control" style="margin-bottom:14px"><div class="card-header"><div><div class="card-title">⚡ Free Access After Signup</div><div class="card-meta">Set how long new users can use protected services while completing mandatory verification.</div></div><button class="btn" id="av49SaveSettings">💾 Save Access Settings</button></div><div class="av49-mode"><button type="button" id="av49ModeDirect"><b>Temporary Free Access Enabled</b><span>New users can use protected tabs for the configured number of days.</span></button><button type="button" id="av49ModeVerify"><b>No Temporary Access</b><span>Protected services lock immediately until verification is completed.</span></button></div><div class="av50-duration"><div class="form-group"><label>Default Free Access Duration (Days)</label><input id="av50AccessDays" type="number" min="1" max="365" value="7"><div class="av50-presets"><button type="button" data-days="2">2 Days</button><button type="button" data-days="5">5 Days</button><button type="button" data-days="7">7 Days</button><button type="button" data-days="10">10 Days</button></div></div><div class="av50-required-note"><b>🔐 Verification stays mandatory</b><span>Email verification + broker proof are required for 90-day Full Access. Temporary access only controls the grace period.</span></div></div></div>
 <div class="card av55-user-trial" style="margin-bottom:14px"><div class="card-header"><div><div class="card-title">⏱ User Trial Access</div><div class="card-meta">Give a specific user extra temporary access without changing the global signup duration.</div></div></div><div class="av55-trial-grid"><div class="form-group"><label>User Email or User ID</label><input id="av55TrialUser" placeholder="user@example.com or UUID"></div><div class="form-group"><label>Trial Days</label><input id="av55TrialDays" type="number" min="1" max="365" value="7"><div class="av50-presets"><button type="button" data-user-days="7">7</button><button type="button" data-user-days="10">10</button><button type="button" data-user-days="14">14</button></div></div><div class="av55-trial-actions"><button class="btn" id="av55GrantTrial">Give Trial</button><button class="btn btn-secondary" id="av55ClearTrial">Remove Trial</button></div></div></div>
 <div class="card"><div class="card-header"><div><div class="card-title">🔗 Broker & Verification Settings</div><div class="card-meta">Manage broker referral links, Admin WhatsApp and client-shift instructions.</div></div></div><div class="av49-settings"><div class="form-group"><label>Admin WhatsApp</label><input id="av49Whatsapp" placeholder="601156961157"></div><div class="form-group"><label>Recommended Deposit (USD)</label><input id="av49Deposit" type="number" min="0" step="1"></div><div class="form-group"><label>Exness Link</label><input id="av49ExnessLink"></div><div class="form-group"><label>DPrime Link</label><input id="av49DprimeLink"></div><div class="form-group"><label>XM Link</label><input id="av49XmLink"></div></div><div class="av49-guide-grid" style="margin-top:12px"><div class="form-group"><label>How to Shift Clients in Exness</label><textarea id="av49ExnessGuide"></textarea></div><div class="form-group"><label>How to Shift Clients in XM</label><textarea id="av49XmGuide"></textarea></div><div class="form-group"><label>How to Shift Clients in DPrime</label><textarea id="av49DprimeGuide"></textarea></div></div></div>`;
   content.appendChild(page);
@@ -105,17 +171,213 @@ async function confirmTrialModal(){
   finally{btn.disabled=false;btn.textContent='Give Trial';}
 }
 function fmt(v){if(!v)return'—';try{return new Date(v).toLocaleString()}catch{return String(v)}}
-async function loadRows(){const c=db();if(!c)return;const r=await c.from('account_verifications').select('*').order('submitted_at',{ascending:false,nullsFirst:false});if(r.error)throw r.error;rows=r.data||[];const ids=[...new Set(rows.map(x=>x.user_id).filter(Boolean))];profiles.clear();if(ids.length){const p=await c.from('profiles').select('id,full_name,email,phone,whatsapp').in('id',ids);if(!p.error)(p.data||[]).forEach(x=>profiles.set(x.id,x))}renderRows()}
-function renderRows(){const b=q('#av49Body');if(!b)return;const submitted=rows.filter(x=>x.submission_status!=='not_submitted');const counts={pending:0,approved:0,rejected:0};submitted.forEach(x=>{if(counts[x.submission_status]!=null)counts[x.submission_status]++});[['av49Total',submitted.length],['av49Pending',counts.pending],['av49Approved',counts.approved],['av49Rejected',counts.rejected]].forEach(([id,v])=>{if(q('#'+id))q('#'+id).textContent=v});const badge=q('#av49PendingBadge');if(badge){badge.textContent=counts.pending;badge.style.display=counts.pending?'inline-flex':'none'}if(!submitted.length){b.innerHTML='<tr><td colspan="11" style="text-align:center;padding:32px;color:var(--text-muted)">No verification requests yet.</td></tr>';return}b.innerHTML=submitted.map(x=>{const p=profiles.get(x.user_id)||{},name=p.full_name||p.email||x.user_id,wa=p.whatsapp||p.phone||'',proofButtons='<div class="av49-actions">'+(x.deposit_proof_path?'<button class="av49-proof" onclick="PSPAdminVerification.openProof(\''+esc(x.deposit_proof_path)+'\')">Deposit Proof</button>':'<span style="font-size:9px;color:var(--text-muted)">No deposit proof</span>')+(x.proof_path?'<button class="av49-proof" onclick="PSPAdminVerification.openProof(\''+esc(x.proof_path)+'\')">Broker Email</button>':'')+'</div>';return '<tr><td><strong>'+esc(name)+'</strong><div style="font-size:9px;color:var(--text-muted);margin-top:3px">'+esc(p.email||'')+(wa?'<br>'+esc(wa):'')+'</div></td><td><strong>'+esc((x.broker||'—').toUpperCase())+'</strong><div style="font-size:9px;color:var(--text-muted)">'+(x.existing_account?'Existing account shift':'New account')+'</div></td><td>'+esc(x.trading_account_id||'—')+'</td><td>$'+Number(x.available_deposit||0).toLocaleString(undefined,{maximumFractionDigits:2})+'</td><td><div style="max-width:190px;white-space:normal;line-height:1.35">'+esc(x.email_subject||'—')+'</div></td><td>'+proofButtons+'</td><td><span class="av49-pill '+esc(x.submission_status)+'">'+esc(x.submission_status.replace('_',' ').toUpperCase())+'</span></td><td>'+esc(fmt(x.submitted_at))+'</td><td>'+esc(x.rejection_reason||'—')+'</td><td>'+(x.admin_trial_expires_at?'<div class="av55-trial-cell">'+esc(fmt(x.admin_trial_expires_at))+'</div>':'—')+'</td><td><div class="av49-actions"><button class="av55-trial-btn" onclick="PSPAdminVerification.grantTrial(\''+x.user_id+'\')">+ Trial</button>'+(x.submission_status==='pending'?'<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">Approve</button><button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject</button>':'')+(x.submission_status==='rejected'?'<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">Approve Now</button>':'')+'</div></td></tr>'}).join('')}
+
+function av116DerivedStatus(x){
+  const raw=String(x?.submission_status||'not_submitted').toLowerCase();
+  if(raw==='approved'&&x?.approved_expires_at){
+    const exp=new Date(x.approved_expires_at).getTime();
+    if(Number.isFinite(exp)&&exp<=Date.now())return'expired';
+  }
+  return raw;
+}
+function av116Future(v){const t=v?new Date(v).getTime():0;return Number.isFinite(t)&&t>Date.now()}
+function av116Remaining(expires){
+  const t=new Date(expires||0).getTime();
+  if(!Number.isFinite(t)||t<=Date.now())return'Expired';
+  let s=Math.max(0,Math.floor((t-Date.now())/1000));
+  const d=Math.floor(s/86400);s%=86400;
+  const h=Math.floor(s/3600);s%=3600;
+  const m=Math.floor(s/60),sec=s%60;
+  return d+'d '+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+function av116AccessCell(x){
+  const st=av116DerivedStatus(x);
+  if(st==='approved'&&x.approved_expires_at){
+    return '<div class="av116-countdown good" data-av116-exp="'+esc(x.approved_expires_at)+'" data-kind="90"><b>90-Day Access</b><span>'+esc(av116Remaining(x.approved_expires_at))+'</span></div>';
+  }
+  if(av116Future(x.admin_trial_expires_at)){
+    return '<div class="av116-countdown trial" data-av116-exp="'+esc(x.admin_trial_expires_at)+'" data-kind="trial"><b>Trial Active</b><span>'+esc(av116Remaining(x.admin_trial_expires_at))+'</span></div>';
+  }
+  if(st==='expired'){
+    return '<div class="av116-countdown expired"><b>Expired</b><span>90-day access ended</span></div>';
+  }
+  return '<span class="av116-no-access">—</span>';
+}
+function av116StatusPill(x){
+  const st=av116DerivedStatus(x);
+  const label={approved:'APPROVED',pending:'PENDING',rejected:'REJECTED',expired:'EXPIRED'}[st]||String(st).toUpperCase();
+  return '<span class="av49-pill '+esc(st)+'">'+esc(label)+'</span>';
+}
+function av116Match(x,p){
+  const st=av116DerivedStatus(x);
+  if(av116Filter.status!=='all'&&st!==av116Filter.status)return false;
+  if(av116Filter.broker!=='all'&&String(x.broker||'').toLowerCase()!==av116Filter.broker)return false;
+
+  const trial=av116Future(x.admin_trial_expires_at);
+  const approved=st==='approved'&&av116Future(x.approved_expires_at);
+  if(av116Filter.access==='approved'&&!approved)return false;
+  if(av116Filter.access==='trial'&&!trial)return false;
+  if(av116Filter.access==='expired'&&st!=='expired')return false;
+
+  const hay=[
+    p.full_name,p.email,p.whatsapp,p.phone,x.trading_account_id,x.broker,x.email_subject
+  ].join(' ').toLowerCase();
+  if(av116Filter.search&&!hay.includes(av116Filter.search))return false;
+  return true;
+}
+function av116UpdateCountdowns(){
+  document.querySelectorAll('[data-av116-exp]').forEach(el=>{
+    const exp=el.getAttribute('data-av116-exp');
+    const span=el.querySelector('span');
+    if(!span)return;
+    const txt=av116Remaining(exp);
+    span.textContent=txt;
+    const left=new Date(exp).getTime()-Date.now();
+    el.classList.toggle('warn',left>0&&left<=7*86400000);
+    el.classList.toggle('expired',left<=0);
+  });
+}
+function av116StartCountdown(){
+  if(av116CountdownTimer)clearInterval(av116CountdownTimer);
+  av116UpdateCountdowns();
+  av116CountdownTimer=setInterval(()=>{
+    av116UpdateCountdowns();
+    if(document.querySelector('#page-verification.active')&&rows.some(x=>av116DerivedStatus(x)==='expired')){
+      // do not rebuild every second; status refreshes on normal realtime/refresh.
+    }
+  },1000);
+}
+function av116ToggleDetails(id){
+  const row=q('#av116-details-'+CSS.escape(String(id)));
+  if(row)row.classList.toggle('open');
+}
+function av116ToggleFilters(){
+  q('#av116Filters')?.classList.toggle('open');
+}
+function av116ResetFilters(){
+  av116Filter={status:'all',broker:'all',access:'all',search:''};
+  [['av116Status','all'],['av116Broker','all'],['av116Access','all'],['av116Search','']].forEach(([id,v])=>{
+    const el=q('#'+id);if(el)el.value=v;
+  });
+  renderRows();
+}
+
+async function loadRows(){
+  const c=db();if(!c)return;
+  const r=await c.from('account_verifications').select('*').order('submitted_at',{ascending:false,nullsFirst:false});
+  if(r.error)throw r.error;
+  rows=r.data||[];
+
+  const ids=[...new Set(rows.map(x=>x.user_id).filter(Boolean))];
+  profiles.clear();
+  if(ids.length){
+    // profiles can exceed 1000 globally; only current verification users are needed here.
+    const p=await c.from('profiles').select('id,full_name,email,phone,whatsapp').in('id',ids);
+    if(!p.error)(p.data||[]).forEach(x=>profiles.set(x.id,x))
+  }
+  renderRows();
+}
+
+function renderRows(){
+  const b=q('#av49Body');if(!b)return;
+  const submitted=rows.filter(x=>x.submission_status!=='not_submitted');
+
+  const counts={pending:0,approved:0,rejected:0,expired:0};
+  submitted.forEach(x=>{
+    const st=av116DerivedStatus(x);
+    if(counts[st]!=null)counts[st]++;
+  });
+
+  [
+    ['av49Total',submitted.length],
+    ['av49Pending',counts.pending],
+    ['av49Approved',counts.approved],
+    ['av49Rejected',counts.rejected]
+  ].forEach(([id,v])=>{if(q('#'+id))q('#'+id).textContent=v});
+
+  const badge=q('#av49PendingBadge');
+  if(badge){badge.textContent=counts.pending;badge.style.display=counts.pending?'inline-flex':'none'}
+
+  const visible=submitted.filter(x=>av116Match(x,profiles.get(x.user_id)||{}));
+  if(!visible.length){
+    b.innerHTML='<tr><td colspan="8" style="text-align:center;padding:34px;color:var(--text-muted)">No verification requests match these filters.</td></tr>';
+    av116StartCountdown();
+    return;
+  }
+
+  b.innerHTML=visible.map(x=>{
+    const p=profiles.get(x.user_id)||{};
+    const name=p.full_name||p.email||x.user_id;
+    const wa=p.whatsapp||p.phone||'';
+    const st=av116DerivedStatus(x);
+
+    const proofButtons=
+      '<div class="av49-actions av116-proof-actions">'+
+        (x.deposit_proof_path?'<button class="av49-proof" onclick="PSPAdminVerification.openProof(\''+esc(x.deposit_proof_path)+'\')">Deposit</button>':'')+
+        (x.proof_path?'<button class="av49-proof" onclick="PSPAdminVerification.openProof(\''+esc(x.proof_path)+'\')">Broker Email</button>':'')+
+        ((!x.deposit_proof_path&&!x.proof_path)?'<span class="av116-no-access">No proof</span>':'')+
+      '</div>';
+
+    let action='';
+    if(st==='pending'){
+      action='<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">Approve 90 Days</button>'+
+             '<button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject</button>';
+    }else if(st==='approved'){
+      action='<button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject Access</button>';
+    }else{
+      action='<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">Approve 90 Days</button>'+
+             (st!=='rejected'?'<button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject</button>':'');
+    }
+
+    const detailsId='av116-details-'+x.user_id;
+    return `
+      <tr class="av116-main-row">
+        <td>
+          <strong>${esc(name)}</strong>
+          <div class="av116-user-sub">${esc(p.email||'')}${wa?'<br>'+esc(wa):''}</div>
+        </td>
+        <td>
+          <strong>${esc((x.broker||'—').toUpperCase())}</strong>
+          <div class="av116-user-sub">${x.existing_account?'Existing shift':'New account'}</div>
+        </td>
+        <td><strong>${esc(x.trading_account_id||'—')}</strong></td>
+        <td>$${Number(x.available_deposit||0).toLocaleString(undefined,{maximumFractionDigits:2})}</td>
+        <td>${av116StatusPill(x)}</td>
+        <td>${av116AccessCell(x)}</td>
+        <td>${proofButtons}</td>
+        <td>
+          <div class="av49-actions av116-actions">
+            <button class="av55-trial-btn" onclick="PSPAdminVerification.grantTrial('${x.user_id}')">+ Trial</button>
+            ${action}
+            <button class="av116-details-btn" onclick="PSPAdminVerification.toggleDetails('${x.user_id}')">Details ▾</button>
+          </div>
+        </td>
+      </tr>
+      <tr id="${detailsId}" class="av116-details-row">
+        <td colspan="8">
+          <div class="av116-details-grid">
+            <div><span>Submitted</span><b>${esc(fmt(x.submitted_at))}</b></div>
+            <div><span>Email Subject</span><b>${esc(x.email_subject||'—')}</b></div>
+            <div><span>Reason</span><b>${esc(x.rejection_reason||'—')}</b></div>
+            <div><span>Approval Expires</span><b>${esc(x.approved_expires_at?fmt(x.approved_expires_at):'—')}</b></div>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+
+  av116StartCountdown();
+}
 async function openProof(path){if(!path)return alert('No proof screenshot uploaded.');const pop=window.open('about:blank','_blank'),c=db(),r=await c.storage.from('verification-proofs').createSignedUrl(path,300);if(r.error){try{pop?.close()}catch(_){}return alert('Could not open proof: '+r.error.message)}if(pop){pop.opener=null;pop.location=r.data.signedUrl}else location.href=r.data.signedUrl}
 async function review(uid,action){
   if(action==='reject'){openRejectModal(uid);return;}
-  const ok=typeof window.pspConfirm==='function'?await window.pspConfirm('Approve this account and keep Full Access unlocked?'):confirm('Approve this account and keep Full Access unlocked?');
+  const ok=typeof window.pspConfirm==='function'
+    ?await window.pspConfirm('Approve this account and grant Full Access for 90 days from now?')
+    :confirm('Approve this account and grant Full Access for 90 days from now?');
   if(!ok)return;
   await submitReview(uid,'approve','');
 }
 async function confirmRejectModal(){
-  const uid=av85ModalState.uid, select=q('#av85RejectReason'); if(!uid||!select)return;
+  const uid=av85ModalState.uid,select=q('#av85RejectReason');if(!uid||!select)return;
   let reason=select.value;
   if(!reason){q('#av85RejectStatus').textContent='Please select a rejection reason.';q('#av85RejectStatus').style.color='var(--red)';return;}
   if(reason==='custom')reason=(q('#av85CustomReason').value||'').trim();
@@ -126,13 +388,29 @@ async function confirmRejectModal(){
   finally{btn.disabled=false;btn.textContent='Reject Request';}
 }
 async function submitReview(uid,action,reason,throwOnError){
-  const c=db(),r=await c.rpc('psp_review_access_verification',{p_user_id:uid,p_action:action,p_reason:reason||null});
-  if(r.error){if(throwOnError)throw new Error('Review failed: '+r.error.message);alert('Review failed: '+r.error.message);return;}
-  alert((Array.isArray(r.data)?r.data[0]?.message:r.data?.message)||'Verification updated.');
-  await loadRows(); window.loadAdminUsers?.();
+  const c=db();
+  const r=await c.rpc('psp_admin_review_access_v116',{
+    p_user_id:uid,
+    p_action:action,
+    p_reason:reason||null
+  });
+  if(r.error){
+    if(throwOnError)throw new Error('Review failed: '+r.error.message);
+    alert('Review failed: '+r.error.message);
+    return;
+  }
+  const data=Array.isArray(r.data)?r.data[0]:r.data;
+  alert(data?.message||(
+    action==='approve'
+      ?'90-day access approved successfully.'
+      :'Access rejected and revoked successfully.'
+  ));
+  await loadRows();
+  window.loadAdminUsers?.();
 }
+
 function wrap(){if(window._av56Wrapped||typeof window.showPage!=='function')return;window._av56Wrapped=true;const old=window.showPage;window.showPage=function(page,el){const out=old.apply(this,arguments);const t=q('#pageTitle'),s=q('#pageSubtitle');if(page==='verification'){if(t)t.textContent='Access Approvals';if(s)s.textContent='Review broker proof and approve or reject Full Access';setTimeout(loadRows,0)}if(page==='accesssettings'){if(t)t.textContent='Access Settings';if(s)s.textContent='Manage trial days, broker links and verification setup';setTimeout(loadSettings,0)}return out}}
 function init(){if(installed)return;installed=true;menu();approvalPage();settingsPage();ensureActionModal();wrap();setTimeout(()=>{menu();approvalPage();settingsPage();ensureActionModal();wrap();loadRows().catch(()=>{})},500);const c=db();if(c){try{c.channel('admin-access-v56').on('postgres_changes',{event:'*',schema:'public',table:'account_verifications'},()=>loadRows()).on('postgres_changes',{event:'*',schema:'public',table:'account_verification_settings'},()=>loadSettings()).subscribe()}catch(_){}}}
-window.PSPAdminVerification={loadRows,loadSettings,openProof,review,saveSettings,grantTrial,trialFromForm};
+window.PSPAdminVerification={loadRows,loadSettings,openProof,review,saveSettings,grantTrial,trialFromForm,toggleFilters:av116ToggleFilters,resetFilters:av116ResetFilters,toggleDetails:av116ToggleDetails};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

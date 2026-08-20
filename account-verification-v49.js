@@ -8,26 +8,127 @@
   function client(){try{return (typeof sb!=='undefined'&&sb)||window.sb||null}catch(_){return window.sb||null}}
   function profile(){try{return (typeof currentProfile!=='undefined'&&currentProfile)||null}catch(_){return null}}
   function loggedIn(){return !!profile()}
-  function canAccess(){return !!(state?.can_access||state?.direct_access_active||state?.temporary_access||state?.submission_status==='approved')}
+  function approvedActive(){return !!(state?.submission_status==='approved'&&state?.approved_active!==false&&(!state?.approved_expires_at||new Date(state.approved_expires_at).getTime()>Date.now()))}
+  function approvedExpired(){return !!(state?.submission_status==='expired'||(state?.approved_expires_at&&new Date(state.approved_expires_at).getTime()<=Date.now()))}
+  function canAccess(){return !!(approvedActive()||state?.direct_access_active||state?.temporary_access)}
   function trialActive(){return !!state?.direct_access_active}
   function remainingText(seconds){let s=Math.max(0,Math.floor(Number(seconds)||0));const d=Math.floor(s/86400);s%=86400;const h=Math.floor(s/3600);s%=3600;const m=Math.floor(s/60),sec=s%60;const pad=n=>String(n).padStart(2,'0');return (d?d+'d ':'')+pad(h)+':'+pad(m)+':'+pad(sec)+' remaining'}
   function fmtDate(v){if(!v)return'';try{return new Date(v).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'})}catch{return String(v)}}
   function ensureMini(){const brand=q('#sidebar .brand .brand-text');if(!brand)return null;let el=q('#pspAccountVerifyMini');if(!el){el=document.createElement('div');el.id='pspAccountVerifyMini';el.className='psp-av-mini pending';el.setAttribute('role','button');el.tabIndex=0;el.onclick=e=>{e.stopPropagation();goProfile()};el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();goProfile()}};brand.appendChild(el)}return el}
-  function label(){if(!state)return['Checking Account…','pending'];if(state.submission_status==='approved')return['✓ Account Verified','ok'];if(state.submission_status==='pending')return['⏳ Verification Pending','review'];if(state.submission_status==='rejected')return['⚠ Action Required','bad'];if(!state.email_verified)return[trialActive()?'Verify Account • Free Access':'Verify Account','pending'];return['Get Free All Access','pending']}
+  function label(){if(!state)return['Checking Account…','pending'];if(approvedActive())return['✓ Account Verified','ok'];if(approvedExpired())return['⚠ Access Expired','bad'];if(state.submission_status==='pending')return['⏳ Verification Pending','review'];if(state.submission_status==='rejected')return['⚠ Action Required','bad'];if(!state.email_verified)return[trialActive()?'Verify Account • Free Access':'Verify Account','pending'];return['Get Free All Access','pending']}
   function renderMini(){const el=ensureMini();if(!el)return;const[t,c]=label();el.textContent=t;el.className='psp-av-mini '+c;el.style.display=loggedIn()?'inline-flex':'none'}
   function ensureModal(){let m=q('#pspAvLockModal');if(m)return m;m=document.createElement('div');m.id='pspAvLockModal';m.innerHTML='<div class="psp-av-modal-card"><button type="button" class="psp-av-modal-x" aria-label="Close">×</button><div class="psp-av-modal-icon">🔐</div><h2 id="pspAvLockTitle">Account Verification Required</h2><p id="pspAvLockText"></p><div class="psp-av-actions"><button type="button" class="psp-av-primary" id="pspAvLockAction">Open Profile</button><button type="button" class="psp-av-secondary" id="pspAvLockClose">Not Now</button></div></div>';document.body.appendChild(m);q('.psp-av-modal-x',m).onclick=()=>m.classList.remove('open');q('#pspAvLockClose',m).onclick=()=>m.classList.remove('open');m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});return m}
-  function showLock(){const m=ensureModal();let title='Verify Your Account',text='Email verification is required. Open Profile to verify your email and continue to Free All Access.',action='Open Profile',fn=goProfile;if(state?.email_verified&&state?.submission_status==='not_submitted'){title='Get Free All Access';text='Your email is verified. Complete the broker account step to unlock Signals, Charts, Articles and other services permanently.';action='Get Free All Access';fn=()=>location.href='/free-access/'}if(state?.submission_status==='rejected'){title='Verification Needs Attention';text='Your previous submission was rejected. Open Profile to see the reason, then upload corrected proof.';action='Open Profile';fn=goProfile}q('#pspAvLockTitle',m).textContent=title;q('#pspAvLockText',m).textContent=text;const b=q('#pspAvLockAction',m);b.textContent=action;b.onclick=()=>{m.classList.remove('open');fn()};m.classList.add('open')}
+  function showLock(){const m=ensureModal();let title='Verify Your Account',text='Email verification is required. Open Profile to verify your email and continue to Free All Access.',action='Open Profile',fn=goProfile;if(state?.email_verified&&state?.submission_status==='not_submitted'){title='Get Free All Access';text='Your email is verified. Complete the broker account step to unlock Signals, Charts, Articles and other services permanently.';action='Get Free All Access';fn=()=>location.href='/free-access/'}if(approvedExpired()){title='90-Day Access Expired';text='Your approved access period has ended. Please contact Admin for renewal.';action='Open Profile';fn=goProfile}if(state?.submission_status==='rejected'){title='Verification Needs Attention';text='Your previous submission was rejected. Open Profile to see the reason, then upload corrected proof.';action='Open Profile';fn=goProfile}q('#pspAvLockTitle',m).textContent=title;q('#pspAvLockText',m).textContent=text;const b=q('#pspAvLockAction',m);b.textContent=action;b.onclick=()=>{m.classList.remove('open');fn()};m.classList.add('open')}
   function markLocks(){qa('#sidebar [data-page],#sidebar [data-tabkey],#userBottomNav [data-page]').forEach(el=>{const key=el.dataset.page||el.dataset.tabkey||'';const lock=!!state&&!canAccess()&&PROTECTED.has(key);el.classList.toggle('psp-av-locked',lock);let b=q('.psp-av-lock-badge',el);if(lock&&!b){b=document.createElement('span');b.className='psp-av-lock-badge';b.textContent='🔒';el.appendChild(b)}else if(!lock&&b)b.remove()})}
   function goProfile(){const item=q('#sidebar .menu-item[data-page="settings"]');if(typeof window.showPage==='function')window.showPage('settings',item||undefined);else location.href='/profile';setTimeout(()=>q('#pspAccountVerificationCard')?.scrollIntoView({behavior:'smooth',block:'start'}),120)}
   function ensureCard(){const base=q('#settings-profile');if(!base)return null;let c=q('#pspAccountVerificationCard');if(!c){c=document.createElement('div');c.id='pspAccountVerificationCard';c.className='card psp-av-card';base.insertAdjacentElement('afterend',c)}return c}
-  function trialBanner(){if(state?.submission_status==='approved'||state?.submission_status==='pending')return'';if(trialActive())return '<div class="psp-av-trial active"><div class="psp-av-trial-icon">⚡</div><div><strong>Free Access Active</strong><span>Temporary access is active while you complete verification.</span></div><div class="psp-av-trial-time" id="pspAvTrialTime">'+esc(remainingText(state.direct_access_remaining_seconds))+'</div></div>';if(state?.direct_access_enabled&&state?.submission_status!=='rejected')return '<div class="psp-av-trial expired"><div class="psp-av-trial-icon">🔒</div><div><strong>Free Access Period Ended</strong><span>Complete verification to unlock protected services.</span></div></div>';return''}
+  function trialBanner(){if(approvedActive()||state?.submission_status==='pending')return'';if(trialActive())return '<div class="psp-av-trial active"><div class="psp-av-trial-icon">⚡</div><div><strong>Free Access Active</strong><span>Temporary access is active while you complete verification.</span></div><div class="psp-av-trial-time" id="pspAvTrialTime">'+esc(remainingText(state.direct_access_remaining_seconds))+'</div></div>';if(state?.direct_access_enabled&&state?.submission_status!=='rejected')return '<div class="psp-av-trial expired"><div class="psp-av-trial-icon">🔒</div><div><strong>Free Access Period Ended</strong><span>Complete verification to unlock protected services.</span></div></div>';return''}
   function emailCard(){const done=!!state.email_verified;return '<div class="psp-av-email-card '+(done?'done':'required')+'"><div class="psp-av-step-icon">'+(done?'✓':'1')+'</div><div class="psp-av-step-copy"><div class="psp-av-step-top"><strong>Email Verification</strong><span class="psp-av-required">'+(done?'COMPLETED':'REQUIRED')+'</span></div><p>'+(done?'Your registered email address has been verified successfully.':'Verify your registered email address. This step is mandatory even while Free Access is active.')+'</p></div>'+(done?'<div class="psp-av-step-check">Verified ✓</div>':'<button class="psp-av-primary" onclick="PSPAccountVerification.sendEmail(this)">Verify Email</button>')+'</div>'}
-  function accessCard(){const st=state.submission_status||'not_submitted';let cls='locked',badge='REQUIRED',title='Get Free All Access',desc='Create or shift your trading account through PipSePaisa, submit your proof, and keep Signals, Charts, Articles and other protected services unlocked.',action='';if(st==='approved'){cls='approved';badge='APPROVED';title='Free All Access Approved';desc='Your broker verification is approved. Your protected services are permanently unlocked.';action='<div class="psp-av-access-ok">✓ Full Access Active</div>'}else if(st==='pending'){cls='pending';badge='UNDER REVIEW';title='Verification Pending';desc='Your proof is with Admin for review. Temporary access remains active while the review is pending.';action='<div class="psp-av-access-ok">⏳ Temporary Access Active</div>'}else if(st==='rejected'){cls='rejected';badge='ACTION REQUIRED';title='Verification Rejected';desc='<strong>Reason:</strong> '+esc(state.rejection_reason||'Your submitted broker proof could not be approved.');action='<div class="psp-av-access-buttons"><button class="psp-av-primary" type="button" onclick="PSPAccountVerification.openFreeAccess(true)">Upload Again</button><a class="psp-av-secondary" target="_blank" rel="noopener" href="https://wa.me/'+esc(String(state.admin_whatsapp||'601156961157').replace(/\D/g,''))+'">Contact Admin</a></div>'}else if(state.email_verified){cls='ready';badge='REQUIRED';action='<button class="psp-av-access-cta" type="button" onclick="PSPAccountVerification.openFreeAccess()"><span>Permanent Full Access</span><b>Click Here to Get Free All Access →</b></button>'}else{action='<button class="psp-av-access-cta locked-step" type="button" onclick="PSPAccountVerification.openFreeAccess()"><span>Step 2 • Required</span><b>Get Free All Access →</b><small>Verify Email first to continue</small></button>'}return '<div class="psp-av-access-card '+cls+'"><div class="psp-av-access-icon">'+(st==='approved'?'🏆':st==='pending'?'⏳':st==='rejected'?'⚠️':'🚀')+'</div><div class="psp-av-access-main"><div class="psp-av-access-top"><div><span class="psp-av-kicker">STEP 2</span><h3>'+title+'</h3></div><span class="psp-av-access-badge">'+badge+'</span></div><p>'+desc+'</p><div class="psp-av-benefits"><span>📡 Signals</span><span>📊 Charts</span><span>📰 Articles</span><span>🧰 Tools</span></div>'+action+'</div></div>'}
-  function renderCard(){const c=ensureCard();if(!c)return;if(!loggedIn()){c.innerHTML='<div class="psp-av-title">Account Verification</div><div class="psp-av-sub">Sign in to verify your account.</div>';return}if(!state){c.innerHTML='<div class="psp-av-title">Account Verification</div><div class="psp-av-sub">Checking your verification status…</div>';return}let status='Verification Required',cls='wait';if(state.submission_status==='approved'){status='Account Verified';cls='ok'}else if(state.submission_status==='pending'){status='Verification Pending';cls='review'}else if(state.submission_status==='rejected'){status='Action Required';cls='bad'}else if(state.email_verified){status='Email Verified';cls='wait'}else if(trialActive()){status='Free Access Active';cls='review'}c.innerHTML='<div class="psp-av-head premium"><div><div class="psp-av-eyebrow">PIPSEPAISA ACCOUNT</div><div class="psp-av-title">Account Verification</div><div class="psp-av-sub">Complete both required steps to keep permanent access to all PipSePaisa services.</div></div><span class="psp-av-pill '+cls+'">'+esc(status)+'</span></div>'+trialBanner()+'<div class="psp-av-flow">'+emailCard()+accessCard()+'</div>';startCountdown()}
-  function startCountdown(){if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}if(!state?.direct_access_active||!state?.direct_access_expires_at)return;countdownTimer=setInterval(()=>{const el=q('#pspAvTrialTime');if(!el){clearInterval(countdownTimer);countdownTimer=null;return}const left=Math.max(0,Math.floor((new Date(state.direct_access_expires_at).getTime()-Date.now())/1000));el.textContent=remainingText(left);if(left<=0){clearInterval(countdownTimer);countdownTimer=null;load(true)}},1000)}
+  function accessCard(){
+    const st=state.submission_status||'not_submitted';
+    let cls='locked',badge='REQUIRED',title='Get Free All Access',
+        desc='Create or shift your trading account through PipSePaisa, submit your proof, and unlock protected services for 90 days after Admin approval.',
+        action='';
+
+    if(approvedActive()){
+      cls='approved';badge='APPROVED';title='90-Day Free All Access';
+      desc='Your broker verification is approved. Protected services are unlocked until the approval expiry date.';
+      action='<div class="psp-av-access-ok">✓ Full Access Active <span id="pspAvApprovedTime" style="margin-left:8px;font-variant-numeric:tabular-nums"></span></div>';
+    }else if(approvedExpired()){
+      cls='rejected';badge='EXPIRED';title='90-Day Access Expired';
+      desc='Your approved access period has ended. Contact Admin if you need your access renewed.';
+      action='<div class="psp-av-access-buttons"><a class="psp-av-primary" target="_blank" rel="noopener" href="https://wa.me/'+esc(String(state.admin_whatsapp||'601156961157').replace(/\D/g,''))+'">Contact Admin</a></div>';
+    }else if(st==='pending'){
+      cls='pending';badge='UNDER REVIEW';title='Verification Pending';
+      desc='Your proof is with Admin for review. Temporary access remains active while the review is pending.';
+      action='<div class="psp-av-access-ok">⏳ Temporary Access Active</div>';
+    }else if(st==='rejected'){
+      cls='rejected';badge='ACTION REQUIRED';title='Verification Rejected';
+      desc='<strong>Reason:</strong> '+esc(state.rejection_reason||'Your submitted broker proof could not be approved.');
+      action='<div class="psp-av-access-buttons"><button class="psp-av-primary" type="button" onclick="PSPAccountVerification.openFreeAccess(true)">Upload Again</button><a class="psp-av-secondary" target="_blank" rel="noopener" href="https://wa.me/'+esc(String(state.admin_whatsapp||'601156961157').replace(/\D/g,''))+'">Contact Admin</a></div>';
+    }else if(state.email_verified){
+      cls='ready';badge='REQUIRED';
+      action='<button class="psp-av-access-cta" type="button" onclick="PSPAccountVerification.openFreeAccess()"><span>90-Day Full Access</span><b>Click Here to Get Free All Access →</b></button>';
+    }else{
+      action='<button class="psp-av-access-cta locked-step" type="button" onclick="PSPAccountVerification.openFreeAccess()"><span>Step 2 • Required</span><b>Get Free All Access →</b><small>Verify Email first to continue</small></button>';
+    }
+
+    return '<div class="psp-av-access-card '+cls+'"><div class="psp-av-access-icon">'+
+      (approvedActive()?'🏆':approvedExpired()?'⌛':st==='pending'?'⏳':st==='rejected'?'⚠️':'🚀')+
+      '</div><div class="psp-av-access-main"><div class="psp-av-access-top"><div><span class="psp-av-kicker">STEP 2</span><h3>'+title+'</h3></div><span class="psp-av-access-badge">'+badge+'</span></div><p>'+desc+'</p><div class="psp-av-benefits"><span>📡 Signals</span><span>📊 Charts</span><span>📰 Articles</span><span>🧰 Tools</span></div>'+action+'</div></div>';
+  }
+  function renderCard(){const c=ensureCard();if(!c)return;if(!loggedIn()){c.innerHTML='<div class="psp-av-title">Account Verification</div><div class="psp-av-sub">Sign in to verify your account.</div>';return}if(!state){c.innerHTML='<div class="psp-av-title">Account Verification</div><div class="psp-av-sub">Checking your verification status…</div>';return}let status='Verification Required',cls='wait';if(approvedActive()){status='Account Verified';cls='ok'}else if(approvedExpired()){status='Access Expired';cls='bad'}else if(state.submission_status==='pending'){status='Verification Pending';cls='review'}else if(state.submission_status==='rejected'){status='Action Required';cls='bad'}else if(state.email_verified){status='Email Verified';cls='wait'}else if(trialActive()){status='Free Access Active';cls='review'}c.innerHTML='<div class="psp-av-head premium"><div><div class="psp-av-eyebrow">PIPSEPAISA ACCOUNT</div><div class="psp-av-title">Account Verification</div><div class="psp-av-sub">Complete both required steps to unlock 90-day access to protected PipSePaisa services.</div></div><span class="psp-av-pill '+cls+'">'+esc(status)+'</span></div>'+trialBanner()+'<div class="psp-av-flow">'+emailCard()+accessCard()+'</div>';startCountdown()}
+  function startCountdown(){
+    if(countdownTimer){clearInterval(countdownTimer);countdownTimer=null}
+    function tick(){
+      const trialEl=q('#pspAvTrialTime');
+      if(trialEl&&state?.direct_access_expires_at){
+        const left=Math.max(0,Math.floor((new Date(state.direct_access_expires_at).getTime()-Date.now())/1000));
+        trialEl.textContent=remainingText(left);
+        if(left<=0)load(true);
+      }
+
+      const approvedEl=q('#pspAvApprovedTime');
+      if(approvedEl&&state?.approved_expires_at){
+        const left=Math.max(0,Math.floor((new Date(state.approved_expires_at).getTime()-Date.now())/1000));
+        approvedEl.textContent='• '+remainingText(left);
+        if(left<=0)load(true);
+      }
+    }
+    tick();
+    if((state?.direct_access_active&&state?.direct_access_expires_at)||(approvedActive()&&state?.approved_expires_at)){
+      countdownTimer=setInterval(tick,1000);
+    }
+  }
   async function sendEmail(btn){const c=client();if(!c)return alert('Please sign in again.');const old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Sending…'}try{const r=await c.functions.invoke('request-account-verification',{body:{}});if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.error||'Could not send verification email.');if(r.data?.already_verified){await load(true);alert('Your email is already verified.');return}alert(r.data.message||'Verification email sent. Please check your inbox.')}catch(e){alert(e.message||'Could not send verification email.')}finally{if(btn){btn.disabled=false;btn.textContent=old||'Verify Email'}}}
-  function openFreeAccess(resubmit=false){if(!state)return goProfile();if(state.submission_status==='approved')return goProfile();if(!state.email_verified){const m=ensureModal();q('#pspAvLockTitle',m).textContent='Verify Email First';q('#pspAvLockText',m).textContent='Email Verification is required before the broker Full Access step. Use the Verify Email button in Profile, then continue here.';const b=q('#pspAvLockAction',m);b.textContent='Verify Email';b.onclick=()=>{m.classList.remove('open');goProfile();setTimeout(()=>q('.psp-av-email-card .psp-av-primary')?.focus(),250)};m.classList.add('open');return}location.href='/free-access/'+(resubmit?'?resubmit=1':'')}
-  async function load(silent=false){if(loading)return state;const c=client();if(!c||!loggedIn()){state=null;renderMini();markLocks();renderCard();return null}loading=true;try{const r=await c.rpc('psp_get_access_status');if(r.error)throw r.error;state=Array.isArray(r.data)?(r.data[0]||null):r.data;if(state&&(state.direct_access_active||state.temporary_access||state.submission_status==='approved'))state.can_access=true;window.PSP_ACCOUNT_ACCESS_STATE=state;renderMini();markLocks();renderCard();return state}catch(e){console.warn('Account verification status unavailable:',e?.message||e);if(!silent){state={verification_required:true,can_access:false,email_verified:false,submission_status:'not_submitted',admin_whatsapp:'601156961157',direct_access_enabled:false,direct_access_active:false};renderMini();markLocks();renderCard()}return state}finally{loading=false}}
+  function openFreeAccess(resubmit=false){if(!state)return goProfile();if(approvedActive())return goProfile();if(approvedExpired())return goProfile();if(!state.email_verified){const m=ensureModal();q('#pspAvLockTitle',m).textContent='Verify Email First';q('#pspAvLockText',m).textContent='Email Verification is required before the broker Full Access step. Use the Verify Email button in Profile, then continue here.';const b=q('#pspAvLockAction',m);b.textContent='Verify Email';b.onclick=()=>{m.classList.remove('open');goProfile();setTimeout(()=>q('.psp-av-email-card .psp-av-primary')?.focus(),250)};m.classList.add('open');return}location.href='/free-access/'+(resubmit?'?resubmit=1':'')}
+  async function load(silent=false){
+    if(loading)return state;
+    const c=client();
+    if(!c||!loggedIn()){
+      state=null;renderMini();markLocks();renderCard();return null
+    }
+
+    loading=true;
+    try{
+      const r=await c.rpc('psp_get_access_status');
+      if(r.error)throw r.error;
+      state=Array.isArray(r.data)?(r.data[0]||null):r.data;
+
+      // V116: add authoritative 90-day approval expiry.
+      try{
+        const ex=await c.rpc('psp_get_access_expiry_v116');
+        if(!ex.error&&ex.data){
+          const extra=Array.isArray(ex.data)?(ex.data[0]||{}):ex.data;
+          state={...(state||{}),...(extra||{})};
+        }
+      }catch(_){}
+
+      if(state){
+        const exp=state.approved_expires_at?new Date(state.approved_expires_at).getTime():0;
+        if(state.submission_status==='approved'&&exp&&exp<=Date.now()){
+          state.submission_status='expired';
+          state.approved_active=false;
+          state.can_access=!!(state.direct_access_active||state.temporary_access);
+        }else if(approvedActive()||state.direct_access_active||state.temporary_access){
+          state.can_access=true;
+        }else{
+          state.can_access=false;
+        }
+      }
+
+      window.PSP_ACCOUNT_ACCESS_STATE=state;
+      renderMini();markLocks();renderCard();
+      return state;
+    }catch(e){
+      console.warn('Account verification status unavailable:',e?.message||e);
+      if(!silent){
+        state={verification_required:true,can_access:false,email_verified:false,submission_status:'not_submitted',admin_whatsapp:'601156961157',direct_access_enabled:false,direct_access_active:false};
+        renderMini();markLocks();renderCard()
+      }
+      return state;
+    }finally{loading=false}
+  }
   function intercept(e){if(!state||canAccess())return;const el=e.target.closest('[data-page],[data-tabkey="addtrade"],[onclick*="openAddTradeModal"]');if(!el)return;const key=el.dataset.page||el.dataset.tabkey||(el.getAttribute('onclick')?.includes('openAddTradeModal')?'addtrade':'');if(!PROTECTED.has(key))return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showLock()}
   function renameUI(){const nav=q('#sidebar .menu-item[data-page="settings"]');if(nav)nav.innerHTML='<span class="menu-icon">👤</span>Profile';const h=q('#page-settings .settings-tabs');if(h)h.style.display='none';const sec=q('#settings-security');if(sec)sec.style.display='block';const prof=q('#settings-profile .card-title');if(prof)prof.textContent='Profile Details'}
   function wrapShowPage(){if(window._pspAvShowWrapped||typeof window.showPage!=='function')return;window._pspAvShowWrapped=true;const old=window.showPage;window.showPage=function(page,el){if(state&&!canAccess()&&PROTECTED.has(page)){showLock();return}const out=old.apply(this,arguments);if(page==='settings'){const t=q('#pageTitle');if(t)t.textContent='Profile';setTimeout(renderCard,0)}return out}}
