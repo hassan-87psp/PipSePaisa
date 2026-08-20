@@ -19,7 +19,32 @@ function sigSetView(v,el){
 function sigSetTime(t,el){sigTimeF=t;document.querySelectorAll('#sigTimeFilters .sig-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderSignals()}
 function memberCat(){ if(!currentProfile||!currentProfile.is_premium) return 'free'; var mt=currentProfile.member_type; if(!mt) return 'vip'; return mt==='vip'?'vip':'premium'; }
 function userServicesList(){ if(!currentProfile) return []; var s=currentProfile.services; if(s==null||s==='') return null; return String(s).split(',').map(function(x){return x.trim();}).filter(Boolean); }
+function pspHasVerifiedAccess(){
+  try{
+    var st=window.PSPAccountVerification&&typeof window.PSPAccountVerification.getState==='function'
+      ? window.PSPAccountVerification.getState()
+      : window.PSP_ACCOUNT_ACCESS_STATE;
+    return !!(
+      st &&
+      (
+        st.can_access ||
+        st.direct_access_active ||
+        st.temporary_access ||
+        st.submission_status==='approved' ||
+        st.submission_status==='pending'
+      )
+    );
+  }catch(_){return false;}
+}
 function canAccessContent(svc,audienceStr){
+  /*
+    V113:
+    Broker verification / active Free Access grants the protected PipSePaisa
+    services. It must not be blocked again by the older Premium/VIP profile
+    membership check.
+  */
+  if(pspHasVerifiedAccess()) return true;
+
   if(audienceStr==='all'||audienceStr==null||audienceStr==='') return true;
   var aud=String(audienceStr).split(',').map(function(x){return x.trim();}).filter(Boolean);
   if(!aud.length||aud.indexOf('free')>=0) return true;
@@ -34,8 +59,21 @@ async function loadSignalsFromDB(){
   const g=document.getElementById('signalsGrid');if(!g)return;
   if(!sb){g.innerHTML='';return;}
   g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading signals...</div>';
+
+  // V113: refresh verification state first so an Admin-approved account is
+  // unlocked immediately without requiring logout/login or another refresh.
+  try{
+    if(window.PSPAccountVerification&&typeof window.PSPAccountVerification.load==='function'){
+      await window.PSPAccountVerification.load(true);
+    }
+  }catch(_){}
+
   const {data,error}=await sb.from('signals').select('*').order('created_at',{ascending:false});
-  if(error){g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">'+error.message+'</div>';return;}
+  if(error){
+    console.error('Signals load failed:',error);
+    g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">Signals could not be loaded. Please refresh once. If the issue continues, contact Admin.</div>';
+    return;
+  }
   const _isVip=!!(currentProfile&&currentProfile.is_premium);
   window._SIGRAW=window._SIGRAW||{};(data||[]).forEach(function(s){window._SIGRAW[s.id]=s;});
   SIGNALS=(data||[]).map(s=>{
@@ -2589,4 +2627,32 @@ function pspSigMobileShell(rows){
     setTimeout(ensureDockAfterOpen,30);
     setTimeout(ensureDockAfterOpen,180);
   },true);
+})();
+
+
+// ============================================================================
+// PIPSEPAISA V113 — VERIFIED ACCOUNT SIGNAL ACCESS SYNC
+// ============================================================================
+(function pspV113SignalAccessSync(){
+  if(window.__pspV113SignalAccessSync)return;
+  window.__pspV113SignalAccessSync=true;
+
+  function refreshSignalsIfVisible(){
+    try{
+      var page=document.getElementById('page-signals');
+      if(page && page.classList.contains('active') && typeof loadSignalsFromDB==='function'){
+        loadSignalsFromDB();
+      }
+    }catch(_){}
+  }
+
+  // The account-verification module updates this state after approval/pending.
+  // Re-check on tab focus/pageshow so an already-approved user does not remain
+  // on a stale locked/empty Signals screen.
+  window.addEventListener('pageshow',function(){
+    setTimeout(refreshSignalsIfVisible,300);
+  });
+  window.addEventListener('focus',function(){
+    setTimeout(refreshSignalsIfVisible,250);
+  });
 })();
