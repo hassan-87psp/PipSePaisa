@@ -1,0 +1,54 @@
+PipSePaisa V104 — True Fixed Mobile Period Dock + Note Dropdown
+20 August 2026
+
+FIXED NOW
+
+MOBILE
+- Daily / Weekly / Monthly no longer lives inside the scrollable Signals page.
+- A single dock is appended directly to document.body.
+- It is TRUE viewport-fixed and cannot move down when Signals content scrolls.
+- On the normal Signals page it automatically sits just above the actual user bottom navigation height.
+- On Daily / Weekly / Monthly result page it moves to the bottom of the viewport.
+- Result page remains width-fitted with no horizontal left/right scrolling.
+
+DESKTOP
+- Date / Pair / Type columns are tighter and more compact.
+- Note is no longer a permanent yellow strip.
+- A compact Note ▾ button appears on each signal that has a mentor note.
+- Click Note ▾ to open the note underneath; click again to collapse it.
+- Signals without a note show a disabled compact Note button.
+- TP4 / Open support from V103 remains.
+
+UNCHANGED
+- Mentor single Order dropdown from V103 remains.
+- Signal database / publishing logic unchanged.
+- Infinity / payment / Edge Functions untouched.
+
+DEPLOY
+1. Upload/replace ALL files in this ZIP over V103.
+2. Hard refresh mobile browser.
+3. If installed as PWA, fully close and reopen once after deployment.
+
+Cache-bumped user routes:
+- index.html
+- my-trades/index.html
+- support/index.html
+- profile/index.html
+- signals/index.html
+- dashboard/index.html
+- vip-plans/index.html
+- economic-news/index.html
+- charts-articles/index.html
+- ai-tools/index.html
+- trades-analysis/index.html
+- live-charts/index.html
+- my-courses/index.html
+- announcements/index.html
+- about/index.html
+- currency-strength/index.html
+- member-chats/index.html
+- tools/index.html
+- performance/index.html
+- journal/index.html
+- ai-report/index.html
+- world-news/index.html

@@ -1710,3 +1710,707 @@ function pspSigMobileShell(rows){
   '</div>';
 }
 
+
+// ============================================================================
+// PIPSEPAISA V104 — TRUE FIXED MOBILE RESULT DOCK + COMPACT NOTE DROPDOWN
+// 20 August 2026
+//
+// Fixes:
+// 1) Daily / Weekly / Monthly is now a BODY-LEVEL fixed dock. It no longer
+//    lives inside the scrolling Signals content, so scrolling cannot move it.
+// 2) Dock automatically sits above the real mobile bottom nav height.
+// 3) Result page reuses the same dock at the bottom of the viewport.
+// 4) Desktop Note is now a compact dropdown instead of a permanent yellow strip.
+// 5) Desktop Date / Pair / Type spacing is tightened.
+// ============================================================================
+
+(function pspV104InstallCss(){
+  if(document.getElementById('psp-v104-signal-css')) return;
+  var s=document.createElement('style');
+  s.id='psp-v104-signal-css';
+  s.textContent=`
+    /* ---------- Desktop compact table ---------- */
+    .psp-sig-table-v104{
+      width:100%!important;
+      min-width:1040px!important;
+      table-layout:fixed!important;
+    }
+    .psp-sig-table-v104 th,
+    .psp-sig-table-v104 td{
+      padding:8px 6px!important;
+    }
+    .psp-sig-table-v104 th:nth-child(1),
+    .psp-sig-table-v104 td:nth-child(1){width:155px}
+    .psp-sig-table-v104 th:nth-child(2),
+    .psp-sig-table-v104 td:nth-child(2){width:90px}
+    .psp-sig-table-v104 th:nth-child(3),
+    .psp-sig-table-v104 td:nth-child(3){width:105px}
+    .psp-sig-table-v104 th:nth-child(n+4):nth-child(-n+9),
+    .psp-sig-table-v104 td:nth-child(n+4):nth-child(-n+9){width:62px;text-align:center}
+    .psp-sig-table-v104 th:nth-child(10),
+    .psp-sig-table-v104 td:nth-child(10){width:84px;text-align:center}
+    .psp-sig-table-v104 th:nth-child(11),
+    .psp-sig-table-v104 td:nth-child(11){width:62px;text-align:center}
+    .psp-sig-table-v104 th:nth-child(12),
+    .psp-sig-table-v104 td:nth-child(12){width:68px;text-align:center}
+    .psp-sig-table-v104 th:nth-child(13),
+    .psp-sig-table-v104 td:nth-child(13){width:72px;text-align:center}
+
+    .psp-note-toggle{
+      min-width:56px;
+      height:27px;
+      padding:0 8px;
+      border:1px solid rgba(251,146,1,.30);
+      border-radius:8px;
+      background:rgba(251,146,1,.08);
+      color:#FB9201;
+      font-size:9px;
+      font-weight:900;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+    .psp-note-toggle:hover{background:rgba(251,146,1,.14)}
+    .psp-note-toggle[disabled]{
+      opacity:.38;cursor:default;
+      border-color:var(--border);
+      background:var(--bg-elevated);
+      color:var(--text-muted);
+    }
+    .psp-note-dropdown-row{display:none}
+    .psp-note-dropdown-row.open{display:table-row}
+    .psp-note-dropdown-row td{
+      padding:0 6px 8px!important;
+      border-top:0!important;
+      background:transparent!important;
+    }
+    .psp-note-dropdown-content{
+      width:min(680px,72%);
+      margin:0 auto;
+      padding:7px 10px;
+      border:1px solid rgba(251,146,1,.22);
+      border-left:3px solid #FB9201;
+      border-radius:8px;
+      background:rgba(251,146,1,.045);
+      color:var(--text-secondary);
+      font-size:9.5px;
+      line-height:1.45;
+      text-align:left;
+    }
+    .psp-note-dropdown-content b{color:#FB9201;margin-right:4px}
+
+    /* ---------- True viewport-fixed mobile dock ---------- */
+    #pspSignalPeriodDockV104{
+      display:none;
+    }
+
+    @media(max-width:760px){
+      #page-signals{padding-bottom:150px!important}
+
+      /* Kill every older inline/sticky period selector inside Signals. */
+      #page-signals .psp-period-wrap,
+      #page-signals .psp-period-tabs{
+        display:none!important;
+      }
+
+      #pspSignalPeriodDockV104{
+        position:fixed!important;
+        left:18px!important;
+        right:18px!important;
+        z-index:24000!important;
+        grid-template-columns:repeat(3,minmax(0,1fr))!important;
+        gap:8px!important;
+        padding:8px!important;
+        box-sizing:border-box!important;
+        border:1px solid var(--border)!important;
+        border-radius:17px!important;
+        background:color-mix(in srgb,var(--bg-card) 96%,transparent)!important;
+        backdrop-filter:blur(14px)!important;
+        -webkit-backdrop-filter:blur(14px)!important;
+        box-shadow:0 10px 30px rgba(0,0,0,.16)!important;
+        transform:none!important;
+        margin:0!important;
+      }
+      #pspSignalPeriodDockV104 .psp-period-btn{
+        width:100%!important;
+        min-width:0!important;
+        min-height:42px!important;
+        margin:0!important;
+        border-radius:12px!important;
+        font-size:11px!important;
+      }
+
+      /* Result page is also viewport-bound; never horizontal-scroll. */
+      #pspPeriodPageV103{
+        overflow-x:hidden!important;
+        width:100vw!important;
+        max-width:100vw!important;
+        box-sizing:border-box!important;
+        padding-bottom:88px!important;
+      }
+      #pspPeriodPageV103 .psp-period-tabs{
+        display:none!important;
+      }
+    }
+  `;
+  document.head.appendChild(s);
+})();
+
+var pspV104NoteOpen = {};
+
+function pspToggleSignalNote(id){
+  var key=String(id);
+  pspV104NoteOpen[key]=!pspV104NoteOpen[key];
+
+  var row=document.getElementById('pspNoteDrop-'+key);
+  if(row) row.classList.toggle('open',!!pspV104NoteOpen[key]);
+
+  var btn=document.getElementById('pspNoteBtn-'+key);
+  if(btn){
+    btn.innerHTML=pspV104NoteOpen[key]?'Note ▴':'Note ▾';
+    btn.setAttribute('aria-expanded',pspV104NoteOpen[key]?'true':'false');
+  }
+}
+
+/* Desktop row: Note is a dropdown, not a permanent strip. */
+function pspSigDesktopRow(s,history){
+  var d=pspFmtDateTime(s.ts);
+  var dir=pspSigDirectionText(s);
+  var ds=(dir.indexOf('SELL')===0)?'sell':'buy';
+  var st=history?pspSigClosedStatus(s):pspSigActiveStatus(s);
+  var p=(s.pips!=null)?((Number(s.pips)>=0?'+':'')+s.pips):'—';
+  var pc=(s.pips==null)?'pips-open':(Number(s.pips)>=0?'pips-pos':'pips-neg');
+  var finalState=history?'Closed':'Open';
+  var note=pspSigNote(s);
+  var id=String(s.id);
+
+  var html='<tr>'+
+    '<td>'+vEsc(d)+'</td>'+
+    '<td class="pair">'+vEsc(s.pair||'-')+'</td>'+
+    '<td class="'+ds+'">'+vEsc(dir||'-')+'</td>'+
+    '<td>'+pspSigCell(s,'entry')+'</td>'+
+    '<td>'+pspSigCell(s,'sl')+'</td>'+
+    '<td>'+pspSigCell(s,'tp1')+'</td>'+
+    '<td>'+pspSigCell(s,'tp2')+'</td>'+
+    '<td>'+pspSigCell(s,'tp3')+'</td>'+
+    '<td>'+pspSigCell(s,'tp4')+'</td>'+
+    '<td><span class="psp-sig-badge '+st[1]+'">'+vEsc(st[0])+'</span></td>'+
+    '<td class="'+pc+'">'+vEsc(p)+'</td>'+
+    '<td><span class="psp-sig-badge '+(history?'closed':'open')+'">'+finalState+'</span></td>'+
+    '<td>'+(note && !s.locked
+      ? '<button id="pspNoteBtn-'+vEsc(id)+'" class="psp-note-toggle" type="button" aria-expanded="false" onclick="pspToggleSignalNote(\''+vEsc(id)+'\')">Note ▾</button>'
+      : '<button class="psp-note-toggle" type="button" disabled>Note</button>')+
+    '</td>'+
+  '</tr>';
+
+  if(note && !s.locked){
+    html+='<tr id="pspNoteDrop-'+vEsc(id)+'" class="psp-note-dropdown-row'+(pspV104NoteOpen[id]?' open':'')+'">'+
+      '<td colspan="13"><div class="psp-note-dropdown-content"><b>📝 Note:</b>'+vEsc(note)+'</div></td>'+
+    '</tr>';
+  }
+
+  return html;
+}
+
+function pspSigDesktopTable(rows,history){
+  if(!rows.length) return '';
+  var title=history?'Closed / History Signals':'Active Signals';
+  return '<div class="psp-sig-desktop">'+
+    '<div class="psp-sig-desktop-heading"><b>'+title+'</b><span></span></div>'+
+    '<div class="psp-sig-table-wrap"><table class="psp-sig-table psp-sig-table-v104">'+
+      '<thead><tr>'+
+        '<th>Date</th><th>Pair</th><th>Type</th><th>Entry</th><th>SL</th>'+
+        '<th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th>'+
+        '<th>Status</th><th>Pips</th><th>State</th><th>Note</th>'+
+      '</tr></thead>'+
+      '<tbody>'+rows.map(function(s){return pspSigDesktopRow(s,history)}).join('')+'</tbody>'+
+    '</table></div></div>';
+}
+
+/* Only the signal list remains in normal mobile flow. The period controls live in BODY. */
+function pspSigMobileShell(rows){
+  var title=sigView==='history'?'Signal History':'Daily Signals';
+  pspV104SyncPeriodDock();
+  return '<div class="psp-sig-mobile-shell">'+
+    '<div class="psp-mobile-signals-title">'+title+'</div>'+
+    '<div class="psp-mobile-sig-table">'+
+      '<div class="psp-mobile-sig-head"><div>Date</div><div>Pair</div><div>Status</div><div>Profit</div><div>Open</div></div>'+
+      rows.map(pspSigMobileRow).join('')+
+    '</div>'+
+  '</div>';
+}
+
+function pspV104EnsurePeriodDock(){
+  var dock=document.getElementById('pspSignalPeriodDockV104');
+  if(dock) return dock;
+
+  dock=document.createElement('div');
+  dock.id='pspSignalPeriodDockV104';
+  dock.innerHTML=
+    '<button class="psp-period-btn" data-period="daily" type="button" onclick="pspSignalPeriod(\'daily\')">Daily</button>'+
+    '<button class="psp-period-btn" data-period="weekly" type="button" onclick="pspSignalPeriod(\'weekly\')">Weekly</button>'+
+    '<button class="psp-period-btn" data-period="monthly" type="button" onclick="pspSignalPeriod(\'monthly\')">Monthly</button>';
+
+  /* Critical: append to BODY, outside .content/.page scrolling containers. */
+  document.body.appendChild(dock);
+  return dock;
+}
+
+function pspV104SyncPeriodDock(){
+  var dock=pspV104EnsurePeriodDock();
+  var isMobile=window.matchMedia && window.matchMedia('(max-width:760px)').matches;
+  var signals=document.getElementById('page-signals');
+  var resultOpen=!!document.getElementById('pspPeriodPageV103');
+  var signalsOpen=!!(signals && signals.classList.contains('active'));
+
+  if(!isMobile || (!signalsOpen && !resultOpen)){
+    dock.style.display='none';
+    return;
+  }
+
+  dock.style.display='grid';
+
+  var bottom=12;
+  if(!resultOpen){
+    var nav=document.getElementById('userBottomNav');
+    if(nav && getComputedStyle(nav).display!=='none'){
+      var rect=nav.getBoundingClientRect();
+      bottom=Math.max(8,Math.ceil(rect.height)+8);
+    }else{
+      bottom=76;
+    }
+  }
+
+  dock.style.bottom='calc('+bottom+'px + env(safe-area-inset-bottom, 0px))';
+
+  dock.querySelectorAll('.psp-period-btn').forEach(function(b){
+    b.classList.toggle('active',b.getAttribute('data-period')===pspSigPeriod);
+  });
+}
+
+/* Override result page: separate page, no embedded/scrolling period selector. */
+function pspSignalPeriod(period){
+  pspSigPeriod=period;
+  var rows=pspSigPeriodRows(period);
+  var green=0,red=0,net=0;
+
+  rows.forEach(function(s){
+    var p=Number(s.pips)||0;
+    net+=p;
+    if(p>=0) green+=p; else red+=Math.abs(p);
+  });
+
+  var title=period==='daily'?'Daily Signals':(period==='weekly'?'Weekly Signals':'Monthly Signals');
+  var sub=period==='daily'?'Today':(period==='weekly'?'Current Week':'Current Month');
+
+  var page=document.getElementById('pspPeriodPageV103');
+  if(!page){
+    page=document.createElement('div');
+    page.id='pspPeriodPageV103';
+    page.className='psp-period-page';
+    document.body.appendChild(page);
+  }
+
+  var rowsHtml=rows.map(function(s){
+    var d=new Date(s.closedTs||s.ts);
+    var st=pspSigClosedStatus(s);
+    var p=Number(s.pips)||0;
+    var action=(s.dir||'').toUpperCase();
+    var dateHtml=vEsc(d.toLocaleDateString('en-CA'))+'<br>'+
+      vEsc(d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}));
+
+    return '<div class="psp-period-fit-row">'+
+      '<div class="date">'+dateHtml+'</div>'+
+      '<div class="pair">'+vEsc(s.pair||'-')+'</div>'+
+      '<div><span class="psp-sig-badge '+st[1]+'">'+vEsc(st[0])+'</span></div>'+
+      '<div class="action '+(action==='SELL'?'sell':'buy')+'">'+vEsc(action)+'</div>'+
+      '<div>'+vEsc(pspPeriodCompactValue(s,'entry'))+'</div>'+
+      '<div>'+vEsc(pspPeriodCompactValue(s,'sl'))+'</div>'+
+      '<div>'+vEsc(pspPeriodResultTarget(s))+'</div>'+
+      '<div class="result" style="color:'+(p>=0?'#10b981':'#ef4444')+'">'+(p>=0?'+':'')+vEsc(p)+'</div>'+
+    '</div>';
+  }).join('');
+
+  page.innerHTML=
+    '<div class="psp-period-page-head">'+
+      '<button class="psp-period-back" type="button" onclick="pspClosePeriodPage()" aria-label="Back">←</button>'+
+      '<div><div class="psp-period-page-title">'+title+'</div>'+
+      '<div class="psp-period-page-sub">'+sub+' Result</div></div>'+
+      '<div></div>'+
+    '</div>'+
+    (rows.length
+      ? '<div class="psp-period-fit">'+
+          '<div class="psp-period-fit-row head">'+
+            '<div>Date</div><div>Pair</div><div>Status</div><div>Action</div>'+
+            '<div>Open</div><div>SL</div><div>TP</div><div>Result</div>'+
+          '</div>'+rowsHtml+
+        '</div>'
+      : '<div class="psp-period-empty">No closed signals for this period.</div>')+
+    '<div class="psp-period-page-summary">'+
+      '<div class="green">🟢 Total Green Pips: '+(Math.round(green*10)/10)+'</div>'+
+      '<div class="red">🔴 Total Red Pips: '+(Math.round(red*10)/10)+'</div>'+
+      '<div class="net">Result: '+(net>=0?'+':'')+(Math.round(net*10)/10)+' pips</div>'+
+    '</div>';
+
+  try{document.body.style.overflow='hidden';}catch(e){}
+  pspV104SyncPeriodDock();
+}
+
+function pspClosePeriodPage(){
+  var page=document.getElementById('pspPeriodPageV103');
+  if(page) page.remove();
+
+  try{document.body.style.overflow='';}catch(e){}
+
+  pspSigPeriod=null;
+  pspV104SyncPeriodDock();
+}
+
+/* Keep the dock correct when navigating, rotating, resizing or browser chrome changes height. */
+(function pspV104ObserveDock(){
+  function start(){
+    pspV104EnsurePeriodDock();
+    pspV104SyncPeriodDock();
+
+    var page=document.getElementById('page-signals');
+    if(page && window.MutationObserver){
+      new MutationObserver(pspV104SyncPeriodDock).observe(page,{
+        attributes:true,
+        attributeFilter:['class']
+      });
+    }
+
+    window.addEventListener('resize',pspV104SyncPeriodDock,{passive:true});
+    window.addEventListener('orientationchange',function(){
+      setTimeout(pspV104SyncPeriodDock,120);
+    },{passive:true});
+
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize',pspV104SyncPeriodDock,{passive:true});
+    }
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',start,{once:true});
+  }else{
+    start();
+  }
+})();
+
+
+// ============================================================================
+// PIPSEPAISA V105 — DISTINCT SIGNAL TYPE COLORS
+// 20 August 2026
+//
+// User-side visual differentiation:
+// BUY        = Green
+// BUY LIMIT  = Teal
+// BUY STOP   = Blue
+// SELL       = Red
+// SELL LIMIT = Orange
+// SELL STOP  = Purple
+//
+// Applied on desktop tables, mobile rows, expanded mobile cards and
+// Daily / Weekly / Monthly result pages.
+// ============================================================================
+
+(function pspV105InstallSignalTypeColors(){
+  if(document.getElementById('psp-v105-signal-type-colors')) return;
+  var s=document.createElement('style');
+  s.id='psp-v105-signal-type-colors';
+  s.textContent=`
+    .psp-type-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:24px;
+      padding:4px 9px;
+      border-radius:999px;
+      border:1px solid transparent;
+      font-size:9px;
+      font-weight:950;
+      letter-spacing:.18px;
+      white-space:nowrap;
+      line-height:1;
+    }
+
+    .psp-type-buy{
+      color:#059669;
+      background:rgba(16,185,129,.11);
+      border-color:rgba(16,185,129,.26);
+    }
+    .psp-type-buy-limit{
+      color:#0f9f9a;
+      background:rgba(20,184,166,.11);
+      border-color:rgba(20,184,166,.27);
+    }
+    .psp-type-buy-stop{
+      color:#2563eb;
+      background:rgba(59,130,246,.11);
+      border-color:rgba(59,130,246,.26);
+    }
+    .psp-type-sell{
+      color:#dc2626;
+      background:rgba(239,68,68,.10);
+      border-color:rgba(239,68,68,.25);
+    }
+    .psp-type-sell-limit{
+      color:#ea580c;
+      background:rgba(249,115,22,.11);
+      border-color:rgba(249,115,22,.28);
+    }
+    .psp-type-sell-stop{
+      color:#7c3aed;
+      background:rgba(139,92,246,.11);
+      border-color:rgba(139,92,246,.27);
+    }
+
+    /* subtle matching dot improves recognition without relying only on text color */
+    .psp-type-pill:before{
+      content:"";
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      margin-right:5px;
+      background:currentColor;
+      flex:0 0 auto;
+    }
+
+    /* Mobile signal list: add a thin type-color accent on the left */
+    .psp-mobile-sig-row.psp-row-buy{box-shadow:inset 3px 0 0 #10b981}
+    .psp-mobile-sig-row.psp-row-buy-limit{box-shadow:inset 3px 0 0 #14b8a6}
+    .psp-mobile-sig-row.psp-row-buy-stop{box-shadow:inset 3px 0 0 #3b82f6}
+    .psp-mobile-sig-row.psp-row-sell{box-shadow:inset 3px 0 0 #ef4444}
+    .psp-mobile-sig-row.psp-row-sell-limit{box-shadow:inset 3px 0 0 #f97316}
+    .psp-mobile-sig-row.psp-row-sell-stop{box-shadow:inset 3px 0 0 #8b5cf6}
+
+    /* Expanded mobile card also carries the same top accent */
+    .psp-mobile-detail-card.psp-detail-buy{border-top:3px solid #10b981}
+    .psp-mobile-detail-card.psp-detail-buy-limit{border-top:3px solid #14b8a6}
+    .psp-mobile-detail-card.psp-detail-buy-stop{border-top:3px solid #3b82f6}
+    .psp-mobile-detail-card.psp-detail-sell{border-top:3px solid #ef4444}
+    .psp-mobile-detail-card.psp-detail-sell-limit{border-top:3px solid #f97316}
+    .psp-mobile-detail-card.psp-detail-sell-stop{border-top:3px solid #8b5cf6}
+
+    @media(max-width:760px){
+      .psp-type-pill{
+        min-height:21px;
+        padding:3px 7px;
+        font-size:8px;
+      }
+      .psp-type-pill:before{
+        width:5px;
+        height:5px;
+        margin-right:4px;
+      }
+      .psp-mobile-side .psp-type-pill{
+        font-size:10px;
+        min-height:25px;
+        padding:5px 9px;
+      }
+    }
+  `;
+  document.head.appendChild(s);
+})();
+
+function pspSigTypeKey(s){
+  var dir=((s&&s.dir)||'').toString().trim().toLowerCase();
+  var ot=((s&&s.orderType)||'market').toString().trim().toLowerCase();
+
+  if(dir!=='buy' && dir!=='sell'){
+    var txt=pspSigDirectionText(s||{}).toLowerCase();
+    if(txt.indexOf('sell')===0) dir='sell';
+    else dir='buy';
+  }
+
+  if(ot==='limit') return dir+'-limit';
+  if(ot==='stop') return dir+'-stop';
+  return dir;
+}
+
+function pspSigTypeLabel(s){
+  var key=pspSigTypeKey(s);
+  if(key==='buy-limit') return 'BUY LIMIT';
+  if(key==='buy-stop') return 'BUY STOP';
+  if(key==='sell-limit') return 'SELL LIMIT';
+  if(key==='sell-stop') return 'SELL STOP';
+  return key==='sell' ? 'SELL' : 'BUY';
+}
+
+function pspSigTypeClass(s){
+  return 'psp-type-'+pspSigTypeKey(s);
+}
+
+function pspSigTypePill(s){
+  return '<span class="psp-type-pill '+pspSigTypeClass(s)+'">'+
+    vEsc(pspSigTypeLabel(s))+
+  '</span>';
+}
+
+/* Desktop: distinct type pill instead of plain BUY/SELL text. */
+function pspSigDesktopRow(s,history){
+  var d=pspFmtDateTime(s.ts);
+  var st=history?pspSigClosedStatus(s):pspSigActiveStatus(s);
+  var p=(s.pips!=null)?((Number(s.pips)>=0?'+':'')+s.pips):'—';
+  var pc=(s.pips==null)?'pips-open':(Number(s.pips)>=0?'pips-pos':'pips-neg');
+  var finalState=history?'Closed':'Open';
+  var note=pspSigNote(s);
+  var id=String(s.id);
+
+  var html='<tr>'+
+    '<td>'+vEsc(d)+'</td>'+
+    '<td class="pair">'+vEsc(s.pair||'-')+'</td>'+
+    '<td>'+pspSigTypePill(s)+'</td>'+
+    '<td>'+pspSigCell(s,'entry')+'</td>'+
+    '<td>'+pspSigCell(s,'sl')+'</td>'+
+    '<td>'+pspSigCell(s,'tp1')+'</td>'+
+    '<td>'+pspSigCell(s,'tp2')+'</td>'+
+    '<td>'+pspSigCell(s,'tp3')+'</td>'+
+    '<td>'+pspSigCell(s,'tp4')+'</td>'+
+    '<td><span class="psp-sig-badge '+st[1]+'">'+vEsc(st[0])+'</span></td>'+
+    '<td class="'+pc+'">'+vEsc(p)+'</td>'+
+    '<td><span class="psp-sig-badge '+(history?'closed':'open')+'">'+finalState+'</span></td>'+
+    '<td>'+(note && !s.locked
+      ? '<button id="pspNoteBtn-'+vEsc(id)+'" class="psp-note-toggle" type="button" aria-expanded="false" onclick="pspToggleSignalNote(\''+vEsc(id)+'\')">Note ▾</button>'
+      : '<button class="psp-note-toggle" type="button" disabled>Note</button>')+
+    '</td>'+
+  '</tr>';
+
+  if(note && !s.locked){
+    html+='<tr id="pspNoteDrop-'+vEsc(id)+'" class="psp-note-dropdown-row'+(pspV104NoteOpen[id]?' open':'')+'">'+
+      '<td colspan="13"><div class="psp-note-dropdown-content"><b>📝 Note:</b>'+vEsc(note)+'</div></td>'+
+    '</tr>';
+  }
+  return html;
+}
+
+/* Mobile row: keep compact table, but give every type a matching left accent. */
+function pspSigMobileRow(s){
+  var history=pspSigIsFinished(s);
+  var st=history?pspSigClosedStatus(s):pspSigActiveStatus(s);
+  var profit=s.pips!=null?((Number(s.pips)>=0?'+':'')+s.pips):'Open';
+  var profitColor=s.pips==null?'#FB9201':(Number(s.pips)>=0?'#10b981':'#ef4444');
+  var rowClass='psp-row-'+pspSigTypeKey(s);
+
+  return '<div class="psp-mobile-sig-row '+rowClass+'" data-id="'+vEsc(String(s.id))+'" onclick="pspSigToggleMobile(\''+vEsc(String(s.id))+'\')">'+
+      '<div class="psp-mobile-sig-date">'+pspSigMobileDate(s.ts)+'</div>'+
+      '<div class="psp-mobile-sig-pair">'+vEsc(s.pair||'-')+'</div>'+
+      '<div><span class="psp-sig-badge '+st[1]+'">'+vEsc(st[0])+'</span></div>'+
+      '<div class="psp-mobile-sig-profit" style="color:'+profitColor+'">'+vEsc(profit)+'</div>'+
+      '<div class="psp-mobile-open">Open <span class="psp-mobile-chevron">⌄</span></div>'+
+    '</div>'+pspSigMobileDetail(s);
+}
+
+/* Mobile expanded card: exact signal type is prominent and color coded. */
+function pspSigMobileDetail(s){
+  var time=new Date(s.ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  var st=pspSigIsFinished(s)?pspSigClosedStatus(s):pspSigActiveStatus(s);
+  var detailClass='psp-detail-'+pspSigTypeKey(s);
+
+  if(s.locked){
+    return '<div class="psp-mobile-detail" data-id="'+vEsc(String(s.id))+'">'+
+      '<div class="psp-mobile-detail-card '+detailClass+'"><div class="psp-mobile-lock">'+
+        '<strong>🔒 VIP Signal</strong>Upgrade your access to view Entry, SL, TP levels and mentor note.'+
+      '</div></div></div>';
+  }
+
+  var note=pspSigNote(s);
+  var tp4=(s.tp4==null?'':String(s.tp4)).trim();
+  var tp4Html=!tp4?'-':(tp4.toLowerCase()==='open'
+    ? '<span style="color:#FB9201;font-weight:950">Open</span>'
+    : vEsc(tp4));
+
+  return '<div class="psp-mobile-detail" data-id="'+vEsc(String(s.id))+'">'+
+    '<div class="psp-mobile-detail-card '+detailClass+'">'+
+      '<div class="psp-mobile-detail-top">'+
+        '<div>'+
+          '<div class="psp-mobile-side">'+pspSigTypePill(s)+'</div>'+
+          '<div class="psp-mobile-detail-time">'+vEsc(new Date(s.ts).toLocaleDateString('en-GB'))+'</div>'+
+        '</div>'+
+        '<div><div class="psp-mobile-detail-pair">'+vEsc(s.pair||'-')+'</div>'+
+          '<div class="psp-mobile-detail-time">'+vEsc(time)+'</div></div>'+
+      '</div>'+
+      '<div class="psp-mobile-levels">'+
+        '<div class="psp-mobile-lv"><b><span class="psp-sig-badge '+st[1]+'">'+vEsc(st[0])+'</span></b><span>Status</span></div>'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.entry||'-')+'</b><span>Entry</span></div>'+
+        '<div class="psp-mobile-lv"><b style="color:#ef4444">'+vEsc(s.sl||'-')+'</b><span>SL</span></div>'+
+        '<div class="psp-mobile-lv"><b style="color:'+(s.pips!=null?(Number(s.pips)>=0?'#10b981':'#ef4444'):'var(--text-primary)')+'">'+
+          (s.pips!=null?vEsc((Number(s.pips)>=0?'+':'')+s.pips):'Open')+'</b><span>Pips</span></div>'+
+      '</div>'+
+      '<div class="psp-mobile-tps">'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.tp1||'-')+'</b><span>TP1</span></div>'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.tp2||'-')+'</b><span>TP2</span></div>'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.tp3||'-')+'</b><span>TP3</span></div>'+
+        '<div class="psp-mobile-lv"><b>'+tp4Html+'</b><span>TP4</span></div>'+
+      '</div>'+
+      (note?'<div class="psp-mobile-note"><b>📝 Mentor Note:</b><br>'+vEsc(note)+'</div>':'')+
+    '</div></div>';
+}
+
+/* Daily / Weekly / Monthly result page: color-coded Action type too. */
+function pspSignalPeriod(period){
+  pspSigPeriod=period;
+  var rows=pspSigPeriodRows(period);
+  var green=0,red=0,net=0;
+
+  rows.forEach(function(s){
+    var p=Number(s.pips)||0;
+    net+=p;
+    if(p>=0) green+=p; else red+=Math.abs(p);
+  });
+
+  var title=period==='daily'?'Daily Signals':(period==='weekly'?'Weekly Signals':'Monthly Signals');
+  var sub=period==='daily'?'Today':(period==='weekly'?'Current Week':'Current Month');
+
+  var page=document.getElementById('pspPeriodPageV103');
+  if(!page){
+    page=document.createElement('div');
+    page.id='pspPeriodPageV103';
+    page.className='psp-period-page';
+    document.body.appendChild(page);
+  }
+
+  var rowsHtml=rows.map(function(s){
+    var d=new Date(s.closedTs||s.ts);
+    var st=pspSigClosedStatus(s);
+    var p=Number(s.pips)||0;
+    var dateHtml=vEsc(d.toLocaleDateString('en-CA'))+'<br>'+
+      vEsc(d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}));
+
+    return '<div class="psp-period-fit-row">'+
+      '<div class="date">'+dateHtml+'</div>'+
+      '<div class="pair">'+vEsc(s.pair||'-')+'</div>'+
+      '<div><span class="psp-sig-badge '+st[1]+'">'+vEsc(st[0])+'</span></div>'+
+      '<div>'+pspSigTypePill(s)+'</div>'+
+      '<div>'+vEsc(pspPeriodCompactValue(s,'entry'))+'</div>'+
+      '<div>'+vEsc(pspPeriodCompactValue(s,'sl'))+'</div>'+
+      '<div>'+vEsc(pspPeriodResultTarget(s))+'</div>'+
+      '<div class="result" style="color:'+(p>=0?'#10b981':'#ef4444')+'">'+(p>=0?'+':'')+vEsc(p)+'</div>'+
+    '</div>';
+  }).join('');
+
+  page.innerHTML=
+    '<div class="psp-period-page-head">'+
+      '<button class="psp-period-back" type="button" onclick="pspClosePeriodPage()" aria-label="Back">←</button>'+
+      '<div><div class="psp-period-page-title">'+title+'</div>'+
+      '<div class="psp-period-page-sub">'+sub+' Result</div></div>'+
+      '<div></div>'+
+    '</div>'+
+    (rows.length
+      ? '<div class="psp-period-fit">'+
+          '<div class="psp-period-fit-row head">'+
+            '<div>Date</div><div>Pair</div><div>Status</div><div>Action</div>'+
+            '<div>Open</div><div>SL</div><div>TP</div><div>Result</div>'+
+          '</div>'+rowsHtml+
+        '</div>'
+      : '<div class="psp-period-empty">No closed signals for this period.</div>')+
+    '<div class="psp-period-page-summary">'+
+      '<div class="green">🟢 Total Green Pips: '+(Math.round(green*10)/10)+'</div>'+
+      '<div class="red">🔴 Total Red Pips: '+(Math.round(red*10)/10)+'</div>'+
+      '<div class="net">Result: '+(net>=0?'+':'')+(Math.round(net*10)/10)+' pips</div>'+
+    '</div>';
+
+  try{document.body.style.overflow='hidden';}catch(e){}
+  pspV104SyncPeriodDock();
+}
+
+

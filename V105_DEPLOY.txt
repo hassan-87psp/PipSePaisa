@@ -1,0 +1,78 @@
+PipSePaisa V105 — Distinct Signal Type Colors
+20 August 2026
+
+THIS ZIP INCLUDES ALL V104 CHANGES + THIS NEW COLOR-CODING UPDATE.
+
+SIGNAL TYPE COLOR SYSTEM (USER SIDE)
+- BUY = Green
+- BUY LIMIT = Teal
+- BUY STOP = Blue
+- SELL = Red
+- SELL LIMIT = Orange
+- SELL STOP = Purple
+
+These are shown as small labeled pills with matching dot/background/border,
+so users can immediately distinguish the signal type.
+
+APPLIED TO
+- Desktop Active Signals
+- Desktop History Signals
+- Mobile signal rows (matching left accent)
+- Mobile expanded signal detail
+- Daily result page
+- Weekly result page
+- Monthly result page
+
+ALL PREVIOUS V104 FEATURES REMAIN
+- Desktop compact signals table
+- TP4 + Open support
+- Note dropdown
+- Tight Date / Pair / Type spacing
+- Mobile expandable signal cards
+- True fixed Daily / Weekly / Monthly dock
+- Separate mobile result page
+- No horizontal scroll on mobile result page
+- Mentor single order dropdown:
+  Buy
+  Sell
+  Buy Limit
+  Buy Stop
+  Sell Limit
+  Sell Stop
+
+NOT TOUCHED
+- Signal DB/schema
+- Mentor publish/update backend
+- Infinity API / payment system
+- Edge Functions
+- Supabase Secrets
+
+DEPLOY
+1. Deploy THIS V105 ZIP directly over the current site.
+2. You do NOT need to deploy V104 separately first.
+3. Replace all included files in GitHub.
+4. Hard refresh desktop/mobile or fully close/reopen PWA once.
+
+Cache-bumped routes:
+- index.html
+- my-trades/index.html
+- support/index.html
+- profile/index.html
+- signals/index.html
+- dashboard/index.html
+- vip-plans/index.html
+- economic-news/index.html
+- charts-articles/index.html
+- ai-tools/index.html
+- trades-analysis/index.html
+- live-charts/index.html
+- my-courses/index.html
+- announcements/index.html
+- about/index.html
+- currency-strength/index.html
+- member-chats/index.html
+- tools/index.html
+- performance/index.html
+- journal/index.html
+- ai-report/index.html
+- world-news/index.html
