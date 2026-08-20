@@ -611,3 +611,703 @@ function copyChartText(i){
   function fb(){try{var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();done();}catch(e){alert(txt);}}
   try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(done).catch(fb);}else fb();}catch(e){fb();}
 }
+
+
+// ============================================================================
+// PIPSEPAISA V102 — PREMIUM RESPONSIVE SIGNALS UI
+// 20 August 2026
+// Desktop: compact table rows for BOTH Active and History.
+// Mobile: compact expandable rows + Daily/Weekly/Monthly results.
+// This is UI-only. Signal DB/API/mentor publishing logic is unchanged.
+// ============================================================================
+
+(function pspV102InstallSignalUI(){
+  if(document.getElementById('psp-v102-signal-ui-css')) return;
+  var style=document.createElement('style');
+  style.id='psp-v102-signal-ui-css';
+  style.textContent=`
+  :root{--psp-sig-orange:#FB9201}
+
+  /* Shared / desktop */
+  #page-signals #signalsGrid{
+    display:block!important;
+    width:100%;
+  }
+  .psp-sig-table-wrap{
+    width:100%;
+    background:var(--bg-card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    overflow-x:auto;
+    margin:0 0 14px;
+    box-shadow:0 8px 24px rgba(0,0,0,.04);
+  }
+  .psp-sig-table{
+    width:100%;
+    min-width:1080px;
+    border-collapse:collapse;
+    table-layout:auto;
+    font-size:12px;
+  }
+  .psp-sig-table thead th{
+    padding:10px 9px;
+    text-align:left;
+    font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:.65px;
+    color:var(--text-muted);
+    background:var(--bg-elevated);
+    border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  .psp-sig-table tbody td{
+    padding:10px 9px;
+    border-bottom:1px solid var(--border);
+    color:var(--text-secondary);
+    white-space:nowrap;
+    vertical-align:middle;
+  }
+  .psp-sig-table tbody tr:last-child td{border-bottom:none}
+  .psp-sig-table tbody tr{transition:background .16s ease}
+  .psp-sig-table tbody tr:hover{background:rgba(251,146,1,.045)}
+  .psp-sig-table .pair{
+    color:var(--text-primary);
+    font-weight:900;
+    letter-spacing:.1px;
+  }
+  .psp-sig-table .buy{color:#10b981;font-weight:900}
+  .psp-sig-table .sell{color:#ef4444;font-weight:900}
+  .psp-sig-table .pips-pos{color:#10b981;font-weight:900}
+  .psp-sig-table .pips-neg{color:#ef4444;font-weight:900}
+  .psp-sig-table .pips-open{color:var(--text-muted);font-weight:800}
+  .psp-sig-table .level-locked{
+    color:var(--text-muted);
+    font-weight:800;
+    letter-spacing:.8px;
+  }
+  .psp-sig-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:22px;
+    padding:3px 8px;
+    border-radius:999px;
+    font-size:9px;
+    font-weight:900;
+    white-space:nowrap;
+  }
+  .psp-sig-badge.active{background:rgba(16,185,129,.12);color:#10b981}
+  .psp-sig-badge.tp{background:rgba(16,185,129,.13);color:#10b981}
+  .psp-sig-badge.be{background:rgba(59,130,246,.12);color:#3b82f6}
+  .psp-sig-badge.sl{background:rgba(239,68,68,.11);color:#ef4444}
+  .psp-sig-badge.closed{background:rgba(148,163,184,.13);color:var(--text-muted)}
+  .psp-sig-badge.open{background:rgba(251,146,1,.12);color:#FB9201}
+  .psp-sig-desktop-heading{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:4px 0 9px;
+  }
+  .psp-sig-desktop-heading b{
+    color:var(--text-primary);
+    font-size:13px;
+  }
+  .psp-sig-desktop-heading span{
+    height:1px;
+    background:var(--border);
+    flex:1;
+  }
+
+  /* Mobile list is hidden on desktop */
+  .psp-sig-mobile-shell{display:none}
+
+  @media(max-width:760px){
+    #page-signals{padding-bottom:104px}
+    #page-signals > .card:first-child{
+      border-radius:16px;
+      margin-bottom:10px!important;
+      padding:13px!important;
+    }
+    #page-signals > .card:first-child .card-title{font-size:16px}
+    #page-signals > .card:first-child .card-meta{font-size:11px}
+    #page-signals .sig-filter-row{
+      display:block!important;
+      margin-top:10px;
+    }
+    #page-signals #sigFilters{
+      width:100%;
+      flex-wrap:nowrap!important;
+      overflow-x:auto;
+      padding-bottom:3px;
+      scrollbar-width:none;
+    }
+    #page-signals #sigFilters::-webkit-scrollbar{display:none}
+    #page-signals #sigFilters .sig-fbtn{
+      flex:0 0 auto;
+      padding:7px 11px;
+      border-radius:10px;
+    }
+    #page-signals #sigTimeFilters{display:none!important}
+    #page-signals .sig-filter-row > div:last-child{
+      border-left:0!important;
+      padding-left:0!important;
+      margin:8px 0 0!important;
+      width:100%;
+      display:grid!important;
+      grid-template-columns:1fr 1fr;
+      gap:7px!important;
+    }
+    #page-signals .sig-filter-row > div:last-child .sig-fbtn{
+      width:100%;
+      min-height:36px;
+      border-radius:10px;
+    }
+
+    #sigResultDash{display:none!important}
+    .psp-sig-desktop{display:none!important}
+    .psp-sig-mobile-shell{display:block}
+
+    .psp-mobile-signals-title{
+      text-align:center;
+      margin:4px 0 12px;
+      font-size:19px;
+      font-weight:900;
+      color:var(--text-primary);
+    }
+    .psp-mobile-signals-title:after{
+      content:"";
+      display:block;
+      width:54px;
+      height:2px;
+      border-radius:3px;
+      margin:7px auto 0;
+      background:#FB9201;
+    }
+    .psp-mobile-sig-table{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:14px;
+      overflow:hidden;
+      background:var(--bg-card);
+    }
+    .psp-mobile-sig-head,
+    .psp-mobile-sig-row{
+      display:grid;
+      grid-template-columns:1.25fr .95fr .82fr .72fr .58fr;
+      align-items:center;
+      gap:4px;
+    }
+    .psp-mobile-sig-head{
+      padding:10px 9px;
+      background:var(--bg-elevated);
+      border-bottom:1px solid var(--border);
+      color:var(--text-muted);
+      font-size:8px;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+    .psp-mobile-sig-row{
+      padding:10px 9px;
+      min-height:54px;
+      border-bottom:1px solid var(--border);
+      cursor:pointer;
+      transition:background .15s ease;
+    }
+    .psp-mobile-sig-row:last-child{border-bottom:0}
+    .psp-mobile-sig-row:active{background:rgba(251,146,1,.06)}
+    .psp-mobile-sig-date{
+      font-size:9px;
+      color:var(--text-muted);
+      line-height:1.25;
+    }
+    .psp-mobile-sig-pair{
+      font-size:11px;
+      font-weight:900;
+      color:var(--text-primary);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .psp-mobile-sig-profit{
+      font-size:10px;
+      font-weight:900;
+    }
+    .psp-mobile-open{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:3px;
+      color:#FB9201;
+      font-size:9px;
+      font-weight:900;
+    }
+    .psp-mobile-chevron{
+      display:inline-block;
+      transition:transform .2s ease;
+      font-size:12px;
+    }
+    .psp-mobile-sig-row.is-open .psp-mobile-chevron{transform:rotate(180deg)}
+
+    .psp-mobile-detail{
+      display:none;
+      padding:0 9px 10px;
+      background:var(--bg-card);
+      border-bottom:1px solid var(--border);
+    }
+    .psp-mobile-detail.open{display:block}
+    .psp-mobile-detail-card{
+      position:relative;
+      overflow:hidden;
+      padding:13px;
+      border:1px solid rgba(251,146,1,.23);
+      border-radius:14px;
+      background:
+        radial-gradient(circle at 100% 0,rgba(251,146,1,.10),transparent 34%),
+        var(--bg-elevated);
+      box-shadow:0 8px 22px rgba(0,0,0,.05);
+    }
+    .psp-mobile-detail-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .psp-mobile-side{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-size:15px;
+      font-weight:950;
+      color:#FB9201;
+    }
+    .psp-mobile-detail-pair{
+      text-align:right;
+      font-size:15px;
+      font-weight:950;
+      color:var(--text-primary);
+    }
+    .psp-mobile-detail-time{
+      font-size:9px;
+      color:var(--text-muted);
+      margin-top:2px;
+    }
+    .psp-mobile-levels{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:7px;
+      margin-top:8px;
+    }
+    .psp-mobile-lv{
+      min-width:0;
+      padding:8px 5px;
+      border:1px solid var(--border);
+      border-radius:10px;
+      text-align:center;
+      background:var(--bg-card);
+    }
+    .psp-mobile-lv b{
+      display:block;
+      font-size:11px;
+      color:var(--text-primary);
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .psp-mobile-lv span{
+      display:block;
+      font-size:7.5px;
+      color:var(--text-muted);
+      margin-top:3px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+    .psp-mobile-tps{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:7px;
+      margin-top:7px;
+    }
+    .psp-mobile-tps .psp-mobile-lv b{color:#10b981}
+    .psp-mobile-lock{
+      text-align:center;
+      padding:13px 8px;
+      color:var(--text-muted);
+      font-size:10px;
+      line-height:1.5;
+    }
+    .psp-mobile-lock strong{display:block;color:#FB9201;font-size:12px;margin-bottom:3px}
+
+    .psp-period-wrap{
+      margin-top:18px;
+      padding-top:4px;
+    }
+    .psp-period-tabs{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      position:sticky;
+      bottom:72px;
+      z-index:5;
+      padding:8px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:color-mix(in srgb,var(--bg-card) 92%,transparent);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      box-shadow:0 10px 28px rgba(0,0,0,.10);
+    }
+    .psp-period-btn{
+      min-height:39px;
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:var(--bg-elevated);
+      color:var(--text-secondary);
+      font:800 11px inherit;
+      cursor:pointer;
+    }
+    .psp-period-btn.active{
+      background:rgba(251,146,1,.13);
+      color:#FB9201;
+      border-color:rgba(251,146,1,.40);
+    }
+    .psp-period-result{
+      display:none;
+      margin-top:12px;
+      padding:13px 10px;
+      border:1px solid var(--border);
+      border-radius:15px;
+      background:var(--bg-card);
+    }
+    .psp-period-result.open{display:block}
+    .psp-period-result-title{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:10px;
+      font-size:15px;
+      font-weight:900;
+      color:var(--text-primary);
+    }
+    .psp-period-result-title:after{
+      content:"";
+      height:1px;
+      flex:1;
+      background:var(--border);
+    }
+    .psp-period-table-wrap{
+      overflow-x:auto;
+      border:1px solid var(--border);
+      border-radius:11px;
+    }
+    .psp-period-table{
+      width:100%;
+      min-width:560px;
+      border-collapse:collapse;
+      font-size:9px;
+    }
+    .psp-period-table th{
+      padding:8px 6px;
+      background:var(--bg-elevated);
+      color:var(--text-muted);
+      text-transform:uppercase;
+      letter-spacing:.35px;
+      text-align:left;
+      white-space:nowrap;
+    }
+    .psp-period-table td{
+      padding:8px 6px;
+      border-top:1px solid var(--border);
+      color:var(--text-secondary);
+      white-space:nowrap;
+    }
+    .psp-period-summary{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:5px;
+      margin:12px 2px 0;
+      font-size:12px;
+      font-weight:800;
+    }
+    .psp-period-summary .green{color:#10b981}
+    .psp-period-summary .red{color:#ef4444}
+    .psp-period-summary .net{color:#FB9201;font-size:14px}
+  }
+  `;
+  document.head.appendChild(style);
+})();
+
+var pspSigExpandedId = null;
+var pspSigPeriod = null;
+
+function pspSigIsFinished(s){
+  return s.rawStatus==='sl'||s.rawStatus==='closed'||s.rawStatus==='tp3'||s.rawStatus==='be';
+}
+function pspSigDirectionText(s){
+  var d=(s.dir||'').toUpperCase();
+  var ot=(s.orderType||'market').toUpperCase();
+  return d + ((ot && ot!=='MARKET') ? ' '+ot : '');
+}
+function pspSigActiveStatus(s){
+  if(s.rawStatus==='sl') return ['SL Hit','sl'];
+  if(s.rawStatus==='be') return ['BE Hit','be'];
+  if(s.tpHit>=3||s.rawStatus==='tp3') return ['TP3 Hit','tp'];
+  if(s.tpHit===2||s.rawStatus==='tp2') return ['TP2 Hit','tp'];
+  if(s.tpHit===1||s.rawStatus==='tp1') return ['TP1 Hit','tp'];
+  if(s.beMoved) return ['SL @ BE','be'];
+  return ['Active','active'];
+}
+function pspSigClosedStatus(s){
+  if(s.rawStatus==='sl') return ['SL Hit','sl'];
+  if(s.rawStatus==='be') return ['BE Hit','be'];
+  if(s.tpHit>=3||s.rawStatus==='tp3') return ['TP3 Hit','tp'];
+  if(s.tpHit===2||s.rawStatus==='tp2') return ['TP2 Hit','tp'];
+  if(s.tpHit===1||s.rawStatus==='tp1') return ['TP1 Hit','tp'];
+  return ['Closed','closed'];
+}
+function pspSigCell(s,key){
+  if(s.locked && ['entry','sl','tp1','tp2','tp3'].indexOf(key)>=0){
+    return '<span class="level-locked">🔒 VIP</span>';
+  }
+  var v=s[key];
+  return v==null||v===''?'-':vEsc(v);
+}
+function pspSigDesktopRow(s,history){
+  var d=pspFmtDateTime(s.ts);
+  var dir=pspSigDirectionText(s);
+  var ds=(dir.indexOf('SELL')===0)?'sell':'buy';
+  var st=history?pspSigClosedStatus(s):pspSigActiveStatus(s);
+  var p=(s.pips!=null)?((Number(s.pips)>=0?'+':'')+s.pips):'—';
+  var pc=(s.pips==null)?'pips-open':(Number(s.pips)>=0?'pips-pos':'pips-neg');
+  var finalState=history?'Closed':'Open';
+  return '<tr>'+
+    '<td>'+vEsc(d)+'</td>'+
+    '<td class="pair">'+vEsc(s.pair||'-')+'</td>'+
+    '<td class="'+ds+'">'+vEsc(dir||'-')+'</td>'+
+    '<td>'+pspSigCell(s,'entry')+'</td>'+
+    '<td>'+pspSigCell(s,'sl')+'</td>'+
+    '<td>'+pspSigCell(s,'tp1')+'</td>'+
+    '<td>'+pspSigCell(s,'tp2')+'</td>'+
+    '<td>'+pspSigCell(s,'tp3')+'</td>'+
+    '<td><span class="psp-sig-badge '+st[1]+'">'+vEsc(st[0])+'</span></td>'+
+    '<td class="'+pc+'">'+vEsc(p)+'</td>'+
+    '<td><span class="psp-sig-badge '+(history?'closed':'open')+'">'+finalState+'</span></td>'+
+  '</tr>';
+}
+function pspSigDesktopTable(rows,history){
+  if(!rows.length) return '';
+  var title=history?'Closed / History Signals':'Active Signals';
+  return '<div class="psp-sig-desktop">'+
+    '<div class="psp-sig-desktop-heading"><b>'+title+'</b><span></span></div>'+
+    '<div class="psp-sig-table-wrap"><table class="psp-sig-table">'+
+      '<thead><tr>'+
+        '<th>Date</th><th>Pair</th><th>Type</th><th>Entry</th><th>SL</th>'+
+        '<th>TP1</th><th>TP2</th><th>TP3</th><th>Status</th><th>Pips</th><th>State</th>'+
+      '</tr></thead>'+
+      '<tbody>'+rows.map(function(s){return pspSigDesktopRow(s,history)}).join('')+'</tbody>'+
+    '</table></div></div>';
+}
+function pspSigMobileDate(ts){
+  var d=new Date(ts);
+  return d.toLocaleDateString('en-CA')+'<br>'+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+function pspSigToggleMobile(id){
+  var next=(pspSigExpandedId===id)?null:id;
+  pspSigExpandedId=next;
+  document.querySelectorAll('.psp-mobile-sig-row').forEach(function(r){
+    r.classList.toggle('is-open',r.getAttribute('data-id')===String(next));
+  });
+  document.querySelectorAll('.psp-mobile-detail').forEach(function(d){
+    d.classList.toggle('open',d.getAttribute('data-id')===String(next));
+  });
+}
+function pspSigMobileDetail(s){
+  var dir=(s.dir||'').toUpperCase();
+  var arrow=dir==='SELL'?'↓':'↑';
+  var time=new Date(s.ts).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  var st=pspSigIsFinished(s)?pspSigClosedStatus(s):pspSigActiveStatus(s);
+  if(s.locked){
+    return '<div class="psp-mobile-detail" data-id="'+vEsc(String(s.id))+'">'+
+      '<div class="psp-mobile-detail-card"><div class="psp-mobile-lock">'+
+        '<strong>🔒 VIP Signal</strong>Upgrade your access to view Entry, SL and TP levels.'+
+      '</div></div></div>';
+  }
+  return '<div class="psp-mobile-detail" data-id="'+vEsc(String(s.id))+'">'+
+    '<div class="psp-mobile-detail-card">'+
+      '<div class="psp-mobile-detail-top">'+
+        '<div><div class="psp-mobile-side">'+arrow+' '+vEsc(pspSigDirectionText(s))+'</div>'+
+          '<div class="psp-mobile-detail-time">'+vEsc(new Date(s.ts).toLocaleDateString('en-GB'))+'</div></div>'+
+        '<div><div class="psp-mobile-detail-pair">'+vEsc(s.pair||'-')+'</div>'+
+          '<div class="psp-mobile-detail-time">'+vEsc(time)+'</div></div>'+
+      '</div>'+
+      '<div class="psp-mobile-levels">'+
+        '<div class="psp-mobile-lv"><b><span class="psp-sig-badge '+st[1]+'">'+vEsc(st[0])+'</span></b><span>Status</span></div>'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.entry||'-')+'</b><span>Entry</span></div>'+
+        '<div class="psp-mobile-lv"><b style="color:#ef4444">'+vEsc(s.sl||'-')+'</b><span>SL</span></div>'+
+        '<div class="psp-mobile-lv"><b style="color:'+(s.pips!=null?(Number(s.pips)>=0?'#10b981':'#ef4444'):'var(--text-primary)')+'">'+(s.pips!=null?vEsc((Number(s.pips)>=0?'+':'')+s.pips):'Open')+'</b><span>Pips</span></div>'+
+      '</div>'+
+      '<div class="psp-mobile-tps">'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.tp1||'-')+'</b><span>TP1</span></div>'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.tp2||'-')+'</b><span>TP2</span></div>'+
+        '<div class="psp-mobile-lv"><b>'+vEsc(s.tp3||'-')+'</b><span>TP3</span></div>'+
+      '</div>'+
+    '</div></div>';
+}
+function pspSigMobileRow(s){
+  var history=pspSigIsFinished(s);
+  var st=history?pspSigClosedStatus(s):pspSigActiveStatus(s);
+  var profit=s.pips!=null?((Number(s.pips)>=0?'+':'')+s.pips):'Open';
+  var profitColor=s.pips==null?'#FB9201':(Number(s.pips)>=0?'#10b981':'#ef4444');
+  return '<div class="psp-mobile-sig-row" data-id="'+vEsc(String(s.id))+'" onclick="pspSigToggleMobile(\''+vEsc(String(s.id))+'\')">'+
+      '<div class="psp-mobile-sig-date">'+pspSigMobileDate(s.ts)+'</div>'+
+      '<div class="psp-mobile-sig-pair">'+vEsc(s.pair||'-')+'</div>'+
+      '<div><span class="psp-sig-badge '+st[1]+'">'+vEsc(st[0])+'</span></div>'+
+      '<div class="psp-mobile-sig-profit" style="color:'+profitColor+'">'+vEsc(profit)+'</div>'+
+      '<div class="psp-mobile-open">Open <span class="psp-mobile-chevron">⌄</span></div>'+
+    '</div>'+pspSigMobileDetail(s);
+}
+function pspSigPeriodRows(period){
+  var now=new Date();
+  var start;
+  if(period==='daily'){
+    start=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  }else if(period==='weekly'){
+    start=new Date(now.getTime()-7*86400000);
+  }else{
+    start=new Date(now.getFullYear(),now.getMonth(),1);
+  }
+  return SIGNALS.filter(function(s){
+    if(!pspSigIsFinished(s)) return false;
+    if(sigF!=='all' && s.cat!==sigF) return false;
+    var d=new Date(s.closedTs||s.ts);
+    return d>=start && d<=now;
+  });
+}
+function pspSigPeriodTarget(s){
+  if(s.tpHit>=3) return s.tp3||'-';
+  if(s.tpHit===2) return s.tp2||'-';
+  if(s.tpHit===1) return s.tp1||'-';
+  return s.tp3||s.tp2||s.tp1||'-';
+}
+function pspSignalPeriod(period){
+  pspSigPeriod=period;
+  document.querySelectorAll('.psp-period-btn').forEach(function(b){
+    b.classList.toggle('active',b.getAttribute('data-period')===period);
+  });
+  var box=document.getElementById('pspPeriodResult');
+  if(!box)return;
+  var rows=pspSigPeriodRows(period);
+  var green=0,red=0,net=0;
+  rows.forEach(function(s){
+    var p=Number(s.pips)||0;
+    net+=p;
+    if(p>=0)green+=p;else red+=Math.abs(p);
+  });
+  var title=period==='daily'?'Daily Signals':(period==='weekly'?'Weekly Signals':'Monthly Signals');
+  var tableRows=rows.map(function(s){
+    var st=pspSigClosedStatus(s);
+    var d=new Date(s.closedTs||s.ts);
+    var p=Number(s.pips)||0;
+    return '<tr>'+
+      '<td>'+vEsc(d.toLocaleDateString('en-CA'))+'<br>'+vEsc(d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'}))+'</td>'+
+      '<td><b>'+vEsc(s.pair||'-')+'</b></td>'+
+      '<td><span class="psp-sig-badge '+st[1]+'">'+vEsc(st[0])+'</span></td>'+
+      '<td class="'+((s.dir||'').toUpperCase()==='SELL'?'sell':'buy')+'">'+vEsc((s.dir||'').toUpperCase())+'</td>'+
+      '<td>'+pspSigCell(s,'entry')+'</td>'+
+      '<td>'+pspSigCell(s,'sl')+'</td>'+
+      '<td>'+ (s.locked?'<span class="level-locked">🔒 VIP</span>':vEsc(pspSigPeriodTarget(s))) +'</td>'+
+      '<td style="font-weight:900;color:'+(p>=0?'#10b981':'#ef4444')+'">'+(p>=0?'+':'')+vEsc(p)+'</td>'+
+    '</tr>';
+  }).join('');
+  box.innerHTML=
+    '<div class="psp-period-result-title">'+title+'</div>'+
+    (rows.length
+      ? '<div class="psp-period-table-wrap"><table class="psp-period-table">'+
+          '<thead><tr><th>Date</th><th>Pair</th><th>Status</th><th>Action</th><th>Entry</th><th>SL</th><th>TP</th><th>Result</th></tr></thead>'+
+          '<tbody>'+tableRows+'</tbody></table></div>'
+      : '<div style="padding:18px;text-align:center;color:var(--text-muted);font-size:11px;">No closed signals for this period.</div>')+
+    '<div class="psp-period-summary">'+
+      '<div class="green">🟢 Total Green Pips: '+(Math.round(green*10)/10)+'</div>'+
+      '<div class="red">🔴 Total Red Pips: '+(Math.round(red*10)/10)+'</div>'+
+      '<div class="net">Result: '+(net>=0?'+':'')+(Math.round(net*10)/10)+' pips</div>'+
+    '</div>';
+  box.classList.add('open');
+  try{box.scrollIntoView({behavior:'smooth',block:'nearest'});}catch(e){}
+}
+function pspSigMobileShell(rows){
+  var title=sigView==='history'?'Signal History':'Daily Signals';
+  return '<div class="psp-sig-mobile-shell">'+
+    '<div class="psp-mobile-signals-title">'+title+'</div>'+
+    '<div class="psp-mobile-sig-table">'+
+      '<div class="psp-mobile-sig-head"><div>Date</div><div>Pair</div><div>Status</div><div>Profit</div><div>Open</div></div>'+
+      rows.map(pspSigMobileRow).join('')+
+    '</div>'+
+    '<div class="psp-period-wrap">'+
+      '<div class="psp-period-tabs">'+
+        '<button class="psp-period-btn" data-period="daily" onclick="pspSignalPeriod(\'daily\')">Daily</button>'+
+        '<button class="psp-period-btn" data-period="weekly" onclick="pspSignalPeriod(\'weekly\')">Weekly</button>'+
+        '<button class="psp-period-btn" data-period="monthly" onclick="pspSignalPeriod(\'monthly\')">Monthly</button>'+
+      '</div>'+
+      '<div id="pspPeriodResult" class="psp-period-result"></div>'+
+    '</div>'+
+  '</div>';
+}
+
+// V102 renderer override.
+function renderSignals(){
+  const g=document.getElementById('signalsGrid');if(!g)return;
+
+  var now=Date.now();
+  function inTime(s){
+    if(sigView!=='history'||sigTimeF==='all')return true;
+    var t=new Date(s.closedTs||s.ts).getTime();
+    var d=new Date();
+    if(sigTimeF==='today'){
+      var ds=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
+      return t>=ds;
+    }
+    if(sigTimeF==='week')return t>=now-7*86400000;
+    if(sigTimeF==='month')return t>=new Date(d.getFullYear(),d.getMonth(),1).getTime();
+    return true;
+  }
+
+  var list=SIGNALS.filter(function(s){
+    var finished=pspSigIsFinished(s);
+    var viewOk=(sigView==='active')?(!finished):finished;
+    var catOk=(sigF==='all')?true:(s.cat===sigF);
+    return viewOk&&catOk&&inTime(s);
+  });
+
+  var rd=document.getElementById('sigResultDash');
+  if(rd){
+    rd.style.display=(sigView==='history')?'block':'none';
+    if(sigView==='history'){
+      try{renderSigResultDash(list);}catch(e){}
+    }
+  }
+
+  if(!list.length){
+    var msg=(sigView==='history'
+      ? 'No closed signals'+(sigTimeF!=='all'?' for this period':'')+' yet.'
+      : 'No active signals right now. Check History for past results.');
+    g.innerHTML=
+      '<div class="psp-sig-desktop" style="color:var(--text-muted);padding:28px;text-align:center;border:1px solid var(--border);border-radius:14px;background:var(--bg-card);">'+msg+'</div>'+
+      '<div class="psp-sig-mobile-shell">'+
+        '<div class="psp-mobile-signals-title">'+(sigView==='history'?'Signal History':'Daily Signals')+'</div>'+
+        '<div style="padding:24px;text-align:center;color:var(--text-muted);border:1px solid var(--border);border-radius:14px;background:var(--bg-card);font-size:11px;">'+msg+'</div>'+
+        '<div class="psp-period-wrap"><div class="psp-period-tabs">'+
+          '<button class="psp-period-btn" data-period="daily" onclick="pspSignalPeriod(\'daily\')">Daily</button>'+
+          '<button class="psp-period-btn" data-period="weekly" onclick="pspSignalPeriod(\'weekly\')">Weekly</button>'+
+          '<button class="psp-period-btn" data-period="monthly" onclick="pspSignalPeriod(\'monthly\')">Monthly</button>'+
+        '</div><div id="pspPeriodResult" class="psp-period-result"></div></div>'+
+      '</div>';
+    return;
+  }
+
+  g.innerHTML=
+    pspSigDesktopTable(list,sigView==='history')+
+    pspSigMobileShell(list);
+}
+
+

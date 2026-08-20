@@ -1,0 +1,46 @@
+PipSePaisa V102 — Responsive Signals UI
+20 August 2026
+
+WHAT CHANGED
+- Desktop/Laptop Active Signals now use the same compact horizontal table style as History.
+- Desktop columns: Date, Pair, Type, Entry, SL, TP1, TP2, TP3, Status, Pips, State.
+- History remains compact table-based.
+- Mobile Signals now use a Dott-Plus-inspired compact expandable list, recreated in PipSePaisa theme.
+- Mobile row: Date, Pair, Status, Profit, Open.
+- Tap/Open expands a premium PipSePaisa detail card with Direction, Pair, Entry, SL, TP1-TP3, Status and Pips.
+- Mobile bottom Daily / Weekly / Monthly buttons show closed-signal result tables.
+- Period summary shows Total Green Pips, Total Red Pips and Net Result.
+- Signal VIP locking/access restrictions are preserved.
+- Exact PipSePaisa orange accent #FB9201 is used for the new signal UI.
+- No Signal database schema changes.
+- No Mentor publishing logic changes.
+- No Infinity API / Edge Function / payment changes.
+
+DEPLOY
+1. Upload/replace user-signals-core-v29.js in GitHub root.
+2. Upload/replace the included HTML route files so the browser loads the new V102 JS cache version.
+3. Hard refresh the website / clear CDN cache if needed.
+
+FILES WITH CACHE BUMP
+- index.html
+- my-trades/index.html
+- support/index.html
+- profile/index.html
+- signals/index.html
+- dashboard/index.html
+- vip-plans/index.html
+- economic-news/index.html
+- charts-articles/index.html
+- ai-tools/index.html
+- trades-analysis/index.html
+- live-charts/index.html
+- my-courses/index.html
+- announcements/index.html
+- about/index.html
+- currency-strength/index.html
+- member-chats/index.html
+- tools/index.html
+- performance/index.html
+- journal/index.html
+- ai-report/index.html
+- world-news/index.html
