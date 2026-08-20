@@ -1,0 +1,71 @@
+PipSePaisa V103 — Signal UI Completion
+20 August 2026
+
+USER SIGNALS
+- Desktop Active + History table now includes TP4.
+- TP4 value "Open" displays exactly as Open with PipSePaisa orange styling.
+- Mentor Signal Note is visible under the desktop signal row.
+- Mobile expanded signal shows TP1, TP2, TP3, TP4 and Mentor Note.
+- VIP/locked signals keep Entry/SL/TP/Note protected.
+
+MOBILE DAILY / WEEKLY / MONTHLY
+- Daily / Weekly / Monthly selector is fixed at the bottom above the app navigation.
+- Clicking a period opens a separate full-screen result page.
+- Back arrow returns to Signals.
+- Result page is built to fit the phone width with NO horizontal left/right scrolling.
+- Columns: Date, Pair, Status, Action, Open, SL, TP, Result.
+- Shows Total Green Pips, Total Red Pips and Net Result.
+- Daily = today.
+- Weekly = current week (Monday to now).
+- Monthly = current calendar month.
+
+MENTOR PANEL
+- Removed separate BUY and SELL buttons.
+- One Order dropdown only, in this exact order:
+  Buy
+  Sell
+  Buy Limit
+  Buy Stop
+  Sell Limit
+  Sell Stop
+- Selecting Buy/Sell saves market order automatically.
+- Limit/Stop selections automatically save correct direction + order type.
+- Editing an existing signal also restores the correct combined dropdown option.
+
+NOT TOUCHED
+- Signals database/schema
+- Mentor publish/update database API
+- Infinity / Local Bank API
+- Edge Functions
+- Course/payment system
+- Supabase Secrets
+
+DEPLOY
+1. Upload/replace user-signals-core-v29.js at GitHub root.
+2. Upload/replace psp-mentor.html.
+3. Upload/replace included route HTML files for V103 cache refresh.
+4. Hard refresh website on desktop and mobile.
+
+CACHE-BUMPED USER ROUTES:
+- index.html
+- my-trades/index.html
+- support/index.html
+- profile/index.html
+- signals/index.html
+- dashboard/index.html
+- vip-plans/index.html
+- economic-news/index.html
+- charts-articles/index.html
+- ai-tools/index.html
+- trades-analysis/index.html
+- live-charts/index.html
+- my-courses/index.html
+- announcements/index.html
+- about/index.html
+- currency-strength/index.html
+- member-chats/index.html
+- tools/index.html
+- performance/index.html
+- journal/index.html
+- ai-report/index.html
+- world-news/index.html
