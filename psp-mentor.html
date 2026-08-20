@@ -7,7 +7,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PSP Mentor Panel — PipSePaisa</title>
-<!-- PipSePaisa V110 Mentor Signal Center UI: 2026-08-20 -->
+<!-- PipSePaisa V111 Manage Action Confirmations: 2026-08-20 -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -797,6 +797,52 @@ textarea.m110-field{resize:vertical;min-height:85px}
 }
 </style>
 
+
+<style id="psp-v111-manage-confirm">
+/* V111 — confirm before every Manage Signal action */
+.m111-confirm-dialog{
+  width:min(430px,94vw);
+  background:var(--card-bg,var(--bg-card,#fff));
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:0 24px 70px rgba(0,0,0,.30);
+  overflow:hidden;
+}
+.m111-confirm-body{padding:20px 18px 14px;text-align:center}
+.m111-confirm-icon{
+  width:46px;height:46px;margin:0 auto 10px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(251,146,1,.10);color:#FB9201;
+  font-size:22px;font-weight:900
+}
+.m111-confirm-title{margin:0;color:var(--text);font-size:17px;font-weight:900}
+.m111-confirm-text{
+  margin:7px auto 0;max-width:350px;color:#7f8aa3;
+  font-size:11px;line-height:1.5
+}
+.m111-confirm-actions{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+  padding:0 18px 18px
+}
+.m111-confirm-cancel,.m111-confirm-yes{
+  border-radius:10px;padding:10px 12px;
+  font:inherit;font-size:12px;font-weight:900;cursor:pointer
+}
+.m111-confirm-cancel{
+  border:1px solid var(--border);background:transparent;color:var(--text)
+}
+.m111-confirm-yes{
+  border:1px solid #FB9201;background:#FB9201;color:#111827
+}
+.m111-confirm-yes.danger{
+  border-color:#ef4444;background:#ef4444;color:#fff
+}
+@media(max-width:760px){
+  #m111ConfirmModal{align-items:flex-end}
+  .m111-confirm-dialog{width:100%;border-radius:18px 18px 10px 10px;margin-bottom:0}
+}
+</style>
+
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
@@ -1535,6 +1581,20 @@ function renderSignals(){
         <div id="m110ManageBody" class="m110-modal-body"></div>
       </div>
     </div>
+
+    <div id="m111ConfirmModal" class="m110-modal" onclick="m111BackdropClose(event)">
+      <div class="m111-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="m111ConfirmTitle">
+        <div class="m111-confirm-body">
+          <div class="m111-confirm-icon">?</div>
+          <h3 id="m111ConfirmTitle" class="m111-confirm-title">Confirm Action</h3>
+          <p id="m111ConfirmText" class="m111-confirm-text">Are you sure you want to continue?</p>
+        </div>
+        <div class="m111-confirm-actions">
+          <button class="m111-confirm-cancel" onclick="m111CloseConfirm(false)">Cancel</button>
+          <button id="m111ConfirmYes" class="m111-confirm-yes" onclick="m111CloseConfirm(true)">Yes, Continue</button>
+        </div>
+      </div>
+    </div>
   `;
   loadSignals();
 }
@@ -1581,6 +1641,94 @@ function closeManageSignalModal(){
   const modal=document.getElementById('m110ManageModal');
   if(modal)modal.classList.remove('open');
   document.body.style.overflow='';
+}
+
+let m111PendingAction=null;
+
+function m111AskConfirm(opts,callback){
+  opts=opts||{};
+  m111PendingAction=typeof callback==='function'?callback:null;
+
+  const modal=document.getElementById('m111ConfirmModal');
+  const title=document.getElementById('m111ConfirmTitle');
+  const text=document.getElementById('m111ConfirmText');
+  const yes=document.getElementById('m111ConfirmYes');
+
+  if(title)title.textContent=opts.title||'Confirm Action';
+  if(text)text.textContent=opts.text||'Are you sure you want to continue?';
+
+  if(yes){
+    yes.textContent=opts.confirmText||'Yes, Continue';
+    yes.classList.toggle('danger',!!opts.danger);
+  }
+
+  if(modal)modal.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function m111CloseConfirm(confirmed){
+  const modal=document.getElementById('m111ConfirmModal');
+  if(modal)modal.classList.remove('open');
+
+  const action=m111PendingAction;
+  m111PendingAction=null;
+
+  const manage=document.getElementById('m110ManageModal');
+  const create=document.getElementById('m110SignalModal');
+  const anotherOpen=(manage&&manage.classList.contains('open'))||(create&&create.classList.contains('open'));
+  document.body.style.overflow=anotherOpen?'hidden':'';
+
+  if(confirmed&&typeof action==='function')action();
+}
+
+function m111BackdropClose(e){
+  if(e.target===e.currentTarget)m111CloseConfirm(false);
+}
+
+function m111ActionCopy(kind){
+  const map={
+    tp1:{
+      title:'Confirm TP1 Hit',
+      text:'Mark this signal as TP1 Hit? Pips will be calculated automatically.',
+      confirmText:'Yes, TP1 Hit'
+    },
+    tp2:{
+      title:'Confirm TP2 Hit',
+      text:'Mark this signal as TP2 Hit? Pips will be calculated automatically.',
+      confirmText:'Yes, TP2 Hit'
+    },
+    tp3:{
+      title:'Confirm TP3 Hit',
+      text:'Mark this signal as TP3 Hit and close it? Pips will be calculated automatically.',
+      confirmText:'Yes, TP3 Hit'
+    },
+    be_move:{
+      title:'Move SL to Breakeven?',
+      text:'This will update the signal to SL → BE for all users.',
+      confirmText:'Yes, Move to BE'
+    },
+    be:{
+      title:'Confirm Breakeven Hit',
+      text:'Mark this signal as BE Hit and close it at 0 pips?',
+      confirmText:'Yes, BE Hit'
+    },
+    sl:{
+      title:'Confirm Stop Loss Hit',
+      text:'Mark this signal as SL Hit and close it with automatically calculated loss pips?',
+      confirmText:'Yes, SL Hit',
+      danger:true
+    },
+    closed:{
+      title:'Close This Signal?',
+      text:'After confirmation, enter the closing price. Pips will then calculate automatically.',
+      confirmText:'Yes, Close Signal'
+    }
+  };
+  return map[kind]||{
+    title:'Confirm Action',
+    text:'Are you sure you want to continue?',
+    confirmText:'Yes, Continue'
+  };
 }
 
 function m110TypeKey(s){
@@ -1676,18 +1824,37 @@ function openManageSignal(id){
 function m110RunAction(kind){
   const id=window._m110ManageId;
   if(!id)return;
-  updateMentorSigStatus(id,kind);
+
+  m111AskConfirm(m111ActionCopy(kind),function(){
+    updateMentorSigStatus(id,kind);
+  });
 }
 function m110EditFromManage(){
   const id=window._m110ManageId;
-  closeManageSignalModal();
-  editMentorSignal(id);
+  if(!id)return;
+
+  m111AskConfirm({
+    title:'Edit This Signal?',
+    text:'Open this signal in Edit mode? Saved changes will be visible to users.',
+    confirmText:'Yes, Edit Signal'
+  },function(){
+    closeManageSignalModal();
+    editMentorSignal(id);
+  });
 }
 function m110DeleteFromManage(){
   const id=window._m110ManageId;
   if(!id)return;
-  closeManageSignalModal();
-  delSignal(id);
+
+  m111AskConfirm({
+    title:'Delete This Signal?',
+    text:'This can permanently remove the signal. Are you sure you want to continue?',
+    confirmText:'Yes, Delete Signal',
+    danger:true
+  },function(){
+    closeManageSignalModal();
+    delSignal(id,true);
+  });
 }
 function setDir(d){sigDir=d;var b=document.getElementById('bsBuy'),s=document.getElementById('bsSell');if(b)b.style.cssText='flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);'+(d==='buy'?'background:rgba(16,185,129,.18);color:#10b981':'background:transparent;color:#94a0b8')+';font-weight:800;cursor:pointer';if(s)s.style.cssText='flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);'+(d==='sell'?'background:rgba(239,68,68,.18);color:#ef4444':'background:transparent;color:#94a0b8')+';font-weight:800;cursor:pointer';}
 function setPv(v){pipsView=v;loadSignals();}
@@ -2015,7 +2182,7 @@ async function updateMentorSigStatus(id,kind){
   loadSignals();
 }
 async function setSigStatus(id,st){await sb.from('signals').update({status:st}).eq('id',id);loadSignals();}
-async function delSignal(id){if(!(await mentorConfirm('Delete this signal?')))return;const r=await sb.from('signals').delete().eq('id',id);if(r.error){if(window.pipToast)window.pipToast('Unable to delete the signal. Please try again.','err');else mentorAlert('Error: '+r.error.message);return;}if(window.pipToast)window.pipToast('Signal deleted successfully.','ok');else mentorAlert('Signal deleted successfully.');loadSignals();}
+async function delSignal(id,confirmed){if(!confirmed&&!(await mentorConfirm('Delete this signal?')))return;const r=await sb.from('signals').delete().eq('id',id);if(r.error){if(window.pipToast)window.pipToast('Unable to delete the signal. Please try again.','err');else mentorAlert('Error: '+r.error.message);return;}if(window.pipToast)window.pipToast('Signal deleted successfully.','ok');else mentorAlert('Signal deleted successfully.');loadSignals();}
 
 /* ============ ADMIN SIGNALS ============ */
 let adF='all';
