@@ -7,6 +7,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PSP Mentor Panel — PipSePaisa</title>
+<!-- PipSePaisa V109 Automatic Pips: 2026-08-20 -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -1134,7 +1135,71 @@ function saveMentorPerfGoal(){var i=document.getElementById('perfGoalInput');if(
 function copyCode(){try{navigator.clipboard.writeText(ME.mentor_code||'');}catch(e){}mentorAlert('Copied: '+ME.mentor_code);}
 async function toggleOfficial(v){await sb.from('profiles').update({show_official_signals:v}).eq('id',ME.id);ME.show_official_signals=v;}
 
-/* ============ SIGNALS (smart input + pips/profit) ============ */
+/* ============ SIGNALS (smart input + AUTO pips/profit) ============ */
+/*
+  PipSePaisa V109 pip convention:
+  XAU/USD: 0.10 price move = 1 pip   -> 4000 to 4010 = 100 pips
+  BTC/USD: 10.00 price move = 1 pip -> 40000 to 41000 = 100 pips
+  Normal FX: 0.0001 = 1 pip         -> EUR/USD 1.1600 to 1.1700 = 100 pips
+  JPY FX: 0.01 = 1 pip
+
+  Other listed instruments use a fixed PipSePaisa pip-size map below.
+*/
+const PSP_PIP_SIZE = {
+  'XAU/USD': 0.10,
+  'XAG/USD': 0.01,
+
+  'BTC/USD': 10,
+  'ETH/USD': 1,
+  'SOL/USD': 0.10,
+  'BNB/USD': 1,
+  'XRP/USD': 0.001,
+  'DOGE/USD': 0.001
+};
+
+function pspSignalPipSize(pair){
+  const p=String(pair||'').toUpperCase().trim();
+  if(PSP_PIP_SIZE[p]) return PSP_PIP_SIZE[p];
+
+  // Standard forex convention.
+  if(p.indexOf('JPY')>=0) return 0.01;
+  return 0.0001;
+}
+
+function pspSignalAutoPips(signal, exitPrice){
+  if(!signal) return null;
+
+  const entry=Number(signal.entry_price);
+  const exit=Number(exitPrice);
+  if(!Number.isFinite(entry)||!Number.isFinite(exit)) return null;
+
+  const step=pspSignalPipSize(signal.pair);
+  if(!step) return null;
+
+  const sell=String(signal.direction||'').toUpperCase()==='SELL';
+  const raw=sell ? ((entry-exit)/step) : ((exit-entry)/step);
+
+  // Avoid JS floating point artifacts but preserve half/decimal pips when needed.
+  const rounded=Math.round((raw + Number.EPSILON)*10)/10;
+  return Object.is(rounded,-0) ? 0 : rounded;
+}
+
+function pspSignalTargetForAction(signal, kind){
+  if(!signal) return null;
+  if(kind==='tp1') return signal.take_profit1;
+  if(kind==='tp2') return signal.take_profit2;
+  if(kind==='tp3') return signal.take_profit3;
+  if(kind==='sl')  return signal.stop_loss;
+  if(kind==='be')  return signal.entry_price;
+  return null;
+}
+
+function pspSignalFormatPips(v){
+  const n=Number(v);
+  if(!Number.isFinite(n)) return '—';
+  return (n>0?'+':'')+String(n)+' pips';
+}
+
 /* V103: single order dropdown — Buy, Sell, Buy Limit, Buy Stop, Sell Limit, Sell Stop */
 let sigDir='buy';
 function mAudTicks(cls){return '<div style="display:flex;flex-wrap:wrap;gap:8px"><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="free" checked> 🆓 Free</label><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="premium"> 💎 Premium</label><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="vip"> 👑 VIP</label></div>';}
@@ -1161,15 +1226,51 @@ function renderSignals(){
       <select id="sgNoteTpl" onchange="applySignalNote('sgNoteTpl','sgNotes')" style="${MSINP}">${signalNoteOptions()}</select>
       <textarea id="sgNotes" rows="5" placeholder="Notes (optional) — select template or type custom note" style="${MSINP};resize:vertical"></textarea>
       <input id="sgPlan" placeholder="VIP package name (optional)" style="${MSINP}">
+      <div id="sgAutoPipsPreview" style="padding:9px 11px;border:1px solid rgba(245,158,11,.28);border-radius:8px;background:rgba(245,158,11,.06);font-size:11px;color:var(--text-muted)">Pips will calculate automatically from Entry → SL / TP.</div>
       <button onclick="createSignal()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">🚀 Publish Official Signal</button>
       <button onclick="cancelSigEdit()" id="sgCancelEdit" style="padding:8px;border:none;border-radius:8px;background:transparent;color:#94a0b8;font-size:12px;cursor:pointer;text-decoration:underline">Cancel edit</button>
     </div></div>
     <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px"><h3 style="margin:0">📋 Official Signals</h3><div style="display:flex;gap:6px;flex-wrap:wrap"><button id="mSigTabA" onclick="mSigSetView('active')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--gold,#f59e0b);color:#0a0e1a;font-weight:800;font-size:12px;cursor:pointer">⚡ Active</button><button id="mSigTabH" onclick="mSigSetView('history')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text,#e8eaf0);font-weight:800;font-size:12px;cursor:pointer">📜 History</button><button id="mSigReportBtn" onclick="openMentorReport()" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(245,158,11,.45);background:rgba(245,158,11,.12);color:var(--gold,#d97706);font-weight:800;font-size:12px;cursor:pointer">📄 Report</button></div></div><div id="sigList">Loading...</div></div>
   </div>`;
+  bindMentorAutoPipsPreview();
   loadSignals();
 }
 function setDir(d){sigDir=d;var b=document.getElementById('bsBuy'),s=document.getElementById('bsSell');if(b)b.style.cssText='flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);'+(d==='buy'?'background:rgba(16,185,129,.18);color:#10b981':'background:transparent;color:#94a0b8')+';font-weight:800;cursor:pointer';if(s)s.style.cssText='flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);'+(d==='sell'?'background:rgba(239,68,68,.18);color:#ef4444':'background:transparent;color:#94a0b8')+';font-weight:800;cursor:pointer';}
 function setPv(v){pipsView=v;loadSignals();}
+function mentorSignalPreviewPips(){
+  const pair=(document.getElementById('sgPair')||{}).value||'';
+  const order=((document.getElementById('sgOrderType')||{}).value)||'buy';
+  const dir=order.split('_')[0].toUpperCase();
+  const entry=Number((document.getElementById('sgEntry')||{}).value);
+  const box=document.getElementById('sgAutoPipsPreview');
+  if(!box)return;
+  if(!Number.isFinite(entry)){
+    box.textContent='Pips will calculate automatically from Entry → SL / TP.';
+    return;
+  }
+  const fake={pair:pair,direction:dir,entry_price:entry};
+  const vals=[
+    ['SL','sgSL'],
+    ['TP1','sgTP1'],
+    ['TP2','sgTP2'],
+    ['TP3','sgTP3']
+  ].map(function(x){
+    const v=Number((document.getElementById(x[1])||{}).value);
+    return Number.isFinite(v)?(x[0]+' '+pspSignalFormatPips(pspSignalAutoPips(fake,v))):null;
+  }).filter(Boolean);
+  box.textContent=vals.length?('Auto pips: '+vals.join(' · ')):'Pips will calculate automatically from Entry → SL / TP.';
+}
+function bindMentorAutoPipsPreview(){
+  ['sgPair','sgOrderType','sgEntry','sgSL','sgTP1','sgTP2','sgTP3'].forEach(function(id){
+    const e=document.getElementById(id);
+    if(e && !e.dataset.pipPreviewBound){
+      e.dataset.pipPreviewBound='1';
+      e.addEventListener('input',mentorSignalPreviewPips);
+      e.addEventListener('change',mentorSignalPreviewPips);
+    }
+  });
+  mentorSignalPreviewPips();
+}
 async function createSignal(){
   const val=id=>{const e=document.getElementById(id);return e?(e.value||'').trim():'';};
   const pair=document.getElementById('sgPair').value;
@@ -1204,8 +1305,6 @@ async function createSignal(){
   let error=null;
   if(wasEditing){
     delete obj.status;delete obj.tp_hit;delete obj.owner_id;delete obj.is_official;
-    const pe=document.getElementById('sgEditPips');
-    if(pe&&pe.value!==''&&!isNaN(parseFloat(pe.value)))obj.result_pips=parseFloat(pe.value);
     const r=await sb.from('signals').update(obj).eq('id',editingSigId);
     error=r.error;
   }else{
@@ -1242,7 +1341,7 @@ function mentorSignalRowHTML(s){
   return '<div style="padding:11px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>'+esc(s.pair)+'</strong> <span style="font-size:10px;padding:1px 7px;border-radius:10px;background:'+(buy?'rgba(16,185,129,.18);color:#10b981':'rgba(239,68,68,.18);color:#ef4444')+'">'+(buy?'BUY':'SELL')+'</span>'+((s.order_type&&s.order_type!=='market')?' <span style="font-size:9px;padding:1px 6px;border-radius:10px;background:rgba(14,165,233,.18);color:#0ea5e9;font-weight:800">'+s.order_type.toUpperCase()+'</span>':'')+' '+ab+'</div><span><button onclick="editMentorSignal(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(245,158,11,.15);border:none;color:#f59e0b;cursor:pointer;margin-right:4px">✏️</button><button onclick="delSignal(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></span></div>'+ 
     '<div style="font-size:12px;color:#94a0b8;margin-top:3px">Entry '+(s.entry_price||'-')+' · SL '+(s.stop_loss||'-')+' · TP1 '+(s.take_profit1||'-')+' · TP2 '+(s.take_profit2||'-')+' · TP3 '+(s.take_profit3||'-')+(s.take_profit4?(' · TP4 '+s.take_profit4):'')+'</div>'+ 
     '<div style="font-size:12px;margin-top:5px"><span style="color:'+stInfo[1]+';font-weight:700">'+stInfo[0]+'</span>'+pipsTxt+' <span style="color:#94a0b8;font-size:11px">· 🕐 '+pspFmtDT(s.created_at)+'</span></div>'+ 
-    '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px"><input id="pips-'+s.id+'" type="number" step="any" placeholder="pips" value="'+(s.result_pips!=null?s.result_pips:'')+'" style="width:80px;padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:rgba(0,0,0,.22);color:var(--text);font-size:12px">'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px">'+
     (s.be_moved?'<span style="font-size:10px;font-weight:800;padding:4px 9px;border-radius:999px;background:rgba(14,165,233,.15);color:#0ea5e9;border:1px solid rgba(14,165,233,.4)">🔒 SL @ BE</span>':'')+btn('tp1','TP1 Hit','#10b981')+btn('tp2','TP2 Hit','#10b981')+btn('tp3','TP3 Hit','#059669')+btn('be_move','SL → BE','#0ea5e9')+btn('be','BE Hit','#8b5cf6')+btn('sl','SL Hit','#ef4444')+btn('closed','Close','#64748b')+'</div></div>';
 }
 function sigCardHTML(s,canDelete){return mentorSignalRowHTML(s);}
@@ -1281,16 +1380,16 @@ function editMentorSignal(id){
   set('sgNotes',sg.notes);
   const ot=document.getElementById('sgOrderType');
   if(ot){const d=(sg.direction||'buy').toLowerCase();const t=(sg.order_type||'market').toLowerCase();ot.value=(t==='market')?d:(d+'_'+t);}
-  // pips edit field (closed signal ki pips theek karne ke liye)
+  // V109: result pips are automatic; mentor no longer types/overrides them manually.
   let pe=document.getElementById('sgEditPips');
   if(!pe){
     const notes=document.getElementById('sgNotes');
-    pe=document.createElement('input');pe.id='sgEditPips';pe.type='number';pe.step='any';
-    pe.placeholder='Result pips (sirf edit — khali chhodo to change nahi hoga)';
-    pe.style.cssText='width:100%;padding:10px 12px;border-radius:9px;border:1px solid rgba(245,158,11,.5);background:rgba(245,158,11,.07);color:var(--text-primary,#333);font-size:13px;margin-top:8px';
+    pe=document.createElement('div');pe.id='sgEditPips';
+    pe.style.cssText='width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(245,158,11,.35);background:rgba(245,158,11,.07);color:var(--text-primary,#333);font-size:12px;margin-top:8px';
     notes.parentElement.insertBefore(pe,notes.nextSibling);
   }
-  pe.style.display='block';pe.value=(sg.result_pips!=null?sg.result_pips:'');
+  pe.style.display='block';
+  pe.textContent='Result pips: '+(sg.result_pips!=null?pspSignalFormatPips(sg.result_pips):'calculated automatically when TP / SL / BE / Close is updated');
   const b=document.getElementById('sgPostBtn')||document.querySelector('#pg-signals button[onclick*="createSignal"]');
   if(b){b.textContent='💾 Update Signal';b.dataset.editing='1';}
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1303,48 +1402,107 @@ function cancelSigEdit(){
   if(b){b.textContent='🚀 Publish Official Signal';}
 }
 async function updateMentorSigStatus(id,kind){
-  const pi=document.getElementById('pips-'+id);const pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;
-  let obj={};const terminal=['tp3','be','sl','closed'].includes(kind);
-  if(kind==='be_move'){
-    obj={be_moved:true};
-  }else if(kind==='tp1'||kind==='tp2'){
-    obj={status:kind,tp_hit:kind==='tp1'?1:2};
-    if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
-  }else{
-    obj={status:kind,closed_at:new Date().toISOString()};
-    if(kind==='tp3')obj.tp_hit=3;
-    if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
+  const signal=(window._mSigCache||[]).find(function(x){return String(x.id)===String(id);});
+  if(!signal){
+    if(window.pipToast)window.pipToast('Signal data not loaded. Refresh and try again.','err');
+    else mentorAlert('Signal data not loaded. Refresh and try again.');
+    return;
   }
+
+  let obj={};
+  let autoPips=null;
+
+  if(kind==='be_move'){
+    // Moving SL to entry does not close the signal and does not add pips.
+    obj={be_moved:true};
+  }else if(kind==='closed'){
+    // Manual close is the only action that needs an actual exit price.
+    const raw=window.prompt('Enter closing price for '+(signal.pair||'this signal')+':','');
+    if(raw===null)return;
+    const closePrice=Number(String(raw).trim());
+    if(!Number.isFinite(closePrice)){
+      if(window.pipToast)window.pipToast('Please enter a valid closing price.','err');
+      else mentorAlert('Please enter a valid closing price.');
+      return;
+    }
+    autoPips=pspSignalAutoPips(signal,closePrice);
+    if(autoPips===null){
+      if(window.pipToast)window.pipToast('Unable to calculate pips for this signal.','err');
+      else mentorAlert('Unable to calculate pips for this signal.');
+      return;
+    }
+    obj={
+      status:'closed',
+      closed_at:new Date().toISOString(),
+      result_pips:autoPips
+    };
+  }else{
+    const target=pspSignalTargetForAction(signal,kind);
+
+    if(kind==='be'){
+      autoPips=0;
+    }else{
+      autoPips=pspSignalAutoPips(signal,target);
+    }
+
+    if(autoPips===null){
+      if(window.pipToast)window.pipToast('This signal does not have a valid '+kind.toUpperCase()+' price.','err');
+      else mentorAlert('This signal does not have a valid '+kind.toUpperCase()+' price.');
+      return;
+    }
+
+    if(kind==='tp1'||kind==='tp2'){
+      obj={
+        status:kind,
+        tp_hit:kind==='tp1'?1:2,
+        result_pips:autoPips
+      };
+    }else{
+      obj={
+        status:kind,
+        closed_at:new Date().toISOString(),
+        result_pips:autoPips
+      };
+      if(kind==='tp3')obj.tp_hit=3;
+    }
+  }
+
   const {error}=await sb.from('signals').update(obj).eq('id',id);
   if(error){
     if(window.pipToast)window.pipToast('Unable to update the signal status. Please try again.','err');
     else mentorAlert('Error: '+error.message);
     return;
   }
+
+  const pipSuffix=(autoPips!==null)?(' · '+pspSignalFormatPips(autoPips)):'';
   const successMessages={
-    tp1:'TP1 hit — status updated successfully.',
-    tp2:'TP2 hit — status updated successfully.',
-    tp3:'TP3 hit — status updated successfully.',
+    tp1:'TP1 hit — '+pspSignalFormatPips(autoPips)+' calculated automatically.',
+    tp2:'TP2 hit — '+pspSignalFormatPips(autoPips)+' calculated automatically.',
+    tp3:'TP3 hit — '+pspSignalFormatPips(autoPips)+' calculated automatically.',
     be_move:'Stop loss moved to breakeven successfully.',
-    be:'Breakeven hit — signal closed.',
-    sl:'Stop loss hit — signal closed.',
-    closed:'Signal closed successfully.'
+    be:'Breakeven hit — 0 pips.',
+    sl:'Stop loss hit — '+pspSignalFormatPips(autoPips)+' calculated automatically.',
+    closed:'Signal closed — '+pspSignalFormatPips(autoPips)+' calculated automatically.'
   };
+
   const pushData={
-    tp1:['✅ TP1 Hit','TP1 hit — status updated successfully.'],
-    tp2:['✅ TP2 Hit','TP2 hit — status updated successfully.'],
-    tp3:['🏆 TP3 Hit','TP3 hit — signal closed.'],
+    tp1:['✅ TP1 Hit','TP1 hit'+pipSuffix],
+    tp2:['✅ TP2 Hit','TP2 hit'+pipSuffix],
+    tp3:['🏆 TP3 Hit','TP3 hit — signal closed'+pipSuffix],
     be_move:['🔒 Stop Loss at Breakeven','Move your Stop Loss to the entry price.'],
-    be:['🔒 Breakeven Hit','Breakeven hit — signal closed.'],
-    sl:['🛑 Stop Loss Hit','Stop loss hit — signal closed.'],
-    closed:['🔒 Signal Closed','Signal closed successfully.']
+    be:['🔒 Breakeven Hit','Breakeven hit — signal closed · 0 pips'],
+    sl:['🛑 Stop Loss Hit','Stop loss hit — signal closed'+pipSuffix],
+    closed:['🔒 Signal Closed','Signal closed'+pipSuffix]
   };
+
   const msg=successMessages[kind]||'Signal status updated successfully.';
   if(window.pipToast)window.pipToast(msg,'ok');else mentorAlert(msg);
+
   try{
     const pd=pushData[kind];
     if(pd)await pspCreateNotificationAndPush(pd[0],pd[1],'signal','/?tab=signals','all');
   }catch(_){ }
+
   loadSignals();
 }
 async function setSigStatus(id,st){await sb.from('signals').update({status:st}).eq('id',id);loadSignals();}
