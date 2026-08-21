@@ -62,7 +62,7 @@ window.loadDashboardStats=async function(){
     var revenue=approved.filter(function(r){
       var d=new Date(r.reviewed_at||r.access_granted_at||r.updated_at||r.created_at);
       return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()
-    }).reduce(function(sum,r){return sum+(Number(r.price)||200)},0);
+    }).reduce(function(sum,r){return sum+(Number(r.price)||250)},0);
 
     // V116: exact database count — never capped at 1,000.
     setText('dashTotalUsers',exactUsers.toLocaleString());
@@ -126,7 +126,7 @@ window.loadAdminUsers=async function(){
 /* Exactly the two live courses — editable from the existing course editor */
 var SYSTEM_COURSE_DEFAULTS={
   basic:{id:'',title:'Basic Forex Course',description:'9 beginner modules covering Forex foundations, technical analysis, fundamentals, psychology and risk management.',level:'Beginner',category:'System Course',thumbnail:'basic-course-thumbnail.webp?v=20260802-v29-final',thumbnail_emoji:'📘',thumbnail_color:1,price:0,display_order:1,enrollments_count:0,is_published:true,is_premium:false},
-  advanced:{id:'',title:'Advanced Forex Course',description:'9 professional modules with advanced structure, liquidity, execution, risk, macro analysis and strategy development.',level:'Advanced',category:'System Course',thumbnail:'advanced-course-thumbnail.webp?v=20260802-v29-final',thumbnail_emoji:'🚀',thumbnail_color:2,price:200,display_order:2,enrollments_count:0,is_published:true,is_premium:true}
+  advanced:{id:'',title:'Advanced Forex Course',description:'9 professional modules with advanced structure, liquidity, execution, risk, macro analysis and strategy development.',level:'Advanced',category:'System Course',thumbnail:'advanced-course-thumbnail.webp?v=20260802-v29-final',thumbnail_emoji:'🚀',thumbnail_color:2,price:250,display_order:2,enrollments_count:0,is_published:true,is_premium:true}
 };
 var systemCourseRows={basic:null,advanced:null};
 window.openSystemCourseEnrollments=function(filter){var item=document.querySelector('[data-page="course-enrollments"]');if(typeof showPage==='function')showPage('course-enrollments',item);setTimeout(function(){var b=document.querySelector('#page-course-enrollments [data-filter="'+filter+'"]');if(b)b.click()},100)};
@@ -134,7 +134,7 @@ window.editSystemCourse=function(key){
   var row=Object.assign({},SYSTEM_COURSE_DEFAULTS[key],systemCourseRows[key]||{});
   row.display_order=key==='basic'?1:2;
   row.is_premium=key==='advanced';
-  row.price=Number(row.price!=null?row.price:(key==='advanced'?200:0));
+  row.price=Number(row.price!=null?row.price:(key==='advanced'?250:0));
   if(typeof openCourseForm==='function')openCourseForm(row);
 };
 window.loadAdminCourses=async function(){
@@ -152,7 +152,7 @@ window.loadAdminCourses=async function(){
   function thumbnail(course,fallback){var key=course.is_premium?'advanced':'basic';var src=String(course.thumbnail||'');if(!src||/service-banners\/forex-education/i.test(src)||/course-thumbnails\//i.test(src))src=fallback;return '<div class="psp-system-course-thumbnail"><img src="'+esc(src)+'" onerror="this.onerror=null;this.src=\''+(key==='advanced'?'advanced-course-thumbnail.webp?v=20260802-v29-final':'basic-course-thumbnail.webp?v=20260802-v29-final')+'\'" alt="'+esc(course.title||'Course')+' thumbnail"><span>1280 × 720 Course Thumbnail</span></div>'}
   var grid=document.querySelector('#page-courses .courses-grid');if(!grid)return;grid.className='psp-system-course-grid';grid.innerHTML=''+
    '<article class="psp-system-course">'+thumbnail(basicView,SYSTEM_COURSE_DEFAULTS.basic.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(basicView,'Free')+'</div><h3>'+esc(basicView.title)+'</h3><p>'+esc(basicView.description)+'</p><div class="psp-system-course-meta"><div>Course Type<strong>Free</strong></div><div>Modules<strong>9</strong></div><div>Enrollments<strong>'+free.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'basic\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'free\')">View Enrollments</button></div></article>'+
-   '<article class="psp-system-course paid">'+thumbnail(advancedView,SYSTEM_COURSE_DEFAULTS.advanced.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(advancedView,'Paid')+'</div><h3>'+esc(advancedView.title)+'</h3><p>'+esc(advancedView.description)+'</p><div class="psp-system-course-meta"><div>Course Fee<strong>$'+Number(advancedView.price||200).toFixed(0)+'</strong></div><div>Modules<strong>9</strong></div><div>Approved Users<strong>'+approved.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'advanced\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'paid-approved\')">View Enrollments</button></div></article>';
+   '<article class="psp-system-course paid">'+thumbnail(advancedView,SYSTEM_COURSE_DEFAULTS.advanced.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(advancedView,'Paid')+'</div><h3>'+esc(advancedView.title)+'</h3><p>'+esc(advancedView.description)+'</p><div class="psp-system-course-meta"><div>Course Fee<strong>$'+Number(advancedView.price||250).toFixed(0)+'</strong></div><div>Modules<strong>9</strong></div><div>Approved Users<strong>'+approved.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'advanced\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'paid-approved\')">View Enrollments</button></div></article>';
   var createBtn=document.querySelector('#page-courses .card-header .btn');if(createBtn)createBtn.style.display='none';
 };
 

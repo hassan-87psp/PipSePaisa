@@ -80,7 +80,7 @@ function updateCoursePreview(){
     </div>
     <aside class="psp-admin-preview-side">
       <img src="${esc(thumb)}" onerror="this.onerror=null;this.src='${premium?'advanced-course-thumbnail.webp?v=20260801-v28-final':'basic-course-thumbnail.webp?v=20260801-v28-final'}'">
-      <div class="body"><small>${premium?'PROFESSIONAL COURSE ACCESS':'INSTANT COURSE ACCESS'}</small><strong>${premium?'$'+(price||200):'100% Free'}</strong><p>${esc(desc)}</p><button type="button">Preview Only</button></div>
+      <div class="body"><small>${premium?'PROFESSIONAL COURSE ACCESS':'INSTANT COURSE ACCESS'}</small><strong>${premium?'$'+(price||250):'100% Free'}</strong><p>${esc(desc)}</p><button type="button">Preview Only</button></div>
     </aside>
     <div class="psp-admin-preview-full">
       <section><h3>What you'll learn</h3><div class="psp-admin-outcomes">${outcomes.map(x=>`<span>✓ ${esc(x)}</span>`).join('')}</div></section>

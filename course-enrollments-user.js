@@ -263,8 +263,8 @@ function ensurePage(){
             <div class="mc-public-ribbon">BEST FOR SERIOUS TRADERS</div>
             <h3 id="myAdvancedCourseTitle">Advanced Forex Course</h3>
             <p id="myAdvancedCourseDescription">Develop a professional trading mindset and study advanced market behaviour, session timing, currency indices, correlations, fundamental analysis and strategy development.</p>
-            <div class="mc-public-price-row"><span class="mc-public-old">Original Price $500</span><span class="mc-price">$200</span></div>
-            <span class="mc-public-save">Save $300 — Limited-Time Offer</span>
+            <div class="mc-public-price-row"><span class="mc-public-old">Original Price $500</span><span class="mc-price">$250</span></div>
+            <span class="mc-public-save">Save $250 — Limited-Time Offer</span>
             <div class="mc-public-topics">
               <div class="mc-public-topic"><span>✓</span>Professional Trader Mindset and Best Practices</div>
               <div class="mc-public-topic"><span>✓</span>Understanding Global Trading Sessions</div>
@@ -278,7 +278,7 @@ function ensurePage(){
             </div>
             <div class="mc-public-highlight">PROFESSIONAL LEARNING • ADVANCED CONCEPTS • LIMITED-TIME PRICE</div>
             <div id="advancedMainCourseStatus" class="mc-course-status" style="display:none"></div>
-            <button id="advancedMainCourseButton" class="btn mc-public-btn" type="button" onclick="openAdvancedCourseModules()">Unlock Advanced Course — $200 →</button>
+            <button id="advancedMainCourseButton" class="btn mc-public-btn" type="button" onclick="openAdvancedCourseModules()">Unlock Advanced Course — $250 →</button>
           </article>
         </div>
       </section>
@@ -312,7 +312,7 @@ function ensurePage(){
           <div class="course-module-footer">
             <h3>Ready to upgrade your trading skills?</h3>
             <p>Complete your enrollment to unlock the Advanced Forex Course.</p>
-            <button class="btn" type="button" onclick="openCourseEnrollmentFromModules('advanced')">Enroll Now — $200</button>
+            <button class="btn" type="button" onclick="openCourseEnrollmentFromModules('advanced')">Enroll Now — $250</button>
           </div>
         </div>
       </div>`;
@@ -337,7 +337,7 @@ function courseCard(row){
       <span class="mc-badge ${cls}">${badge}</span>
       <div>
         <h3>${esc(row.course_name||'Forex Course')}</h3>
-        <p>${paid?'Professional Trading Program • $'+Number(row.price||200).toFixed(0):'Beginner Learning Program • Free'}</p>
+        <p>${paid?'Professional Trading Program • $'+Number(row.price||250).toFixed(0):'Beginner Learning Program • Free'}</p>
       </div>
     </div>
     <div class="mc-body">
@@ -468,7 +468,7 @@ async function refreshAdvancedCourseState(){
   const btn=document.getElementById('advancedMainCourseButton');
   if(box){box.style.display='block';box.innerHTML=advancedStateMarkup(state,true);}
   if(btn){
-    btn.textContent=state==='approved'?'Open Advanced Modules →':state==='pending'?'Payment Verification Pending 🔒':state==='rejected'?'Resubmit Payment →':'Unlock Advanced Course — $200 →';
+    btn.textContent=state==='approved'?'Open Advanced Modules →':state==='pending'?'Payment Verification Pending 🔒':state==='rejected'?'Resubmit Payment →':'Unlock Advanced Course — $250 →';
     btn.disabled=false;
     btn.onclick=function(){window.openAdvancedCourseModules();};
   }
@@ -574,7 +574,7 @@ function advancedLockedMarkup(state){
   const text=pending?'Your payment has been submitted. The 9 Advanced Course modules will remain hidden until admin approval.':rejected?'Submit your payment details again. The 9 Advanced Course modules will unlock only after admin approval.':'Complete the payment enrollment first. The 9 Advanced Course modules will remain completely hidden until your payment is approved.';
   const button=pending
     ? '<button class="course-lock-button is-pending" type="button" disabled>Waiting for Admin Approval</button>'
-    : `<button class="course-lock-button" type="button" onclick="openCourseEnrollmentFromModules('advanced')">${rejected?'Resubmit Payment':'Make Payment — $200'} →</button>`;
+    : `<button class="course-lock-button" type="button" onclick="openCourseEnrollmentFromModules('advanced')">${rejected?'Resubmit Payment':'Make Payment — $250'} →</button>`;
   return `<section class="course-access-lock ${rejected?'is-rejected':pending?'is-pending':''}">
     <div class="course-access-lock-icon">🔒</div>
     <span class="course-access-eyebrow">PROFESSIONAL PROGRAM</span>

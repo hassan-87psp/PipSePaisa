@@ -89,7 +89,7 @@ function render(filter='all'){
         <td><strong>${dt(r.created_at)}</strong></td>
         <td><strong>${esc(r.full_name||'Member')}</strong><br>${esc(r.email||'')}</td>
         <td>${esc(r.whatsapp||'—')}</td>
-        <td><strong>${esc(r.course_name||(paid?'Advanced Forex Course':'Basic Forex Course'))}</strong><br>${paid?`${esc(r.currency||'USD')} ${Number(r.price||200).toFixed(0)}`:'Free'}</td>
+        <td><strong>${esc(r.course_name||(paid?'Advanced Forex Course':'Basic Forex Course'))}</strong><br>${paid?`${esc(r.currency||'USD')} ${Number(r.price||250).toFixed(0)}`:'Free'}</td>
         <td>${esc(r.experience||'—')}<br><small>${esc(r.learning_goal||'')}</small></td>
         <td>${esc(r.payment_method||(paid?'Not added':'Not Required'))}</td>
         <td>${esc(r.transaction_id||'—')}</td>
@@ -131,7 +131,7 @@ async function invokeAdminEmail(client,body,forceRefresh=false){
   return data;
 }
 async function sendEmail(type,row,extra={}){
-  const client=db();const body={type,target_user_id:row.user_id,target_email:row.email||undefined,user_email:row.email||undefined,user_name:row.full_name||'Student',course_title:row.course_name||'Advanced Forex Course',amount:`${row.currency||'USD'} ${Number(row.price||200)}`,payment_method:row.payment_method||undefined,transaction_id:row.transaction_id||undefined,enrollment_id:row.id,...extra};let lastError=null;
+  const client=db();const body={type,target_user_id:row.user_id,target_email:row.email||undefined,user_email:row.email||undefined,user_name:row.full_name||'Student',course_title:row.course_name||'Advanced Forex Course',amount:`${row.currency||'USD'} ${Number(row.price||250)}`,payment_method:row.payment_method||undefined,transaction_id:row.transaction_id||undefined,enrollment_id:row.id,...extra};let lastError=null;
   for(let attempt=0;attempt<2;attempt++){
     try{const data=await invokeAdminEmail(client,body,attempt===1);return {ok:true,data}}catch(e){lastError=e;if(attempt===0)await new Promise(resolve=>setTimeout(resolve,500))}
   }

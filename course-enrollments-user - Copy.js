@@ -98,7 +98,7 @@ function ensurePage(){
             <div class="mc-icon">🚀</div>
             <span class="mc-plan-label">Professional Program</span>
             <h3>Advanced Forex Course</h3>
-            <div class="mc-price">$200</div>
+            <div class="mc-price">$250</div>
             <p>Advanced market structure, session timing, correlations, professional mindset and strategy development for serious traders.</p>
             <div class="mc-features"><span>Advanced Concepts</span><span>Premium Access</span><span>Mentor Support</span></div>
             <button class="btn" type="button" onclick="openCourseEnrollment('advanced')">Enroll in Advanced Course</button>
@@ -126,7 +126,7 @@ function courseCard(row){
       <span class="mc-badge ${cls}">${badge}</span>
       <div>
         <h3>${esc(row.course_name||'Forex Course')}</h3>
-        <p>${paid?'Professional Trading Program • $'+Number(row.price||200).toFixed(0):'Beginner Learning Program • Free'}</p>
+        <p>${paid?'Professional Trading Program • $'+Number(row.price||250).toFixed(0):'Beginner Learning Program • Free'}</p>
       </div>
     </div>
     <div class="mc-body">

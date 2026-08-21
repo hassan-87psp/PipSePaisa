@@ -5,7 +5,7 @@
   const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
   const COURSE_INFO={
     basic:{key:'basic',name:'Basic Forex Course',type:'free',price:0,currency:'USD'},
-    advanced:{key:'advanced',name:'Advanced Forex Course',type:'paid',price:200,currency:'USD'}
+    advanced:{key:'advanced',name:'Advanced Forex Course',type:'paid',price:250,currency:'USD'}
   };
 
   let client=null;
@@ -135,7 +135,7 @@
       if(m.account_title)rows.push(['Account Title',m.account_title]);
       if(m.account_number)rows.push(['Account Number',m.account_number,true]);
     }
-    rows.push(['Course Fee',`${selectedCourse?.currency||'USD'} ${Number(selectedCourse?.price||200).toFixed(0)}`]);
+    rows.push(['Course Fee',`${selectedCourse?.currency||'USD'} ${Number(selectedCourse?.price||250).toFixed(0)}`]);
     return `<div class="ce-pay-card">
       <div class="ce-pay-title">${escapeHtml(methodLabel(m))}</div>
       ${rows.map(row=>`<div class="ce-pay-row"><span>${escapeHtml(row[0])}</span><strong>${escapeHtml(row[1]||'—')}</strong>${row[2]?`<button type="button" class="ce-copy" data-copy="${escapeHtml(row[1]||'')}">Copy</button>`:''}</div>`).join('')}
@@ -161,7 +161,7 @@
     const options=paymentMethods.length
       ? paymentMethods.map((m,i)=>`<option value="${i}">${escapeHtml(methodLabel(m))}</option>`).join('')
       : '<option value="">No payment method available</option>';
-    return `<h3 style="margin:0 0 12px">Payment Details — $200</h3>
+    return `<h3 style="margin:0 0 12px">Payment Details — $250</h3>
       <div class="ce-grid">
         <div class="ce-field full"><label>Payment Method</label><select id="${prefix}PaymentMethod">${options}</select></div>
         <div class="ce-field full"><div id="${prefix}PaymentDetails">${paymentMethodDetails(paymentMethods[0])}</div></div>

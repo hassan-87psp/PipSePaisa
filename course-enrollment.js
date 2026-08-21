@@ -1,14 +1,12 @@
-/* PipSePaisa V99 — direct paid checkout + dynamic Admin pricing + Infinity Local Bank Transfer. */
 (function(){
   'use strict';
 
   const SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
   const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
   const COURSE_INFO={
-    basic:{key:'basic',name:'Basic Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
-    advanced:{key:'advanced',name:'Advanced Forex Course',type:'paid',price:200,oldPrice:500,currency:'USD',localBankPricePkr:0}
+    basic:{key:'basic',name:'Basic Forex Course',type:'free',price:0,currency:'USD'},
+    advanced:{key:'advanced',name:'Advanced Forex Course',type:'paid',price:250,currency:'USD'}
   };
-  const courseConfigCache=new Map();
 
   let client=null;
   let selectedCourse=null;
@@ -18,8 +16,6 @@
   let activeEnrollmentFallback=null;
   let accountWasCreated=false;
   let paymentMethods=[];
-  let paymentSelections={ceNew:null,ceExisting:null};
-  let paymentStartInFlight=false;
 
   function getClient(){
     if(client)return client;
@@ -32,102 +28,6 @@
       auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}
     });
     return client;
-  }
-
-
-  function normalizeCurrency(value,fallback='USD'){
-    const cur=String(value||fallback).trim().toUpperCase();
-    return cur||fallback;
-  }
-
-  function amountNumber(value,fallback=0){
-    const n=Number(value);
-    return Number.isFinite(n)?n:fallback;
-  }
-
-  function formatMoney(amount,currency='USD'){
-    const n=amountNumber(amount,0);
-    const cur=normalizeCurrency(currency,'USD');
-    const digits=Math.abs(n-Math.round(n))<0.0001?0:2;
-    const formatted=n.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:2});
-    if(cur==='USD')return `$${formatted}`;
-    if(cur==='PKR')return `PKR ${formatted}`;
-    return `${cur} ${formatted}`;
-  }
-
-  async function loadCourseConfig(courseKey,{refresh=false}={}){
-    const key=String(courseKey||'').trim().toLowerCase();
-    const fallback=COURSE_INFO[key]?{...COURSE_INFO[key]}:null;
-    if(!fallback)return null;
-    if(!refresh&&courseConfigCache.has(key))return {...courseConfigCache.get(key)};
-    const sb=getClient();
-    if(!sb)return fallback;
-    try{
-      const {data,error}=await sb.from('courses').select('*').order('display_order',{ascending:true});
-      if(error)throw error;
-      const rows=Array.isArray(data)?data:[];
-      const row=rows.find(r=>String(r.course_key||'').toLowerCase()===key)
-        || rows.find(r=>key==='advanced'&&/advanced forex course/i.test(String(r.title||'')))
-        || rows.find(r=>key==='basic'&&/basic forex course/i.test(String(r.title||'')));
-      if(!row){courseConfigCache.set(key,fallback);return {...fallback};}
-      const next={...fallback};
-      next.id=row.id||null;
-      next.name=String(row.title||fallback.name);
-      next.currency=normalizeCurrency(row.currency||fallback.currency,fallback.currency);
-      if(key==='basic'){
-        next.type='free';next.price=0;next.oldPrice=0;next.localBankPricePkr=0;
-      }else{
-        next.type='paid';
-        const livePrice=amountNumber(row.price,fallback.price);
-        next.price=livePrice>0?livePrice:fallback.price;
-        next.oldPrice=Math.max(0,amountNumber(row.old_price,fallback.oldPrice));
-        next.localBankPricePkr=Math.max(0,amountNumber(row.local_bank_price_pkr,0));
-      }
-      next.isPublished=row.is_published!==false;
-      next.enrollmentOpen=row.enrollment_open!==false&&row.enrollments_open!==false;
-      courseConfigCache.set(key,next);
-      return {...next};
-    }catch(error){
-      console.warn('Course pricing could not load; using safe website fallback.',error);
-      return fallback;
-    }
-  }
-
-  async function refreshPublicCoursePricing(){
-    const course=await loadCourseConfig('advanced',{refresh:true});
-    if(!course)return;
-    document.querySelectorAll('.course-card.advanced .now-price strong').forEach(el=>{el.textContent=formatMoney(course.price,course.currency);});
-    if(course.oldPrice>0){
-      document.querySelectorAll('.course-card.advanced .was-price strong').forEach(el=>{el.textContent=formatMoney(course.oldPrice,course.currency);});
-      const saving=Math.max(0,course.oldPrice-course.price);
-      document.querySelectorAll('.course-card.advanced .save-price').forEach(el=>{el.textContent=saving>0?`You Save ${formatMoney(saving,course.currency)}`:'';});
-    }
-  }
-
-  function localBankUserMessage(error){
-    const raw=String(error?.message||error||'').trim();
-    if(/already active|already approved/i.test(raw))return 'Your paid course access is already active.';
-    if(/session.*expired|login session|authentication required|invalid or expired/i.test(raw))return 'Your login session has expired. Please sign in again and retry.';
-    if(/not active|disabled|suspended|blocked/i.test(raw))return 'This account is not active. Please contact support.';
-    if(/enrollment.*closed/i.test(raw))return 'Enrollment for this course is currently closed.';
-    if(/not currently published/i.test(raw))return 'This course is not currently available.';
-    if(/already being prepared/i.test(raw))return 'Your Local Bank Transfer is already being prepared. Please wait a few seconds and try again.';
-    if(/complete the course enrollment details/i.test(raw))return 'Please complete the enrollment details before continuing to Local Bank Transfer.';
-    if(/local bank.*price.*not configured|payment_provider_amount_not_configured/i.test(raw))return 'Local Bank Transfer price is not configured yet. Please contact support or use another payment method.';
-    if(/temporarily unavailable/i.test(raw))return 'Local Bank Transfer is temporarily unavailable. Please try another payment method or try again later.';
-    if(/INFINITY_|SUPABASE_|server secret|missing .*secret|not configured|edge function|function.*failed|rpc|relation|column|schema|permission|service role|api key|callback secret|failed \(5\d\d\)|\b5\d\d\b/i.test(raw)){
-      return 'Local Bank Transfer is temporarily unavailable. Please try another payment method or try again later.';
-    }
-    return raw || 'Local Bank Transfer could not start. Please try another payment method or try again later.';
-  }
-
-  function notifyCoursePaymentError(message){
-    const safe=String(message||'Local Bank Transfer is temporarily unavailable.').trim();
-    const now=Date.now();
-    const last=window.__pspCoursePaymentError||{};
-    if(last.message===safe && now-Number(last.at||0)<4500)return;
-    window.__pspCoursePaymentError={message:safe,at:now};
-    if(window.pipToast)window.pipToast(safe,'err');
   }
 
   async function getEmailSession(sb, forceRefresh=false){
@@ -324,30 +224,14 @@
           <button class="ce-close" type="button" aria-label="Close enrollment form" onclick="closeCourseEnrollment()">×</button>
         </div>
         <div class="ce-body">
-          <section class="ce-step" id="ceStepPaymentChoice"></section>
-
-          <section class="ce-step" id="ceStepManualPayment">
-            <div class="ce-course-summary"><strong id="ceManualCourseName">Advanced Forex Course</strong><span class="ce-price" id="ceManualCoursePrice">$0</span></div>
-            <h3 id="ceManualMethodTitle" style="margin:0 0 7px">Payment Details</h3>
-            <p style="margin:0 0 15px;color:#64748b;font-size:13px;line-height:1.55">Complete the payment below and submit your transaction reference and receipt.</p>
-            <div id="ceManualPaymentDetails"></div>
-            <div class="ce-grid" style="margin-top:14px">
-              <div class="ce-field full"><label>Transaction ID / Reference</label><input id="ceManualTransactionId" type="text" placeholder="Transaction reference"></div>
-              <div class="ce-field full"><label>Payment Receipt</label><input id="ceManualReceipt" type="file" accept="image/jpeg,image/png,application/pdf,.jpg,.jpeg,.png,.pdf"><small style="color:#64748b">JPG, JPEG, PNG or PDF only — maximum 5 MB.</small></div>
-            </div>
-            <div class="ce-message" id="ceManualMessage"></div>
-            <div class="ce-actions"><button class="ce-btn secondary" type="button" onclick="courseEnrollmentShowPaymentChoice()">← Change Payment Method</button><button class="ce-btn primary" id="ceManualSubmitBtn" type="button" onclick="courseEnrollmentSubmitManual()">Submit Payment for Approval</button></div>
-          </section>
-
           <section class="ce-step" id="ceStepChoice">
             <div class="ce-course-summary"><div><strong id="ceChoiceCourseName">Course</strong><div style="font-size:12px;color:#64748b;margin-top:3px">Secure enrollment through PipSePaisa</div></div><div class="ce-price" id="ceChoicePrice">Free</div></div>
             <h3 style="margin:0 0 7px">Are you already a PipSePaisa user?</h3>
             <p style="margin:0 0 17px;color:#64748b;font-size:13px;line-height:1.55">Choose the option that matches your account status.</p>
             <div class="ce-choice-grid">
-              <button class="ce-choice" type="button" onclick="courseEnrollmentChooseUser(true)"><strong>Yes, I’m Already a User</strong><span>Continue with your existing PipSePaisa account.</span></button>
-              <button class="ce-choice" type="button" onclick="courseEnrollmentChooseUser(false)"><strong>No, Create My Account</strong><span>Create your account and continue with the selected payment method.</span></button>
+              <button class="ce-choice" type="button" onclick="courseEnrollmentChooseUser(true)"><strong>Yes, I’m Already a User</strong><span>Login with your existing email and password, then add enrollment details.</span></button>
+              <button class="ce-choice" type="button" onclick="courseEnrollmentChooseUser(false)"><strong>No, Create My Account</strong><span>Create your account and enroll in one complete process.</span></button>
             </div>
-            <div class="ce-actions" id="ceChangePaymentWrap" style="display:none;justify-content:flex-start;margin-top:15px"><button class="ce-btn secondary" type="button" onclick="courseEnrollmentShowPaymentChoice()">← Change Payment Method</button></div>
           </section>
 
           <section class="ce-step" id="ceStepLogin">
@@ -408,7 +292,7 @@
     overlay.addEventListener('click',event=>{if(event.target===overlay)closeCourseEnrollment();});
   }
 
-  function priceText(course){return course.type==='free'?'100% Free':formatMoney(course.price,course.currency);}
+  function priceText(course){return course.type==='free'?'100% Free':`$${course.price}`;}
   function setCourseText(){
     const text=selectedCourse?.name||'Course';
     const price=selectedCourse?priceText(selectedCourse):'';
@@ -446,47 +330,8 @@
   }
 
   function methodLabel(m){
-    const labels={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'USDT TRC20',infinity:'Local Bank Transfer'};
-    return m?.label||m?.name||labels[String(m?.type||'').toLowerCase()]||m?.type||'Payment Method';
-  }
-
-  function isInfinityMethod(m){
-    const type=String(m?.type||'').toLowerCase();
-    const key=String(m?.system_key||'').toLowerCase();
-    const label=String(m?.label||m?.name||'').toLowerCase();
-    return key==='infinity_local_bank'||type==='infinity'||label==='local bank transfer';
-  }
-
-  function manualPaymentMethods(){return paymentMethods.filter(m=>!isInfinityMethod(m));}
-  function infinityPaymentMethod(){return paymentMethods.find(isInfinityMethod)||null;}
-  function selectedPayment(prefix){return paymentSelections[prefix]||null;}
-  function selectedPaymentMethod(prefix){
-    const selected=selectedPayment(prefix);
-    if(!selected)return null;
-    if(selected.kind==='infinity')return infinityPaymentMethod();
-    return manualPaymentMethods()[Number(selected.index||0)]||null;
-  }
-  function selectedPaymentLabel(prefix){
-    const selected=selectedPayment(prefix);
-    if(!selected)return null;
-    return selected.kind==='infinity'?'Local Bank Transfer':methodLabel(selectedPaymentMethod(prefix));
-  }
-  function isInfinitySelection(prefix){return selectedPayment(prefix)?.kind==='infinity';}
-
-  function injectPaymentPickerStyles(){
-    if(document.getElementById('ceInfinityPaymentStyles'))return;
-    const style=document.createElement('style');
-    style.id='ceInfinityPaymentStyles';
-    style.textContent=`
-      .ce-pay-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:0 0 12px}.ce-pay-heading h3{margin:0;font-size:17px}.ce-pay-heading span{font-size:11px;color:#64748b}
-      .ce-method-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:12px 0}.ce-method-card{appearance:none;width:100%;text-align:left;border:1px solid rgba(148,163,184,.28);background:rgba(255,255,255,.72);border-radius:14px;padding:15px;cursor:pointer;transition:.2s ease;color:inherit}.ce-method-card:hover{transform:translateY(-1px);border-color:rgba(251,146,1,.6);box-shadow:0 10px 24px rgba(15,23,42,.08)}.ce-method-card.selected{border-color:#FB9201;background:rgba(251,146,1,.09);box-shadow:0 0 0 2px rgba(251,146,1,.11)}
-      .ce-method-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.ce-method-icon{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:rgba(251,146,1,.14);font-size:18px}.ce-method-badge{font-size:9px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:999px;background:rgba(15,23,42,.06);color:#64748b}.ce-method-card strong{display:block;margin-top:10px;font-size:14px}.ce-method-card small{display:block;margin-top:5px;color:#64748b;line-height:1.45;font-size:11px}
-      .ce-provider-card{border:1px solid rgba(251,146,1,.34);background:linear-gradient(135deg,rgba(251,146,1,.10),rgba(251,146,1,.03));border-radius:14px;padding:15px}.ce-provider-card h4{margin:0 0 7px;font-size:15px}.ce-provider-card p{margin:0;color:#64748b;font-size:12px;line-height:1.6}.ce-provider-points{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}.ce-provider-point{padding:9px;border-radius:10px;background:rgba(255,255,255,.72);border:1px solid rgba(148,163,184,.17);font-size:10px;font-weight:700;color:#475569;text-align:center}
-      .ce-pay-flow{margin-top:12px}.ce-pay-flow .ce-pay-card{margin:0}.ce-pay-note{font-size:11px;color:#64748b;line-height:1.55;margin-top:9px}
-      @media(max-width:620px){.ce-method-grid{grid-template-columns:1fr}.ce-provider-points{grid-template-columns:1fr}.ce-pay-heading{align-items:flex-start;flex-direction:column}}
-      html[data-theme="dark"] .ce-method-card,.dark .ce-method-card{background:rgba(15,23,42,.62)}html[data-theme="dark"] .ce-provider-point,.dark .ce-provider-point{background:rgba(15,23,42,.55)}
-    `;
-    document.head.appendChild(style);
+    const labels={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'USDT TRC20'};
+    return m?.label||labels[String(m?.type||'').toLowerCase()]||m?.type||'Payment Method';
   }
 
   function paymentMethodDetails(m){
@@ -504,190 +349,60 @@
       if(m.account_title)rows.push(['Account Title',m.account_title]);
       if(m.account_number)rows.push(['Account Number',m.account_number,true]);
     }
-    rows.push(['Course Fee',`${selectedCourse?.currency||'USD'} ${Number(selectedCourse?.price||200).toFixed(0)}`]);
+    rows.push(['Course Fee',`${selectedCourse?.currency||'USD'} ${Number(selectedCourse?.price||250).toFixed(0)}`]);
     return `<div class="ce-pay-card">
       <div class="ce-pay-title">${escapeHtml(methodLabel(m))}</div>
       ${rows.map(row=>`<div class="ce-pay-row"><span>${escapeHtml(row[0])}</span><strong>${escapeHtml(row[1]||'—')}</strong>${row[2]?`<button type="button" class="ce-copy" data-copy="${escapeHtml(row[1]||'')}">Copy</button>`:''}</div>`).join('')}
     </div>`;
   }
 
-  const SYSTEM_INFINITY_METHOD={
-    id:'system-infinity-local-bank',
-    name:'Local Bank Transfer',
-    label:'Local Bank Transfer',
-    type:'infinity',
-    enabled:true,
-    is_system:true,
-    system_key:'infinity_local_bank'
-  };
-
-  function withSystemInfinityMethod(rows){
-    const list=Array.isArray(rows)?rows.filter(Boolean):[];
-    if(!list.some(isInfinityMethod))list.push({...SYSTEM_INFINITY_METHOD});
-    return list;
-  }
-
   async function loadPaymentMethods(){
     if(selectedCourse?.type!=='paid'){paymentMethods=[];return;}
     const sb=getClient();
-    // Local Bank Transfer is a built-in checkout option, not an Admin-created
-    // manual payment method. Always render it for paid courses. The backend
-    // Edge Function remains the source of truth for whether the provider is
-    // configured and ready to process a payment.
-    if(!sb){paymentMethods=withSystemInfinityMethod([]);return;}
+    if(!sb){paymentMethods=[];return;}
     try{
       const {data,error}=await sb.from('payment_methods').select('*').eq('enabled',true).order('created_at',{ascending:false});
       if(error)throw error;
-      paymentMethods=withSystemInfinityMethod(data||[]);
+      paymentMethods=data||[];
     }catch(error){
-      console.warn('Manual payment methods could not load; Local Bank Transfer remains available.',error);
-      paymentMethods=withSystemInfinityMethod([]);
+      console.warn('Payment methods could not load',error);
+      paymentMethods=[];
     }
   }
 
-  function renderInitialPaymentChoice(){
-    const step=document.getElementById('ceStepPaymentChoice');if(!step||selectedCourse?.type!=='paid')return;
-    const manual=manualPaymentMethods();const local=infinityPaymentMethod();
-    const cards=[
-      ...manual.map((m,i)=>`<button type="button" class="ce-method-card" data-initial-kind="manual" data-initial-index="${i}" onclick="courseEnrollmentInitialPayment('manual',${i})"><div class="ce-method-top"><span class="ce-method-icon">${String(m.type||'').toLowerCase()==='crypto'?'₮':'💳'}</span><span class="ce-method-badge">Existing Method</span></div><strong>${escapeHtml(methodLabel(m))}</strong><small>Pay with the payment method already available on PipSePaisa.</small></button>`),
-      ...(local?[`<button type="button" class="ce-method-card" data-initial-kind="infinity" data-initial-index="0" onclick="courseEnrollmentInitialPayment('infinity',0)"><div class="ce-method-top"><span class="ce-method-icon">🏦</span><span class="ce-method-badge">Local Bank</span></div><strong>Local Bank Transfer</strong><small>Secure hosted bank transfer with automatic payment verification and course activation.</small></button>`]:[])
-    ];
-    const helper=activeUser
-      ?'You are already signed in. Choose a payment method to continue with your enrollment.'
-      :'Select a payment method first. After that, sign in to your existing account or create a new one.';
-    step.innerHTML=`<div class="ce-course-summary"><div><strong>${escapeHtml(selectedCourse.name)}</strong><div style="font-size:12px;color:#64748b;margin-top:3px">Choose how you want to pay before continuing</div></div><div class="ce-price">${formatMoney(selectedCourse.price,selectedCourse.currency)}</div></div><h3 style="margin:0 0 7px">How would you like to pay?</h3><p style="margin:0 0 14px;color:#64748b;font-size:13px;line-height:1.55">${helper}</p><div class="ce-method-grid">${cards.join('')||'<div class="ce-pay-empty">No active payment method is available. Please contact support.</div>'}</div>`;
-  }
-
-  function setInitialPaymentBusy(kind,busy){
-    const step=document.getElementById('ceStepPaymentChoice');if(!step)return;
-    step.querySelectorAll('.ce-method-card').forEach(btn=>{btn.disabled=!!busy;btn.style.opacity=busy?'0.72':'';btn.style.pointerEvents=busy?'none':'';});
-    const target=step.querySelector(`.ce-method-card[data-initial-kind="${kind}"]`);
-    if(target){
-      if(busy){target.dataset.oldHtml=target.innerHTML;const strong=target.querySelector('strong');if(strong)strong.textContent=kind==='infinity'?'Opening Local Bank Transfer…':'Opening Payment Details…';}
-      else if(target.dataset.oldHtml){target.innerHTML=target.dataset.oldHtml;delete target.dataset.oldHtml;}
-    }
-  }
-
-  function renderManualCheckout(index){
-    const manual=manualPaymentMethods();
-    const method=manual[Number(index||0)]||manual[0]||null;
-    if(!method){
-      setMessage('ceManualMessage','error','This payment method is temporarily unavailable. Please choose another method.');
-      return false;
-    }
-    paymentSelections.ceExisting={kind:'manual',index:Number(index||0)};
-    const name=document.getElementById('ceManualCourseName');if(name)name.textContent=selectedCourse?.name||'Advanced Forex Course';
-    const price=document.getElementById('ceManualCoursePrice');if(price)price.textContent=formatMoney(selectedCourse?.price||0,selectedCourse?.currency||'USD');
-    const title=document.getElementById('ceManualMethodTitle');if(title)title.textContent=methodLabel(method);
-    const details=document.getElementById('ceManualPaymentDetails');if(details)details.innerHTML=paymentMethodDetails(method);
-    const tx=document.getElementById('ceManualTransactionId');if(tx)tx.value='';
-    const receipt=document.getElementById('ceManualReceipt');if(receipt)receipt.value='';
-    setMessage('ceManualMessage','','');
-    showStep('ceStepManualPayment');
-    setTimeout(()=>document.getElementById('ceManualTransactionId')?.focus(),60);
-    return true;
-  }
-
-  window.courseEnrollmentInitialPayment=async function(kind,index){
-    paymentSelections.ceNew={kind,index:Number(index||0)};
-    paymentSelections.ceExisting={kind,index:Number(index||0)};
-
-    // Paid checkout is intentionally one-choice/one-flow for signed-in users.
-    // Once the method is selected, do not show enrollment questions or a second
-    // payment-method picker.
-    if(activeUser&&selectedCourse?.type==='paid'){
-      if(kind==='infinity'){
-        if(paymentStartInFlight)return;
-        paymentStartInFlight=true;
-        setInitialPaymentBusy('infinity',true);
-        try{
-          // V99 Edge Function creates/reuses the pending enrollment server-side,
-          // then returns Infinity's hosted redirect URL.
-          await startInfinityPayment(null);
-          return;
-        }catch(error){
-          const msg=localBankUserMessage(error);
-          notifyCoursePaymentError(msg);
-          setMessage('ceManualMessage','error',msg);
-        }finally{
-          paymentStartInFlight=false;
-          setInitialPaymentBusy('infinity',false);
-        }
-        return;
-      }
-      if(kind==='manual'){
-        renderManualCheckout(index);
-        return;
-      }
-    }
-
-    // Legacy fallback is kept only for a visitor who is not signed in yet.
-    renderPaymentFlow('ceNew');renderPaymentFlow('ceExisting');
-    const change=document.getElementById('ceChangePaymentWrap');if(change)change.style.display='flex';
-    showStep('ceStepChoice');
-  };
-
-  window.courseEnrollmentShowPaymentChoice=function(){
-    if(selectedCourse?.type!=='paid')return;
-    renderInitialPaymentChoice();showStep('ceStepPaymentChoice');
-  };
-
-  function paymentPickerMarkup(prefix){
+  function paymentMarkup(prefix){
     if(selectedCourse?.type!=='paid')return '';
-    const manual=manualPaymentMethods();
-    const local=infinityPaymentMethod();
-    const cards=[
-      ...manual.map((m,i)=>`<button type="button" class="ce-method-card" data-pay-kind="manual" data-pay-index="${i}" onclick="courseEnrollmentSelectPayment('${prefix}','manual',${i})"><div class="ce-method-top"><span class="ce-method-icon">${String(m.type||'').toLowerCase()==='crypto'?'₮':'💳'}</span></div><strong>${escapeHtml(methodLabel(m))}</strong><small>Use the existing payment method, then add your transaction reference and receipt.</small></button>`),
-      ...(local?[`<button type="button" class="ce-method-card" data-pay-kind="infinity" onclick="courseEnrollmentSelectPayment('${prefix}','infinity',0)"><div class="ce-method-top"><span class="ce-method-icon">🏦</span></div><strong>Local Bank Transfer</strong><small>Continue to the secure hosted bank-transfer page. Verification and course access are automatic.</small></button>`]:[])
-    ];
-    if(!cards.length)return '<div class="ce-pay-empty">No active payment method is available. Please contact support.</div>';
-    return `<div class="ce-pay-heading"><h3>Payment Method</h3><span>Course Fee — ${formatMoney(selectedCourse?.price||0,selectedCourse?.currency||'USD')}</span></div><div class="ce-method-grid" id="${prefix}PaymentPicker">${cards.join('')}</div><div class="ce-pay-flow" id="${prefix}PaymentFlow"></div>`;
+    const options=paymentMethods.length
+      ? paymentMethods.map((m,i)=>`<option value="${i}">${escapeHtml(methodLabel(m))}</option>`).join('')
+      : '<option value="">No payment method available</option>';
+    return `<h3 style="margin:0 0 12px">Payment Details — $250</h3>
+      <div class="ce-grid">
+        <div class="ce-field full"><label>Payment Method</label><select id="${prefix}PaymentMethod">${options}</select></div>
+        <div class="ce-field full"><div id="${prefix}PaymentDetails">${paymentMethodDetails(paymentMethods[0])}</div></div>
+        <div class="ce-field full"><label>Transaction ID / Reference</label><input id="${prefix}TransactionId" type="text" placeholder="Transaction reference"></div>
+        <div class="ce-field full"><label>Payment Receipt</label><input id="${prefix}Receipt" type="file" accept="image/jpeg,image/png,application/pdf,.jpg,.jpeg,.png,.pdf"><small style="color:#64748b">JPG, JPEG, PNG or PDF only — maximum 5 MB.</small></div>
+      </div>`;
   }
 
-  function renderPaymentFlow(prefix){
-    const flow=document.getElementById(`${prefix}PaymentFlow`);
-    if(!flow)return;
-    const selected=selectedPayment(prefix);
-    const picker=document.getElementById(`${prefix}PaymentPicker`);
-    picker?.querySelectorAll('.ce-method-card').forEach(card=>{
-      const kind=card.getAttribute('data-pay-kind');
-      const idx=Number(card.getAttribute('data-pay-index')||0);
-      card.classList.toggle('selected',kind===selected?.kind&&(kind!=='manual'||idx===Number(selected?.index||0)));
-    });
-    if(!selected){flow.innerHTML='<div class="ce-pay-note">Select how you want to pay to continue.</div>';updatePaymentSubmitLabel(prefix);return;}
-    if(selected.kind==='infinity'){
-      const localAmount=Number(selectedCourse?.localBankPricePkr||0)>0?`<div class="ce-pay-note" style="margin-top:10px"><strong>Local Bank Amount:</strong> ${formatMoney(selectedCourse.localBankPricePkr,'PKR')}</div>`:'';
-      flow.innerHTML=`<div class="ce-provider-card"><h4>🏦 Local Bank Transfer</h4><p>You will be redirected to a secure hosted payment page. Receiving bank details, the exact local-bank amount and receipt upload are handled there. After the provider accepts the payment, your course unlocks automatically — no Admin approval is required.</p>${localAmount}<div class="ce-provider-points"><div class="ce-provider-point">Secure hosted page</div><div class="ce-provider-point">Automatic verification</div><div class="ce-provider-point">Automatic course access</div></div></div>`;
-    }else{
-      const method=selectedPaymentMethod(prefix);
-      flow.innerHTML=`${paymentMethodDetails(method)}<div class="ce-grid" style="margin-top:12px"><div class="ce-field full"><label>Transaction ID / Reference</label><input id="${prefix}TransactionId" type="text" placeholder="Transaction reference"></div><div class="ce-field full"><label>Payment Receipt</label><input id="${prefix}Receipt" type="file" accept="image/jpeg,image/png,application/pdf,.jpg,.jpeg,.png,.pdf"><small style="color:#64748b">JPG, JPEG, PNG or PDF only — maximum 5 MB.</small></div></div>`;
-    }
-    updatePaymentSubmitLabel(prefix);
+  function bindPaymentSection(prefix){
+    const select=document.getElementById(`${prefix}PaymentMethod`);
+    const details=document.getElementById(`${prefix}PaymentDetails`);
+    if(!select||!details)return;
+    const update=()=>{
+      const idx=Number(select.value||0);
+      details.innerHTML=paymentMethodDetails(paymentMethods[idx]);
+    };
+    select.addEventListener('change',update);
+    update();
   }
-
-  function updatePaymentSubmitLabel(prefix){
-    const selected=selectedPayment(prefix);
-    const id=prefix==='ceNew'?'ceNewSubmitBtn':'ceDetailsSubmitBtn';
-    const btn=document.getElementById(id);if(!btn||selectedCourse?.type!=='paid')return;
-    if(selected?.kind==='infinity')btn.textContent=prefix==='ceNew'?'Create Account & Continue':'Continue to Local Bank Transfer';
-    else if(selected?.kind==='manual')btn.textContent='Submit Payment for Approval';
-    else btn.textContent=prefix==='ceNew'?'Sign Up':'Choose Payment Method';
-  }
-
-  window.courseEnrollmentSelectPayment=function(prefix,kind,index){
-    paymentSelections[prefix]={kind,index:Number(index||0)};
-    renderPaymentFlow(prefix);
-  };
 
   function renderPaymentSections(){
-    injectPaymentPickerStyles();
-    paymentSelections={ceNew:null,ceExisting:null};
     const newPayment=document.getElementById('ceNewPayment');
     const existingPayment=document.getElementById('ceExistingPayment');
-    if(newPayment)newPayment.innerHTML=paymentPickerMarkup('ceNew');
-    if(existingPayment)existingPayment.innerHTML=paymentPickerMarkup('ceExisting');
-    renderPaymentFlow('ceNew');
-    renderPaymentFlow('ceExisting');
+    if(newPayment)newPayment.innerHTML=paymentMarkup('ceNew');
+    if(existingPayment)existingPayment.innerHTML=paymentMarkup('ceExisting');
+    bindPaymentSection('ceNew');
+    bindPaymentSection('ceExisting');
   }
 
   function showStep(id){
@@ -713,26 +428,10 @@
     activeEnrollmentFallback=null;
   }
 
-  function panelUser(){
-    try{
-      if(typeof currentUser!=='undefined'&&currentUser?.id)return currentUser;
-    }catch(_){ }
-    return window.currentUser?.id?window.currentUser:null;
-  }
-
   async function currentSession(){
-    const known=panelUser();
-    if(known){activeUser=known;return activeUser;}
     const sb=getClient();if(!sb)return null;
-    try{
-      const sessionResult=await sb.auth.getSession();
-      activeUser=sessionResult?.data?.session?.user||null;
-      if(activeUser)return activeUser;
-    }catch(error){console.warn('Course checkout session restore failed:',error);}
-    try{
-      const userResult=await sb.auth.getUser();
-      activeUser=userResult?.data?.user||null;
-    }catch(error){console.warn('Course checkout user check failed:',error);}
+    const {data}=await sb.auth.getSession();
+    activeUser=data?.session?.user||null;
     return activeUser;
   }
 
@@ -760,10 +459,8 @@
 
   function fillExistingDetails(){
     const meta=activeUser?.user_metadata||{};
-    const profile=panelProfile()||{};
     const email=document.getElementById('ceDetailsEmail');
     const passwordWrap=document.getElementById('ceDetailsPasswordWrap');
-    const passwordInput=document.getElementById('ceDetailsPassword');
     const nameField=document.getElementById('ceDetailsName');
     const phoneField=document.getElementById('ceDetailsPhone');
 
@@ -771,12 +468,11 @@
 
     if(activeUser){
       // Do not fetch or expose account profile details on this screen.
-      const sessionName=firstValue(profile.full_name,profile.name,meta.full_name,meta.name,meta.username,(activeUser.email||'').split('@')[0]);
-      const sessionPhone=firstValue(profile.whatsapp,profile.phone,meta.whatsapp,meta.phone);
+      const sessionName=firstValue(meta.full_name,meta.name,meta.username,(activeUser.email||'').split('@')[0]);
+      const sessionPhone=firstValue(meta.whatsapp,meta.phone);
       if(nameField){nameField.value=sessionName;nameField.readOnly=true;}
       if(phoneField){phoneField.value=sessionPhone;phoneField.readOnly=true;}
-      if(email){email.value=activeUser.email||profile.email||'';email.readOnly=true;}
-      if(passwordInput){passwordInput.value='';passwordInput.disabled=true;}
+      if(email){email.value=activeUser.email||'';email.readOnly=true;}
       accountFields.forEach(el=>{if(el)el.style.display='none';});
       resetQuestionFields('ceDetails');
       document.getElementById('ceDetailsExperienceWrap').style.display='grid';
@@ -784,7 +480,7 @@
       const payment=document.getElementById('ceExistingPayment');
       const submit=document.getElementById('ceDetailsSubmitBtn');
       if(selectedCourse?.type==='paid'&&!paidProfileConfirmed){if(payment)payment.style.display='none';if(submit)submit.textContent='Continue to Payment';}
-      else {if(payment)payment.style.display='';if(selectedCourse?.type==='free'){if(submit)submit.textContent='Confirm Free Enrollment';}else updatePaymentSubmitLabel('ceExisting');}
+      else {if(payment)payment.style.display='';if(submit)submit.textContent=selectedCourse?.type==='free'?'Confirm Free Enrollment':'Submit Payment for Approval';}
       const signed=document.getElementById('ceSignedIn');
       if(signed){signed.textContent='You are signed in. Complete the enrollment questions below.';}
       const heading=signed?.nextElementSibling;if(heading)heading.textContent='Enrollment Details';
@@ -793,7 +489,6 @@
       if(nameField){nameField.value='';nameField.readOnly=false;}
       if(phoneField){phoneField.value='';phoneField.readOnly=false;}
       if(email){email.value='';email.readOnly=false;}
-      if(passwordInput)passwordInput.disabled=false;
       if(passwordWrap)passwordWrap.style.display='';
       const signed=document.getElementById('ceSignedIn');if(signed)signed.textContent='Enter your existing PipSePaisa account details';
     }
@@ -827,7 +522,7 @@
   }
 
   function enrollmentPayload(values,receiptUrl){
-    const payload={
+    return {
       user_id:activeUser.id,
       course_key:selectedCourse.key,
       course_name:selectedCourse.name,
@@ -845,8 +540,6 @@
       payment_status:selectedCourse.type==='paid'?'pending':'not_required',
       enrollment_status:selectedCourse.type==='paid'?'pending':'enrolled'
     };
-    if(selectedCourse.type==='paid'&&values.paymentFlow==='infinity')payload.payment_provider='infinity';
-    return payload;
   }
 
   async function saveEnrollment(values,receiptFile){
@@ -860,12 +553,11 @@
       }
       return {already:true,row:old};
     }
-    const providerManaged=selectedCourse.type==='paid'&&values.paymentFlow==='infinity';
-    const receiptUrl=selectedCourse.type==='paid'&&!providerManaged?await uploadReceipt(receiptFile,activeUser.id):null;
+    const receiptUrl=selectedCourse.type==='paid'?await uploadReceipt(receiptFile,activeUser.id):null;
     const payload=enrollmentPayload(values,receiptUrl);
     const now=new Date().toISOString();
     if(old?.id){
-      const history=[...(Array.isArray(old.payment_history)?old.payment_history:[]),{action:providerManaged?'local_bank_started':(old.payment_status==='pending'?'receipt_resubmitted':'receipt_submitted'),at:now,transaction_id:values.transactionId||null}];
+      const history=[...(Array.isArray(old.payment_history)?old.payment_history:[]),{action:old.payment_status==='pending'?'receipt_resubmitted':'receipt_submitted',at:now,transaction_id:values.transactionId||null}];
       const updates={...payload,payment_status:selectedCourse.type==='paid'?'pending':'not_required',enrollment_status:selectedCourse.type==='paid'?'pending':'enrolled',access_granted_at:selectedCourse.type==='paid'?null:(old.access_granted_at||now),rejection_reason:null,revocation_reason:null,reviewed_at:null,reviewed_by:null,payment_edited_at:now,payment_history:history,updated_at:now};
       const {data,error}=await getClient().from('course_enrollments').update(updates).eq('id',old.id).select().single();
       if(error)throw error;
@@ -874,48 +566,6 @@
     const {data,error}=await getClient().from('course_enrollments').insert({...payload,updated_at:now}).select().single();
     if(error)throw error;
     return {row:data};
-  }
-
-  async function startInfinityPayment(enrollmentRow){
-    const sb=getClient();
-    if(!sb)throw new Error('Connection problem. Please reload and try again.');
-    const session=await getEmailSession(sb,true);
-    if(!session?.access_token)throw new Error('Your login session is missing or expired. Please sign in again.');
-    const response=await fetch(`${SUPABASE_URL}/functions/v1/create-infinity-payment`,{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'apikey':SUPABASE_KEY,
-        'Authorization':`Bearer ${session.access_token}`,
-        'x-client-info':'pipsepaisa-web-v99-direct-paid-checkout'
-      },
-      body:JSON.stringify(enrollmentRow?.id?{course_id:selectedCourse?.key||'advanced',enrollment_id:enrollmentRow.id}:{course_id:selectedCourse?.key||'advanced'})
-    });
-    let data={};
-    try{data=await response.json();}catch(_){data={};}
-    if(!response.ok||data?.success===false||!data?.redirect_url){
-      const error=new Error(localBankUserMessage(data?.error||`Local Bank Transfer could not start (${response.status}).`));
-      error.status=response.status;
-      error.code=data?.code||null;
-      throw error;
-    }
-    try{sessionStorage.setItem('pspInfinityRequestId',String(data.request_id||''));}catch(_){ }
-    window.location.assign(String(data.redirect_url));
-    return data;
-  }
-
-  function handleInfinityReturnNotice(){
-    try{
-      const url=new URL(window.location.href);
-      if(url.searchParams.get('payment')!=='return')return;
-      const course=url.searchParams.get('course')||'advanced';
-      const message='Local Bank Transfer submitted. Your payment status updates automatically after bank verification.';
-      if(window.pipToast)window.pipToast(message,'ok');
-      else setTimeout(()=>{if(window.pipToast)window.pipToast(message,'ok');},500);
-      url.searchParams.delete('payment');url.searchParams.delete('course');
-      window.history.replaceState({},'',url.pathname+(url.searchParams.toString()?('?'+url.searchParams.toString()):'')+url.hash);
-      try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:course}}));}catch(_){ }
-    }catch(_){ }
   }
 
   function showSuccess(result,notify=true){
@@ -953,7 +603,7 @@
       if(typeof window.closeAllCourseModulePopups==='function')window.closeAllCourseModulePopups();
     }catch(_){ }
     injectModal();
-    selectedCourse=await loadCourseConfig(courseKey,{refresh:true});
+    selectedCourse=COURSE_INFO[courseKey];
     if(!selectedCourse)return;
     const overlay=document.getElementById('courseEnrollmentOverlay');
     overlay.classList.remove('is-open');
@@ -961,24 +611,16 @@
     showStep('');
     accountWasCreated=false;paidProfileConfirmed=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
     setCourseText();resetQuestionFields('ceNew');resetQuestionFields('ceDetails');
-    ['ceLoginMessage','ceNewMessage','ceDetailsMessage','ceManualMessage'].forEach(id=>setMessage(id,'',''));
-    // Detect the current session before choosing the enrollment path.
-    // Signed-in users skip all "already a user / create account" questions.
-    await currentSession();
+    ['ceLoginMessage','ceNewMessage','ceDetailsMessage'].forEach(id=>setMessage(id,'',''));
+    // Keep the enrollment modal identical for every visitor, including users who
+    // already have a PipSePaisa session in this browser. Do not read the session,
+    // profile or existing enrollment just to render this form.
     if(selectedCourse.type==='paid'){
       await loadPaymentMethods();
       renderPaymentSections();
-      renderInitialPaymentChoice();
-      showStep('ceStepPaymentChoice');
-    }else if(activeUser){
-      paidProfileConfirmed=true;
-      fillExistingDetails();
-      showStep('ceStepDetails');
-      setTimeout(()=>document.getElementById('ceDetailsExperience')?.focus(),60);
-    }else{
-      showStep('ceStepNew');
-      setTimeout(()=>document.getElementById('ceNewName')?.focus(),60);
     }
+    showStep('ceStepNew');
+    setTimeout(()=>document.getElementById('ceNewName')?.focus(),60);
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';
@@ -1004,11 +646,11 @@
   };
 
   window.courseEnrollmentAlreadyUserRedirect=function(){
-    window.courseEnrollmentChooseUser(true);
+    window.location.href='https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v';
   };
 
   window.courseEnrollmentBack=function(){
-    showStep(selectedCourse?.type==='paid'?'ceStepChoice':'ceStepNew');
+    showStep('ceStepNew');
   };
 
   window.courseEnrollmentLogin=async function(){
@@ -1031,8 +673,6 @@
   };
 
   window.courseEnrollmentCreateAndEnroll=async function(){
-    const pay=selectedPayment('ceNew');
-    const manual=pay?.kind==='manual';
     const values={
       name:document.getElementById('ceNewName').value.trim(),
       phone:document.getElementById('ceNewPhone').value.trim(),
@@ -1041,22 +681,19 @@
       password2:document.getElementById('ceNewPassword2').value,
       experience:answerValue('ceNewExperience','ceNewExperienceOther'),
       goal:answerValue('ceNewGoal','ceNewGoalOther'),
-      paymentFlow:pay?.kind||null,
-      paymentMethod:selectedPaymentLabel('ceNew'),
-      transactionId:manual?(document.getElementById('ceNewTransactionId')?.value.trim()||null):null
+      paymentMethod:(()=>{const el=document.getElementById('ceNewPaymentMethod');const m=paymentMethods[Number(el?.value||0)];return m?methodLabel(m):null;})(),
+      transactionId:document.getElementById('ceNewTransactionId')?.value.trim()||null
     };
-    const receipt=manual?(document.getElementById('ceNewReceipt')?.files?.[0]||null):null;
+    const receipt=document.getElementById('ceNewReceipt')?.files?.[0]||null;
     if(!values.name||!values.phone||!values.email||!values.password){setMessage('ceNewMessage','error','Please complete all required account fields.');return;}
     if(values.phone.length<7){setMessage('ceNewMessage','error','Please enter a valid WhatsApp number.');return;}
     if(values.password.length<6){setMessage('ceNewMessage','error','Password must be at least 6 characters.');return;}
     if(values.password!==values.password2){setMessage('ceNewMessage','error','Passwords do not match.');return;}
     if(!values.experience||!values.goal){setMessage('ceNewMessage','error','Please answer both enrollment questions.');return;}
-    if(selectedCourse.type==='paid'&&!pay){setMessage('ceNewMessage','error','Choose a payment method to continue.');return;}
-    if(selectedCourse.type==='paid'&&manual&&(!values.transactionId||!receipt)){setMessage('ceNewMessage','error','Enter the transaction ID and upload the payment receipt.');return;}
-    if(selectedCourse.type==='paid'&&manual){const check=validateReceiptFile(receipt);if(!check.ok){setMessage('ceNewMessage','error',check.message);return;}}
+    if(selectedCourse.type==='paid'&&(!paymentMethods.length||!values.transactionId||!receipt)){setMessage('ceNewMessage','error','Select an available payment method, enter the transaction ID and upload the payment receipt.');return;}
+    if(selectedCourse.type==='paid'){const check=validateReceiptFile(receipt);if(!check.ok){setMessage('ceNewMessage','error',check.message);return;}}
 
-    const normalLabel=values.paymentFlow==='infinity'?'Create Account & Continue':'Sign Up';
-    setBusy('ceNewSubmitBtn',true,values.paymentFlow==='infinity'?'Preparing Local Bank Transfer...':'Creating account...',normalLabel);
+    setBusy('ceNewSubmitBtn',true,'Creating account...','Sign Up');
     try{
       const sb=getClient();if(!sb)throw new Error('Connection problem. Please reload and try again.');
       const username=values.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -1069,24 +706,43 @@
         psp_enrollment_transaction_id:values.transactionId||'',
         ...(window.PSPTrack?.authMetadata?.()||{})
       };
-      const signup=await sb.auth.signUp({email:values.email,password:values.password,options:{data:meta}});
+      // Fast path: Confirm Email is disabled in Supabase, so signUp returns an
+      // authenticated session in a single Auth request. This removes the old
+      // Edge Function create-user + second sign-in round trip from course signup.
+      const signup=await sb.auth.signUp({
+        email:values.email,
+        password:values.password,
+        options:{data:meta}
+      });
       if(signup.error)throw signup.error;
-      if(!signup.data?.user||!signup.data?.session)throw new Error('Direct login is not available. Please confirm that Supabase “Confirm Email” is OFF.');
-      const data=signup.data;activeUser=data.user;accountWasCreated=true;
+      if(!signup.data?.user||!signup.data?.session){
+        throw new Error('Direct login is not available. Please confirm that Supabase “Confirm Email” is OFF.');
+      }
+      const data=signup.data;
+      activeUser=data.user;
+      accountWasCreated=true;
+
+      // Save enrollment immediately after the one-step authenticated signup.
       const result=await saveEnrollment(values,receipt);
 
-      try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){ }
-      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,data.user.id,{source:'course-signup',enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){ }
+      // V49: verification email is sent only when the user clicks Verify Account in Profile.
 
-      if(selectedCourse.type==='paid'&&values.paymentFlow==='infinity'){
-        if(result.already){showSuccess(result);return;}
-        setMessage('ceNewMessage','info','Opening secure Local Bank Transfer...');
-        await startInfinityPayment(result.row);
-        return;
-      }
+      // V76: resolve the post-signup destination before showing success.
+      // Referral signups go to the tracked link owner's WhatsApp; direct signups
+      // keep the normal PipSePaisa WhatsApp Channel fallback.
+      const postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id)||{
+        mode:'channel',
+        url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',
+        clientId:''
+      };
+      const postCopy=window.PSPPostSignup?.successCopy?.(postSignup)||{
+        detail:'You are logged in and your account is ready.',
+        note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',
+        redirect:'Redirecting you to our WhatsApp Channel...'
+      };
 
-      const postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
-      const postCopy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
+      // Show success immediately after the account + enrollment are saved.
+      // Tracking, course email and Zoom registration continue in the background.
       const title=document.getElementById('ceSuccessTitle');
       const text=document.getElementById('ceSuccessText');
       if(title)title.textContent='Account Created';
@@ -1099,6 +755,8 @@
       try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));}catch(_){ }
       setTimeout(()=>{
         Promise.resolve().then(async()=>{
+          try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
+          try{await window.PSPTrack?.enrollment?.(selectedCourse.key,data.user.id,{source:'course-signup',enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){}
           if(!result.already || (selectedCourse.type==='free'&&result.updated)){
             const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
             const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
@@ -1111,70 +769,14 @@
       },0);
       setTimeout(()=>{window.location.href=postSignup.url;},1000);
     }catch(error){
-      let msg=values.paymentFlow==='infinity'?localBankUserMessage(error):(error?.message||'Account creation failed.');
-      if(values.paymentFlow!=='infinity'&&/already|registered|exists/i.test(msg))msg='This email is already registered. Please use the “Already a User” button.';
-      showStep('ceStepNew');setMessage('ceNewMessage','error',msg);
-      if(values.paymentFlow==='infinity')notifyCoursePaymentError(msg);
-    }finally{setBusy('ceNewSubmitBtn',false,'Creating account...',normalLabel);updatePaymentSubmitLabel('ceNew');}
-  };
-
-  window.courseEnrollmentSubmitManual=async function(){
-    if(!activeUser){
-      setMessage('ceManualMessage','error','Please sign in to your PipSePaisa account before making a course payment.');
-      return;
-    }
-    const pay=selectedPayment('ceExisting');
-    const method=selectedPaymentMethod('ceExisting');
-    if(pay?.kind!=='manual'||!method){
-      setMessage('ceManualMessage','error','Please choose a payment method again.');
-      return;
-    }
-    const transactionId=document.getElementById('ceManualTransactionId')?.value.trim()||'';
-    const receipt=document.getElementById('ceManualReceipt')?.files?.[0]||null;
-    if(!transactionId){setMessage('ceManualMessage','error','Enter the transaction ID / reference.');return;}
-    const check=validateReceiptFile(receipt);if(!check.ok){setMessage('ceManualMessage','error',check.message);return;}
-    if(paymentStartInFlight)return;
-
-    const meta=activeUser?.user_metadata||{};
-    const profile=panelProfile()||{};
-    const values={
-      name:firstValue(profile.full_name,profile.name,meta.full_name,meta.name,meta.username,(activeUser.email||'').split('@')[0]),
-      phone:firstValue(profile.whatsapp,profile.phone,meta.whatsapp,meta.phone),
-      email:activeUser.email||'',
-      password:'',
-      experience:null,
-      goal:null,
-      paymentFlow:'manual',
-      paymentMethod:methodLabel(method),
-      transactionId
-    };
-
-    paymentStartInFlight=true;
-    setBusy('ceManualSubmitBtn',true,'Submitting…','Submit Payment for Approval');
-    setMessage('ceManualMessage','info','Uploading your receipt…');
-    try{
-      const result=await saveEnrollment(values,receipt);
-      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser?.id,{enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){ }
-      if(!result.already){
-        const emailResult=await sendCourseEmail('payment_receipt_received',values,{enrollment_id:result.row?.id||undefined});
-        if(!emailResult.ok)console.warn('Payment saved but receipt email delivery failed.',emailResult.error);
-      }
-      showSuccess(result);
-    }catch(error){
-      const msg=/course_enrollments/i.test(error?.message||'')
-        ?'Course payment setup is temporarily unavailable. Please try again later.'
-        :(error?.message||'Payment could not be submitted.');
-      setMessage('ceManualMessage','error',msg);
-      if(window.pipToast)window.pipToast(msg,'err');
-    }finally{
-      paymentStartInFlight=false;
-      setBusy('ceManualSubmitBtn',false,'Submitting…','Submit Payment for Approval');
-    }
+      let msg=error?.message||'Account creation failed.';
+      if(/already|registered|exists/i.test(msg))msg='This email is already registered. Please use the “Already a User” button.';
+      showStep('ceStepNew');
+      setMessage('ceNewMessage','error',msg);
+    }finally{setBusy('ceNewSubmitBtn',false,'Creating account...','Sign Up');}
   };
 
   window.courseEnrollmentSubmitExisting=async function(){
-    const pay=selectedPayment('ceExisting');
-    const manual=pay?.kind==='manual';
     const values={
       name:document.getElementById('ceDetailsName').value.trim(),
       phone:document.getElementById('ceDetailsPhone').value.trim(),
@@ -1182,54 +784,42 @@
       password:document.getElementById('ceDetailsPassword')?.value||'',
       experience:answerValue('ceDetailsExperience','ceDetailsExperienceOther'),
       goal:answerValue('ceDetailsGoal','ceDetailsGoalOther'),
-      paymentFlow:pay?.kind||null,
-      paymentMethod:selectedPaymentLabel('ceExisting'),
-      transactionId:manual?(document.getElementById('ceExistingTransactionId')?.value.trim()||null):null
+      paymentMethod:(()=>{const el=document.getElementById('ceExistingPaymentMethod');const m=paymentMethods[Number(el?.value||0)];return m?methodLabel(m):null;})(),
+      transactionId:document.getElementById('ceExistingTransactionId')?.value.trim()||null
     };
-    const receipt=manual?(document.getElementById('ceExistingReceipt')?.files?.[0]||null):null;
+    const receipt=document.getElementById('ceExistingReceipt')?.files?.[0]||null;
     if(!activeUser&&(!values.name||!values.phone||!values.email)){setMessage('ceDetailsMessage','error','Please complete your account details before enrollment.');return;}
     if(!values.experience||!values.goal){setMessage('ceDetailsMessage','error','Please answer both enrollment questions.');return;}
     if(!activeUser&&!values.password){setMessage('ceDetailsMessage','error','Please enter your PipSePaisa password.');return;}
     if(activeUser&&selectedCourse.type==='paid'&&!paidProfileConfirmed){
       paidProfileConfirmed=true;
-      const payment=document.getElementById('ceExistingPayment');if(payment){payment.style.display='';payment.classList.add('ce-payment-reveal');}
-      updatePaymentSubmitLabel('ceExisting');
-      setMessage('ceDetailsMessage','info','Profile confirmed. Review your selected payment method below.');
+      const payment=document.getElementById('ceExistingPayment');
+      if(payment){payment.style.display='';payment.classList.add('ce-payment-reveal');}
+      const submit=document.getElementById('ceDetailsSubmitBtn');if(submit)submit.textContent='Submit Payment for Approval';
+      setMessage('ceDetailsMessage','info','Profile confirmed. Select a payment method, enter the transaction ID and upload your payment proof.');
       payment?.scrollIntoView({behavior:'smooth',block:'nearest'});
       return;
     }
-    if(selectedCourse.type==='paid'&&!pay){setMessage('ceDetailsMessage','error','Choose a payment method to continue.');return;}
-    if(selectedCourse.type==='paid'&&manual&&(!values.transactionId||!receipt)){setMessage('ceDetailsMessage','error','Enter the transaction ID and upload the payment receipt.');return;}
-    if(selectedCourse.type==='paid'&&manual){const check=validateReceiptFile(receipt);if(!check.ok){setMessage('ceDetailsMessage','error',check.message);return;}}
-
-    if(paymentStartInFlight)return;
-    paymentStartInFlight=true;
-    const existingNormalLabel=values.paymentFlow==='infinity'?'Continue to Local Bank Transfer':'Submit Payment for Approval';
-    setBusy('ceDetailsSubmitBtn',true,values.paymentFlow==='infinity'?'Preparing Local Bank Transfer...':'Submitting...',existingNormalLabel);
-
-    if(values.paymentFlow!=='infinity'){const optimistic={already:false,pending:false};showSuccess(optimistic,false);}
+    if(selectedCourse.type==='paid'&&(!paymentMethods.length||!values.transactionId||!receipt)){setMessage('ceDetailsMessage','error','Select an available payment method, enter the transaction ID and upload the payment receipt.');return;}
+    if(selectedCourse.type==='paid'){const check=validateReceiptFile(receipt);if(!check.ok){setMessage('ceDetailsMessage','error',check.message);return;}}
+    const optimistic={already:false,pending:false};
+    showSuccess(optimistic,false);
     try{
       const sb=getClient();if(!sb)throw new Error('Connection problem. Please reload and try again.');
       if(!activeUser){
         const login=await sb.auth.signInWithPassword({email:values.email,password:values.password});
         if(login.error)throw login.error;
-        activeUser=login.data?.user||null;if(!activeUser)throw new Error('Login could not be completed.');
+        activeUser=login.data?.user||null;
+        if(!activeUser)throw new Error('Login could not be completed.');
       }
       const result=await saveEnrollment(values,receipt);
-      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser?.id,{enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){ }
-
-      if(selectedCourse.type==='paid'&&values.paymentFlow==='infinity'){
-        if(result.already){showSuccess(result);return;}
-        setMessage('ceDetailsMessage','info','Opening secure Local Bank Transfer...');
-        await startInfinityPayment(result.row);
-        return;
-      }
-
+      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser?.id,{enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){}
       if(!result.already || (selectedCourse.type==='free'&&result.updated)){
         const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
         const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
         if(selectedCourse.type==='free')jobs.push(registerZoomCourse(values));
-        const jobResults=await Promise.all(jobs);const emailResult=jobResults[0];
+        const jobResults=await Promise.all(jobs);
+        const emailResult=jobResults[0];
         if(!emailResult.ok){
           console.warn('Enrollment saved but email delivery failed. Check send-course-email logs.',emailResult.error);
           const note=emailResult.detail||emailResult.error?.message||'Email delivery failed.';
@@ -1237,8 +827,9 @@
         }
         if(selectedCourse.type==='free'){
           const zoomResult=jobResults[1];
-          if(zoomResult?.ok){if(window.pipToast)window.pipToast('Enrollment complete. Zoom registration for all 9 classes is confirmed.','ok');}
-          else{
+          if(zoomResult?.ok){
+            if(window.pipToast)window.pipToast('Enrollment complete. Zoom registration for all 9 classes is confirmed.','ok');
+          }else{
             console.warn('Course enrolled but Zoom registration needs attention.',zoomResult?.error);
             const note=zoomResult?.detail||zoomResult?.error?.message||'Zoom registration failed.';
             if(window.pipToast)window.pipToast(`Course enrolled. Zoom registration needs attention: ${note}`,'err');
@@ -1248,22 +839,12 @@
       }
       showSuccess(result);
     }catch(error){
-      let msg;
-      if(values.paymentFlow==='infinity'){
-        msg=localBankUserMessage(error);
-      }else{
-        msg=/course_enrollments/i.test(error?.message||'')
-          ?'Course payment setup is temporarily unavailable. Please try again later.'
-          :(error?.message||'Enrollment could not be completed.');
-      }
+      const msg=/course_enrollments/i.test(error?.message||'')
+        ?'Course enrollment is not installed yet. Run Query 44 in Supabase, then try again.'
+        :(error?.message||'Enrollment could not be completed.');
       showStep('ceStepDetails');
       setMessage('ceDetailsMessage','error',msg);
-      if(values.paymentFlow==='infinity')notifyCoursePaymentError(msg);
-      else if(window.pipToast)window.pipToast(msg,'err');
-    }finally{
-      paymentStartInFlight=false;
-      setBusy('ceDetailsSubmitBtn',false,'Submitting...',existingNormalLabel);
-      updatePaymentSubmitLabel('ceExisting');
+      if(window.pipToast)window.pipToast(msg,'err');
     }
   };
 
@@ -1304,6 +885,5 @@
     }
   });
   document.addEventListener('keydown',event=>{if(event.key==='Escape')closeCourseEnrollment();});
-  document.addEventListener('DOMContentLoaded',()=>{injectModal();handleInfinityReturnNotice();refreshPublicCoursePricing().catch(()=>{});});
-  if(document.readyState!=='loading')refreshPublicCoursePricing().catch(()=>{});
+  document.addEventListener('DOMContentLoaded',injectModal);
 })();
