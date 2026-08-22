@@ -1,0 +1,110 @@
+/* PipSePaisa V124 — compact premium Courses Manager */
+
+/* ---------- Compact live class schedule ---------- */
+#page-courses .psp-v124-live-wrap{
+  margin:0 0 12px!important;padding:12px!important;border:1px solid #ead8ba!important;
+  border-radius:16px!important;background:linear-gradient(135deg,#fffdf8 0%,#fff8ec 100%)!important;
+  box-shadow:0 10px 28px rgba(77,48,9,.06)!important
+}
+#page-courses .psp-v124-live-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-bottom:9px!important}
+#page-courses .psp-v124-live-head .copy{min-width:0!important}
+#page-courses .psp-v124-kicker{font-size:7px!important;line-height:1!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#d97706!important;font-weight:900!important;margin-bottom:4px!important}
+#page-courses .psp-v124-live-head h3{font-size:13px!important;line-height:1.2!important;margin:0!important;color:var(--text-primary,#121826)!important}
+#page-courses .psp-v124-live-head p{font-size:8px!important;line-height:1.35!important;margin:3px 0 0!important;color:var(--text-muted,#8490a4)!important}
+#page-courses .psp-v124-live-actions{display:flex!important;align-items:center!important;gap:5px!important;flex-wrap:wrap!important}
+#page-courses .psp-v124-live-actions button{min-height:28px!important;padding:5px 8px!important;border-radius:8px!important;font-size:7.5px!important;font-weight:850!important}
+#page-courses .psp-v124-live-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+#page-courses .psp-v124-class{
+  min-height:58px!important;padding:8px 9px!important;border:1px solid #eadfcd!important;border-radius:10px!important;background:#fff!important;
+  display:grid!important;grid-template-columns:30px minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important
+}
+#page-courses .psp-v124-class-no{width:30px!important;height:30px!important;border-radius:9px!important;display:grid!important;place-items:center!important;background:#fff3df!important;color:#d97706!important;font-size:8px!important;font-weight:950!important}
+#page-courses .psp-v124-class-copy{min-width:0!important}
+#page-courses .psp-v124-class-copy b{display:block!important;font-size:8.5px!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:var(--text-primary,#111827)!important}
+#page-courses .psp-v124-class-copy small{display:block!important;margin-top:3px!important;font-size:7px!important;line-height:1.2!important;color:var(--text-muted,#8a96aa)!important}
+#page-courses .psp-v124-state{display:inline-flex!important;align-items:center!important;justify-content:center!important;border-radius:999px!important;padding:3px 6px!important;font-size:6.5px!important;font-weight:900!important;white-space:nowrap!important}
+#page-courses .psp-v124-state.done{background:#e9f8f1!important;color:#0a9b68!important}
+#page-courses .psp-v124-state.next{background:#fff0d8!important;color:#d97706!important}
+#page-courses .psp-v124-state.upcoming{background:#f0f2f5!important;color:#8791a2!important}
+@media(max-width:1050px){#page-courses .psp-v124-live-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:680px){#page-courses .psp-v124-live-head{align-items:flex-start!important;flex-direction:column!important}#page-courses .psp-v124-live-grid{grid-template-columns:1fr!important}}
+
+/* ---------- System course cards: chart/widget-sized ---------- */
+#page-courses .psp-system-course-grid{
+  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(300px,345px))!important;
+  justify-content:start!important;align-items:start!important;gap:14px!important
+}
+#page-courses .psp-system-course{
+  width:100%!important;max-width:345px!important;min-width:0!important;padding:8px!important;margin:0!important;
+  border-radius:14px!important;border:1px solid #eadbc4!important;background:#fffdf8!important;
+  box-shadow:0 10px 28px rgba(63,39,7,.07)!important;overflow:hidden!important
+}
+#page-courses .psp-system-course.paid{background:#0e1e35!important;border-color:#d28a20!important}
+#page-courses .psp-system-course-thumbnail{width:100%!important;height:auto!important;aspect-ratio:16/9!important;border-radius:10px!important;overflow:hidden!important;margin:0 0 7px!important}
+#page-courses .psp-system-course-thumbnail img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+#page-courses .psp-system-course-head{min-height:16px!important;margin:0 0 4px!important}
+#page-courses .psp-system-course-head .badge{font-size:6.5px!important;padding:3px 6px!important;border-radius:999px!important}
+#page-courses .psp-system-course h3{font-size:13px!important;line-height:1.25!important;margin:2px 0 3px!important}
+#page-courses .psp-system-course p{font-size:7.5px!important;line-height:1.35!important;margin:0 0 7px!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important}
+#page-courses .psp-system-course-meta{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:5px!important;margin:0 0 7px!important}
+#page-courses .psp-system-course-meta>div{min-height:36px!important;padding:5px 6px!important;border-radius:8px!important;border:1px solid #eadfcd!important;background:rgba(255,255,255,.72)!important;font-size:6.5px!important;color:#8a96aa!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+#page-courses .psp-system-course.paid .psp-system-course-meta>div{background:rgba(255,255,255,.04)!important;border-color:rgba(255,255,255,.28)!important;color:#a9b8cc!important}
+#page-courses .psp-system-course-meta strong{display:block!important;margin-top:2px!important;font-size:9.5px!important;line-height:1!important;color:var(--text-primary,#121826)!important}
+#page-courses .psp-system-course.paid .psp-system-course-meta strong{color:#fff!important}
+#page-courses .psp-course-admin-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important;margin:0!important}
+#page-courses .psp-course-admin-actions .btn{min-height:28px!important;padding:5px 7px!important;border-radius:8px!important;font-size:7px!important;font-weight:850!important}
+@media(max-width:760px){#page-courses .psp-system-course-grid{grid-template-columns:1fr!important}#page-courses .psp-system-course{max-width:none!important}}
+
+/* ---------- Course editor: compact premium tabs ---------- */
+#modal-courseForm .modal-lg{width:min(940px,92vw)!important;max-height:82vh!important;padding:0!important;overflow:hidden!important;border-radius:18px!important}
+#modal-courseForm .modal-header{padding:12px 15px!important;margin:0!important;border-bottom:1px solid var(--border)!important}
+#modal-courseForm .modal-header h2{font-size:15px!important}
+#modal-courseForm #courseFormError{margin:8px 14px 0!important;padding:7px 9px!important;font-size:9px!important}
+#modal-courseForm #pspAdminCoursePreview{display:none!important}
+#modal-courseForm .psp-v124-editor-tabs{display:flex!important;gap:5px!important;align-items:center!important;padding:9px 14px 8px!important;border-bottom:1px solid var(--border)!important;background:rgba(255,250,241,.72)!important;overflow:auto!important}
+#modal-courseForm .psp-v124-editor-tab{flex:0 0 auto!important;border:1px solid #e4d6bf!important;background:#fffdf8!important;color:#7d8797!important;padding:6px 9px!important;border-radius:8px!important;font-size:7.5px!important;font-weight:900!important;cursor:pointer!important}
+#modal-courseForm .psp-v124-editor-tab.active{background:#111b2e!important;color:#fff!important;border-color:#111b2e!important;box-shadow:inset 0 -2px 0 #FB9201!important}
+#modal-courseForm .psp-v124-editor-panels{padding:10px 14px 12px!important;overflow:auto!important;max-height:calc(82vh - 150px)!important;background:#fffdf8!important}
+#modal-courseForm .psp-v124-editor-panel{display:none!important}
+#modal-courseForm .psp-v124-editor-panel.active{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;align-items:start!important}
+#modal-courseForm .psp-v124-editor-panel.learning.active,#modal-courseForm .psp-v124-editor-panel.modules.active{grid-template-columns:1fr!important}
+#modal-courseForm .form-group{margin:0!important;min-width:0!important}
+#modal-courseForm .form-group label{font-size:7.5px!important;margin-bottom:3px!important;letter-spacing:.02em!important}
+#modal-courseForm input,#modal-courseForm select,#modal-courseForm textarea{min-height:31px!important;padding:6px 8px!important;border-radius:8px!important;font-size:9px!important}
+#modal-courseForm textarea{min-height:48px!important;resize:vertical!important}
+#modal-courseForm .psp-v124-wide{grid-column:1/-1!important}
+#modal-courseForm .psp-v124-switches{grid-column:1/-1!important;display:flex!important;gap:12px!important;align-items:center!important;padding:7px 9px!important;border:1px solid #eadfcd!important;border-radius:9px!important;background:#fffaf1!important}
+#modal-courseForm .psp-v124-switches label{font-size:8.5px!important;margin:0!important}
+#modal-courseForm .psp-v20-editor-section{padding:9px!important;margin:0!important;border-radius:10px!important}
+#modal-courseForm .psp-v20-editor-section-head{margin-bottom:6px!important}
+#modal-courseForm .psp-v20-editor-section-head h3{font-size:10px!important}
+#modal-courseForm .psp-v20-editor-section-head small{font-size:7px!important}
+#modal-courseForm .psp-v20-editor-list{gap:4px!important}
+#modal-courseForm .psp-v20-editor-row input,#modal-courseForm .psp-v20-editor-row textarea,#modal-courseForm .psp-v20-module-card input,#modal-courseForm .psp-v20-module-card textarea{font-size:8px!important;padding:5px 7px!important;min-height:29px!important}
+#modal-courseForm .psp-v20-module-list{gap:5px!important}
+#modal-courseForm .psp-v20-module-card{padding:7px!important;border-radius:9px!important}
+#modal-courseForm .psp-v20-module-head{grid-template-columns:30px minmax(0,1fr) 78px auto!important;gap:5px!important}
+#modal-courseForm .psp-v20-module-number{width:28px!important;height:28px!important;font-size:8px!important}
+#modal-courseForm .psp-v20-module-body{gap:5px!important;margin-top:5px!important}
+#modal-courseForm .psp-v20-module-body textarea{min-height:44px!important}
+#modal-courseForm .psp-v124-course-footer{display:flex!important;justify-content:flex-end!important;gap:6px!important;padding:9px 14px!important;margin:0!important;border-top:1px solid var(--border)!important;background:#fffaf1!important;position:sticky!important;bottom:0!important;z-index:3!important}
+#modal-courseForm .psp-v124-course-footer .btn{min-height:30px!important;padding:6px 10px!important;font-size:8px!important;border-radius:8px!important}
+#modal-courseForm .psp-v124-editor-panel .form-group>div[style*="font-size"]{font-size:7px!important;line-height:1.25!important;margin-top:3px!important}
+@media(max-width:820px){#modal-courseForm .psp-v124-editor-panel.active{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:600px){#modal-courseForm .modal-lg{width:96vw!important;max-height:90vh!important}#modal-courseForm .psp-v124-editor-panel.active{grid-template-columns:1fr!important}#modal-courseForm .psp-v124-editor-panels{max-height:calc(90vh - 160px)!important}}
+
+
+/* V124 final compact sizing: chart/widget-like course cards */
+#page-courses .psp-system-course-grid{
+  grid-template-columns:repeat(auto-fit,minmax(250px,310px))!important;
+  gap:12px!important;
+}
+#page-courses .psp-system-course{max-width:310px!important;padding:7px!important}
+#page-courses .psp-system-course-thumbnail{margin-bottom:6px!important;border-radius:9px!important}
+#page-courses .psp-system-course h3{font-size:12px!important}
+#page-courses .psp-system-course-meta>div{min-height:33px!important;padding:4px 5px!important}
+#page-courses .psp-course-admin-actions .btn{min-height:27px!important}
+
+/* Keep the Add New Course action clearly visible without oversized spacing */
+#page-courses .psp-v122-course-actions{margin:0 0 9px!important}
+#page-courses .psp-v122-add-course-btn{min-height:31px!important;padding:6px 11px!important;font-size:8px!important}

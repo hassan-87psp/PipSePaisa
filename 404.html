@@ -1,27 +1,27 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Page Not Found | PipSePaisa</title><link rel="icon" href="/favicon.png">
-<script>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Page Not Found | PipSePaisa</title><link rel="icon" href="/favicon.png"><script>
 (function(){
   const path=(location.pathname||'/').replace(/\/+$/,'')||'/';
   const routes={
-    '/courses':'/courses.html','/partner':'/partner.html','/become-partner':'/partner.html',
-    '/broker-reviews':'/broker-reviews.html','/trading-tools':'/tools-services.html',
-    '/sign-in':'/landing.html','/sign-up':'/landing.html','/free-course':'/courses.html'
+    '/courses':'/courses.html',
+    '/broker-reviews':'/broker-reviews.html',
+    '/becomepartner':'/partner.html',
+    '/tradingtools':'/tools-services.html',
+    '/partner':'/partner.html',
+    '/become-partner':'/partner.html',
+    '/trading-tools':'/tools-services.html',
+    '/trading-tools-services':'/tools-services.html',
+    '/sign-in':'/landing.html',
+    '/sign-up':'/landing.html',
+    '/free-course':'/courses.html'
   };
   if(routes[path]){
     const q=new URLSearchParams(location.search);
-    q.set('psp_route',path);
+    q.set('psp_route', ({'/partner':'/becomepartner','/become-partner':'/becomepartner','/trading-tools':'/tradingtools','/trading-tools-services':'/tradingtools'}[path]||path));
     if(path==='/sign-in')q.set('psp_auth','login');
     if(path==='/sign-up')q.set('psp_auth','signup');
     if(path==='/free-course')q.set('psp_enroll','basic');
-    location.replace(routes[path]+'?'+q.toString()+location.hash);
-    return;
+    location.replace(routes[path]+'?'+q.toString()+location.hash);return;
   }
   document.documentElement.classList.add('psp-show-404');
 })();
-</script>
-<style>
-html:not(.psp-show-404) body{visibility:hidden}
-:root{--o:#F88702;--n:#0b172b;--c:#fffaf1;--l:#f1d4a9}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#fffaf1,#fff3dd);font-family:Inter,system-ui,sans-serif;color:var(--n)}.card{width:min(460px,100%);padding:32px;border:1px solid var(--l);border-radius:24px;background:#fff;box-shadow:0 24px 70px rgba(68,41,0,.14);text-align:center}.logo{width:70px;height:70px;border-radius:18px;margin:0 auto 16px}h1{margin:0 0 9px;font-size:25px}p{color:#687386;line-height:1.55}.btn{display:inline-flex;margin-top:16px;padding:12px 18px;border-radius:12px;background:var(--o);font-weight:800;text-decoration:none;color:#111}
-</style></head><body><main class="card"><img class="logo" src="/favicon.png" alt="PipSePaisa"><h1>Page Not Found</h1><p>The page you requested could not be found.</p><a class="btn" href="/">Go to Home</a></main></body></html>
+</script><style>html:not(.psp-show-404) body{visibility:hidden}:root{--o:#FB9201;--n:#0b172b;--c:#fffaf1;--l:#f1d4a9}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#fffaf1,#fff3dd);font-family:Inter,system-ui,sans-serif;color:var(--n)}.card{width:min(460px,100%);padding:32px;border:1px solid var(--l);border-radius:24px;background:#fff;box-shadow:0 24px 70px rgba(68,41,0,.14);text-align:center}.logo{width:70px;height:70px;border-radius:18px;margin:0 auto 16px}h1{margin:0 0 9px;font-size:25px}p{color:#687386;line-height:1.55}.btn{display:inline-flex;margin-top:16px;padding:12px 18px;border-radius:12px;background:var(--o);font-weight:800;text-decoration:none;color:#111}</style></head><body><main class="card"><img class="logo" src="/favicon.png" alt="PipSePaisa"><h1>Page Not Found</h1><p>The page you requested could not be found.</p><a class="btn" href="/">Go to Home</a></main></body></html>
