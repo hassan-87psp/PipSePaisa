@@ -321,8 +321,38 @@ body.psp-access-resolving .content::after{
 }
 
 
-/* V121 — Guaranteed visible Course Manager CTA */
-#page-courses .psp-v121-course-actions{display:flex!important;justify-content:flex-end!important;align-items:center!important;width:100%!important;margin:0 0 10px!important;padding:0!important;visibility:visible!important;opacity:1!important}
-#page-courses .psp-v121-add-course-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;min-height:34px!important;padding:8px 14px!important;background:#FB9201!important;color:#111!important;border:1px solid #FB9201!important;border-radius:9px!important;font-size:10px!important;font-weight:800!important;box-shadow:0 6px 18px rgba(251,146,1,.18)!important}
-#page-courses .psp-v121-add-course-btn:hover{transform:translateY(-1px)!important;filter:brightness(.98)!important}
-@media(max-width:650px){#page-courses .psp-v121-course-actions{justify-content:stretch!important}#page-courses .psp-v121-add-course-btn{width:100%!important}}
+/* ============================================================
+   V122 — SAFE COURSE MANAGER CTA
+   Static markup only. No inline-script injection.
+   ============================================================ */
+#page-courses .psp-v122-course-actions{
+  display:flex!important;
+  justify-content:flex-end!important;
+  align-items:center!important;
+  width:100%!important;
+  margin:0 0 10px!important;
+  padding:0!important;
+}
+#page-courses .psp-v122-add-course-btn{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:34px!important;
+  padding:8px 14px!important;
+  background:#FB9201!important;
+  color:#111!important;
+  border:1px solid #FB9201!important;
+  border-radius:9px!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  cursor:pointer!important;
+  box-shadow:0 6px 18px rgba(251,146,1,.18)!important;
+}
+#page-courses .psp-v122-add-course-btn:hover{
+  transform:translateY(-1px)!important;
+  filter:brightness(.98)!important;
+}
+@media(max-width:650px){
+  #page-courses .psp-v122-course-actions{justify-content:stretch!important}
+  #page-courses .psp-v122-add-course-btn{width:100%!important}
+}

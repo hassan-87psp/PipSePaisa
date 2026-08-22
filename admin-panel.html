@@ -399,7 +399,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @keyframes pipBootBar{0%{margin-left:-40%}100%{margin-left:150%}}
 </style>
 <link rel="stylesheet" href="admin-final-overrides.css?v=20260730-v13">
-<link rel="stylesheet" href="psp-v20-final.css?v=20260822-v121-add-course-clean-routes">
+<link rel="stylesheet" href="psp-v20-final.css?v=20260822-v122-admin-repair">
 <link rel="stylesheet" href="admin-v28-fixes.css?v=20260801-v28-final">
 <link rel="stylesheet" href="course-marketplace-v3.css?v=20260802-v29-admin-preview">
 <link rel="stylesheet" href="admin-v29-final.css?v=20260802-v29-final">
@@ -851,8 +851,8 @@ select option{background:#0f1729;color:#e8eaf0}
       
       <!-- ========== COURSES ========== -->
       <div class="page" id="page-courses">
-        <div class="psp-v121-course-actions" aria-label="Course actions">
-          <button id="pspV121AddCourseBtn" class="btn psp-v121-add-course-btn" type="button" onclick="openCourseForm()">+ Add New Course</button>
+        <div class="psp-v122-course-actions">
+          <button class="btn psp-v122-add-course-btn" type="button" onclick="openCourseForm()">+ Add New Course</button>
         </div>
         <div class="stats-grid">
           <div class="stat-card"><div class="stat-header"><div class="stat-icon purple">🎓</div><span class="stat-tag">Total</span></div><div class="stat-label">All Courses</div><div class="stat-value" id="coursesAllCount">0</div></div>
@@ -867,6 +867,7 @@ select option{background:#0f1729;color:#e8eaf0}
               <div class="card-title">🎓 All Courses</div>
               <div class="card-meta" style="margin-top: 4px;">Manage your educational content</div>
             </div>
+            <button class="btn" onclick="openCourseForm()">+ Add New Course</button>
           </div>
           
           <div class="courses-grid">
@@ -3001,23 +3002,7 @@ async function loadCompanyRevenue(){
 function crCsvCell(v){var s=String(v==null?'':v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
 function crDownloadBlob(name,text,type){var blob=new Blob([text],{type:type||'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
 function crExportCsv(){var calc=crCalc(),lines=[['PipSePaisa Company Finance Report',crPeriodLabel()],['Total Income',calc.income],['Total Expenses',calc.expenses],['Net Profit',calc.net],['Partner Allocation',calc.allocation],['Company Retained',calc.retained],[],['TRANSACTIONS'],['Date','Type','Category','Subcategory','Details','Amount USD','Status','Method','Payment Date','Reference']];crEntries.forEach(function(r){lines.push([r.entry_date,r.entry_type,r.category,r.subcategory||'',r.note||'',r.amount,r.payment_status||'paid',r.payment_method||'',r.payment_date||'',r.payment_reference||'']);});lines.push([],['PARTNER PAYOUTS'],['Partner','Share %','Due','Paid','Balance','Status']);crPartners.forEach(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);lines.push([p.partner_name,p.share_percent,due,paid,Math.max(0,due-paid),crPayoutStatus(due,paid)]);});crDownloadBlob('PipSePaisa-Company-Revenue-'+crMonthValue()+'.csv',lines.map(function(r){return r.map(crCsvCell).join(',');}).join('\n'),'text/csv;charset=utf-8');}
-function crExportPdf(){var calc=crCalc(),w=window.open('','_blank');if(!w){alert('Please allow pop-ups to export the PDF report.');return;}var tx=crEntries.map(function(r){return '<tr><td>'+crEsc(r.entry_date)+'</td><td>'+crEsc(r.entry_type)+'</td><td>'+crEsc(r.category)+(r.subcategory?' — '+crEsc(r.subcategory):'')+'</td><td>'+crEsc(r.note||'')+'</td><td>$'+crMoney(r.amount)+'</td><td>'+crEsc(r.payment_status||'paid')+'</td></tr>';}).join(''),pp=crPartners.map(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);return '<tr><td>'+crEsc(p.partner_name)+'</td><td>'+crMoney(p.share_percent)+'%</td><td>$'+crMoney(due)+'</td><td>$'+crMoney(paid)+'</td><td>$'+crMoney(Math.max(0,due-paid))+'</td></tr>';}).join('');w.document.write('<!doctype html><html><head><title>PipSePaisa Company Revenue '+crEsc(crPeriodLabel())+'</title><style>body{font:12px Arial;color:#0f172a;padding:28px}h1{margin:0 0 4px}.sub{color:#64748b;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.box{border:1px solid #e2e8f0;border-radius:8px;padding:10px}.box span{display:block;color:#64748b;font-size:9px;text-transform:uppercase}.box strong{font-size:16px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border-bottom:1px solid #e2e8f0;padding:7px;text-align:left}th{background:#0b1730;color:#fff;font-size:9px}h2{margin-top:24px}@media print{button{display:none}}</style></head><body><h1>PipSePaisa — Company Revenue</h1><div class="sub">'+crEsc(crPeriodLabel())+' · Generated '+new Date().toLocaleString()+'</div><div class="grid"><div class="box"><span>Income</span><strong>$'+crMoney(calc.income)+'</strong></div><div class="box"><span>Expenses</span><strong>$'+crMoney(calc.expenses)+'</strong></div><div class="box"><span>Net Profit</span><strong>$'+crMoney(calc.net)+'</strong></div><div class="box"><span>Allocation</span><strong>$'+crMoney(calc.allocation)+'</strong></div><div class="box"><span>Retained</span><strong>$'+crMoney(calc.retained)+'</strong></div></div><h2>Transactions</h2><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Details</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+tx+'</tbody></table><h2>Partner Payouts</h2><table><thead><tr><th>Partner</th><th>Share</th><th>Due</th><th>Paid</th><th>Balance</th></tr></thead><tbody>'+pp+'</tbody></table><script>window.onload=function(){window.print()}<\/script>
-<script id="pspV121AddCourseGuard">
-(function(){
-  function ensure(){
-    var page=document.getElementById('page-courses');
-    if(!page||document.getElementById('pspV121AddCourseBtn'))return;
-    var wrap=document.createElement('div');
-    wrap.className='psp-v121-course-actions';
-    wrap.innerHTML='<button id="pspV121AddCourseBtn" class="btn psp-v121-add-course-btn" type="button">+ Add New Course</button>';
-    page.insertBefore(wrap,page.firstChild);
-    wrap.querySelector('button').addEventListener('click',function(){ if(typeof window.openCourseForm==='function')window.openCourseForm(); });
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensure);else ensure();
-  window.addEventListener('load',ensure);
-})();
-</script>
-</body></html>');w.document.close();}
+function crExportPdf(){var calc=crCalc(),w=window.open('','_blank');if(!w){alert('Please allow pop-ups to export the PDF report.');return;}var tx=crEntries.map(function(r){return '<tr><td>'+crEsc(r.entry_date)+'</td><td>'+crEsc(r.entry_type)+'</td><td>'+crEsc(r.category)+(r.subcategory?' — '+crEsc(r.subcategory):'')+'</td><td>'+crEsc(r.note||'')+'</td><td>$'+crMoney(r.amount)+'</td><td>'+crEsc(r.payment_status||'paid')+'</td></tr>';}).join(''),pp=crPartners.map(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);return '<tr><td>'+crEsc(p.partner_name)+'</td><td>'+crMoney(p.share_percent)+'%</td><td>$'+crMoney(due)+'</td><td>$'+crMoney(paid)+'</td><td>$'+crMoney(Math.max(0,due-paid))+'</td></tr>';}).join('');w.document.write('<!doctype html><html><head><title>PipSePaisa Company Revenue '+crEsc(crPeriodLabel())+'</title><style>body{font:12px Arial;color:#0f172a;padding:28px}h1{margin:0 0 4px}.sub{color:#64748b;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.box{border:1px solid #e2e8f0;border-radius:8px;padding:10px}.box span{display:block;color:#64748b;font-size:9px;text-transform:uppercase}.box strong{font-size:16px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border-bottom:1px solid #e2e8f0;padding:7px;text-align:left}th{background:#0b1730;color:#fff;font-size:9px}h2{margin-top:24px}@media print{button{display:none}}</style></head><body><h1>PipSePaisa — Company Revenue</h1><div class="sub">'+crEsc(crPeriodLabel())+' · Generated '+new Date().toLocaleString()+'</div><div class="grid"><div class="box"><span>Income</span><strong>$'+crMoney(calc.income)+'</strong></div><div class="box"><span>Expenses</span><strong>$'+crMoney(calc.expenses)+'</strong></div><div class="box"><span>Net Profit</span><strong>$'+crMoney(calc.net)+'</strong></div><div class="box"><span>Allocation</span><strong>$'+crMoney(calc.allocation)+'</strong></div><div class="box"><span>Retained</span><strong>$'+crMoney(calc.retained)+'</strong></div></div><h2>Transactions</h2><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Details</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+tx+'</tbody></table><h2>Partner Payouts</h2><table><thead><tr><th>Partner</th><th>Share</th><th>Due</th><th>Paid</th><th>Balance</th></tr></thead><tbody>'+pp+'</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>');w.document.close();}
 
 
 function showPage(page, el) {
