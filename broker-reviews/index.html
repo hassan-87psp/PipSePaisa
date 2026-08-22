@@ -2,8 +2,24 @@
 
 <html lang="en">
 <head>
-<script id="pspV128CanonicalRoute">(function(){try{var want='/broker-reviews';if(location.pathname===want+'/'||location.pathname===want+'/index.html')history.replaceState(history.state,'',want+location.search+location.hash);}catch(_){}})();</script>
-
+<script id="pspV129CanonicalRoute">(function(){try{var want='/broker-reviews';if(location.pathname!==want)history.replaceState(history.state,'',want+location.search+location.hash)}catch(_){}})();</script>
+<script id="pspV129HardPublicNav">
+(function(){
+'use strict';
+const physical={'/courses':'/courses/','/broker-reviews':'/broker-reviews/','/becomepartner':'/becomepartner/','/tradingtools':'/tradingtools/'};
+const aliases={'/partner':'/becomepartner','/become-partner':'/becomepartner','/trading-tools':'/tradingtools','/tools-services':'/tradingtools'};
+function clean(p){p=(p||'/').split('?')[0].replace(/\/+$/,'')||'/';return aliases[p]||p}
+document.addEventListener('click',function(e){
+  const a=e.target.closest&&e.target.closest('a[href]');if(!a||a.hasAttribute('download')||a.target==='_blank'||e.button>0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+  let u;try{u=new URL(a.getAttribute('href'),location.origin)}catch(_){return}if(u.origin!==location.origin)return;
+  const p=clean(u.pathname);if(p!=='/'&&!physical[p])return;
+  e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
+  const dest=p==='/'?'/':physical[p];
+  const url=dest+(u.search||'')+(u.hash||'');
+  try{(window.top||window).location.assign(url)}catch(_){location.assign(url)}
+},true);
+})();
+</script>
 <base href="/">
 <!-- Exact approved mobile header restored; visibility only override -->
 <meta charset="utf-8"/>

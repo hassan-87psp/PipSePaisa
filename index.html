@@ -39,7 +39,7 @@ html.psp-v20-booting body::after{content:"";position:fixed;left:50%;top:50%;z-in
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>PipSePaisa User Panel</title>
+<title>PipSePaisa — Forex Education & Trading Tools</title>
 <script>
   window.PSP_PORTAL_MODE = (new URLSearchParams(location.search).get('portal') === 'mentor') ? 'mentor' : 'user';
 </script>
@@ -3431,5 +3431,8 @@ window.addEventListener('message',function(event){
 })();
 </script>
 
+<script id="pspV129ShellTitleSync">
+(function(){function sync(){try{var lp=document.getElementById('landingPage'),app=document.getElementById('mainApp');var landing=lp&&getComputedStyle(lp).display!=='none';var appOn=app&&getComputedStyle(app).display!=='none';if(landing||!appOn)document.title='PipSePaisa — Forex Education & Trading Tools';else document.title=(window.PSP_PORTAL_MODE==='mentor'?'PipSePaisa Mentor Site':'PipSePaisa User Panel')}catch(_){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){sync();var lp=document.getElementById('landingPage'),app=document.getElementById('mainApp');if(window.MutationObserver){var m=new MutationObserver(sync);if(lp)m.observe(lp,{attributes:true,attributeFilter:['style','class']});if(app)m.observe(app,{attributes:true,attributeFilter:['style','class']})}}, {once:true});else sync()})();
+</script>
 </body>
 </html>

@@ -497,250 +497,63 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="admin-dashboard-v89.css?v=20260819-v89-premium-ops">
 <link rel="stylesheet" href="admin-suite-v90.css?v=20260819-v90-admin-suite">
 <link rel="stylesheet" href="company-revenue-v93.css?v=20260819-v93-income-breakdown">
-<style id="pspV126CoursesPremium">
-/* PipSePaisa V124 — compact premium Courses Manager */
 
-/* ---------- Compact live class schedule ---------- */
-#page-courses .psp-v124-live-wrap{
-  margin:0 0 12px!important;padding:12px!important;border:1px solid #ead8ba!important;
-  border-radius:16px!important;background:linear-gradient(135deg,#fffdf8 0%,#fff8ec 100%)!important;
-  box-shadow:0 10px 28px rgba(77,48,9,.06)!important
-}
-#page-courses .psp-v124-live-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-bottom:9px!important}
-#page-courses .psp-v124-live-head .copy{min-width:0!important}
-#page-courses .psp-v124-kicker{font-size:7px!important;line-height:1!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#d97706!important;font-weight:900!important;margin-bottom:4px!important}
-#page-courses .psp-v124-live-head h3{font-size:13px!important;line-height:1.2!important;margin:0!important;color:var(--text-primary,#121826)!important}
-#page-courses .psp-v124-live-head p{font-size:8px!important;line-height:1.35!important;margin:3px 0 0!important;color:var(--text-muted,#8490a4)!important}
-#page-courses .psp-v124-live-actions{display:flex!important;align-items:center!important;gap:5px!important;flex-wrap:wrap!important}
-#page-courses .psp-v124-live-actions button{min-height:28px!important;padding:5px 8px!important;border-radius:8px!important;font-size:7.5px!important;font-weight:850!important}
-#page-courses .psp-v124-live-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
-#page-courses .psp-v124-class{
-  min-height:58px!important;padding:8px 9px!important;border:1px solid #eadfcd!important;border-radius:10px!important;background:#fff!important;
-  display:grid!important;grid-template-columns:30px minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important
-}
-#page-courses .psp-v124-class-no{width:30px!important;height:30px!important;border-radius:9px!important;display:grid!important;place-items:center!important;background:#fff3df!important;color:#d97706!important;font-size:8px!important;font-weight:950!important}
-#page-courses .psp-v124-class-copy{min-width:0!important}
-#page-courses .psp-v124-class-copy b{display:block!important;font-size:8.5px!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:var(--text-primary,#111827)!important}
-#page-courses .psp-v124-class-copy small{display:block!important;margin-top:3px!important;font-size:7px!important;line-height:1.2!important;color:var(--text-muted,#8a96aa)!important}
-#page-courses .psp-v124-state{display:inline-flex!important;align-items:center!important;justify-content:center!important;border-radius:999px!important;padding:3px 6px!important;font-size:6.5px!important;font-weight:900!important;white-space:nowrap!important}
-#page-courses .psp-v124-state.done{background:#e9f8f1!important;color:#0a9b68!important}
-#page-courses .psp-v124-state.next{background:#fff0d8!important;color:#d97706!important}
-#page-courses .psp-v124-state.upcoming{background:#f0f2f5!important;color:#8791a2!important}
-@media(max-width:1050px){#page-courses .psp-v124-live-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-@media(max-width:680px){#page-courses .psp-v124-live-head{align-items:flex-start!important;flex-direction:column!important}#page-courses .psp-v124-live-grid{grid-template-columns:1fr!important}}
+<style id="pspV129CoursesAndEditor">
+/* Course Manager — compact KPI strip */
+#page-courses>.stats-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;margin-bottom:12px!important}
+#page-courses>.stats-grid .stat-card{min-height:88px!important;padding:11px 13px!important;border-radius:14px!important;box-shadow:0 6px 20px rgba(61,44,17,.035)!important}
+#page-courses>.stats-grid .stat-header{margin-bottom:4px!important}
+#page-courses>.stats-grid .stat-icon{width:34px!important;height:34px!important;border-radius:10px!important;font-size:16px!important}
+#page-courses>.stats-grid .stat-tag{font-size:7px!important;padding:3px 6px!important}
+#page-courses>.stats-grid .stat-label{font-size:9px!important;margin-top:2px!important}
+#page-courses>.stats-grid .stat-value{font-size:21px!important;line-height:1.05!important;margin-top:3px!important}
 
-/* ---------- System course cards: chart/widget-sized ---------- */
-#page-courses .psp-system-course-grid{
-  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(300px,345px))!important;
-  justify-content:start!important;align-items:start!important;gap:14px!important
-}
-#page-courses .psp-system-course{
-  width:100%!important;max-width:345px!important;min-width:0!important;padding:8px!important;margin:0!important;
-  border-radius:14px!important;border:1px solid #eadbc4!important;background:#fffdf8!important;
-  box-shadow:0 10px 28px rgba(63,39,7,.07)!important;overflow:hidden!important
-}
-#page-courses .psp-system-course.paid{background:#0e1e35!important;border-color:#d28a20!important}
-#page-courses .psp-system-course-thumbnail{width:100%!important;height:auto!important;aspect-ratio:16/9!important;border-radius:10px!important;overflow:hidden!important;margin:0 0 7px!important}
+/* Course library shell */
+#page-courses>.card{padding:14px!important;border-radius:17px!important;border:1px solid #eadcc8!important;background:linear-gradient(180deg,#fffdf9,#fffaf2)!important;box-shadow:0 10px 30px rgba(62,42,13,.045)!important}
+#page-courses>.card>.card-header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;margin:0 0 14px!important;padding:0 0 11px!important;border-bottom:1px solid #eee3d3!important}
+#page-courses>.card>.card-header .card-title{font-size:14px!important}
+#page-courses>.card>.card-header .card-meta{font-size:8px!important}
+#page-courses>.card>.card-header>.btn{min-height:34px!important;padding:7px 13px!important;border-radius:9px!important;font-size:8.5px!important;font-weight:850!important;box-shadow:0 7px 18px rgba(251,146,1,.18)!important}
+#page-courses .psp-system-course-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important;width:min(100%,940px)!important;margin:0 auto!important;padding:0!important;align-items:stretch!important}
+#page-courses .psp-system-course{width:100%!important;max-width:none!important;min-width:0!important;padding:10px!important;margin:0!important;border-radius:15px!important;border:1px solid #eadbc6!important;background:linear-gradient(180deg,#fffdfa,#fff8ed)!important;box-shadow:0 12px 28px rgba(67,46,14,.07)!important;overflow:hidden!important;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
+#page-courses .psp-system-course:hover{transform:translateY(-2px)!important;border-color:#efb45f!important;box-shadow:0 17px 34px rgba(67,46,14,.10)!important}
+#page-courses .psp-system-course.paid{background:linear-gradient(180deg,#10233d,#0d1c31)!important;border-color:#bc7b22!important;box-shadow:0 13px 30px rgba(13,30,52,.16)!important}
+#page-courses .psp-system-course-thumbnail{width:100%!important;aspect-ratio:16/9!important;height:auto!important;margin:0 0 8px!important;border-radius:11px!important;overflow:hidden!important;border:1px solid rgba(181,126,41,.24)!important;box-shadow:none!important}
 #page-courses .psp-system-course-thumbnail img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
-#page-courses .psp-system-course-head{min-height:16px!important;margin:0 0 4px!important}
-#page-courses .psp-system-course-head .badge{font-size:6.5px!important;padding:3px 6px!important;border-radius:999px!important}
-#page-courses .psp-system-course h3{font-size:13px!important;line-height:1.25!important;margin:2px 0 3px!important}
-#page-courses .psp-system-course p{font-size:7.5px!important;line-height:1.35!important;margin:0 0 7px!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important}
-#page-courses .psp-system-course-meta{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:5px!important;margin:0 0 7px!important}
-#page-courses .psp-system-course-meta>div{min-height:36px!important;padding:5px 6px!important;border-radius:8px!important;border:1px solid #eadfcd!important;background:rgba(255,255,255,.72)!important;font-size:6.5px!important;color:#8a96aa!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
-#page-courses .psp-system-course.paid .psp-system-course-meta>div{background:rgba(255,255,255,.04)!important;border-color:rgba(255,255,255,.28)!important;color:#a9b8cc!important}
-#page-courses .psp-system-course-meta strong{display:block!important;margin-top:2px!important;font-size:9.5px!important;line-height:1!important;color:var(--text-primary,#121826)!important}
+#page-courses .psp-system-course-thumbnail span{left:8px!important;bottom:7px!important;padding:4px 7px!important;font-size:6.5px!important}
+#page-courses .psp-system-course-head{min-height:18px!important;margin:0 0 4px!important}
+#page-courses .psp-system-course-head .badge{font-size:7px!important;padding:3px 6px!important;border-radius:999px!important}
+#page-courses .psp-system-course h3{font-size:14px!important;line-height:1.22!important;margin:2px 0 4px!important;font-weight:850!important}
+#page-courses .psp-system-course p{font-size:8px!important;line-height:1.45!important;margin:0 0 8px!important;min-height:24px!important;display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;overflow:hidden!important}
+#page-courses .psp-system-course-meta{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important;margin:0 0 8px!important}
+#page-courses .psp-system-course-meta>div{min-height:42px!important;padding:6px 7px!important;border-radius:9px!important;border:1px solid #e9ddcb!important;background:rgba(255,255,255,.76)!important;font-size:6.8px!important;color:#8793a6!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+#page-courses .psp-system-course-meta strong{display:block!important;margin-top:2px!important;font-size:10.5px!important;line-height:1.05!important;color:#151d2d!important}
+#page-courses .psp-system-course.paid .psp-system-course-meta>div{background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.18)!important;color:#aab7c9!important}
 #page-courses .psp-system-course.paid .psp-system-course-meta strong{color:#fff!important}
-#page-courses .psp-course-admin-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important;margin:0!important}
-#page-courses .psp-course-admin-actions .btn{min-height:28px!important;padding:5px 7px!important;border-radius:8px!important;font-size:7px!important;font-weight:850!important}
-@media(max-width:760px){#page-courses .psp-system-course-grid{grid-template-columns:1fr!important}#page-courses .psp-system-course{max-width:none!important}}
+#page-courses .psp-course-admin-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important;margin-top:0!important}
+#page-courses .psp-course-admin-actions .btn{min-height:31px!important;padding:6px 8px!important;border-radius:8px!important;font-size:7.5px!important;font-weight:800!important}
 
-
-/* V124 final compact sizing: chart/widget-like course cards */
-#page-courses .psp-system-course-grid{
-  grid-template-columns:repeat(auto-fit,minmax(250px,310px))!important;
-  gap:12px!important;
-}
-#page-courses .psp-system-course{max-width:310px!important;padding:7px!important}
-#page-courses .psp-system-course-thumbnail{margin-bottom:6px!important;border-radius:9px!important}
-#page-courses .psp-system-course h3{font-size:12px!important}
-#page-courses .psp-system-course-meta>div{min-height:33px!important;padding:4px 5px!important}
-#page-courses .psp-course-admin-actions .btn{min-height:27px!important}
-
-/* Keep the Add New Course action clearly visible without oversized spacing */
-#page-courses .psp-v122-course-actions{margin:0 0 9px!important}
-#page-courses .psp-v122-add-course-btn{min-height:31px!important;padding:6px 11px!important;font-size:8px!important}
-
-/* ============================================================
-   V126 — PREMIUM SAAS COURSE EDITOR (INLINE / CACHE-SAFE)
-   ============================================================ */
-#modal-courseForm{backdrop-filter:blur(5px)!important;background:rgba(17,24,39,.48)!important}
-#modal-courseForm .modal-lg{
-  width:min(900px,94vw)!important;max-width:900px!important;max-height:88vh!important;
-  padding:0!important;overflow:hidden!important;border-radius:18px!important;
-  border:1px solid #eadbc4!important;background:#fffdf9!important;
-  box-shadow:0 28px 90px rgba(18,24,38,.25)!important;
-}
-#modal-courseForm .modal-header{
-  min-height:62px!important;padding:12px 15px!important;margin:0!important;
-  display:flex!important;align-items:center!important;justify-content:space-between!important;
-  border-bottom:1px solid #eadfce!important;background:linear-gradient(180deg,#fffefa,#fff9ef)!important;
-}
-#modal-courseForm .v126-headcopy{min-width:0!important;display:flex!important;flex-direction:column!important;gap:3px!important}
-#modal-courseForm .v126-titleline{display:flex!important;align-items:center!important;gap:7px!important;min-width:0!important}
-#modal-courseForm .modal-header h2{font-size:15px!important;line-height:1.15!important;margin:0!important;color:#111827!important;font-weight:850!important}
-#modal-courseForm .v126-subtitle{font-size:7.3px!important;color:#8b96a8!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:620px!important}
-#modal-courseForm .v126-status{display:inline-flex!important;align-items:center!important;gap:4px!important;padding:4px 7px!important;border-radius:999px!important;background:#eaf8f1!important;border:1px solid #ccecdf!important;color:#0a9464!important;font-size:6.5px!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.04em!important}
-#modal-courseForm .v126-status:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
-#modal-courseForm .v126-status.draft{background:#f3f4f6!important;border-color:#e4e7eb!important;color:#7c8796!important}
-#modal-courseForm .close-btn{width:31px!important;height:31px!important;border-radius:9px!important;background:#f6eddf!important;color:#70798a!important;font-size:17px!important;display:grid!important;place-items:center!important}
-#modal-courseForm .close-btn:hover{background:#efe1cd!important;color:#111827!important}
-#modal-courseForm #courseFormError{margin:8px 12px 0!important;padding:7px 9px!important;border-radius:8px!important;font-size:7.5px!important}
-
-/* navigation */
-#modal-courseForm .v126-tabs{
-  display:flex!important;align-items:center!important;gap:4px!important;padding:8px 12px!important;
-  overflow:auto!important;scrollbar-width:none!important;border-bottom:1px solid #eadfce!important;background:#fffaf2!important
-}
-#modal-courseForm .v126-tabs::-webkit-scrollbar{display:none!important}
-#modal-courseForm .v126-tab{
-  flex:0 0 auto!important;min-height:30px!important;padding:6px 10px!important;border:1px solid transparent!important;
-  border-radius:9px!important;background:transparent!important;color:#7b8494!important;font-size:7.2px!important;font-weight:850!important;cursor:pointer!important
-}
-#modal-courseForm .v126-tab:hover{background:#fff!important;border-color:#e9decc!important;color:#172033!important}
-#modal-courseForm .v126-tab.active{background:#111b2e!important;border-color:#111b2e!important;color:#fff!important;box-shadow:inset 0 -2px 0 #FB9201,0 5px 14px rgba(17,27,46,.12)!important}
-#modal-courseForm .v126-panels{height:min(585px,calc(88vh - 166px))!important;overflow:auto!important;padding:11px 12px 14px!important;background:#f7f1e8!important}
-#modal-courseForm .v126-panel{display:none!important}.v126-panel.active{display:block!important}
-
-/* cards / typography */
-#modal-courseForm .v126-section{background:#fffdf9!important;border:1px solid #e8dcc9!important;border-radius:12px!important;padding:10px!important;margin:0 0 9px!important;box-shadow:0 4px 14px rgba(61,44,17,.03)!important}
-#modal-courseForm .v126-section:last-child{margin-bottom:0!important}
-#modal-courseForm .v126-section-head{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:10px!important;margin:0 0 8px!important}
-#modal-courseForm .v126-section-title{font-size:9.5px!important;line-height:1.2!important;font-weight:900!important;color:#172033!important;margin:0!important}
-#modal-courseForm .v126-section-sub{font-size:6.8px!important;line-height:1.4!important;color:#99a2b1!important;margin:2px 0 0!important}
-#modal-courseForm .v126-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;align-items:start!important}
-#modal-courseForm .v126-wide{grid-column:1/-1!important}
-#modal-courseForm .form-group{min-width:0!important;margin:0!important}
-#modal-courseForm .form-group label{display:block!important;margin:0 0 4px!important;color:#8993a5!important;font-size:6.5px!important;font-weight:850!important;letter-spacing:.045em!important;text-transform:uppercase!important}
-#modal-courseForm input,#modal-courseForm select,#modal-courseForm textarea{width:100%!important;min-height:35px!important;padding:7px 9px!important;border:1px solid #ded2bd!important;border-radius:8px!important;background:#fff!important;color:#172033!important;font-size:8.3px!important;line-height:1.35!important;box-shadow:none!important}
-#modal-courseForm textarea{min-height:58px!important;resize:vertical!important}
-#modal-courseForm input:focus,#modal-courseForm select:focus,#modal-courseForm textarea:focus{outline:none!important;border-color:#FB9201!important;box-shadow:0 0 0 3px rgba(251,146,1,.10)!important}
-#modal-courseForm input::placeholder,#modal-courseForm textarea::placeholder{color:#b2bac7!important;opacity:.88!important}
-#modal-courseForm .form-group>div[style*="font-size"]{font-size:6.4px!important;line-height:1.35!important;color:#9aa3b2!important;margin-top:4px!important}
-
-/* overview hero split */
-#modal-courseForm .v126-overview-split{display:grid!important;grid-template-columns:minmax(0,1.35fr) minmax(250px,.65fr)!important;gap:9px!important;align-items:stretch!important}
-#modal-courseForm .v126-overview-left{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;align-content:start!important}
-#modal-courseForm .v126-overview-left .v126-wide{grid-column:1/-1!important}
-#modal-courseForm .v126-thumb-card{height:100%!important;min-height:220px!important;border:1px dashed #d8c3a4!important;border-radius:11px!important;background:linear-gradient(145deg,#fff9ee,#fffdf9)!important;padding:9px!important;display:flex!important;flex-direction:column!important;gap:7px!important}
-#modal-courseForm .v126-thumb-preview{width:100%!important;aspect-ratio:16/9!important;border-radius:9px!important;overflow:hidden!important;border:1px solid #dfd3c1!important;background:#f0e9df!important;display:grid!important;place-items:center!important;color:#9aa3b2!important;font-size:7px!important;text-align:center!important}
-#modal-courseForm .v126-thumb-preview img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
-#modal-courseForm .v126-thumb-copy b{display:block!important;font-size:8px!important;color:#172033!important;margin-bottom:2px!important}.v126-thumb-copy small{display:block!important;font-size:6.5px!important;line-height:1.35!important;color:#99a2b1!important}
-#modal-courseForm #courseThumbFile{padding:4px!important;min-height:33px!important}.v126-thumb-card #courseThumbFile::file-selector-button{border:0!important;border-radius:7px!important;padding:6px 8px!important;margin-right:6px!important;background:#111b2e!important;color:#fff!important;font-size:6.8px!important;font-weight:850!important;cursor:pointer!important}
-#modal-courseForm #courseThumbPrev{display:none!important}
-
-/* pricing + status cards */
-#modal-courseForm .v126-toggle-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
-#modal-courseForm .v126-toggle{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:8px 9px!important;min-height:50px!important;border:1px solid #e4d8c7!important;border-radius:9px!important;background:#fffaf2!important}
-#modal-courseForm .v126-toggle b{display:block!important;font-size:8px!important;color:#172033!important}.v126-toggle small{display:block!important;margin-top:2px!important;font-size:6.4px!important;line-height:1.3!important;color:#9aa3b2!important}
-#modal-courseForm .v126-toggle input[type="checkbox"]{width:17px!important;height:17px!important;min-height:17px!important;accent-color:#FB9201!important}
-
-/* dynamic learning/module builders */
-#modal-courseForm .psp-v20-editor-section{padding:9px!important;margin:0 0 7px!important;border:1px solid #e8dcc9!important;border-radius:11px!important;background:#fffdf9!important;box-shadow:none!important}
-#modal-courseForm .psp-v20-editor-section-head{margin-bottom:6px!important}.psp-v20-editor-section-head h3{font-size:8.8px!important;color:#172033!important}.psp-v20-editor-section-head small{font-size:6.3px!important;color:#98a1b0!important}
-#modal-courseForm .psp-v20-editor-list{gap:4px!important}.psp-v20-editor-row input,.psp-v20-editor-row textarea,.psp-v20-module-card input,.psp-v20-module-card textarea{font-size:7.5px!important;padding:5px 7px!important;min-height:29px!important}
-#modal-courseForm .psp-v20-row-actions button,#modal-courseForm .psp-v20-add-btn{min-height:27px!important;padding:4px 7px!important;font-size:6.5px!important;border-radius:7px!important}
-#modal-courseForm .psp-v20-module-list{gap:6px!important}.psp-v20-module-card{padding:7px!important;border:1px solid #e7dccb!important;border-radius:10px!important;background:#fff!important}
-#modal-courseForm .psp-v20-module-head{grid-template-columns:30px minmax(0,1fr) 72px auto!important;gap:5px!important}.psp-v20-module-number{width:28px!important;height:28px!important;border-radius:8px!important;font-size:7.3px!important;background:#fff1dd!important;color:#d97706!important}
-#modal-courseForm .psp-v20-module-body{gap:5px!important;margin-top:5px!important}.psp-v20-module-body textarea{min-height:43px!important}
-
-/* sticky footer */
-#modal-courseForm .v126-footer{min-height:50px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;padding:8px 12px!important;border-top:1px solid #eadfce!important;background:rgba(255,252,247,.98)!important;backdrop-filter:blur(8px)!important}
-#modal-courseForm .v126-save-state{display:flex!important;align-items:center!important;gap:5px!important;font-size:6.8px!important;color:#99a2b1!important}.v126-save-state:before{content:'';width:6px;height:6px;border-radius:50%;background:#c8cdd6}.v126-save-state.dirty{color:#c87500!important;font-weight:800!important}.v126-save-state.dirty:before{background:#FB9201!important}
-#modal-courseForm .v126-footer-actions{display:flex!important;align-items:center!important;gap:6px!important}.v126-footer .btn{min-height:31px!important;padding:6px 11px!important;border-radius:8px!important;font-size:7.3px!important;font-weight:850!important}.v126-footer #saveCourseBtn{background:#FB9201!important;border-color:#FB9201!important;color:#111!important;box-shadow:0 5px 14px rgba(251,146,1,.18)!important}
-#modal-courseForm .v126-hidden{display:none!important}
-
-@media(max-width:760px){
- #modal-courseForm .modal-lg{width:96vw!important;max-height:92vh!important;border-radius:15px!important}
- #modal-courseForm .v126-panels{height:calc(92vh - 166px)!important;padding:9px!important}
- #modal-courseForm .v126-grid,#modal-courseForm .v126-overview-split,#modal-courseForm .v126-overview-left,#modal-courseForm .v126-toggle-grid{grid-template-columns:1fr!important}
- #modal-courseForm .v126-wide,#modal-courseForm .v126-overview-left .v126-wide{grid-column:1!important}
- #modal-courseForm .v126-thumb-card{min-height:0!important}.v126-subtitle{max-width:250px!important}
-}
-
-</style>
-
-<style id="pspV127PremiumCourseEditorCss">
-#modal-courseForm{background:rgba(10,16,28,.58)!important;backdrop-filter:blur(7px)!important;padding:20px!important}
-#modal-courseForm .v127-course-modal{width:min(980px,95vw)!important;max-width:980px!important;height:min(820px,91vh)!important;max-height:91vh!important;padding:0!important;margin:auto!important;display:grid!important;grid-template-rows:auto auto auto minmax(0,1fr) auto!important;overflow:hidden!important;border-radius:18px!important;border:1px solid #e6d7c1!important;background:#fbf7ef!important;box-shadow:0 32px 100px rgba(20,17,12,.28)!important}
-#modal-courseForm .v127-course-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:20px!important;padding:17px 20px 14px!important;background:#fffdf9!important;border-bottom:1px solid #eadfce!important}
-#modal-courseForm .v127-course-head-copy{min-width:0!important}.v127-course-title-row{display:flex!important;align-items:center!important;gap:9px!important}.v127-course-title-row h2{margin:0!important;font-size:18px!important;line-height:1.2!important;color:#111827!important;font-weight:800!important}.v127-course-head-copy p{margin:4px 0 0!important;font-size:10.5px!important;color:#8a94a5!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-#modal-courseForm .v127-course-status{display:inline-flex!important;align-items:center!important;gap:5px!important;padding:5px 8px!important;border-radius:999px!important;background:#e9f8f1!important;color:#078b5f!important;border:1px solid #cdeedf!important;font-size:8px!important;font-weight:800!important;text-transform:uppercase!important;letter-spacing:.04em!important}.v127-course-status:before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}.v127-course-status.draft{background:#f2f4f7!important;color:#7d8796!important;border-color:#e3e6eb!important}
-#modal-courseForm .v127-course-close{width:34px!important;height:34px!important;border-radius:10px!important;background:#f4ecdf!important;color:#6d7685!important;display:grid!important;place-items:center!important;font-size:18px!important;flex:0 0 34px!important}
-#modal-courseForm .v127-course-error{margin:9px 20px 0!important;padding:9px 11px!important;border-radius:9px!important;background:#fff0f0!important;color:#c53939!important;border:1px solid #f1caca!important;font-size:10px!important}
-#modal-courseForm .v127-course-tabs{display:flex!important;align-items:center!important;gap:5px!important;padding:9px 20px!important;background:#fffdf9!important;border-bottom:1px solid #eadfce!important;overflow-x:auto!important;scrollbar-width:none!important}.v127-course-tabs::-webkit-scrollbar{display:none!important}
-#modal-courseForm .v127-course-tab{appearance:none!important;border:1px solid transparent!important;background:transparent!important;color:#707b8d!important;padding:8px 11px!important;border-radius:9px!important;font-size:9.5px!important;line-height:1!important;font-weight:750!important;white-space:nowrap!important;cursor:pointer!important}.v127-course-tab:hover{background:#f7efe3!important;color:#111827!important}.v127-course-tab.active{background:#111b2e!important;color:#fff!important;border-color:#111b2e!important;box-shadow:inset 0 -2px 0 #FB9201!important}
-#modal-courseForm .v127-course-body{min-height:0!important;overflow:auto!important;padding:16px 20px 20px!important;background:linear-gradient(180deg,#f7f1e8,#fbf7ef)!important}
-#modal-courseForm .v127-course-panel{display:none!important}#modal-courseForm .v127-course-panel.active{display:block!important}
-#modal-courseForm .v127-panel-heading{display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:15px!important;margin:0 0 11px!important}.v127-panel-heading h3{margin:2px 0 2px!important;font-size:16px!important;color:#111827!important}.v127-panel-heading p{margin:0!important;font-size:9.5px!important;line-height:1.45!important;color:#8e98a8!important}.v127-kicker{display:block!important;font-size:7.5px!important;line-height:1!important;color:#d67500!important;font-weight:900!important;letter-spacing:.09em!important;text-transform:uppercase!important}
-#modal-courseForm .v127-card{background:#fffdf9!important;border:1px solid #e6dac8!important;border-radius:13px!important;padding:12px!important;margin-bottom:10px!important;box-shadow:0 5px 18px rgba(70,48,16,.035)!important}.v127-card:last-child{margin-bottom:0!important}.v127-card-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin-bottom:9px!important}.v127-card-head h4{margin:3px 0 0!important;font-size:12px!important;color:#172033!important}.v127-dimension{font-size:8px!important;font-weight:800!important;color:#8d98a8!important;padding:4px 7px!important;border-radius:7px!important;background:#f4ecdf!important}
-#modal-courseForm .v127-grid{display:grid!important;gap:9px!important}.v127-grid-2{grid-template-columns:repeat(2,minmax(0,1fr))!important}.v127-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))!important}.v127-span-2{grid-column:1/-1!important}
-#modal-courseForm .form-group{min-width:0!important;margin:0!important}.v127-course-modal .form-group label{display:block!important;margin:0 0 5px!important;font-size:8px!important;color:#7e899b!important;font-weight:850!important;letter-spacing:.035em!important;text-transform:uppercase!important}.v127-course-modal input:not([type=checkbox]):not([type=file]),.v127-course-modal select,.v127-course-modal textarea{width:100%!important;min-height:38px!important;padding:8px 10px!important;border:1px solid #ddd0bc!important;border-radius:9px!important;background:#fff!important;color:#172033!important;font:500 11px/1.35 'Plus Jakarta Sans',sans-serif!important;box-shadow:none!important}.v127-course-modal textarea{min-height:68px!important;resize:vertical!important}.v127-course-modal input:focus,.v127-course-modal select:focus,.v127-course-modal textarea:focus{outline:none!important;border-color:#FB9201!important;box-shadow:0 0 0 3px rgba(251,146,1,.10)!important}.v127-course-modal input::placeholder,.v127-course-modal textarea::placeholder{color:#b2bac6!important}
-#modal-courseForm .v127-overview-layout{display:grid!important;grid-template-columns:minmax(0,1.5fr) minmax(280px,.7fr)!important;gap:11px!important;align-items:stretch!important}.v127-form-card{margin:0!important}.v127-cover-card{margin:0!important;display:flex!important;flex-direction:column!important}.v127-cover-preview{aspect-ratio:16/9!important;width:100%!important;border-radius:10px!important;overflow:hidden!important;background:linear-gradient(145deg,#f4eee5,#ebe1d3)!important;border:1px dashed #d8c3a4!important;display:grid!important;place-items:center!important;margin-bottom:8px!important}.v127-cover-preview:empty:before{content:'Course cover preview';font-size:9px;color:#9aa3b2;font-weight:700}.v127-cover-preview img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}.v127-cover-card input[type=file]{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}.v127-upload-btn{display:flex!important;align-items:center!important;justify-content:center!important;min-height:34px!important;padding:7px 10px!important;border-radius:9px!important;background:#111b2e!important;color:#fff!important;font-size:9px!important;font-weight:800!important;cursor:pointer!important}.v127-cover-card p{margin:7px 2px 0!important;font-size:8px!important;line-height:1.4!important;color:#98a1b0!important}
-#modal-courseForm .v127-learning-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}.v127-learning-grid .psp-v20-editor-section{margin:0!important;padding:12px!important;background:#fffdf9!important;border:1px solid #e6dac8!important;border-radius:13px!important;box-shadow:0 5px 18px rgba(70,48,16,.035)!important}.v127-learning-grid .psp-v20-editor-section-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin:0 0 8px!important}.v127-learning-grid .psp-v20-editor-section-head h3{margin:3px 0 0!important;font-size:11px!important;color:#172033!important}.v127-course-modal .psp-v20-add-btn,.v127-secondary-btn{border:1px solid #f0c684!important;background:#fff5e5!important;color:#b85d00!important;border-radius:8px!important;min-height:29px!important;padding:6px 9px!important;font-size:8px!important;font-weight:800!important;cursor:pointer!important}
-#modal-courseForm .psp-v20-editor-list{display:grid!important;gap:6px!important}.psp-v20-editor-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:6px!important;align-items:center!important}.psp-v20-editor-row input{min-height:34px!important}.psp-v20-row-actions{display:flex!important;gap:3px!important}.psp-v20-row-actions button{width:27px!important;height:27px!important;border:1px solid #e1d4c1!important;border-radius:7px!important;background:#fff!important;color:#657184!important;font-size:10px!important;cursor:pointer!important}
-#modal-courseForm .v127-modules-card{padding:10px!important}.v127-course-modal .psp-v20-module-list{display:grid!important;gap:7px!important}.v127-course-modal .psp-v20-module-card{padding:9px!important;border:1px solid #e4d7c5!important;border-radius:10px!important;background:#fff!important}.v127-course-modal .psp-v20-module-head{display:grid!important;grid-template-columns:34px minmax(0,1fr) 88px auto!important;gap:6px!important;align-items:center!important}.v127-course-modal .psp-v20-module-number{width:32px!important;height:32px!important;border-radius:8px!important;background:#fff0dc!important;color:#c76400!important;display:grid!important;place-items:center!important;font-size:8px!important;font-weight:900!important}.v127-course-modal .psp-v20-module-body{display:grid!important;grid-template-columns:1fr 1fr!important;gap:6px!important;margin-top:6px!important}.v127-course-modal .psp-v20-module-body textarea{min-height:54px!important}
-#modal-courseForm .v127-toggle-box{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;min-height:70px!important;padding:11px 12px!important;border:1px solid #e5d9c7!important;border-radius:11px!important;background:#fffaf2!important}.v127-toggle-box strong{display:block!important;font-size:10px!important;color:#172033!important}.v127-toggle-box span{display:block!important;margin-top:3px!important;font-size:8px!important;line-height:1.35!important;color:#98a1b0!important}.v127-switch{position:relative!important;width:38px!important;height:22px!important;flex:0 0 38px!important}.v127-switch input{position:absolute!important;opacity:0!important}.v127-switch i{position:absolute!important;inset:0!important;border-radius:999px!important;background:#d7dce4!important;transition:.2s!important}.v127-switch i:before{content:'';position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:.2s}.v127-switch input:checked+i{background:#FB9201!important}.v127-switch input:checked+i:before{transform:translateX(16px)!important}
-#modal-courseForm .v127-course-footer{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:10px 20px!important;border-top:1px solid #eadfce!important;background:#fffdf9!important}.v127-save-state{display:flex!important;align-items:center!important;gap:7px!important;color:#98a1b0!important;font-size:8.5px!important}.v127-save-state span{width:7px;height:7px;border-radius:50%;background:#c7cdd6}.v127-save-state.dirty{color:#b86500!important}.v127-save-state.dirty span{background:#FB9201!important}.v127-course-footer-actions{display:flex!important;gap:7px!important}.v127-course-footer .btn{min-height:35px!important;padding:8px 13px!important;border-radius:9px!important;font-size:9px!important;font-weight:800!important}.v127-save-btn{background:#FB9201!important;color:#111!important;border-color:#FB9201!important;min-width:110px!important}
-#modal-courseForm .v127-course-body::-webkit-scrollbar{width:7px}.v127-course-body::-webkit-scrollbar-thumb{background:#d8c9b3;border-radius:99px}
-@media(max-width:820px){#modal-courseForm{padding:8px!important}.v127-course-modal{width:100%!important;height:94vh!important}.v127-overview-layout{grid-template-columns:1fr!important}.v127-grid-3{grid-template-columns:repeat(2,minmax(0,1fr))!important}.v127-learning-grid{grid-template-columns:1fr!important}.v127-learning-grid .v127-span-2{grid-column:auto!important}.v127-course-head-copy p{max-width:70vw!important}.v127-course-modal .psp-v20-module-body{grid-template-columns:1fr!important}}
-@media(max-width:560px){.v127-grid-2,.v127-grid-3{grid-template-columns:1fr!important}.v127-span-2{grid-column:auto!important}.v127-course-tabs{padding-left:12px!important;padding-right:12px!important}.v127-course-body{padding:12px!important}.v127-course-footer{padding:9px 12px!important}.v127-save-state{display:none!important}}
-</style>
-
-
-<style id="pspV128CoursesFinalUI">
-/* V128 — final premium Course Manager and working tabbed editor */
-#pspV124Schedule{display:none!important}
-
-/* Single Add Course action belongs inside All Courses header. */
-#page-courses>.psp-v122-course-actions{display:none!important}
-#page-courses>.card>.card-header{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;margin-bottom:14px!important}
-#page-courses>.card>.card-header>.btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:36px!important;padding:8px 14px!important;border-radius:10px!important;background:#FB9201!important;border-color:#FB9201!important;color:#111827!important;font-size:10px!important;font-weight:850!important;box-shadow:0 7px 18px rgba(251,146,1,.18)!important}
-
-/* KPI row stays compact and dashboard-like. */
-#page-courses>.stats-grid{gap:10px!important;margin-bottom:12px!important}
-#page-courses>.stats-grid .stat-card{min-height:92px!important;padding:12px 14px!important;border-radius:13px!important}
-#page-courses>.stats-grid .stat-value{font-size:22px!important;line-height:1!important}
-
-/* Two balanced premium course cards — neither oversized nor tiny. */
-#page-courses .psp-system-course-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,450px))!important;justify-content:center!important;align-items:start!important;gap:18px!important;width:100%!important;padding:2px 0 4px!important}
-#page-courses .psp-system-course{width:100%!important;max-width:450px!important;padding:11px!important;margin:0!important;border-radius:16px!important;border:1px solid #eadbc5!important;background:linear-gradient(180deg,#fffdfa,#fff9ef)!important;box-shadow:0 13px 34px rgba(57,39,13,.08)!important;overflow:hidden!important;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important}
-#page-courses .psp-system-course:hover{transform:translateY(-2px)!important;border-color:#efb35d!important;box-shadow:0 18px 42px rgba(57,39,13,.11)!important}
-#page-courses .psp-system-course.paid{background:linear-gradient(180deg,#10233d,#0d1b30)!important;border-color:#bf7b1f!important;box-shadow:0 14px 36px rgba(11,26,47,.18)!important}
-#page-courses .psp-system-course-thumbnail{width:100%!important;aspect-ratio:16/9!important;height:auto!important;margin:0 0 10px!important;border-radius:12px!important;overflow:hidden!important;border:1px solid rgba(173,119,35,.25)!important;box-shadow:none!important}
-#page-courses .psp-system-course-thumbnail img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
-#page-courses .psp-system-course-head{min-height:18px!important;margin:0 0 5px!important}
-#page-courses .psp-system-course-head .badge{font-size:7.5px!important;padding:4px 7px!important;border-radius:999px!important;font-weight:850!important}
-#page-courses .psp-system-course h3{font-size:15px!important;line-height:1.25!important;margin:2px 0 4px!important;font-weight:850!important;letter-spacing:-.01em!important}
-#page-courses .psp-system-course p{font-size:9px!important;line-height:1.5!important;margin:0 0 10px!important;min-height:27px!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important}
-#page-courses .psp-system-course-meta{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;margin:0 0 10px!important}
-#page-courses .psp-system-course-meta>div{min-height:48px!important;padding:7px 8px!important;border-radius:10px!important;border:1px solid #eadfcd!important;background:rgba(255,255,255,.78)!important;font-size:7.5px!important;color:#8792a4!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
-#page-courses .psp-system-course-meta strong{display:block!important;margin-top:3px!important;font-size:12px!important;line-height:1!important;color:#151d2d!important}
-#page-courses .psp-system-course.paid .psp-system-course-meta>div{background:rgba(255,255,255,.045)!important;border-color:rgba(255,255,255,.20)!important;color:#a8b5c8!important}
-#page-courses .psp-system-course.paid .psp-system-course-meta strong{color:#fff!important}
-#page-courses .psp-course-admin-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;margin:0!important}
-#page-courses .psp-course-admin-actions .btn{min-height:34px!important;padding:7px 10px!important;border-radius:9px!important;font-size:8.5px!important;font-weight:850!important}
-
-/* Editor: the V127 active panel was blank because the old hide rule had higher specificity. */
-#modal-courseForm .v127-course-panel{display:none!important}
-#modal-courseForm .v127-course-panel.active{display:block!important}
-#modal-courseForm .v127-cover-preview#courseThumbPrev{display:grid!important}
-#modal-courseForm .v127-course-modal{height:min(780px,90vh)!important;max-height:90vh!important}
-#modal-courseForm .v127-course-body{background:linear-gradient(180deg,#f7f1e8,#fbf7ef)!important}
-#modal-courseForm .v127-card{background:#fffdf9!important}
-
-@media(max-width:1050px){#page-courses .psp-system-course-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-@media(max-width:760px){#page-courses .psp-system-course-grid{grid-template-columns:1fr!important;justify-content:stretch!important}#page-courses .psp-system-course{max-width:none!important}}
+/* V129 course editor — no fixed giant height, no legacy panel selectors */
+#modal-courseForm{padding:14px!important;background:rgba(19,25,35,.55)!important;backdrop-filter:blur(7px)!important}
+#modal-courseForm .v129-course-modal{width:min(920px,96vw)!important;max-width:920px!important;max-height:88vh!important;height:auto!important;padding:0!important;overflow:hidden!important;border:1px solid #eadbc7!important;border-radius:17px!important;background:#fffdf9!important;box-shadow:0 30px 85px rgba(17,24,39,.28)!important;display:grid!important;grid-template-rows:auto auto minmax(0,1fr) auto!important;animation:modalIn .22s ease!important}
+#modal-courseForm .v129-course-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:14px!important;padding:15px 18px 12px!important;border-bottom:1px solid #eee2d1!important;background:#fffdf9!important}
+#modal-courseForm .v129-head-copy{min-width:0!important}.v129-title-line{display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important}.v129-title-line h2{margin:0!important;font-size:17px!important;line-height:1.15!important;color:#131c2d!important;font-weight:850!important}.v129-head-copy p{margin:4px 0 0!important;font-size:8px!important;line-height:1.35!important;color:#8e99aa!important}.v129-status{display:inline-flex!important;align-items:center!important;gap:5px!important;padding:4px 8px!important;border-radius:999px!important;background:#e8f8f1!important;border:1px solid #c9ebdc!important;color:#0a9464!important;font-size:6.8px!important;font-weight:900!important;text-transform:uppercase!important}.v129-status:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}.v129-status.draft{background:#f2f3f5!important;border-color:#e3e6ea!important;color:#7c8796!important}.v129-close{width:31px!important;height:31px!important;flex:0 0 31px!important;border-radius:9px!important;background:#f5eddf!important;color:#6d7788!important}
+#modal-courseForm .v129-error{margin:9px 18px 0!important;padding:8px 10px!important;border-radius:9px!important;background:#fff0ef!important;border:1px solid #ffd3cf!important;color:#c24134!important;font-size:8px!important;font-weight:700!important}
+#modal-courseForm .v129-tabs{display:flex!important;align-items:center!important;gap:4px!important;padding:8px 18px!important;border-bottom:1px solid #eee2d1!important;background:#fffaf3!important;overflow-x:auto!important;scrollbar-width:none!important}.v129-tabs::-webkit-scrollbar{display:none!important}.v129-tab{flex:0 0 auto!important;min-height:29px!important;padding:6px 9px!important;border:1px solid transparent!important;border-radius:8px!important;background:transparent!important;color:#667286!important;font-size:7.5px!important;font-weight:850!important;cursor:pointer!important;transition:.16s!important}.v129-tab:hover{background:#fff!important;border-color:#eadbc6!important;color:#172033!important}.v129-tab.active{background:#111d31!important;border-color:#111d31!important;color:#fff!important;box-shadow:inset 0 -2px 0 #FB9201!important}
+#modal-courseForm .v129-body{min-height:0!important;max-height:calc(88vh - 154px)!important;overflow:auto!important;padding:12px 18px 16px!important;background:linear-gradient(180deg,#f7f1e8,#fbf7ef)!important}
+#modal-courseForm .v129-panel{display:block!important;margin:0!important;padding:0!important}#modal-courseForm .v129-panel[hidden]{display:none!important}
+#modal-courseForm .v129-panel-title{display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:12px!important;margin:0 0 8px!important}.v129-panel-title span,.v129-card-head span,.psp-v20-editor-section-head span{display:block!important;font-size:6.4px!important;letter-spacing:.08em!important;font-weight:900!important;color:#d97800!important}.v129-panel-title h3{font-size:13px!important;line-height:1.2!important;color:#172033!important;margin:2px 0 0!important}.v129-panel-title p{font-size:7.5px!important;line-height:1.4!important;color:#95a0b0!important;margin:2px 0 0!important}
+#modal-courseForm .v129-card{background:#fffdf9!important;border:1px solid #e6dac8!important;border-radius:12px!important;padding:11px!important;margin:0 0 9px!important;box-shadow:0 4px 15px rgba(70,48,16,.03)!important}.v129-card:last-child{margin-bottom:0!important}.v129-card-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;margin:0 0 8px!important}.v129-card-head h4{font-size:10.5px!important;color:#172033!important;margin:2px 0 0!important}.v129-card-head em{font-style:normal!important;font-size:7px!important;font-weight:800!important;color:#8995a7!important;padding:4px 6px!important;border-radius:7px!important;background:#f4ecdf!important}
+#modal-courseForm .v129-grid{display:grid!important;gap:8px!important;align-items:start!important}.v129-grid-2{grid-template-columns:repeat(2,minmax(0,1fr))!important}.v129-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))!important}.v129-span-2{grid-column:1/-1!important}.v129-overview-grid{display:grid!important;grid-template-columns:minmax(0,1.45fr) minmax(250px,.65fr)!important;gap:10px!important;align-items:stretch!important}
+#modal-courseForm .form-group{min-width:0!important;margin:0!important}.v129-course-modal .form-group label{display:block!important;margin:0 0 4px!important;font-size:6.8px!important;color:#7f8a9d!important;font-weight:850!important;letter-spacing:.045em!important;text-transform:uppercase!important}.v129-course-modal input:not([type=checkbox]):not([type=file]),.v129-course-modal select,.v129-course-modal textarea{width:100%!important;min-height:35px!important;padding:7px 9px!important;border:1px solid #ddd1be!important;border-radius:8px!important;background:#fff!important;color:#172033!important;font:500 9px/1.4 'Plus Jakarta Sans',sans-serif!important;box-shadow:none!important}.v129-course-modal textarea{min-height:58px!important;resize:vertical!important}.v129-course-modal input:focus,.v129-course-modal select:focus,.v129-course-modal textarea:focus{outline:none!important;border-color:#FB9201!important;box-shadow:0 0 0 3px rgba(251,146,1,.10)!important}.v129-course-modal input::placeholder,.v129-course-modal textarea::placeholder{color:#b1bac7!important}
+#modal-courseForm .v129-cover-card{display:flex!important;flex-direction:column!important}.v129-cover-preview{width:100%!important;aspect-ratio:16/9!important;border:1px dashed #d8c3a4!important;border-radius:10px!important;background:linear-gradient(145deg,#f5eee4,#eee4d7)!important;overflow:hidden!important;display:grid!important;place-items:center!important;margin-bottom:7px!important;color:#98a2b1!important;font-size:7.5px!important;text-align:center!important}.v129-cover-preview img,.v129-cover-preview>div img{width:100%!important;height:100%!important;max-width:none!important;object-fit:cover!important;border:0!important;border-radius:0!important}.v129-cover-preview>div{width:100%!important;height:100%!important;display:block!important}.v129-cover-preview>div>button,.v129-cover-preview>div>div{display:none!important}.v129-cover-empty{color:#98a2b1!important}.v129-cover-card input[type=file]{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}.v129-upload{display:flex!important;align-items:center!important;justify-content:center!important;min-height:32px!important;padding:6px 8px!important;border-radius:8px!important;background:#111d31!important;color:#fff!important;font-size:7.5px!important;font-weight:850!important;cursor:pointer!important}.v129-cover-card small{display:block!important;margin-top:6px!important;color:#97a1b0!important;font-size:6.5px!important;line-height:1.35!important}
+#modal-courseForm .v129-learning-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}.v129-learning-grid .psp-v20-editor-section{margin:0!important;padding:10px!important;border:1px solid #e6dac8!important;border-radius:11px!important;background:#fffdf9!important;box-shadow:0 4px 15px rgba(70,48,16,.03)!important}.v129-learning-grid .psp-v20-editor-section-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;margin:0 0 7px!important}.v129-learning-grid .psp-v20-editor-section-head h3{margin:2px 0 0!important;font-size:9.5px!important;color:#172033!important}.v129-course-modal .psp-v20-add-btn,.v129-secondary{border:1px solid #efc98e!important;background:#fff4e3!important;color:#b75e00!important;border-radius:7px!important;min-height:27px!important;padding:5px 8px!important;font-size:6.8px!important;font-weight:850!important;cursor:pointer!important}.v129-course-modal .psp-v20-editor-list{display:grid!important;gap:5px!important}.v129-course-modal .psp-v20-editor-row{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:5px!important;align-items:center!important}.v129-course-modal .psp-v20-editor-row input{min-height:31px!important}.v129-course-modal .psp-v20-row-actions{display:flex!important;gap:3px!important}.v129-course-modal .psp-v20-row-actions button{width:25px!important;height:25px!important;border:1px solid #e1d5c2!important;border-radius:6px!important;background:#fff!important;color:#657184!important;font-size:9px!important;cursor:pointer!important}
+#modal-courseForm .v129-modules-card{padding:9px!important}.v129-course-modal .psp-v20-module-list{display:grid!important;gap:6px!important}.v129-course-modal .psp-v20-module-card{padding:8px!important;border:1px solid #e4d7c5!important;border-radius:9px!important;background:#fff!important}.v129-course-modal .psp-v20-module-head{display:grid!important;grid-template-columns:30px minmax(0,1fr) 78px auto!important;gap:5px!important;align-items:center!important}.v129-course-modal .psp-v20-module-number{width:29px!important;height:29px!important;border-radius:7px!important;background:#fff0dc!important;color:#c76400!important;display:grid!important;place-items:center!important;font-size:7px!important;font-weight:900!important}.v129-course-modal .psp-v20-module-body{display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important;margin-top:5px!important}.v129-course-modal .psp-v20-module-body textarea{min-height:49px!important}
+#modal-courseForm .v129-toggle{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;min-height:58px!important;padding:9px 10px!important;border:1px solid #e4d8c7!important;border-radius:10px!important;background:#fffaf2!important}.v129-toggle strong{display:block!important;font-size:9px!important;color:#172033!important}.v129-toggle span{display:block!important;margin-top:2px!important;font-size:6.7px!important;line-height:1.35!important;color:#98a1b0!important}.v129-toggle label{position:relative!important;width:36px!important;height:21px!important;flex:0 0 36px!important}.v129-toggle input{position:absolute!important;opacity:0!important}.v129-toggle i{position:absolute!important;inset:0!important;border-radius:999px!important;background:#d7dce4!important;transition:.2s!important}.v129-toggle i:before{content:'';position:absolute;left:3px;top:3px;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:.2s}.v129-toggle input:checked+i{background:#FB9201!important}.v129-toggle input:checked+i:before{transform:translateX(15px)!important}
+#modal-courseForm .v129-footer{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:9px 18px!important;border-top:1px solid #eadfce!important;background:#fffdf9!important}.v129-save-state{display:flex!important;align-items:center!important;gap:6px!important;font-size:7px!important;color:#98a1b0!important}.v129-save-state span{width:6px;height:6px;border-radius:50%;background:#c7cdd6}.v129-save-state.dirty{color:#b86500!important;font-weight:800!important}.v129-save-state.dirty span{background:#FB9201!important}.v129-actions{display:flex!important;gap:7px!important}.v129-footer .btn{min-height:33px!important;padding:7px 12px!important;border-radius:8px!important;font-size:8px!important;font-weight:850!important}.v129-save{background:#FB9201!important;color:#111!important;border-color:#FB9201!important;min-width:104px!important}
+#modal-courseForm .v129-body::-webkit-scrollbar{width:7px}.v129-body::-webkit-scrollbar-thumb{background:#d7c7af;border-radius:99px}
+@media(max-width:900px){#page-courses .psp-system-course-grid{width:100%!important}.v129-overview-grid{grid-template-columns:1fr!important}.v129-grid-3{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:760px){#page-courses>.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#page-courses .psp-system-course-grid{grid-template-columns:1fr!important}#modal-courseForm{padding:7px!important}#modal-courseForm .v129-course-modal{width:100%!important;max-height:94vh!important}.v129-learning-grid{grid-template-columns:1fr!important}.v129-grid-2,.v129-grid-3{grid-template-columns:1fr!important}.v129-span-2{grid-column:auto!important}.v129-course-modal .psp-v20-module-body{grid-template-columns:1fr!important}}
 </style>
 
 </head>
@@ -3245,7 +3058,51 @@ async function loadCompanyRevenue(){
 function crCsvCell(v){var s=String(v==null?'':v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
 function crDownloadBlob(name,text,type){var blob=new Blob([text],{type:type||'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
 function crExportCsv(){var calc=crCalc(),lines=[['PipSePaisa Company Finance Report',crPeriodLabel()],['Total Income',calc.income],['Total Expenses',calc.expenses],['Net Profit',calc.net],['Partner Allocation',calc.allocation],['Company Retained',calc.retained],[],['TRANSACTIONS'],['Date','Type','Category','Subcategory','Details','Amount USD','Status','Method','Payment Date','Reference']];crEntries.forEach(function(r){lines.push([r.entry_date,r.entry_type,r.category,r.subcategory||'',r.note||'',r.amount,r.payment_status||'paid',r.payment_method||'',r.payment_date||'',r.payment_reference||'']);});lines.push([],['PARTNER PAYOUTS'],['Partner','Share %','Due','Paid','Balance','Status']);crPartners.forEach(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);lines.push([p.partner_name,p.share_percent,due,paid,Math.max(0,due-paid),crPayoutStatus(due,paid)]);});crDownloadBlob('PipSePaisa-Company-Revenue-'+crMonthValue()+'.csv',lines.map(function(r){return r.map(crCsvCell).join(',');}).join('\n'),'text/csv;charset=utf-8');}
-function crExportPdf(){var calc=crCalc(),w=window.open('','_blank');if(!w){alert('Please allow pop-ups to export the PDF report.');return;}var tx=crEntries.map(function(r){return '<tr><td>'+crEsc(r.entry_date)+'</td><td>'+crEsc(r.entry_type)+'</td><td>'+crEsc(r.category)+(r.subcategory?' — '+crEsc(r.subcategory):'')+'</td><td>'+crEsc(r.note||'')+'</td><td>$'+crMoney(r.amount)+'</td><td>'+crEsc(r.payment_status||'paid')+'</td></tr>';}).join(''),pp=crPartners.map(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);return '<tr><td>'+crEsc(p.partner_name)+'</td><td>'+crMoney(p.share_percent)+'%</td><td>$'+crMoney(due)+'</td><td>$'+crMoney(paid)+'</td><td>$'+crMoney(Math.max(0,due-paid))+'</td></tr>';}).join('');w.document.write('<!doctype html><html><head><title>PipSePaisa Company Revenue '+crEsc(crPeriodLabel())+'</title><style>body{font:12px Arial;color:#0f172a;padding:28px}h1{margin:0 0 4px}.sub{color:#64748b;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.box{border:1px solid #e2e8f0;border-radius:8px;padding:10px}.box span{display:block;color:#64748b;font-size:9px;text-transform:uppercase}.box strong{font-size:16px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border-bottom:1px solid #e2e8f0;padding:7px;text-align:left}th{background:#0b1730;color:#fff;font-size:9px}h2{margin-top:24px}@media print{button{display:none}}</style></head><body><h1>PipSePaisa — Company Revenue</h1><div class="sub">'+crEsc(crPeriodLabel())+' · Generated '+new Date().toLocaleString()+'</div><div class="grid"><div class="box"><span>Income</span><strong>$'+crMoney(calc.income)+'</strong></div><div class="box"><span>Expenses</span><strong>$'+crMoney(calc.expenses)+'</strong></div><div class="box"><span>Net Profit</span><strong>$'+crMoney(calc.net)+'</strong></div><div class="box"><span>Allocation</span><strong>$'+crMoney(calc.allocation)+'</strong></div><div class="box"><span>Retained</span><strong>$'+crMoney(calc.retained)+'</strong></div></div><h2>Transactions</h2><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Details</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+tx+'</tbody></table><h2>Partner Payouts</h2><table><thead><tr><th>Partner</th><th>Share</th><th>Due</th><th>Paid</th><th>Balance</th></tr></thead><tbody>'+pp+'</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>');w.document.close();}
+function crExportPdf(){var calc=crCalc(),w=window.open('','_blank');if(!w){alert('Please allow pop-ups to export the PDF report.');return;}var tx=crEntries.map(function(r){return '<tr><td>'+crEsc(r.entry_date)+'</td><td>'+crEsc(r.entry_type)+'</td><td>'+crEsc(r.category)+(r.subcategory?' — '+crEsc(r.subcategory):'')+'</td><td>'+crEsc(r.note||'')+'</td><td>$'+crMoney(r.amount)+'</td><td>'+crEsc(r.payment_status||'paid')+'</td></tr>';}).join(''),pp=crPartners.map(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);return '<tr><td>'+crEsc(p.partner_name)+'</td><td>'+crMoney(p.share_percent)+'%</td><td>$'+crMoney(due)+'</td><td>$'+crMoney(paid)+'</td><td>$'+crMoney(Math.max(0,due-paid))+'</td></tr>';}).join('');w.document.write('<!doctype html><html><head><title>PipSePaisa Company Revenue '+crEsc(crPeriodLabel())+'</title><style>body{font:12px Arial;color:#0f172a;padding:28px}h1{margin:0 0 4px}.sub{color:#64748b;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.box{border:1px solid #e2e8f0;border-radius:8px;padding:10px}.box span{display:block;color:#64748b;font-size:9px;text-transform:uppercase}.box strong{font-size:16px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border-bottom:1px solid #e2e8f0;padding:7px;text-align:left}th{background:#0b1730;color:#fff;font-size:9px}h2{margin-top:24px}@media print{button{display:none}}</style></head><body><h1>PipSePaisa — Company Revenue</h1><div class="sub">'+crEsc(crPeriodLabel())+' · Generated '+new Date().toLocaleString()+'</div><div class="grid"><div class="box"><span>Income</span><strong>$'+crMoney(calc.income)+'</strong></div><div class="box"><span>Expenses</span><strong>$'+crMoney(calc.expenses)+'</strong></div><div class="box"><span>Net Profit</span><strong>$'+crMoney(calc.net)+'</strong></div><div class="box"><span>Allocation</span><strong>$'+crMoney(calc.allocation)+'</strong></div><div class="box"><span>Retained</span><strong>$'+crMoney(calc.retained)+'</strong></div></div><h2>Transactions</h2><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Details</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+tx+'</tbody></table><h2>Partner Payouts</h2><table><thead><tr><th>Partner</th><th>Share</th><th>Due</th><th>Paid</th><th>Balance</th></tr></thead><tbody>'+pp+'</tbody></table><script>window.onload=function(){window.print()}<\/script>
+<script id="pspV129CourseWorkspace">
+(function(){
+'use strict';
+function modal(){return document.getElementById('modal-courseForm')}
+function setTab(key){
+  const m=modal();if(!m)return;
+  m.querySelectorAll('[data-v129-tab]').forEach(b=>b.classList.toggle('active',b.dataset.v129Tab===key));
+  m.querySelectorAll('[data-v129-panel]').forEach(p=>{const on=p.dataset.v129Panel===key;p.hidden=!on;p.style.display=on?'block':'none'});
+  const body=document.getElementById('v129CourseBody');if(body)body.scrollTop=0;
+}
+function syncHead(){
+  const editing=!!document.getElementById('courseId')?.value;
+  const title=(document.getElementById('courseTitle')?.value||'').trim();
+  const pub=!!document.getElementById('coursePublished')?.checked;
+  const h=document.getElementById('courseFormTitle');if(h)h.textContent=editing?'Edit Course':'Add New Course';
+  const sub=document.getElementById('v129CourseSubtitle');if(sub)sub.textContent=(title||'New course')+' · content, pricing, access and curriculum';
+  const st=document.getElementById('v129CourseStatus');if(st){st.textContent=pub?'Active':'Draft';st.classList.toggle('draft',!pub)}
+  const save=document.getElementById('saveCourseBtn');if(save&&!save.disabled)save.textContent=editing?'Save Changes':'Create Course';
+}
+function syncCover(){
+  const box=document.getElementById('courseThumbPrev');if(!box)return;
+  const src=(document.getElementById('courseThumbnail')?.value||'').trim();
+  if(src&&!box.querySelector('img'))box.innerHTML='<img src="'+src.replace(/"/g,'&quot;')+'" alt="Course cover preview">';
+  if(!src&&!box.querySelector('img')&&!box.querySelector('.v129-cover-empty'))box.innerHTML='<span class="v129-cover-empty">Course cover preview</span>';
+}
+function dirty(on=true){const s=document.getElementById('v129SaveState');if(!s)return;s.classList.toggle('dirty',on);const b=s.querySelector('b');if(b)b.textContent=on?'Unsaved changes':'No unsaved changes'}
+function hideLegacyCourseBlocks(){
+  const page=document.getElementById('page-courses');if(!page)return;
+  const legacy=document.getElementById('pspV124Schedule');if(legacy)legacy.remove();
+  [...page.querySelectorAll('button')].forEach(btn=>{if(!/Manage Live Links/i.test(btn.textContent||''))return;let cur=btn.parentElement,candidate=null;while(cur&&cur!==page){const t=(cur.textContent||'').replace(/\s+/g,' '),classes=(t.match(/CLASS\s*0?\d/gi)||[]).length;if(/Basic Forex Course/i.test(t)&&classes>=5){candidate=cur;break}cur=cur.parentElement}if(candidate)candidate.style.display='none'});
+  [...page.querySelectorAll('div,section,article')].forEach(el=>{const t=(el.textContent||'').replace(/\s+/g,' ').trim();if(!/Courses\s*&\s*Live Classes/i.test(t)||t.length>1200)return;const b=[...el.querySelectorAll('button')].map(x=>(x.textContent||'').trim()).join(' ');if(/Enrollments/i.test(b)&&/Refresh/i.test(b))el.style.display='none'});
+}
+function onOpen(){setTab('overview');setTimeout(()=>{syncHead();syncCover();dirty(false)},40)}
+function install(){
+  const m=modal();if(m&&!m.dataset.v129Ready){m.dataset.v129Ready='1';m.addEventListener('click',e=>{const b=e.target.closest('[data-v129-tab]');if(b){e.preventDefault();e.stopPropagation();setTab(b.dataset.v129Tab)}});m.addEventListener('input',e=>{if(e.target.matches('input,textarea,select')){dirty(true);if(e.target.id==='courseTitle')syncHead()}});m.addEventListener('change',e=>{if(e.target.matches('input,textarea,select')){dirty(true);if(e.target.id==='coursePublished')syncHead();if(e.target.id==='courseThumbFile')setTimeout(syncCover,350)}});if(window.MutationObserver)new MutationObserver(()=>{if(m.classList.contains('active'))onOpen()}).observe(m,{attributes:true,attributeFilter:['class']})}
+  hideLegacyCourseBlocks();
+  const page=document.getElementById('page-courses');if(page&&window.MutationObserver&&!window.__pspV129CourseObserver){window.__pspV129CourseObserver=new MutationObserver(()=>{clearTimeout(window.__pspV129HideT);window.__pspV129HideT=setTimeout(hideLegacyCourseBlocks,80)});window.__pspV129CourseObserver.observe(page,{childList:true,subtree:true})}
+  setTimeout(hideLegacyCourseBlocks,300);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+})();
+</script>
+
+</body></html>');w.document.close();}
 
 
 function showPage(page, el) {
@@ -4391,21 +4248,18 @@ async function initCharts() {
 }
 </script>
 
-<!-- ========== COURSE FORM MODAL — V127 PREMIUM SAAS EDITOR ========== -->
+<!-- ========== COURSE FORM MODAL — V129 PREMIUM WORKSPACE ========== -->
 <div class="modal-overlay" id="modal-courseForm">
-  <div class="modal modal-lg v127-course-modal" role="dialog" aria-modal="true" aria-labelledby="courseFormTitle">
-    <header class="v127-course-head">
-      <div class="v127-course-head-copy">
-        <div class="v127-course-title-row">
-          <h2 id="courseFormTitle">Add New Course</h2>
-          <span class="v127-course-status" id="v127CourseStatus">Draft</span>
-        </div>
-        <p id="v127CourseSubtitle">Create and manage course content, pricing, access and modules.</p>
+  <div class="modal v129-course-modal" role="dialog" aria-modal="true" aria-labelledby="courseFormTitle">
+    <header class="v129-course-head">
+      <div class="v129-head-copy">
+        <div class="v129-title-line"><h2 id="courseFormTitle">Add New Course</h2><span id="v129CourseStatus" class="v129-status draft">Draft</span></div>
+        <p id="v129CourseSubtitle">Create and manage course content, pricing, access and curriculum.</p>
       </div>
-      <button class="close-btn v127-course-close" type="button" onclick="closeModal('courseForm')" aria-label="Close">×</button>
+      <button class="close-btn v129-close" type="button" onclick="closeModal('courseForm')" aria-label="Close">×</button>
     </header>
 
-    <div id="courseFormError" class="v127-course-error" style="display:none"></div>
+    <div id="courseFormError" class="v129-error" style="display:none"></div>
     <input type="hidden" id="courseId">
     <input type="hidden" id="courseThumbnail">
     <input type="hidden" id="courseYoutubeUrl">
@@ -4413,52 +4267,50 @@ async function initCharts() {
     <input type="hidden" id="courseColor" value="1">
     <input type="hidden" id="courseEnrollments" value="0">
 
-    <nav class="v127-course-tabs" id="v127CourseTabs" aria-label="Course editor sections">
-      <button type="button" class="v127-course-tab active" data-v127-tab="overview">Overview</button>
-      <button type="button" class="v127-course-tab" data-v127-tab="access">Pricing &amp; Access</button>
-      <button type="button" class="v127-course-tab" data-v127-tab="content">Page Content</button>
-      <button type="button" class="v127-course-tab" data-v127-tab="learning">Learning</button>
-      <button type="button" class="v127-course-tab" data-v127-tab="modules">Modules</button>
-      <button type="button" class="v127-course-tab" data-v127-tab="settings">Settings</button>
+    <nav class="v129-tabs" id="v129CourseTabs" aria-label="Course editor sections">
+      <button type="button" class="v129-tab active" data-v129-tab="overview">Overview</button>
+      <button type="button" class="v129-tab" data-v129-tab="access">Pricing &amp; Access</button>
+      <button type="button" class="v129-tab" data-v129-tab="content">Page Content</button>
+      <button type="button" class="v129-tab" data-v129-tab="learning">Learning</button>
+      <button type="button" class="v129-tab" data-v129-tab="modules">Modules</button>
+      <button type="button" class="v129-tab" data-v129-tab="settings">Settings</button>
     </nav>
 
-    <div class="v127-course-body">
-      <section class="v127-course-panel active" data-v127-panel="overview">
-        <div class="v127-panel-heading">
-          <div><span class="v127-kicker">Course profile</span><h3>Overview</h3><p>Core details students see across the catalogue and My Courses.</p></div>
-        </div>
-        <div class="v127-overview-layout">
-          <div class="v127-card v127-form-card">
-            <div class="v127-grid v127-grid-2">
-              <div class="form-group v127-span-2"><label>Course title *</label><input type="text" id="courseTitle" placeholder="e.g. Gold Trading Masterclass"></div>
+    <div class="v129-body" id="v129CourseBody">
+      <section class="v129-panel" data-v129-panel="overview">
+        <div class="v129-panel-title"><div><span>COURSE PROFILE</span><h3>Overview</h3><p>Core information shown across the course catalogue and student account.</p></div></div>
+        <div class="v129-overview-grid">
+          <div class="v129-card">
+            <div class="v129-grid v129-grid-2">
+              <div class="form-group v129-span-2"><label>Course title *</label><input type="text" id="courseTitle" placeholder="e.g. Gold Trading Masterclass"></div>
               <div class="form-group"><label>Level</label><select id="courseLevel"><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>All Levels</option><option>Premium</option></select></div>
               <div class="form-group"><label>Category</label><input type="text" id="courseCategory" placeholder="e.g. Technical Analysis"></div>
               <div class="form-group"><label>Display order</label><input type="number" id="courseOrder" value="0" min="0"></div>
-              <div class="form-group v127-span-2"><label>Description</label><textarea id="courseDescription" rows="4" placeholder="A concise description of what students will learn..."></textarea></div>
+              <div class="form-group v129-span-2"><label>Description</label><textarea id="courseDescription" rows="4" placeholder="A concise description of what students will learn..."></textarea></div>
             </div>
           </div>
-          <aside class="v127-card v127-cover-card">
-            <div class="v127-card-head"><div><span class="v127-kicker">Course cover</span><h4>Thumbnail</h4></div><span class="v127-dimension">1280 × 720</span></div>
-            <div class="v127-cover-preview" id="courseThumbPrev"></div>
-            <label class="v127-upload-btn" for="courseThumbFile">Choose course cover</label>
+          <aside class="v129-card v129-cover-card">
+            <div class="v129-card-head"><div><span>COURSE COVER</span><h4>Thumbnail</h4></div><em>1280 × 720</em></div>
+            <div class="v129-cover-preview" id="courseThumbPrev"><span class="v129-cover-empty">Course cover preview</span></div>
+            <label class="v129-upload" for="courseThumbFile">Choose Course Cover</label>
             <input type="file" id="courseThumbFile" accept="image/png,image/jpeg,image/webp" onchange="uploadCourseThumb(this)">
-            <p>16:9 image used in Courses, My Courses and related course cards.</p>
+            <small>16:9 image used in Courses, My Courses and related cards.</small>
           </aside>
         </div>
       </section>
 
-      <section class="v127-course-panel" data-v127-panel="access">
-        <div class="v127-panel-heading"><div><span class="v127-kicker">Commercial settings</span><h3>Pricing &amp; Access</h3><p>Keep public pricing and checkout access controls in one focused area.</p></div></div>
-        <div class="v127-card">
-          <div class="v127-grid v127-grid-3">
+      <section class="v129-panel" data-v129-panel="access" hidden>
+        <div class="v129-panel-title"><div><span>COMMERCIAL SETTINGS</span><h3>Pricing &amp; Access</h3><p>Keep pricing and student-facing checkout settings in one place.</p></div></div>
+        <div class="v129-card">
+          <div class="v129-grid v129-grid-3">
             <div class="form-group"><label>Current price (USD)</label><input type="number" min="0" step="0.01" id="coursePrice" value="0" placeholder="250"></div>
             <div class="form-group"><label>Old price (USD)</label><input id="v20OldPrice" type="number" min="0" step="0.01" placeholder="500"></div>
             <div class="form-group"><label>Local Bank price (PKR)</label><input type="number" min="0" step="1" id="courseLocalBankPrice" placeholder="e.g. 70000"></div>
           </div>
         </div>
-        <div class="v127-card">
-          <div class="v127-card-head"><div><span class="v127-kicker">Student-facing access</span><h4>Labels &amp; checkout copy</h4></div></div>
-          <div class="v127-grid v127-grid-2">
+        <div class="v129-card">
+          <div class="v129-card-head"><div><span>STUDENT ACCESS</span><h4>Labels &amp; checkout copy</h4></div></div>
+          <div class="v129-grid v129-grid-2">
             <div class="form-group"><label>Course badge</label><input id="v20CourseBadge" placeholder="e.g. ADVANCED PROFESSIONAL COURSE"></div>
             <div class="form-group"><label>Access label</label><input id="v20AccessLabel" placeholder="e.g. PROFESSIONAL COURSE ACCESS"></div>
             <div class="form-group"><label>Enrollment note</label><input id="v20BuyNote" placeholder="e.g. One-time payment • Secure verification"></div>
@@ -4469,21 +4321,21 @@ async function initCharts() {
         </div>
       </section>
 
-      <section class="v127-course-panel" data-v127-panel="content">
-        <div class="v127-panel-heading"><div><span class="v127-kicker">Public course page</span><h3>Page Content</h3><p>Edit the copy and section headings without touching the course structure.</p></div></div>
-        <div class="v127-card">
-          <div class="v127-grid v127-grid-2">
-            <div class="form-group v127-span-2"><label>Short description</label><textarea id="v20ShortDescription" rows="3" placeholder="Short card description..."></textarea></div>
-            <div class="form-group v127-span-2"><label>Extra description paragraph</label><textarea id="v20DescriptionExtra" rows="4" placeholder="Additional course-page description..."></textarea></div>
+      <section class="v129-panel" data-v129-panel="content" hidden>
+        <div class="v129-panel-title"><div><span>PUBLIC COURSE PAGE</span><h3>Page Content</h3><p>Edit the public copy, mentor details and section headings.</p></div></div>
+        <div class="v129-card">
+          <div class="v129-grid v129-grid-2">
+            <div class="form-group v129-span-2"><label>Short description</label><textarea id="v20ShortDescription" rows="3" placeholder="Short card description..."></textarea></div>
+            <div class="form-group v129-span-2"><label>Extra description paragraph</label><textarea id="v20DescriptionExtra" rows="4" placeholder="Additional course-page description..."></textarea></div>
           </div>
         </div>
-        <div class="v127-card">
-          <div class="v127-card-head"><div><span class="v127-kicker">Instructor</span><h4>Mentor information</h4></div></div>
-          <div class="v127-grid v127-grid-2"><div class="form-group"><label>Mentor name</label><input id="v20MentorName"></div><div class="form-group"><label>Mentor title</label><input id="v20MentorTitle"></div></div>
+        <div class="v129-card">
+          <div class="v129-card-head"><div><span>INSTRUCTOR</span><h4>Mentor Information</h4></div></div>
+          <div class="v129-grid v129-grid-2"><div class="form-group"><label>Mentor name</label><input id="v20MentorName"></div><div class="form-group"><label>Mentor title</label><input id="v20MentorTitle"></div></div>
         </div>
-        <div class="v127-card">
-          <div class="v127-card-head"><div><span class="v127-kicker">Page structure</span><h4>Section headings</h4></div></div>
-          <div class="v127-grid v127-grid-3">
+        <div class="v129-card">
+          <div class="v129-card-head"><div><span>PAGE STRUCTURE</span><h4>Section Headings</h4></div></div>
+          <div class="v129-grid v129-grid-3">
             <div class="form-group"><label>Learning heading</label><input id="v20LearningHeading" placeholder="What you'll learn"></div>
             <div class="form-group"><label>Outcomes heading</label><input id="v20OutcomesHeading" placeholder="Course Outcomes"></div>
             <div class="form-group"><label>Course content heading</label><input id="v20ContentHeading" placeholder="Course content"></div>
@@ -4495,40 +4347,37 @@ async function initCharts() {
         </div>
       </section>
 
-      <section class="v127-course-panel" data-v127-panel="learning">
-        <div class="v127-panel-heading"><div><span class="v127-kicker">Learning design</span><h3>Learning</h3><p>Manage features, learning points, outcomes, requirements and audience.</p></div></div>
-        <div id="pspV20CourseEditor" class="v127-learning-grid">
-          <section class="psp-v20-editor-section v127-list-card"><div class="psp-v20-editor-section-head"><div><span class="v127-kicker">Included</span><h3>Enrollment Card Features</h3></div><button type="button" class="psp-v20-add-btn" onclick="pspCourseListAdd('included')">+ Add Point</button></div><div class="psp-v20-editor-list" id="pspV20List-included"></div></section>
-          <section class="psp-v20-editor-section v127-list-card"><div class="psp-v20-editor-section-head"><div><span class="v127-kicker">Learning</span><h3>What Students Will Learn</h3></div><button type="button" class="psp-v20-add-btn" onclick="pspCourseListAdd('learning')">+ Add Point</button></div><div class="psp-v20-editor-list" id="pspV20List-learning"></div></section>
-          <section class="psp-v20-editor-section v127-list-card"><div class="psp-v20-editor-section-head"><div><span class="v127-kicker">Results</span><h3>Course Outcomes</h3></div><button type="button" class="psp-v20-add-btn" onclick="pspCourseListAdd('outcomes')">+ Add Point</button></div><div class="psp-v20-editor-list" id="pspV20List-outcomes"></div></section>
-          <section class="psp-v20-editor-section v127-list-card"><div class="psp-v20-editor-section-head"><div><span class="v127-kicker">Entry</span><h3>Requirements</h3></div><button type="button" class="psp-v20-add-btn" onclick="pspCourseListAdd('requirements')">+ Add Point</button></div><div class="psp-v20-editor-list" id="pspV20List-requirements"></div></section>
-          <section class="psp-v20-editor-section v127-list-card v127-span-2"><div class="psp-v20-editor-section-head"><div><span class="v127-kicker">Audience</span><h3>Who This Course Is For</h3></div><button type="button" class="psp-v20-add-btn" onclick="pspCourseListAdd('audience')">+ Add Point</button></div><div class="psp-v20-editor-list" id="pspV20List-audience"></div></section>
+      <section class="v129-panel" data-v129-panel="learning" hidden>
+        <div class="v129-panel-title"><div><span>LEARNING DESIGN</span><h3>Learning</h3><p>Manage included features, learning points, outcomes, requirements and audience.</p></div></div>
+        <div id="pspV20CourseEditor" class="v129-learning-grid">
+          <section class="psp-v20-editor-section"><div class="psp-v20-editor-section-head"><div><span>INCLUDED</span><h3>Enrollment Card Features</h3></div><button type="button" class="psp-v20-add-btn" onclick="pspCourseListAdd('included')">+ Add Point</button></div><div class="psp-v20-editor-list" id="pspV20List-included"></div></section>
+          <section class="psp-v20-editor-section"><div class="psp-v20-editor-section-head"><div><span>LEARNING</span><h3>What Students Will Learn</h3></div><button type="button" class="psp-v20-add-btn" onclick="pspCourseListAdd('learning')">+ Add Point</button></div><div class="psp-v20-editor-list" id="pspV20List-learning"></div></section>
+          <section class="psp-v20-editor-section"><div class="psp-v20-editor-section-head"><div><span>RESULTS</span><h3>Course Outcomes</h3></div><button type="button" class="psp-v20-add-btn" onclick="pspCourseListAdd('outcomes')">+ Add Point</button></div><div class="psp-v20-editor-list" id="pspV20List-outcomes"></div></section>
+          <section class="psp-v20-editor-section"><div class="psp-v20-editor-section-head"><div><span>ENTRY</span><h3>Requirements</h3></div><button type="button" class="psp-v20-add-btn" onclick="pspCourseListAdd('requirements')">+ Add Point</button></div><div class="psp-v20-editor-list" id="pspV20List-requirements"></div></section>
+          <section class="psp-v20-editor-section v129-span-2"><div class="psp-v20-editor-section-head"><div><span>AUDIENCE</span><h3>Who This Course Is For</h3></div><button type="button" class="psp-v20-add-btn" onclick="pspCourseListAdd('audience')">+ Add Point</button></div><div class="psp-v20-editor-list" id="pspV20List-audience"></div></section>
         </div>
       </section>
 
-      <section class="v127-course-panel" data-v127-panel="modules">
-        <div class="v127-panel-heading"><div><span class="v127-kicker">Curriculum</span><h3>Modules</h3><p>Keep the course sequence clean. Reorder modules without changing their content.</p></div><button type="button" class="v127-secondary-btn" onclick="pspCourseModuleAdd()">+ Add Module</button></div>
-        <div class="v127-card v127-modules-card"><div class="psp-v20-module-list" id="pspV20Modules"></div></div>
+      <section class="v129-panel" data-v129-panel="modules" hidden>
+        <div class="v129-panel-title"><div><span>CURRICULUM</span><h3>Modules</h3><p>Keep module sequence and content clean and easy to manage.</p></div><button type="button" class="v129-secondary" onclick="pspCourseModuleAdd()">+ Add Module</button></div>
+        <div class="v129-card v129-modules-card"><div class="psp-v20-module-list" id="pspV20Modules"></div></div>
       </section>
 
-      <section class="v127-course-panel" data-v127-panel="settings">
-        <div class="v127-panel-heading"><div><span class="v127-kicker">Publishing</span><h3>Settings</h3><p>Internal identity and publication controls for this course.</p></div></div>
-        <div class="v127-card">
-          <div class="v127-grid v127-grid-2">
+      <section class="v129-panel" data-v129-panel="settings" hidden>
+        <div class="v129-panel-title"><div><span>PUBLISHING</span><h3>Settings</h3><p>Internal identity and publication controls for this course.</p></div></div>
+        <div class="v129-card">
+          <div class="v129-grid v129-grid-2">
             <div class="form-group"><label>Course key / slug</label><input id="v20CourseKey" placeholder="e.g. gold-masterclass"></div>
-            <div class="v127-toggle-box"><div><strong>Published</strong><span>Visible to students and available in the catalogue.</span></div><label class="v127-switch"><input type="checkbox" id="coursePublished" checked><i></i></label></div>
-            <div class="v127-toggle-box"><div><strong>Paid / Premium</strong><span>Use paid-course access and checkout controls.</span></div><label class="v127-switch"><input type="checkbox" id="coursePremium"><i></i></label></div>
+            <div class="v129-toggle"><div><strong>Published</strong><span>Visible to students and available in the catalogue.</span></div><label><input type="checkbox" id="coursePublished" checked><i></i></label></div>
+            <div class="v129-toggle"><div><strong>Paid / Premium</strong><span>Use paid-course access and checkout controls.</span></div><label><input type="checkbox" id="coursePremium"><i></i></label></div>
           </div>
         </div>
       </section>
     </div>
 
-    <footer class="v127-course-footer">
-      <div class="v127-save-state" id="v127SaveState"><span></span><b>No unsaved changes</b></div>
-      <div class="v127-course-footer-actions">
-        <button class="btn btn-secondary" type="button" onclick="closeModal('courseForm')">Cancel</button>
-        <button class="btn v127-save-btn" type="button" onclick="saveCourse()" id="saveCourseBtn">Save Changes</button>
-      </div>
+    <footer class="v129-footer">
+      <div class="v129-save-state" id="v129SaveState"><span></span><b>No unsaved changes</b></div>
+      <div class="v129-actions"><button class="btn btn-secondary" type="button" onclick="closeModal('courseForm')">Cancel</button><button class="btn v129-save" type="button" onclick="saveCourse()" id="saveCourseBtn">Save Changes</button></div>
     </footer>
   </div>
 </div>
@@ -4734,71 +4583,5 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 <script src="admin-dashboard-v89.js?v=20260819-v92-course-revenue-hard-repair"></script>
 <script src="admin-suite-v90.js?v=20260819-v92-course-revenue-hard-repair"></script>
 <script src="company-revenue-v93.js?v=20260819-v93-income-breakdown"></script>
-<script id="pspV127CoursesUI">
-(function(){
-'use strict';
-const BASIC_CLASSES=[
-  ['FINANCIAL MARKETS BLUEPRINT','2026-08-10T21:00:00+05:00'],
-  ['THE LANGUAGE OF PRICE INTELLIGENCE','2026-08-13T21:00:00+05:00'],
-  ['DECODING AND DISSECTING CANDLESTICKS','2026-08-15T21:00:00+05:00'],
-  ["EXPLORING TRADER'S TOOLKIT",'2026-08-17T21:00:00+05:00'],
-  ['TRADING WITH MARKET PULSE','2026-08-18T21:00:00+05:00'],
-  ['UNDERSTANDING REAL MARKET DRIVERS','2026-08-20T21:00:00+05:00'],
-  ['ULTIMATE SUCCESS CODE — THE MINDSET','2026-08-24T21:00:00+05:00'],
-  ['BUILDING YOUR TRADING EDGE','2026-08-25T21:00:00+05:00'],
-  ['MASTER THE ART OF TRADING','2026-08-27T21:00:00+05:00']
-];
-const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function fmt(iso){try{return new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Karachi',month:'short',day:'2-digit',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(iso)).replace(', 2026 at',', 2026 ·')+' PKT';}catch(_){return iso}}
-function hideLegacyCourseOperations(){
-  const page=document.getElementById('page-courses');if(!page)return;
-  [...page.querySelectorAll('button')].forEach(btn=>{if(!/Manage Live Links/i.test(btn.textContent||''))return;let cur=btn.parentElement,candidate=null;while(cur&&cur!==page){const t=(cur.textContent||'').replace(/\s+/g,' '),classes=(t.match(/CLASS\s*0?\d/gi)||[]).length;if(/Basic Forex Course/i.test(t)&&classes>=5){candidate=cur;break}cur=cur.parentElement}if(candidate&&!candidate.closest('#pspV124Schedule'))candidate.style.display='none'});
-  [...page.querySelectorAll('div,section,article')].forEach(el=>{if(el.id==='pspV124Schedule'||el.closest('#pspV124Schedule'))return;const t=(el.textContent||'').replace(/\s+/g,' ').trim();if(!/Courses\s*&\s*Live Classes/i.test(t)||t.length>1100)return;const b=[...el.querySelectorAll('button')].map(x=>(x.textContent||'').trim()).join(' ');if(/Enrollments/i.test(b)&&/Refresh/i.test(b))el.style.display='none'});
-}
-function renderSchedule(){
-  hideLegacyCourseOperations();
-  const existing=document.getElementById('pspV124Schedule');
-  if(existing)existing.remove();
-}
-window.pspV124RenderSchedule=renderSchedule;
-function activateTab(key){
-  const modal=document.getElementById('modal-courseForm');if(!modal)return;
-  modal.querySelectorAll('[data-v127-tab]').forEach(b=>b.classList.toggle('active',b.dataset.v127Tab===key));
-  modal.querySelectorAll('[data-v127-panel]').forEach(p=>p.classList.toggle('active',p.dataset.v127Panel===key));
-  modal.querySelector('.v127-course-body')?.scrollTo({top:0,behavior:'instant'});
-}
-function syncHeader(){
-  const modal=document.getElementById('modal-courseForm');if(!modal)return;
-  const title=(document.getElementById('courseTitle')?.value||'').trim();
-  const editing=!!document.getElementById('courseId')?.value;
-  const published=!!document.getElementById('coursePublished')?.checked;
-  const h=document.getElementById('courseFormTitle');if(h)h.textContent=editing?'Edit Course':'Add New Course';
-  const sub=document.getElementById('v127CourseSubtitle');if(sub)sub.textContent=(title||'New course')+' · content, pricing, access and curriculum';
-  const st=document.getElementById('v127CourseStatus');if(st){st.textContent=published?'Active':'Draft';st.classList.toggle('draft',!published)}
-  const save=document.getElementById('saveCourseBtn');if(save&&!save.disabled)save.textContent=editing?'Save Changes':'Create Course';
-}
-function syncCover(){
-  const box=document.getElementById('courseThumbPrev');if(!box)return;
-  const img=box.querySelector('img');if(img){img.alt='Course thumbnail preview';return}
-  const src=(document.getElementById('courseThumbnail')?.value||'').trim();
-  if(src)box.innerHTML=`<img src="${esc(src)}" alt="Course thumbnail preview">`;
-}
-function markDirty(){const s=document.getElementById('v127SaveState');if(s){s.classList.add('dirty');const b=s.querySelector('b');if(b)b.textContent='Unsaved changes'}}
-function markClean(){const s=document.getElementById('v127SaveState');if(s){s.classList.remove('dirty');const b=s.querySelector('b');if(b)b.textContent='No unsaved changes'}}
-function onOpen(){activateTab('overview');setTimeout(()=>{syncHeader();syncCover();markClean()},35)}
-function install(){
-  renderSchedule();
-  const modal=document.getElementById('modal-courseForm');if(modal){
-    modal.addEventListener('click',e=>{const b=e.target.closest('[data-v127-tab]');if(b){e.preventDefault();activateTab(b.dataset.v127Tab)}});
-    modal.addEventListener('input',e=>{if(e.target.matches('input,textarea,select')){markDirty();if(e.target.id==='courseTitle')syncHeader()}});
-    modal.addEventListener('change',e=>{if(e.target.matches('input,textarea,select')){markDirty();if(e.target.id==='coursePublished')syncHeader();if(e.target.id==='courseThumbFile')setTimeout(syncCover,300)}});
-    if(window.MutationObserver){new MutationObserver(()=>{if(modal.classList.contains('active'))onOpen()}).observe(modal,{attributes:true,attributeFilter:['class']});new MutationObserver(syncCover).observe(document.getElementById('courseThumbPrev'),{childList:true,subtree:true})}
-  }
-  const page=document.getElementById('page-courses');if(page&&window.MutationObserver&&!window.__v127ScheduleObs){window.__v127ScheduleObs=new MutationObserver(m=>{const ext=m.some(x=>!(x.target?.closest&&x.target.closest('#pspV124Schedule')));if(ext){clearTimeout(window.__v127ScheduleT);window.__v127ScheduleT=setTimeout(renderSchedule,80)}});window.__v127ScheduleObs.observe(page,{childList:true,subtree:true})}
-  setTimeout(renderSchedule,350);
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
-})();
-</script>
 </body>
 </html>
