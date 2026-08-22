@@ -3413,5 +3413,23 @@ window.addEventListener('message',function(event){
 <script src="psp-v29-final.js?v=20260802-v29-final"></script>
 <script src="account-verification-v49.js?v=20260820-v116-90day-expiry"></script>
 <script src="user-dashboard-v56.js?v=20260820-v115-full-lifecycle"></script>
+
+<style id="pspV119NoInternalFooter">
+/* V119: logged-in/internal user panel never displays the website footer. */
+#siteFooter{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}
+</style>
+<script id="pspV119NoInternalFooterScript">
+(function(){
+  function removeInternalFooter(){
+    try{
+      var f=document.getElementById('siteFooter');
+      if(f)f.remove();
+    }catch(_){ }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',removeInternalFooter,{once:true});
+  else removeInternalFooter();
+})();
+</script>
+
 </body>
 </html>

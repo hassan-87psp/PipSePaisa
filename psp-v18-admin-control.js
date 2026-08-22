@@ -191,7 +191,7 @@ function injectCourseFields(){
   const desc=document.getElementById('courseDescription')?.closest('.form-group');if(!desc)return;
   const box=document.createElement('div');box.id='pspV20CourseEditor';box.className='psp-v20-course-editor';
   box.innerHTML=`
-  <section class="psp-v20-editor-section"><div class="psp-v20-editor-section-head"><h3>Course Overview</h3><small>Same content used on the course page</small></div><div class="psp-v20-editor-grid"><div class="form-group"><label>Course Key</label><select id="v20CourseKey"><option value="basic">Basic / Free</option><option value="advanced">Advanced / Paid</option></select></div><div class="form-group"><label>Old Price (USD)</label><input id="v20OldPrice" type="number" min="0"></div><div class="form-group"><label>Short Description</label><textarea id="v20ShortDescription" rows="3"></textarea></div><div class="form-group"><label>Extra Description Paragraph</label><textarea id="v20DescriptionExtra" rows="3"></textarea></div><div class="form-group"><label>Course Badge</label><input id="v20CourseBadge"></div><div class="form-group"><label>Access Label</label><input id="v20AccessLabel"></div><div class="form-group"><label>Enrollment Note</label><input id="v20BuyNote"></div><div class="form-group"><label>Button Text</label><input id="v20ActionButton"></div><div class="form-group"><label>Content Note</label><input id="v20ContentNote" placeholder="One module opens at a time"></div><div class="form-group"><label>Secure Line</label><input id="v20SecureNote"></div><div class="form-group"><label>Mentor Name</label><input id="v20MentorName"></div><div class="form-group"><label>Mentor Title</label><input id="v20MentorTitle"></div><div class="form-group"><label>Learning Section Heading</label><input id="v20LearningHeading" placeholder="What you’ll learn"></div><div class="form-group"><label>Outcomes Section Heading</label><input id="v20OutcomesHeading" placeholder="Course Outcomes"></div><div class="form-group"><label>Course Content Heading</label><input id="v20ContentHeading" placeholder="Course content"></div><div class="form-group"><label>Requirements Heading</label><input id="v20RequirementsHeading" placeholder="Requirements"></div><div class="form-group"><label>Audience Heading</label><input id="v20AudienceHeading" placeholder="Who this course is for"></div><div class="form-group"><label>Description Heading</label><input id="v20DescriptionHeading" placeholder="Description"></div><div class="form-group"><label>Related Course Heading</label><input id="v20RelatedHeading" placeholder="Other PipSePaisa Courses"></div></div></section>
+  <section class="psp-v20-editor-section"><div class="psp-v20-editor-section-head"><h3>Course Overview</h3><small>Same content used on the course page</small></div><div class="psp-v20-editor-grid"><div class="form-group"><label>Course Key / Slug</label><input id="v20CourseKey" placeholder="e.g. gold-masterclass"></div><div class="form-group"><label>Old Price (USD)</label><input id="v20OldPrice" type="number" min="0"></div><div class="form-group"><label>Short Description</label><textarea id="v20ShortDescription" rows="3"></textarea></div><div class="form-group"><label>Extra Description Paragraph</label><textarea id="v20DescriptionExtra" rows="3"></textarea></div><div class="form-group"><label>Course Badge</label><input id="v20CourseBadge"></div><div class="form-group"><label>Access Label</label><input id="v20AccessLabel"></div><div class="form-group"><label>Enrollment Note</label><input id="v20BuyNote"></div><div class="form-group"><label>Button Text</label><input id="v20ActionButton"></div><div class="form-group"><label>Content Note</label><input id="v20ContentNote" placeholder="One module opens at a time"></div><div class="form-group"><label>Secure Line</label><input id="v20SecureNote"></div><div class="form-group"><label>Mentor Name</label><input id="v20MentorName"></div><div class="form-group"><label>Mentor Title</label><input id="v20MentorTitle"></div><div class="form-group"><label>Learning Section Heading</label><input id="v20LearningHeading" placeholder="What you’ll learn"></div><div class="form-group"><label>Outcomes Section Heading</label><input id="v20OutcomesHeading" placeholder="Course Outcomes"></div><div class="form-group"><label>Course Content Heading</label><input id="v20ContentHeading" placeholder="Course content"></div><div class="form-group"><label>Requirements Heading</label><input id="v20RequirementsHeading" placeholder="Requirements"></div><div class="form-group"><label>Audience Heading</label><input id="v20AudienceHeading" placeholder="Who this course is for"></div><div class="form-group"><label>Description Heading</label><input id="v20DescriptionHeading" placeholder="Description"></div><div class="form-group"><label>Related Course Heading</label><input id="v20RelatedHeading" placeholder="Other PipSePaisa Courses"></div></div></section>
   ${['included','learning','outcomes','requirements','audience'].map(key=>`<section class="psp-v20-editor-section"><div class="psp-v20-editor-section-head"><h3>${listTitle(key)}</h3><button type="button" class="psp-v20-add-btn" onclick="pspCourseListAdd('${key}')">+ Add Point</button></div><div class="psp-v20-editor-list" id="pspV20List-${key}"></div></section>`).join('')}
   <section class="psp-v20-editor-section"><div class="psp-v20-editor-section-head"><h3>Course Content / Modules</h3><button type="button" class="psp-v20-add-btn" onclick="pspCourseModuleAdd()">+ Add Module</button></div><div class="psp-v20-module-list" id="pspV20Modules"></div></section>`;
   desc.insertAdjacentElement('afterend',box);
@@ -212,14 +212,12 @@ function installCourseEditor(){
   window.openCourseForm=function(course){injectCourseFields();originalOpen.apply(this,arguments);fillCourseEditor(course||{});};
   window.saveCourse=async function(){
     const client=db(),errEl=document.getElementById('courseFormError'),btn=document.getElementById('saveCourseBtn');errEl.style.display='none';
-    const id=document.getElementById('courseId').value,title=document.getElementById('courseTitle').value.trim();if(!title){errEl.textContent='❌ Title is required';errEl.style.display='block';return;}
-    syncModules();const learning=collectList('learning'),outcomes=collectList('outcomes');
-    const courseKey=document.getElementById('v20CourseKey').value;
-    const isAdvanced=courseKey==='advanced';
-    const data={title,course_key:courseKey,description:document.getElementById('courseDescription').value.trim(),short_description:document.getElementById('v20ShortDescription').value.trim(),description_extra:document.getElementById('v20DescriptionExtra').value.trim(),included_items:collectList('included'),content_note:document.getElementById('v20ContentNote').value.trim(),secure_note:document.getElementById('v20SecureNote').value.trim(),level:document.getElementById('courseLevel').value,category:document.getElementById('courseCategory').value.trim(),thumbnail:document.getElementById('courseThumbnail').value.trim()||null,thumbnail_emoji:'📚',thumbnail_color:1,youtube_url:null,display_order:isAdvanced?2:1,enrollments_count:0,is_published:document.getElementById('coursePublished').checked,is_premium:isAdvanced,price:isAdvanced?Math.max(0,Number(document.getElementById('coursePrice').value)||0):0,currency:'USD',local_bank_price_pkr:isAdvanced?Math.max(0,Number((document.getElementById('courseLocalBankPrice')||{value:0}).value)||0):null,old_price:Math.max(0,Number(document.getElementById('v20OldPrice').value)||0),course_badge:document.getElementById('v20CourseBadge').value.trim(),access_label:document.getElementById('v20AccessLabel').value.trim(),buy_note:document.getElementById('v20BuyNote').value.trim(),action_button_text:document.getElementById('v20ActionButton').value.trim(),mentor_name:document.getElementById('v20MentorName').value.trim(),mentor_title:document.getElementById('v20MentorTitle').value.trim(),learning_heading:document.getElementById('v20LearningHeading').value.trim()||"What you'll learn",outcomes_heading:document.getElementById('v20OutcomesHeading').value.trim()||'Course Outcomes',content_heading:document.getElementById('v20ContentHeading').value.trim()||'Course content',requirements_heading:document.getElementById('v20RequirementsHeading').value.trim()||'Requirements',audience_heading:document.getElementById('v20AudienceHeading').value.trim()||'Who this course is for',description_heading:document.getElementById('v20DescriptionHeading').value.trim()||'Description',related_heading:document.getElementById('v20RelatedHeading').value.trim()||'Other PipSePaisa Courses',requirements:collectList('requirements'),audience:collectList('audience'),learning_outcomes:learning,achievement_outcomes:outcomes,modules_json:editorModules.map(m=>({...m,duration:m.duration||'90 min'}))};
+    const id=document.getElementById('courseId').value,title=document.getElementById('courseTitle').value.trim();if(!title){errEl.textContent='❌ Title is required';errEl.style.display='block';return;}const keyEl=document.getElementById('v20CourseKey');if(keyEl&&!String(keyEl.value||'').trim())keyEl.value=title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,60)||('course-'+Date.now());
+    syncModules();const learning=collectList('learning'),outcomes=collectList('outcomes');if(!learning.length||!outcomes.length){errEl.textContent='❌ Add at least one learning point and one course outcome.';errEl.style.display='block';return;}
+    const data={title,course_key:document.getElementById('v20CourseKey').value,description:document.getElementById('courseDescription').value.trim(),short_description:document.getElementById('v20ShortDescription').value.trim(),description_extra:document.getElementById('v20DescriptionExtra').value.trim(),included_items:collectList('included'),content_note:document.getElementById('v20ContentNote').value.trim(),secure_note:document.getElementById('v20SecureNote').value.trim(),level:document.getElementById('courseLevel').value,category:document.getElementById('courseCategory').value.trim(),thumbnail:document.getElementById('courseThumbnail').value.trim()||null,thumbnail_emoji:'📚',thumbnail_color:1,youtube_url:null,display_order:Number(document.getElementById('courseOrder').value)||0,enrollments_count:0,is_published:document.getElementById('coursePublished').checked,is_premium:document.getElementById('coursePremium').checked,price:Math.max(0,Number(document.getElementById('coursePrice').value)||0),currency:'USD',local_bank_price_pkr:Math.max(0,Number((document.getElementById('courseLocalBankPrice')||{value:0}).value)||0),old_price:Math.max(0,Number(document.getElementById('v20OldPrice').value)||0),course_badge:document.getElementById('v20CourseBadge').value.trim(),access_label:document.getElementById('v20AccessLabel').value.trim(),buy_note:document.getElementById('v20BuyNote').value.trim(),action_button_text:document.getElementById('v20ActionButton').value.trim(),mentor_name:document.getElementById('v20MentorName').value.trim(),mentor_title:document.getElementById('v20MentorTitle').value.trim(),learning_heading:document.getElementById('v20LearningHeading').value.trim()||"What you'll learn",outcomes_heading:document.getElementById('v20OutcomesHeading').value.trim()||'Course Outcomes',content_heading:document.getElementById('v20ContentHeading').value.trim()||'Course content',requirements_heading:document.getElementById('v20RequirementsHeading').value.trim()||'Requirements',audience_heading:document.getElementById('v20AudienceHeading').value.trim()||'Who this course is for',description_heading:document.getElementById('v20DescriptionHeading').value.trim()||'Description',related_heading:document.getElementById('v20RelatedHeading').value.trim()||'Other PipSePaisa Courses',requirements:collectList('requirements'),audience:collectList('audience'),learning_outcomes:learning,achievement_outcomes:outcomes,modules_json:editorModules.map(m=>({...m,duration:m.duration||'90 min'}))};
     btn.disabled=true;btn.textContent='Saving…';let result=id?await client.from('courses').update(data).eq('id',id):await client.from('courses').insert(data);btn.disabled=false;btn.textContent='💾 Save Course';
     if(result.error){errEl.textContent='❌ '+result.error.message;errEl.style.display='block';return;}
-    window.closeModal('courseForm');await resultModal(true,'Course Saved',isAdvanced?'Advanced Course pricing, Local Bank PKR price and course-page sections have been updated.':'Course-page sections have been updated.');window.loadAdminCourses?.();
+    window.closeModal('courseForm');await resultModal(true,'Course Saved','Thumbnail and all course-page sections have been updated.');window.loadAdminCourses?.();
   };
 }
 
@@ -231,4 +229,128 @@ function init(){
   }
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+
+
+// ============================================================
+// PIPSEPAISA V119 — COURSE EDITOR PREFILL + NEW COURSE SAMPLES
+// ============================================================
+(function(){
+  const BASIC={
+    key:'basic',short:'Build a strong foundation in Forex trading, technical analysis, market sentiment, risk management and beginner-level strategies.',
+    extra:'Every module follows a clear learning path with practical market examples, defined objectives and expected outcomes. The goal is to help students understand the process rather than copy random trades.',
+    badge:'FREE BASIC COURSE',access:'FREE COURSE ACCESS',buy:'Complete the enrollment form and begin learning.',button:'Start Free Course',content:'One module opens at a time',secure:'Direct account-linked enrollment',mentor:'Sajid Khan Ghori',mentorTitle:'Asia Top Instructor',oldPrice:0,
+    included:['9 foundation modules','Beginner-friendly practical learning','Mobile and desktop access','Progress saved in your account'],
+    requirements:['This course is suitable even if you are completely new to forex.','A mobile phone or computer with internet access.','A willingness to practise on a demo account and follow risk-management rules.'],
+    audience:['Complete beginners starting their Forex journey.','Traders who want to rebuild their foundation correctly.','Students who prefer structured, practical learning.'],
+    learning:['Understand how the Forex market and currency pairs work.','Read candlestick behaviour, trends and important price levels.','Use technical indicators as confirmation rather than dependency.','Prepare for economic news and fundamental market events.','Build a repeatable trading strategy with clear risk rules.','Develop discipline, patience and a professional trading routine.'],
+    outcomes:['Understand forex market structure and price movement clearly.','Identify stronger entry and exit areas with confidence.','Use technical tools and chart analysis in a practical way.','Build better risk-management and trading-discipline habits.','Improve decision-making using real market examples.','Develop a repeatable trading approach for consistent learning.'],
+    modules:[
+      ['FINANCIAL MARKETS BLUEPRINT','Understanding the Ecosystem of Global Financial Markets','Global financial markets\nForex ecosystem\nMarket participants'],
+      ['THE LANGUAGE OF PRICE INTELLIGENCE','Mastering Technical Analysis','Support & resistance\nTrend lines and structure\nTechnical analysis foundations'],
+      ['DECODING AND DISSECTING CANDLESTICKS','Cracking the Hidden Price Behaviors','Candlestick structure\nPrice behaviour\nRejection and momentum'],
+      ["EXPLORING TRADER'S TOOLKIT",'Mastering Technical Indicators','Technical indicators\nConfirmation tools\nIndicator interpretation'],
+      ['TRADING WITH MARKET PULSE','Reading Market Sentiment','Market sentiment\nBullish vs bearish bias\nReading market pulse'],
+      ['UNDERSTANDING REAL MARKET DRIVERS','Understanding Fundamental Analysis','Economic market drivers\nFundamental events\nCentral-bank and data impact'],
+      ['ULTIMATE SUCCESS CODE — THE MINDSET','Psychology, Risk & Capital Management','Trading psychology\nRisk management\nCapital management'],
+      ['BUILDING YOUR TRADING EDGE','Developing High-Probability Trading Strategies','Strategy development\nHigh-probability setups\nEntry and exit rules'],
+      ['MASTER THE ART OF TRADING','Advanced Strategies, Execution & Trade Management','Advanced execution\nTrade management\nProfessional trading process']
+    ]
+  };
+  const ADV={
+    key:'advanced',short:'Develop a professional trading mindset and study advanced market behaviour, session timing, liquidity, correlations and strategy development.',
+    extra:'Every module follows a clear learning path with practical market examples, defined objectives and expected outcomes. The goal is to help students understand the process rather than copy random trades.',
+    badge:'ADVANCED PROFESSIONAL COURSE',access:'PROFESSIONAL COURSE ACCESS',buy:'One-time course payment • Secure verification',button:'Enroll & Pay — $250',content:'One module opens at a time',secure:'Secure proof submission • Admin verification',mentor:'Sajid Khan Ghori',mentorTitle:'Asia Top Instructor',oldPrice:500,
+    included:['9 advanced modules','Institutional concepts & mentor guidance','Mobile and desktop access','Progress saved in your account'],
+    requirements:['This course is suitable even if you are completely new to forex.','Completion of the Basic Forex Course is recommended.','Access to a charting platform and a demo trading account.'],
+    audience:['Intermediate traders seeking professional structure.','Traders struggling with consistency and execution.','Students who want institutional concepts and advanced risk management.'],
+    learning:['Map advanced market structure and institutional liquidity.','Select stronger opportunities using session timing and volatility.','Combine supply, demand, order flow and multi-timeframe confirmation.','Use correlations and currency strength to improve directional bias.','Manage positions, partial profits and portfolio exposure professionally.','Build and review a complete trading playbook using performance data.'],
+    outcomes:['Read institutional structure and liquidity with greater clarity.','Build high-quality entry models using confirmation and timing.','Combine order flow, supply, demand and multi-timeframe analysis.','Improve risk, exposure and position-management decisions.','Use correlations and macro context to strengthen directional bias.','Create and review a professional, repeatable trading playbook.'],
+    modules:[
+      ['Think Like a Professional Trader','Professional Mindset, Discipline & High-Performance Trading Habits','Professional mindset\nTrading discipline\nHigh-performance habits'],
+      ['Mastering the Forex Clock','How Trading Sessions, Liquidity & Timing Create Trading Opportunities','Asian, London and New York sessions\nLiquidity windows\nTrade timing'],
+      ['Follow the Currency Flow','Using Currency Indices to Identify Strength, Weakness & Major Trends','Currency indices\nStrength and weakness\nMajor trends'],
+      ['The Confluence Edge','Using Correlations to Confirm Direction & Increase Trading Probability','Intermarket correlations\nDirectional confirmation\nConfluence'],
+      ['Order Flow Mastery','Understanding Forex Market Microstructure, Liquidity & Order Flow','Market microstructure\nLiquidity\nOrder flow'],
+      ['Deep Dive in Macroeconomics','The Fundamental Forces That Drive Currencies & Financial Markets','Macroeconomic drivers\nTrend forces\nMarket regimes'],
+      ['Harness the Power of Trading Fundamentals','Connecting Economic Data, Central Banks & Market Expectations','Economic data\nCentral banks\nMarket expectations'],
+      ['The Professional Trading Playbook','High-Probability Setups, Confluence & Trade Planning','High-probability setups\nConfluence\nTrade planning'],
+      ['Uncovering the Secrets of Profitable Trading','Advanced Execution, Position Management & Integration','Advanced execution\nPosition management\nStrategy integration']
+    ]
+  };
+  const HEADINGS={v20LearningHeading:"What you'll learn",v20OutcomesHeading:'Course Outcomes',v20ContentHeading:'Course content',v20RequirementsHeading:'Requirements',v20AudienceHeading:'Who this course is for',v20DescriptionHeading:'Description',v20RelatedHeading:'Other PipSePaisa Courses'};
+  function val(id,v){const e=document.getElementById(id);if(e&&!String(e.value||'').trim())e.value=v||'';}
+  function placeholder(id,v){const e=document.getElementById(id);if(e)e.placeholder=v||'';}
+  function detect(course){
+    const k=String(course?.course_key||'').toLowerCase(),t=String(course?.title||'').toLowerCase();
+    if(k==='basic'||t.includes('basic forex course'))return BASIC;
+    if(k==='advanced'||t.includes('advanced forex course'))return ADV;
+    return null;
+  }
+  function fillList(key,items){
+    let box=document.getElementById('pspV20List-'+key);if(!box)return;
+    let inputs=[...box.querySelectorAll('[data-list-key]')];
+    if(inputs.length&&inputs.some(x=>String(x.value||'').trim()))return;
+    while(inputs.length<items.length){window.pspCourseListAdd?.(key);inputs=[...box.querySelectorAll('[data-list-key]')];}
+    inputs.forEach((e,i)=>{if(items[i]!=null&&!String(e.value||'').trim())e.value=items[i];});
+  }
+  function fillModules(modules){
+    const cards=[...document.querySelectorAll('#pspV20Modules [data-module-index]')];
+    if(!cards.length)return;
+    const looksBlank=cards.every(c=>{
+      const title=c.querySelector('[data-module-field="title"]')?.value||'';
+      const summary=c.querySelector('[data-module-field="summary"]')?.value||'';
+      return /^Module\s+\d+$/i.test(title)||(!title&&!summary);
+    });
+    if(!looksBlank)return;
+    cards.slice(0,modules.length).forEach((c,i)=>{
+      const m=modules[i];
+      const title=c.querySelector('[data-module-field="title"]');
+      const dur=c.querySelector('[data-module-field="duration"]');
+      const summary=c.querySelector('[data-module-field="summary"]');
+      const points=c.querySelector('[data-module-field="points"]');
+      if(title)title.value=m[0];if(dur)dur.value='90 min';if(summary)summary.value=m[1];if(points)points.value=m[2];
+    });
+  }
+  function fillKnown(course){
+    const d=detect(course);if(!d)return;
+    val('v20CourseKey',d.key);val('v20OldPrice',d.oldPrice);val('v20ShortDescription',d.short);val('v20DescriptionExtra',d.extra);val('v20CourseBadge',d.badge);val('v20AccessLabel',d.access);val('v20BuyNote',d.buy);val('v20ActionButton',d.button);val('v20ContentNote',d.content);val('v20SecureNote',d.secure);val('v20MentorName',d.mentor);val('v20MentorTitle',d.mentorTitle);
+    Object.entries(HEADINGS).forEach(([id,v])=>val(id,v));
+    fillList('included',d.included);fillList('requirements',d.requirements);fillList('audience',d.audience);fillList('learning',d.learning);fillList('outcomes',d.outcomes);fillModules(d.modules);
+    if(d===ADV){val('coursePrice',250);val('v20OldPrice',500)}
+  }
+  function sampleNewCourse(){
+    const ids={
+      courseTitle:'e.g. Gold Trading Masterclass',courseDescription:'e.g. A practical course covering Gold structure, timing, risk and execution.',courseCategory:'e.g. Gold / Technical',coursePrice:'e.g. 150',courseLocalBankPrice:'e.g. 42000',v20CourseKey:'e.g. gold-masterclass',v20OldPrice:'e.g. 300',v20ShortDescription:'e.g. Learn a structured Gold trading process from analysis to execution.',v20DescriptionExtra:'e.g. Add a second paragraph explaining the course approach and learning experience.',v20CourseBadge:'e.g. GOLD PROFESSIONAL COURSE',v20AccessLabel:'e.g. PROFESSIONAL COURSE ACCESS',v20BuyNote:'e.g. One-time payment • Secure verification',v20ActionButton:'e.g. Enroll & Pay',v20ContentNote:'e.g. One module opens at a time',v20SecureNote:'e.g. Secure account-linked enrollment',v20MentorName:'e.g. Sajid Khan Ghori',v20MentorTitle:'e.g. Asia Top Instructor'};
+    Object.entries(ids).forEach(([id,v])=>placeholder(id,v));
+    Object.entries(HEADINGS).forEach(([id,v])=>placeholder(id,v));
+
+    ['included','learning','outcomes','requirements','audience'].forEach(key=>{
+      let box=document.getElementById('pspV20List-'+key);if(!box)return;
+      let inputs=[...box.querySelectorAll('[data-list-key]')];
+      if(!inputs.length){window.pspCourseListAdd?.(key);inputs=[...box.querySelectorAll('[data-list-key]')];}
+      if(inputs[0]){inputs[0].value='';inputs[0].placeholder={included:'e.g. 8 structured modules',learning:'e.g. Build a repeatable Gold trading plan',outcomes:'e.g. Execute with clearer risk rules',requirements:'e.g. Basic charting knowledge is helpful',audience:'e.g. Traders who want to specialise in Gold'}[key]||'Add a point';}
+    });
+
+    // One clean sample module instead of nine large blank cards.
+    let cards=[...document.querySelectorAll('#pspV20Modules [data-module-index]')];
+    while(cards.length>1){window.pspCourseModuleDelete?.(cards.length-1);cards=[...document.querySelectorAll('#pspV20Modules [data-module-index]')];}
+    const c=cards[0];if(c){
+      const t=c.querySelector('[data-module-field="title"]'),d=c.querySelector('[data-module-field="duration"]'),s=c.querySelector('[data-module-field="summary"]'),p=c.querySelector('[data-module-field="points"]');
+      if(t){t.value='';t.placeholder='e.g. Module 1 — Gold Market Structure'}
+      if(d){d.value='';d.placeholder='e.g. 90 min'}
+      if(s){s.value='';s.placeholder='e.g. Understand Gold structure and key liquidity areas.'}
+      if(p){p.value='';p.placeholder='e.g. Trend structure\nLiquidity zones\nExecution framework'}
+    }
+  }
+  function wrap(){
+    if(window.__pspV119CourseWrapped||typeof window.openCourseForm!=='function')return;
+    window.__pspV119CourseWrapped=true;
+    const original=window.openCourseForm;
+    window.openCourseForm=function(course){
+      original.apply(this,arguments);
+      setTimeout(()=>{if(course&&course.id)fillKnown(course);else sampleNewCourse();},0);
+    };
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(wrap,20));else setTimeout(wrap,20);
 })();
