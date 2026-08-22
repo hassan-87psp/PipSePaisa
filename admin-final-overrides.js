@@ -166,7 +166,7 @@ window.loadAdminCourses=async function(){
   function thumbnail(course,fallback){
     var premium=course.is_premium===true||Number(course.price||0)>0;
     var src=String(course.thumbnail||'');
-    if(!src||/service-banners\/forex-education/i.test(src)||/course-thumbnails\//i.test(src))src=fallback;
+    if(!src||/service-banners\/forex-education/i.test(src))src=fallback;
     var fb=premium?'advanced-course-thumbnail.webp?v=20260802-v29-final':'basic-course-thumbnail.webp?v=20260802-v29-final';
     return '<div class="psp-system-course-thumbnail"><img src="'+esc(src||fb)+'" onerror="this.onerror=null;this.src=\''+fb+'\'" alt="'+esc(course.title||'Course')+' thumbnail"><span>1280 × 720 Course Thumbnail</span></div>';
   }
@@ -187,9 +187,9 @@ window.loadAdminCourses=async function(){
       +'<div>Modules<strong>'+moduleCount(course)+'</strong></div>'
       +'<div>Enrollments<strong>'+enrolled+'</strong></div>'
       +'</div>'
-      +'<div class="psp-course-admin-actions">'
+      +'<div class="psp-course-admin-actions psp-custom-course-actions">'
       +'<button class="btn btn-secondary" onclick="editCourse(\''+esc(course.id)+'\')">✏️ Edit Course</button>'
-      +'<button class="btn btn-secondary psp-delete-course-btn" onclick="deleteCourse(\''+esc(course.id)+'\',\''+esc(String(course.title||'Course').replace(/'/g,''))+'\')">Delete</button>'
+      +'<button class="btn btn-secondary psp-delete-course-btn" onclick="pspDeleteCustomCourse(\''+esc(course.id)+'\')">🗑 Delete Course</button>'
       +'</div></article>';
   }
 
@@ -202,6 +202,84 @@ window.loadAdminCourses=async function(){
 
   var createBtn=document.querySelector('#page-courses .card-header .btn');
   if(createBtn)createBtn.style.removeProperty('display');
+};
+
+
+/* V132 — reliable custom course delete */
+window.pspDeleteCustomCourse=async function(id){
+  const db=c();
+  if(!db){alert('Admin database connection is not ready. Please refresh and try again.');return;}
+
+  let row=null;
+  try{
+    const read=await db.from('courses').select('*').eq('id',id).maybeSingle();
+    if(read.error)throw read.error;
+    row=read.data||null;
+  }catch(error){
+    alert('Could not read this course: '+(error?.message||error));
+    return;
+  }
+
+  if(!row){alert('This course could not be found. Refresh the Courses page and try again.');return;}
+
+  const title=String(row.title||'Course').trim();
+  const key=String(row.course_key||'').trim().toLowerCase();
+  const order=Number(row.display_order||0);
+  const systemCourse=/^basic forex course$/i.test(title)||/^advanced forex course$/i.test(title)
+    ||(key==='basic'&&order===1)||(key==='advanced'&&order===2);
+
+  if(systemCourse){
+    alert('Basic Forex Course and Advanced Forex Course are protected system courses and cannot be deleted.');
+    return;
+  }
+
+  const ask='Delete "'+title+'"?\n\nThis will permanently remove the custom course and its course-specific class/enrollment records.';
+  let ok=false;
+  try{
+    ok=typeof window.pspConfirm==='function'?await window.pspConfirm(ask):window.confirm(ask);
+  }catch(_){
+    ok=window.confirm(ask);
+  }
+  if(!ok)return;
+
+  // Remove child records belonging only to this custom course key.
+  // Failures here are collected; the main delete is still attempted so a table
+  // without a matching row/policy does not make the button appear broken.
+  const childErrors=[];
+  if(key&&key!=='basic'&&key!=='advanced'){
+    for(const table of ['course_classes','course_enrollments']){
+      try{
+        const r=await db.from(table).delete().eq('course_key',key);
+        if(r.error)childErrors.push(table+': '+r.error.message);
+      }catch(error){
+        childErrors.push(table+': '+(error?.message||error));
+      }
+    }
+  }
+
+  let result;
+  try{
+    result=await db.from('courses').delete().eq('id',id).select('id');
+  }catch(error){
+    alert('Course delete failed: '+(error?.message||error));
+    return;
+  }
+
+  if(result.error){
+    const extra=childErrors.length?'\n\nRelated cleanup:\n'+childErrors.join('\n'):'';
+    alert('Course delete failed: '+result.error.message+extra);
+    return;
+  }
+
+  if(!Array.isArray(result.data)||result.data.length===0){
+    alert('The course was not deleted. Your current Admin database policy did not return permission to remove this record.');
+    return;
+  }
+
+  if(typeof window.showToast==='function')window.showToast('Course deleted successfully','success');
+  else alert('Course deleted successfully.');
+
+  await window.loadAdminCourses();
 };
 
 /* Payment Requests without request_type dependency, plus course payments */

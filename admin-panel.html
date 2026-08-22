@@ -398,7 +398,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @keyframes pipBootPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 @keyframes pipBootBar{0%{margin-left:-40%}100%{margin-left:150%}}
 </style>
-<link rel="stylesheet" href="admin-final-overrides.css?v=20260822-v131-real-course-catalog">
+<link rel="stylesheet" href="admin-final-overrides.css?v=20260822-v132-course-grid-delete">
 <link rel="stylesheet" href="psp-v20-final.css?v=20260822-v124-admin-safe">
 <link rel="stylesheet" href="admin-v28-fixes.css?v=20260801-v28-final">
 <link rel="stylesheet" href="course-marketplace-v3.css?v=20260802-v29-admin-preview">
@@ -514,7 +514,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 #page-courses>.card>.card-header .card-title{font-size:14px!important}
 #page-courses>.card>.card-header .card-meta{font-size:8px!important}
 #page-courses>.card>.card-header>.btn{min-height:34px!important;padding:7px 13px!important;border-radius:9px!important;font-size:8.5px!important;font-weight:850!important;box-shadow:0 7px 18px rgba(251,146,1,.18)!important}
-#page-courses .psp-system-course-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px!important;width:min(100%,940px)!important;margin:0 auto!important;padding:0!important;align-items:stretch!important}
+#page-courses .psp-system-course-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;width:min(100%,1180px)!important;margin:0 auto!important;padding:0!important;align-items:stretch!important}
 #page-courses .psp-system-course{width:100%!important;max-width:none!important;min-width:0!important;padding:10px!important;margin:0!important;border-radius:15px!important;border:1px solid #eadbc6!important;background:linear-gradient(180deg,#fffdfa,#fff8ed)!important;box-shadow:0 12px 28px rgba(67,46,14,.07)!important;overflow:hidden!important;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease!important}
 #page-courses .psp-system-course:hover{transform:translateY(-2px)!important;border-color:#efb45f!important;box-shadow:0 17px 34px rgba(67,46,14,.10)!important}
 #page-courses .psp-system-course.paid{background:linear-gradient(180deg,#10233d,#0d1c31)!important;border-color:#bc7b22!important;box-shadow:0 13px 30px rgba(13,30,52,.16)!important}
@@ -552,7 +552,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 #modal-courseForm .v129-toggle{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;min-height:58px!important;padding:9px 10px!important;border:1px solid #e4d8c7!important;border-radius:10px!important;background:#fffaf2!important}.v129-toggle strong{display:block!important;font-size:9px!important;color:#172033!important}.v129-toggle span{display:block!important;margin-top:2px!important;font-size:6.7px!important;line-height:1.35!important;color:#98a1b0!important}.v129-toggle label{position:relative!important;width:36px!important;height:21px!important;flex:0 0 36px!important}.v129-toggle input{position:absolute!important;opacity:0!important}.v129-toggle i{position:absolute!important;inset:0!important;border-radius:999px!important;background:#d7dce4!important;transition:.2s!important}.v129-toggle i:before{content:'';position:absolute;left:3px;top:3px;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);transition:.2s}.v129-toggle input:checked+i{background:#FB9201!important}.v129-toggle input:checked+i:before{transform:translateX(15px)!important}
 #modal-courseForm .v129-footer{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:9px 18px!important;border-top:1px solid #eadfce!important;background:#fffdf9!important}.v129-save-state{display:flex!important;align-items:center!important;gap:6px!important;font-size:7px!important;color:#98a1b0!important}.v129-save-state span{width:6px;height:6px;border-radius:50%;background:#c7cdd6}.v129-save-state.dirty{color:#b86500!important;font-weight:800!important}.v129-save-state.dirty span{background:#FB9201!important}.v129-actions{display:flex!important;gap:7px!important}.v129-footer .btn{min-height:33px!important;padding:7px 12px!important;border-radius:8px!important;font-size:8px!important;font-weight:850!important}.v129-save{background:#FB9201!important;color:#111!important;border-color:#FB9201!important;min-width:104px!important}
 #modal-courseForm .v129-body::-webkit-scrollbar{width:7px}.v129-body::-webkit-scrollbar-thumb{background:#d7c7af;border-radius:99px}
-@media(max-width:900px){#page-courses .psp-system-course-grid{width:100%!important}.v129-overview-grid{grid-template-columns:1fr!important}.v129-grid-3{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:1240px){#page-courses .psp-system-course-grid{width:min(100%,850px)!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}}@media(max-width:900px){#page-courses .psp-system-course-grid{width:100%!important}.v129-overview-grid{grid-template-columns:1fr!important}.v129-grid-3{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
 @media(max-width:760px){#page-courses>.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#page-courses .psp-system-course-grid{grid-template-columns:1fr!important}#modal-courseForm{padding:7px!important}#modal-courseForm .v129-course-modal{width:100%!important;max-height:94vh!important}.v129-learning-grid{grid-template-columns:1fr!important}.v129-grid-2,.v129-grid-3{grid-template-columns:1fr!important}.v129-span-2{grid-column:auto!important}.v129-course-modal .psp-v20-module-body{grid-template-columns:1fr!important}}
 </style>
 
@@ -4527,7 +4527,7 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 </script>
 
 <script src="course-enrollments-admin.js?v=20260821-v117-price250"></script>
-<script src="admin-final-overrides.js?v=20260822-v131-real-course-catalog"></script>
+<script src="admin-final-overrides.js?v=20260822-v132-course-grid-delete"></script>
 <script src="psp-v18-admin-control.js?v=20260822-v131-safe-new-course-key"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
 <script src="admin-v28-fixes.js?v=20260801-v28-final"></script>
