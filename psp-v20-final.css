@@ -227,3 +227,102 @@ body.psp-access-resolving .content::after{
   #modal-courseForm .psp-v20-editor-grid{grid-template-columns:1fr!important}
   #modal-courseForm .psp-v20-module-body{grid-template-columns:1fr!important}
 }
+
+
+/* ============================================================
+   V120 — ADMIN COURSE CARDS ~50% SMALLER
+   User requested the two Course Manager cards to be about half
+   their current visual size on desktop.
+   ============================================================ */
+#page-courses .courses-grid{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(250px,330px))!important;
+  justify-content:start!important;
+  align-items:start!important;
+  gap:14px!important;
+}
+
+#page-courses .course-card{
+  width:100%!important;
+  max-width:330px!important;
+  min-width:0!important;
+  padding:7px!important;
+  border-radius:11px!important;
+}
+
+#page-courses .course-thumb{
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:16/9!important;
+  min-height:0!important;
+  margin-bottom:6px!important;
+  border-radius:8px!important;
+}
+
+#page-courses .course-card h3{
+  font-size:12px!important;
+  line-height:1.2!important;
+  margin:4px 0 2px!important;
+}
+
+#page-courses .course-card p{
+  font-size:8px!important;
+  line-height:1.3!important;
+  margin-bottom:6px!important;
+  -webkit-line-clamp:2!important;
+}
+
+#page-courses .course-card .badge,
+#page-courses .course-card [class*="badge"]{
+  font-size:7px!important;
+  padding:3px 5px!important;
+}
+
+#page-courses .course-meta{
+  gap:4px!important;
+  margin-top:4px!important;
+  font-size:7px!important;
+}
+
+#page-courses .course-meta > div,
+#page-courses .course-meta .meta-item{
+  padding:6px 7px!important;
+  min-height:38px!important;
+  border-radius:7px!important;
+}
+
+#page-courses .course-card .btn,
+#page-courses .course-card .action-btn,
+#page-courses .course-card button{
+  min-height:27px!important;
+  padding:5px 7px!important;
+  font-size:7.5px!important;
+  border-radius:7px!important;
+}
+
+#page-courses .course-card .course-actions{
+  gap:5px!important;
+  margin-top:6px!important;
+}
+
+@media (min-width:1100px){
+  #page-courses .courses-grid{
+    grid-template-columns:repeat(2,330px)!important;
+  }
+}
+
+@media (max-width:760px){
+  #page-courses .courses-grid{
+    grid-template-columns:1fr!important;
+  }
+  #page-courses .course-card{
+    max-width:none!important;
+  }
+}
+
+
+/* V121 — Guaranteed visible Course Manager CTA */
+#page-courses .psp-v121-course-actions{display:flex!important;justify-content:flex-end!important;align-items:center!important;width:100%!important;margin:0 0 10px!important;padding:0!important;visibility:visible!important;opacity:1!important}
+#page-courses .psp-v121-add-course-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;min-height:34px!important;padding:8px 14px!important;background:#FB9201!important;color:#111!important;border:1px solid #FB9201!important;border-radius:9px!important;font-size:10px!important;font-weight:800!important;box-shadow:0 6px 18px rgba(251,146,1,.18)!important}
+#page-courses .psp-v121-add-course-btn:hover{transform:translateY(-1px)!important;filter:brightness(.98)!important}
+@media(max-width:650px){#page-courses .psp-v121-course-actions{justify-content:stretch!important}#page-courses .psp-v121-add-course-btn{width:100%!important}}
