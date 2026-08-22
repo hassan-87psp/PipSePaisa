@@ -497,7 +497,178 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="admin-dashboard-v89.css?v=20260819-v89-premium-ops">
 <link rel="stylesheet" href="admin-suite-v90.css?v=20260819-v90-admin-suite">
 <link rel="stylesheet" href="company-revenue-v93.css?v=20260819-v93-income-breakdown">
-<link rel="stylesheet" href="psp-v125-courses-premium.css?v=20260822-v125">
+<style id="pspV126CoursesPremium">
+/* PipSePaisa V124 — compact premium Courses Manager */
+
+/* ---------- Compact live class schedule ---------- */
+#page-courses .psp-v124-live-wrap{
+  margin:0 0 12px!important;padding:12px!important;border:1px solid #ead8ba!important;
+  border-radius:16px!important;background:linear-gradient(135deg,#fffdf8 0%,#fff8ec 100%)!important;
+  box-shadow:0 10px 28px rgba(77,48,9,.06)!important
+}
+#page-courses .psp-v124-live-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin-bottom:9px!important}
+#page-courses .psp-v124-live-head .copy{min-width:0!important}
+#page-courses .psp-v124-kicker{font-size:7px!important;line-height:1!important;letter-spacing:.14em!important;text-transform:uppercase!important;color:#d97706!important;font-weight:900!important;margin-bottom:4px!important}
+#page-courses .psp-v124-live-head h3{font-size:13px!important;line-height:1.2!important;margin:0!important;color:var(--text-primary,#121826)!important}
+#page-courses .psp-v124-live-head p{font-size:8px!important;line-height:1.35!important;margin:3px 0 0!important;color:var(--text-muted,#8490a4)!important}
+#page-courses .psp-v124-live-actions{display:flex!important;align-items:center!important;gap:5px!important;flex-wrap:wrap!important}
+#page-courses .psp-v124-live-actions button{min-height:28px!important;padding:5px 8px!important;border-radius:8px!important;font-size:7.5px!important;font-weight:850!important}
+#page-courses .psp-v124-live-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
+#page-courses .psp-v124-class{
+  min-height:58px!important;padding:8px 9px!important;border:1px solid #eadfcd!important;border-radius:10px!important;background:#fff!important;
+  display:grid!important;grid-template-columns:30px minmax(0,1fr) auto!important;gap:8px!important;align-items:center!important
+}
+#page-courses .psp-v124-class-no{width:30px!important;height:30px!important;border-radius:9px!important;display:grid!important;place-items:center!important;background:#fff3df!important;color:#d97706!important;font-size:8px!important;font-weight:950!important}
+#page-courses .psp-v124-class-copy{min-width:0!important}
+#page-courses .psp-v124-class-copy b{display:block!important;font-size:8.5px!important;line-height:1.25!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;color:var(--text-primary,#111827)!important}
+#page-courses .psp-v124-class-copy small{display:block!important;margin-top:3px!important;font-size:7px!important;line-height:1.2!important;color:var(--text-muted,#8a96aa)!important}
+#page-courses .psp-v124-state{display:inline-flex!important;align-items:center!important;justify-content:center!important;border-radius:999px!important;padding:3px 6px!important;font-size:6.5px!important;font-weight:900!important;white-space:nowrap!important}
+#page-courses .psp-v124-state.done{background:#e9f8f1!important;color:#0a9b68!important}
+#page-courses .psp-v124-state.next{background:#fff0d8!important;color:#d97706!important}
+#page-courses .psp-v124-state.upcoming{background:#f0f2f5!important;color:#8791a2!important}
+@media(max-width:1050px){#page-courses .psp-v124-live-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:680px){#page-courses .psp-v124-live-head{align-items:flex-start!important;flex-direction:column!important}#page-courses .psp-v124-live-grid{grid-template-columns:1fr!important}}
+
+/* ---------- System course cards: chart/widget-sized ---------- */
+#page-courses .psp-system-course-grid{
+  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(300px,345px))!important;
+  justify-content:start!important;align-items:start!important;gap:14px!important
+}
+#page-courses .psp-system-course{
+  width:100%!important;max-width:345px!important;min-width:0!important;padding:8px!important;margin:0!important;
+  border-radius:14px!important;border:1px solid #eadbc4!important;background:#fffdf8!important;
+  box-shadow:0 10px 28px rgba(63,39,7,.07)!important;overflow:hidden!important
+}
+#page-courses .psp-system-course.paid{background:#0e1e35!important;border-color:#d28a20!important}
+#page-courses .psp-system-course-thumbnail{width:100%!important;height:auto!important;aspect-ratio:16/9!important;border-radius:10px!important;overflow:hidden!important;margin:0 0 7px!important}
+#page-courses .psp-system-course-thumbnail img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+#page-courses .psp-system-course-head{min-height:16px!important;margin:0 0 4px!important}
+#page-courses .psp-system-course-head .badge{font-size:6.5px!important;padding:3px 6px!important;border-radius:999px!important}
+#page-courses .psp-system-course h3{font-size:13px!important;line-height:1.25!important;margin:2px 0 3px!important}
+#page-courses .psp-system-course p{font-size:7.5px!important;line-height:1.35!important;margin:0 0 7px!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important}
+#page-courses .psp-system-course-meta{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:5px!important;margin:0 0 7px!important}
+#page-courses .psp-system-course-meta>div{min-height:36px!important;padding:5px 6px!important;border-radius:8px!important;border:1px solid #eadfcd!important;background:rgba(255,255,255,.72)!important;font-size:6.5px!important;color:#8a96aa!important;display:flex!important;flex-direction:column!important;justify-content:center!important}
+#page-courses .psp-system-course.paid .psp-system-course-meta>div{background:rgba(255,255,255,.04)!important;border-color:rgba(255,255,255,.28)!important;color:#a9b8cc!important}
+#page-courses .psp-system-course-meta strong{display:block!important;margin-top:2px!important;font-size:9.5px!important;line-height:1!important;color:var(--text-primary,#121826)!important}
+#page-courses .psp-system-course.paid .psp-system-course-meta strong{color:#fff!important}
+#page-courses .psp-course-admin-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:5px!important;margin:0!important}
+#page-courses .psp-course-admin-actions .btn{min-height:28px!important;padding:5px 7px!important;border-radius:8px!important;font-size:7px!important;font-weight:850!important}
+@media(max-width:760px){#page-courses .psp-system-course-grid{grid-template-columns:1fr!important}#page-courses .psp-system-course{max-width:none!important}}
+
+
+/* V124 final compact sizing: chart/widget-like course cards */
+#page-courses .psp-system-course-grid{
+  grid-template-columns:repeat(auto-fit,minmax(250px,310px))!important;
+  gap:12px!important;
+}
+#page-courses .psp-system-course{max-width:310px!important;padding:7px!important}
+#page-courses .psp-system-course-thumbnail{margin-bottom:6px!important;border-radius:9px!important}
+#page-courses .psp-system-course h3{font-size:12px!important}
+#page-courses .psp-system-course-meta>div{min-height:33px!important;padding:4px 5px!important}
+#page-courses .psp-course-admin-actions .btn{min-height:27px!important}
+
+/* Keep the Add New Course action clearly visible without oversized spacing */
+#page-courses .psp-v122-course-actions{margin:0 0 9px!important}
+#page-courses .psp-v122-add-course-btn{min-height:31px!important;padding:6px 11px!important;font-size:8px!important}
+
+/* ============================================================
+   V126 — PREMIUM SAAS COURSE EDITOR (INLINE / CACHE-SAFE)
+   ============================================================ */
+#modal-courseForm{backdrop-filter:blur(5px)!important;background:rgba(17,24,39,.48)!important}
+#modal-courseForm .modal-lg{
+  width:min(900px,94vw)!important;max-width:900px!important;max-height:88vh!important;
+  padding:0!important;overflow:hidden!important;border-radius:18px!important;
+  border:1px solid #eadbc4!important;background:#fffdf9!important;
+  box-shadow:0 28px 90px rgba(18,24,38,.25)!important;
+}
+#modal-courseForm .modal-header{
+  min-height:62px!important;padding:12px 15px!important;margin:0!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  border-bottom:1px solid #eadfce!important;background:linear-gradient(180deg,#fffefa,#fff9ef)!important;
+}
+#modal-courseForm .v126-headcopy{min-width:0!important;display:flex!important;flex-direction:column!important;gap:3px!important}
+#modal-courseForm .v126-titleline{display:flex!important;align-items:center!important;gap:7px!important;min-width:0!important}
+#modal-courseForm .modal-header h2{font-size:15px!important;line-height:1.15!important;margin:0!important;color:#111827!important;font-weight:850!important}
+#modal-courseForm .v126-subtitle{font-size:7.3px!important;color:#8b96a8!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:620px!important}
+#modal-courseForm .v126-status{display:inline-flex!important;align-items:center!important;gap:4px!important;padding:4px 7px!important;border-radius:999px!important;background:#eaf8f1!important;border:1px solid #ccecdf!important;color:#0a9464!important;font-size:6.5px!important;font-weight:900!important;text-transform:uppercase!important;letter-spacing:.04em!important}
+#modal-courseForm .v126-status:before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+#modal-courseForm .v126-status.draft{background:#f3f4f6!important;border-color:#e4e7eb!important;color:#7c8796!important}
+#modal-courseForm .close-btn{width:31px!important;height:31px!important;border-radius:9px!important;background:#f6eddf!important;color:#70798a!important;font-size:17px!important;display:grid!important;place-items:center!important}
+#modal-courseForm .close-btn:hover{background:#efe1cd!important;color:#111827!important}
+#modal-courseForm #courseFormError{margin:8px 12px 0!important;padding:7px 9px!important;border-radius:8px!important;font-size:7.5px!important}
+
+/* navigation */
+#modal-courseForm .v126-tabs{
+  display:flex!important;align-items:center!important;gap:4px!important;padding:8px 12px!important;
+  overflow:auto!important;scrollbar-width:none!important;border-bottom:1px solid #eadfce!important;background:#fffaf2!important
+}
+#modal-courseForm .v126-tabs::-webkit-scrollbar{display:none!important}
+#modal-courseForm .v126-tab{
+  flex:0 0 auto!important;min-height:30px!important;padding:6px 10px!important;border:1px solid transparent!important;
+  border-radius:9px!important;background:transparent!important;color:#7b8494!important;font-size:7.2px!important;font-weight:850!important;cursor:pointer!important
+}
+#modal-courseForm .v126-tab:hover{background:#fff!important;border-color:#e9decc!important;color:#172033!important}
+#modal-courseForm .v126-tab.active{background:#111b2e!important;border-color:#111b2e!important;color:#fff!important;box-shadow:inset 0 -2px 0 #FB9201,0 5px 14px rgba(17,27,46,.12)!important}
+#modal-courseForm .v126-panels{height:min(585px,calc(88vh - 166px))!important;overflow:auto!important;padding:11px 12px 14px!important;background:#f7f1e8!important}
+#modal-courseForm .v126-panel{display:none!important}.v126-panel.active{display:block!important}
+
+/* cards / typography */
+#modal-courseForm .v126-section{background:#fffdf9!important;border:1px solid #e8dcc9!important;border-radius:12px!important;padding:10px!important;margin:0 0 9px!important;box-shadow:0 4px 14px rgba(61,44,17,.03)!important}
+#modal-courseForm .v126-section:last-child{margin-bottom:0!important}
+#modal-courseForm .v126-section-head{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;gap:10px!important;margin:0 0 8px!important}
+#modal-courseForm .v126-section-title{font-size:9.5px!important;line-height:1.2!important;font-weight:900!important;color:#172033!important;margin:0!important}
+#modal-courseForm .v126-section-sub{font-size:6.8px!important;line-height:1.4!important;color:#99a2b1!important;margin:2px 0 0!important}
+#modal-courseForm .v126-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;align-items:start!important}
+#modal-courseForm .v126-wide{grid-column:1/-1!important}
+#modal-courseForm .form-group{min-width:0!important;margin:0!important}
+#modal-courseForm .form-group label{display:block!important;margin:0 0 4px!important;color:#8993a5!important;font-size:6.5px!important;font-weight:850!important;letter-spacing:.045em!important;text-transform:uppercase!important}
+#modal-courseForm input,#modal-courseForm select,#modal-courseForm textarea{width:100%!important;min-height:35px!important;padding:7px 9px!important;border:1px solid #ded2bd!important;border-radius:8px!important;background:#fff!important;color:#172033!important;font-size:8.3px!important;line-height:1.35!important;box-shadow:none!important}
+#modal-courseForm textarea{min-height:58px!important;resize:vertical!important}
+#modal-courseForm input:focus,#modal-courseForm select:focus,#modal-courseForm textarea:focus{outline:none!important;border-color:#FB9201!important;box-shadow:0 0 0 3px rgba(251,146,1,.10)!important}
+#modal-courseForm input::placeholder,#modal-courseForm textarea::placeholder{color:#b2bac7!important;opacity:.88!important}
+#modal-courseForm .form-group>div[style*="font-size"]{font-size:6.4px!important;line-height:1.35!important;color:#9aa3b2!important;margin-top:4px!important}
+
+/* overview hero split */
+#modal-courseForm .v126-overview-split{display:grid!important;grid-template-columns:minmax(0,1.35fr) minmax(250px,.65fr)!important;gap:9px!important;align-items:stretch!important}
+#modal-courseForm .v126-overview-left{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;align-content:start!important}
+#modal-courseForm .v126-overview-left .v126-wide{grid-column:1/-1!important}
+#modal-courseForm .v126-thumb-card{height:100%!important;min-height:220px!important;border:1px dashed #d8c3a4!important;border-radius:11px!important;background:linear-gradient(145deg,#fff9ee,#fffdf9)!important;padding:9px!important;display:flex!important;flex-direction:column!important;gap:7px!important}
+#modal-courseForm .v126-thumb-preview{width:100%!important;aspect-ratio:16/9!important;border-radius:9px!important;overflow:hidden!important;border:1px solid #dfd3c1!important;background:#f0e9df!important;display:grid!important;place-items:center!important;color:#9aa3b2!important;font-size:7px!important;text-align:center!important}
+#modal-courseForm .v126-thumb-preview img{width:100%!important;height:100%!important;object-fit:cover!important;display:block!important}
+#modal-courseForm .v126-thumb-copy b{display:block!important;font-size:8px!important;color:#172033!important;margin-bottom:2px!important}.v126-thumb-copy small{display:block!important;font-size:6.5px!important;line-height:1.35!important;color:#99a2b1!important}
+#modal-courseForm #courseThumbFile{padding:4px!important;min-height:33px!important}.v126-thumb-card #courseThumbFile::file-selector-button{border:0!important;border-radius:7px!important;padding:6px 8px!important;margin-right:6px!important;background:#111b2e!important;color:#fff!important;font-size:6.8px!important;font-weight:850!important;cursor:pointer!important}
+#modal-courseForm #courseThumbPrev{display:none!important}
+
+/* pricing + status cards */
+#modal-courseForm .v126-toggle-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+#modal-courseForm .v126-toggle{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;padding:8px 9px!important;min-height:50px!important;border:1px solid #e4d8c7!important;border-radius:9px!important;background:#fffaf2!important}
+#modal-courseForm .v126-toggle b{display:block!important;font-size:8px!important;color:#172033!important}.v126-toggle small{display:block!important;margin-top:2px!important;font-size:6.4px!important;line-height:1.3!important;color:#9aa3b2!important}
+#modal-courseForm .v126-toggle input[type="checkbox"]{width:17px!important;height:17px!important;min-height:17px!important;accent-color:#FB9201!important}
+
+/* dynamic learning/module builders */
+#modal-courseForm .psp-v20-editor-section{padding:9px!important;margin:0 0 7px!important;border:1px solid #e8dcc9!important;border-radius:11px!important;background:#fffdf9!important;box-shadow:none!important}
+#modal-courseForm .psp-v20-editor-section-head{margin-bottom:6px!important}.psp-v20-editor-section-head h3{font-size:8.8px!important;color:#172033!important}.psp-v20-editor-section-head small{font-size:6.3px!important;color:#98a1b0!important}
+#modal-courseForm .psp-v20-editor-list{gap:4px!important}.psp-v20-editor-row input,.psp-v20-editor-row textarea,.psp-v20-module-card input,.psp-v20-module-card textarea{font-size:7.5px!important;padding:5px 7px!important;min-height:29px!important}
+#modal-courseForm .psp-v20-row-actions button,#modal-courseForm .psp-v20-add-btn{min-height:27px!important;padding:4px 7px!important;font-size:6.5px!important;border-radius:7px!important}
+#modal-courseForm .psp-v20-module-list{gap:6px!important}.psp-v20-module-card{padding:7px!important;border:1px solid #e7dccb!important;border-radius:10px!important;background:#fff!important}
+#modal-courseForm .psp-v20-module-head{grid-template-columns:30px minmax(0,1fr) 72px auto!important;gap:5px!important}.psp-v20-module-number{width:28px!important;height:28px!important;border-radius:8px!important;font-size:7.3px!important;background:#fff1dd!important;color:#d97706!important}
+#modal-courseForm .psp-v20-module-body{gap:5px!important;margin-top:5px!important}.psp-v20-module-body textarea{min-height:43px!important}
+
+/* sticky footer */
+#modal-courseForm .v126-footer{min-height:50px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;padding:8px 12px!important;border-top:1px solid #eadfce!important;background:rgba(255,252,247,.98)!important;backdrop-filter:blur(8px)!important}
+#modal-courseForm .v126-save-state{display:flex!important;align-items:center!important;gap:5px!important;font-size:6.8px!important;color:#99a2b1!important}.v126-save-state:before{content:'';width:6px;height:6px;border-radius:50%;background:#c8cdd6}.v126-save-state.dirty{color:#c87500!important;font-weight:800!important}.v126-save-state.dirty:before{background:#FB9201!important}
+#modal-courseForm .v126-footer-actions{display:flex!important;align-items:center!important;gap:6px!important}.v126-footer .btn{min-height:31px!important;padding:6px 11px!important;border-radius:8px!important;font-size:7.3px!important;font-weight:850!important}.v126-footer #saveCourseBtn{background:#FB9201!important;border-color:#FB9201!important;color:#111!important;box-shadow:0 5px 14px rgba(251,146,1,.18)!important}
+#modal-courseForm .v126-hidden{display:none!important}
+
+@media(max-width:760px){
+ #modal-courseForm .modal-lg{width:96vw!important;max-height:92vh!important;border-radius:15px!important}
+ #modal-courseForm .v126-panels{height:calc(92vh - 166px)!important;padding:9px!important}
+ #modal-courseForm .v126-grid,#modal-courseForm .v126-overview-split,#modal-courseForm .v126-overview-left,#modal-courseForm .v126-toggle-grid{grid-template-columns:1fr!important}
+ #modal-courseForm .v126-wide,#modal-courseForm .v126-overview-left .v126-wide{grid-column:1!important}
+ #modal-courseForm .v126-thumb-card{min-height:0!important}.v126-subtitle{max-width:250px!important}
+}
+
+</style>
 </head>
 <body><style id="darkfix-css">
 select{color-scheme:dark}
@@ -4388,6 +4559,171 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 <script src="admin-dashboard-v89.js?v=20260819-v92-course-revenue-hard-repair"></script>
 <script src="admin-suite-v90.js?v=20260819-v92-course-revenue-hard-repair"></script>
 <script src="company-revenue-v93.js?v=20260819-v93-income-breakdown"></script>
-<script defer src="psp-v125-courses-ui.js?v=20260822-v125"></script>
+<script id="pspV126CoursesUI">
+(function(){
+'use strict';
+const BASIC_CLASSES=[
+  ['FINANCIAL MARKETS BLUEPRINT','2026-08-10T21:00:00+05:00'],
+  ['THE LANGUAGE OF PRICE INTELLIGENCE','2026-08-13T21:00:00+05:00'],
+  ['DECODING AND DISSECTING CANDLESTICKS','2026-08-15T21:00:00+05:00'],
+  ["EXPLORING TRADER'S TOOLKIT",'2026-08-17T21:00:00+05:00'],
+  ['TRADING WITH MARKET PULSE','2026-08-18T21:00:00+05:00'],
+  ['UNDERSTANDING REAL MARKET DRIVERS','2026-08-20T21:00:00+05:00'],
+  ['ULTIMATE SUCCESS CODE — THE MINDSET','2026-08-24T21:00:00+05:00'],
+  ['BUILDING YOUR TRADING EDGE','2026-08-25T21:00:00+05:00'],
+  ['MASTER THE ART OF TRADING','2026-08-27T21:00:00+05:00']
+];
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fmt(iso){try{return new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Karachi',month:'short',day:'2-digit',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(iso)).replace(', 2026 at',', 2026 ·')+' PKT';}catch(_){return iso}}
+
+function hideLegacyCourseOperations(){
+  const page=document.getElementById('page-courses');if(!page)return;
+  [...page.querySelectorAll('button')].forEach(btn=>{
+    if(!/Manage Live Links/i.test(btn.textContent||''))return;
+    let cur=btn.parentElement,candidate=null;
+    while(cur&&cur!==page){
+      const t=(cur.textContent||'').replace(/\s+/g,' ');
+      const classes=(t.match(/CLASS\s*0?\d/gi)||[]).length;
+      if(/Basic Forex Course/i.test(t)&&classes>=5){candidate=cur;break;}
+      cur=cur.parentElement;
+    }
+    if(candidate&&!candidate.closest('#pspV124Schedule'))candidate.style.display='none';
+  });
+  [...page.querySelectorAll('div,section,article')].forEach(el=>{
+    if(el.id==='pspV124Schedule'||el.closest('#pspV124Schedule'))return;
+    const t=(el.textContent||'').replace(/\s+/g,' ').trim();
+    if(!/Courses\s*&\s*Live Classes/i.test(t))return;
+    if(t.length>1100)return;
+    const b=[...el.querySelectorAll('button')].map(x=>(x.textContent||'').trim()).join(' ');
+    if(/Enrollments/i.test(b)&&/Refresh/i.test(b))el.style.display='none';
+  });
+}
+function renderSchedule(){
+  const page=document.getElementById('page-courses');if(!page)return;
+  hideLegacyCourseOperations();
+  let wrap=document.getElementById('pspV124Schedule');
+  if(!wrap){
+    wrap=document.createElement('section');wrap.id='pspV124Schedule';wrap.className='psp-v124-live-wrap';
+    const stats=page.querySelector('.stats-grid');(stats||page.firstElementChild)?.insertAdjacentElement(stats?'beforebegin':'afterend',wrap);
+  }
+  const now=Date.now();let nextIndex=BASIC_CLASSES.findIndex(x=>new Date(x[1]).getTime()>now);
+  const scheduleHtml=`<div class="psp-v124-live-head"><div class="copy"><div class="psp-v124-kicker">Live Learning</div><h3>Basic Forex Course — Class Schedule</h3><p>9 classes · 9:00 PM PKT · compact schedule overview</p></div><div class="psp-v124-live-actions"><button class="btn btn-secondary" type="button" onclick="openSystemCourseEnrollments('free')">Enrollments</button><button class="btn btn-secondary" type="button" onclick="pspV124RenderSchedule()">Refresh</button><button class="btn" type="button" onclick="openCourseClassesManager('basic')">Manage Live Links</button></div></div><div class="psp-v124-live-grid">${BASIC_CLASSES.map((row,i)=>{const tm=new Date(row[1]).getTime();let state='upcoming',label='Upcoming';if(tm<now){state='done';label='Completed'}else if(i===nextIndex){state='next';label='Next'}return `<div class="psp-v124-class"><span class="psp-v124-class-no">${String(i+1).padStart(2,'0')}</span><div class="psp-v124-class-copy"><b>${esc(row[0])}</b><small>${esc(fmt(row[1]))}</small></div><span class="psp-v124-state ${state}">${label}</span></div>`}).join('')}</div>`;
+  if(wrap.innerHTML!==scheduleHtml)wrap.innerHTML=scheduleHtml;
+}
+window.pspV124RenderSchedule=renderSchedule;
+
+/* ================= V126 PREMIUM EDITOR ================= */
+function v126Field(id){const e=document.getElementById(id);return e?.closest('.form-group')||null}
+function v126Move(parent,id,wide=false){const n=v126Field(id);if(!parent||!n)return n;if(wide)n.classList.add('v126-wide');parent.appendChild(n);return n}
+function v126Section(panel,title,sub=''){
+  const s=document.createElement('section');s.className='v126-section';
+  s.innerHTML=`<div class="v126-section-head"><div><h3 class="v126-section-title">${esc(title)}</h3>${sub?`<p class="v126-section-sub">${esc(sub)}</p>`:''}</div></div><div class="v126-grid"></div>`;
+  panel.appendChild(s);return s.querySelector('.v126-grid');
+}
+function v126Activate(key){
+  document.querySelectorAll('#modal-courseForm .v126-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===key));
+  document.querySelectorAll('#modal-courseForm .v126-panel').forEach(p=>p.classList.toggle('active',p.dataset.panel===key));
+}
+function v126Header(){
+  const modal=document.querySelector('#modal-courseForm .modal-lg'),h=document.getElementById('courseFormTitle');if(!modal||!h)return;
+  let copy=modal.querySelector('.v126-headcopy');
+  if(!copy){
+    copy=document.createElement('div');copy.className='v126-headcopy';
+    const line=document.createElement('div');line.className='v126-titleline';
+    h.parentNode.insertBefore(copy,h);copy.appendChild(line);line.appendChild(h);
+    const st=document.createElement('span');st.id='v126CourseStatus';st.className='v126-status';line.appendChild(st);
+    const sub=document.createElement('div');sub.id='v126CourseSubtitle';sub.className='v126-subtitle';copy.appendChild(sub);
+  }
+  const pub=!!document.getElementById('coursePublished')?.checked,st=document.getElementById('v126CourseStatus');
+  if(st){st.textContent=pub?'Active':'Draft';st.classList.toggle('draft',!pub)}
+  const title=(document.getElementById('courseTitle')?.value||'').trim()||'New Course';
+  const sub=document.getElementById('v126CourseSubtitle');if(sub)sub.textContent=title+' · course content, pricing, access and modules';
+}
+function v126Thumb(){
+  const box=document.getElementById('v126ThumbPreview');if(!box)return;
+  const hidden=(document.getElementById('courseThumbnail')?.value||'').trim();
+  const old=document.querySelector('#courseThumbPrev img');const src=hidden||(old?.src||'');
+  box.innerHTML=src?`<img src="${esc(src)}" alt="Course thumbnail">`:'<span>1280 × 720<br>16:9 thumbnail preview</span>';
+}
+function v126Dirty(){const s=document.getElementById('v126SaveState');if(s){s.textContent='Unsaved changes';s.classList.add('dirty')}}
+function v126Clean(){const s=document.getElementById('v126SaveState');if(s){s.textContent='No unsaved changes';s.classList.remove('dirty')}}
+function v126Toggle(label,sub,input){const x=document.createElement('label');x.className='v126-toggle';x.innerHTML=`<span><b>${esc(label)}</b><small>${esc(sub)}</small></span>`;x.appendChild(input);return x}
+function v126Build(){
+  const overlay=document.getElementById('modal-courseForm'),modal=overlay?.querySelector('.modal-lg');if(!overlay||!modal||!overlay.classList.contains('active'))return;
+  const editor=document.getElementById('pspV20CourseEditor');if(!editor){setTimeout(v126Build,50);return}
+  if(document.getElementById('v126CourseTabs')){v126Header();v126Thumb();v126Clean();v126Activate('overview');const b=document.getElementById('saveCourseBtn');if(b)b.textContent='Save Changes';return}
+  const error=document.getElementById('courseFormError');if(!error)return;
+
+  const defs=[['overview','Overview'],['access','Pricing & Access'],['content','Page Content'],['learning','Learning'],['modules','Modules'],['settings','Settings']];
+  const tabs=document.createElement('div');tabs.id='v126CourseTabs';tabs.className='v126-tabs';tabs.innerHTML=defs.map(([k,l])=>`<button type="button" class="v126-tab" data-tab="${k}">${l}</button>`).join('');
+  const panels=document.createElement('div');panels.className='v126-panels';
+  defs.forEach(([k])=>{const p=document.createElement('div');p.className='v126-panel';p.dataset.panel=k;panels.appendChild(p)});
+  error.insertAdjacentElement('afterend',tabs);tabs.insertAdjacentElement('afterend',panels);
+  const P=k=>panels.querySelector(`[data-panel="${k}"]`);
+
+  // OVERVIEW — deliberately visual and compact.
+  const ov=document.createElement('section');ov.className='v126-section';ov.innerHTML='<div class="v126-section-head"><div><h3 class="v126-section-title">Course Overview</h3><p class="v126-section-sub">The essentials used across the catalogue, student dashboard and course page.</p></div></div><div class="v126-overview-split"><div class="v126-overview-left"></div><aside class="v126-thumb-card"><div class="v126-thumb-preview" id="v126ThumbPreview"></div><div class="v126-thumb-copy"><b>Course cover</b><small>Recommended 1280 × 720 (16:9). This same image appears across My Courses.</small></div></aside></div>';
+  P('overview').appendChild(ov);const left=ov.querySelector('.v126-overview-left'),thumbCard=ov.querySelector('.v126-thumb-card');
+  v126Move(left,'courseTitle');v126Move(left,'courseLevel');v126Move(left,'courseCategory');v126Move(left,'courseOrder');v126Move(left,'courseDescription',true);
+  const thumb=v126Field('courseThumbFile');if(thumb){thumbCard.appendChild(thumb);thumb.classList.remove('v126-wide');const oldPrev=document.getElementById('courseThumbPrev');if(oldPrev)oldPrev.style.display='none'}
+
+  // PRICE & ACCESS.
+  let g=v126Section(P('access'),'Pricing','Keep website pricing and Local Bank checkout pricing in one place.');
+  v126Move(g,'coursePrice');v126Move(g,'v20OldPrice');v126Move(g,'courseLocalBankPrice');
+  g=v126Section(P('access'),'Enrollment & Access','Student-facing labels and checkout messaging.');
+  ['v20CourseBadge','v20AccessLabel','v20BuyNote','v20ActionButton','v20ContentNote','v20SecureNote'].forEach(id=>v126Move(g,id));
+  const toggles=document.createElement('div');toggles.className='v126-toggle-grid v126-wide';
+  const published=document.getElementById('coursePublished'),premium=document.getElementById('coursePremium');
+  if(published)toggles.appendChild(v126Toggle('Published','Visible to users and available in the course catalogue.',published));
+  if(premium)toggles.appendChild(v126Toggle('Paid / Premium','Use paid-course access and checkout controls.',premium));
+  g.appendChild(toggles);
+
+  // PAGE CONTENT.
+  g=v126Section(P('content'),'Public Course Copy','Copy shown on the public course page and cards.');v126Move(g,'v20ShortDescription',true);v126Move(g,'v20DescriptionExtra',true);
+  g=v126Section(P('content'),'Mentor','Instructor information shown with this course.');v126Move(g,'v20MentorName');v126Move(g,'v20MentorTitle');
+  g=v126Section(P('content'),'Section Headings','Rename public course-page sections without touching their content.');
+  ['v20LearningHeading','v20OutcomesHeading','v20ContentHeading','v20RequirementsHeading','v20AudienceHeading','v20DescriptionHeading','v20RelatedHeading'].forEach(id=>v126Move(g,id));
+
+  // LEARNING / MODULES preserve the existing working dynamic builders.
+  ['included','learning','outcomes','requirements','audience'].forEach(k=>{const s=document.getElementById('pspV20List-'+k)?.closest('.psp-v20-editor-section');if(s)P('learning').appendChild(s)});
+  const mod=document.getElementById('pspV20Modules')?.closest('.psp-v20-editor-section');if(mod)P('modules').appendChild(mod);
+
+  // SETTINGS — platform identity / fallback metadata.
+  g=v126Section(P('settings'),'Platform Settings','Advanced fields used internally by PipSePaisa.');
+  ['v20CourseKey','courseYoutubeUrl','courseEmoji','courseColor','courseEnrollments'].forEach(id=>v126Move(g,id));
+
+  // Hide now-empty legacy wrappers only; all real controls keep their original IDs.
+  [...modal.querySelectorAll('.form-row,#pspV20CourseEditor')].forEach(x=>{if(!x.querySelector('input:not([type="hidden"]),textarea,select,.psp-v20-editor-section'))x.classList.add('v126-hidden')});
+
+  // Sticky save footer.
+  const save=document.getElementById('saveCourseBtn');if(save){
+    const old=save.parentElement;if(!old.classList.contains('v126-footer')){
+      const cancel=[...old.querySelectorAll('button')].find(b=>/cancel/i.test(b.textContent||''));
+      const footer=document.createElement('div');footer.className='v126-footer';footer.innerHTML='<span class="v126-save-state" id="v126SaveState">No unsaved changes</span><div class="v126-footer-actions"></div>';
+      const actions=footer.querySelector('.v126-footer-actions');if(cancel)actions.appendChild(cancel);actions.appendChild(save);old.parentElement.insertBefore(footer,old);old.remove();
+    }
+    save.textContent='Save Changes';
+  }
+  tabs.addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)v126Activate(b.dataset.tab)});
+  modal.addEventListener('input',e=>{if(e.target.matches('input,textarea,select')){v126Dirty();if(e.target.id==='courseTitle'||e.target.id==='coursePublished')v126Header()}});
+  modal.addEventListener('change',e=>{if(e.target.matches('input,textarea,select')){v126Dirty();if(e.target.id==='coursePublished')v126Header();if(e.target.id==='courseThumbFile')setTimeout(v126Thumb,180)}});
+  if(window.MutationObserver){const prev=document.getElementById('courseThumbPrev');if(prev)new MutationObserver(v126Thumb).observe(prev,{childList:true,subtree:true,attributes:true})}
+  v126Header();v126Thumb();v126Clean();v126Activate('overview');
+}
+function v126Install(){
+  renderSchedule();
+  // Wrap final course opener (after psp-v18-admin-control) for deterministic editor build.
+  if(typeof window.openCourseForm==='function'&&!window.__v126CourseOpenWrapped){
+    window.__v126CourseOpenWrapped=true;const original=window.openCourseForm;
+    window.openCourseForm=function(){const r=original.apply(this,arguments);setTimeout(v126Build,20);return r};
+  }
+  const page=document.getElementById('page-courses');if(page&&window.MutationObserver&&!window.__v126ScheduleObs){window.__v126ScheduleObs=new MutationObserver(m=>{const external=m.some(x=>!(x.target?.closest&&x.target.closest('#pspV124Schedule')));if(external){clearTimeout(window.__v126ScheduleT);window.__v126ScheduleT=setTimeout(renderSchedule,80)}});window.__v126ScheduleObs.observe(page,{childList:true,subtree:true})}
+  const modal=document.getElementById('modal-courseForm');if(modal&&window.MutationObserver&&!window.__v126ModalObs){window.__v126ModalObs=new MutationObserver(()=>{if(modal.classList.contains('active'))setTimeout(v126Build,30)});window.__v126ModalObs.observe(modal,{attributes:true,attributeFilter:['class'],childList:true,subtree:true})}
+  setTimeout(renderSchedule,350);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',v126Install,{once:true});else v126Install();
+})();
+
+</script>
 </body>
 </html>
