@@ -3058,51 +3058,7 @@ async function loadCompanyRevenue(){
 function crCsvCell(v){var s=String(v==null?'':v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
 function crDownloadBlob(name,text,type){var blob=new Blob([text],{type:type||'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
 function crExportCsv(){var calc=crCalc(),lines=[['PipSePaisa Company Finance Report',crPeriodLabel()],['Total Income',calc.income],['Total Expenses',calc.expenses],['Net Profit',calc.net],['Partner Allocation',calc.allocation],['Company Retained',calc.retained],[],['TRANSACTIONS'],['Date','Type','Category','Subcategory','Details','Amount USD','Status','Method','Payment Date','Reference']];crEntries.forEach(function(r){lines.push([r.entry_date,r.entry_type,r.category,r.subcategory||'',r.note||'',r.amount,r.payment_status||'paid',r.payment_method||'',r.payment_date||'',r.payment_reference||'']);});lines.push([],['PARTNER PAYOUTS'],['Partner','Share %','Due','Paid','Balance','Status']);crPartners.forEach(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);lines.push([p.partner_name,p.share_percent,due,paid,Math.max(0,due-paid),crPayoutStatus(due,paid)]);});crDownloadBlob('PipSePaisa-Company-Revenue-'+crMonthValue()+'.csv',lines.map(function(r){return r.map(crCsvCell).join(',');}).join('\n'),'text/csv;charset=utf-8');}
-function crExportPdf(){var calc=crCalc(),w=window.open('','_blank');if(!w){alert('Please allow pop-ups to export the PDF report.');return;}var tx=crEntries.map(function(r){return '<tr><td>'+crEsc(r.entry_date)+'</td><td>'+crEsc(r.entry_type)+'</td><td>'+crEsc(r.category)+(r.subcategory?' — '+crEsc(r.subcategory):'')+'</td><td>'+crEsc(r.note||'')+'</td><td>$'+crMoney(r.amount)+'</td><td>'+crEsc(r.payment_status||'paid')+'</td></tr>';}).join(''),pp=crPartners.map(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);return '<tr><td>'+crEsc(p.partner_name)+'</td><td>'+crMoney(p.share_percent)+'%</td><td>$'+crMoney(due)+'</td><td>$'+crMoney(paid)+'</td><td>$'+crMoney(Math.max(0,due-paid))+'</td></tr>';}).join('');w.document.write('<!doctype html><html><head><title>PipSePaisa Company Revenue '+crEsc(crPeriodLabel())+'</title><style>body{font:12px Arial;color:#0f172a;padding:28px}h1{margin:0 0 4px}.sub{color:#64748b;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.box{border:1px solid #e2e8f0;border-radius:8px;padding:10px}.box span{display:block;color:#64748b;font-size:9px;text-transform:uppercase}.box strong{font-size:16px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border-bottom:1px solid #e2e8f0;padding:7px;text-align:left}th{background:#0b1730;color:#fff;font-size:9px}h2{margin-top:24px}@media print{button{display:none}}</style></head><body><h1>PipSePaisa — Company Revenue</h1><div class="sub">'+crEsc(crPeriodLabel())+' · Generated '+new Date().toLocaleString()+'</div><div class="grid"><div class="box"><span>Income</span><strong>$'+crMoney(calc.income)+'</strong></div><div class="box"><span>Expenses</span><strong>$'+crMoney(calc.expenses)+'</strong></div><div class="box"><span>Net Profit</span><strong>$'+crMoney(calc.net)+'</strong></div><div class="box"><span>Allocation</span><strong>$'+crMoney(calc.allocation)+'</strong></div><div class="box"><span>Retained</span><strong>$'+crMoney(calc.retained)+'</strong></div></div><h2>Transactions</h2><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Details</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+tx+'</tbody></table><h2>Partner Payouts</h2><table><thead><tr><th>Partner</th><th>Share</th><th>Due</th><th>Paid</th><th>Balance</th></tr></thead><tbody>'+pp+'</tbody></table><script>window.onload=function(){window.print()}<\/script>
-<script id="pspV129CourseWorkspace">
-(function(){
-'use strict';
-function modal(){return document.getElementById('modal-courseForm')}
-function setTab(key){
-  const m=modal();if(!m)return;
-  m.querySelectorAll('[data-v129-tab]').forEach(b=>b.classList.toggle('active',b.dataset.v129Tab===key));
-  m.querySelectorAll('[data-v129-panel]').forEach(p=>{const on=p.dataset.v129Panel===key;p.hidden=!on;p.style.display=on?'block':'none'});
-  const body=document.getElementById('v129CourseBody');if(body)body.scrollTop=0;
-}
-function syncHead(){
-  const editing=!!document.getElementById('courseId')?.value;
-  const title=(document.getElementById('courseTitle')?.value||'').trim();
-  const pub=!!document.getElementById('coursePublished')?.checked;
-  const h=document.getElementById('courseFormTitle');if(h)h.textContent=editing?'Edit Course':'Add New Course';
-  const sub=document.getElementById('v129CourseSubtitle');if(sub)sub.textContent=(title||'New course')+' · content, pricing, access and curriculum';
-  const st=document.getElementById('v129CourseStatus');if(st){st.textContent=pub?'Active':'Draft';st.classList.toggle('draft',!pub)}
-  const save=document.getElementById('saveCourseBtn');if(save&&!save.disabled)save.textContent=editing?'Save Changes':'Create Course';
-}
-function syncCover(){
-  const box=document.getElementById('courseThumbPrev');if(!box)return;
-  const src=(document.getElementById('courseThumbnail')?.value||'').trim();
-  if(src&&!box.querySelector('img'))box.innerHTML='<img src="'+src.replace(/"/g,'&quot;')+'" alt="Course cover preview">';
-  if(!src&&!box.querySelector('img')&&!box.querySelector('.v129-cover-empty'))box.innerHTML='<span class="v129-cover-empty">Course cover preview</span>';
-}
-function dirty(on=true){const s=document.getElementById('v129SaveState');if(!s)return;s.classList.toggle('dirty',on);const b=s.querySelector('b');if(b)b.textContent=on?'Unsaved changes':'No unsaved changes'}
-function hideLegacyCourseBlocks(){
-  const page=document.getElementById('page-courses');if(!page)return;
-  const legacy=document.getElementById('pspV124Schedule');if(legacy)legacy.remove();
-  [...page.querySelectorAll('button')].forEach(btn=>{if(!/Manage Live Links/i.test(btn.textContent||''))return;let cur=btn.parentElement,candidate=null;while(cur&&cur!==page){const t=(cur.textContent||'').replace(/\s+/g,' '),classes=(t.match(/CLASS\s*0?\d/gi)||[]).length;if(/Basic Forex Course/i.test(t)&&classes>=5){candidate=cur;break}cur=cur.parentElement}if(candidate)candidate.style.display='none'});
-  [...page.querySelectorAll('div,section,article')].forEach(el=>{const t=(el.textContent||'').replace(/\s+/g,' ').trim();if(!/Courses\s*&\s*Live Classes/i.test(t)||t.length>1200)return;const b=[...el.querySelectorAll('button')].map(x=>(x.textContent||'').trim()).join(' ');if(/Enrollments/i.test(b)&&/Refresh/i.test(b))el.style.display='none'});
-}
-function onOpen(){setTab('overview');setTimeout(()=>{syncHead();syncCover();dirty(false)},40)}
-function install(){
-  const m=modal();if(m&&!m.dataset.v129Ready){m.dataset.v129Ready='1';m.addEventListener('click',e=>{const b=e.target.closest('[data-v129-tab]');if(b){e.preventDefault();e.stopPropagation();setTab(b.dataset.v129Tab)}});m.addEventListener('input',e=>{if(e.target.matches('input,textarea,select')){dirty(true);if(e.target.id==='courseTitle')syncHead()}});m.addEventListener('change',e=>{if(e.target.matches('input,textarea,select')){dirty(true);if(e.target.id==='coursePublished')syncHead();if(e.target.id==='courseThumbFile')setTimeout(syncCover,350)}});if(window.MutationObserver)new MutationObserver(()=>{if(m.classList.contains('active'))onOpen()}).observe(m,{attributes:true,attributeFilter:['class']})}
-  hideLegacyCourseBlocks();
-  const page=document.getElementById('page-courses');if(page&&window.MutationObserver&&!window.__pspV129CourseObserver){window.__pspV129CourseObserver=new MutationObserver(()=>{clearTimeout(window.__pspV129HideT);window.__pspV129HideT=setTimeout(hideLegacyCourseBlocks,80)});window.__pspV129CourseObserver.observe(page,{childList:true,subtree:true})}
-  setTimeout(hideLegacyCourseBlocks,300);
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
-})();
-</script>
-
-</body></html>');w.document.close();}
+function crExportPdf(){var calc=crCalc(),w=window.open('','_blank');if(!w){alert('Please allow pop-ups to export the PDF report.');return;}var tx=crEntries.map(function(r){return '<tr><td>'+crEsc(r.entry_date)+'</td><td>'+crEsc(r.entry_type)+'</td><td>'+crEsc(r.category)+(r.subcategory?' — '+crEsc(r.subcategory):'')+'</td><td>'+crEsc(r.note||'')+'</td><td>$'+crMoney(r.amount)+'</td><td>'+crEsc(r.payment_status||'paid')+'</td></tr>';}).join(''),pp=crPartners.map(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);return '<tr><td>'+crEsc(p.partner_name)+'</td><td>'+crMoney(p.share_percent)+'%</td><td>$'+crMoney(due)+'</td><td>$'+crMoney(paid)+'</td><td>$'+crMoney(Math.max(0,due-paid))+'</td></tr>';}).join('');w.document.write('<!doctype html><html><head><title>PipSePaisa Company Revenue '+crEsc(crPeriodLabel())+'</title><style>body{font:12px Arial;color:#0f172a;padding:28px}h1{margin:0 0 4px}.sub{color:#64748b;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.box{border:1px solid #e2e8f0;border-radius:8px;padding:10px}.box span{display:block;color:#64748b;font-size:9px;text-transform:uppercase}.box strong{font-size:16px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border-bottom:1px solid #e2e8f0;padding:7px;text-align:left}th{background:#0b1730;color:#fff;font-size:9px}h2{margin-top:24px}@media print{button{display:none}}</style></head><body><h1>PipSePaisa — Company Revenue</h1><div class="sub">'+crEsc(crPeriodLabel())+' · Generated '+new Date().toLocaleString()+'</div><div class="grid"><div class="box"><span>Income</span><strong>$'+crMoney(calc.income)+'</strong></div><div class="box"><span>Expenses</span><strong>$'+crMoney(calc.expenses)+'</strong></div><div class="box"><span>Net Profit</span><strong>$'+crMoney(calc.net)+'</strong></div><div class="box"><span>Allocation</span><strong>$'+crMoney(calc.allocation)+'</strong></div><div class="box"><span>Retained</span><strong>$'+crMoney(calc.retained)+'</strong></div></div><h2>Transactions</h2><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Details</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+tx+'</tbody></table><h2>Partner Payouts</h2><table><thead><tr><th>Partner</th><th>Share</th><th>Due</th><th>Paid</th><th>Balance</th></tr></thead><tbody>'+pp+'</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>');w.document.close();}
 
 
 function showPage(page, el) {
@@ -4583,5 +4539,48 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 <script src="admin-dashboard-v89.js?v=20260819-v92-course-revenue-hard-repair"></script>
 <script src="admin-suite-v90.js?v=20260819-v92-course-revenue-hard-repair"></script>
 <script src="company-revenue-v93.js?v=20260819-v93-income-breakdown"></script>
+
+<script id="pspV129CourseWorkspace">
+(function(){
+'use strict';
+function modal(){return document.getElementById('modal-courseForm')}
+function setTab(key){
+  const m=modal();if(!m)return;
+  m.querySelectorAll('[data-v129-tab]').forEach(b=>b.classList.toggle('active',b.dataset.v129Tab===key));
+  m.querySelectorAll('[data-v129-panel]').forEach(p=>{const on=p.dataset.v129Panel===key;p.hidden=!on;p.style.display=on?'block':'none'});
+  const body=document.getElementById('v129CourseBody');if(body)body.scrollTop=0;
+}
+function syncHead(){
+  const editing=!!document.getElementById('courseId')?.value;
+  const title=(document.getElementById('courseTitle')?.value||'').trim();
+  const pub=!!document.getElementById('coursePublished')?.checked;
+  const h=document.getElementById('courseFormTitle');if(h)h.textContent=editing?'Edit Course':'Add New Course';
+  const sub=document.getElementById('v129CourseSubtitle');if(sub)sub.textContent=(title||'New course')+' · content, pricing, access and curriculum';
+  const st=document.getElementById('v129CourseStatus');if(st){st.textContent=pub?'Active':'Draft';st.classList.toggle('draft',!pub)}
+  const save=document.getElementById('saveCourseBtn');if(save&&!save.disabled)save.textContent=editing?'Save Changes':'Create Course';
+}
+function syncCover(){
+  const box=document.getElementById('courseThumbPrev');if(!box)return;
+  const src=(document.getElementById('courseThumbnail')?.value||'').trim();
+  if(src&&!box.querySelector('img'))box.innerHTML='<img src="'+src.replace(/"/g,'&quot;')+'" alt="Course cover preview">';
+  if(!src&&!box.querySelector('img')&&!box.querySelector('.v129-cover-empty'))box.innerHTML='<span class="v129-cover-empty">Course cover preview</span>';
+}
+function dirty(on=true){const s=document.getElementById('v129SaveState');if(!s)return;s.classList.toggle('dirty',on);const b=s.querySelector('b');if(b)b.textContent=on?'Unsaved changes':'No unsaved changes'}
+function hideLegacyCourseBlocks(){
+  const page=document.getElementById('page-courses');if(!page)return;
+  const legacy=document.getElementById('pspV124Schedule');if(legacy)legacy.remove();
+  [...page.querySelectorAll('button')].forEach(btn=>{if(!/Manage Live Links/i.test(btn.textContent||''))return;let cur=btn.parentElement,candidate=null;while(cur&&cur!==page){const t=(cur.textContent||'').replace(/\s+/g,' '),classes=(t.match(/CLASS\s*0?\d/gi)||[]).length;if(/Basic Forex Course/i.test(t)&&classes>=5){candidate=cur;break}cur=cur.parentElement}if(candidate)candidate.style.display='none'});
+  [...page.querySelectorAll('div,section,article')].forEach(el=>{const t=(el.textContent||'').replace(/\s+/g,' ').trim();if(!/Courses\s*&\s*Live Classes/i.test(t)||t.length>1200)return;const b=[...el.querySelectorAll('button')].map(x=>(x.textContent||'').trim()).join(' ');if(/Enrollments/i.test(b)&&/Refresh/i.test(b))el.style.display='none'});
+}
+function onOpen(){setTab('overview');setTimeout(()=>{syncHead();syncCover();dirty(false)},40)}
+function install(){
+  const m=modal();if(m&&!m.dataset.v129Ready){m.dataset.v129Ready='1';m.addEventListener('click',e=>{const b=e.target.closest('[data-v129-tab]');if(b){e.preventDefault();e.stopPropagation();setTab(b.dataset.v129Tab)}});m.addEventListener('input',e=>{if(e.target.matches('input,textarea,select')){dirty(true);if(e.target.id==='courseTitle')syncHead()}});m.addEventListener('change',e=>{if(e.target.matches('input,textarea,select')){dirty(true);if(e.target.id==='coursePublished')syncHead();if(e.target.id==='courseThumbFile')setTimeout(syncCover,350)}});if(window.MutationObserver)new MutationObserver(()=>{if(m.classList.contains('active'))onOpen()}).observe(m,{attributes:true,attributeFilter:['class']})}
+  hideLegacyCourseBlocks();
+  const page=document.getElementById('page-courses');if(page&&window.MutationObserver&&!window.__pspV129CourseObserver){window.__pspV129CourseObserver=new MutationObserver(()=>{clearTimeout(window.__pspV129HideT);window.__pspV129HideT=setTimeout(hideLegacyCourseBlocks,80)});window.__pspV129CourseObserver.observe(page,{childList:true,subtree:true})}
+  setTimeout(hideLegacyCourseBlocks,300);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+})();
+</script>
 </body>
 </html>
