@@ -94,21 +94,114 @@ window.editSystemCourse=function(key){
 };
 window.loadAdminCourses=async function(){
   var db=c();if(!db)return;
-  var results=await Promise.all([db.from('course_enrollments').select('*').order('created_at',{ascending:false}),db.from('courses').select('*').order('display_order',{ascending:true})]);
-  var rows=(results[0]&&results[0].data)||[];var courses=(results[1]&&results[1].data)||[];
-  var free=rows.filter(function(x){return x.course_key==='basic'||x.course_type==='free'});var paid=rows.filter(function(x){return x.course_key==='advanced'||x.course_type==='paid'});var approved=paid.filter(function(x){return x.payment_status==='approved'||x.enrollment_status==='enrolled'});
-  var basic=courses.find(function(x){return /basic forex course/i.test(x.title||'')})||courses.find(function(x){return !x.is_premium&&Number(x.display_order)===1})||null;
-  var advanced=courses.find(function(x){return /advanced forex course/i.test(x.title||'')})||courses.find(function(x){return !!x.is_premium&&Number(x.display_order)===2})||null;
-  systemCourseRows.basic=basic;systemCourseRows.advanced=advanced;
-  var basicView=Object.assign({},SYSTEM_COURSE_DEFAULTS.basic,basic||{});var advancedView=Object.assign({},SYSTEM_COURSE_DEFAULTS.advanced,advanced||{});
-  var active=[basicView,advancedView].filter(function(x){return x.is_published!==false}).length;
-  setText('coursesAllCount','2');setText('coursesActiveCount',String(active));setText('coursesDraftsCount',String(2-active));setText('coursesEnrollmentsCount',rows.length.toLocaleString());
-  function stateBadge(course,type){return '<span class="badge '+(course.is_published===false?'draft':'published')+'">'+(course.is_published===false?'Draft':'Active')+' · '+type+'</span>'}
-  function thumbnail(course,fallback){var key=course.is_premium?'advanced':'basic';var src=String(course.thumbnail||'');if(!src||/service-banners\/forex-education/i.test(src)||/course-thumbnails\//i.test(src))src=fallback;return '<div class="psp-system-course-thumbnail"><img src="'+esc(src)+'" onerror="this.onerror=null;this.src=\''+(key==='advanced'?'advanced-course-thumbnail.webp?v=20260802-v29-final':'basic-course-thumbnail.webp?v=20260802-v29-final')+'\'" alt="'+esc(course.title||'Course')+' thumbnail"><span>1280 × 720 Course Thumbnail</span></div>'}
-  var grid=document.querySelector('#page-courses .courses-grid');if(!grid)return;grid.className='psp-system-course-grid';grid.innerHTML=''+
-   '<article class="psp-system-course">'+thumbnail(basicView,SYSTEM_COURSE_DEFAULTS.basic.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(basicView,'Free')+'</div><h3>'+esc(basicView.title)+'</h3><p>'+esc(basicView.description)+'</p><div class="psp-system-course-meta"><div>Course Type<strong>Free</strong></div><div>Modules<strong>9</strong></div><div>Enrollments<strong>'+free.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'basic\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'free\')">View Enrollments</button></div></article>'+
-   '<article class="psp-system-course paid">'+thumbnail(advancedView,SYSTEM_COURSE_DEFAULTS.advanced.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(advancedView,'Paid')+'</div><h3>'+esc(advancedView.title)+'</h3><p>'+esc(advancedView.description)+'</p><div class="psp-system-course-meta"><div>Course Fee<strong>$'+Number(advancedView.price||250).toFixed(0)+'</strong></div><div>Modules<strong>9</strong></div><div>Approved Users<strong>'+approved.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'advanced\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'paid-approved\')">View Enrollments</button></div></article>';
-  var createBtn=document.querySelector('#page-courses .card-header .btn');if(createBtn)createBtn.style.removeProperty('display');
+  var results=await Promise.all([
+    db.from('course_enrollments').select('*').order('created_at',{ascending:false}),
+    db.from('courses').select('*').order('display_order',{ascending:true})
+  ]);
+  var rows=(results[0]&&results[0].data)||[];
+  var courses=(results[1]&&results[1].data)||[];
+
+  function norm(v){return String(v||'').trim().toLowerCase()}
+  function slug(v){return norm(v).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,52)||'course'}
+  function isBasic(x){var t=norm(x&&x.title),k=norm(x&&x.course_key),o=Number(x&&x.display_order||0);return t==='basic forex course'||(k==='basic'&&o===1)}
+  function isAdvanced(x){var t=norm(x&&x.title),k=norm(x&&x.course_key),o=Number(x&&x.display_order||0);return t==='advanced forex course'||(k==='advanced'&&o===2)}
+
+  var basic=courses.find(function(x){return norm(x.title)==='basic forex course'})
+    ||courses.find(function(x){return norm(x.course_key)==='basic'&&Number(x.display_order||0)===1})||null;
+  var advanced=courses.find(function(x){return norm(x.title)==='advanced forex course'})
+    ||courses.find(function(x){return norm(x.course_key)==='advanced'&&Number(x.display_order||0)===2})||null;
+
+  var systemIds=new Set([basic&&String(basic.id),advanced&&String(advanced.id)].filter(Boolean));
+  var customs=courses.filter(function(x){return !systemIds.has(String(x.id))});
+
+  // Repair rows accidentally created with reserved keys by the old Add Course form.
+  var used=new Set(['basic','advanced']);
+  customs.forEach(function(x){
+    var k=norm(x.course_key);
+    if(k&&k!=='basic'&&k!=='advanced')used.add(k);
+  });
+  for(var i=0;i<customs.length;i++){
+    var row=customs[i],raw=norm(row.course_key);
+    if(!raw||raw==='basic'||raw==='advanced'){
+      var candidate=slug(row.title);
+      if(candidate==='basic'||candidate==='advanced')candidate=candidate+'-course';
+      if(used.has(candidate))candidate=candidate+'-'+String(row.id||'').replace(/[^a-z0-9]/gi,'').slice(0,6).toLowerCase();
+      used.add(candidate);
+      try{
+        var fix=await db.from('courses').update({course_key:candidate}).eq('id',row.id);
+        if(!fix.error)row.course_key=candidate;
+      }catch(_){}
+    }
+  }
+
+  systemCourseRows.basic=basic;
+  systemCourseRows.advanced=advanced;
+
+  var basicView=Object.assign({},SYSTEM_COURSE_DEFAULTS.basic,basic||{});
+  var advancedView=Object.assign({},SYSTEM_COURSE_DEFAULTS.advanced,advanced||{});
+  basicView.title='Basic Forex Course';
+  basicView.is_premium=false;
+  basicView.display_order=1;
+  basicView.price=0;
+  advancedView.title='Advanced Forex Course';
+  advancedView.is_premium=true;
+  advancedView.display_order=2;
+  advancedView.price=Number(advancedView.price||250);
+
+  var free=rows.filter(function(x){return x.course_key==='basic'||x.course_type==='free'});
+  var paid=rows.filter(function(x){return x.course_key==='advanced'||x.course_type==='paid'});
+  var approved=paid.filter(function(x){return x.payment_status==='approved'||x.enrollment_status==='enrolled'});
+
+  var catalog=[basicView,advancedView].concat(customs);
+  var active=catalog.filter(function(x){return x.is_published!==false}).length;
+  var drafts=catalog.length-active;
+  setText('coursesAllCount',String(catalog.length));
+  setText('coursesActiveCount',String(active));
+  setText('coursesDraftsCount',String(drafts));
+  setText('coursesEnrollmentsCount',rows.length.toLocaleString());
+
+  function stateBadge(course,type){
+    return '<span class="badge '+(course.is_published===false?'draft':'published')+'">'+(course.is_published===false?'Draft':'Active')+' · '+type+'</span>';
+  }
+  function thumbnail(course,fallback){
+    var premium=course.is_premium===true||Number(course.price||0)>0;
+    var src=String(course.thumbnail||'');
+    if(!src||/service-banners\/forex-education/i.test(src)||/course-thumbnails\//i.test(src))src=fallback;
+    var fb=premium?'advanced-course-thumbnail.webp?v=20260802-v29-final':'basic-course-thumbnail.webp?v=20260802-v29-final';
+    return '<div class="psp-system-course-thumbnail"><img src="'+esc(src||fb)+'" onerror="this.onerror=null;this.src=\''+fb+'\'" alt="'+esc(course.title||'Course')+' thumbnail"><span>1280 × 720 Course Thumbnail</span></div>';
+  }
+  function moduleCount(course){
+    return Array.isArray(course.modules_json)&&course.modules_json.length?course.modules_json.length:9;
+  }
+  function customCard(course){
+    var premium=course.is_premium===true||Number(course.price||0)>0;
+    var key=String(course.course_key||'');
+    var enrolled=rows.filter(function(r){return String(r.course_key||'')===key}).length;
+    return '<article class="psp-system-course psp-custom-course '+(premium?'paid':'')+'">'
+      +thumbnail(course,premium?SYSTEM_COURSE_DEFAULTS.advanced.thumbnail:SYSTEM_COURSE_DEFAULTS.basic.thumbnail)
+      +'<div class="psp-system-course-head">'+stateBadge(course,premium?'Paid':'Free')+'</div>'
+      +'<h3>'+esc(course.title||'Untitled Course')+'</h3>'
+      +'<p>'+esc(course.short_description||course.description||'')+'</p>'
+      +'<div class="psp-system-course-meta">'
+      +'<div>Course '+(premium?'Fee':'Type')+'<strong>'+(premium?'$'+Number(course.price||0).toFixed(0):'Free')+'</strong></div>'
+      +'<div>Modules<strong>'+moduleCount(course)+'</strong></div>'
+      +'<div>Enrollments<strong>'+enrolled+'</strong></div>'
+      +'</div>'
+      +'<div class="psp-course-admin-actions">'
+      +'<button class="btn btn-secondary" onclick="editCourse(\''+esc(course.id)+'\')">✏️ Edit Course</button>'
+      +'<button class="btn btn-secondary psp-delete-course-btn" onclick="deleteCourse(\''+esc(course.id)+'\',\''+esc(String(course.title||'Course').replace(/'/g,''))+'\')">Delete</button>'
+      +'</div></article>';
+  }
+
+  var grid=document.querySelector('#page-courses .courses-grid');if(!grid)return;
+  grid.className='psp-system-course-grid';
+  grid.innerHTML=''
+   +'<article class="psp-system-course">'+thumbnail(basicView,SYSTEM_COURSE_DEFAULTS.basic.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(basicView,'Free')+'</div><h3>Basic Forex Course</h3><p>'+esc(basicView.description)+'</p><div class="psp-system-course-meta"><div>Course Type<strong>Free</strong></div><div>Modules<strong>9</strong></div><div>Enrollments<strong>'+free.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'basic\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'free\')">View Enrollments</button></div></article>'
+   +'<article class="psp-system-course paid">'+thumbnail(advancedView,SYSTEM_COURSE_DEFAULTS.advanced.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(advancedView,'Paid')+'</div><h3>Advanced Forex Course</h3><p>'+esc(advancedView.description)+'</p><div class="psp-system-course-meta"><div>Course Fee<strong>$'+Number(advancedView.price||250).toFixed(0)+'</strong></div><div>Modules<strong>9</strong></div><div>Approved Users<strong>'+approved.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'advanced\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'paid-approved\')">View Enrollments</button></div></article>'
+   +customs.map(customCard).join('');
+
+  var createBtn=document.querySelector('#page-courses .card-header .btn');
+  if(createBtn)createBtn.style.removeProperty('display');
 };
 
 /* Payment Requests without request_type dependency, plus course payments */

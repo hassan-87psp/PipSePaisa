@@ -58,39 +58,61 @@
   async function loadCourseConfig(courseKey,{refresh=false}={}){
     const key=String(courseKey||'').trim().toLowerCase();
     const fallback=COURSE_INFO[key]?{...COURSE_INFO[key]}:null;
-    if(!fallback)return null;
     if(!refresh&&courseConfigCache.has(key))return {...courseConfigCache.get(key)};
     const sb=getClient();
-    if(!sb)return fallback;
-    try{
-      const {data,error}=await sb.from('courses').select('*').order('display_order',{ascending:true});
-      if(error)throw error;
-      const rows=Array.isArray(data)?data:[];
-      const row=rows.find(r=>String(r.course_key||'').toLowerCase()===key)
-        || rows.find(r=>key==='advanced'&&/advanced forex course/i.test(String(r.title||'')))
-        || rows.find(r=>key==='basic'&&/basic forex course/i.test(String(r.title||'')));
-      if(!row){courseConfigCache.set(key,fallback);return {...fallback};}
-      const next={...fallback};
-      next.id=row.id||null;
-      next.name=String(row.title||fallback.name);
-      next.currency=normalizeCurrency(row.currency||fallback.currency,fallback.currency);
-      if(key==='basic'){
-        next.type='free';next.price=0;next.oldPrice=0;next.localBankPricePkr=0;
-      }else{
-        next.type='paid';
-        const livePrice=amountNumber(row.price,fallback.price);
-        next.price=livePrice>0?livePrice:fallback.price;
-        next.oldPrice=Math.max(0,amountNumber(row.old_price,fallback.oldPrice));
-        next.localBankPricePkr=Math.max(0,amountNumber(row.local_bank_price_pkr,0));
+
+    let row=window.__pspCourseCatalogByKey?.[key]||null;
+    if(sb&&!row){
+      try{
+        const {data,error}=await sb.from('courses').select('*').order('display_order',{ascending:true});
+        if(error)throw error;
+        const rows=Array.isArray(data)?data:[];
+        if(fallback){
+          row=rows.find(r=>key==='basic'&&/^basic forex course$/i.test(String(r.title||'').trim()))
+            ||rows.find(r=>key==='advanced'&&/^advanced forex course$/i.test(String(r.title||'').trim()))
+            ||rows.find(r=>String(r.course_key||'').toLowerCase()===key&&((key==='basic'&&Number(r.display_order||0)===1)||(key==='advanced'&&Number(r.display_order||0)===2)));
+        }else{
+          row=rows.find(r=>String(r.course_key||'').toLowerCase()===key)||null;
+        }
+      }catch(error){
+        console.warn('Course configuration could not load.',error);
+        return fallback;
       }
-      next.isPublished=row.is_published!==false;
-      next.enrollmentOpen=row.enrollment_open!==false&&row.enrollments_open!==false;
-      courseConfigCache.set(key,next);
-      return {...next};
-    }catch(error){
-      console.warn('Course pricing could not load; using safe website fallback.',error);
-      return fallback;
     }
+
+    if(!row){
+      if(fallback){courseConfigCache.set(key,fallback);return {...fallback};}
+      return null;
+    }
+
+    const paid=row.is_premium===true||amountNumber(row.price,0)>0;
+    const next=fallback?{...fallback}:{
+      key,
+      name:String(row.title||'PipSePaisa Course'),
+      type:paid?'paid':'free',
+      price:paid?Math.max(0,amountNumber(row.price,0)):0,
+      oldPrice:paid?Math.max(0,amountNumber(row.old_price,0)):0,
+      currency:normalizeCurrency(row.currency||'USD','USD'),
+      localBankPricePkr:paid?Math.max(0,amountNumber(row.local_bank_price_pkr,0)):0
+    };
+
+    next.id=row.id||null;
+    next.name=String(row.title||next.name);
+    next.currency=normalizeCurrency(row.currency||next.currency||'USD',next.currency||'USD');
+    if(key==='basic'){
+      next.type='free';next.price=0;next.oldPrice=0;next.localBankPricePkr=0;
+    }else if(key==='advanced'){
+      next.type='paid';next.price=Math.max(0,amountNumber(row.price,250))||250;next.oldPrice=Math.max(0,amountNumber(row.old_price,500));next.localBankPricePkr=Math.max(0,amountNumber(row.local_bank_price_pkr,0));
+    }else{
+      next.type=paid?'paid':'free';
+      next.price=paid?Math.max(0,amountNumber(row.price,0)):0;
+      next.oldPrice=paid?Math.max(0,amountNumber(row.old_price,0)):0;
+      next.localBankPricePkr=paid?Math.max(0,amountNumber(row.local_bank_price_pkr,0)):0;
+    }
+    next.isPublished=row.is_published!==false;
+    next.enrollmentOpen=row.enrollment_open!==false&&row.enrollments_open!==false;
+    courseConfigCache.set(key,next);
+    return {...next};
   }
 
   async function refreshPublicCoursePricing(){
@@ -936,11 +958,11 @@
       text=result.updated?`Your enrollment details have been confirmed. The ${selectedCourse.name} remains available in My Courses.`:`You are already enrolled in the ${selectedCourse.name}. Your course access is available in My Courses.`;
     }else if(result.pending){
       title='Enrollment Request Already Submitted';
-      text='Your payment verification is pending. The Advanced Forex Course will unlock after admin approval.';
+      text=`Your payment verification is pending. The ${selectedCourse.name} will unlock after admin approval.`;
     }else if(selectedCourse.type==='free'){
       text=accountWasCreated
-        ?'Your PipSePaisa account has been created and you are successfully enrolled in the Basic Forex Course.'
-        :'You have successfully enrolled in the Basic Forex Course.';
+        ?`Your PipSePaisa account has been created and you are successfully enrolled in the ${selectedCourse.name}.`
+        :`You have successfully enrolled in the ${selectedCourse.name}.`;
     }else{
       title='Payment Receipt Received';
       text=result.resubmitted
@@ -1115,7 +1137,7 @@
           if(!result.already || (selectedCourse.type==='free'&&result.updated)){
             const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
             const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
-            if(selectedCourse.type==='free')jobs.push(registerZoomCourse(values));
+            if(selectedCourse.key==='basic')jobs.push(registerZoomCourse(values));
             const jobResults=await Promise.all(jobs);
             if(!jobResults[0]?.ok)console.warn('Enrollment saved but email delivery failed.',jobResults[0]?.error||jobResults[0]);
             if(selectedCourse.type==='free'&&!jobResults[1]?.ok)console.warn('Course enrolled but Zoom registration needs attention.',jobResults[1]?.error||jobResults[1]);
@@ -1241,14 +1263,14 @@
       if(!result.already || (selectedCourse.type==='free'&&result.updated)){
         const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
         const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
-        if(selectedCourse.type==='free')jobs.push(registerZoomCourse(values));
+        if(selectedCourse.key==='basic')jobs.push(registerZoomCourse(values));
         const jobResults=await Promise.all(jobs);const emailResult=jobResults[0];
         if(!emailResult.ok){
           console.warn('Enrollment saved but email delivery failed. Check send-course-email logs.',emailResult.error);
           const note=emailResult.detail||emailResult.error?.message||'Email delivery failed.';
           if(window.pipToast)window.pipToast(`Enrollment saved. Email not sent: ${note}`,'err');
         }
-        if(selectedCourse.type==='free'){
+        if(selectedCourse.key==='basic'){
           const zoomResult=jobResults[1];
           if(zoomResult?.ok){if(window.pipToast)window.pipToast('Enrollment complete. Zoom registration for all 9 classes is confirmed.','ok');}
           else{
@@ -1289,7 +1311,7 @@
       window.setTimeout(function(){document.getElementById('page-mycourses')?.scrollIntoView({behavior:'smooth',block:'start'});},80);
       return;
     }
-    const target='./?open=basic';
+    const target='./?open='+encodeURIComponent(selectedCourse?.key||'basic');
     if(window.top&&window.top!==window)window.top.location.href=target;
     else window.location.href=target;
   };

@@ -103,3 +103,16 @@
 .psp-system-course-thumbnail img{width:100%;height:100%;display:block;object-fit:cover}
 .psp-system-course-thumbnail span{position:absolute;left:10px;bottom:9px;padding:5px 8px;border-radius:999px;background:rgba(5,12,24,.82);color:#ffb326;font-size:8px;font-weight:900;letter-spacing:.05em;border:1px solid rgba(255,179,38,.28)}
 .psp-system-course-head{align-items:center}
+
+/* V131: protected system courses + real custom course catalog */
+.psp-system-course-grid{
+  grid-template-columns:repeat(auto-fit,minmax(330px,420px))!important;
+  justify-content:center!important;
+  align-items:start!important;
+}
+.psp-system-course.psp-custom-course{min-width:0}
+.psp-system-course .psp-course-admin-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+.psp-delete-course-btn{color:#b42318!important;border-color:rgba(180,35,24,.28)!important}
+@media(max-width:760px){
+  .psp-system-course-grid{grid-template-columns:1fr!important}
+}

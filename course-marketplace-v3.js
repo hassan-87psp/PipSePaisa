@@ -123,17 +123,18 @@ async function getEnrollment(key){
 }
 function defaultClasses(key){
   if(key==='basic')return BASIC_LIVE_SCHEDULE.map(row=>({...row,zoom_url:'',join_url:'',registration_status:'not_registered',zoom_error_message:''}));
-  return Array.from({length:9},(_,index)=>({course_key:key,class_number:index+1,title:`Class ${index+1}`,zoom_url:'',join_url:'',registration_status:'not_registered',scheduled_at:null,zoom_error_message:'',is_active:true}));
+  const mods=Array.isArray(courseData[key]?.modules)?courseData[key].modules:[];
+  return mods.map((m,index)=>({course_key:key,class_number:index+1,title:m?.title||`Class ${index+1}`,zoom_url:'',join_url:'',registration_status:'not_registered',scheduled_at:null,zoom_error_message:'',is_active:true}));
 }
 async function loadCourseClasses(){
-  courseClasses.basic=defaultClasses('basic');
-  courseClasses.advanced=defaultClasses('advanced');
+  courseClasses={};
+  Object.keys(courseData).forEach(key=>{courseClasses[key]=defaultClasses(key);});
   const db=client();if(!db)return;
 
   try{
     const r=await db.from('course_classes').select('*').order('course_key',{ascending:true}).order('class_number',{ascending:true});
     if(!r.error){
-      ['basic','advanced'].forEach(key=>{
+      Object.keys(courseData).forEach(key=>{
         const rows=(r.data||[]).filter(x=>x.course_key===key&&x.is_active!==false);
         if(rows.length){
           const byNumber=new Map(rows.map(row=>[Number(row.class_number),row]));
@@ -196,51 +197,128 @@ async function loadCourseDataFresh(){
       else if(r.error)console.warn('Course catalog sync skipped',r.error);
     }catch(e){console.warn('Course data sync skipped',e);}
   }
-  const basic=rows.find(x=>x.course_key==='basic')||rows.find(x=>/basic forex course/i.test(x.title||''))||rows.find(x=>x.is_premium!==true&&Number(x.display_order)===1)||rows.find(x=>x.is_premium!==true);
-  const adv=rows.find(x=>x.course_key==='advanced')||rows.find(x=>/advanced forex course/i.test(x.title||''))||rows.find(x=>x.is_premium===true&&Number(x.display_order)===2)||rows.find(x=>x.is_premium===true);
+
+  const norm=v=>String(v||'').trim().toLowerCase();
+  const slug=v=>norm(v).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,52)||'course';
   const numberValue=(value,fallback)=>{if(value===null||value===undefined||value==='')return fallback;const n=Number(value);return Number.isFinite(n)&&n>=0?n:fallback;};
   const arrayValue=(value,fallback)=>Array.isArray(value)&&value.length?value:fallback;
-  courseData.basic={...defaults.basic,...(basic?{
-    dbId:basic.id||'',title:basic.title||defaults.basic.title,
-    short:basic.short_description||basic.description||defaults.basic.short,
-    description:basic.description||defaults.basic.description,
-    descriptionExtra:basic.description_extra||defaults.basic.descriptionExtra,
-    included:arrayValue(basic.included_items,defaults.basic.included),
-    contentNote:basic.content_note||defaults.basic.contentNote,secureNote:basic.secure_note||defaults.basic.secureNote,
-    level:basic.level||defaults.basic.level,badge:basic.course_badge||defaults.basic.badge,
-    thumbnail:resolveThumbnail('basic',basic.thumbnail),videoUrl:'',
-    requirements:arrayValue(basic.requirements,defaults.basic.requirements),
-    audience:arrayValue(basic.audience,defaults.basic.audience),
-    learn:arrayValue(basic.learning_outcomes,defaults.basic.learn),
-    achievement:arrayValue(basic.achievement_outcomes,defaults.basic.achievement),
-    modules:canonicalModules('basic',basic.modules_json),
-    accessLabel:basic.access_label||'FREE COURSE ACCESS',buyNote:basic.buy_note||'Complete the enrollment form and begin learning.',
-    actionButtonText:basic.action_button_text||'',mentorName:basic.mentor_name||'Sajid Khan Ghori',mentorTitle:basic.mentor_title||'Asia Top Instructor',learningHeading:basic.learning_heading||defaults.basic.learningHeading,outcomesHeading:basic.outcomes_heading||defaults.basic.outcomesHeading,contentHeading:basic.content_heading||defaults.basic.contentHeading,requirementsHeading:basic.requirements_heading||defaults.basic.requirementsHeading,audienceHeading:basic.audience_heading||defaults.basic.audienceHeading,descriptionHeading:basic.description_heading||defaults.basic.descriptionHeading,relatedHeading:basic.related_heading||defaults.basic.relatedHeading,
-    price:0,oldPrice:0,published:basic.is_published!==false
-  }:{published:true,videoUrl:'',thumbnail:systemThumbnail('basic'),modules:canonicalModules('basic',defaults.basic.modules)})};
-  courseData.advanced={...defaults.advanced,...(adv?{
-    dbId:adv.id||'',title:adv.title||defaults.advanced.title,
-    short:adv.short_description||adv.description||defaults.advanced.short,
-    description:adv.description||defaults.advanced.description,
-    descriptionExtra:adv.description_extra||defaults.advanced.descriptionExtra,
-    included:arrayValue(adv.included_items,defaults.advanced.included),
-    contentNote:adv.content_note||defaults.advanced.contentNote,secureNote:adv.secure_note||defaults.advanced.secureNote,
-    level:adv.level||defaults.advanced.level,badge:adv.course_badge||defaults.advanced.badge,
-    thumbnail:resolveThumbnail('advanced',adv.thumbnail),videoUrl:'',
-    requirements:arrayValue(adv.requirements,defaults.advanced.requirements),
-    audience:arrayValue(adv.audience,defaults.advanced.audience),
-    learn:arrayValue(adv.learning_outcomes,defaults.advanced.learn),
-    achievement:arrayValue(adv.achievement_outcomes,defaults.advanced.achievement),
-    modules:canonicalModules('advanced',adv.modules_json),
-    accessLabel:adv.access_label||'PROFESSIONAL COURSE ACCESS',buyNote:adv.buy_note||'One-time course payment • Manual verification',
-    actionButtonText:adv.action_button_text||'',mentorName:adv.mentor_name||'Sajid Khan Ghori',mentorTitle:adv.mentor_title||'Asia Top Instructor',learningHeading:adv.learning_heading||defaults.advanced.learningHeading,outcomesHeading:adv.outcomes_heading||defaults.advanced.outcomesHeading,contentHeading:adv.content_heading||defaults.advanced.contentHeading,requirementsHeading:adv.requirements_heading||defaults.advanced.requirementsHeading,audienceHeading:adv.audience_heading||defaults.advanced.audienceHeading,descriptionHeading:adv.description_heading||defaults.advanced.descriptionHeading,relatedHeading:adv.related_heading||defaults.advanced.relatedHeading,
-    price:numberValue(adv.price,defaults.advanced.price),oldPrice:numberValue(adv.old_price,defaults.advanced.oldPrice),
-    published:adv.is_published!==false
-  }:{published:true,videoUrl:'',thumbnail:systemThumbnail('advanced'),modules:canonicalModules('advanced',defaults.advanced.modules)})};
-  const [b,a]=await Promise.all([getEnrollment('basic'),getEnrollment('advanced')]);
+  const genericModules=value=>{
+    if(!Array.isArray(value))return [];
+    return value.map((m,i)=>({
+      title:String(m?.title||`Module ${i+1}`),
+      duration:String(m?.duration||'90 min'),
+      summary:String(m?.summary||''),
+      points:Array.isArray(m?.points)?m.points.map(x=>String(x||'')).filter(Boolean):[]
+    }));
+  };
+
+  // IMPORTANT: exact system identity first. A custom row with an accidentally
+  // duplicated reserved key must never replace Basic/Advanced.
+  const basic=rows.find(x=>norm(x.title)==='basic forex course')
+    ||rows.find(x=>norm(x.course_key)==='basic'&&Number(x.display_order||0)===1)||null;
+  const adv=rows.find(x=>norm(x.title)==='advanced forex course')
+    ||rows.find(x=>norm(x.course_key)==='advanced'&&Number(x.display_order||0)===2)||null;
+
+  const systemIds=new Set([basic&&String(basic.id),adv&&String(adv.id)].filter(Boolean));
+  const customRows=rows.filter(x=>!systemIds.has(String(x.id)));
+
+  courseData={
+    basic:{...defaults.basic,...(basic?{
+      dbId:basic.id||'',title:'Basic Forex Course',
+      short:basic.short_description||basic.description||defaults.basic.short,
+      description:basic.description||defaults.basic.description,
+      descriptionExtra:basic.description_extra||defaults.basic.descriptionExtra,
+      included:arrayValue(basic.included_items,defaults.basic.included),
+      contentNote:basic.content_note||defaults.basic.contentNote,secureNote:basic.secure_note||defaults.basic.secureNote,
+      level:basic.level||defaults.basic.level,badge:basic.course_badge||defaults.basic.badge,
+      thumbnail:resolveThumbnail('basic',basic.thumbnail),videoUrl:'',
+      requirements:arrayValue(basic.requirements,defaults.basic.requirements),
+      audience:arrayValue(basic.audience,defaults.basic.audience),
+      learn:arrayValue(basic.learning_outcomes,defaults.basic.learn),
+      achievement:arrayValue(basic.achievement_outcomes,defaults.basic.achievement),
+      modules:canonicalModules('basic',basic.modules_json),
+      accessLabel:basic.access_label||'FREE COURSE ACCESS',buyNote:basic.buy_note||'Complete the enrollment form and begin learning.',
+      actionButtonText:basic.action_button_text||'',mentorName:basic.mentor_name||'Sajid Khan Ghori',mentorTitle:basic.mentor_title||'Asia Top Instructor',
+      learningHeading:basic.learning_heading||defaults.basic.learningHeading,outcomesHeading:basic.outcomes_heading||defaults.basic.outcomesHeading,
+      contentHeading:basic.content_heading||defaults.basic.contentHeading,requirementsHeading:basic.requirements_heading||defaults.basic.requirementsHeading,
+      audienceHeading:basic.audience_heading||defaults.basic.audienceHeading,descriptionHeading:basic.description_heading||defaults.basic.descriptionHeading,
+      relatedHeading:basic.related_heading||defaults.basic.relatedHeading,price:0,oldPrice:0,published:basic.is_published!==false
+    }:{published:true,videoUrl:'',thumbnail:systemThumbnail('basic'),modules:canonicalModules('basic',defaults.basic.modules)})},
+
+    advanced:{...defaults.advanced,...(adv?{
+      dbId:adv.id||'',title:'Advanced Forex Course',
+      short:adv.short_description||adv.description||defaults.advanced.short,
+      description:adv.description||defaults.advanced.description,
+      descriptionExtra:adv.description_extra||defaults.advanced.descriptionExtra,
+      included:arrayValue(adv.included_items,defaults.advanced.included),
+      contentNote:adv.content_note||defaults.advanced.contentNote,secureNote:adv.secure_note||defaults.advanced.secureNote,
+      level:adv.level||defaults.advanced.level,badge:adv.course_badge||defaults.advanced.badge,
+      thumbnail:resolveThumbnail('advanced',adv.thumbnail),videoUrl:'',
+      requirements:arrayValue(adv.requirements,defaults.advanced.requirements),
+      audience:arrayValue(adv.audience,defaults.advanced.audience),
+      learn:arrayValue(adv.learning_outcomes,defaults.advanced.learn),
+      achievement:arrayValue(adv.achievement_outcomes,defaults.advanced.achievement),
+      modules:canonicalModules('advanced',adv.modules_json),
+      accessLabel:adv.access_label||'PROFESSIONAL COURSE ACCESS',buyNote:adv.buy_note||'One-time course payment • Secure verification',
+      actionButtonText:adv.action_button_text||'',mentorName:adv.mentor_name||'Sajid Khan Ghori',mentorTitle:adv.mentor_title||'Asia Top Instructor',
+      learningHeading:adv.learning_heading||defaults.advanced.learningHeading,outcomesHeading:adv.outcomes_heading||defaults.advanced.outcomesHeading,
+      contentHeading:adv.content_heading||defaults.advanced.contentHeading,requirementsHeading:adv.requirements_heading||defaults.advanced.requirementsHeading,
+      audienceHeading:adv.audience_heading||defaults.advanced.audienceHeading,descriptionHeading:adv.description_heading||defaults.advanced.descriptionHeading,
+      relatedHeading:adv.related_heading||defaults.advanced.relatedHeading,
+      price:numberValue(adv.price,250),oldPrice:numberValue(adv.old_price,defaults.advanced.oldPrice),published:adv.is_published!==false
+    }:{published:true,videoUrl:'',thumbnail:systemThumbnail('advanced'),price:250,modules:canonicalModules('advanced',defaults.advanced.modules)})}
+  };
+
+  // Stable keys for real custom courses. Reserved-key collisions caused by the
+  // previous Add Course bug are converted to a safe display/catalog key.
+  const used=new Set(['basic','advanced']);
+  customRows.forEach(row=>{
+    let k=norm(row.course_key);
+    if(k&&k!=='basic'&&k!=='advanced')used.add(k);
+  });
+
+  const catalogRegistry={};
+  customRows.forEach(row=>{
+    let key=norm(row.course_key);
+    if(!key||key==='basic'||key==='advanced'){
+      key=slug(row.title);
+      if(key==='basic'||key==='advanced')key=key+'-course';
+      if(used.has(key))key=key+'-'+String(row.id||'').replace(/[^a-z0-9]/gi,'').slice(0,6).toLowerCase();
+    }
+    used.add(key);
+    const paid=row.is_premium===true||numberValue(row.price,0)>0;
+    const modules=genericModules(row.modules_json);
+    courseData[key]={
+      key,dbId:row.id||'',title:String(row.title||'Untitled Course'),
+      price:paid?numberValue(row.price,0):0,oldPrice:paid?numberValue(row.old_price,0):0,type:paid?'paid':'free',
+      level:String(row.level||'All Levels'),badge:String(row.course_badge||(paid?'PROFESSIONAL COURSE':'FOREX COURSE')),
+      thumbnail:String(row.thumbnail||''),short:String(row.short_description||row.description||''),
+      description:String(row.description||row.short_description||''),
+      descriptionExtra:String(row.description_extra||''),
+      included:arrayValue(row.included_items,modules.length?[`${modules.length} structured modules`]:['Structured learning program']),
+      contentNote:String(row.content_note||'Learn module by module'),
+      secureNote:String(row.secure_note||'Secure account-linked enrollment'),
+      requirements:arrayValue(row.requirements,[]),audience:arrayValue(row.audience,[]),
+      modules,learn:arrayValue(row.learning_outcomes,[]),achievement:arrayValue(row.achievement_outcomes,[]),
+      accessLabel:String(row.access_label||(paid?'PROFESSIONAL COURSE ACCESS':'COURSE ACCESS')),
+      buyNote:String(row.buy_note||(paid?'One-time course payment • Secure verification':'Free course enrollment')),
+      actionButtonText:String(row.action_button_text||''),
+      mentorName:String(row.mentor_name||'Sajid Khan Ghori'),mentorTitle:String(row.mentor_title||'Asia Top Instructor'),
+      learningHeading:String(row.learning_heading||"What you'll learn"),outcomesHeading:String(row.outcomes_heading||'Course Outcomes'),
+      contentHeading:String(row.content_heading||'Course content'),requirementsHeading:String(row.requirements_heading||'Requirements'),
+      audienceHeading:String(row.audience_heading||'Who this course is for'),descriptionHeading:String(row.description_heading||'Description'),
+      relatedHeading:String(row.related_heading||'Other PipSePaisa Courses'),published:row.is_published!==false
+    };
+    catalogRegistry[key]={...row,course_key:key,_db_course_key:String(row.course_key||'')};
+  });
+  window.__pspCourseCatalogByKey=catalogRegistry;
+
+  const keys=Object.keys(courseData);
+  const enrollments=await Promise.all(keys.map(k=>getEnrollment(k)));
+  enrollmentState={};
+  keys.forEach((k,i)=>{enrollmentState[k]=normalize(enrollments[i],k);});
+
   await loadCourseClasses();
-  enrollmentState.basic=normalize(b,'basic');
-  enrollmentState.advanced=normalize(a,'advanced');
 }
 
 let courseDataLoadPromise=null;
@@ -409,7 +487,7 @@ function classAccessPanel(c,state){
     :'';
   const linkSummary=isBasic?`${readyCount}/${targetCount} Upcoming Links Ready`:`${readyCount}/${rows.length} Links Ready`;
   return `<section class="psp-live-class-card" id="pspLiveClassCard" aria-label="${esc(c.title)} live classes">
-    <div class="psp-live-class-head"><div><span>LIVE CLASS ACCESS</span><h3>Your 9 Classes</h3></div><b>${linkSummary}</b></div>
+    <div class="psp-live-class-head"><div><span>LIVE CLASS ACCESS</span><h3>Your ${rows.length} Classes</h3></div><b>${linkSummary}</b></div>
     <p>${isBasic?'Completed classes stay visible as Completed. New students only receive personal Zoom links for upcoming classes.':'Select a class to view its live-class access.'}</p>
     ${progress}
     ${showRetry?`<button type="button" class="psp-zoom-retry-btn" onclick="return window.retryZoomCourseRegistration?.(event)">${retryText}</button>`:''}
@@ -449,7 +527,7 @@ function moduleRows(c,unlocked){
 }
 function detailMarkup(c){
   const state=enrollmentState[c.key];const unlocked=c.type==='free'||state==='approved';
-  const other=c.key==='basic'?courseData.advanced:courseData.basic;
+  const other=Object.values(courseData).find(x=>x.key!==c.key&&x.published!==false)||courseData.basic;
   const totalMinutes=c.modules.reduce((sum,m)=>sum+(parseInt(m.duration,10)||0),0);
   const totalHours=Math.max(1,Math.round(totalMinutes/60));
   return `<div class="psp-course-detail-shell psp-course-${c.key} psp-course-${c.type}">

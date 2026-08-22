@@ -1026,3 +1026,15 @@ body.dark .psp-live-class-card,[data-theme="dark"] .psp-live-class-card{
 .psp-live-class-row.completed .psp-live-class-panel{max-height:82px;opacity:1;padding:0 10px 10px}
 .psp-class-completed-note{color:#047857!important;background:rgba(16,185,129,.07)!important;border-color:rgba(16,185,129,.2)!important;font-weight:800}
 @media(max-width:700px){.psp-module-right{justify-content:flex-start}.psp-module-toggle{align-items:flex-start!important}.psp-module-schedule{white-space:normal!important}.psp-live-class-state{font-size:7px}}
+
+/* V131: My Courses supports protected Basic/Advanced plus custom courses */
+#page-mycourses .psp-course-card-grid{
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr))!important;
+  align-items:stretch!important;
+}
+@media(min-width:1500px){
+  #page-mycourses .psp-course-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:760px){
+  #page-mycourses .psp-course-card-grid{grid-template-columns:1fr!important}
+}

@@ -115,8 +115,8 @@ async function syncCourseCopy(){
     var result=await db.from('courses').select('*').order('display_order',{ascending:true});
     if(result.error||!result.data)return;
     var rows=result.data;
-    var basic=rows.find(function(x){return /basic forex course/i.test(x.title||'')})||rows.find(function(x){return !x.is_premium&&Number(x.display_order)===1});
-    var advanced=rows.find(function(x){return /advanced forex course/i.test(x.title||'')})||rows.find(function(x){return !!x.is_premium&&Number(x.display_order)===2});
+    var basic=rows.find(function(x){return /^basic forex course$/i.test(String(x.title||'').trim())})||rows.find(function(x){return String(x.course_key||'').toLowerCase()==='basic'&&Number(x.display_order)===1});
+    var advanced=rows.find(function(x){return /^advanced forex course$/i.test(String(x.title||'').trim())})||rows.find(function(x){return String(x.course_key||'').toLowerCase()==='advanced'&&Number(x.display_order)===2});
     if(basic){var bc=document.querySelector('[data-course-card="basic"]'),t=document.getElementById('myBasicCourseTitle'),d=document.getElementById('myBasicCourseDescription');if(bc)bc.style.display=basic.is_published===false?'none':'';if(t)t.textContent=escText(basic.title||'Basic Forex Course');if(d&&basic.description)d.textContent=escText(basic.description)}
     if(advanced){var ac=document.querySelector('[data-course-card="advanced"]'),at=document.getElementById('myAdvancedCourseTitle'),ad=document.getElementById('myAdvancedCourseDescription');if(ac)ac.style.display=advanced.is_published===false?'none':'';if(at)at.textContent=escText(advanced.title||'Advanced Forex Course');if(ad&&advanced.description)ad.textContent=escText(advanced.description)}
   }catch(error){console.warn('Course copy sync skipped',error)}
