@@ -28,71 +28,26 @@ window.loadDashboardStats=async function(){
   buildDashboardCards();var db=c();if(!db)return;
   try{
     var results=await Promise.all([
-      db.from('profiles').select('id,full_name,email,role,is_admin,is_mentor,created_at',{count:'exact'}),
+      db.from('profiles').select('*'),
       db.from('course_enrollments').select('*').order('created_at',{ascending:false}),
       db.from('courses').select('id,title,is_published').order('display_order',{ascending:true})
     ]);
-
     var profiles=(results[0]&&results[0].data)||[];
-    var exactUsers=Number(results[0]&&results[0].count);
-    if(!Number.isFinite(exactUsers)){
-      try{
-        var cr=await db.from('profiles').select('id',{count:'exact',head:true});
-        exactUsers=Number(cr.count)||profiles.length;
-      }catch(_){exactUsers=profiles.length}
-    }
-
     var enrollments=(results[1]&&results[1].data)||[];
     var catalog=(results[2]&&results[2].data)||[];
     var activeCourses=catalog.length?catalog.filter(function(x){return x.is_published!==false}).length:2;
-
-    var mentorIds=new Set();
-    profiles.forEach(function(p){if(roleOf(p)==='mentor')mentorIds.add(String(p.id||p.email||Math.random()))});
-    try{
-      var mr=await db.from('mentors').select('id,user_id,status');
-      (mr.data||[]).forEach(function(m){if(m.status!=='rejected')mentorIds.add(String(m.user_id||m.id))})
-    }catch(_){}
-
+    var mentorIds=new Set();profiles.forEach(function(p){if(roleOf(p)==='mentor')mentorIds.add(String(p.id||p.email||Math.random()))});
+    try{var mr=await db.from('mentors').select('*');(mr.data||[]).forEach(function(m){if(m.status!=='rejected')mentorIds.add(String(m.user_id||m.id))})}catch(_){ }
     var free=enrollments.filter(function(r){return (r.course_key==='basic'||r.course_type==='free')&&r.enrollment_status!=='rejected'});
     var paid=enrollments.filter(function(r){return r.course_key==='advanced'||r.course_type==='paid'});
-    var approved=paid.filter(function(r){return r.payment_status==='approved'&&r.enrollment_status==='enrolled'});
+    var approved=paid.filter(function(r){return r.payment_status==='approved'||r.enrollment_status==='enrolled'});
     var pending=paid.filter(function(r){return r.payment_status==='pending'||r.enrollment_status==='pending'});
-
-    var now=new Date();
-    var revenue=approved.filter(function(r){
-      var d=new Date(r.reviewed_at||r.access_granted_at||r.updated_at||r.created_at);
-      return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()
-    }).reduce(function(sum,r){return sum+(Number(r.price)||250)},0);
-
-    // V116: exact database count — never capped at 1,000.
-    setText('dashTotalUsers',exactUsers.toLocaleString());
-    setText('sidebarUsersCount',exactUsers.toLocaleString());
-
-    setText('dashTotalMentors',mentorIds.size.toLocaleString());
-    setText('dashPaidUsers',uniq(approved,'user_id').toLocaleString());
-    setText('dashFreeUsers',uniq(free,'user_id').toLocaleString());
-    setText('dashActiveCourses',String(activeCourses));
-    setText('dashMonthlyRevenue','$'+revenue.toLocaleString());
-    setText('dashPendingPayments',pending.length.toLocaleString());
-    setText('dashApprovedEnrollments',approved.length.toLocaleString());
-
-    var signups=document.getElementById('recentSignupsList');
-    if(signups){
-      var recent=profiles.slice().sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at)}).slice(0,5);
-      signups.innerHTML=recent.length?recent.map(function(u){
-        var name=u.full_name||u.email||'User';
-        return '<div class="activity-item"><div class="activity-icon" style="background:var(--green-bg);color:var(--green)">'+esc(name.slice(0,2).toUpperCase())+'</div><div class="activity-content"><div class="activity-text"><strong>'+esc(name)+'</strong> signed up</div><div class="activity-time">'+esc(u.email||'')+'</div></div></div>'
-      }).join(''):'<div class="empty-state" style="height:120px">No signups yet</div>'
-    }
-
-    var platform=document.getElementById('platformStatsList');
-    if(platform)platform.innerHTML=
-      '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span>Total Users</span><strong>'+exactUsers.toLocaleString()+'</strong></div>'+
-      '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span>Total Mentors</span><strong>'+mentorIds.size+'</strong></div>'+
-      '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span>Free Course Users</span><strong>'+uniq(free,'user_id')+'</strong></div>'+
-      '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span>Paid Course Users</span><strong>'+uniq(approved,'user_id')+'</strong></div>'+
-      '<div style="display:flex;justify-content:space-between;padding:10px 0"><span>Active Courses</span><strong>'+activeCourses+'</strong></div>';
-  }catch(e){console.error('V116 dashboard stats error',e)}
+    var now=new Date();var revenue=approved.filter(function(r){var d=new Date(r.reviewed_at||r.access_granted_at||r.updated_at||r.created_at);return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()}).reduce(function(sum,r){return sum+(Number(r.price)||200)},0);
+    setText('dashTotalUsers',profiles.length.toLocaleString());setText('sidebarUsersCount',profiles.length.toLocaleString());
+    setText('dashTotalMentors',mentorIds.size.toLocaleString());setText('dashPaidUsers',uniq(approved,'user_id').toLocaleString());setText('dashFreeUsers',uniq(free,'user_id').toLocaleString());setText('dashActiveCourses',String(activeCourses));setText('dashMonthlyRevenue','$'+revenue.toLocaleString());setText('dashPendingPayments',pending.length.toLocaleString());setText('dashApprovedEnrollments',approved.length.toLocaleString());
+    var signups=document.getElementById('recentSignupsList');if(signups){var recent=profiles.slice().sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at)}).slice(0,5);signups.innerHTML=recent.length?recent.map(function(u){var name=u.full_name||u.email||'User';return '<div class="activity-item"><div class="activity-icon" style="background:var(--green-bg);color:var(--green)">'+esc(name.slice(0,2).toUpperCase())+'</div><div class="activity-content"><div class="activity-text"><strong>'+esc(name)+'</strong> signed up</div><div class="activity-time">'+esc(u.email||'')+'</div></div></div>'}).join(''):'<div class="empty-state" style="height:120px">No signups yet</div>'}
+    var platform=document.getElementById('platformStatsList');if(platform)platform.innerHTML='<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span>Total Users</span><strong>'+profiles.length+'</strong></div><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span>Total Mentors</span><strong>'+mentorIds.size+'</strong></div><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span>Free Course Users</span><strong>'+uniq(free,'user_id')+'</strong></div><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span>Paid Course Users</span><strong>'+uniq(approved,'user_id')+'</strong></div><div style="display:flex;justify-content:space-between;padding:10px 0"><span>Active Courses</span><strong>'+activeCourses+'</strong></div>';
+  }catch(e){console.error('Final dashboard stats error',e)}
 };
 
 /* User role filter */
@@ -153,103 +108,21 @@ window.loadAdminCourses=async function(){
   var grid=document.querySelector('#page-courses .courses-grid');if(!grid)return;grid.className='psp-system-course-grid';grid.innerHTML=''+
    '<article class="psp-system-course">'+thumbnail(basicView,SYSTEM_COURSE_DEFAULTS.basic.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(basicView,'Free')+'</div><h3>'+esc(basicView.title)+'</h3><p>'+esc(basicView.description)+'</p><div class="psp-system-course-meta"><div>Course Type<strong>Free</strong></div><div>Modules<strong>9</strong></div><div>Enrollments<strong>'+free.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'basic\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'free\')">View Enrollments</button></div></article>'+
    '<article class="psp-system-course paid">'+thumbnail(advancedView,SYSTEM_COURSE_DEFAULTS.advanced.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(advancedView,'Paid')+'</div><h3>'+esc(advancedView.title)+'</h3><p>'+esc(advancedView.description)+'</p><div class="psp-system-course-meta"><div>Course Fee<strong>$'+Number(advancedView.price||250).toFixed(0)+'</strong></div><div>Modules<strong>9</strong></div><div>Approved Users<strong>'+approved.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'advanced\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'paid-approved\')">View Enrollments</button></div></article>';
-  var createBtn=document.querySelector('#page-courses .card-header .btn');if(createBtn)createBtn.style.display='none';
+  var createBtn=document.querySelector('#page-courses .card-header .btn');if(createBtn)createBtn.style.removeProperty('display');
 };
 
-/* V116 Payment Requests — GENERAL/VIP ONLY.
-   Course payment receipts live exclusively in Course Enrollments. */
-window.loadAdminPaymentReqs=function(){
-  var wrap=document.getElementById('aprWrap');if(!wrap)return;
-  wrap.innerHTML=
-    '<div class="card">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">'+
-        '<div><div class="card-title">🧾 Payment Requests</div>'+
-        '<div class="card-meta" style="margin-top:4px">VIP / general payment requests only. Course receipts are managed in Course Enrollments.</div></div>'+
-        '<select id="aprFilter" onchange="loadAprList()" style="max-width:180px;padding:9px 12px;border:1px solid var(--border);border-radius:9px">'+
-          '<option value="pending">Pending</option><option value="all">All</option><option value="approved">Approved</option><option value="rejected">Rejected</option>'+
-        '</select>'+
-      '</div>'+
-      '<div id="aprList" style="margin-top:14px">Loading…</div>'+
-    '</div>';
-  window.loadAprList();
-};
-
+/* Payment Requests without request_type dependency, plus course payments */
+window.loadAdminPaymentReqs=function(){var wrap=document.getElementById('aprWrap');if(!wrap)return;wrap.innerHTML='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><div class="card-title">🧾 Payment Requests</div><div class="card-meta" style="margin-top:4px">VIP/general and course payments</div></div><select id="aprFilter" onchange="loadAprList()" style="max-width:180px;padding:9px 12px;border:1px solid var(--border);border-radius:9px"><option value="pending">Pending</option><option value="all">All</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div><div id="aprList" style="margin-top:14px">Loading…</div></div>';window.loadAprList()};
 window.loadAprList=async function(){
-  var db=c(),box=document.getElementById('aprList');if(!db||!box)return;
-  var filter=(document.getElementById('aprFilter')||{}).value||'pending';
-  box.innerHTML='Loading…';
-
-  var general=[],courseRows=[],errors=[];
-  try{
-    var g=await db.from('payment_requests').select('*').order('created_at',{ascending:false});
-    if(g.error)errors.push(g.error.message);else general=g.data||[];
-  }catch(e){errors.push(e.message)}
-
-  // Course rows are fetched only to remove legacy duplicate requests.
-  try{
-    var cr=await db.from('course_enrollments')
-      .select('id,user_id,transaction_id,receipt_url,price,currency,course_key,course_type')
-      .order('created_at',{ascending:false});
-    if(!cr.error)courseRows=(cr.data||[]).filter(function(x){
-      return x.course_type==='paid'||x.course_key==='advanced'
-    });
-  }catch(_){}
-
-  var receiptKeys=new Set(),txnKeys=new Set();
-  courseRows.forEach(function(x){
-    var rc=String(x.receipt_url||'').trim().toLowerCase();
-    var tx=String(x.transaction_id||'').trim().toLowerCase();
-    if(rc)receiptKeys.add(rc);
-    if(tx)txnKeys.add(String(x.user_id||'')+'|'+tx);
-  });
-
-  // Never show course-style requests inside Payment Requests.
-  general=general.filter(function(x){
-    var rt=String(x.request_type||'').toLowerCase();
-    var plan=String(x.plan_name||'').toLowerCase();
-    var rc=String(x.receipt_url||'').trim().toLowerCase();
-    var tx=String(x.txn_id||x.transaction_id||'').trim().toLowerCase();
-    if(rt.indexOf('course')>=0||rt==='enrollment')return false;
-    if(plan.indexOf('advanced forex course')>=0||plan.indexOf('basic forex course')>=0)return false;
-    if(rc&&receiptKeys.has(rc))return false;
-    if(tx&&txnKeys.has(String(x.user_id||'')+'|'+tx))return false;
-    return true;
-  });
-
-  var ids=general.map(function(x){return x.user_id}).filter(Boolean);
-  var profiles={};
-  if(ids.length){
-    try{
-      var pr=await db.from('profiles').select('id,full_name,email').in('id',Array.from(new Set(ids)));
-      (pr.data||[]).forEach(function(p){profiles[p.id]=p})
-    }catch(_){}
-  }
-
+  var db=c(),box=document.getElementById('aprList');if(!db||!box)return;var filter=(document.getElementById('aprFilter')||{}).value||'pending';box.innerHTML='Loading…';
+  var general=[],courses=[],errors=[];try{var g=await db.from('payment_requests').select('*').order('created_at',{ascending:false});if(g.error)errors.push(g.error.message);else general=g.data||[]}catch(e){errors.push(e.message)}try{var cr=await db.from('course_enrollments').select('*').order('created_at',{ascending:false});if(cr.error)errors.push(cr.error.message);else courses=(cr.data||[]).filter(function(x){return x.course_type==='paid'||x.course_key==='advanced'})}catch(e){errors.push(e.message)}
+  var ids=general.map(function(x){return x.user_id}).filter(Boolean);var profiles={};if(ids.length){try{var pr=await db.from('profiles').select('*').in('id',Array.from(new Set(ids)));(pr.data||[]).forEach(function(p){profiles[p.id]=p})}catch(_){}}
   function match(st){return filter==='all'||String(st||'pending')===filter}
+  var gv=general.filter(function(x){return match(x.status)}),cv=courses.filter(function(x){return match(x.payment_status||x.enrollment_status)});
   function pill(st){return '<span class="psp-status '+statusClass(st)+'">'+esc(st||'pending')+'</span>'}
-
-  var rows=general.filter(function(x){return match(x.status)});
-  if(!rows.length){
-    box.innerHTML=(errors.length?'<div style="padding:10px;color:var(--red)">'+esc(errors.join(' · '))+'</div>':'')+
-      '<div style="padding:28px;text-align:center;color:var(--text-muted)">No matching VIP / general payment requests.</div>';
-    return;
-  }
-
-  box.innerHTML=(errors.length?'<div style="padding:10px;color:var(--red)">'+esc(errors.join(' · '))+'</div>':'')+
-    '<section class="psp-pay-section"><div class="psp-pay-section-title">💎 VIP / General Payments ('+rows.length+')</div>'+
-    rows.map(function(x){
-      var p=profiles[x.user_id]||{},st=x.status||'pending';
-      return '<div class="psp-pay-row">'+
-        '<div><strong>'+esc(p.full_name||p.email||x.full_name||'Member')+'</strong><br><small>'+esc(p.email||x.email||'')+'</small></div>'+
-        '<div><strong>'+esc(x.plan_name||'VIP / General Payment')+'</strong><br><small>'+esc(x.method_type||x.payment_method||'')+'</small></div>'+
-        '<div>'+esc((x.amount==null?'':x.amount)+' '+(x.currency||''))+'</div>'+
-        '<div>'+pill(st)+'</div>'+
-        '<div>'+(x.receipt_url?'<a class="btn btn-secondary btn-sm" href="'+esc(x.receipt_url)+'" target="_blank">Receipt</a> ':'')+
-          (st==='pending'?'<button class="btn btn-sm" onclick="aprApprove(\''+x.id+'\')">Approve</button> <button class="btn btn-secondary btn-sm" onclick="aprReject(\''+x.id+'\')">Reject</button>':'')+
-        '</div>'+
-      '</div>'
-    }).join('')+
-    '</section>';
+  var generalHtml=gv.length?gv.map(function(x){var p=profiles[x.user_id]||{};var st=x.status||'pending';return '<div class="psp-pay-row"><div><strong>'+esc(p.full_name||p.email||x.full_name||'Member')+'</strong><br><small>'+esc(p.email||x.email||'')+'</small></div><div><strong>'+esc(x.plan_name||'VIP / General Payment')+'</strong><br><small>'+esc(x.method_type||x.payment_method||'')+'</small></div><div>'+esc((x.amount==null?'':x.amount)+' '+(x.currency||''))+'</div><div>'+pill(st)+'</div><div>'+(x.receipt_url?'<a class="btn btn-secondary btn-sm" href="'+esc(x.receipt_url)+'" target="_blank">Receipt</a> ':'')+(st==='pending'?'<button class="btn btn-sm" onclick="aprApprove(\''+x.id+'\')">Approve</button> <button class="btn btn-secondary btn-sm" onclick="aprReject(\''+x.id+'\')">Reject</button>':'')+'</div></div>'}).join(''):'<div style="padding:18px;color:var(--text-muted)">No matching general requests.</div>';
+  var courseHtml=cv.length?cv.map(function(x){var st=x.payment_status||x.enrollment_status||'pending';return '<div class="psp-pay-row"><div><strong>'+esc(x.full_name||'Member')+'</strong><br><small>'+esc(x.email||x.whatsapp||'')+'</small></div><div><strong>'+esc(x.course_name||'Advanced Forex Course')+'</strong><br><small>'+esc(x.payment_method||'Payment method not added')+'</small></div><div>$'+Number(x.price||200).toFixed(0)+'<br><small>'+esc(x.transaction_id||'No transaction ID')+'</small></div><div>'+pill(st)+'</div><div>'+(x.receipt_url?'<a class="btn btn-secondary btn-sm" href="'+esc(x.receipt_url)+'" target="_blank">Receipt</a> ':'')+(st==='pending'?'<button class="btn btn-sm" onclick="approveCourseEnrollment(\''+x.id+'\')">Approve</button> <button class="btn btn-secondary btn-sm" onclick="rejectCourseEnrollment(\''+x.id+'\')">Reject</button>':'')+'</div></div>'}).join(''):'<div style="padding:18px;color:var(--text-muted)">No matching course payments.</div>';
+  box.innerHTML=(errors.length?'<div style="padding:10px;color:var(--red)">'+esc(errors.join(' · '))+'</div>':'')+'<section class="psp-pay-section"><div class="psp-pay-section-title">💎 VIP / General Payments ('+gv.length+')</div>'+generalHtml+'</section><section class="psp-pay-section"><div class="psp-pay-section-title">🎓 Course Payments ('+cv.length+')</div>'+courseHtml+'</section>';
 };
 
 /* Admin Tabs ON/OFF */
