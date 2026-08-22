@@ -202,6 +202,10 @@ window.loadAdminCourses=async function(){
 
   var createBtn=document.querySelector('#page-courses .card-header .btn');
   if(createBtn)createBtn.style.removeProperty('display');
+
+  // V133: keep Course Manager KPIs consistent with the rendered catalog.
+  setTimeout(function(){ window.pspSyncCourseManagerKpis?.(); },0);
+  setTimeout(function(){ window.pspSyncCourseManagerKpis?.(); },250);
 };
 
 
@@ -281,6 +285,66 @@ window.pspDeleteCustomCourse=async function(id){
 
   await window.loadAdminCourses();
 };
+
+
+/* V133 — Course Manager KPI guard.
+   The visible catalog is authoritative: Basic + Advanced are always represented,
+   and any real custom courses are additional cards. */
+window.pspSyncCourseManagerKpis=function(){
+  const page=document.getElementById('page-courses');
+  if(!page)return;
+  const cards=[...page.querySelectorAll('.psp-system-course-grid > .psp-system-course')];
+  if(!cards.length)return;
+
+  const total=cards.length;
+  const drafts=cards.filter(card=>card.querySelector('.badge.draft')).length;
+  const active=Math.max(0,total-drafts);
+
+  const values={
+    coursesAllCount:String(total),
+    coursesActiveCount:String(active),
+    coursesDraftsCount:String(drafts)
+  };
+  Object.entries(values).forEach(([id,value])=>{
+    const el=document.getElementById(id);
+    if(el&&String(el.textContent||'').trim()!==value){
+      el.dataset.cu='';
+      el.textContent=value;
+    }
+  });
+};
+
+(function(){
+  function installCourseKpiGuard(){
+    if(window.__pspV133CourseKpiGuard)return;
+    const page=document.getElementById('page-courses');
+    const grid=page?.querySelector('.psp-system-course-grid, .courses-grid');
+    if(!page||!grid)return setTimeout(installCourseKpiGuard,250);
+
+    window.__pspV133CourseKpiGuard=true;
+
+    const sync=()=>setTimeout(()=>window.pspSyncCourseManagerKpis?.(),0);
+
+    new MutationObserver(sync).observe(grid,{childList:true,subtree:false});
+
+    ['coursesAllCount','coursesActiveCount','coursesDraftsCount'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(!el)return;
+      new MutationObserver(()=>{
+        clearTimeout(el.__pspKpiRepairTimer);
+        el.__pspKpiRepairTimer=setTimeout(()=>window.pspSyncCourseManagerKpis?.(),20);
+      }).observe(el,{childList:true,characterData:true,subtree:true});
+    });
+
+    sync();
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',installCourseKpiGuard,{once:true});
+  }else{
+    installCourseKpiGuard();
+  }
+})();
 
 /* Payment Requests without request_type dependency, plus course payments */
 window.loadAdminPaymentReqs=function(){var wrap=document.getElementById('aprWrap');if(!wrap)return;wrap.innerHTML='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><div class="card-title">🧾 Payment Requests</div><div class="card-meta" style="margin-top:4px">VIP/general and course payments</div></div><select id="aprFilter" onchange="loadAprList()" style="max-width:180px;padding:9px 12px;border:1px solid var(--border);border-radius:9px"><option value="pending">Pending</option><option value="all">All</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></div><div id="aprList" style="margin-top:14px">Loading…</div></div>';window.loadAprList()};

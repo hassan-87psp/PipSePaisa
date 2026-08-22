@@ -209,3 +209,40 @@
     grid-template-columns:1fr!important;
   }
 }
+
+
+/* V133 — final Course Manager alignment */
+#page-courses .psp-system-course-grid{
+  width:100%!important;
+  max-width:1210px!important;
+  margin:0 auto!important;
+  display:grid!important;
+  grid-template-columns:repeat(auto-fit,minmax(340px,380px))!important;
+  justify-content:center!important;
+  align-items:stretch!important;
+  gap:18px!important;
+}
+#page-courses .psp-system-course{
+  width:100%!important;
+  max-width:380px!important;
+  height:100%!important;
+  margin:0!important;
+}
+#page-courses .card:has(.psp-system-course-grid){
+  padding-left:18px!important;
+  padding-right:18px!important;
+}
+@media(max-width:900px){
+  #page-courses .psp-system-course-grid{
+    grid-template-columns:repeat(auto-fit,minmax(300px,360px))!important;
+    gap:14px!important;
+  }
+  #page-courses .psp-system-course{max-width:360px!important}
+}
+@media(max-width:650px){
+  #page-courses .psp-system-course-grid{
+    grid-template-columns:1fr!important;
+    max-width:420px!important;
+  }
+  #page-courses .psp-system-course{max-width:none!important}
+}
