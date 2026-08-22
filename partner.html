@@ -2,9 +2,8 @@
 
 <html>
 <head>
+<script src="/psp-public-router-v127.js?v=20260822-v127"></script>
 <script id="pspV126LegacyRedirect">(function(){try{if(window.top===window.self&&location.pathname==='/partner.html')location.replace('/becomepartner'+location.search+location.hash)}catch(_){}})();</script>
-
-<script src="/psp-clean-routes-v126.js?v=20260822-v126"></script>
 
 <base href="/">
 <meta charset="utf-8"/>
@@ -887,19 +886,6 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
   }
   document.addEventListener('pointerenter',e=>warm(e.target.closest&&e.target.closest('.menu a')),true);
   document.addEventListener('touchstart',e=>warm(e.target.closest&&e.target.closest('.menu a')),{passive:true,capture:true});
-})();
-</script>
-
-<script id="pspV126TopPublicNavigation">
-(function(){
-  const clean=new Set(['/','/courses','/broker-reviews','/becomepartner','/tradingtools']);
-  document.addEventListener('click',function(e){
-    const a=e.target.closest&&e.target.closest('a[href]');if(!a||e.defaultPrevented||e.button>0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
-    let u;try{u=new URL(a.getAttribute('href'),location.origin)}catch(_){return}
-    if(u.origin!==location.origin||!clean.has((u.pathname||'/').replace(/\/+$/,'')||'/'))return;
-    e.preventDefault();const dest=(u.pathname||'/').replace(/\/+$/,'')||'/';
-    try{(window.top||window).location.assign(dest+u.search+u.hash)}catch(_){location.assign(dest+u.search+u.hash)}
-  },true);
 })();
 </script>
 
