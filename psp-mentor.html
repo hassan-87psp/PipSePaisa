@@ -630,6 +630,199 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 }
 </style>
 
+
+<style id="pspV135OpaqueResearchModalsAndDateRail">
+/* Solid dialog surfaces: only the backdrop remains translucent. */
+.psp-rh-dialog{
+  background:#fffdf9!important;
+  color:#111827!important;
+  border-color:#eadfcf!important;
+  opacity:1!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+.psp-rh-dialog-head,
+.psp-rh-modal-foot{
+  background:#fffdf9!important;
+  opacity:1!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+.psp-rh-dialog .psp-rh-input,
+.psp-rh-dialog .psp-rh-select,
+.psp-rh-dialog .psp-rh-textarea,
+.psp-rh-dialog .psp-rh-secondary{
+  background:#fffaf1!important;
+  color:#111827!important;
+  border-color:#e5d6c1!important;
+}
+.psp-rh-dialog .psp-rh-upload{
+  background:#fff9ef!important;
+}
+.psp-rh-dialog .psp-rh-dialog-head h3,
+.psp-rh-dialog .psp-rh-preview-copy{color:#111827!important}
+.psp-rh-dialog .psp-rh-dialog-head p,
+.psp-rh-dialog .psp-rh-label{color:#748198!important}
+
+[data-theme="dark"] .psp-rh-dialog,
+html.dark .psp-rh-dialog,
+body.dark .psp-rh-dialog{
+  background:#101a2a!important;
+  color:#eef4ff!important;
+  border-color:#2b3a50!important;
+}
+[data-theme="dark"] .psp-rh-dialog-head,
+[data-theme="dark"] .psp-rh-modal-foot,
+html.dark .psp-rh-dialog-head,
+html.dark .psp-rh-modal-foot,
+body.dark .psp-rh-dialog-head,
+body.dark .psp-rh-modal-foot{
+  background:#101a2a!important;
+}
+[data-theme="dark"] .psp-rh-dialog .psp-rh-input,
+[data-theme="dark"] .psp-rh-dialog .psp-rh-select,
+[data-theme="dark"] .psp-rh-dialog .psp-rh-textarea,
+[data-theme="dark"] .psp-rh-dialog .psp-rh-secondary,
+html.dark .psp-rh-dialog .psp-rh-input,
+html.dark .psp-rh-dialog .psp-rh-select,
+html.dark .psp-rh-dialog .psp-rh-textarea,
+html.dark .psp-rh-dialog .psp-rh-secondary{
+  background:#172338!important;
+  color:#eef4ff!important;
+  border-color:#31435c!important;
+}
+[data-theme="dark"] .psp-rh-dialog .psp-rh-upload,
+html.dark .psp-rh-dialog .psp-rh-upload{
+  background:#142033!important;
+}
+[data-theme="dark"] .psp-rh-dialog .psp-rh-dialog-head h3,
+[data-theme="dark"] .psp-rh-dialog .psp-rh-preview-copy,
+html.dark .psp-rh-dialog .psp-rh-dialog-head h3,
+html.dark .psp-rh-dialog .psp-rh-preview-copy{
+  color:#f4f7fb!important;
+}
+
+/* Chart history/date navigation */
+.psp-chart-workspace{
+  display:grid;
+  grid-template-columns:190px minmax(0,1fr);
+  gap:13px;
+  align-items:start;
+}
+.psp-chart-date-rail{
+  position:sticky;
+  top:92px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:10px;
+  box-shadow:0 8px 24px rgba(15,23,42,.045);
+  max-height:calc(100vh - 120px);
+  overflow:auto;
+}
+.psp-chart-date-head{
+  padding:3px 5px 9px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:7px;
+}
+.psp-chart-date-kicker{
+  font-size:7px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  font-weight:900;
+  color:#d97706;
+}
+.psp-chart-date-title{
+  margin-top:3px;
+  font-size:11px;
+  line-height:1.2;
+  font-weight:900;
+  color:var(--text);
+}
+.psp-chart-date-list{display:grid;gap:4px}
+.psp-chart-date-btn{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:8px 9px;
+  border-radius:9px;
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--text);
+  text-align:left;
+  cursor:pointer;
+  font-size:8.5px;
+  font-weight:800;
+}
+.psp-chart-date-btn:hover{
+  background:rgba(251,146,1,.06);
+  border-color:rgba(251,146,1,.16);
+}
+.psp-chart-date-btn.active{
+  background:#0b1730;
+  color:#fff;
+  border-color:#0b1730;
+  box-shadow:0 7px 16px rgba(11,23,48,.13);
+}
+.psp-chart-date-btn.active .psp-chart-date-count{background:rgba(251,146,1,.18);color:#ffc36c}
+.psp-chart-date-count{
+  min-width:22px;
+  height:20px;
+  padding:0 6px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  background:rgba(15,23,42,.06);
+  color:var(--muted);
+  font-size:7px;
+  font-weight:900;
+}
+.psp-chart-date-divider{
+  height:1px;
+  background:var(--border);
+  margin:4px 3px;
+}
+.psp-chart-results-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:0 0 9px;
+  min-height:27px;
+}
+.psp-chart-results-title{
+  font-size:10px;
+  font-weight:900;
+  color:var(--text);
+}
+.psp-chart-results-meta{
+  font-size:8px;
+  color:var(--muted);
+}
+@media(max-width:900px){
+  .psp-chart-workspace{grid-template-columns:1fr}
+  .psp-chart-date-rail{
+    position:static;
+    max-height:none;
+    overflow:visible;
+  }
+  .psp-chart-date-list{
+    display:flex;
+    gap:6px;
+    overflow:auto;
+    padding-bottom:2px;
+  }
+  .psp-chart-date-btn{
+    min-width:max-content;
+    width:auto;
+  }
+  .psp-chart-date-divider{display:none}
+}
+</style>
+
 <body><style id="darkfix-css">
 select{color-scheme:dark}
 select option,select optgroup{background:#0f1729!important;color:#e8eaf0!important}
@@ -1447,6 +1640,7 @@ async function loadAdminSignals(){
 /* ============ CHARTS — V134 PREMIUM RESEARCH HUB ============ */
 let mentorEditingChartId=null;
 let mentorChartsData=[];
+let mentorChartDateKey='all';
 
 function renderCharts(){
   const el=document.getElementById('pg-charts');if(!el)return;
@@ -1461,7 +1655,22 @@ function renderCharts(){
         <select class="psp-rh-field" id="rhChartPair" onchange="applyChartFilters()"><option value="all">All Pairs</option></select>
         <select class="psp-rh-field" id="rhChartSort" onchange="applyChartFilters()"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select>
       </div>
-      <div id="chList" class="psp-rh-grid"><div class="psp-rh-empty">Loading professional chart analysis...</div></div>
+      <div class="psp-chart-workspace">
+        <aside class="psp-chart-date-rail">
+          <div class="psp-chart-date-head">
+            <div class="psp-chart-date-kicker">Chart History</div>
+            <div class="psp-chart-date-title">Browse by Date</div>
+          </div>
+          <div id="rhChartDateList" class="psp-chart-date-list"></div>
+        </aside>
+        <section>
+          <div class="psp-chart-results-head">
+            <div id="rhChartResultsTitle" class="psp-chart-results-title">All Charts</div>
+            <div id="rhChartResultsMeta" class="psp-chart-results-meta"></div>
+          </div>
+          <div id="chList" class="psp-rh-grid"><div class="psp-rh-empty">Loading professional chart analysis...</div></div>
+        </section>
+      </div>
     </div>
     <div class="psp-rh-modal" id="chartEditorModal" onclick="if(event.target===this)closeChartEditor()"><div class="psp-rh-dialog">
       <div class="psp-rh-dialog-head"><div><h3 id="chartEditorTitle">New Chart Analysis</h3><p>Create a professional market-analysis card for the research hub.</p></div><button class="psp-rh-close" onclick="closeChartEditor()">×</button></div>
@@ -1505,13 +1714,95 @@ async function saveMentorChart(){
 async function loadCharts(){
   const box=document.getElementById('chList');if(!box)return;box.innerHTML='<div class="psp-rh-empty">Loading professional chart analysis...</div>';
   const {data,error}=await sb.from('charts').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false});
-  if(error){box.innerHTML=`<div class="psp-rh-empty" style="color:var(--red)">${esc(error.message)}</div>`;return;}mentorChartsData=data||[];hydrateChartFilters();applyChartFilters();
+  if(error){box.innerHTML=`<div class="psp-rh-empty" style="color:var(--red)">${esc(error.message)}</div>`;return;}mentorChartsData=data||[];hydrateChartFilters();renderChartDateRail();applyChartFilters();
 }
+
+function mentorChartLocalDateKey(value){
+  const d=value?new Date(value):new Date();
+  if(Number.isNaN(d.getTime()))return '';
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function mentorChartDateFromKey(key){
+  const parts=String(key||'').split('-').map(Number);
+  if(parts.length!==3||parts.some(n=>!Number.isFinite(n)))return null;
+  return new Date(parts[0],parts[1]-1,parts[2]);
+}
+function mentorChartDayDiff(key){
+  const d=mentorChartDateFromKey(key);if(!d)return 9999;
+  const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const day=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  return Math.round((today-day)/86400000);
+}
+function mentorChartDateLabel(key){
+  if(key==='all')return 'All Charts';
+  const diff=mentorChartDayDiff(key);
+  if(diff===0)return 'Today Charts';
+  if(diff===1)return 'Yesterday Charts';
+  const d=mentorChartDateFromKey(key);
+  return d?d.toLocaleDateString(undefined,{day:'numeric',month:'long'}):key;
+}
+function renderChartDateRail(){
+  const box=document.getElementById('rhChartDateList');if(!box)return;
+  const counts={};
+  mentorChartsData.forEach(c=>{
+    const key=mentorChartLocalDateKey(c.created_at);
+    if(key)counts[key]=(counts[key]||0)+1;
+  });
+  const keys=Object.keys(counts).sort((a,b)=>b.localeCompare(a));
+
+  if(mentorChartDateKey!=='all'&&!counts[mentorChartDateKey])mentorChartDateKey='all';
+
+  const todayKey=mentorChartLocalDateKey(new Date());
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  const yesterdayKey=mentorChartLocalDateKey(yesterday);
+
+  const rows=[];
+  rows.push({key:'all',label:'All Charts',count:mentorChartsData.length});
+  rows.push({divider:true});
+  rows.push({key:todayKey,label:'Today Charts',count:counts[todayKey]||0});
+  rows.push({key:yesterdayKey,label:'Yesterday Charts',count:counts[yesterdayKey]||0});
+
+  const historical=keys.filter(k=>k!==todayKey&&k!==yesterdayKey);
+  if(historical.length)rows.push({divider:true});
+  historical.forEach(k=>rows.push({key:k,label:mentorChartDateLabel(k),count:counts[k]||0}));
+
+  box.innerHTML=rows.map(row=>{
+    if(row.divider)return '<div class="psp-chart-date-divider"></div>';
+    return `<button class="psp-chart-date-btn ${mentorChartDateKey===row.key?'active':''}" onclick="selectMentorChartDate('${row.key}')">
+      <span>${esc(row.label)}</span><span class="psp-chart-date-count">${row.count}</span>
+    </button>`;
+  }).join('');
+}
+function selectMentorChartDate(key){
+  mentorChartDateKey=key||'all';
+  renderChartDateRail();
+  applyChartFilters();
+}
+
 function hydrateChartFilters(){const s=document.getElementById('rhChartPair');if(!s)return;const cur=s.value||'all',pairs=[...new Set(mentorChartsData.map(x=>String(x.pair||'').trim()).filter(Boolean))].sort();s.innerHTML='<option value="all">All Pairs</option>'+pairs.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');if([...s.options].some(o=>o.value===cur))s.value=cur;}
 function applyChartFilters(){
-  const q=String(document.getElementById('rhChartSearch')?.value||'').toLowerCase().trim(),pair=document.getElementById('rhChartPair')?.value||'all',sort=document.getElementById('rhChartSort')?.value||'newest';
-  let list=mentorChartsData.filter(c=>{const hay=[c.title,c.pair,c.notes].join(' ').toLowerCase();return(!q||hay.includes(q))&&(pair==='all'||String(c.pair||'')===pair);});
-  list.sort((a,b)=>{const av=new Date(a.created_at||0).getTime(),bv=new Date(b.created_at||0).getTime();return sort==='oldest'?av-bv:bv-av;});renderChartCards(list);
+  const q=String(document.getElementById('rhChartSearch')?.value||'').toLowerCase().trim(),
+        pair=document.getElementById('rhChartPair')?.value||'all',
+        sort=document.getElementById('rhChartSort')?.value||'newest';
+
+  let list=mentorChartsData.filter(c=>{
+    const hay=[c.title,c.pair,c.notes].join(' ').toLowerCase();
+    const dateOk=mentorChartDateKey==='all'||mentorChartLocalDateKey(c.created_at)===mentorChartDateKey;
+    return(!q||hay.includes(q))&&(pair==='all'||String(c.pair||'')===pair)&&dateOk;
+  });
+
+  list.sort((a,b)=>{
+    const av=new Date(a.created_at||0).getTime(),bv=new Date(b.created_at||0).getTime();
+    return sort==='oldest'?av-bv:bv-av;
+  });
+
+  const title=document.getElementById('rhChartResultsTitle');
+  const meta=document.getElementById('rhChartResultsMeta');
+  if(title)title.textContent=mentorChartDateLabel(mentorChartDateKey);
+  if(meta)meta.textContent=list.length+' chart'+(list.length===1?'':'s');
+
+  renderChartCards(list);
 }
 function renderChartCards(list){
   const box=document.getElementById('chList');if(!box)return;if(!list.length){box.innerHTML='<div class="psp-rh-empty">No chart analysis matches this filter.</div>';return;}
