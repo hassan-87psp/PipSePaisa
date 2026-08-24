@@ -4113,5 +4113,63 @@ window.addEventListener('message',function(event){
 <script id="pspV129ShellTitleSync">
 (function(){function sync(){try{var lp=document.getElementById('landingPage'),app=document.getElementById('mainApp');var landing=lp&&getComputedStyle(lp).display!=='none';var appOn=app&&getComputedStyle(app).display!=='none';if(landing||!appOn)document.title='PipSePaisa — Forex Education & Trading Tools';else document.title=(window.PSP_PORTAL_MODE==='mentor'?'PipSePaisa Mentor Site':'PipSePaisa User Panel')}catch(_){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){sync();var lp=document.getElementById('landingPage'),app=document.getElementById('mainApp');if(window.MutationObserver){var m=new MutationObserver(sync);if(lp)m.observe(lp,{attributes:true,attributeFilter:['style','class']});if(app)m.observe(app,{attributes:true,attributeFilter:['style','class']})}}, {once:true});else sync()})();
 </script>
+
+<style id="pspV142MobileLogoutSidebarFix">
+@media(max-width:768px){
+  /* When the side drawer is open, the fixed bottom nav must not cover Logout. */
+  html.psp-sidebar-open #userBottomNav,
+  body.psp-sidebar-open #userBottomNav{
+    opacity:0!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+    transform:translateY(100%)!important;
+  }
+
+  /* Make the complete drawer scrollable, including footer actions. */
+  html.psp-sidebar-open .sidebar,
+  body.psp-sidebar-open .sidebar,
+  .sidebar.open{
+    top:0!important;
+    bottom:0!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:contain!important;
+    padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))!important;
+    z-index:1800!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Do not trap scrolling only inside the main menu. Footer must be reachable too. */
+  html.psp-sidebar-open .sidebar .menu,
+  body.psp-sidebar-open .sidebar .menu,
+  .sidebar.open .menu{
+    flex:0 0 auto!important;
+    overflow:visible!important;
+    min-height:auto!important;
+  }
+
+  .sidebar .sidebar-footer{
+    position:static!important;
+    flex:0 0 auto!important;
+    margin-top:16px!important;
+    padding:10px 12px 18px!important;
+    border-top:1px solid var(--border)!important;
+    background:var(--bg-sidebar)!important;
+  }
+
+  /* Keep Logout/Login action clearly reachable at the very bottom. */
+  #authMenuItem{
+    margin-bottom:8px!important;
+  }
+
+  #sidebarOverlay{
+    z-index:1700!important;
+  }
+}
+</style>
+
 </body>
 </html>
