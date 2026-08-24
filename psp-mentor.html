@@ -1875,14 +1875,72 @@ async function createMentorArticle(){
   try{const title=document.getElementById('maTitle').value.trim();if(!title){mentorAlert('Title is required');return;}const payload={type:'single',title,category:document.getElementById('maCategory').value,image_url:document.getElementById('maImage').value.trim(),content:document.getElementById('maContent').value.trim(),content_ur:document.getElementById('maContentUr').value.trim()||null,is_published:document.getElementById('maStatus').value==='published'};const result=editing?await sb.from('articles').update(payload).eq('id',editing):await sb.from('articles').insert({...payload,is_official:true,author_id:ME.id});if(result.error){mentorAlert('Error: '+result.error.message);return;}closeArticleEditor();if(window.pipToast)window.pipToast(editing?'Article updated successfully.':'Article saved successfully.','ok');await loadMentorArticles();}catch(e){mentorAlert(e.message);}finally{btn.disabled=false;btn.textContent='Publish Article';}
 }
 async function loadMentorArticles(){const box=document.getElementById('maList');if(!box)return;box.innerHTML='<div class="psp-rh-empty">Loading professional articles...</div>';const {data,error}=await sb.from('articles').select('*').order('created_at',{ascending:false});if(error){box.innerHTML='<div class="psp-rh-empty" style="color:var(--red)">Error: '+esc(error.message)+'</div>';return;}mentorArticlesData=data||[];applyArticleFilters();}
+
+function mentorArticleDateKey(value){
+  const d=value?new Date(value):new Date();
+  if(Number.isNaN(d.getTime()))return '';
+  d.setHours(0,0,0,0);
+  return d.getTime();
+}
+function mentorArticleGroupLabel(value){
+  const d=new Date(value);
+  const today=new Date();today.setHours(0,0,0,0);
+  const yesterday=new Date(today);yesterday.setDate(today.getDate()-1);
+  const key=mentorArticleDateKey(value);
+  if(key===today.getTime())return 'Today Articles';
+  if(key===yesterday.getTime())return 'Yesterday Articles';
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+}
+
 function applyArticleFilters(){
   const q=String(document.getElementById('rhArticleSearch')?.value||'').toLowerCase().trim(),category=document.getElementById('rhArticleCategory')?.value||'all',status=document.getElementById('rhArticleStatus')?.value||'all',sort=document.getElementById('rhArticleSort')?.value||'newest';
   let list=mentorArticlesData.filter(a=>{const hay=[a.title,a.category,a.content,a.content_ur].join(' ').toLowerCase(),statusOk=status==='all'||(status==='published'?a.is_published!==false:a.is_published===false);return(!q||hay.includes(q))&&(category==='all'||String(a.category||'')===category)&&statusOk;});
   list.sort((a,b)=>{const av=new Date(a.created_at||0).getTime(),bv=new Date(b.created_at||0).getTime();return sort==='oldest'?av-bv:bv-av;});renderArticleCards(list);
 }
 function renderArticleCards(list){
-  const box=document.getElementById('maList');if(!box)return;if(!list.length){box.innerHTML='<div class="psp-rh-empty">No articles match this filter.</div>';return;}
-  box.innerHTML=list.map(a=>`<article class="psp-rh-card"><div class="psp-rh-media">${a.image_url?`<img src="${esc(a.image_url)}" alt="${esc(a.title||'Article')}">`:`<div class="psp-rh-media-empty">PIPSEPAISA RESEARCH</div>`}<span class="psp-rh-media-badge">${esc(String(a.category||'education').toUpperCase())}</span></div><div class="psp-rh-body"><div class="psp-rh-meta"><span class="psp-rh-status ${a.is_published===false?'draft':'published'}">${a.is_published===false?'Draft':'Published'}</span><span>${a.created_at?pspFmtDT(a.created_at):''}</span></div><h3 class="psp-rh-card-title">${esc(a.title||'(untitled)')}</h3><div class="psp-rh-snippet">${esc(a.content||a.content_ur||'Professional PipSePaisa research article.')}</div><div class="psp-rh-actions"><button class="psp-rh-action" onclick="openArticlePreview('${a.id}')">View</button><button class="psp-rh-action" onclick="openArticleEditor('${a.id}')">Edit</button><button class="psp-rh-action icon" onclick="toggleMentorArticle('${a.id}',${a.is_published===false?'false':'true'})">${a.is_published===false?'🌐':'◐'}</button><button class="psp-rh-action icon danger" onclick="delMentorArticle('${a.id}')">🗑</button></div></div></article>`).join('');
+  const box=document.getElementById('maList');if(!box)return;
+  if(!list.length){
+    box.innerHTML='<div class="psp-rh-empty">No articles match this filter.</div>';
+    return;
+  }
+
+  let lastKey=null;
+  let output='';
+
+  list.forEach(a=>{
+    const key=mentorArticleDateKey(a.created_at);
+
+    if(key!==lastKey){
+      lastKey=key;
+      output+=`<div class="psp-rh-date-heading">
+        <div class="psp-rh-date-title">${mentorArticleGroupLabel(a.created_at)}</div>
+        <div class="psp-rh-date-line"></div>
+      </div>`;
+    }
+
+    output+=`<article class="psp-rh-card">
+      <div class="psp-rh-media">
+        ${a.image_url?`<img src="${esc(a.image_url)}" alt="${esc(a.title||'Article')}">`:`<div class="psp-rh-media-empty">PIPSEPAISA RESEARCH</div>`}
+        <span class="psp-rh-media-badge">${esc(String(a.category||'education').toUpperCase())}</span>
+      </div>
+      <div class="psp-rh-body">
+        <div class="psp-rh-meta">
+          <span class="psp-rh-status ${a.is_published===false?'draft':'published'}">${a.is_published===false?'Draft':'Published'}</span>
+          <span>${a.created_at?pspFmtDT(a.created_at):''}</span>
+        </div>
+        <h3 class="psp-rh-card-title">${esc(a.title||'(untitled)')}</h3>
+        <div class="psp-rh-snippet">${esc(a.content||a.content_ur||'Professional PipSePaisa research article.')}</div>
+        <div class="psp-rh-actions">
+          <button class="psp-rh-action" onclick="openArticlePreview('${a.id}')">View</button>
+          <button class="psp-rh-action" onclick="openArticleEditor('${a.id}')">Edit</button>
+          <button class="psp-rh-action icon" onclick="toggleMentorArticle('${a.id}',${a.is_published===false?'false':'true'})">${a.is_published===false?'🌐':'◐'}</button>
+          <button class="psp-rh-action icon danger" onclick="delMentorArticle('${a.id}')">🗑</button>
+        </div>
+      </div>
+    </article>`;
+  });
+
+  box.innerHTML=output;
 }
 function openArticlePreview(id){
   const a=mentorArticlesData.find(x=>String(x.id)===String(id));if(!a)return;document.getElementById('articlePreviewTitle').textContent=a.title||'Article';document.getElementById('articlePreviewMeta').textContent=(a.category||'education')+' • '+(a.is_published===false?'Draft':'Published')+' • '+(a.created_at?pspFmtDT(a.created_at):'');
