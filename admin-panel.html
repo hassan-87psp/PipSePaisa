@@ -4582,5 +4582,33 @@ function install(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 })();
 </script>
+
+<style id="pspV134LeftCourseGrid">
+/* V134 — All Courses starts from the LEFT, never centered */
+#page-courses .psp-system-course-grid{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  justify-content:start!important;
+  grid-template-columns:repeat(auto-fit,minmax(340px,380px))!important;
+  gap:18px!important;
+}
+#page-courses .psp-system-course{
+  width:100%!important;
+  max-width:380px!important;
+  margin:0!important;
+}
+@media(max-width:900px){
+  #page-courses .psp-system-course-grid{
+    justify-content:start!important;
+    grid-template-columns:repeat(auto-fit,minmax(300px,360px))!important;
+  }
+}
+@media(max-width:650px){
+  #page-courses .psp-system-course-grid{grid-template-columns:1fr!important}
+  #page-courses .psp-system-course{max-width:none!important}
+}
+</style>
+
 </body>
 </html>

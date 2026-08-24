@@ -7,7 +7,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PSP Mentor Panel — PipSePaisa</title>
-<!-- PipSePaisa V115 Full Signal Lifecycle System: 2026-08-20 -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -559,316 +558,78 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </style>
 <style id="pspMentorLogoFinal">.login-logo,.brand-logo,#pipBoot .bl{background-image:url('icon-192.png')!important;background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important;background-color:transparent!important;color:transparent!important;overflow:visible!important}</style>
 <script defer src="/psp-link-tracking-v42.js?v=20260805-v45"></script>
-
-<style id="psp-v110-mentor-signals-ui">
-/* ==========================================================================
-   PIPSEPAISA V110 — MENTOR SIGNAL CENTER
-   User-style compact signals + Create/Manage modals
-   ========================================================================== */
-#pg-signals .m110-shell{display:block}
-#pg-signals .m110-panel{
-  background:var(--card-bg,var(--bg-card,#fff));
-  border:1px solid var(--border);
-  border-radius:18px;
-  box-shadow:0 8px 28px rgba(15,23,42,.06);
-  overflow:hidden;
-}
-#pg-signals .m110-head{
-  display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:18px 20px;border-bottom:1px solid var(--border);
-}
-#pg-signals .m110-title-wrap h3{margin:0;font-size:18px;color:var(--text)}
-#pg-signals .m110-title-wrap p{margin:4px 0 0;font-size:11px;color:#94a0b8}
-#pg-signals .m110-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
-#pg-signals .m110-btn{
-  border:1px solid var(--border);border-radius:10px;padding:8px 12px;
-  background:transparent;color:var(--text);font:inherit;font-size:12px;font-weight:800;
-  cursor:pointer;transition:.16s ease;
-}
-#pg-signals .m110-btn:hover{transform:translateY(-1px);border-color:rgba(251,146,1,.5)}
-#pg-signals .m110-btn.active{background:#FB9201;border-color:#FB9201;color:#111827}
-#pg-signals .m110-btn.create{
-  background:#FB9201;border-color:#FB9201;color:#111827;padding:9px 14px;
-  box-shadow:0 6px 16px rgba(251,146,1,.2);
-}
-#pg-signals .m110-list-wrap{padding:14px 16px 18px}
-#pg-signals .m110-table{
-  width:100%;border:1px solid var(--border);border-radius:14px;overflow:hidden;
-  background:var(--card-bg,var(--bg-card,#fff));
-}
-#pg-signals .m110-row{
-  display:grid;
-  grid-template-columns:1.14fr .82fr .88fr .8fr .8fr .8fr .8fr .8fr .8fr .9fr .72fr .7fr .82fr;
-  align-items:center;gap:5px;min-width:0;
-}
-#pg-signals .m110-row.head{
-  min-height:38px;padding:0 10px;background:rgba(148,163,184,.07);
-  border-bottom:1px solid var(--border);
-}
-#pg-signals .m110-row.head>div{
-  font-size:8px;font-weight:900;letter-spacing:.45px;color:#94a0b8;text-transform:uppercase;
-}
-#pg-signals .m110-signal{
-  border-bottom:1px solid var(--border);transition:.15s ease;
-}
-#pg-signals .m110-signal:last-child{border-bottom:0}
-#pg-signals .m110-signal:hover{background:rgba(251,146,1,.025)}
-#pg-signals .m110-signal-main{min-height:54px;padding:7px 10px}
-#pg-signals .m110-cell{min-width:0;font-size:10px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#pg-signals .m110-date{font-size:8px;color:#94a0b8;line-height:1.25;white-space:normal}
-#pg-signals .m110-pair{font-size:11px;font-weight:900}
-#pg-signals .m110-price{font-variant-numeric:tabular-nums}
-#pg-signals .m110-sl{color:#ef4444;font-weight:800}
-#pg-signals .m110-tp{color:#10b981;font-weight:800}
-#pg-signals .m110-open{color:#FB9201;font-weight:900}
-#pg-signals .m110-pips.pos{color:#10b981;font-weight:900}
-#pg-signals .m110-pips.neg{color:#ef4444;font-weight:900}
-#pg-signals .m110-pips.neutral{color:#94a0b8;font-weight:800}
-#pg-signals .m110-status{
-  display:inline-flex;align-items:center;justify-content:center;max-width:100%;
-  padding:4px 6px;border-radius:999px;font-size:7px;font-weight:950;white-space:nowrap;
-}
-#pg-signals .m110-status.live{background:rgba(16,185,129,.12);color:#059669}
-#pg-signals .m110-status.win{background:rgba(16,185,129,.12);color:#059669}
-#pg-signals .m110-status.loss{background:rgba(239,68,68,.11);color:#dc2626}
-#pg-signals .m110-status.be{background:rgba(139,92,246,.11);color:#7c3aed}
-#pg-signals .m110-status.closed{background:rgba(100,116,139,.12);color:#64748b}
-#pg-signals .m110-type{
-  display:inline-flex;align-items:center;justify-content:center;max-width:100%;
-  padding:4px 6px;border-radius:999px;font-size:7px;font-weight:950;line-height:1;
-  border:1px solid transparent;white-space:normal;text-align:center;
-}
-#pg-signals .m110-type.buy{color:#059669;background:rgba(16,185,129,.11);border-color:rgba(16,185,129,.25)}
-#pg-signals .m110-type.buy-limit{color:#0f9f9a;background:rgba(20,184,166,.11);border-color:rgba(20,184,166,.25)}
-#pg-signals .m110-type.buy-stop{color:#2563eb;background:rgba(59,130,246,.11);border-color:rgba(59,130,246,.25)}
-#pg-signals .m110-type.sell{color:#dc2626;background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.24)}
-#pg-signals .m110-type.sell-limit{color:#ea580c;background:rgba(249,115,22,.11);border-color:rgba(249,115,22,.26)}
-#pg-signals .m110-type.sell-stop{color:#7c3aed;background:rgba(139,92,246,.11);border-color:rgba(139,92,246,.26)}
-#pg-signals .m110-mini-btn{
-  border:1px solid var(--border);background:rgba(251,146,1,.08);color:#FB9201;
-  border-radius:8px;padding:5px 7px;font-size:8px;font-weight:900;cursor:pointer;
-}
-#pg-signals .m110-mini-btn.manage{background:#FB9201;border-color:#FB9201;color:#111827}
-#pg-signals .m110-note-row{display:none;padding:0 10px 10px}
-#pg-signals .m110-note-row.open{display:block}
-#pg-signals .m110-note-box{
-  width:min(720px,72%);margin-left:0;margin-right:auto;
-  border-left:3px solid #FB9201;background:rgba(251,146,1,.055);
-  border-radius:8px;padding:8px 10px;font-size:10px;line-height:1.45;color:var(--text);
-}
-#pg-signals .m110-empty{
-  padding:40px 14px;text-align:center;color:#94a0b8;font-size:12px;
-}
-#pg-signals .m110-loading{padding:30px 14px;text-align:center;color:#94a0b8}
-
-/* Modal */
-.m110-modal{
-  position:fixed;inset:0;z-index:10050;display:none;align-items:center;justify-content:center;
-  padding:20px;background:rgba(7,10,18,.62);backdrop-filter:blur(5px);
-}
-.m110-modal.open{display:flex}
-.m110-dialog{
-  width:min(720px,96vw);max-height:min(88vh,820px);overflow:hidden;
-  background:var(--card-bg,var(--bg-card,#fff));border:1px solid var(--border);
-  border-radius:18px;box-shadow:0 24px 70px rgba(0,0,0,.28);
-  display:flex;flex-direction:column;
-}
-.m110-dialog.manage{width:min(620px,96vw)}
-.m110-modal-head{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:15px 18px;border-bottom:1px solid var(--border);
-}
-.m110-modal-head h3{margin:0;color:var(--text);font-size:17px}
-.m110-modal-head p{margin:3px 0 0;color:#94a0b8;font-size:10px}
-.m110-x{
-  width:34px;height:34px;border:1px solid var(--border);border-radius:10px;
-  background:transparent;color:var(--text);font-size:18px;cursor:pointer;
-}
-.m110-modal-body{padding:16px 18px;overflow:auto;overscroll-behavior:contain}
-.m110-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.m110-span-2{grid-column:1/-1}
-.m110-label{display:block;font-size:9px;font-weight:900;color:#94a0b8;text-transform:uppercase;letter-spacing:.35px;margin:0 0 5px}
-.m110-field{
-  width:100%;box-sizing:border-box;padding:10px 11px;background:rgba(148,163,184,.07);
-  border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:12px;font-family:inherit;outline:none;
-}
-.m110-field:focus{border-color:#FB9201;box-shadow:0 0 0 3px rgba(251,146,1,.09)}
-textarea.m110-field{resize:vertical;min-height:85px}
-#m110AutoPipsWrap{
-  padding:9px 11px;border:1px solid rgba(251,146,1,.28);border-radius:9px;
-  background:rgba(251,146,1,.055);font-size:10px;color:var(--text);
-}
-.m110-modal-foot{
-  display:flex;justify-content:flex-end;gap:8px;padding:13px 18px;border-top:1px solid var(--border);
-}
-.m110-primary{
-  border:0;border-radius:10px;padding:10px 16px;background:#FB9201;color:#111827;
-  font:inherit;font-size:12px;font-weight:900;cursor:pointer;
-}
-.m110-secondary{
-  border:1px solid var(--border);border-radius:10px;padding:10px 14px;background:transparent;color:var(--text);
-  font:inherit;font-size:12px;font-weight:800;cursor:pointer;
-}
-
-/* Manage modal */
-.m110-manage-summary{
-  display:grid;grid-template-columns:1.1fr .8fr .8fr;gap:8px;margin-bottom:12px;
-}
-.m110-summary-box{
-  border:1px solid var(--border);border-radius:10px;padding:9px 10px;background:rgba(148,163,184,.05);
-}
-.m110-summary-box span{display:block;font-size:8px;text-transform:uppercase;color:#94a0b8;font-weight:900}
-.m110-summary-box b{display:block;margin-top:3px;font-size:12px;color:var(--text)}
-.m110-level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0 14px}
-.m110-level{
-  border:1px solid var(--border);border-radius:9px;padding:8px;text-align:center;
-}
-.m110-level span{display:block;font-size:8px;color:#94a0b8;font-weight:900}
-.m110-level b{display:block;margin-top:3px;font-size:11px;color:var(--text)}
-.m110-manage-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-.m110-action{
-  border:1px solid var(--border);border-radius:9px;padding:9px 6px;
-  font:inherit;font-size:9px;font-weight:900;cursor:pointer;background:transparent;color:var(--text)
-}
-.m110-action.tp{background:rgba(16,185,129,.11);color:#059669;border-color:rgba(16,185,129,.26)}
-.m110-action.be{background:rgba(59,130,246,.10);color:#2563eb;border-color:rgba(59,130,246,.24)}
-.m110-action.be-hit{background:rgba(139,92,246,.10);color:#7c3aed;border-color:rgba(139,92,246,.24)}
-.m110-action.sl{background:rgba(239,68,68,.10);color:#dc2626;border-color:rgba(239,68,68,.24)}
-.m110-action.close{background:rgba(100,116,139,.10);color:#64748b}
-.m110-action.edit{background:rgba(251,146,1,.10);color:#d97706;border-color:rgba(251,146,1,.25)}
-.m110-action.delete{background:rgba(239,68,68,.08);color:#dc2626;border-color:rgba(239,68,68,.20)}
-.m110-manage-note{
-  margin-top:12px;padding:9px 10px;border-left:3px solid #FB9201;border-radius:8px;
-  background:rgba(251,146,1,.055);font-size:10px;color:var(--text);line-height:1.45;
-}
-
-/* Mobile = same compact user signal concept */
-@media(max-width:760px){
-  #pg-signals .m110-head{padding:13px 12px;align-items:flex-start}
-  #pg-signals .m110-title-wrap h3{font-size:15px}
-  #pg-signals .m110-title-wrap p{display:none}
-  #pg-signals .m110-actions{gap:5px}
-  #pg-signals .m110-btn{font-size:9px;padding:7px 8px}
-  #pg-signals .m110-btn.create{padding:8px 9px}
-  #pg-signals .m110-list-wrap{padding:10px}
-  #pg-signals .m110-table{border-radius:12px}
-  #pg-signals .m110-row{
-    grid-template-columns:1.13fr .86fr .82fr .66fr .62fr;
-    gap:4px;
-  }
-  #pg-signals .m110-row.head{padding:0 7px;min-height:34px}
-  #pg-signals .m110-row.head>div:nth-child(n+6){display:none}
-  #pg-signals .m110-row.head>div{font-size:6.5px}
-  #pg-signals .m110-row.head>div:nth-child(1)::after{content:''}
-  #pg-signals .m110-row.head>div:nth-child(3){font-size:0}
-  #pg-signals .m110-row.head>div:nth-child(3)::after{content:'Status';font-size:6.5px}
-  #pg-signals .m110-row.head>div:nth-child(4){font-size:0}
-  #pg-signals .m110-row.head>div:nth-child(4)::after{content:'Pips';font-size:6.5px}
-  #pg-signals .m110-row.head>div:nth-child(5){font-size:0}
-  #pg-signals .m110-row.head>div:nth-child(5)::after{content:'Manage';font-size:6.5px}
-
-  #pg-signals .m110-signal-main{min-height:48px;padding:7px}
-  #pg-signals .m110-signal-main>.m110-cell:nth-child(1){display:block}
-  #pg-signals .m110-signal-main>.m110-cell:nth-child(2){display:block}
-  #pg-signals .m110-signal-main>.m110-cell:nth-child(3){display:block}
-  #pg-signals .m110-signal-main>.m110-cell:nth-child(4){display:block}
-  #pg-signals .m110-signal-main>.m110-cell:nth-child(5){display:block}
-  #pg-signals .m110-signal-main>.m110-cell:nth-child(n+6){display:none}
-  #pg-signals .m110-date{font-size:7px}
-  #pg-signals .m110-pair{font-size:9px}
-  #pg-signals .m110-status{font-size:6px;padding:4px 5px}
-  #pg-signals .m110-type{display:none}
-  #pg-signals .m110-mini-btn.manage{font-size:7px;padding:5px 6px}
-  #pg-signals .m110-note-row{padding:0 7px 8px}
-  #pg-signals .m110-note-box{width:100%;box-sizing:border-box;font-size:8px}
-
-  .m110-modal{padding:10px;align-items:flex-end}
-  .m110-dialog,.m110-dialog.manage{
-    width:100%;max-height:92vh;border-radius:18px 18px 10px 10px;
-  }
-  .m110-form-grid{grid-template-columns:1fr}
-  .m110-span-2{grid-column:auto}
-  .m110-modal-body{padding:13px}
-  .m110-modal-head{padding:13px}
-  .m110-modal-foot{padding:11px 13px}
-  .m110-manage-summary{grid-template-columns:1fr 1fr 1fr}
-  .m110-level-grid{grid-template-columns:repeat(3,1fr)}
-  .m110-manage-actions{grid-template-columns:repeat(3,1fr)}
-}
-</style>
-
-
-<style id="psp-v111-manage-confirm">
-/* V111 — confirm before every Manage Signal action */
-.m111-confirm-dialog{
-  width:min(430px,94vw);
-  background:var(--card-bg,var(--bg-card,#fff));
-  border:1px solid var(--border);
-  border-radius:16px;
-  box-shadow:0 24px 70px rgba(0,0,0,.30);
-  overflow:hidden;
-}
-.m111-confirm-body{padding:20px 18px 14px;text-align:center}
-.m111-confirm-icon{
-  width:46px;height:46px;margin:0 auto 10px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  background:rgba(251,146,1,.10);color:#FB9201;
-  font-size:22px;font-weight:900
-}
-.m111-confirm-title{margin:0;color:var(--text);font-size:17px;font-weight:900}
-.m111-confirm-text{
-  margin:7px auto 0;max-width:350px;color:#7f8aa3;
-  font-size:11px;line-height:1.5
-}
-.m111-confirm-actions{
-  display:grid;grid-template-columns:1fr 1fr;gap:8px;
-  padding:0 18px 18px
-}
-.m111-confirm-cancel,.m111-confirm-yes{
-  border-radius:10px;padding:10px 12px;
-  font:inherit;font-size:12px;font-weight:900;cursor:pointer
-}
-.m111-confirm-cancel{
-  border:1px solid var(--border);background:transparent;color:var(--text)
-}
-.m111-confirm-yes{
-  border:1px solid #FB9201;background:#FB9201;color:#111827
-}
-.m111-confirm-yes.danger{
-  border-color:#ef4444;background:#ef4444;color:#fff
-}
-@media(max-width:760px){
-  #m111ConfirmModal{align-items:flex-end}
-  .m111-confirm-dialog{width:100%;border-radius:18px 18px 10px 10px;margin-bottom:0}
-}
-</style>
-
-
-<style id="psp-v115-signal-system">
-#pg-signals .m110-status.pending{background:rgba(251,146,1,.12);color:#d97706}
-#pg-signals .m110-status.active-now{background:rgba(251,146,1,.14);color:#d97706}
-.m115-history-edit{
-  border:1px solid rgba(251,146,1,.32);border-radius:12px;
-  background:rgba(251,146,1,.055);padding:12px
-}
-.m115-history-title{font-size:11px;font-weight:950;color:#d97706;margin-bottom:3px}
-.m115-history-sub{font-size:9px;color:#8792a7;line-height:1.45;margin-bottom:10px}
-.m115-history-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.m115-history-preview{
-  margin-top:9px;padding:8px 10px;border-radius:9px;
-  background:var(--card-bg,var(--bg-card,#fff));border:1px solid var(--border);
-  font-size:9px;color:var(--text)
-}
-.m115-pending-info{
-  padding:10px;border:1px solid rgba(251,146,1,.28);border-radius:10px;
-  background:rgba(251,146,1,.055);color:#9a6700;font-size:10px;margin-bottom:10px
-}
-@media(max-width:760px){
-  .m115-history-grid{grid-template-columns:1fr}
-}
-</style>
-
 </head>
+
+<style id="pspV134PremiumResearchHub">
+.psp-rh-shell{display:grid;gap:14px}
+.psp-rh-hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#0b1730 0%,#102343 62%,#172033 100%);color:#fff;border:1px solid rgba(251,146,1,.28);border-radius:20px;padding:20px 22px;box-shadow:0 18px 48px rgba(11,23,48,.14)}
+.psp-rh-hero:after{content:"";position:absolute;right:-90px;top:-120px;width:310px;height:310px;border-radius:50%;background:radial-gradient(circle,rgba(251,146,1,.22),transparent 67%);pointer-events:none}
+.psp-rh-hero-row{display:flex;justify-content:space-between;align-items:center;gap:16px;position:relative;z-index:1}
+.psp-rh-kicker{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#ffb54d;font-weight:900}
+.psp-rh-title{margin:5px 0 4px;font-size:23px;line-height:1.12;font-weight:900}
+.psp-rh-sub{margin:0;color:#c7d1df;font-size:11px;max-width:720px;line-height:1.5}
+.psp-rh-vip{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:5px 9px;border-radius:999px;border:1px solid rgba(251,146,1,.34);background:rgba(251,146,1,.1);color:#ffd08a;font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.psp-rh-primary{border:0;background:#FB9201;color:#111;padding:10px 14px;border-radius:10px;font-size:9px;font-weight:900;cursor:pointer;box-shadow:0 10px 24px rgba(251,146,1,.24);white-space:nowrap}
+.psp-rh-primary:hover{transform:translateY(-1px);filter:brightness(.98)}
+.psp-rh-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 170px 150px;gap:9px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px;box-shadow:0 8px 24px rgba(15,23,42,.04)}
+.psp-rh-toolbar.psp-rh-article-toolbar{grid-template-columns:minmax(220px,1fr) 160px 150px 150px}
+.psp-rh-field{width:100%;height:38px;border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:9px;padding:0 11px;font-size:10px;outline:none}
+.psp-rh-field:focus{border-color:#FB9201;box-shadow:0 0 0 3px rgba(251,146,1,.09)}
+.psp-rh-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.psp-rh-card{min-width:0;background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 8px 26px rgba(15,23,42,.055);display:flex;flex-direction:column;transition:.16s ease}
+.psp-rh-card:hover{border-color:rgba(251,146,1,.4);box-shadow:0 14px 34px rgba(15,23,42,.09);transform:translateY(-1px)}
+.psp-rh-media{position:relative;aspect-ratio:16/9;background:#0b1730;overflow:hidden}
+.psp-rh-media img{width:100%!important;height:100%!important;max-height:none!important;object-fit:cover!important;border-radius:0!important;display:block}
+.psp-rh-media-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 65% 35%,rgba(251,146,1,.22),transparent 38%),linear-gradient(135deg,#0b1730,#152743);color:#ffc36c;font-weight:900;font-size:14px;letter-spacing:.02em}
+.psp-rh-media-badge{position:absolute;left:9px;top:9px;padding:4px 7px;border-radius:999px;background:rgba(11,23,48,.88);color:#fff;border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(8px);font-size:7px;font-weight:900}
+.psp-rh-body{padding:11px 12px 12px;display:flex;flex-direction:column;gap:7px;flex:1}
+.psp-rh-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:var(--muted);font-size:8px}
+.psp-rh-chip{display:inline-flex;align-items:center;padding:3px 6px;border-radius:999px;background:rgba(251,146,1,.09);color:#b86400;border:1px solid rgba(251,146,1,.18);font-weight:800}
+.psp-rh-card-title{font-size:12px;font-weight:900;color:var(--text);line-height:1.28;margin:0}
+.psp-rh-snippet{color:var(--muted);font-size:9px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:26px}
+.psp-rh-actions{display:flex;gap:6px;margin-top:auto;padding-top:2px}
+.psp-rh-action{flex:1;border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:8px;min-height:30px;padding:5px 7px;font-size:8px;font-weight:800;cursor:pointer}
+.psp-rh-action:hover{border-color:#FB9201;background:rgba(251,146,1,.06)}
+.psp-rh-action.danger{color:#b42318;background:#fff8f6;border-color:#f2d2cd}
+.psp-rh-action.icon{flex:0 0 32px;padding:0}
+.psp-rh-empty{grid-column:1/-1;padding:38px 18px;text-align:center;background:var(--card);border:1px dashed var(--border);border-radius:16px;color:var(--muted);font-size:11px}
+.psp-rh-status{display:inline-flex;align-items:center;gap:4px;padding:3px 6px;border-radius:999px;font-size:7px;font-weight:900}
+.psp-rh-status.published{background:#eaf8f1;color:#087c55}
+.psp-rh-status.draft{background:#fff4df;color:#a85e00}
+
+.psp-rh-modal{position:fixed;inset:0;z-index:10050;background:rgba(9,18,31,.66);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:22px}
+.psp-rh-modal.open{display:flex}
+.psp-rh-dialog{width:min(780px,96vw);max-height:88vh;overflow:auto;background:var(--card);border:1px solid var(--border);border-radius:18px;box-shadow:0 28px 80px rgba(0,0,0,.26)}
+.psp-rh-dialog.wide{width:min(980px,96vw)}
+.psp-rh-dialog-head{position:sticky;top:0;z-index:3;background:var(--card);display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:15px 17px;border-bottom:1px solid var(--border)}
+.psp-rh-dialog-head h3{margin:0;font-size:15px;color:var(--text)}
+.psp-rh-dialog-head p{margin:3px 0 0;font-size:9px;color:var(--muted)}
+.psp-rh-close{width:32px;height:32px;border:0;border-radius:9px;background:var(--bg);color:var(--muted);font-weight:900;cursor:pointer}
+.psp-rh-form{padding:15px 17px;display:grid;gap:11px}
+.psp-rh-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.psp-rh-label{display:grid;gap:5px;font-size:8px;text-transform:uppercase;letter-spacing:.05em;font-weight:900;color:var(--muted)}
+.psp-rh-input,.psp-rh-textarea,.psp-rh-select{width:100%;border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:9px;padding:9px 10px;font:inherit;font-size:10px;outline:none;box-sizing:border-box}
+.psp-rh-input,.psp-rh-select{height:39px}
+.psp-rh-textarea{min-height:90px;resize:vertical;line-height:1.5}
+.psp-rh-input:focus,.psp-rh-textarea:focus,.psp-rh-select:focus{border-color:#FB9201;box-shadow:0 0 0 3px rgba(251,146,1,.08)}
+.psp-rh-upload{border:1px dashed rgba(251,146,1,.42);background:rgba(251,146,1,.035);border-radius:12px;padding:10px}
+.psp-rh-upload-preview img{width:150px!important;height:84px!important;object-fit:cover!important;border-radius:8px!important;max-height:none!important;margin-top:8px}
+.psp-rh-modal-foot{position:sticky;bottom:0;z-index:3;background:var(--card);display:flex;justify-content:flex-end;gap:8px;padding:11px 17px;border-top:1px solid var(--border)}
+.psp-rh-secondary{border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:9px;padding:9px 12px;font-size:9px;font-weight:800;cursor:pointer}
+.psp-rh-preview-img{width:100%!important;max-height:520px!important;object-fit:contain!important;background:#08111f;border-radius:12px!important}
+.psp-rh-preview-copy{font-size:11px;line-height:1.7;color:var(--text);white-space:normal}
+[data-theme="dark"] .psp-rh-chip{color:#ffc36c}
+[data-theme="dark"] .psp-rh-action.danger{background:rgba(180,35,24,.12);border-color:rgba(244,114,94,.28);color:#ff9a8b}
+[data-theme="dark"] .psp-rh-status.published{background:rgba(8,124,85,.18);color:#65e0b2}
+[data-theme="dark"] .psp-rh-status.draft{background:rgba(168,94,0,.18);color:#ffc166}
+@media(max-width:1100px){.psp-rh-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){
+  .psp-rh-hero-row{align-items:flex-start;flex-direction:column}.psp-rh-primary{width:100%}
+  .psp-rh-toolbar,.psp-rh-toolbar.psp-rh-article-toolbar{grid-template-columns:1fr 1fr}
+  .psp-rh-toolbar .psp-rh-search{grid-column:1/-1}.psp-rh-grid{grid-template-columns:1fr}.psp-rh-form-grid{grid-template-columns:1fr}.psp-rh-modal{padding:10px}
+}
+</style>
+
 <body><style id="darkfix-css">
 select{color-scheme:dark}
 select option,select optgroup{background:#0f1729!important;color:#e8eaf0!important}
@@ -1052,7 +813,7 @@ const NAV=[['MAIN',[['performance','🏆','Performance'],['signals','📊','Sign
   ['MONETIZE',[['requests','🧾','Requests']]],
   ['COMMUNICATION',[['chats','✉️','Member Chats'],['messages','💬','Messages'],['notifications','🔔','Notifications']]],
   ['SYSTEM',[['settings','⚙️','Settings']]]];
-const TITLES={performance:['Performance','Live overview and results'],dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','Chart analysis + upload'],articles:['Articles','Create forex learning articles'],banners:['Banners','Upload social media banners'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members']};
+const TITLES={performance:['Performance','Live overview and results'],dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','VIP chart research & analysis'],articles:['Articles','Professional research & insights'],banners:['Banners','Upload social media banners'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members']};
 
 let MENTOR_ACCESS={performance:true,dashboard:true,signals:true,charts:true,articles:true,banners:true,settings:true};
 function mentorCan(k){return MENTOR_ACCESS[k]!==false;}
@@ -1444,536 +1205,41 @@ function saveMentorPerfGoal(){var i=document.getElementById('perfGoalInput');if(
 function copyCode(){try{navigator.clipboard.writeText(ME.mentor_code||'');}catch(e){}mentorAlert('Copied: '+ME.mentor_code);}
 async function toggleOfficial(v){await sb.from('profiles').update({show_official_signals:v}).eq('id',ME.id);ME.show_official_signals=v;}
 
-/* ============ SIGNALS (smart input + AUTO pips/profit) ============ */
-/*
-  PipSePaisa V109 pip convention:
-  XAU/USD: 0.10 price move = 1 pip   -> 4000 to 4010 = 100 pips
-  BTC/USD: 10.00 price move = 1 pip -> 40000 to 41000 = 100 pips
-  Normal FX: 0.0001 = 1 pip         -> EUR/USD 1.1600 to 1.1700 = 100 pips
-  JPY FX: 0.01 = 1 pip
-
-  Other listed instruments use a fixed PipSePaisa pip-size map below.
-*/
-const PSP_PIP_SIZE = {
-  'XAU/USD': 0.10,
-  'XAG/USD': 0.01,
-
-  'BTC/USD': 10,
-  'ETH/USD': 1,
-  'SOL/USD': 0.10,
-  'BNB/USD': 1,
-  'XRP/USD': 0.001,
-  'DOGE/USD': 0.001
-};
-
-function pspSignalPipSize(pair){
-  const p=String(pair||'').toUpperCase().trim();
-  if(PSP_PIP_SIZE[p]) return PSP_PIP_SIZE[p];
-
-  // Standard forex convention.
-  if(p.indexOf('JPY')>=0) return 0.01;
-  return 0.0001;
-}
-
-function pspSignalAutoPips(signal, exitPrice){
-  if(!signal) return null;
-
-  const entry=Number(signal.entry_price);
-  const exit=Number(exitPrice);
-  if(!Number.isFinite(entry)||!Number.isFinite(exit)) return null;
-
-  const step=pspSignalPipSize(signal.pair);
-  if(!step) return null;
-
-  const sell=String(signal.direction||'').toUpperCase()==='SELL';
-  const raw=sell ? ((entry-exit)/step) : ((exit-entry)/step);
-
-  // Avoid JS floating point artifacts but preserve half/decimal pips when needed.
-  const rounded=Math.round((raw + Number.EPSILON)*10)/10;
-  return Object.is(rounded,-0) ? 0 : rounded;
-}
-
-function pspSignalTargetForAction(signal, kind){
-  if(!signal) return null;
-  if(kind==='tp1') return signal.take_profit1;
-  if(kind==='tp2') return signal.take_profit2;
-  if(kind==='tp3') return signal.take_profit3;
-  if(kind==='sl')  return signal.stop_loss;
-  if(kind==='be')  return signal.entry_price;
-  return null;
-}
-
-function pspSignalFormatPips(v){
-  const n=Number(v);
-  if(!Number.isFinite(n)) return '—';
-  return (n>0?'+':'')+String(n)+' pips';
-}
-
-/* V103: single order dropdown — Buy, Sell, Buy Limit, Buy Stop, Sell Limit, Sell Stop */
+/* ============ SIGNALS (smart input + pips/profit) ============ */
 let sigDir='buy';
 function mAudTicks(cls){return '<div style="display:flex;flex-wrap:wrap;gap:8px"><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="free" checked> 🆓 Free</label><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="premium"> 💎 Premium</label><label class="tick-chip"><input type="checkbox" class="'+cls+'" value="vip"> 👑 VIP</label></div>';}
 const MSINP='width:100%;padding:10px 12px;background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-family:inherit;outline:none';
 function renderSignals(){
   const el=document.getElementById('pg-signals');
-  el.innerHTML=`
-    <div class="m110-shell">
-      <section class="m110-panel">
-        <div class="m110-head">
-          <div class="m110-title-wrap">
-            <h3>📊 Official Signals</h3>
-            <p>Create, manage and review signals from one clean workspace.</p>
-          </div>
-          <div class="m110-actions">
-            <button id="mSigTabA" class="m110-btn active" onclick="mSigSetView('active')">⚡ Active</button>
-            <button id="mSigTabH" class="m110-btn" onclick="mSigSetView('history')">📜 History</button>
-            <button id="mSigReportBtn" class="m110-btn" onclick="openMentorReport()">📄 Report</button>
-            <button class="m110-btn create" onclick="openCreateSignalModal()">＋ Create Signal</button>
-          </div>
-        </div>
-        <div class="m110-list-wrap">
-          <div id="sigList" class="m110-loading">Loading signals...</div>
-        </div>
-      </section>
-    </div>
-
-    <div id="m110SignalModal" class="m110-modal" onclick="m110BackdropClose(event,'signal')">
-      <div class="m110-dialog" role="dialog" aria-modal="true" aria-labelledby="m110SignalTitle">
-        <div class="m110-modal-head">
-          <div>
-            <h3 id="m110SignalTitle">Create Signal</h3>
-            <p id="m110SignalSub">Publish a new official trading signal.</p>
-          </div>
-          <button class="m110-x" onclick="closeCreateSignalModal()" aria-label="Close">×</button>
-        </div>
-        <div class="m110-modal-body">
-          <div class="m110-form-grid">
-            <div>
-              <label class="m110-label">Pair</label>
-              <select id="sgPair" class="m110-field">${pairOptions()}</select>
-            </div>
-            <div>
-              <label class="m110-label">Order Type</label>
-              <select id="sgOrderType" class="m110-field">
-                <option value="buy">Buy</option>
-                <option value="sell">Sell</option>
-                <option value="buy_limit">Buy Limit</option>
-                <option value="buy_stop">Buy Stop</option>
-                <option value="sell_limit">Sell Limit</option>
-                <option value="sell_stop">Sell Stop</option>
-              </select>
-            </div>
-
-            <div><label class="m110-label">Entry</label><input id="sgEntry" type="number" step="any" placeholder="Entry price" class="m110-field"></div>
-            <div><label class="m110-label">Stop Loss</label><input id="sgSL" type="number" step="any" placeholder="Stop Loss" class="m110-field"></div>
-            <div><label class="m110-label">Take Profit 1</label><input id="sgTP1" type="number" step="any" placeholder="TP1" class="m110-field"></div>
-            <div><label class="m110-label">Take Profit 2</label><input id="sgTP2" type="number" step="any" placeholder="TP2 (optional)" class="m110-field"></div>
-            <div><label class="m110-label">Take Profit 3</label><input id="sgTP3" type="number" step="any" placeholder="TP3 (optional)" class="m110-field"></div>
-            <div><label class="m110-label">TP4 / Runner</label><input id="sgTP4" type="text" placeholder="Number or Open" class="m110-field"></div>
-
-            <div class="m110-span-2">
-              <label class="m110-label">Mentor Note Template</label>
-              <select id="sgNoteTpl" onchange="applySignalNote('sgNoteTpl','sgNotes')" class="m110-field">${signalNoteOptions()}</select>
-            </div>
-            <div class="m110-span-2">
-              <label class="m110-label">Mentor Note</label>
-              <textarea id="sgNotes" placeholder="Optional note for users" class="m110-field"></textarea>
-            </div>
-            <div class="m110-span-2">
-              <label class="m110-label">VIP Package</label>
-              <input id="sgPlan" placeholder="VIP package name (optional)" class="m110-field">
-            </div>
-            <div class="m110-span-2" id="m110AutoPipsWrap">
-              <div id="sgAutoPipsPreview">Pips will calculate automatically from Entry → SL / TP.</div>
-            </div>
-            <div class="m110-span-2" id="m115HistoryEdit" style="display:none">
-              <div class="m115-history-edit">
-                <div class="m115-history-title">History Correction / Full Control</div>
-                <div class="m115-history-sub">For a finished signal you can correct the result, change its state, or move it back to Active/Pending. Automatic pips use the corrected Entry/SL/TP values.</div>
-                <div class="m115-history-grid">
-                  <div>
-                    <label class="m110-label">Signal State / Result</label>
-                    <select id="sgEditOutcome" class="m110-field" onchange="m115HistoryPreview()">
-                      <option value="closed">Closed (Manual)</option>
-                      <option value="tp3">TP3 Hit → Closed</option>
-                      <option value="sl">SL Hit → Closed</option>
-                      <option value="be">BE Hit → Closed</option>
-                      <option value="tp2">TP2 Hit → Active</option>
-                      <option value="tp1">TP1 Hit → Active</option>
-                      <option value="active">Active</option>
-                      <option value="pending">Pending Order</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="m110-label">Closing Price</label>
-                    <input id="sgClosingPrice" type="number" step="any" class="m110-field" placeholder="For manual Close" oninput="m115HistoryPreview()">
-                  </div>
-                  <div>
-                    <label class="m110-label">Result Pips Override</label>
-                    <input id="sgResultPips" type="number" step="any" class="m110-field" placeholder="Optional manual correction" oninput="m115HistoryPreview()">
-                  </div>
-                </div>
-                <div id="m115HistoryPreview" class="m115-history-preview">Result will be recalculated automatically.</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="m110-modal-foot">
-          <button id="sgCancelEdit" class="m110-secondary" onclick="cancelSigEdit()">Cancel</button>
-          <button id="sgPostBtn" class="m110-primary" onclick="createSignal()">🚀 Publish Signal</button>
-        </div>
-      </div>
-    </div>
-
-    <div id="m110ManageModal" class="m110-modal" onclick="m110BackdropClose(event,'manage')">
-      <div class="m110-dialog manage" role="dialog" aria-modal="true" aria-labelledby="m110ManageTitle">
-        <div class="m110-modal-head">
-          <div>
-            <h3 id="m110ManageTitle">Manage Signal</h3>
-            <p>Update TP, breakeven, SL or close the signal.</p>
-          </div>
-          <button class="m110-x" onclick="closeManageSignalModal()" aria-label="Close">×</button>
-        </div>
-        <div id="m110ManageBody" class="m110-modal-body"></div>
-      </div>
-    </div>
-
-    <div id="m111ConfirmModal" class="m110-modal" onclick="m111BackdropClose(event)">
-      <div class="m111-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="m111ConfirmTitle">
-        <div class="m111-confirm-body">
-          <div class="m111-confirm-icon">?</div>
-          <h3 id="m111ConfirmTitle" class="m111-confirm-title">Confirm Action</h3>
-          <p id="m111ConfirmText" class="m111-confirm-text">Are you sure you want to continue?</p>
-        </div>
-        <div class="m111-confirm-actions">
-          <button class="m111-confirm-cancel" onclick="m111CloseConfirm(false)">Cancel</button>
-          <button id="m111ConfirmYes" class="m111-confirm-yes" onclick="m111CloseConfirm(true)">Yes, Continue</button>
-        </div>
-      </div>
-    </div>
-  `;
-  loadSignals();
-}
-
-function m110BackdropClose(e,which){
-  if(e.target!==e.currentTarget)return;
-  if(which==='signal')closeCreateSignalModal();
-  else closeManageSignalModal();
-}
-
-function resetSignalForm(){
-  ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan','sgClosingPrice','sgResultPips'].forEach(function(i){
-    const e=document.getElementById(i);if(e)e.value='';
-  });
-  const p=document.getElementById('sgPair');if(p)p.selectedIndex=0;
-  const o=document.getElementById('sgOrderType');if(o)o.value='buy';
-  const t=document.getElementById('sgNoteTpl');if(t)t.selectedIndex=0;
-  const hs=document.getElementById('m115HistoryEdit');if(hs)hs.style.display='none';
-  const oc=document.getElementById('sgEditOutcome');if(oc)oc.value='closed';
-  mentorSignalPreviewPips();
-}
-
-function openCreateSignalModal(){
-  editingSigId=null;
-  resetSignalForm();
-  const title=document.getElementById('m110SignalTitle');
-  const sub=document.getElementById('m110SignalSub');
-  const btn=document.getElementById('sgPostBtn');
-  if(title)title.textContent='Create Signal';
-  if(sub)sub.textContent='Publish a new official trading signal.';
-  if(btn)btn.textContent='🚀 Publish Signal';
-  const modal=document.getElementById('m110SignalModal');
-  if(modal)modal.classList.add('open');
-  document.body.style.overflow='hidden';
-  bindMentorAutoPipsPreview();
-  setTimeout(function(){const e=document.getElementById('sgPair');if(e)e.focus();},40);
-}
-
-function closeCreateSignalModal(){
-  const modal=document.getElementById('m110SignalModal');
-  if(modal)modal.classList.remove('open');
-  document.body.style.overflow='';
-}
-
-function closeManageSignalModal(){
-  const modal=document.getElementById('m110ManageModal');
-  if(modal)modal.classList.remove('open');
-  document.body.style.overflow='';
-}
-
-let m111PendingAction=null;
-
-function m111AskConfirm(opts,callback){
-  opts=opts||{};
-  m111PendingAction=typeof callback==='function'?callback:null;
-
-  const modal=document.getElementById('m111ConfirmModal');
-  const title=document.getElementById('m111ConfirmTitle');
-  const text=document.getElementById('m111ConfirmText');
-  const yes=document.getElementById('m111ConfirmYes');
-
-  if(title)title.textContent=opts.title||'Confirm Action';
-  if(text)text.textContent=opts.text||'Are you sure you want to continue?';
-
-  if(yes){
-    yes.textContent=opts.confirmText||'Yes, Continue';
-    yes.classList.toggle('danger',!!opts.danger);
-  }
-
-  if(modal)modal.classList.add('open');
-  document.body.style.overflow='hidden';
-}
-
-function m111CloseConfirm(confirmed){
-  const modal=document.getElementById('m111ConfirmModal');
-  if(modal)modal.classList.remove('open');
-
-  const action=m111PendingAction;
-  m111PendingAction=null;
-
-  const manage=document.getElementById('m110ManageModal');
-  const create=document.getElementById('m110SignalModal');
-  const anotherOpen=(manage&&manage.classList.contains('open'))||(create&&create.classList.contains('open'));
-  document.body.style.overflow=anotherOpen?'hidden':'';
-
-  if(confirmed&&typeof action==='function')action();
-}
-
-function m111BackdropClose(e){
-  if(e.target===e.currentTarget)m111CloseConfirm(false);
-}
-
-function m111ActionCopy(kind){
-  const map={
-    activate:{
-      title:'Activate Pending Order?',
-      text:'This pending order will become Active for users and an activation notification will be sent.',
-      confirmText:'Yes, Activate Order'
-    },
-    tp1:{
-      title:'Confirm TP1 Hit',
-      text:'Mark this signal as TP1 Hit? Pips will be calculated automatically.',
-      confirmText:'Yes, TP1 Hit'
-    },
-    tp2:{
-      title:'Confirm TP2 Hit',
-      text:'Mark this signal as TP2 Hit? Pips will be calculated automatically.',
-      confirmText:'Yes, TP2 Hit'
-    },
-    tp3:{
-      title:'Confirm TP3 Hit',
-      text:'Mark this signal as TP3 Hit and close it? Pips will be calculated automatically.',
-      confirmText:'Yes, TP3 Hit'
-    },
-    be_move:{
-      title:'Move SL to Breakeven?',
-      text:'This will update the signal to SL → BE for all users.',
-      confirmText:'Yes, Move to BE'
-    },
-    be:{
-      title:'Confirm Breakeven Hit',
-      text:'Mark this signal as BE Hit and close it at 0 pips?',
-      confirmText:'Yes, BE Hit'
-    },
-    sl:{
-      title:'Confirm Stop Loss Hit',
-      text:'Mark this signal as SL Hit and close it with automatically calculated loss pips?',
-      confirmText:'Yes, SL Hit',
-      danger:true
-    },
-    closed:{
-      title:'Close This Signal?',
-      text:'After confirmation, enter the closing price. Pips will then calculate automatically.',
-      confirmText:'Yes, Close Signal'
-    }
-  };
-  return map[kind]||{
-    title:'Confirm Action',
-    text:'Are you sure you want to continue?',
-    confirmText:'Yes, Continue'
-  };
-}
-
-function m110TypeKey(s){
-  const d=String(s.direction||'BUY').toLowerCase()==='sell'?'sell':'buy';
-  const o=String(s.order_type||'market').toLowerCase();
-  return o==='market'?d:(d+'-'+o);
-}
-function m110TypeLabel(s){
-  const k=m110TypeKey(s);
-  return ({buy:'BUY','buy-limit':'BUY LIMIT','buy-stop':'BUY STOP',sell:'SELL','sell-limit':'SELL LIMIT','sell-stop':'SELL STOP'})[k]||'BUY';
-}
-function m110StatusInfo(s){
-  const st=String(s.status||'active').toLowerCase();
-  if(st==='pending')return {label:'Pending',cls:'pending'};
-  if(st==='sl'||st==='sl_hit')return {label:'SL Hit',cls:'loss'};
-  if(st==='be')return {label:'BE Hit',cls:'be'};
-  if(st==='closed'||st==='tp3'||st==='tp_hit')return {label:'Closed',cls:'closed'};
-  if(st==='tp1')return {label:'TP1 Hit',cls:'win'};
-  if(st==='tp2')return {label:'TP2 Hit',cls:'win'};
-  if(s.activated_at && String(s.order_type||'market').toLowerCase()!=='market')return {label:'Active Now',cls:'active-now'};
-  if(s.be_moved)return {label:'SL → BE',cls:'live'};
-  return {label:'Active',cls:'live'};
-}
-function m110Pips(s){
-  const n=Number(s.result_pips);
-  if(!Number.isFinite(n))return {text:'Open',cls:'neutral'};
-  return {text:(n>0?'+':'')+String(n),cls:n>0?'pos':(n<0?'neg':'neutral')};
-}
-function m110FmtDate(s){
-  const d=new Date(s.created_at||s.updated_at||Date.now());
-  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})+'<br>'+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-}
-function m110Price(v){
-  return (v===null||v===undefined||v==='')?'—':esc(String(v));
-}
-function toggleMentorSignalNote(id){
-  const el=document.getElementById('m110-note-'+id);
-  if(el)el.classList.toggle('open');
-}
-
-function m115OutcomeLabel(s){
-  const st=String(s.status||'active').toLowerCase();
-  if(Number(s.tp_hit||0)>=3||st==='tp3')return 'TP3 Hit';
-  if(st==='sl'||st==='sl_hit')return 'SL Hit';
-  if(st==='be')return 'BE Hit';
-  if(st==='closed')return 'Manual Close';
-  if(st==='tp2')return 'TP2 Hit';
-  if(st==='tp1')return 'TP1 Hit';
-  if(st==='pending')return 'Pending';
-  return 'Active';
-}
-function openManageSignal(id){
-  const s=(window._mSigCache||[]).find(function(x){return String(x.id)===String(id);});
-  if(!s)return;
-  window._m110ManageId=id;
-  const st=m110StatusInfo(s),pp=m110Pips(s);
-  const raw=String(s.status||'active').toLowerCase();
-  const finished=['sl','sl_hit','closed','tp3','be'].includes(raw);
-  const pending=raw==='pending';
-  const note=String(s.notes||'').trim();
-  const body=document.getElementById('m110ManageBody');
-  if(!body)return;
-
-  body.innerHTML=`
-    <div class="m110-manage-summary">
-      <div class="m110-summary-box"><span>Pair / Type</span><b>${esc(s.pair||'Market')} · ${esc(m110TypeLabel(s))}</b></div>
-      <div class="m110-summary-box"><span>Status</span><b>${esc(st.label)}</b></div>
-      <div class="m110-summary-box"><span>Pips</span><b>${esc(pp.text)}</b></div>
-    </div>
-    <div class="m110-level-grid">
-      <div class="m110-level"><span>Entry</span><b>${m110Price(s.entry_price)}</b></div>
-      <div class="m110-level"><span>SL</span><b style="color:#ef4444">${m110Price(s.stop_loss)}</b></div>
-      <div class="m110-level"><span>TP1</span><b>${m110Price(s.take_profit1)}</b></div>
-      <div class="m110-level"><span>TP2</span><b>${m110Price(s.take_profit2)}</b></div>
-      <div class="m110-level"><span>TP3</span><b>${m110Price(s.take_profit3)}</b></div>
-      <div class="m110-level"><span>TP4</span><b>${String(s.take_profit4||'').toLowerCase()==='open'?'<span class="m110-open">Open</span>':m110Price(s.take_profit4)}</b></div>
-    </div>
-    ${pending?`
-      <div class="m115-pending-info">⏳ This is a pending ${esc(m110TypeLabel(s))} order. Activate it only when the entry/order is triggered.</div>
-      <div class="m110-manage-actions" style="grid-template-columns:2fr 1fr">
-        <button class="m110-action be" onclick="m110RunAction('activate')">⚡ Activate Order</button>
-        <button class="m110-action edit" onclick="m110EditFromManage()">Edit</button>
-      </div>
-    `:finished?`
-      <div style="padding:10px;border:1px solid var(--border);border-radius:10px;color:#94a0b8;font-size:10px;margin-bottom:10px">
-        This signal is finished. Outcome: <b style="color:var(--text)">${esc(m115OutcomeLabel(s))}</b>. You still have full Edit control.
-      </div>
-    `:`
-      <div class="m110-manage-actions">
-        <button class="m110-action tp" onclick="m110RunAction('tp1')">TP1 Hit</button>
-        <button class="m110-action tp" onclick="m110RunAction('tp2')">TP2 Hit</button>
-        <button class="m110-action tp" onclick="m110RunAction('tp3')">TP3 Hit</button>
-        <button class="m110-action be" onclick="m110RunAction('be_move')">SL → BE</button>
-        <button class="m110-action be-hit" onclick="m110RunAction('be')">BE Hit</button>
-        <button class="m110-action sl" onclick="m110RunAction('sl')">SL Hit</button>
-        <button class="m110-action close" onclick="m110RunAction('closed')">Close</button>
-        <button class="m110-action edit" onclick="m110EditFromManage()">Edit</button>
-      </div>
-    `}
-    ${finished?`<div class="m110-manage-actions" style="grid-template-columns:1fr 1fr">
-      <button class="m110-action edit" onclick="m110EditFromManage()">Edit Signal</button>
-      <button class="m110-action delete" onclick="m110DeleteFromManage()">Delete</button>
-    </div>`:`<div style="display:flex;justify-content:flex-end;margin-top:10px">
-      <button class="m110-action delete" style="padding:8px 12px" onclick="m110DeleteFromManage()">Delete Signal</button>
-    </div>`}
-    ${note?`<div class="m110-manage-note"><b style="color:#FB9201">Mentor Note:</b> ${esc(note)}</div>`:''}
-  `;
-
-  const modal=document.getElementById('m110ManageModal');
-  if(modal)modal.classList.add('open');
-  document.body.style.overflow='hidden';
-}
-function m110RunAction(kind){
-  const id=window._m110ManageId;
-  if(!id)return;
-
-  m111AskConfirm(m111ActionCopy(kind),function(){
-    updateMentorSigStatus(id,kind);
-  });
-}
-function m110EditFromManage(){
-  const id=window._m110ManageId;
-  if(!id)return;
-
-  m111AskConfirm({
-    title:'Edit This Signal?',
-    text:'Open this signal in Edit mode? Saved changes will be visible to users.',
-    confirmText:'Yes, Edit Signal'
-  },function(){
-    closeManageSignalModal();
-    editMentorSignal(id);
-  });
-}
-function m110DeleteFromManage(){
-  const id=window._m110ManageId;
-  if(!id)return;
-
-  m111AskConfirm({
-    title:'Delete This Signal?',
-    text:'This can permanently remove the signal. Are you sure you want to continue?',
-    confirmText:'Yes, Delete Signal',
-    danger:true
-  },function(){
-    closeManageSignalModal();
-    delSignal(id,true);
-  });
+  el.innerHTML=`<div style="display:grid;grid-template-columns:1fr 1.2fr;gap:18px">
+    <div class="card"><h3 style="margin:0 0 12px">📊 New Official Signal</h3><div style="display:grid;gap:11px">
+      <select id="sgPair" style="${MSINP}">${pairOptions()}</select>
+      <div style="display:flex;gap:8px"><button type="button" id="bsBuy" onclick="setDir('buy')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:rgba(16,185,129,.18);color:#10b981;font-weight:800;cursor:pointer">▲ BUY</button><button type="button" id="bsSell" onclick="setDir('sell')" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);background:transparent;color:#94a0b8;font-weight:800;cursor:pointer">▼ SELL</button></div>
+      <select id="sgOrderType" style="${MSINP}">
+        <option value="market">⚡ Market Execution (Buy/Sell)</option>
+        <option value="buy_limit">📍 Buy Limit</option>
+        <option value="sell_limit">📍 Sell Limit</option>
+        <option value="buy_stop">🚀 Buy Stop</option>
+        <option value="sell_stop">🚀 Sell Stop</option>
+      </select>
+      <input id="sgEntry" type="number" step="any" placeholder="Entry price" style="${MSINP}">
+      <input id="sgSL" type="number" step="any" placeholder="Stop Loss" style="${MSINP}">
+      <input id="sgTP1" type="number" step="any" placeholder="Take Profit 1" style="${MSINP}">
+      <input id="sgTP2" type="number" step="any" placeholder="Take Profit 2 (optional)" style="${MSINP}">
+      <input id="sgTP3" type="number" step="any" placeholder="Take Profit 3 (optional)" style="${MSINP}">
+      <input id="sgTP4" type="text" placeholder="TP4 / Runner (optional — number ya 'Open')" style="${MSINP}">
+      <select id="sgNoteTpl" onchange="applySignalNote('sgNoteTpl','sgNotes')" style="${MSINP}">${signalNoteOptions()}</select>
+      <textarea id="sgNotes" rows="5" placeholder="Notes (optional) — select template or type custom note" style="${MSINP};resize:vertical"></textarea>
+      <input id="sgPlan" placeholder="VIP package name (optional)" style="${MSINP}">
+      <button onclick="createSignal()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">🚀 Publish Official Signal</button>
+      <button onclick="cancelSigEdit()" id="sgCancelEdit" style="padding:8px;border:none;border-radius:8px;background:transparent;color:#94a0b8;font-size:12px;cursor:pointer;text-decoration:underline">Cancel edit</button>
+    </div></div>
+    <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px"><h3 style="margin:0">📋 Official Signals</h3><div style="display:flex;gap:6px;flex-wrap:wrap"><button id="mSigTabA" onclick="mSigSetView('active')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--gold,#f59e0b);color:#0a0e1a;font-weight:800;font-size:12px;cursor:pointer">⚡ Active</button><button id="mSigTabH" onclick="mSigSetView('history')" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text,#e8eaf0);font-weight:800;font-size:12px;cursor:pointer">📜 History</button><button id="mSigReportBtn" onclick="openMentorReport()" style="padding:6px 12px;border-radius:8px;border:1px solid rgba(245,158,11,.45);background:rgba(245,158,11,.12);color:var(--gold,#d97706);font-weight:800;font-size:12px;cursor:pointer">📄 Report</button></div></div><div id="sigList">Loading...</div></div>
+  </div>`;
+  setDir('buy');loadSignals();
 }
 function setDir(d){sigDir=d;var b=document.getElementById('bsBuy'),s=document.getElementById('bsSell');if(b)b.style.cssText='flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);'+(d==='buy'?'background:rgba(16,185,129,.18);color:#10b981':'background:transparent;color:#94a0b8')+';font-weight:800;cursor:pointer';if(s)s.style.cssText='flex:1;padding:9px;border-radius:8px;border:1px solid var(--border);'+(d==='sell'?'background:rgba(239,68,68,.18);color:#ef4444':'background:transparent;color:#94a0b8')+';font-weight:800;cursor:pointer';}
 function setPv(v){pipsView=v;loadSignals();}
-function mentorSignalPreviewPips(){
-  const pair=(document.getElementById('sgPair')||{}).value||'';
-  const order=((document.getElementById('sgOrderType')||{}).value)||'buy';
-  const dir=order.split('_')[0].toUpperCase();
-  const entry=Number((document.getElementById('sgEntry')||{}).value);
-  const box=document.getElementById('sgAutoPipsPreview');
-  if(!box)return;
-  if(!Number.isFinite(entry)){
-    box.textContent='Pips will calculate automatically from Entry → SL / TP.';
-    return;
-  }
-  const fake={pair:pair,direction:dir,entry_price:entry};
-  const vals=[
-    ['SL','sgSL'],
-    ['TP1','sgTP1'],
-    ['TP2','sgTP2'],
-    ['TP3','sgTP3']
-  ].map(function(x){
-    const v=Number((document.getElementById(x[1])||{}).value);
-    return Number.isFinite(v)?(x[0]+' '+pspSignalFormatPips(pspSignalAutoPips(fake,v))):null;
-  }).filter(Boolean);
-  box.textContent=vals.length?('Auto pips: '+vals.join(' · ')):'Pips will calculate automatically from Entry → SL / TP.';
-}
-function bindMentorAutoPipsPreview(){
-  ['sgPair','sgOrderType','sgEntry','sgSL','sgTP1','sgTP2','sgTP3'].forEach(function(id){
-    const e=document.getElementById(id);
-    if(e && !e.dataset.pipPreviewBound){
-      e.dataset.pipPreviewBound='1';
-      e.addEventListener('input',mentorSignalPreviewPips);
-      e.addEventListener('change',mentorSignalPreviewPips);
-    }
-  });
-  mentorSignalPreviewPips();
-}
 async function createSignal(){
   const val=id=>{const e=document.getElementById(id);return e?(e.value||'').trim():'';};
   const pair=document.getElementById('sgPair').value;
@@ -1985,413 +1251,174 @@ async function createSignal(){
     else mentorAlert('Entry price, Stop Loss, and TP1 are required.');
     return;
   }
-
   const audArr=['free','premium','vip'];
+  if(!audArr.length)audArr.push('free');
   const isFreeOnly=audArr.length===1&&audArr[0]==='free';
-  const orderVal=((document.getElementById('sgOrderType')||{}).value)||'buy';
-  const parts=orderVal.split('_');
-  const dir=parts[0];
-  const otype=(parts.length>1)?parts[1]:'market';
-  const isPendingOrder=otype==='limit'||otype==='stop';
-
-  const obj={
-    owner_id:ME.id,is_official:true,pair:pair,direction:dir.toUpperCase(),
-    entry_price:entry,
-    stop_loss:isNaN(slv)?null:slv,
-    take_profit1:isNaN(tp1v)?null:tp1v,
+  const _otv=((document.getElementById('sgOrderType')||{}).value)||'market';
+  const _dirO=(_otv!=='market')?_otv.split('_')[0]:sigDir;
+  const _otype=(_otv!=='market')?_otv.split('_')[1]:'market';
+  const obj={owner_id:ME.id,is_official:true,pair:pair,direction:_dirO.toUpperCase(),
+    entry_price:isNaN(entry)?null:entry,
+    stop_loss:parseFloat(val('sgSL'))||null,
+    take_profit1:parseFloat(val('sgTP1'))||null,
     take_profit2:parseFloat(val('sgTP2'))||null,
     take_profit3:parseFloat(val('sgTP3'))||null,
     take_profit4:(val('sgTP4')||'').trim()||null,
     notes:val('sgNotes')||null,
     audience:audArr.join(','),
-    access_level:'free',
+    access_level:audArr.indexOf('free')>=0?'free':'vip',
     plan_name:(!isFreeOnly)?(val('sgPlan')||null):null,
-    status:isPendingOrder?'pending':'active',
-    tp_hit:0,
-    order_type:otype,
-    be_moved:false
-  };
-
+    status:'active',tp_hit:0,order_type:_otype};
   const wasEditing=Boolean(editingSigId);
   let error=null;
-
   if(wasEditing){
-    delete obj.owner_id;delete obj.is_official;
-    const original=editingSigOriginal||{};
-
-    if(m115IsFinished(original)){
-      const outcome=(document.getElementById('sgEditOutcome')||{}).value||'closed';
-      const closeRaw=val('sgClosingPrice');
-      const closePrice=closeRaw!==''?Number(closeRaw):null;
-      const overrideRaw=val('sgResultPips');
-      const manualPips=overrideRaw!==''?Number(overrideRaw):null;
-      const now=new Date().toISOString();
-
-      obj.activated_at=original.activated_at||null;
-
-      if(outcome==='active'){
-        obj.status='active';obj.tp_hit=0;obj.result_pips=null;obj.closed_at=null;obj.closing_price=null;obj.be_moved=false;
-        if(isPendingOrder && !obj.activated_at)obj.activated_at=now;
-      }else if(outcome==='pending'){
-        obj.status='pending';obj.tp_hit=0;obj.result_pips=null;obj.closed_at=null;obj.closing_price=null;obj.be_moved=false;obj.activated_at=null;
-      }else if(outcome==='tp1'||outcome==='tp2'){
-        obj.status=outcome;obj.tp_hit=outcome==='tp1'?1:2;obj.closed_at=null;obj.closing_price=null;
-        const auto=m115AutoResultFor(outcome,null);
-        obj.result_pips=Number.isFinite(manualPips)?manualPips:auto;
-      }else if(outcome==='tp3'){
-        obj.status='closed';obj.tp_hit=3;obj.closed_at=original.closed_at||now;obj.closing_price=obj.take_profit3;
-        const auto=m115AutoResultFor('tp3',null);
-        obj.result_pips=Number.isFinite(manualPips)?manualPips:auto;
-      }else if(outcome==='sl'){
-        obj.status='sl';obj.tp_hit=0;obj.closed_at=original.closed_at||now;obj.closing_price=obj.stop_loss;
-        const auto=m115AutoResultFor('sl',null);
-        obj.result_pips=Number.isFinite(manualPips)?manualPips:auto;
-      }else if(outcome==='be'){
-        obj.status='be';obj.tp_hit=0;obj.closed_at=original.closed_at||now;obj.closing_price=obj.entry_price;obj.result_pips=Number.isFinite(manualPips)?manualPips:0;
-      }else{
-        obj.status='closed';obj.tp_hit=0;obj.closed_at=original.closed_at||now;
-        obj.closing_price=Number.isFinite(closePrice)?closePrice:(original.closing_price??null);
-        const auto=Number.isFinite(closePrice)?m115AutoResultFor('closed',closePrice):null;
-        obj.result_pips=Number.isFinite(manualPips)?manualPips:(auto!==null?auto:(original.result_pips??null));
-      }
-    }else{
-      // Normal active/pending edit keeps the current lifecycle status.
-      obj.status=original.status||obj.status;
-      obj.tp_hit=original.tp_hit||0;
-      obj.be_moved=!!original.be_moved;
-      delete obj.result_pips;
-    }
-
+    delete obj.status;delete obj.tp_hit;delete obj.owner_id;delete obj.is_official;
+    const pe=document.getElementById('sgEditPips');
+    if(pe&&pe.value!==''&&!isNaN(parseFloat(pe.value)))obj.result_pips=parseFloat(pe.value);
     const r=await sb.from('signals').update(obj).eq('id',editingSigId);
     error=r.error;
   }else{
     const r=await sb.from('signals').insert(obj);
     error=r.error;
   }
-
   if(error){
     if(window.pipToast)window.pipToast('Unable to '+(wasEditing?'update':'publish')+' the signal. Please try again.','err');
     else mentorAlert('Error: '+error.message);
     return;
   }
-
   if(wasEditing){
+    cancelSigEdit();
     if(window.pipToast)window.pipToast('Signal updated successfully.','ok');
     else mentorAlert('Signal updated successfully.');
   }else{
-    const typeText=(dir.toUpperCase()+(otype!=='market'?' '+otype.toUpperCase():''));
-    if(window.pipToast)window.pipToast(isPendingOrder?'Pending order published successfully.':'Signal published successfully.','ok');
-    else mentorAlert(isPendingOrder?'Pending order published successfully.':'Signal published successfully.');
-    try{
-      await pspCreateNotificationAndPush(
-        isPendingOrder?'⏳ Pending Order Published':'📊 New Signal Published',
-        obj.pair+' '+typeText+(isPendingOrder?' is waiting for activation.':' signal is now available.'),
-        'signal','/?tab=signals',obj.audience||'all'
-      );
-    }catch(_){ }
+    if(window.pipToast)window.pipToast('Signal published successfully.','ok');
+    else mentorAlert('Signal published successfully.');
+    try{await pspCreateNotificationAndPush('📊 New Signal Published',obj.pair+' '+obj.direction+' signal is now available.','signal','/?tab=signals',obj.audience||'all');}catch(_){ }
   }
-
-  ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan','sgClosingPrice','sgResultPips'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
-  editingSigId=null;editingSigOriginal=null;
-  closeCreateSignalModal();
+  ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   loadSignals();
 }
 function pspFmtDT(t){if(!t)return '';var d=new Date(t);return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});}
 function mentorSignalRowHTML(s){
-  const st=m110StatusInfo(s);
-  const pp=m110Pips(s);
-  const typeKey=m110TypeKey(s);
-  const note=String(s.notes||'').trim();
-  const tp4=(String(s.take_profit4||'').toLowerCase()==='open')
-    ?'<span class="m110-open">Open</span>'
-    :m110Price(s.take_profit4);
-
-  return `
-    <div class="m110-signal">
-      <div class="m110-row m110-signal-main">
-        <div class="m110-cell m110-date">${m110FmtDate(s)}</div>
-        <div class="m110-cell m110-pair">${esc(s.pair||'Market')}</div>
-        <div class="m110-cell"><span class="m110-type ${typeKey}">${esc(m110TypeLabel(s))}</span></div>
-        <div class="m110-cell m110-price">${m110Price(s.entry_price)}</div>
-        <div class="m110-cell m110-price m110-sl">${m110Price(s.stop_loss)}</div>
-        <div class="m110-cell m110-price m110-tp">${m110Price(s.take_profit1)}</div>
-        <div class="m110-cell m110-price m110-tp">${m110Price(s.take_profit2)}</div>
-        <div class="m110-cell m110-price m110-tp">${m110Price(s.take_profit3)}</div>
-        <div class="m110-cell m110-price">${tp4}</div>
-        <div class="m110-cell"><span class="m110-status ${st.cls}">${esc(st.label)}</span></div>
-        <div class="m110-cell m110-pips ${pp.cls}">${esc(pp.text)}</div>
-        <div class="m110-cell">${note?`<button class="m110-mini-btn" onclick="toggleMentorSignalNote('${s.id}')">Note ▾</button>`:'—'}</div>
-        <div class="m110-cell"><button class="m110-mini-btn manage" onclick="openManageSignal('${s.id}')">Manage</button></div>
-      </div>
-      ${note?`<div id="m110-note-${s.id}" class="m110-note-row"><div class="m110-note-box">${esc(note)}</div></div>`:''}
-    </div>
-  `;
+  const buy=(s.direction||'').toUpperCase()!=='SELL';
+  const aud=(s.audience||(s.access_level==='vip'?'premium,vip':'free'));
+  const parts=aud.split(',').map(x=>x.trim()).filter(Boolean);const lbl={free:'🆓',premium:'💎',vip:'👑'};
+  const ab=parts.map(p=>'<span style="font-size:9px;padding:1px 6px;border-radius:10px;background:'+(p==='free'?'rgba(16,185,129,.18);color:#10b981':'rgba(245,158,11,.18);color:#f59e0b')+'">'+(lbl[p]||p)+'</span>').join(' ');
+  const st=(s.status||'active');const stMap={active:['● Active','#10b981'],tp1:['✅ TP1 Hit','#10b981'],tp2:['✅ TP2 Hit','#10b981'],tp3:['🏆 TP3 Hit','#10b981'],tp_hit:['✅ TP Hit','#10b981'],sl:['🛑 SL Hit','#ef4444'],sl_hit:['🛑 SL Hit','#ef4444'],be:['🔒 BE Hit','#8b5cf6'],closed:['🔒 Closed','#94a0b8']};
+  const stInfo=stMap[st]||stMap.active;
+  const pipsTxt=(s.result_pips!=null)?(' · <b style="color:'+(s.result_pips>=0?'#10b981':'#ef4444')+'">'+(s.result_pips>=0?'+':'')+s.result_pips+' pips</b>'):'';
+  const btn=(k,label,col)=>'<button onclick="updateMentorSigStatus(\''+s.id+'\',\''+k+'\')" style="padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:'+col+';color:#fff;cursor:pointer;font-size:11px;font-weight:700">'+label+'</button>';
+  return '<div style="padding:11px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between;align-items:center"><div><strong>'+esc(s.pair)+'</strong> <span style="font-size:10px;padding:1px 7px;border-radius:10px;background:'+(buy?'rgba(16,185,129,.18);color:#10b981':'rgba(239,68,68,.18);color:#ef4444')+'">'+(buy?'BUY':'SELL')+'</span>'+((s.order_type&&s.order_type!=='market')?' <span style="font-size:9px;padding:1px 6px;border-radius:10px;background:rgba(14,165,233,.18);color:#0ea5e9;font-weight:800">'+s.order_type.toUpperCase()+'</span>':'')+' '+ab+'</div><span><button onclick="editMentorSignal(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(245,158,11,.15);border:none;color:#f59e0b;cursor:pointer;margin-right:4px">✏️</button><button onclick="delSignal(\''+s.id+'\')" style="padding:4px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></span></div>'+ 
+    '<div style="font-size:12px;color:#94a0b8;margin-top:3px">Entry '+(s.entry_price||'-')+' · SL '+(s.stop_loss||'-')+' · TP1 '+(s.take_profit1||'-')+' · TP2 '+(s.take_profit2||'-')+' · TP3 '+(s.take_profit3||'-')+(s.take_profit4?(' · TP4 '+s.take_profit4):'')+'</div>'+ 
+    '<div style="font-size:12px;margin-top:5px"><span style="color:'+stInfo[1]+';font-weight:700">'+stInfo[0]+'</span>'+pipsTxt+' <span style="color:#94a0b8;font-size:11px">· 🕐 '+pspFmtDT(s.created_at)+'</span></div>'+ 
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:7px"><input id="pips-'+s.id+'" type="number" step="any" placeholder="pips" value="'+(s.result_pips!=null?s.result_pips:'')+'" style="width:80px;padding:5px 8px;border-radius:7px;border:1px solid var(--border);background:rgba(0,0,0,.22);color:var(--text);font-size:12px">'+
+    (s.be_moved?'<span style="font-size:10px;font-weight:800;padding:4px 9px;border-radius:999px;background:rgba(14,165,233,.15);color:#0ea5e9;border:1px solid rgba(14,165,233,.4)">🔒 SL @ BE</span>':'')+btn('tp1','TP1 Hit','#10b981')+btn('tp2','TP2 Hit','#10b981')+btn('tp3','TP3 Hit','#059669')+btn('be_move','SL → BE','#0ea5e9')+btn('be','BE Hit','#8b5cf6')+btn('sl','SL Hit','#ef4444')+btn('closed','Close','#64748b')+'</div></div>';
 }
 function sigCardHTML(s,canDelete){return mentorSignalRowHTML(s);}
 let mSigView='active';
 function mSigSetView(v){
   mSigView=v;
   const a=document.getElementById('mSigTabA'),h=document.getElementById('mSigTabH');
-  if(a)a.classList.toggle('active',v==='active');
-  if(h)h.classList.toggle('active',v==='history');
+  if(a&&h){
+    a.style.background=(v==='active')?'var(--gold,#f59e0b)':'transparent';a.style.color=(v==='active')?'#0a0e1a':'var(--text,#e8eaf0)';
+    h.style.background=(v==='history')?'var(--gold,#f59e0b)':'transparent';h.style.color=(v==='history')?'#0a0e1a':'var(--text,#e8eaf0)';
+  }
   loadSignals();
 }
 async function loadSignals(){
   const box=document.getElementById('sigList');if(!box)return;
-  box.className='m110-loading';
-  box.textContent='Loading signals...';
-
-  const {data,error}=await sb.from('signals').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false}).limit(100);
+  const {data,error}=await sb.from('signals').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false}).limit(60);
   window._mSigCache=data||[];
-  if(error){
-    box.className='m110-empty';
-    box.innerHTML='<span style="color:#ef4444">'+esc(error.message)+'</span>';
-    return;
-  }
-
-  const list=(data||[]).filter(function(s){
-    const st=String(s.status||'active').toLowerCase();
+  if(error){box.innerHTML='<div style="color:#ef4444">'+esc(error.message)+'</div>';return;}
+  // user panel jaisa rule: finished = SL / Closed / TP3
+  const list=(data||[]).filter(s=>{
+    const st=(s.status||'active');
     const finished=(st==='sl'||st==='sl_hit'||st==='closed'||st==='tp3'||st==='be');
-    return mSigView==='active'?!finished:finished;
+    return (mSigView==='active')?(!finished):finished;
   });
-
-  if(!list.length){
-    box.className='m110-empty';
-    box.textContent=mSigView==='active'
-      ?'No active signals right now.'
-      :'No signal history yet.';
-    return;
-  }
-
-  box.className='m110-table';
-  box.innerHTML=`
-    <div class="m110-row head">
-      <div>Date</div><div>Pair</div><div>Type</div><div>Entry</div><div>SL</div>
-      <div>TP1</div><div>TP2</div><div>TP3</div><div>TP4</div><div>Status</div>
-      <div>Pips</div><div>Note</div><div>Manage</div>
-    </div>
-    ${list.map(mentorSignalRowHTML).join('')}
-  `;
+  if(!list.length){box.innerHTML='<div style="color:#94a0b8">'+(mSigView==='active'?'No active signals right now. Check History for past results.':'No closed signals yet.')+'</div>';return;}
+  box.innerHTML=list.map(mentorSignalRowHTML).join('');
 }
 let editingSigId=null;
-let editingSigOriginal=null;
-
-function m115IsFinished(s){
-  const st=String(s?.status||'active').toLowerCase();
-  return ['sl','sl_hit','closed','tp3','be'].includes(st);
-}
-function m115OutcomeFromSignal(s){
-  const st=String(s?.status||'active').toLowerCase();
-  if(Number(s?.tp_hit||0)>=3||st==='tp3')return 'tp3';
-  if(st==='sl'||st==='sl_hit')return 'sl';
-  if(st==='be')return 'be';
-  if(st==='tp2')return 'tp2';
-  if(st==='tp1')return 'tp1';
-  if(st==='pending')return 'pending';
-  if(st==='active')return 'active';
-  return 'closed';
-}
-function m115FormSignal(){
-  const order=((document.getElementById('sgOrderType')||{}).value)||'buy';
-  const parts=order.split('_');
-  return {
-    pair:(document.getElementById('sgPair')||{}).value||'',
-    direction:String(parts[0]||'buy').toUpperCase(),
-    entry_price:Number((document.getElementById('sgEntry')||{}).value),
-    stop_loss:Number((document.getElementById('sgSL')||{}).value),
-    take_profit1:Number((document.getElementById('sgTP1')||{}).value),
-    take_profit2:Number((document.getElementById('sgTP2')||{}).value),
-    take_profit3:Number((document.getElementById('sgTP3')||{}).value)
-  };
-}
-function m115AutoResultFor(outcome,closePrice){
-  const s=m115FormSignal();
-  if(outcome==='be')return 0;
-  if(outcome==='sl')return pspSignalAutoPips(s,s.stop_loss);
-  if(outcome==='tp1')return pspSignalAutoPips(s,s.take_profit1);
-  if(outcome==='tp2')return pspSignalAutoPips(s,s.take_profit2);
-  if(outcome==='tp3')return pspSignalAutoPips(s,s.take_profit3);
-  if(outcome==='closed' && Number.isFinite(Number(closePrice)))return pspSignalAutoPips(s,Number(closePrice));
-  return null;
-}
-function m115HistoryPreview(){
-  const box=document.getElementById('m115HistoryPreview');if(!box)return;
-  const outcome=(document.getElementById('sgEditOutcome')||{}).value||'closed';
-  const closeRaw=(document.getElementById('sgClosingPrice')||{}).value;
-  const overrideRaw=(document.getElementById('sgResultPips')||{}).value;
-  const override=overrideRaw!==''?Number(overrideRaw):null;
-  const auto=m115AutoResultFor(outcome,closeRaw);
-  if(outcome==='active')box.textContent='This correction will move the signal back to Active and clear the old closed result.';
-  else if(outcome==='pending')box.textContent='This correction will move the signal back to Pending and clear the old closed result.';
-  else if(Number.isFinite(override))box.textContent='Manual result override: '+pspSignalFormatPips(override)+'.';
-  else if(auto!==null)box.textContent='Automatic corrected result: '+pspSignalFormatPips(auto)+'.';
-  else box.textContent='Enter Closing Price for a manual close, or enter Result Pips Override if needed.';
-}
 function editMentorSignal(id){
-  const sg=(window._mSigCache||[]).find(function(x){return String(x.id)===String(id);});
-  if(!sg){
-    if(window.pipToast)window.pipToast('Signal data not loaded. Refresh and try again.','err');
-    else mentorAlert('Signal data not loaded.');
-    return;
-  }
-
+  const sg=(window._mSigCache||[]).find(x=>String(x.id)===String(id));
+  if(!sg){mentorAlert('Signal load nahi hua — list refresh karke dobara try karo');return;}
   editingSigId=id;
-  editingSigOriginal=sg;
-  const modal=document.getElementById('m110SignalModal');
-  if(modal)modal.classList.add('open');
-  document.body.style.overflow='hidden';
-
-  const set=function(i,v){const e=document.getElementById(i);if(e)e.value=(v==null?'':v);};
+  const set=(i,v)=>{const e=document.getElementById(i);if(e)e.value=(v==null?'':v);};
   set('sgPair',sg.pair);set('sgEntry',sg.entry_price);set('sgSL',sg.stop_loss);
-  set('sgTP1',sg.take_profit1);set('sgTP2',sg.take_profit2);set('sgTP3',sg.take_profit3);
-  set('sgTP4',sg.take_profit4);set('sgNotes',sg.notes);set('sgPlan',sg.plan_name);
-
+  set('sgTP1',sg.take_profit1);set('sgTP2',sg.take_profit2);set('sgTP3',sg.take_profit3);set('sgTP4',sg.take_profit4);
+  set('sgNotes',sg.notes);
   const ot=document.getElementById('sgOrderType');
-  if(ot){
-    const d=String(sg.direction||'buy').toLowerCase();
-    const t=String(sg.order_type||'market').toLowerCase();
-    ot.value=t==='market'?d:(d+'_'+t);
+  if(ot){const d=(sg.direction||'buy').toLowerCase();const t=(sg.order_type||'market').toLowerCase();ot.value=(t==='market')?'market':(d+'_'+t);}
+  if(typeof setDir==='function')setDir((sg.direction||'BUY').toUpperCase()==='SELL'?'sell':'buy');
+  // pips edit field (closed signal ki pips theek karne ke liye)
+  let pe=document.getElementById('sgEditPips');
+  if(!pe){
+    const notes=document.getElementById('sgNotes');
+    pe=document.createElement('input');pe.id='sgEditPips';pe.type='number';pe.step='any';
+    pe.placeholder='Result pips (sirf edit — khali chhodo to change nahi hoga)';
+    pe.style.cssText='width:100%;padding:10px 12px;border-radius:9px;border:1px solid rgba(245,158,11,.5);background:rgba(245,158,11,.07);color:var(--text-primary,#333);font-size:13px;margin-top:8px';
+    notes.parentElement.insertBefore(pe,notes.nextSibling);
   }
-
-  const isFinished=m115IsFinished(sg);
-  const hist=document.getElementById('m115HistoryEdit');
-  if(hist)hist.style.display=isFinished?'block':'none';
-  if(isFinished){
-    const outcome=m115OutcomeFromSignal(sg);
-    const oc=document.getElementById('sgEditOutcome');if(oc)oc.value=outcome;
-    let cp=sg.closing_price;
-    if(cp==null||cp===''){
-      if(outcome==='tp3')cp=sg.take_profit3;
-      else if(outcome==='sl')cp=sg.stop_loss;
-      else if(outcome==='be')cp=sg.entry_price;
-    }
-    set('sgClosingPrice',cp);
-    set('sgResultPips','');
-  }
-
-  const title=document.getElementById('m110SignalTitle');
-  const sub=document.getElementById('m110SignalSub');
-  const btn=document.getElementById('sgPostBtn');
-  if(title)title.textContent=isFinished?'Edit History Signal':'Edit Signal';
-  if(sub)sub.textContent=isFinished?'Full correction mode — change levels, result, or reopen this signal.':'Update signal levels or mentor note.';
-  if(btn)btn.textContent='💾 Update Signal';
-
-  bindMentorAutoPipsPreview();
-  mentorSignalPreviewPips();
-  if(isFinished)m115HistoryPreview();
+  pe.style.display='block';pe.value=(sg.result_pips!=null?sg.result_pips:'');
+  const b=document.getElementById('sgPostBtn')||document.querySelector('#pg-signals button[onclick*="createSignal"]');
+  if(b){b.textContent='💾 Update Signal';b.dataset.editing='1';}
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(window.pipToast)window.pipToast('Edit mode enabled. Update the signal after making your changes.');
 }
 function cancelSigEdit(){
   editingSigId=null;
-  editingSigOriginal=null;
-  closeCreateSignalModal();
-  const btn=document.getElementById('sgPostBtn');
-  if(btn)btn.textContent='🚀 Publish Signal';
+  const pe=document.getElementById('sgEditPips');if(pe)pe.style.display='none';
+  const b=document.querySelector('#pg-signals button[onclick*="createSignal"]');
+  if(b){b.textContent='🚀 Publish Official Signal';}
 }
 async function updateMentorSigStatus(id,kind){
-  const signal=(window._mSigCache||[]).find(function(x){return String(x.id)===String(id);});
-  if(!signal){
-    if(window.pipToast)window.pipToast('Signal data not loaded. Refresh and try again.','err');
-    else mentorAlert('Signal data not loaded. Refresh and try again.');
-    return;
-  }
-
-  let obj={};
-  let autoPips=null;
-  const now=new Date().toISOString();
-
-  if(kind==='activate'){
-    obj={status:'active',activated_at:now,closed_at:null,closing_price:null,result_pips:null,tp_hit:0,be_moved:false};
-  }else if(kind==='be_move'){
+  const pi=document.getElementById('pips-'+id);const pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;
+  let obj={};const terminal=['tp3','be','sl','closed'].includes(kind);
+  if(kind==='be_move'){
     obj={be_moved:true};
-  }else if(kind==='closed'){
-    const raw=window.prompt('Enter closing price for '+(signal.pair||'this signal')+':','');
-    if(raw===null)return;
-    const closePrice=Number(String(raw).trim());
-    if(!Number.isFinite(closePrice)){
-      if(window.pipToast)window.pipToast('Please enter a valid closing price.','err');
-      else mentorAlert('Please enter a valid closing price.');
-      return;
-    }
-    autoPips=pspSignalAutoPips(signal,closePrice);
-    if(autoPips===null){
-      if(window.pipToast)window.pipToast('Unable to calculate pips for this signal.','err');
-      else mentorAlert('Unable to calculate pips for this signal.');
-      return;
-    }
-    obj={status:'closed',closed_at:now,closing_price:closePrice,result_pips:autoPips};
+  }else if(kind==='tp1'||kind==='tp2'){
+    obj={status:kind,tp_hit:kind==='tp1'?1:2};
+    if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
   }else{
-    const target=pspSignalTargetForAction(signal,kind);
-    if(kind==='be')autoPips=0;
-    else autoPips=pspSignalAutoPips(signal,target);
-
-    if(autoPips===null){
-      if(window.pipToast)window.pipToast('This signal does not have a valid '+kind.toUpperCase()+' price.','err');
-      else mentorAlert('This signal does not have a valid '+kind.toUpperCase()+' price.');
-      return;
-    }
-
-    if(kind==='tp1'||kind==='tp2'){
-      obj={status:kind,tp_hit:kind==='tp1'?1:2,result_pips:autoPips};
-    }else if(kind==='tp3'){
-      // V115: TP3 is a finished trade. Main lifecycle status is CLOSED.
-      obj={status:'closed',tp_hit:3,closed_at:now,closing_price:signal.take_profit3,result_pips:autoPips};
-    }else if(kind==='sl'){
-      obj={status:'sl',closed_at:now,closing_price:signal.stop_loss,result_pips:autoPips};
-    }else if(kind==='be'){
-      obj={status:'be',closed_at:now,closing_price:signal.entry_price,result_pips:0};
-    }
+    obj={status:kind,closed_at:new Date().toISOString()};
+    if(kind==='tp3')obj.tp_hit=3;
+    if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
   }
-
   const {error}=await sb.from('signals').update(obj).eq('id',id);
   if(error){
     if(window.pipToast)window.pipToast('Unable to update the signal status. Please try again.','err');
     else mentorAlert('Error: '+error.message);
     return;
   }
-
-  const pipSuffix=(autoPips!==null)?(' · '+pspSignalFormatPips(autoPips)):'';
-  const typeText=m110TypeLabel(signal);
   const successMessages={
-    activate:typeText+' is Active Now. Users have been notified.',
-    tp1:'TP1 hit — '+pspSignalFormatPips(autoPips)+' calculated automatically.',
-    tp2:'TP2 hit — '+pspSignalFormatPips(autoPips)+' calculated automatically.',
-    tp3:'TP3 hit — signal Closed · '+pspSignalFormatPips(autoPips)+'.',
+    tp1:'TP1 hit — status updated successfully.',
+    tp2:'TP2 hit — status updated successfully.',
+    tp3:'TP3 hit — status updated successfully.',
     be_move:'Stop loss moved to breakeven successfully.',
-    be:'Breakeven hit — 0 pips.',
-    sl:'Stop loss hit — '+pspSignalFormatPips(autoPips)+' calculated automatically.',
-    closed:'Signal closed — '+pspSignalFormatPips(autoPips)+' calculated automatically.'
+    be:'Breakeven hit — signal closed.',
+    sl:'Stop loss hit — signal closed.',
+    closed:'Signal closed successfully.'
   };
-
+  const pushData={
+    tp1:['✅ TP1 Hit','TP1 hit — status updated successfully.'],
+    tp2:['✅ TP2 Hit','TP2 hit — status updated successfully.'],
+    tp3:['🏆 TP3 Hit','TP3 hit — signal closed.'],
+    be_move:['🔒 Stop Loss at Breakeven','Move your Stop Loss to the entry price.'],
+    be:['🔒 Breakeven Hit','Breakeven hit — signal closed.'],
+    sl:['🛑 Stop Loss Hit','Stop loss hit — signal closed.'],
+    closed:['🔒 Signal Closed','Signal closed successfully.']
+  };
   const msg=successMessages[kind]||'Signal status updated successfully.';
   if(window.pipToast)window.pipToast(msg,'ok');else mentorAlert(msg);
-
   try{
-    if(kind==='activate'){
-      await pspCreateNotificationAndPush(
-        '⚡ '+typeText+' ACTIVE NOW',
-        (signal.pair||'Signal')+' '+typeText+' is active now.',
-        'signal','/?tab=signals',signal.audience||'all'
-      );
-    }else{
-      const pushData={
-        tp1:['✅ TP1 Hit','TP1 hit'+pipSuffix],
-        tp2:['✅ TP2 Hit','TP2 hit'+pipSuffix],
-        tp3:['🏆 TP3 Hit','TP3 hit — signal closed'+pipSuffix],
-        be_move:['🔒 Stop Loss at Breakeven','Move your Stop Loss to the entry price.'],
-        be:['🔒 Breakeven Hit','Breakeven hit — signal closed · 0 pips'],
-        sl:['🛑 Stop Loss Hit','Stop loss hit — signal closed'+pipSuffix],
-        closed:['🔒 Signal Closed','Signal closed'+pipSuffix]
-      };
-      const pd=pushData[kind];
-      if(pd)await pspCreateNotificationAndPush(pd[0],pd[1],'signal','/?tab=signals',signal.audience||'all');
-    }
+    const pd=pushData[kind];
+    if(pd)await pspCreateNotificationAndPush(pd[0],pd[1],'signal','/?tab=signals','all');
   }catch(_){ }
-
-  closeManageSignalModal();
   loadSignals();
 }
 async function setSigStatus(id,st){await sb.from('signals').update({status:st}).eq('id',id);loadSignals();}
-async function delSignal(id,confirmed){if(!confirmed&&!(await mentorConfirm('Delete this signal?')))return;const r=await sb.from('signals').delete().eq('id',id);if(r.error){if(window.pipToast)window.pipToast('Unable to delete the signal. Please try again.','err');else mentorAlert('Error: '+r.error.message);return;}if(window.pipToast)window.pipToast('Signal deleted successfully.','ok');else mentorAlert('Signal deleted successfully.');loadSignals();}
+async function delSignal(id){if(!(await mentorConfirm('Delete this signal?')))return;const r=await sb.from('signals').delete().eq('id',id);if(r.error){if(window.pipToast)window.pipToast('Unable to delete the signal. Please try again.','err');else mentorAlert('Error: '+r.error.message);return;}if(window.pipToast)window.pipToast('Signal deleted successfully.','ok');else mentorAlert('Signal deleted successfully.');loadSignals();}
 
 /* ============ ADMIN SIGNALS ============ */
 let adF='all';
@@ -2417,157 +1444,153 @@ async function loadAdminSignals(){
   box.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">'+list.map(s=>sigCardHTML(s,false)).join('')+'</div>';
 }
 
-/* ============ CHARTS (dropdown + upload) ============ */
+/* ============ CHARTS — V134 PREMIUM RESEARCH HUB ============ */
+let mentorEditingChartId=null;
+let mentorChartsData=[];
+
 function renderCharts(){
-  const el=document.getElementById('pg-charts');
-  el.innerHTML=`<div class="grid" style="grid-template-columns:1fr 1.2fr">
-    <div class="card"><div class="card-title">📈 New Chart Analysis</div>
-      <div style="display:grid;gap:11px;margin-top:12px">
-        <select class="inp" id="chPair">${pairOptions()}</select>
-        <input class="inp" id="chTitle" placeholder="Title e.g. XAU 4H breakout">
-        <input class="inp" id="chFile" type="file" accept="image/png,image/jpeg,image/jpg">
-        <textarea class="inp" id="chNotes" rows="3" placeholder="Analysis notes"></textarea>
-        <button class="btn" id="chBtn" onclick="createChart()">📊 Publish Chart</button>
-        <p class="muted" style="font-size:11.5px">Upload a chart image (PNG/JPG). Requires a public "charts" bucket in Supabase Storage.</p>
-      </div></div>
-    <div class="card"><div class="card-title">🖼️ Your Charts</div><div id="chList" style="margin-top:12px"><div class="list-empty">Loading...</div></div></div>
-  </div>`;
+  const el=document.getElementById('pg-charts');if(!el)return;
+  el.innerHTML=`
+    <div class="psp-rh-shell">
+      <section class="psp-rh-hero"><div class="psp-rh-hero-row">
+        <div><div class="psp-rh-kicker">PipSePaisa • VIP Research Desk</div><h2 class="psp-rh-title">Professional Chart Analysis</h2><p class="psp-rh-sub">Publish, review and manage high-quality market analysis from one focused research workspace.</p><div class="psp-rh-vip">◆ Premium Research Workspace</div></div>
+        <button class="psp-rh-primary" onclick="openChartEditor()">+ New Chart Analysis</button>
+      </div></section>
+      <div class="psp-rh-toolbar">
+        <input class="psp-rh-field psp-rh-search" id="rhChartSearch" placeholder="Search chart analysis..." oninput="applyChartFilters()">
+        <select class="psp-rh-field" id="rhChartPair" onchange="applyChartFilters()"><option value="all">All Pairs</option></select>
+        <select class="psp-rh-field" id="rhChartSort" onchange="applyChartFilters()"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select>
+      </div>
+      <div id="chList" class="psp-rh-grid"><div class="psp-rh-empty">Loading professional chart analysis...</div></div>
+    </div>
+    <div class="psp-rh-modal" id="chartEditorModal" onclick="if(event.target===this)closeChartEditor()"><div class="psp-rh-dialog">
+      <div class="psp-rh-dialog-head"><div><h3 id="chartEditorTitle">New Chart Analysis</h3><p>Create a professional market-analysis card for the research hub.</p></div><button class="psp-rh-close" onclick="closeChartEditor()">×</button></div>
+      <div class="psp-rh-form">
+        <div class="psp-rh-form-grid"><label class="psp-rh-label">Pair<select class="psp-rh-select" id="chPair">${pairOptions()}</select></label><label class="psp-rh-label">Analysis Title<input class="psp-rh-input" id="chTitle" placeholder="e.g. AUDUSD H1 — Key Buying Zones"></label></div>
+        <label class="psp-rh-label">Chart Image<div class="psp-rh-upload"><input class="psp-rh-input" id="chFile" type="file" accept="image/png,image/jpeg,image/jpg" onchange="previewMentorChartFile(this)"><div class="psp-rh-upload-preview" id="chPreview"></div></div></label>
+        <label class="psp-rh-label">Analysis Notes<textarea class="psp-rh-textarea" id="chNotes" placeholder="Explain the setup, key zones, confirmation and market context..."></textarea></label>
+      </div>
+      <div class="psp-rh-modal-foot"><button class="psp-rh-secondary" onclick="closeChartEditor()">Cancel</button><button class="psp-rh-primary" id="chBtn" onclick="saveMentorChart()">Publish Analysis</button></div>
+    </div></div>
+    <div class="psp-rh-modal" id="chartPreviewModal" onclick="if(event.target===this)closeChartPreview()"><div class="psp-rh-dialog wide">
+      <div class="psp-rh-dialog-head"><div><h3 id="chartPreviewTitle">Chart Analysis</h3><p id="chartPreviewMeta"></p></div><button class="psp-rh-close" onclick="closeChartPreview()">×</button></div>
+      <div class="psp-rh-form" id="chartPreviewBody"></div>
+    </div></div>`;
   loadCharts();
 }
-async function createChart(){
-  const btn=document.getElementById('chBtn');btn.disabled=true;btn.textContent='⏳ Saving...';
+function openChartEditor(id=null){
+  mentorEditingChartId=id||null;const row=id?mentorChartsData.find(x=>String(x.id)===String(id)):null;
+  document.getElementById('chartEditorTitle').textContent=row?'Edit Chart Analysis':'New Chart Analysis';
+  if(row?.pair)document.getElementById('chPair').value=row.pair;
+  document.getElementById('chTitle').value=row?.title||'';document.getElementById('chNotes').value=row?.notes||'';document.getElementById('chFile').value='';
+  document.getElementById('chPreview').innerHTML=row?.image_url?`<img src="${esc(row.image_url)}" alt="Current chart">`:'';
+  document.getElementById('chBtn').textContent=row?'Save Changes':'Publish Analysis';document.getElementById('chartEditorModal').classList.add('open');
+}
+function closeChartEditor(){document.getElementById('chartEditorModal')?.classList.remove('open');mentorEditingChartId=null;}
+function previewMentorChartFile(inp){const file=inp.files&&inp.files[0],box=document.getElementById('chPreview');if(!box)return;if(!file){box.innerHTML='';return;}box.innerHTML=`<img src="${URL.createObjectURL(file)}" alt="Chart preview">`;}
+async function saveMentorChart(){
+  const btn=document.getElementById('chBtn');if(!btn)return;const editing=mentorEditingChartId;btn.disabled=true;btn.textContent='Saving...';
   try{
-    const pair=document.getElementById('chPair').value;const title=document.getElementById('chTitle').value.trim();
-    let image_url='';
-    const file=document.getElementById('chFile').files[0];
-    if(!title){mentorAlert('Title is required');btn.disabled=false;btn.textContent='📊 Publish Chart';return;}
-    if(file){
-      const path=ME.id+'/'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9.]/g,'');
-      const {error:upErr}=await sb.storage.from('charts').upload(path,file,{upsert:true});
-      if(upErr){mentorAlert('Upload failed — create a public "charts" bucket in Supabase Storage: '+upErr.message);btn.disabled=false;btn.textContent='📊 Publish Chart';return;}
-      image_url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
-    }
-    const chAud=['free','premium','vip'];
-    if(!chAud.length)chAud.push('free');
-    const {error}=await sb.from('charts').insert({owner_id:ME.id,is_official:false,pair,title,image_url,audience:chAud.join(','),notes:document.getElementById('chNotes').value.trim()||null});
-    if(error){mentorAlert('Error: '+error.message);}
-    else{document.getElementById('chTitle').value='';document.getElementById('chFile').value='';document.getElementById('chNotes').value='';loadCharts();}
-  }catch(e){mentorAlert(e.message);}
-  btn.disabled=false;btn.textContent='📊 Publish Chart';
+    const pair=document.getElementById('chPair').value,title=document.getElementById('chTitle').value.trim(),notes=document.getElementById('chNotes').value.trim()||null;
+    if(!title){mentorAlert('Title is required');return;}
+    const current=editing?mentorChartsData.find(x=>String(x.id)===String(editing)):null;let image_url=current?.image_url||'';const file=document.getElementById('chFile').files[0];
+    if(file){const path=ME.id+'/'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9.]/g,'');const up=await sb.storage.from('charts').upload(path,file,{upsert:true});if(up.error){mentorAlert('Upload failed: '+up.error.message);return;}image_url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}
+    if(!image_url){mentorAlert('Please upload a chart image.');return;}
+    const payload={pair,title,image_url,notes,audience:'free,premium,vip'};
+    const result=editing?await sb.from('charts').update(payload).eq('id',editing):await sb.from('charts').insert({...payload,owner_id:ME.id,is_official:false});
+    if(result.error){mentorAlert('Error: '+result.error.message);return;}
+    closeChartEditor();if(window.pipToast)window.pipToast(editing?'Chart updated successfully.':'Chart published successfully.','ok');await loadCharts();
+  }catch(e){mentorAlert(e.message);}finally{btn.disabled=false;btn.textContent='Publish Analysis';}
 }
 async function loadCharts(){
-  const box=document.getElementById('chList');if(!box)return;
+  const box=document.getElementById('chList');if(!box)return;box.innerHTML='<div class="psp-rh-empty">Loading professional chart analysis...</div>';
   const {data,error}=await sb.from('charts').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false});
-  if(error){box.innerHTML=`<div class="list-empty" style="color:var(--red)">${esc(error.message)}</div>`;return;}
-  if(!data||!data.length){box.innerHTML='<div class="list-empty">No charts yet.</div>';return;}
-  box.innerHTML='<div style="display:grid;gap:12px">'+data.map(c=>{return `<div class="sigc"><div class="top"><div class="pair">${esc(c.title)} <span class="muted" style="font-size:12px">${esc(c.pair||'')}</span></div><button class="del" onclick="delChart('${c.id}')">🗑️</button></div><div class="muted" style="font-size:11.5px;margin:2px 0 4px">🕐 ${pspFmtDT(c.created_at)}</div>${c.image_url?`<img src="${esc(c.image_url)}" style="width:100%;border-radius:10px;margin:4px 0">`:''}${c.notes?`<div class="muted" style="font-size:13px">${esc(c.notes)}</div>`:''}</div>`;}).join('')+'</div>';
+  if(error){box.innerHTML=`<div class="psp-rh-empty" style="color:var(--red)">${esc(error.message)}</div>`;return;}mentorChartsData=data||[];hydrateChartFilters();applyChartFilters();
 }
-async function delChart(id){if(!(await mentorConfirm('Delete chart?')))return;await sb.from('charts').delete().eq('id',id);loadCharts();}
+function hydrateChartFilters(){const s=document.getElementById('rhChartPair');if(!s)return;const cur=s.value||'all',pairs=[...new Set(mentorChartsData.map(x=>String(x.pair||'').trim()).filter(Boolean))].sort();s.innerHTML='<option value="all">All Pairs</option>'+pairs.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');if([...s.options].some(o=>o.value===cur))s.value=cur;}
+function applyChartFilters(){
+  const q=String(document.getElementById('rhChartSearch')?.value||'').toLowerCase().trim(),pair=document.getElementById('rhChartPair')?.value||'all',sort=document.getElementById('rhChartSort')?.value||'newest';
+  let list=mentorChartsData.filter(c=>{const hay=[c.title,c.pair,c.notes].join(' ').toLowerCase();return(!q||hay.includes(q))&&(pair==='all'||String(c.pair||'')===pair);});
+  list.sort((a,b)=>{const av=new Date(a.created_at||0).getTime(),bv=new Date(b.created_at||0).getTime();return sort==='oldest'?av-bv:bv-av;});renderChartCards(list);
+}
+function renderChartCards(list){
+  const box=document.getElementById('chList');if(!box)return;if(!list.length){box.innerHTML='<div class="psp-rh-empty">No chart analysis matches this filter.</div>';return;}
+  box.innerHTML=list.map(c=>`<article class="psp-rh-card"><div class="psp-rh-media">${c.image_url?`<img src="${esc(c.image_url)}" alt="${esc(c.title||'Chart Analysis')}">`:`<div class="psp-rh-media-empty">MARKET ANALYSIS</div>`}<span class="psp-rh-media-badge">VIP RESEARCH</span></div><div class="psp-rh-body"><div class="psp-rh-meta"><span class="psp-rh-chip">${esc(c.pair||'Market')}</span><span>${c.created_at?pspFmtDT(c.created_at):''}</span></div><h3 class="psp-rh-card-title">${esc(c.title||'Chart Analysis')}</h3><div class="psp-rh-snippet">${esc(c.notes||'Professional market chart analysis.')}</div><div class="psp-rh-actions"><button class="psp-rh-action" onclick="openChartPreview('${c.id}')">View</button><button class="psp-rh-action" onclick="openChartEditor('${c.id}')">Edit</button><button class="psp-rh-action icon danger" onclick="delChart('${c.id}')">🗑</button></div></div></article>`).join('');
+}
+function openChartPreview(id){const c=mentorChartsData.find(x=>String(x.id)===String(id));if(!c)return;document.getElementById('chartPreviewTitle').textContent=c.title||'Chart Analysis';document.getElementById('chartPreviewMeta').textContent=(c.pair||'Market')+' • '+(c.created_at?pspFmtDT(c.created_at):'');document.getElementById('chartPreviewBody').innerHTML=`${c.image_url?`<img class="psp-rh-preview-img" src="${esc(c.image_url)}" alt="${esc(c.title||'Chart')}">`:''}<div class="psp-rh-preview-copy">${esc(c.notes||'No analysis notes added.').replace(/\n/g,'<br>')}</div>`;document.getElementById('chartPreviewModal').classList.add('open');}
+function closeChartPreview(){document.getElementById('chartPreviewModal')?.classList.remove('open');}
+async function delChart(id){if(!(await mentorConfirm('Delete this chart analysis?')))return;const r=await sb.from('charts').delete().eq('id',id);if(r.error){mentorAlert('Error: '+r.error.message);return;}if(window.pipToast)window.pipToast('Chart analysis deleted.','ok');await loadCharts();}
 
 
-/* ============ MENTOR ARTICLES ============ */
+/* ============ MENTOR ARTICLES — V134 PREMIUM RESEARCH HUB ============ */
 let mentorEditingArticleId=null;
+let mentorArticlesData=[];
+
 function renderMentorArticles(){
-  const el=document.getElementById('pg-articles');
-  if(!el)return;
+  const el=document.getElementById('pg-articles');if(!el)return;
   el.innerHTML=`
-    <div class="card">
-      <div class="card-title">📝 Create Article</div>
-      <div style="display:grid;gap:12px;margin-top:14px;max-width:640px">
-        <input id="maTitle" class="inp" type="text" placeholder="Article title">
-        <select id="maCategory" class="inp">
-          <option value="analysis">Analysis</option>
-          <option value="strategy">Strategy</option>
-          <option value="education">Education</option>
-        </select>
-        <input id="maImage" class="inp" type="text" placeholder="Image URL (optional)">
-        <input id="maFile" class="inp" type="file" accept="image/*" onchange="mentorArticleUpload(this)">
-        <div id="maPreview"></div>
-        <textarea id="maContent" class="inp" rows="7" placeholder="Content in English..." style="resize:vertical;font-family:inherit"></textarea>
-        <textarea id="maContentUr" class="inp" rows="7" placeholder="Content in Roman Urdu... (optional)" style="resize:vertical;font-family:inherit"></textarea>
-        <button class="btn" id="maBtn" onclick="createMentorArticle()">➕ Create Article</button>
+    <div class="psp-rh-shell">
+      <section class="psp-rh-hero"><div class="psp-rh-hero-row">
+        <div><div class="psp-rh-kicker">PipSePaisa • VIP Research Desk</div><h2 class="psp-rh-title">Professional Articles & Insights</h2><p class="psp-rh-sub">Create structured educational research, strategy notes and market insights in a premium editorial workspace.</p><div class="psp-rh-vip">◆ Premium Editorial Workspace</div></div>
+        <button class="psp-rh-primary" onclick="openArticleEditor()">+ New Article</button>
+      </div></section>
+      <div class="psp-rh-toolbar psp-rh-article-toolbar">
+        <input class="psp-rh-field psp-rh-search" id="rhArticleSearch" placeholder="Search articles..." oninput="applyArticleFilters()">
+        <select class="psp-rh-field" id="rhArticleCategory" onchange="applyArticleFilters()"><option value="all">All Categories</option><option value="analysis">Analysis</option><option value="strategy">Strategy</option><option value="education">Education</option></select>
+        <select class="psp-rh-field" id="rhArticleStatus" onchange="applyArticleFilters()"><option value="all">All Status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+        <select class="psp-rh-field" id="rhArticleSort" onchange="applyArticleFilters()"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select>
       </div>
+      <div id="maList" class="psp-rh-grid"><div class="psp-rh-empty">Loading professional articles...</div></div>
     </div>
-    <div class="card" style="margin-top:18px">
-      <div class="card-title">📚 All Articles</div>
-      <div id="maList" style="margin-top:10px">Loading...</div>
-    </div>`;
+    <div class="psp-rh-modal" id="articleEditorModal" onclick="if(event.target===this)closeArticleEditor()"><div class="psp-rh-dialog wide">
+      <div class="psp-rh-dialog-head"><div><h3 id="articleEditorTitle">New Article</h3><p>Build a polished research article for the PipSePaisa content hub.</p></div><button class="psp-rh-close" onclick="closeArticleEditor()">×</button></div>
+      <div class="psp-rh-form">
+        <div class="psp-rh-form-grid"><label class="psp-rh-label">Title<input id="maTitle" class="psp-rh-input" type="text" placeholder="e.g. Why Gold Reacts to US Yields"></label><label class="psp-rh-label">Category<select id="maCategory" class="psp-rh-select"><option value="analysis">Analysis</option><option value="strategy">Strategy</option><option value="education">Education</option></select></label></div>
+        <div class="psp-rh-form-grid"><label class="psp-rh-label">Publication Status<select id="maStatus" class="psp-rh-select"><option value="published">Published</option><option value="draft">Draft</option></select></label><label class="psp-rh-label">Image URL<input id="maImage" class="psp-rh-input" type="text" placeholder="Optional image URL"></label></div>
+        <label class="psp-rh-label">Cover Image<div class="psp-rh-upload"><input id="maFile" class="psp-rh-input" type="file" accept="image/*" onchange="mentorArticleUpload(this)"><div id="maPreview" class="psp-rh-upload-preview"></div></div></label>
+        <label class="psp-rh-label">English Content<textarea id="maContent" class="psp-rh-textarea" rows="8" placeholder="Write the main article content..."></textarea></label>
+        <label class="psp-rh-label">Roman Urdu Content (Optional)<textarea id="maContentUr" class="psp-rh-textarea" rows="6" placeholder="Optional Roman Urdu version..."></textarea></label>
+      </div>
+      <div class="psp-rh-modal-foot"><button class="psp-rh-secondary" onclick="closeArticleEditor()">Cancel</button><button class="psp-rh-primary" id="maBtn" onclick="createMentorArticle()">Publish Article</button></div>
+    </div></div>
+    <div class="psp-rh-modal" id="articlePreviewModal" onclick="if(event.target===this)closeArticlePreview()"><div class="psp-rh-dialog wide">
+      <div class="psp-rh-dialog-head"><div><h3 id="articlePreviewTitle">Article</h3><p id="articlePreviewMeta"></p></div><button class="psp-rh-close" onclick="closeArticlePreview()">×</button></div>
+      <div class="psp-rh-form" id="articlePreviewBody"></div>
+    </div></div>`;
   loadMentorArticles();
 }
+function openArticleEditor(id=null){
+  mentorEditingArticleId=id||null;const a=id?mentorArticlesData.find(x=>String(x.id)===String(id)):null;
+  document.getElementById('articleEditorTitle').textContent=a?'Edit Article':'New Article';document.getElementById('maTitle').value=a?.title||'';document.getElementById('maCategory').value=a?.category||'education';document.getElementById('maStatus').value=a?.is_published===false?'draft':'published';document.getElementById('maImage').value=a?.image_url||'';document.getElementById('maContent').value=a?.content||'';document.getElementById('maContentUr').value=a?.content_ur||'';document.getElementById('maFile').value='';document.getElementById('maPreview').innerHTML=a?.image_url?`<img src="${esc(a.image_url)}" alt="Current article image">`:'';document.getElementById('maBtn').textContent=a?'Save Changes':'Publish Article';document.getElementById('articleEditorModal').classList.add('open');
+}
+function closeArticleEditor(){document.getElementById('articleEditorModal')?.classList.remove('open');mentorEditingArticleId=null;}
 async function mentorArticleUpload(inp){
-  const file=inp.files&&inp.files[0]; if(!file||!sb)return;
-  const prev=document.getElementById('maPreview'); if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--muted)">Uploading...</span>';
-  try{
-    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
-    const {data:{user}}=await sb.auth.getUser();
-    if(!user){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">Upload failed: Please sign in again.</span>';return;}
-    const path=user.id+'/articles/mentor_'+Date.now()+'.'+ext;
-    const up=await sb.storage.from('charts').upload(path,file,{upsert:false,contentType:file.type||undefined});
-    if(up.error){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">Upload failed: '+up.error.message+'</span>';return;}
-    const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;
-    document.getElementById('maImage').value=url;
-    if(prev)prev.innerHTML='<img src="'+url+'" style="max-width:180px;border-radius:10px;border:1px solid var(--border)">';
-  }catch(e){if(prev)prev.innerHTML='<span style="font-size:12px;color:var(--red)">'+e.message+'</span>';}
+  const file=inp.files&&inp.files[0];if(!file||!sb)return;const prev=document.getElementById('maPreview');if(prev)prev.innerHTML='<span style="font-size:9px;color:var(--muted)">Uploading...</span>';
+  try{const ext=(file.name.split('.').pop()||'jpg').toLowerCase(),u=await sb.auth.getUser(),user=u?.data?.user;if(!user){if(prev)prev.innerHTML='<span style="font-size:9px;color:var(--red)">Please sign in again.</span>';return;}const path=user.id+'/articles/mentor_'+Date.now()+'.'+ext;const up=await sb.storage.from('charts').upload(path,file,{upsert:false,contentType:file.type||undefined});if(up.error){if(prev)prev.innerHTML='<span style="font-size:9px;color:var(--red)">Upload failed: '+esc(up.error.message)+'</span>';return;}const url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;document.getElementById('maImage').value=url;if(prev)prev.innerHTML='<img src="'+esc(url)+'" alt="Article image preview">';}catch(e){if(prev)prev.innerHTML='<span style="font-size:9px;color:var(--red)">'+esc(e.message)+'</span>';}
 }
 async function createMentorArticle(){
-  if(!sb){mentorAlert('Supabase not connected');return;}
-  const btn=document.getElementById('maBtn'); if(btn){btn.disabled=true;btn.textContent=mentorEditingArticleId?'⏳ Updating...':'⏳ Saving...';}
-  try{
-    const type='single';
-    const category=document.getElementById('maCategory').value;
-    const title=document.getElementById('maTitle').value.trim();
-    const image_url=document.getElementById('maImage').value.trim();
-    const content=document.getElementById('maContent').value.trim();
-    const content_ur=(document.getElementById('maContentUr')||{value:''}).value.trim()||null;
-    const is_published=true;
-    if(!title){mentorAlert('Title is required');if(btn){btn.disabled=false;btn.textContent=mentorEditingArticleId?'💾 Update Article':'➕ Create Article';}return;}
-    if(mentorEditingArticleId){
-      const {error}=await sb.from('articles').update({type,title,category,image_url,content,content_ur,is_published}).eq('id',mentorEditingArticleId);
-      if(error){mentorAlert('Error: '+error.message);return;}
-      mentorEditingArticleId=null;
-    }else{
-      const {error}=await sb.from('articles').insert({type,title,category,image_url,content,content_ur,is_published,is_official:true,author_id:ME.id});
-      if(error){mentorAlert('Error: '+error.message);return;}
-    }
-    document.getElementById('maTitle').value='';document.getElementById('maImage').value='';document.getElementById('maContent').value='';var mcu=document.getElementById('maContentUr');if(mcu)mcu.value='';
-    const f=document.getElementById('maFile');if(f)f.value='';const p=document.getElementById('maPreview');if(p)p.innerHTML='';
-    if(btn)btn.textContent='➕ Create Article';
-    loadMentorArticles();
-  }catch(e){mentorAlert(e.message)}
-  if(btn){btn.disabled=false;btn.textContent=mentorEditingArticleId?'💾 Update Article':'➕ Create Article';}
+  if(!sb){mentorAlert('Supabase not connected');return;}const btn=document.getElementById('maBtn');if(!btn)return;const editing=mentorEditingArticleId;btn.disabled=true;btn.textContent='Saving...';
+  try{const title=document.getElementById('maTitle').value.trim();if(!title){mentorAlert('Title is required');return;}const payload={type:'single',title,category:document.getElementById('maCategory').value,image_url:document.getElementById('maImage').value.trim(),content:document.getElementById('maContent').value.trim(),content_ur:document.getElementById('maContentUr').value.trim()||null,is_published:document.getElementById('maStatus').value==='published'};const result=editing?await sb.from('articles').update(payload).eq('id',editing):await sb.from('articles').insert({...payload,is_official:true,author_id:ME.id});if(result.error){mentorAlert('Error: '+result.error.message);return;}closeArticleEditor();if(window.pipToast)window.pipToast(editing?'Article updated successfully.':'Article saved successfully.','ok');await loadMentorArticles();}catch(e){mentorAlert(e.message);}finally{btn.disabled=false;btn.textContent='Publish Article';}
 }
-async function loadMentorArticles(){
-  const box=document.getElementById('maList');if(!box)return;
-  box.innerHTML='<div style="padding:16px;color:var(--muted)">Loading...</div>';
-  const {data,error}=await sb.from('articles').select('*').order('created_at',{ascending:false});
-  if(error){box.innerHTML='<div style="padding:16px;color:var(--red)">Error: '+esc(error.message)+'</div>';return;}
-  if(!data||!data.length){box.innerHTML='<div style="padding:16px;color:var(--muted)">No articles yet. Create one above.</div>';return;}
-  box.innerHTML=data.map(a=>`<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border)"><div style="font-size:20px">📝</div><div style="flex:1;min-width:0"><div style="font-weight:700">${esc(a.title||'(untitled)')}</div><div style="font-size:12px;color:var(--muted)">${esc(a.category||'education')} · ${a.is_published?'<span style="color:var(--green)">Published</span>':'<span style="color:var(--gold)">Draft</span>'} · ${a.created_at?pspFmtDT(a.created_at):''}</div></div><button class="action-btn" title="${a.is_published?'Unpublish':'Publish'}" onclick="toggleMentorArticle('${a.id}',${a.is_published?'true':'false'})">${a.is_published?'🙈':'🌐'}</button><button class="action-btn" title="Edit" onclick="editMentorArticle('${a.id}')">✏️</button><button class="action-btn delete" title="Delete" onclick="delMentorArticle('${a.id}')">🗑️</button></div>`).join('');
+async function loadMentorArticles(){const box=document.getElementById('maList');if(!box)return;box.innerHTML='<div class="psp-rh-empty">Loading professional articles...</div>';const {data,error}=await sb.from('articles').select('*').order('created_at',{ascending:false});if(error){box.innerHTML='<div class="psp-rh-empty" style="color:var(--red)">Error: '+esc(error.message)+'</div>';return;}mentorArticlesData=data||[];applyArticleFilters();}
+function applyArticleFilters(){
+  const q=String(document.getElementById('rhArticleSearch')?.value||'').toLowerCase().trim(),category=document.getElementById('rhArticleCategory')?.value||'all',status=document.getElementById('rhArticleStatus')?.value||'all',sort=document.getElementById('rhArticleSort')?.value||'newest';
+  let list=mentorArticlesData.filter(a=>{const hay=[a.title,a.category,a.content,a.content_ur].join(' ').toLowerCase(),statusOk=status==='all'||(status==='published'?a.is_published!==false:a.is_published===false);return(!q||hay.includes(q))&&(category==='all'||String(a.category||'')===category)&&statusOk;});
+  list.sort((a,b)=>{const av=new Date(a.created_at||0).getTime(),bv=new Date(b.created_at||0).getTime();return sort==='oldest'?av-bv:bv-av;});renderArticleCards(list);
 }
-async function editMentorArticle(id){
-  const {data,error}=await sb.from('articles').select('*').eq('id',id).single();
-  if(error||!data){mentorAlert('Could not load article');return;}
-  if(document.getElementById('maCategory'))document.getElementById('maCategory').value=data.category||'education';
-  document.getElementById('maTitle').value=data.title||'';
-  document.getElementById('maImage').value=data.image_url||'';
-  document.getElementById('maContent').value=data.content||'';
-  var _mcu=document.getElementById('maContentUr');if(_mcu)_mcu.value=data.content_ur||'';
-  
-  mentorEditingArticleId=id;
-  const b=document.getElementById('maBtn');if(b)b.textContent='💾 Update Article';
-  window.scrollTo(0,0);
+function renderArticleCards(list){
+  const box=document.getElementById('maList');if(!box)return;if(!list.length){box.innerHTML='<div class="psp-rh-empty">No articles match this filter.</div>';return;}
+  box.innerHTML=list.map(a=>`<article class="psp-rh-card"><div class="psp-rh-media">${a.image_url?`<img src="${esc(a.image_url)}" alt="${esc(a.title||'Article')}">`:`<div class="psp-rh-media-empty">PIPSEPAISA RESEARCH</div>`}<span class="psp-rh-media-badge">${esc(String(a.category||'education').toUpperCase())}</span></div><div class="psp-rh-body"><div class="psp-rh-meta"><span class="psp-rh-status ${a.is_published===false?'draft':'published'}">${a.is_published===false?'Draft':'Published'}</span><span>${a.created_at?pspFmtDT(a.created_at):''}</span></div><h3 class="psp-rh-card-title">${esc(a.title||'(untitled)')}</h3><div class="psp-rh-snippet">${esc(a.content||a.content_ur||'Professional PipSePaisa research article.')}</div><div class="psp-rh-actions"><button class="psp-rh-action" onclick="openArticlePreview('${a.id}')">View</button><button class="psp-rh-action" onclick="openArticleEditor('${a.id}')">Edit</button><button class="psp-rh-action icon" onclick="toggleMentorArticle('${a.id}',${a.is_published===false?'false':'true'})">${a.is_published===false?'🌐':'◐'}</button><button class="psp-rh-action icon danger" onclick="delMentorArticle('${a.id}')">🗑</button></div></div></article>`).join('');
 }
-async function toggleMentorArticle(id,pub){
-  const {error}=await sb.from('articles').update({is_published:!pub}).eq('id',id);
-  if(error){mentorAlert('Error: '+error.message);return;}
-  loadMentorArticles();
+function openArticlePreview(id){
+  const a=mentorArticlesData.find(x=>String(x.id)===String(id));if(!a)return;document.getElementById('articlePreviewTitle').textContent=a.title||'Article';document.getElementById('articlePreviewMeta').textContent=(a.category||'education')+' • '+(a.is_published===false?'Draft':'Published')+' • '+(a.created_at?pspFmtDT(a.created_at):'');
+  const en=esc(a.content||'').replace(/\n/g,'<br>'),ur=esc(a.content_ur||'').replace(/\n/g,'<br>');
+  document.getElementById('articlePreviewBody').innerHTML=`${a.image_url?`<img class="psp-rh-preview-img" src="${esc(a.image_url)}" alt="${esc(a.title||'Article')}">`:''}<div class="psp-rh-preview-copy">${en||'<span class="muted">No English content.</span>'}</div>${ur?`<div style="border-top:1px solid var(--border);padding-top:12px"><div class="psp-rh-kicker" style="color:#b86400;margin-bottom:8px">Roman Urdu</div><div class="psp-rh-preview-copy">${ur}</div></div>`:''}`;document.getElementById('articlePreviewModal').classList.add('open');
 }
-async function delMentorArticle(id){
-  if(!(await mentorConfirm('Delete this article?')))return;
-  const {error}=await sb.from('articles').delete().eq('id',id);
-  if(error){mentorAlert('Error: '+error.message);return;}
-  loadMentorArticles();
-}
+function closeArticlePreview(){document.getElementById('articlePreviewModal')?.classList.remove('open');}
+async function editMentorArticle(id){openArticleEditor(id);}
+async function toggleMentorArticle(id,pub){const {error}=await sb.from('articles').update({is_published:!pub}).eq('id',id);if(error){mentorAlert('Error: '+error.message);return;}if(window.pipToast)window.pipToast(pub?'Article moved to draft.':'Article published.','ok');await loadMentorArticles();}
+async function delMentorArticle(id){if(!(await mentorConfirm('Delete this article?')))return;const {error}=await sb.from('articles').delete().eq('id',id);if(error){mentorAlert('Error: '+error.message);return;}if(window.pipToast)window.pipToast('Article deleted.','ok');await loadMentorArticles();}
 
 
 /* ============ MENTOR BANNERS ============ */
