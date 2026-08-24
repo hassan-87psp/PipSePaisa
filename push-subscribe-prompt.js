@@ -17,14 +17,48 @@ let subscriptionListenerAttached=false;
 
 
 const PSP_PUSH_SUBSCRIBED_KEY="psp_push_subscribed_v108";
+const PSP_PUSH_PERMANENT_KEY="psp_push_subscribed_v139_permanent";
+
+/*
+  V139 rule:
+  Successful subscription is sticky on this browser/device.
+  Temporary SDK/network/service-worker checks must NEVER turn a subscribed user
+  back into "not subscribed" or recreate the Subscribe prompt.
+*/
 function rememberSubscribed(active){
   try{
-    if(active)localStorage.setItem(PSP_PUSH_SUBSCRIBED_KEY,"1");
-    else localStorage.removeItem(PSP_PUSH_SUBSCRIBED_KEY);
+    if(active){
+      localStorage.setItem(PSP_PUSH_SUBSCRIBED_KEY,"1");
+      localStorage.setItem(PSP_PUSH_PERMANENT_KEY,"1");
+      window.__PIPSEPAISA_PUSH_SUBSCRIBED__=true;
+      try{window.dispatchEvent(new CustomEvent("psp:push-subscribed",{detail:{active:true}}));}catch(_){ }
+    }
   }catch(_){ }
 }
 function rememberedSubscribed(){
-  try{return localStorage.getItem(PSP_PUSH_SUBSCRIBED_KEY)==="1";}catch(_){return false;}
+  try{
+    return localStorage.getItem(PSP_PUSH_PERMANENT_KEY)==="1" ||
+           localStorage.getItem(PSP_PUSH_SUBSCRIBED_KEY)==="1";
+  }catch(_){return !!window.__PIPSEPAISA_PUSH_SUBSCRIBED__;}
+}
+function migrateSubscribedFlag(){
+  if(rememberedSubscribed())rememberSubscribed(true);
+}
+
+async function removeCompetingPwaWorker(){
+  if(!("serviceWorker" in navigator))return;
+  try{
+    const regs=await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map(async function(reg){
+      try{
+        const worker=reg.active||reg.waiting||reg.installing;
+        const url=String(worker&&worker.scriptURL||"");
+        if(/\/pwa-sw\.js(?:$|\?)/i.test(url)){
+          await reg.unregister();
+        }
+      }catch(_){ }
+    }));
+  }catch(_){ }
 }
 
 function secure(){
@@ -157,6 +191,7 @@ async function oneSignal(){
   if(initPromise)return initPromise;
 
   initPromise=(async function(){
+    await removeCompetingPwaWorker();
     await loadSdk();
 
     const os=await withTimeout(new Promise(function(resolve,reject){
@@ -214,6 +249,118 @@ async function realSubscriptionActive(){
   }
 }
 
+async function silentlyRepairSubscription(){
+  if(!rememberedSubscribed())return;
+  if(!("Notification" in window) || Notification.permission!=="granted")return;
+
+  try{
+    const os=await oneSignal();
+    let state=readPushState(os);
+    if(state.optedIn&&state.id){
+      rememberSubscribed(true);
+      return;
+    }
+
+    const push=os&&os.User&&os.User.PushSubscription;
+    if(push&&typeof push.optIn==="function"){
+      try{await withTimeout(Promise.resolve(push.optIn()),12000,"Silent subscription repair timed out.");}
+      catch(_){ }
+    }
+
+    state=await waitForActiveSubscription(os);
+    if(state.optedIn&&state.id)rememberSubscribed(true);
+  }catch(error){
+    /*
+      Deliberately do nothing:
+      a temporary network/SDK/service-worker problem is NOT an unsubscribe.
+      The permanent local subscribed state remains intact.
+    */
+    console.warn("PipSePaisa silent notification repair deferred:",error);
+  }
+}
+
+async function subscribeCurrentDevice(){
+  if(rememberedSubscribed()){
+    removePrompt();
+    return {ok:true,state:"on",message:"Notifications are already active."};
+  }
+
+  if(!("Notification" in window)){
+    return {ok:false,state:"unsupported",message:"Notifications are not supported in this browser."};
+  }
+
+  if(Notification.permission==="denied"){
+    return {ok:false,state:"blocked",message:"Notifications are blocked in your browser settings."};
+  }
+
+  if(starting){
+    return {ok:false,state:"busy",message:"Notification setup is already in progress."};
+  }
+
+  starting=true;
+  try{
+    const os=await oneSignal();
+    let state=readPushState(os);
+
+    if(state.optedIn&&state.id){
+      rememberSubscribed(true);
+      removePrompt();
+      return {ok:true,state:"on",message:"Notifications are already active."};
+    }
+
+    if(Notification.permission!=="granted"){
+      await withTimeout(
+        Promise.resolve(os.Notifications.requestPermission()),
+        25000,
+        "Notification permission request timed out."
+      );
+    }
+
+    if(Notification.permission!=="granted"){
+      return {
+        ok:false,
+        state:Notification.permission==="denied"?"blocked":"off",
+        message:"Notification permission was not allowed."
+      };
+    }
+
+    const subscription=os&&os.User&&os.User.PushSubscription;
+    if(subscription&&typeof subscription.optIn==="function"){
+      await withTimeout(
+        Promise.resolve(subscription.optIn()),
+        12000,
+        "Device registration took too long."
+      );
+    }
+
+    state=await waitForActiveSubscription(os);
+    if(!(state.optedIn&&state.id)){
+      return {
+        ok:false,
+        state:"pending",
+        message:"Device registration is still pending. Please try again in a moment."
+      };
+    }
+
+    rememberSubscribed(true);
+    removePrompt();
+    return {ok:true,state:"on",message:"Notifications are now active."};
+  }catch(error){
+    console.warn("PipSePaisa notification subscribe error:",error);
+    return {ok:false,state:"error",message:userMessage(error)};
+  }finally{
+    starting=false;
+  }
+}
+
+window.pspPushGetState=function(){
+  if(rememberedSubscribed())return "on";
+  if(!("Notification" in window))return "unsupported";
+  if(Notification.permission==="denied")return "blocked";
+  return "off";
+};
+window.pspPushSubscribe=subscribeCurrentDevice;
+
 function userMessage(error){
   const raw=String(error&&error.message?error.message:error||"");
   const lower=raw.toLowerCase();
@@ -230,6 +377,7 @@ function userMessage(error){
 }
 
 function showPrompt(){
+  if(rememberedSubscribed())return;
   if(document.getElementById("pspNotifyInstallBar"))return;
 
   hidePwa();
@@ -259,72 +407,29 @@ function showPrompt(){
     const btn=this;
     const copy=bar.querySelector(".psp-notify-copy span");
 
-    if(!("Notification" in window)){
-      copy.textContent="Notifications are not supported in this browser.";
-      btn.textContent="Not supported";
-      return;
-    }
-
-    if(Notification.permission==="denied"){
-      copy.textContent="Chrome Settings → Site settings → Notifications → Allow";
-      btn.textContent="Blocked";
-      return;
-    }
-
-    if(starting)return;
-    starting=true;
     btn.disabled=true;
     btn.textContent="Subscribing...";
     copy.textContent="Connecting this device securely…";
 
-    try{
-      const os=await oneSignal();
-      let state=readPushState(os);
-      if(state.optedIn&&state.id){
-        rememberSubscribed(true);
-        btn.textContent="Subscribed ✓";
-        copy.textContent="Notifications are already enabled on this device.";
-        setTimeout(removePrompt,700);
-        return;
-      }
+    const result=await subscribeCurrentDevice();
 
-      if(Notification.permission!=="granted"){
-        await withTimeout(
-          Promise.resolve(os.Notifications.requestPermission()),
-          25000,
-          "Notification permission request timed out."
-        );
-      }
-
-      if(Notification.permission!=="granted"){
-        throw new Error("Notification permission was not allowed.");
-      }
-
-      const push=os&&os.User&&os.User.PushSubscription;
-      if(push&&typeof push.optIn==="function"){
-        await withTimeout(
-          Promise.resolve(push.optIn()),
-          12000,
-          "Device registration took too long."
-        );
-      }
-
-      state=await waitForActiveSubscription(os);
-      if(!(state.optedIn&&state.id)){
-        throw new Error("Device registration is still pending. Tap Try again in a moment.");
-      }
-
-      rememberSubscribed(true);
+    if(result.ok){
       btn.textContent="Subscribed ✓";
       copy.textContent="Notifications are now enabled on this device.";
-      setTimeout(removePrompt,900);
-    }catch(error){
-      console.warn("PipSePaisa notification subscribe error:",error);
-      btn.disabled=false;
+      setTimeout(removePrompt,700);
+      return;
+    }
+
+    btn.disabled=false;
+    if(result.state==="blocked"){
+      btn.textContent="Blocked";
+      copy.textContent="Chrome Settings → Site settings → Notifications → Allow";
+    }else if(result.state==="unsupported"){
+      btn.textContent="Not supported";
+      copy.textContent=result.message;
+    }else{
       btn.textContent="Try again";
-      copy.textContent=userMessage(error);
-    }finally{
-      starting=false;
+      copy.textContent=result.message||"Could not enable notifications. Please try again.";
     }
   });
 }
@@ -332,45 +437,62 @@ function showPrompt(){
 async function start(){
   if(!secure())return;
 
+  migrateSubscribedFlag();
+
   /*
-    V108:
-    If this device already subscribed, do not create/show the prompt at all.
-    This prevents the old 1.2s flash on every refresh.
+    PERMANENT SUBSCRIBER UX:
+    Once this browser/device has completed a real OneSignal subscription,
+    never recreate the bottom Subscribe prompt again.
+    We only attempt a silent background repair.
   */
-  if("Notification" in window && Notification.permission==="granted" && rememberedSubscribed()){
-    // Trust the persisted successful subscription immediately for UX.
-    // Verify silently in the background; if it was revoked, allow the prompt next time.
-    setTimeout(async function(){
-      try{
-        const active=await realSubscriptionActive();
-        if(active)rememberSubscribed(true);
-        else rememberSubscribed(false);
-      }catch(_){ }
-    },1200);
+  if(rememberedSubscribed()){
+    removePrompt();
+    setTimeout(function(){silentlyRepairSubscription();},900);
     return;
   }
 
-  // For users who subscribed before V108 (no local flag yet), check OneSignal FIRST.
-  // Only show the prompt after we know the device is not actively subscribed.
-  try{
-    const active=await realSubscriptionActive();
-    if(active){
-      rememberSubscribed(true);
-      removePrompt();
+  /*
+    Existing subscriber from before the permanent marker:
+    if browser permission is granted, verify/repair silently first.
+    A temporary OneSignal failure must NOT cause a false Subscribe prompt.
+  */
+  if("Notification" in window && Notification.permission==="granted"){
+    try{
+      const active=await realSubscriptionActive();
+      if(active){
+        rememberSubscribed(true);
+        removePrompt();
+        return;
+      }
+
+      // Permission is already granted but OneSignal state is missing.
+      // Try to repair without showing the user a misleading "not subscribed" state.
+      try{
+        const os=await oneSignal();
+        const p=os&&os.User&&os.User.PushSubscription;
+        if(p&&typeof p.optIn==="function"){
+          await withTimeout(Promise.resolve(p.optIn()),12000,"Subscription repair timed out.");
+          const repaired=await waitForActiveSubscription(os);
+          if(repaired.optedIn&&repaired.id){
+            rememberSubscribed(true);
+            removePrompt();
+            return;
+          }
+        }
+      }catch(_){ }
+
+      // Do not flash the Subscribe prompt when permission is already granted.
+      // Retry on a later visit instead.
+      return;
+    }catch(error){
+      console.warn("OneSignal initial state check deferred:",error);
       return;
     }
-  }catch(error){
-    console.warn("OneSignal initial state check failed:",error);
   }
 
-  // If permission was revoked/denied, any old remembered state is no longer valid.
-  if("Notification" in window && Notification.permission!=="granted"){
-    rememberSubscribed(false);
-  }
-
+  // Only never-subscribed browsers reach the prompt.
   setTimeout(showPrompt,350);
 }
-
 if(document.readyState==="loading"){
   document.addEventListener("DOMContentLoaded",start,{once:true});
 }else{
