@@ -19,6 +19,40 @@ let subscriptionListenerAttached=false;
 const PSP_PUSH_SUBSCRIBED_KEY="psp_push_subscribed_v108";
 const PSP_PUSH_PERMANENT_KEY="psp_push_subscribed_v139_permanent";
 
+function pspIosInfo(){
+  const ua=String(navigator.userAgent||"");
+  const platform=String(navigator.platform||"");
+  const isIpadDesktop=platform==="MacIntel" && Number(navigator.maxTouchPoints||0)>1;
+  const isIOS=/iPhone|iPad|iPod/i.test(ua)||isIpadDesktop;
+  const standalone=window.navigator.standalone===true ||
+    (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  let major=0,minor=0;
+  const m=ua.match(/OS (\d+)[_\.](\d+)/i);
+  if(m){major=parseInt(m[1]||"0",10)||0;minor=parseInt(m[2]||"0",10)||0;}
+  const supportsHomeScreenPush = major>16 || (major===16 && minor>=4) || major===0;
+  return {isIOS,standalone,major,minor,supportsHomeScreenPush};
+}
+
+function iosInstallMessage(){
+  const info=pspIosInfo();
+  if(!info.supportsHomeScreenPush){
+    return "iPhone notifications require iOS 16.4 or later. Update iOS, then add PipSePaisa to your Home Screen.";
+  }
+  return "On iPhone: tap Share → Add to Home Screen, then open PipSePaisa from the new Home Screen icon and enable notifications there.";
+}
+
+function pushCapabilityState(){
+  if(rememberedSubscribed())return "on";
+  const info=pspIosInfo();
+  if(info.isIOS && !info.standalone)return "ios-install";
+  if(!("Notification" in window)){
+    if(info.isIOS)return info.supportsHomeScreenPush?"ios-install":"ios-update";
+    return "unsupported";
+  }
+  if(Notification.permission==="denied")return "blocked";
+  return "off";
+}
+
 /*
   V139 rule:
   Successful subscription is sticky on this browser/device.
@@ -285,7 +319,11 @@ async function subscribeCurrentDevice(){
     return {ok:true,state:"on",message:"Notifications are already active."};
   }
 
-  if(!("Notification" in window)){
+  const capability=pushCapabilityState();
+  if(capability==="ios-install" || capability==="ios-update") {
+    return {ok:false,state:capability,message:iosInstallMessage()};
+  }
+  if(capability==="unsupported") {
     return {ok:false,state:"unsupported",message:"Notifications are not supported in this browser."};
   }
 
@@ -353,12 +391,8 @@ async function subscribeCurrentDevice(){
   }
 }
 
-window.pspPushGetState=function(){
-  if(rememberedSubscribed())return "on";
-  if(!("Notification" in window))return "unsupported";
-  if(Notification.permission==="denied")return "blocked";
-  return "off";
-};
+window.pspPushGetState=pushCapabilityState;
+window.pspPushIosInfo=pspIosInfo;
 window.pspPushSubscribe=subscribeCurrentDevice;
 
 function userMessage(error){
@@ -384,15 +418,17 @@ function showPrompt(){
 
   const bar=document.createElement("div");
   bar.id="pspNotifyInstallBar";
+  const capability=pushCapabilityState();
+  const iosNeedsInstall=capability==="ios-install" || capability==="ios-update";
   bar.innerHTML=`
     <div class="psp-notify-icon">
-      <img src="icon-192.png" alt="PipSePaisa">
+      <img src="/icon-192.png" alt="PipSePaisa">
     </div>
     <div class="psp-notify-copy">
-      <strong>Subscribe for Notifications</strong>
-      <span>Receive instant trading signals, TP/SL updates and important alerts.</span>
+      <strong>${iosNeedsInstall?"Enable iPhone Notifications":"Subscribe for Notifications"}</strong>
+      <span>${iosNeedsInstall?iosInstallMessage():"Receive instant trading signals, TP/SL updates and important alerts."}</span>
     </div>
-    <button type="button" class="psp-notify-enable">Subscribe</button>
+    <button type="button" class="psp-notify-enable">${iosNeedsInstall?(capability==="ios-update"?"Update iOS":"iPhone Steps"):"Subscribe"}</button>
     <button type="button" class="psp-notify-later">Not now</button>
   `;
 
@@ -424,6 +460,9 @@ function showPrompt(){
     if(result.state==="blocked"){
       btn.textContent="Blocked";
       copy.textContent="Chrome Settings → Site settings → Notifications → Allow";
+    }else if(result.state==="ios-install" || result.state==="ios-update"){
+      btn.textContent=result.state==="ios-update"?"Update iOS":"Install App";
+      copy.textContent=result.message;
     }else if(result.state==="unsupported"){
       btn.textContent="Not supported";
       copy.textContent=result.message;
@@ -434,10 +473,79 @@ function showPrompt(){
   });
 }
 
+
+function installIosNotificationCenterFix(){
+  const originalState=window.pspNotificationUiState;
+  if(typeof originalState==="function" && !originalState.__pspIosWrapped){
+    const wrapped=function(){
+      const state=pushCapabilityState();
+      if(state==="ios-install" || state==="ios-update")return state;
+      return originalState();
+    };
+    wrapped.__pspIosWrapped=true;
+    window.pspNotificationUiState=wrapped;
+  }
+
+  const originalRefresh=window.refreshPspNotificationUi;
+  if(typeof originalRefresh==="function" && !originalRefresh.__pspIosWrapped){
+    const wrappedRefresh=function(){
+      const state=pushCapabilityState();
+      if(state!=="ios-install" && state!=="ios-update")return originalRefresh();
+      const navText=document.getElementById("pspNotifySidebarText");
+      const title=document.getElementById("pspNotifyStatusTitle");
+      const copy=document.getElementById("pspNotifyStatusCopy");
+      const nav=document.getElementById("pspNotifySidebarNav");
+      const badge=document.getElementById("pspNotifySidebarBadge");
+      const dot=document.getElementById("pspNotifyStatusDot");
+      const pill=document.getElementById("pspNotifyStatusPill");
+      const action=document.getElementById("pspNotifyCenterAction");
+      const error=document.getElementById("pspNotifyCenterError");
+      const blocked=document.getElementById("pspNotifyBlockedHelp");
+      if(nav)nav.classList.remove("is-on","is-blocked");
+      if(navText)navText.textContent=state==="ios-update"?"Update iOS for Alerts":"Install App for Alerts";
+      if(badge)badge.textContent=state==="ios-update"?"UPDATE":"INSTALL";
+      if(dot)dot.className="psp-notify-status-dot";
+      if(title)title.textContent=state==="ios-update"?"Update iPhone to enable notifications":"Install PipSePaisa on iPhone";
+      if(copy)copy.textContent=iosInstallMessage();
+      if(pill){pill.className="psp-notify-status-pill";pill.textContent=state==="ios-update"?"UPDATE IOS":"INSTALL APP";}
+      if(action){
+        action.disabled=false;
+        action.className="psp-notify-center-btn primary";
+        action.textContent=state==="ios-update"?"How to Enable":"Show iPhone Steps";
+      }
+      if(error){error.classList.remove("show");error.textContent="";}
+      if(blocked)blocked.classList.remove("show");
+    };
+    wrappedRefresh.__pspIosWrapped=true;
+    window.refreshPspNotificationUi=wrappedRefresh;
+  }
+
+  const originalEnable=window.enablePspNotificationsFromSidebar;
+  if(typeof originalEnable==="function" && !originalEnable.__pspIosWrapped){
+    const wrappedEnable=async function(){
+      const state=pushCapabilityState();
+      if(state==="ios-install" || state==="ios-update"){
+        const error=document.getElementById("pspNotifyCenterError");
+        if(error){
+          error.textContent=iosInstallMessage();
+          error.classList.add("show");
+        }else{
+          alert(iosInstallMessage());
+        }
+        return;
+      }
+      return originalEnable.apply(this,arguments);
+    };
+    wrappedEnable.__pspIosWrapped=true;
+    window.enablePspNotificationsFromSidebar=wrappedEnable;
+  }
+}
+
 async function start(){
   if(!secure())return;
 
   migrateSubscribedFlag();
+  installIosNotificationCenterFix();
 
   /*
     PERMANENT SUBSCRIBER UX:
