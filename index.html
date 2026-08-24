@@ -1139,6 +1139,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </nav>
     
     <div class="sidebar-footer">
+      <div class="menu-item psp-install-app-nav" id="pwaSidebarInstall" onclick="installPipSePaisaApp()" role="button" tabindex="0" title="Install PipSePaisa App">
+        <span class="menu-icon">⬇️</span>
+        <strong id="pwaSidebarInstallText">Install App</strong>
+        <span class="psp-install-new-badge" id="pwaSidebarInstallBadge">NEW</span>
+      </div>
       <div class="menu-item" data-page="about" onclick="showPage('about', this)"><span class="menu-icon">ℹ️</span>About</div>
       <div class="menu-item" data-page="announce" onclick="showPage('announce', this)"><span class="menu-icon">📢</span>Announcements</div>
       <div class="menu-item" data-page="support" onclick="showPage('support', this)"><span class="menu-icon">💬</span>Support</div>
@@ -3107,41 +3112,309 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </script>
 
 
-<!-- PWA Install Banner -->
-<div id="pwaInstallBanner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--bg-card);border:1px solid var(--gold);border-radius:14px;padding:14px 20px;box-shadow:0 8px 30px rgba(0,0,0,0.4);display:none;align-items:center;gap:14px;max-width:340px;width:90%">
-  <div style="width:44px;height:44px;border-radius:10px;overflow:hidden;flex-shrink:0"><img src="icon-192.png" style="width:100%;height:100%;object-fit:cover"></div>
-  <div style="flex:1">
-    <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Install PipSePaisa App</div>
-    <div style="font-size:11px;color:var(--text-muted)">Add to home screen for quick access</div>
+<!-- Smart PWA Install Experience — V138 -->
+<style id="pspSmartInstallStyles">
+.psp-install-app-nav{
+  position:relative;
+  margin-bottom:7px;
+  background:linear-gradient(135deg,rgba(251,146,1,.15),rgba(251,146,1,.045))!important;
+  border:1px solid rgba(251,146,1,.32)!important;
+  color:var(--text-primary)!important;
+}
+.psp-install-app-nav:hover{
+  border-color:var(--gold)!important;
+  background:linear-gradient(135deg,rgba(251,146,1,.22),rgba(251,146,1,.07))!important;
+}
+.psp-install-new-badge{
+  margin-left:auto;
+  font-size:7px;
+  line-height:1;
+  padding:4px 6px;
+  border-radius:999px;
+  background:var(--gold);
+  color:#121212;
+  font-weight:900;
+  letter-spacing:.03em;
+}
+#pwaInstallBanner{
+  display:none;
+  position:fixed;
+  left:50%;
+  bottom:20px;
+  transform:translateX(-50%);
+  z-index:10020;
+  width:min(390px,calc(100vw - 24px));
+  box-sizing:border-box;
+  align-items:center;
+  gap:12px;
+  padding:13px;
+  border:1px solid rgba(251,146,1,.38);
+  border-radius:15px;
+  background:#fffdf8;
+  color:#101827;
+  box-shadow:0 18px 52px rgba(15,23,42,.22);
+}
+#pwaInstallBanner .pwa-install-logo{
+  width:43px;height:43px;border-radius:10px;overflow:hidden;flex:0 0 43px;
+  border:1px solid rgba(251,146,1,.24);background:#fff;
+}
+#pwaInstallBanner .pwa-install-logo img{width:100%;height:100%;object-fit:cover}
+#pwaInstallBanner .pwa-install-copy{min-width:0;flex:1}
+#pwaInstallBanner .pwa-install-title{font-size:12px;font-weight:900;color:#111827}
+#pwaInstallBanner .pwa-install-sub{margin-top:2px;font-size:9px;line-height:1.35;color:#758196}
+#pwaInstallBanner .pwa-install-actions{display:flex;gap:5px;flex-direction:column}
+.psp-pwa-primary,.psp-pwa-secondary{
+  border:0;border-radius:8px;padding:7px 10px;white-space:nowrap;
+  font-family:inherit;font-size:9px;font-weight:900;cursor:pointer;
+}
+.psp-pwa-primary{background:#FB9201;color:#111}
+.psp-pwa-secondary{background:transparent;color:#788397}
+
+.psp-install-guide{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:10030;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  background:rgba(7,15,27,.65);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.psp-install-guide.open{display:flex}
+.psp-install-guide-card{
+  width:min(430px,100%);
+  overflow:hidden;
+  border:1px solid rgba(251,146,1,.28);
+  border-radius:18px;
+  background:#fffdf8;
+  color:#111827;
+  box-shadow:0 28px 80px rgba(0,0,0,.3);
+}
+.psp-install-guide-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  padding:16px 16px 13px;border-bottom:1px solid #eee2d1;
+}
+.psp-install-guide-brand{display:flex;align-items:center;gap:10px}
+.psp-install-guide-icon{
+  width:42px;height:42px;border-radius:10px;overflow:hidden;
+  border:1px solid rgba(251,146,1,.25);background:#fff;
+}
+.psp-install-guide-icon img{width:100%;height:100%;object-fit:cover}
+.psp-install-guide-head h3{margin:1px 0 2px;font-size:14px;line-height:1.2}
+.psp-install-guide-head p{margin:0;font-size:9px;color:#7a8698}
+.psp-install-guide-close{
+  width:30px;height:30px;border:0;border-radius:8px;background:#f7f0e6;
+  color:#647084;font-size:17px;font-weight:900;cursor:pointer;
+}
+.psp-install-guide-body{padding:14px 16px 16px}
+.psp-install-guide-note{
+  padding:9px 10px;border-radius:10px;background:rgba(251,146,1,.08);
+  border:1px solid rgba(251,146,1,.16);font-size:9px;line-height:1.45;color:#5d6572;
+  margin-bottom:10px;
+}
+.psp-install-step{
+  display:grid;grid-template-columns:28px 1fr;gap:9px;align-items:start;
+  padding:9px 0;border-bottom:1px solid #f1e7da;
+}
+.psp-install-step:last-child{border-bottom:0}
+.psp-install-step-num{
+  width:25px;height:25px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:#0b1730;color:#fff;font-size:9px;font-weight:900;
+}
+.psp-install-step strong{display:block;font-size:10px;margin:1px 0 2px}
+.psp-install-step span{display:block;font-size:9px;line-height:1.4;color:#788397}
+.psp-install-guide-foot{display:flex;justify-content:flex-end;padding:0 16px 16px}
+.psp-install-guide-done{
+  border:0;background:#FB9201;color:#111;border-radius:9px;padding:9px 14px;
+  font-size:9px;font-weight:900;font-family:inherit;cursor:pointer;
+}
+
+[data-theme="dark"] #pwaInstallBanner,
+[data-theme="dark"] .psp-install-guide-card,
+html.dark #pwaInstallBanner,
+html.dark .psp-install-guide-card,
+body.dark #pwaInstallBanner,
+body.dark .psp-install-guide-card{
+  background:#101a2a;color:#f4f7fb;border-color:#33435a;
+}
+[data-theme="dark"] #pwaInstallBanner .pwa-install-title,
+[data-theme="dark"] .psp-install-guide-head h3,
+html.dark #pwaInstallBanner .pwa-install-title,
+html.dark .psp-install-guide-head h3{color:#f4f7fb}
+[data-theme="dark"] .psp-install-guide-head{border-color:#2a394e}
+[data-theme="dark"] .psp-install-guide-close{background:#172338;color:#d5dfed}
+[data-theme="dark"] .psp-install-step{border-color:#26364b}
+[data-theme="dark"] .psp-install-guide-note{color:#c5d0df}
+
+@media(max-width:600px){
+  #pwaInstallBanner{bottom:12px}
+  .psp-install-guide{padding:10px}
+}
+</style>
+
+<div id="pwaInstallBanner" aria-live="polite">
+  <div class="pwa-install-logo"><img src="icon-192.png" alt="PipSePaisa"></div>
+  <div class="pwa-install-copy">
+    <div class="pwa-install-title">Install PipSePaisa App</div>
+    <div class="pwa-install-sub">Get faster access from your Home Screen.</div>
   </div>
-  <div style="display:flex;flex-direction:column;gap:6px">
-    <button id="pwaInstallBtn" style="background:var(--gold);border:none;color:#0a0e1a;padding:7px 14px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">Install</button>
-    <button onclick="document.getElementById('pwaInstallBanner').style.display='none'" style="background:transparent;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;font-family:inherit">Not now</button>
+  <div class="pwa-install-actions">
+    <button class="psp-pwa-primary" onclick="installPipSePaisaApp()">Install</button>
+    <button class="psp-pwa-secondary" onclick="dismissPwaInstallBanner()">Not now</button>
   </div>
 </div>
 
-<script>
-// PWA install prompt — caches and service workers are preserved for fast, stable navigation.
-// PWA Install Prompt
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
+<div class="psp-install-guide" id="pwaInstallGuide" onclick="if(event.target===this)closePwaInstallGuide()">
+  <div class="psp-install-guide-card" role="dialog" aria-modal="true" aria-labelledby="pwaGuideTitle">
+    <div class="psp-install-guide-head">
+      <div class="psp-install-guide-brand">
+        <div class="psp-install-guide-icon"><img src="icon-192.png" alt="PipSePaisa"></div>
+        <div>
+          <h3 id="pwaGuideTitle">Install PipSePaisa App</h3>
+          <p id="pwaGuideSubtitle">Add PipSePaisa to your Home Screen.</p>
+        </div>
+      </div>
+      <button class="psp-install-guide-close" onclick="closePwaInstallGuide()" aria-label="Close">×</button>
+    </div>
+    <div class="psp-install-guide-body">
+      <div class="psp-install-guide-note" id="pwaGuideNote"></div>
+      <div id="pwaGuideSteps"></div>
+    </div>
+    <div class="psp-install-guide-foot">
+      <button class="psp-install-guide-done" onclick="closePwaInstallGuide()">Got it</button>
+    </div>
+  </div>
+</div>
+
+<script id="pspSmartPwaInstall">
+let pspDeferredInstallPrompt=null;
+const PSP_PWA_DISMISS_KEY='psp_pwa_install_dismissed_at';
+const PSP_PWA_DISMISS_MS=7*24*60*60*1000;
+
+function pspIsIos(){
+  const ua=navigator.userAgent||'';
+  return /iPad|iPhone|iPod/i.test(ua) ||
+    (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+}
+function pspIsStandalone(){
+  return window.matchMedia?.('(display-mode: standalone)').matches ||
+    window.navigator.standalone===true;
+}
+function pspPwaDismissedRecently(){
+  try{
+    const ts=Number(localStorage.getItem(PSP_PWA_DISMISS_KEY)||0);
+    return ts && (Date.now()-ts)<PSP_PWA_DISMISS_MS;
+  }catch(e){return false;}
+}
+function pspUpdateInstallUi(){
+  const nav=document.getElementById('pwaSidebarInstall');
+  const banner=document.getElementById('pwaInstallBanner');
+  if(pspIsStandalone()){
+    if(nav)nav.style.display='none';
+    if(banner)banner.style.display='none';
+    return;
+  }
+  if(nav)nav.style.display='';
+}
+function dismissPwaInstallBanner(){
+  const banner=document.getElementById('pwaInstallBanner');
+  if(banner)banner.style.display='none';
+  try{localStorage.setItem(PSP_PWA_DISMISS_KEY,String(Date.now()));}catch(e){}
+}
+function pspShowNativeInstallBanner(){
+  if(pspIsStandalone() || pspIsIos() || pspPwaDismissedRecently())return;
+  const banner=document.getElementById('pwaInstallBanner');
+  if(banner && pspDeferredInstallPrompt)banner.style.display='flex';
+}
+function closePwaInstallGuide(){
+  document.getElementById('pwaInstallGuide')?.classList.remove('open');
+}
+function pspRenderInstallGuide(mode){
+  const modal=document.getElementById('pwaInstallGuide');
+  const title=document.getElementById('pwaGuideTitle');
+  const sub=document.getElementById('pwaGuideSubtitle');
+  const note=document.getElementById('pwaGuideNote');
+  const steps=document.getElementById('pwaGuideSteps');
+  if(!modal||!steps)return;
+
+  if(mode==='ios'){
+    title.textContent='Install PipSePaisa on iPhone';
+    sub.textContent='Use Safari to add the app to your Home Screen.';
+    note.textContent='On iPhone, Apple uses Add to Home Screen instead of the Android-style install prompt.';
+    steps.innerHTML=`
+      <div class="psp-install-step"><div class="psp-install-step-num">1</div><div><strong>Open in Safari</strong><span>If you are in another browser, open pipsepaisa.com in Safari first.</span></div></div>
+      <div class="psp-install-step"><div class="psp-install-step-num">2</div><div><strong>Tap the Share button</strong><span>Tap the Share icon in Safari.</span></div></div>
+      <div class="psp-install-step"><div class="psp-install-step-num">3</div><div><strong>Choose Add to Home Screen</strong><span>Scroll the Share menu and select “Add to Home Screen”.</span></div></div>
+      <div class="psp-install-step"><div class="psp-install-step-num">4</div><div><strong>Tap Add</strong><span>PipSePaisa will appear on your Home Screen like an app.</span></div></div>`;
+  }else{
+    title.textContent='Install PipSePaisa App';
+    sub.textContent='Your browser can add PipSePaisa as an app.';
+    note.textContent='The direct install prompt is not available right now. You can still install it from your browser menu.';
+    steps.innerHTML=`
+      <div class="psp-install-step"><div class="psp-install-step-num">1</div><div><strong>Open the browser menu</strong><span>Tap or click the browser menu (⋮ or similar).</span></div></div>
+      <div class="psp-install-step"><div class="psp-install-step-num">2</div><div><strong>Choose Install App</strong><span>Select “Install app”, “Add to Home Screen”, or the equivalent option.</span></div></div>
+      <div class="psp-install-step"><div class="psp-install-step-num">3</div><div><strong>Confirm installation</strong><span>The PipSePaisa icon will then be available for quick access.</span></div></div>`;
+  }
+  modal.classList.add('open');
+}
+async function installPipSePaisaApp(){
+  if(pspIsStandalone()){
+    if(window.pipToast)window.pipToast('PipSePaisa is already installed.','ok');
+    return;
+  }
+
+  if(pspIsIos()){
+    pspRenderInstallGuide('ios');
+    return;
+  }
+
+  if(pspDeferredInstallPrompt){
+    const promptEvent=pspDeferredInstallPrompt;
+    pspDeferredInstallPrompt=null;
+    promptEvent.prompt();
+    try{
+      const choice=await promptEvent.userChoice;
+      if(choice?.outcome==='accepted'){
+        document.getElementById('pwaInstallBanner')?.style.setProperty('display','none');
+      }
+    }catch(e){}
+    return;
+  }
+
+  pspRenderInstallGuide('browser');
+}
+
+window.addEventListener('beforeinstallprompt',(e)=>{
   e.preventDefault();
-  deferredPrompt = e;
-  const banner = document.getElementById('pwaInstallBanner');
-  if (banner) banner.style.display = 'flex';
+  pspDeferredInstallPrompt=e;
+  pspUpdateInstallUi();
+  pspShowNativeInstallBanner();
 });
 
-document.getElementById('pwaInstallBtn')?.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.getElementById('pwaInstallBanner').style.display = 'none';
+window.addEventListener('appinstalled',()=>{
+  pspDeferredInstallPrompt=null;
+  try{localStorage.removeItem(PSP_PWA_DISMISS_KEY);}catch(e){}
+  closePwaInstallGuide();
+  pspUpdateInstallUi();
+  if(window.pipToast)window.pipToast('PipSePaisa App installed successfully.','ok');
 });
 
-window.addEventListener('appinstalled', () => {
-  document.getElementById('pwaInstallBanner').style.display = 'none';
-  deferredPrompt = null;
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('pwa-sw.js').catch(()=>{});
+  });
+}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',pspUpdateInstallUi);
+}else{
+  pspUpdateInstallUi();
+}
+
+window.addEventListener('keydown',(e)=>{
+  if(e.key==='Escape')closePwaInstallGuide();
 });
 </script>
 <style>

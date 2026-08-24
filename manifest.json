@@ -1,22 +1,26 @@
 {
   "name": "PipSePaisa",
   "short_name": "PipSePaisa",
-  "description": "PipSePaisa trading education and member platform",
+  "description": "PipSePaisa trading education, research and member dashboard.",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0b1729",
-  "theme_color": "#f59e0b",
+  "background_color": "#fffaf2",
+  "theme_color": "#FB9201",
+  "orientation": "any",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
