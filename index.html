@@ -1161,6 +1161,19 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     <div class="menu-label">Main Menu</div>
     
     <nav class="menu">
+      <div class="psp-sidebar-utility-zone" id="pspSidebarUtilityZone">
+<div class="menu-item psp-notify-sidebar-nav psp-always-utility" id="pspNotifySidebarNav" onclick="openPspNotificationCenter()" role="button" tabindex="0" title="Notification Settings">
+        <span class="menu-icon">🔔</span>
+        <strong id="pspNotifySidebarText">Enable Notifications</strong>
+        <span class="psp-notify-sidebar-badge" id="pspNotifySidebarBadge">OFF</span>
+      </div>
+      <div class="menu-item psp-install-app-nav psp-always-utility" id="pwaSidebarInstall" onclick="installPipSePaisaApp()" role="button" tabindex="0" title="Install PipSePaisa App">
+        <span class="menu-icon">⬇️</span>
+        <strong id="pwaSidebarInstallText">Install App</strong>
+        <span class="psp-install-new-badge" id="pwaSidebarInstallBadge">NEW</span>
+      </div>
+      </div>
+
       <div class="menu-item" data-page="mycourses" onclick="return openMyCoursesPage(this,event)"><span class="menu-icon">🎓</span><strong>My Courses</strong></div>
       <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">🏠</span>Dashboard</div>
       <div class="menu-item" data-page="journal" onclick="showPage('journal', this)"><span class="menu-icon">📔</span>Journal</div>
@@ -1175,16 +1188,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item" data-page="analysis" onclick="showPage('analysis', this)"><span class="menu-icon">📉</span>Trades Analysis</div>
       <div class="menu-item" data-page="tools" onclick="showPage('tools', this)"><span class="menu-icon">🔧</span>Tools</div>
       <div class="menu-item" data-page="aireport" onclick="showPage('aireport', this)"><span class="menu-icon">🤖</span>AI Report<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:700;">NEW</span></div>
-      <div class="menu-item psp-notify-sidebar-nav psp-always-utility" id="pspNotifySidebarNav" onclick="openPspNotificationCenter()" role="button" tabindex="0" title="Notification Settings">
-        <span class="menu-icon">🔔</span>
-        <strong id="pspNotifySidebarText">Enable Notifications</strong>
-        <span class="psp-notify-sidebar-badge" id="pspNotifySidebarBadge">OFF</span>
-      </div>
-      <div class="menu-item psp-install-app-nav psp-always-utility" id="pwaSidebarInstall" onclick="installPipSePaisaApp()" role="button" tabindex="0" title="Install PipSePaisa App">
-        <span class="menu-icon">⬇️</span>
-        <strong id="pwaSidebarInstallText">Install App</strong>
-        <span class="psp-install-new-badge" id="pwaSidebarInstallBadge">NEW</span>
-      </div>
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>Economic News<span class="dot"></span></div>
       <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Member Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
       <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
@@ -1197,12 +1200,13 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         <span class="menu-icon">🤖</span>VIP EAs
         <span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold-bg);color:var(--gold);border-radius:10px;font-weight:700;">SOON</span>
       </div>
+
+      <div class="menu-item" data-page="announce" onclick="showPage('announce', this)"><span class="menu-icon">📢</span>Announcements</div>
+      <div class="menu-item" data-page="support" onclick="showPage('support', this)"><span class="menu-icon">💬</span>Support</div>
 </nav>
     
     <div class="sidebar-footer">
       <div class="menu-item" data-page="about" onclick="showPage('about', this)"><span class="menu-icon">ℹ️</span>About</div>
-      <div class="menu-item" data-page="announce" onclick="showPage('announce', this)"><span class="menu-icon">📢</span>Announcements</div>
-      <div class="menu-item" data-page="support" onclick="showPage('support', this)"><span class="menu-icon">💬</span>Support</div>
       <div class="menu-item" data-page="settings" onclick="showPage('settings', this)"><span class="menu-icon">👤</span>Profile</div>
       <div class="menu-item" id="authMenuItem" onclick="authMenuClick()" style="background: linear-gradient(135deg, var(--green-bg), transparent); color: var(--green);"><span class="menu-icon">🔐</span><strong id="authMenuText">Login / Sign Up</strong></div>
     </div>
@@ -3071,7 +3075,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20260824-v143-sidebar-universal-controls"></script>
+<script src="user-app-core-v29.js?v=20260824-v144-top-controls-sticky-footer"></script>
 
 <script id="mentorPortalAiJs">
 (function(){
@@ -4087,7 +4091,7 @@ window.addEventListener('message',function(event){
 
 
 <script src="psp-v28-fixes.js?v=20260813-v72-clean-routes"></script>
-<script src="push-subscribe-prompt.js?v=20260824-v141-mobile-sidebar-installed"></script>
+<script src="push-subscribe-prompt.js?v=20260824-v144-top-controls-sticky-footer"></script>
 
 
 
@@ -4289,6 +4293,141 @@ window.addEventListener('message',function(event){
     syncSidebarChrome();
   }
 
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
+
+
+<style id="pspV144SidebarAlwaysVisibleControls">
+.psp-sidebar-utility-zone{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:5px!important;
+  margin:0 0 8px!important;
+  padding:0!important;
+}
+.psp-sidebar-utility-zone #pspNotifySidebarNav,
+.psp-sidebar-utility-zone #pwaSidebarInstall{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  min-height:40px!important;
+  margin:2px 0!important;
+}
+.sidebar{
+  display:flex!important;
+  flex-direction:column!important;
+  height:100vh!important;
+  height:100dvh!important;
+  overflow:hidden!important;
+}
+.sidebar .brand,
+.sidebar .user-card,
+.sidebar .menu-label{
+  flex:0 0 auto!important;
+}
+.sidebar .menu{
+  flex:1 1 0%!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+}
+.sidebar .sidebar-footer{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex:0 0 auto!important;
+  position:relative!important;
+  bottom:auto!important;
+  margin:0!important;
+  padding:7px 12px calc(9px + env(safe-area-inset-bottom,0px))!important;
+  border-top:1px solid var(--border)!important;
+  background:var(--bg-sidebar)!important;
+  z-index:60!important;
+  box-shadow:0 -8px 22px rgba(15,23,42,.04)!important;
+}
+.sidebar .sidebar-footer .menu-item{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  min-height:36px!important;
+  padding:7px 12px!important;
+  margin:1px 0!important;
+}
+#authMenuItem{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  margin-bottom:0!important;
+}
+#authMenuItem.psp-auth-logout,
+body.psp-authenticated #authMenuItem{
+  color:#d92d20!important;
+  background:linear-gradient(135deg,rgba(217,45,32,.10),rgba(217,45,32,.025))!important;
+}
+@media(max-width:768px){
+  .sidebar,.sidebar.open{
+    top:0!important;
+    bottom:0!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    padding-bottom:0!important;
+    overflow:hidden!important;
+  }
+  .sidebar .menu{
+    flex:1 1 0%!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    padding-bottom:12px!important;
+  }
+  .sidebar .sidebar-footer{
+    position:relative!important;
+    flex:0 0 auto!important;
+    margin:0!important;
+    padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;
+  }
+  body.psp-sidebar-open #userBottomNav,
+  html.psp-sidebar-open #userBottomNav,
+  body:has(.sidebar.open) #userBottomNav{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+  }
+}
+</style>
+
+<script id="pspV144SidebarStateSync">
+(function(){
+  function sync(){
+    var auth=document.getElementById('authMenuItem');
+    var authText=document.getElementById('authMenuText');
+    if(auth&&authText){
+      var isLogout=/logout/i.test(authText.textContent||'');
+      auth.classList.toggle('psp-auth-logout',isLogout);
+      document.body.classList.toggle('psp-authenticated',isLogout);
+    }
+    ['pspNotifySidebarNav','pwaSidebarInstall','authMenuItem'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el){
+        el.style.setProperty('display','flex','important');
+        el.style.setProperty('visibility','visible','important');
+        el.style.setProperty('opacity','1','important');
+      }
+    });
+  }
+  function init(){
+    sync();
+    var authText=document.getElementById('authMenuText');
+    if(authText&&window.MutationObserver){
+      new MutationObserver(sync).observe(authText,{childList:true,characterData:true,subtree:true});
+    }
+    setTimeout(sync,300);
+    setTimeout(sync,1200);
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
 })();
