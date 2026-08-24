@@ -1072,6 +1072,51 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
 <script src="psp-direct-signup-v1.js?v=20260813-v76-referral-fix"></script>
 </head>
+
+<style id="pspV141MobileSidebarFooterFix">
+/* Installed app remains visible as a status/control item. */
+.psp-install-app-nav.is-installed{
+  background:linear-gradient(135deg,rgba(20,184,112,.12),rgba(20,184,112,.035))!important;
+  border-color:rgba(20,184,112,.28)!important;
+}
+.psp-install-app-nav.is-installed .psp-install-new-badge{
+  background:#e7f8ef!important;
+  color:#087c55!important;
+}
+
+/* Mobile drawer must scroll above the fixed bottom navigation. */
+@media(max-width:768px){
+  .sidebar{
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:96px!important;
+    box-sizing:border-box!important;
+  }
+
+  .sidebar .sidebar-footer{
+    position:static!important;
+    margin-top:18px!important;
+    padding-bottom:10px!important;
+  }
+
+  .sidebar-footer .psp-notify-sidebar-nav,
+  .sidebar-footer .psp-install-app-nav,
+  .sidebar-footer .menu-item{
+    flex-shrink:0!important;
+  }
+
+  /* Keep fixed mobile nav visually above page content, not over drawer controls. */
+  .mobile-bottom-nav,
+  .bottom-nav{
+    z-index:1000!important;
+  }
+}
+</style>
+
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
 [data-theme="dark"] select option{background:#0f1729;color:#e8eaf0}
@@ -3661,12 +3706,22 @@ function pspPwaDismissedRecently(){
 function pspUpdateInstallUi(){
   const nav=document.getElementById('pwaSidebarInstall');
   const banner=document.getElementById('pwaInstallBanner');
+  const text=document.getElementById('pwaSidebarInstallText');
+  const badge=document.getElementById('pwaSidebarInstallBadge');
+
+  if(nav)nav.style.display='';
+
   if(pspIsStandalone()){
-    if(nav)nav.style.display='none';
     if(banner)banner.style.display='none';
+    if(nav)nav.classList.add('is-installed');
+    if(text)text.textContent='App Installed';
+    if(badge)badge.textContent='✓';
     return;
   }
-  if(nav)nav.style.display='';
+
+  if(nav)nav.classList.remove('is-installed');
+  if(text)text.textContent='Install App';
+  if(badge)badge.textContent='NEW';
 }
 function dismissPwaInstallBanner(){
   const banner=document.getElementById('pwaInstallBanner');
@@ -3698,6 +3753,12 @@ function pspRenderInstallGuide(mode){
       <div class="psp-install-step"><div class="psp-install-step-num">2</div><div><strong>Tap the Share button</strong><span>Tap the Share icon in Safari.</span></div></div>
       <div class="psp-install-step"><div class="psp-install-step-num">3</div><div><strong>Choose Add to Home Screen</strong><span>Scroll the Share menu and select “Add to Home Screen”.</span></div></div>
       <div class="psp-install-step"><div class="psp-install-step-num">4</div><div><strong>Tap Add</strong><span>PipSePaisa will appear on your Home Screen like an app.</span></div></div>`;
+  }else if(mode==='installed'){
+    title.textContent='PipSePaisa App Installed';
+    sub.textContent='This device is already using the installed app.';
+    note.textContent='PipSePaisa is installed successfully. You can keep using this shortcut anytime from your Home Screen or app launcher.';
+    steps.innerHTML=`
+      <div class="psp-install-step"><div class="psp-install-step-num">✓</div><div><strong>Installation complete</strong><span>No further action is required on this device.</span></div></div>`;
   }else{
     title.textContent='Install PipSePaisa App';
     sub.textContent='Your browser can add PipSePaisa as an app.';
@@ -3711,7 +3772,8 @@ function pspRenderInstallGuide(mode){
 }
 async function installPipSePaisaApp(){
   if(pspIsStandalone()){
-    if(window.pipToast)window.pipToast('PipSePaisa is already installed.','ok');
+    if(window.pipToast)window.pipToast('PipSePaisa App is installed on this device.','ok');
+    else pspRenderInstallGuide('installed');
     return;
   }
 
@@ -4019,7 +4081,7 @@ window.addEventListener('message',function(event){
 
 
 <script src="psp-v28-fixes.js?v=20260813-v72-clean-routes"></script>
-<script src="push-subscribe-prompt.js?v=20260824-v140-sidebar-notification-control"></script>
+<script src="push-subscribe-prompt.js?v=20260824-v141-mobile-sidebar-installed"></script>
 
 
 
