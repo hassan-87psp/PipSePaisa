@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light" class="psp-v20-booting">
 <head>
+<meta name="psp-build" content="2026-08-24-v145-route-sync">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <base href="/">
 <script id="pspV29EarlyCleanUrl">
 (function(){
@@ -38,8 +43,8 @@ html.psp-v20-booting body::after{content:"";position:fixed;left:50%;top:50%;z-in
 })();
 </script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PipSePaisa User Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PipSePaisa — Forex Education & Trading Tools</title>
 <script>
   window.PSP_PORTAL_MODE = (new URLSearchParams(location.search).get('portal') === 'mentor') ? 'mentor' : 'user';
 </script>
@@ -1061,7 +1066,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </style>
 
 <style id="pspCoursePageIsolationCss">#page-mycourses:not(.active){display:none!important}#page-mycourses.active{display:block!important}.brand-logo-img{width:42px;height:42px;object-fit:contain;display:block;flex:0 0 42px;border-radius:10px}</style>
-<link rel="stylesheet" href="course-marketplace-v3.css?v=20260801-v28-final">
+<link rel="stylesheet" href="course-marketplace-v3.css?v=20260822-v131-catalog-safe">
 <link rel="stylesheet" href="psp-v18-auth-access.css?v=20260731-v19-fix">
 <link rel="stylesheet" href="account-verification-v49.css?v=20260812-v56">
 <link rel="stylesheet" href="user-dashboard-v56.css?v=20260820-v107-latest-card-auto-height">
@@ -1072,6 +1077,51 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
 <script src="psp-direct-signup-v1.js?v=20260813-v76-referral-fix"></script>
 </head>
+
+<style id="pspV141MobileSidebarFooterFix">
+/* Installed app remains visible as a status/control item. */
+.psp-install-app-nav.is-installed{
+  background:linear-gradient(135deg,rgba(20,184,112,.12),rgba(20,184,112,.035))!important;
+  border-color:rgba(20,184,112,.28)!important;
+}
+.psp-install-app-nav.is-installed .psp-install-new-badge{
+  background:#e7f8ef!important;
+  color:#087c55!important;
+}
+
+/* Mobile drawer must scroll above the fixed bottom navigation. */
+@media(max-width:768px){
+  .sidebar{
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:96px!important;
+    box-sizing:border-box!important;
+  }
+
+  .sidebar .sidebar-footer{
+    position:static!important;
+    margin-top:18px!important;
+    padding-bottom:10px!important;
+  }
+
+  .sidebar-footer .psp-notify-sidebar-nav,
+  .sidebar-footer .psp-install-app-nav,
+  .sidebar-footer .menu-item{
+    flex-shrink:0!important;
+  }
+
+  /* Keep fixed mobile nav visually above page content, not over drawer controls. */
+  .mobile-bottom-nav,
+  .bottom-nav{
+    z-index:1000!important;
+  }
+}
+</style>
+
 <body><style id="darkfix-css">
 [data-theme="dark"] select{color-scheme:dark}
 [data-theme="dark"] select option{background:#0f1729;color:#e8eaf0}
@@ -1086,9 +1136,9 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <!-- ========================================================================
      LANDING PAGE - Shows on first visit (sessionStorage check)
      ======================================================================== -->
-<div id="landingPage" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg-main);">
+<div id="landingPage" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg-main);overflow:hidden;">
 
-  <iframe src="landing.html?v=20260804-v35-mobile-restore" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
+  <iframe src="landing.html?v=20260822-v127-router" title="PipSePaisa" style="width:100%;height:100%;border:none;display:block;"></iframe>
 </div>
 
 <div class="app" id="mainApp" style="display:none;">
@@ -1116,6 +1166,19 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     <div class="menu-label">Main Menu</div>
     
     <nav class="menu">
+      <div class="psp-sidebar-utility-zone" id="pspSidebarUtilityZone">
+<div class="menu-item psp-notify-sidebar-nav psp-always-utility" id="pspNotifySidebarNav" onclick="openPspNotificationCenter()" role="button" tabindex="0" title="Notification Settings">
+        <span class="menu-icon">🔔</span>
+        <strong id="pspNotifySidebarText">Enable Notifications</strong>
+        <span class="psp-notify-sidebar-badge" id="pspNotifySidebarBadge">OFF</span>
+      </div>
+      <div class="menu-item psp-install-app-nav psp-always-utility" id="pwaSidebarInstall" onclick="installPipSePaisaApp()" role="button" tabindex="0" title="Install PipSePaisa App">
+        <span class="menu-icon">⬇️</span>
+        <strong id="pwaSidebarInstallText">Install App</strong>
+        <span class="psp-install-new-badge" id="pwaSidebarInstallBadge">NEW</span>
+      </div>
+      </div>
+
       <div class="menu-item" data-page="mycourses" onclick="return openMyCoursesPage(this,event)"><span class="menu-icon">🎓</span><strong>My Courses</strong></div>
       <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">🏠</span>Dashboard</div>
       <div class="menu-item" data-page="journal" onclick="showPage('journal', this)"><span class="menu-icon">📔</span>Journal</div>
@@ -1134,14 +1197,21 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Member Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
       <div class="menu-item" data-page="vipplans" onclick="showPage('vipplans', this)"><span class="menu-icon">💎</span>VIP Plans</div>
       <div class="menu-item" id="mentorAiToolsNav" data-page="aitools" onclick="showPage('aitools', this)" style="display:none;background:linear-gradient(135deg,rgba(245,158,11,.14),transparent);border:1px solid rgba(245,158,11,.24);"><span class="menu-icon">✨</span><strong>AI Tools</strong><span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:800;">MENTOR</span></div>
-      <div class="menu-item" data-tabkey="vipindicators" onclick="alert('🚀 VIP Indicators launching soon!\nStay tuned for premium trading indicators.')" style="cursor: pointer;">
-      <div class="menu-item" data-tabkey="vipea" onclick="alert('🤖 VIP EAs launching soon!\nAutomated trading systems coming your way.')" style="cursor: pointer;">
+      <div class="menu-item" data-tabkey="vipindicators" onclick="alert('🚀 VIP Indicators launching soon!\nStay tuned for premium trading indicators.')" style="cursor:pointer;">
+        <span class="menu-icon">📊</span>VIP Indicators
+        <span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold-bg);color:var(--gold);border-radius:10px;font-weight:700;">SOON</span>
+      </div>
+      <div class="menu-item" data-tabkey="vipea" onclick="alert('🤖 VIP EAs launching soon!\nAutomated trading systems coming your way.')" style="cursor:pointer;">
+        <span class="menu-icon">🤖</span>VIP EAs
+        <span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold-bg);color:var(--gold);border-radius:10px;font-weight:700;">SOON</span>
+      </div>
+
+      <div class="menu-item" data-page="announce" onclick="showPage('announce', this)"><span class="menu-icon">📢</span>Announcements</div>
+      <div class="menu-item" data-page="support" onclick="showPage('support', this)"><span class="menu-icon">💬</span>Support</div>
 </nav>
     
     <div class="sidebar-footer">
       <div class="menu-item" data-page="about" onclick="showPage('about', this)"><span class="menu-icon">ℹ️</span>About</div>
-      <div class="menu-item" data-page="announce" onclick="showPage('announce', this)"><span class="menu-icon">📢</span>Announcements</div>
-      <div class="menu-item" data-page="support" onclick="showPage('support', this)"><span class="menu-icon">💬</span>Support</div>
       <div class="menu-item" data-page="settings" onclick="showPage('settings', this)"><span class="menu-icon">👤</span>Profile</div>
       <div class="menu-item" id="authMenuItem" onclick="authMenuClick()" style="background: linear-gradient(135deg, var(--green-bg), transparent); color: var(--green);"><span class="menu-icon">🔐</span><strong id="authMenuText">Login / Sign Up</strong></div>
     </div>
@@ -3010,7 +3080,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20260820-v108-nav-lock-release"></script>
+<script src="user-app-core-v29.js?v=20260824-v145-route-sync"></script>
 
 <script id="mentorPortalAiJs">
 (function(){
@@ -3107,41 +3177,665 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </script>
 
 
-<!-- PWA Install Banner -->
-<div id="pwaInstallBanner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--bg-card);border:1px solid var(--gold);border-radius:14px;padding:14px 20px;box-shadow:0 8px 30px rgba(0,0,0,0.4);display:none;align-items:center;gap:14px;max-width:340px;width:90%">
-  <div style="width:44px;height:44px;border-radius:10px;overflow:hidden;flex-shrink:0"><img src="icon-192.png" style="width:100%;height:100%;object-fit:cover"></div>
-  <div style="flex:1">
-    <div style="font-size:13px;font-weight:700;color:var(--text-primary)">Install PipSePaisa App</div>
-    <div style="font-size:11px;color:var(--text-muted)">Add to home screen for quick access</div>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:6px">
-    <button id="pwaInstallBtn" style="background:var(--gold);border:none;color:#0a0e1a;padding:7px 14px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap">Install</button>
-    <button onclick="document.getElementById('pwaInstallBanner').style.display='none'" style="background:transparent;border:none;color:var(--text-muted);font-size:11px;cursor:pointer;font-family:inherit">Not now</button>
+
+<!-- Notification Center — V140 -->
+<style id="pspV140NotificationCenterStyles">
+.psp-notify-sidebar-nav{
+  position:relative;
+  margin-bottom:7px;
+  background:linear-gradient(135deg,rgba(251,146,1,.11),rgba(251,146,1,.035))!important;
+  border:1px solid rgba(251,146,1,.22)!important;
+}
+.psp-notify-sidebar-nav:hover{
+  border-color:rgba(251,146,1,.52)!important;
+  background:linear-gradient(135deg,rgba(251,146,1,.17),rgba(251,146,1,.055))!important;
+}
+.psp-notify-sidebar-badge{
+  margin-left:auto;
+  min-width:34px;
+  text-align:center;
+  font-size:7px;
+  line-height:1;
+  padding:4px 6px;
+  border-radius:999px;
+  background:#eef1f5;
+  color:#657083;
+  font-weight:900;
+  letter-spacing:.04em;
+}
+.psp-notify-sidebar-nav.is-on{
+  background:linear-gradient(135deg,rgba(20,184,112,.12),rgba(20,184,112,.035))!important;
+  border-color:rgba(20,184,112,.28)!important;
+}
+.psp-notify-sidebar-nav.is-on .psp-notify-sidebar-badge{
+  background:#e7f8ef;
+  color:#087c55;
+}
+.psp-notify-sidebar-nav.is-blocked{
+  background:linear-gradient(135deg,rgba(220,75,75,.09),rgba(220,75,75,.02))!important;
+  border-color:rgba(220,75,75,.22)!important;
+}
+.psp-notify-sidebar-nav.is-blocked .psp-notify-sidebar-badge{
+  background:#fff0ee;
+  color:#b42318;
+}
+
+.psp-notify-center{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:10040;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  background:rgba(7,15,27,.65);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.psp-notify-center.open{display:flex}
+.psp-notify-center-card{
+  width:min(445px,100%);
+  overflow:hidden;
+  border:1px solid rgba(251,146,1,.27);
+  border-radius:18px;
+  background:#fffdf8;
+  color:#111827;
+  box-shadow:0 28px 80px rgba(0,0,0,.3);
+}
+.psp-notify-center-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:16px;
+  border-bottom:1px solid #eee2d1;
+}
+.psp-notify-center-brand{display:flex;align-items:center;gap:10px}
+.psp-notify-center-logo{
+  width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#0b1730,#172743);
+  color:#ffc36c;
+  font-size:19px;
+  border:1px solid rgba(251,146,1,.26);
+}
+.psp-notify-center-head h3{margin:1px 0 2px;font-size:14px;line-height:1.2}
+.psp-notify-center-head p{margin:0;font-size:9px;color:#7a8698}
+.psp-notify-center-close{
+  width:30px;height:30px;border:0;border-radius:8px;background:#f7f0e6;
+  color:#647084;font-size:17px;font-weight:900;cursor:pointer;
+}
+.psp-notify-center-body{padding:15px 16px}
+.psp-notify-status-card{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px;border:1px solid #eadfce;border-radius:12px;background:#fffaf2;
+}
+.psp-notify-status-left{display:flex;align-items:center;gap:10px}
+.psp-notify-status-dot{
+  width:10px;height:10px;border-radius:50%;background:#9aa4b2;
+  box-shadow:0 0 0 5px rgba(154,164,178,.1)
+}
+.psp-notify-status-dot.on{background:#13a669;box-shadow:0 0 0 5px rgba(19,166,105,.11)}
+.psp-notify-status-dot.blocked{background:#d44b45;box-shadow:0 0 0 5px rgba(212,75,69,.1)}
+.psp-notify-status-title{font-size:10px;font-weight:900;color:#111827}
+.psp-notify-status-copy{margin-top:2px;font-size:8.5px;line-height:1.4;color:#7b8797}
+.psp-notify-status-pill{
+  padding:5px 8px;border-radius:999px;background:#eef1f5;color:#657083;
+  font-size:7px;font-weight:900;white-space:nowrap
+}
+.psp-notify-status-pill.on{background:#e7f8ef;color:#087c55}
+.psp-notify-status-pill.blocked{background:#fff0ee;color:#b42318}
+.psp-notify-benefits{display:grid;gap:7px;margin-top:12px}
+.psp-notify-benefit{
+  display:flex;gap:8px;align-items:flex-start;padding:7px 1px;
+  color:#566173;font-size:9px;line-height:1.4
+}
+.psp-notify-benefit b{color:#111827}
+.psp-notify-help{
+  display:none;margin-top:11px;padding:10px;border-radius:10px;
+  background:rgba(251,146,1,.07);border:1px solid rgba(251,146,1,.17);
+  color:#626d7d;font-size:9px;line-height:1.5
+}
+.psp-notify-help.show{display:block}
+.psp-notify-center-error{
+  display:none;margin-top:10px;padding:9px 10px;border-radius:9px;
+  background:#fff0ee;color:#a82e27;border:1px solid #f1c8c4;font-size:9px;line-height:1.4
+}
+.psp-notify-center-error.show{display:block}
+.psp-notify-center-foot{
+  display:flex;justify-content:flex-end;gap:7px;
+  padding:0 16px 16px
+}
+.psp-notify-center-btn{
+  border:0;border-radius:9px;padding:9px 13px;
+  font-family:inherit;font-size:9px;font-weight:900;cursor:pointer
+}
+.psp-notify-center-btn.secondary{background:#f4eee5;color:#677385}
+.psp-notify-center-btn.primary{background:#FB9201;color:#111}
+.psp-notify-center-btn.success{background:#e7f8ef;color:#087c55}
+.psp-notify-center-btn:disabled{cursor:default;opacity:.8}
+
+[data-theme="dark"] .psp-notify-center-card,
+html.dark .psp-notify-center-card,
+body.dark .psp-notify-center-card{
+  background:#101a2a;color:#f4f7fb;border-color:#33435a
+}
+[data-theme="dark"] .psp-notify-center-head,
+html.dark .psp-notify-center-head{border-color:#29384d}
+[data-theme="dark"] .psp-notify-center-head h3,
+[data-theme="dark"] .psp-notify-status-title,
+[data-theme="dark"] .psp-notify-benefit b,
+html.dark .psp-notify-center-head h3,
+html.dark .psp-notify-status-title,
+html.dark .psp-notify-benefit b{color:#f4f7fb}
+[data-theme="dark"] .psp-notify-center-close,
+html.dark .psp-notify-center-close{background:#172338;color:#d5dfed}
+[data-theme="dark"] .psp-notify-status-card,
+html.dark .psp-notify-status-card{background:#142033;border-color:#2d3e55}
+[data-theme="dark"] .psp-notify-benefit,
+[data-theme="dark"] .psp-notify-status-copy,
+html.dark .psp-notify-benefit,
+html.dark .psp-notify-status-copy{color:#b9c5d6}
+</style>
+
+<div class="psp-notify-center" id="pspNotificationCenter" onclick="if(event.target===this)closePspNotificationCenter()">
+  <div class="psp-notify-center-card" role="dialog" aria-modal="true" aria-labelledby="pspNotificationCenterTitle">
+    <div class="psp-notify-center-head">
+      <div class="psp-notify-center-brand">
+        <div class="psp-notify-center-logo">🔔</div>
+        <div>
+          <h3 id="pspNotificationCenterTitle">PipSePaisa Notifications</h3>
+          <p>Signals, TP/SL updates and important alerts.</p>
+        </div>
+      </div>
+      <button class="psp-notify-center-close" onclick="closePspNotificationCenter()" aria-label="Close">×</button>
+    </div>
+    <div class="psp-notify-center-body">
+      <div class="psp-notify-status-card">
+        <div class="psp-notify-status-left">
+          <span class="psp-notify-status-dot" id="pspNotifyStatusDot"></span>
+          <div>
+            <div class="psp-notify-status-title" id="pspNotifyStatusTitle">Checking notifications…</div>
+            <div class="psp-notify-status-copy" id="pspNotifyStatusCopy">Checking this browser and device.</div>
+          </div>
+        </div>
+        <span class="psp-notify-status-pill" id="pspNotifyStatusPill">CHECKING</span>
+      </div>
+
+      <div class="psp-notify-benefits">
+        <div class="psp-notify-benefit"><span>⚡</span><div><b>Instant Signal Alerts</b><br>Receive new trading signal notifications quickly.</div></div>
+        <div class="psp-notify-benefit"><span>🎯</span><div><b>TP / SL Updates</b><br>Stay informed when signal status changes.</div></div>
+        <div class="psp-notify-benefit"><span>📢</span><div><b>Important Updates</b><br>Get important PipSePaisa announcements on this device.</div></div>
+      </div>
+
+      <div class="psp-notify-help" id="pspNotifyBlockedHelp">
+        Notifications are blocked in this browser. Open your browser/site settings for pipsepaisa.com and change Notifications to <b>Allow</b>, then return here.
+      </div>
+      <div class="psp-notify-center-error" id="pspNotifyCenterError"></div>
+    </div>
+    <div class="psp-notify-center-foot">
+      <button class="psp-notify-center-btn secondary" onclick="closePspNotificationCenter()">Close</button>
+      <button class="psp-notify-center-btn primary" id="pspNotifyCenterAction" onclick="enablePspNotificationsFromSidebar()">Enable Notifications</button>
+    </div>
   </div>
 </div>
 
-<script>
-// PWA install prompt — caches and service workers are preserved for fast, stable navigation.
-// PWA Install Prompt
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
+<script id="pspV140NotificationCenter">
+function pspNotificationUiState(){
+  if(typeof window.pspPushGetState==='function'){
+    try{return window.pspPushGetState();}catch(e){}
+  }
+  const remembered=(()=>{
+    try{
+      return localStorage.getItem('psp_push_subscribed_v139_permanent')==='1' ||
+             localStorage.getItem('psp_push_subscribed_v108')==='1';
+    }catch(e){return false;}
+  })();
+  if(remembered)return 'on';
+  if(!('Notification' in window))return 'unsupported';
+  if(Notification.permission==='denied')return 'blocked';
+  return 'off';
+}
+
+function refreshPspNotificationUi(){
+  const state=pspNotificationUiState();
+  const nav=document.getElementById('pspNotifySidebarNav');
+  const navText=document.getElementById('pspNotifySidebarText');
+  const badge=document.getElementById('pspNotifySidebarBadge');
+  const dot=document.getElementById('pspNotifyStatusDot');
+  const title=document.getElementById('pspNotifyStatusTitle');
+  const copy=document.getElementById('pspNotifyStatusCopy');
+  const pill=document.getElementById('pspNotifyStatusPill');
+  const action=document.getElementById('pspNotifyCenterAction');
+  const help=document.getElementById('pspNotifyBlockedHelp');
+  const error=document.getElementById('pspNotifyCenterError');
+
+  if(nav)nav.classList.remove('is-on','is-blocked');
+  if(dot)dot.className='psp-notify-status-dot';
+  if(pill)pill.className='psp-notify-status-pill';
+  if(help)help.classList.remove('show');
+  if(error){error.classList.remove('show');error.textContent='';}
+  if(action){action.disabled=false;action.className='psp-notify-center-btn primary';}
+
+  if(state==='on'){
+    if(nav)nav.classList.add('is-on');
+    if(navText)navText.textContent='Notifications On';
+    if(badge)badge.textContent='✓ ON';
+    if(dot)dot.classList.add('on');
+    if(title)title.textContent='Notifications are active';
+    if(copy)copy.textContent='This device is saved as subscribed for PipSePaisa push alerts.';
+    if(pill){pill.textContent='ACTIVE';pill.classList.add('on');}
+    if(action){
+      action.textContent='Notifications Active ✓';
+      action.className='psp-notify-center-btn success';
+      action.disabled=true;
+    }
+    return;
+  }
+
+  if(state==='blocked'){
+    if(nav)nav.classList.add('is-blocked');
+    if(navText)navText.textContent='Notifications Blocked';
+    if(badge)badge.textContent='BLOCKED';
+    if(dot)dot.classList.add('blocked');
+    if(title)title.textContent='Browser permission is blocked';
+    if(copy)copy.textContent='Allow notifications from your browser settings to receive alerts.';
+    if(pill){pill.textContent='BLOCKED';pill.classList.add('blocked');}
+    if(help)help.classList.add('show');
+    if(action){action.textContent='Check Again';}
+    return;
+  }
+
+  if(state==='unsupported'){
+    if(navText)navText.textContent='Notifications';
+    if(badge)badge.textContent='N/A';
+    if(title)title.textContent='Notifications are unavailable';
+    if(copy)copy.textContent='This browser does not support web push notifications.';
+    if(pill)pill.textContent='UNAVAILABLE';
+    if(action){action.textContent='Not Supported';action.disabled=true;}
+    return;
+  }
+
+  if(navText)navText.textContent='Enable Notifications';
+  if(badge)badge.textContent='OFF';
+  if(title)title.textContent='Enable PipSePaisa notifications';
+  if(copy)copy.textContent='Turn on alerts for signals, TP/SL updates and important announcements.';
+  if(pill)pill.textContent='OFF';
+  if(action)action.textContent='Enable Notifications';
+}
+
+function openPspNotificationCenter(){
+  document.getElementById('pspNotificationCenter')?.classList.add('open');
+  refreshPspNotificationUi();
+}
+function closePspNotificationCenter(){
+  document.getElementById('pspNotificationCenter')?.classList.remove('open');
+}
+async function enablePspNotificationsFromSidebar(){
+  const action=document.getElementById('pspNotifyCenterAction');
+  const error=document.getElementById('pspNotifyCenterError');
+
+  if(pspNotificationUiState()==='on'){
+    refreshPspNotificationUi();
+    return;
+  }
+
+  if(Notification?.permission==='denied'){
+    refreshPspNotificationUi();
+    return;
+  }
+
+  if(typeof window.pspPushSubscribe!=='function'){
+    if(error){
+      error.textContent='Notification service is still loading. Please try again in a moment.';
+      error.classList.add('show');
+    }
+    return;
+  }
+
+  if(action){action.disabled=true;action.textContent='Enabling…';}
+  if(error){error.classList.remove('show');error.textContent='';}
+
+  try{
+    const result=await window.pspPushSubscribe();
+    if(!result?.ok){
+      throw new Error(result?.message||'Could not enable notifications. Please try again.');
+    }
+    refreshPspNotificationUi();
+    setTimeout(refreshPspNotificationUi,600);
+  }catch(e){
+    if(error){
+      error.textContent=String(e?.message||e||'Could not enable notifications.');
+      error.classList.add('show');
+    }
+    refreshPspNotificationUi();
+  }
+}
+
+window.addEventListener('psp:push-subscribed',refreshPspNotificationUi);
+window.addEventListener('focus',refreshPspNotificationUi);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshPspNotificationUi();});
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',refreshPspNotificationUi,{once:true});
+}else{
+  refreshPspNotificationUi();
+}
+</script>
+
+<!-- Smart PWA Install Experience — V138 -->
+<style id="pspSmartInstallStyles">
+.psp-install-app-nav{
+  position:relative;
+  margin-bottom:7px;
+  background:linear-gradient(135deg,rgba(251,146,1,.15),rgba(251,146,1,.045))!important;
+  border:1px solid rgba(251,146,1,.32)!important;
+  color:var(--text-primary)!important;
+}
+.psp-install-app-nav:hover{
+  border-color:var(--gold)!important;
+  background:linear-gradient(135deg,rgba(251,146,1,.22),rgba(251,146,1,.07))!important;
+}
+.psp-install-new-badge{
+  margin-left:auto;
+  font-size:7px;
+  line-height:1;
+  padding:4px 6px;
+  border-radius:999px;
+  background:var(--gold);
+  color:#121212;
+  font-weight:900;
+  letter-spacing:.03em;
+}
+#pwaInstallBanner{
+  display:none;
+  position:fixed;
+  left:50%;
+  bottom:20px;
+  transform:translateX(-50%);
+  z-index:10020;
+  width:min(390px,calc(100vw - 24px));
+  box-sizing:border-box;
+  align-items:center;
+  gap:12px;
+  padding:13px;
+  border:1px solid rgba(251,146,1,.38);
+  border-radius:15px;
+  background:#fffdf8;
+  color:#101827;
+  box-shadow:0 18px 52px rgba(15,23,42,.22);
+}
+#pwaInstallBanner .pwa-install-logo{
+  width:43px;height:43px;border-radius:10px;overflow:hidden;flex:0 0 43px;
+  border:1px solid rgba(251,146,1,.24);background:#fff;
+}
+#pwaInstallBanner .pwa-install-logo img{width:100%;height:100%;object-fit:cover}
+#pwaInstallBanner .pwa-install-copy{min-width:0;flex:1}
+#pwaInstallBanner .pwa-install-title{font-size:12px;font-weight:900;color:#111827}
+#pwaInstallBanner .pwa-install-sub{margin-top:2px;font-size:9px;line-height:1.35;color:#758196}
+#pwaInstallBanner .pwa-install-actions{display:flex;gap:5px;flex-direction:column}
+.psp-pwa-primary,.psp-pwa-secondary{
+  border:0;border-radius:8px;padding:7px 10px;white-space:nowrap;
+  font-family:inherit;font-size:9px;font-weight:900;cursor:pointer;
+}
+.psp-pwa-primary{background:#FB9201;color:#111}
+.psp-pwa-secondary{background:transparent;color:#788397}
+
+.psp-install-guide{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:10030;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  background:rgba(7,15,27,.65);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+.psp-install-guide.open{display:flex}
+.psp-install-guide-card{
+  width:min(430px,100%);
+  overflow:hidden;
+  border:1px solid rgba(251,146,1,.28);
+  border-radius:18px;
+  background:#fffdf8;
+  color:#111827;
+  box-shadow:0 28px 80px rgba(0,0,0,.3);
+}
+.psp-install-guide-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+  padding:16px 16px 13px;border-bottom:1px solid #eee2d1;
+}
+.psp-install-guide-brand{display:flex;align-items:center;gap:10px}
+.psp-install-guide-icon{
+  width:42px;height:42px;border-radius:10px;overflow:hidden;
+  border:1px solid rgba(251,146,1,.25);background:#fff;
+}
+.psp-install-guide-icon img{width:100%;height:100%;object-fit:cover}
+.psp-install-guide-head h3{margin:1px 0 2px;font-size:14px;line-height:1.2}
+.psp-install-guide-head p{margin:0;font-size:9px;color:#7a8698}
+.psp-install-guide-close{
+  width:30px;height:30px;border:0;border-radius:8px;background:#f7f0e6;
+  color:#647084;font-size:17px;font-weight:900;cursor:pointer;
+}
+.psp-install-guide-body{padding:14px 16px 16px}
+.psp-install-guide-note{
+  padding:9px 10px;border-radius:10px;background:rgba(251,146,1,.08);
+  border:1px solid rgba(251,146,1,.16);font-size:9px;line-height:1.45;color:#5d6572;
+  margin-bottom:10px;
+}
+.psp-install-step{
+  display:grid;grid-template-columns:28px 1fr;gap:9px;align-items:start;
+  padding:9px 0;border-bottom:1px solid #f1e7da;
+}
+.psp-install-step:last-child{border-bottom:0}
+.psp-install-step-num{
+  width:25px;height:25px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:#0b1730;color:#fff;font-size:9px;font-weight:900;
+}
+.psp-install-step strong{display:block;font-size:10px;margin:1px 0 2px}
+.psp-install-step span{display:block;font-size:9px;line-height:1.4;color:#788397}
+.psp-install-guide-foot{display:flex;justify-content:flex-end;padding:0 16px 16px}
+.psp-install-guide-done{
+  border:0;background:#FB9201;color:#111;border-radius:9px;padding:9px 14px;
+  font-size:9px;font-weight:900;font-family:inherit;cursor:pointer;
+}
+
+[data-theme="dark"] #pwaInstallBanner,
+[data-theme="dark"] .psp-install-guide-card,
+html.dark #pwaInstallBanner,
+html.dark .psp-install-guide-card,
+body.dark #pwaInstallBanner,
+body.dark .psp-install-guide-card{
+  background:#101a2a;color:#f4f7fb;border-color:#33435a;
+}
+[data-theme="dark"] #pwaInstallBanner .pwa-install-title,
+[data-theme="dark"] .psp-install-guide-head h3,
+html.dark #pwaInstallBanner .pwa-install-title,
+html.dark .psp-install-guide-head h3{color:#f4f7fb}
+[data-theme="dark"] .psp-install-guide-head{border-color:#2a394e}
+[data-theme="dark"] .psp-install-guide-close{background:#172338;color:#d5dfed}
+[data-theme="dark"] .psp-install-step{border-color:#26364b}
+[data-theme="dark"] .psp-install-guide-note{color:#c5d0df}
+
+@media(max-width:600px){
+  #pwaInstallBanner{bottom:12px}
+  .psp-install-guide{padding:10px}
+}
+</style>
+
+<div id="pwaInstallBanner" aria-live="polite">
+  <div class="pwa-install-logo"><img src="icon-192.png" alt="PipSePaisa"></div>
+  <div class="pwa-install-copy">
+    <div class="pwa-install-title">Install PipSePaisa App</div>
+    <div class="pwa-install-sub">Get faster access from your Home Screen.</div>
+  </div>
+  <div class="pwa-install-actions">
+    <button class="psp-pwa-primary" onclick="installPipSePaisaApp()">Install</button>
+    <button class="psp-pwa-secondary" onclick="dismissPwaInstallBanner()">Not now</button>
+  </div>
+</div>
+
+<div class="psp-install-guide" id="pwaInstallGuide" onclick="if(event.target===this)closePwaInstallGuide()">
+  <div class="psp-install-guide-card" role="dialog" aria-modal="true" aria-labelledby="pwaGuideTitle">
+    <div class="psp-install-guide-head">
+      <div class="psp-install-guide-brand">
+        <div class="psp-install-guide-icon"><img src="icon-192.png" alt="PipSePaisa"></div>
+        <div>
+          <h3 id="pwaGuideTitle">Install PipSePaisa App</h3>
+          <p id="pwaGuideSubtitle">Add PipSePaisa to your Home Screen.</p>
+        </div>
+      </div>
+      <button class="psp-install-guide-close" onclick="closePwaInstallGuide()" aria-label="Close">×</button>
+    </div>
+    <div class="psp-install-guide-body">
+      <div class="psp-install-guide-note" id="pwaGuideNote"></div>
+      <div id="pwaGuideSteps"></div>
+    </div>
+    <div class="psp-install-guide-foot">
+      <button class="psp-install-guide-done" onclick="closePwaInstallGuide()">Got it</button>
+    </div>
+  </div>
+</div>
+
+<script id="pspSmartPwaInstall">
+let pspDeferredInstallPrompt=null;
+const PSP_PWA_DISMISS_KEY='psp_pwa_install_dismissed_at';
+const PSP_PWA_DISMISS_MS=7*24*60*60*1000;
+
+function pspIsIos(){
+  const ua=navigator.userAgent||'';
+  return /iPad|iPhone|iPod/i.test(ua) ||
+    (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+}
+function pspIsStandalone(){
+  return window.matchMedia?.('(display-mode: standalone)').matches ||
+    window.navigator.standalone===true;
+}
+function pspPwaDismissedRecently(){
+  try{
+    const ts=Number(localStorage.getItem(PSP_PWA_DISMISS_KEY)||0);
+    return ts && (Date.now()-ts)<PSP_PWA_DISMISS_MS;
+  }catch(e){return false;}
+}
+function pspUpdateInstallUi(){
+  const nav=document.getElementById('pwaSidebarInstall');
+  const banner=document.getElementById('pwaInstallBanner');
+  const text=document.getElementById('pwaSidebarInstallText');
+  const badge=document.getElementById('pwaSidebarInstallBadge');
+
+  if(nav)nav.style.display='';
+
+  if(pspIsStandalone()){
+    if(banner)banner.style.display='none';
+    if(nav)nav.classList.add('is-installed');
+    if(text)text.textContent='App Installed';
+    if(badge)badge.textContent='✓';
+    return;
+  }
+
+  if(nav)nav.classList.remove('is-installed');
+  if(text)text.textContent='Install App';
+  if(badge)badge.textContent='NEW';
+}
+function dismissPwaInstallBanner(){
+  const banner=document.getElementById('pwaInstallBanner');
+  if(banner)banner.style.display='none';
+  try{localStorage.setItem(PSP_PWA_DISMISS_KEY,String(Date.now()));}catch(e){}
+}
+function pspShowNativeInstallBanner(){
+  if(pspIsStandalone() || pspIsIos() || pspPwaDismissedRecently())return;
+  const banner=document.getElementById('pwaInstallBanner');
+  if(banner && pspDeferredInstallPrompt)banner.style.display='flex';
+}
+function closePwaInstallGuide(){
+  document.getElementById('pwaInstallGuide')?.classList.remove('open');
+}
+function pspRenderInstallGuide(mode){
+  const modal=document.getElementById('pwaInstallGuide');
+  const title=document.getElementById('pwaGuideTitle');
+  const sub=document.getElementById('pwaGuideSubtitle');
+  const note=document.getElementById('pwaGuideNote');
+  const steps=document.getElementById('pwaGuideSteps');
+  if(!modal||!steps)return;
+
+  if(mode==='ios'){
+    title.textContent='Install PipSePaisa on iPhone';
+    sub.textContent='Use Safari to add the app to your Home Screen.';
+    note.textContent='On iPhone, Apple uses Add to Home Screen instead of the Android-style install prompt.';
+    steps.innerHTML=`
+      <div class="psp-install-step"><div class="psp-install-step-num">1</div><div><strong>Open in Safari</strong><span>If you are in another browser, open pipsepaisa.com in Safari first.</span></div></div>
+      <div class="psp-install-step"><div class="psp-install-step-num">2</div><div><strong>Tap the Share button</strong><span>Tap the Share icon in Safari.</span></div></div>
+      <div class="psp-install-step"><div class="psp-install-step-num">3</div><div><strong>Choose Add to Home Screen</strong><span>Scroll the Share menu and select “Add to Home Screen”.</span></div></div>
+      <div class="psp-install-step"><div class="psp-install-step-num">4</div><div><strong>Tap Add</strong><span>PipSePaisa will appear on your Home Screen like an app.</span></div></div>`;
+  }else if(mode==='installed'){
+    title.textContent='PipSePaisa App Installed';
+    sub.textContent='This device is already using the installed app.';
+    note.textContent='PipSePaisa is installed successfully. You can keep using this shortcut anytime from your Home Screen or app launcher.';
+    steps.innerHTML=`
+      <div class="psp-install-step"><div class="psp-install-step-num">✓</div><div><strong>Installation complete</strong><span>No further action is required on this device.</span></div></div>`;
+  }else{
+    title.textContent='Install PipSePaisa App';
+    sub.textContent='Your browser can add PipSePaisa as an app.';
+    note.textContent='The direct install prompt is not available right now. You can still install it from your browser menu.';
+    steps.innerHTML=`
+      <div class="psp-install-step"><div class="psp-install-step-num">1</div><div><strong>Open the browser menu</strong><span>Tap or click the browser menu (⋮ or similar).</span></div></div>
+      <div class="psp-install-step"><div class="psp-install-step-num">2</div><div><strong>Choose Install App</strong><span>Select “Install app”, “Add to Home Screen”, or the equivalent option.</span></div></div>
+      <div class="psp-install-step"><div class="psp-install-step-num">3</div><div><strong>Confirm installation</strong><span>The PipSePaisa icon will then be available for quick access.</span></div></div>`;
+  }
+  modal.classList.add('open');
+}
+async function installPipSePaisaApp(){
+  if(pspIsStandalone()){
+    if(window.pipToast)window.pipToast('PipSePaisa App is installed on this device.','ok');
+    else pspRenderInstallGuide('installed');
+    return;
+  }
+
+  if(pspIsIos()){
+    pspRenderInstallGuide('ios');
+    return;
+  }
+
+  if(pspDeferredInstallPrompt){
+    const promptEvent=pspDeferredInstallPrompt;
+    pspDeferredInstallPrompt=null;
+    promptEvent.prompt();
+    try{
+      const choice=await promptEvent.userChoice;
+      if(choice?.outcome==='accepted'){
+        document.getElementById('pwaInstallBanner')?.style.setProperty('display','none');
+      }
+    }catch(e){}
+    return;
+  }
+
+  pspRenderInstallGuide('browser');
+}
+
+window.addEventListener('beforeinstallprompt',(e)=>{
   e.preventDefault();
-  deferredPrompt = e;
-  const banner = document.getElementById('pwaInstallBanner');
-  if (banner) banner.style.display = 'flex';
+  pspDeferredInstallPrompt=e;
+  pspUpdateInstallUi();
+  pspShowNativeInstallBanner();
 });
 
-document.getElementById('pwaInstallBtn')?.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  const { outcome } = await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.getElementById('pwaInstallBanner').style.display = 'none';
+window.addEventListener('appinstalled',()=>{
+  pspDeferredInstallPrompt=null;
+  try{localStorage.removeItem(PSP_PWA_DISMISS_KEY);}catch(e){}
+  closePwaInstallGuide();
+  pspUpdateInstallUi();
+  if(window.pipToast)window.pipToast('PipSePaisa App installed successfully.','ok');
 });
 
-window.addEventListener('appinstalled', () => {
-  document.getElementById('pwaInstallBanner').style.display = 'none';
-  deferredPrompt = null;
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',pspUpdateInstallUi);
+}else{
+  pspUpdateInstallUi();
+}
+
+window.addEventListener('keydown',(e)=>{
+  if(e.key==='Escape')closePwaInstallGuide();
 });
 </script>
 <style>
@@ -3225,8 +3919,23 @@ window.addEventListener('appinstalled', () => {
 </style>
 <div id="artModal" onclick="if(event.target===this)closeArt()"><div class="art-modal-box" id="artModalBox"></div></div>
 <script src="user-signals-core-v29.js?v=20260820-v115-full-lifecycle"></script>
-<script>
-document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getElementById('landingPage'),f=document.getElementById('siteFooter');if(lp&&f){f.style.marginLeft='0';f.style.width='100%';lp.appendChild(f);}}catch(e){}});
+<script id="pspV78LandingFooterIsolation">
+/* V78: The logged-in dashboard footer must never be moved inside the public landing overlay.
+   landing.html already owns its public footer. Keeping the two footers isolated prevents the
+   dashboard footer from appearing in the middle of the mobile Home page. */
+document.addEventListener('DOMContentLoaded',function(){
+  try{
+    var lp=document.getElementById('landingPage');
+    var f=document.getElementById('siteFooter');
+    if(!lp||!f)return;
+    function sync(){
+      var landingVisible=getComputedStyle(lp).display!=='none';
+      f.style.display=landingVisible?'none':'';
+    }
+    if(window.MutationObserver){new MutationObserver(sync).observe(lp,{attributes:true,attributeFilter:['style','class']});}
+    sync();
+  }catch(e){}
+});
 </script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){try{var lp=document.getElementById('landingPage');if(!lp)return;var orbs=document.createElement('div');orbs.style.cssText='position:absolute;top:0;left:0;right:0;height:720px;overflow:hidden;pointer-events:none;z-index:-1';orbs.innerHTML='<div class="pip-orb" style="width:240px;height:240px;background:rgba(245,158,11,.45);left:5%;top:90px;animation:pipFloatY 9s ease-in-out infinite"></div><div class="pip-orb" style="width:200px;height:200px;background:rgba(16,185,129,.38);right:7%;top:150px;animation:pipFloatX 12s ease-in-out infinite"></div><div class="pip-orb" style="width:160px;height:160px;background:rgba(245,158,11,.30);left:42%;top:30px;animation:pipFloatY 11s ease-in-out infinite"></div>';lp.insertBefore(orbs,lp.firstChild);var els=lp.querySelectorAll('section, .card, [class*="hero"], [class*="feature"], [class*="stat"]');els.forEach(function(e){e.classList.add('pip-reveal')});var io=new IntersectionObserver(function(ents){ents.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}})},{threshold:.1});els.forEach(function(e){io.observe(e)});setTimeout(function(){els.forEach(function(e){e.classList.add('in')})},1600);}catch(e){}});
@@ -3292,10 +4001,17 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 @media(max-width:768px){
   body.ubn-on #userBottomNav{display:flex}
   body.ubn-on #mainApp{padding-bottom:84px}
-  /* sidebar khule to wo bottom nav ke UPAR aaye, aur Logout tak sab buttons nav se upar dikhen */
+  /* V80: mobile side drawer stays locked to the viewport. Only its menu scrolls. */
+  html.psp-sidebar-open,body.psp-sidebar-open{overflow:hidden!important;height:100%!important;overscroll-behavior:none!important}
+  .sidebar{
+    position:fixed!important;top:0!important;left:0!important;bottom:0!important;
+    height:100vh!important;height:100dvh!important;max-height:100dvh!important;
+    padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important;
+    overflow:hidden!important;overscroll-behavior:contain!important;touch-action:pan-y!important;
+  }
+  .sidebar .menu{min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior:contain!important}
   .sidebar.open{z-index:1600!important}
-  #sidebarOverlay{z-index:1550!important}
-  .sidebar{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important}
+  #sidebarOverlay{position:fixed!important;inset:0!important;z-index:1550!important;touch-action:none!important}
   .page{padding-bottom:14px}
 }
 </style>
@@ -3332,8 +4048,8 @@ window.addEventListener('message',function(event){
   if(typeof window.openAuthModal==='function'){ window.openAuthModal(); if(event.data.mode==='signup'&&typeof window.switchAuthTab==='function') window.switchAuthTab('signup'); }
 });
 </script>
-<script src="course-enrollment.js?v=20260821-v118-direct-logged-in-checkout"></script>
-<script src="course-marketplace-v3.js?v=20260821-v117-price250"></script>
+<script src="course-enrollment.js?v=20260822-v131-custom-course-safe"></script>
+<script src="course-marketplace-v3.js?v=20260822-v131-catalog-safe"></script>
 
 
 <script>
@@ -3369,7 +4085,7 @@ window.addEventListener('message',function(event){
   function init(){
     if(initialized||typeof sb==='undefined'||!sb)return;initialized=true;badge();
     try{sb.channel('psp-signal-alerts-v1').on('postgres_changes',{event:'INSERT',schema:'public',table:'signals'},notify).subscribe();}catch(error){console.warn('Signal notification channel failed',error);}
-    document.addEventListener('click',function ask(event){if(!event.isTrusted)return;document.removeEventListener('click',ask);if('Notification' in window&&Notification.permission==='default')Notification.requestPermission().catch(()=>{});});
+    
     const m=menu();if(m)m.addEventListener('click',()=>{unread=0;localStorage.setItem('psp_signal_unread','0');badge();});
   }
   document.addEventListener('DOMContentLoaded',()=>setTimeout(init,1200),{once:true});
@@ -3380,14 +4096,14 @@ window.addEventListener('message',function(event){
 
 
 <script src="psp-v28-fixes.js?v=20260813-v72-clean-routes"></script>
-<script src="push-subscribe-prompt.js?v=20260820-v108-persist-subscribed"></script>
+<script src="push-subscribe-prompt.js?v=20260824-v145-route-sync"></script>
 
 
 
 
 <style id="pspNoTopTickerFinal">#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker{display:none!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}</style>
 <script id="pspNoTopTickerFinalScript">(function(){function clean(){document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker').forEach(function(n){n.remove();});}document.addEventListener('DOMContentLoaded',clean);window.addEventListener('pageshow',clean);setTimeout(clean,250);setTimeout(clean,1200);})();</script>
-<script src="psp-v49-auth-compat.js?v=20260813-v75-referral-wa"></script>
+<script src="psp-v49-auth-compat.js?v=20260814-v81-speed"></script>
 <script src="psp-v29-final.js?v=20260802-v29-final"></script>
 <script src="account-verification-v49.js?v=20260820-v116-90day-expiry"></script>
 <script src="user-dashboard-v56.js?v=20260820-v115-full-lifecycle"></script>
@@ -3406,6 +4122,319 @@ window.addEventListener('message',function(event){
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',removeInternalFooter,{once:true});
   else removeInternalFooter();
+})();
+</script>
+
+<script id="pspV129ShellTitleSync">
+(function(){function sync(){try{var lp=document.getElementById('landingPage'),app=document.getElementById('mainApp');var landing=lp&&getComputedStyle(lp).display!=='none';var appOn=app&&getComputedStyle(app).display!=='none';if(landing||!appOn)document.title='PipSePaisa — Forex Education & Trading Tools';else document.title=(window.PSP_PORTAL_MODE==='mentor'?'PipSePaisa Mentor Site':'PipSePaisa User Panel')}catch(_){}}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){sync();var lp=document.getElementById('landingPage'),app=document.getElementById('mainApp');if(window.MutationObserver){var m=new MutationObserver(sync);if(lp)m.observe(lp,{attributes:true,attributeFilter:['style','class']});if(app)m.observe(app,{attributes:true,attributeFilter:['style','class']})}}, {once:true});else sync()})();
+</script>
+
+<style id="pspV142MobileLogoutSidebarFix">
+@media(max-width:768px){
+  /* When the side drawer is open, the fixed bottom nav must not cover Logout. */
+  html.psp-sidebar-open #userBottomNav,
+  body.psp-sidebar-open #userBottomNav{
+    opacity:0!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+    transform:translateY(100%)!important;
+  }
+
+  /* Make the complete drawer scrollable, including footer actions. */
+  html.psp-sidebar-open .sidebar,
+  body.psp-sidebar-open .sidebar,
+  .sidebar.open{
+    top:0!important;
+    bottom:0!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:contain!important;
+    padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))!important;
+    z-index:1800!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Do not trap scrolling only inside the main menu. Footer must be reachable too. */
+  html.psp-sidebar-open .sidebar .menu,
+  body.psp-sidebar-open .sidebar .menu,
+  .sidebar.open .menu{
+    flex:0 0 auto!important;
+    overflow:visible!important;
+    min-height:auto!important;
+  }
+
+  .sidebar .sidebar-footer{
+    position:static!important;
+    flex:0 0 auto!important;
+    margin-top:16px!important;
+    padding:10px 12px 18px!important;
+    border-top:1px solid var(--border)!important;
+    background:var(--bg-sidebar)!important;
+  }
+
+  /* Keep Logout/Login action clearly reachable at the very bottom. */
+  #authMenuItem{
+    margin-bottom:8px!important;
+  }
+
+  #sidebarOverlay{
+    z-index:1700!important;
+  }
+}
+</style>
+
+
+<style id="pspV143UniversalSidebarControls">
+/* Notifications + Install App are real main-menu controls on every platform. */
+.psp-always-utility{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#pspNotifySidebarNav,
+#pwaSidebarInstall{
+  min-height:40px!important;
+}
+
+/* Keep account controls compact and reachable at the bottom. */
+.sidebar .sidebar-footer{
+  flex:0 0 auto!important;
+  background:var(--bg-sidebar)!important;
+  border-top:1px solid var(--border)!important;
+  padding:7px 12px calc(8px + env(safe-area-inset-bottom,0px))!important;
+  z-index:20!important;
+}
+.sidebar .sidebar-footer .menu-item{
+  min-height:38px!important;
+  padding-top:8px!important;
+  padding-bottom:8px!important;
+}
+
+@media(max-width:768px){
+  /* Bottom navigator NEVER sits over an open sidebar. */
+  body.psp-sidebar-open #userBottomNav,
+  html.psp-sidebar-open #userBottomNav,
+  body:has(.sidebar.open) #userBottomNav{
+    display:none!important;
+    opacity:0!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+  }
+
+  .sidebar,
+  .sidebar.open{
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    bottom:0!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    padding-bottom:0!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Main menu scrolls; compact footer with About/Profile/Logout stays visible. */
+  .sidebar .menu{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    -webkit-overflow-scrolling:touch!important;
+    padding-bottom:14px!important;
+  }
+
+  .sidebar .sidebar-footer{
+    position:relative!important;
+    bottom:auto!important;
+    flex:0 0 auto!important;
+    margin-top:0!important;
+    padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;
+  }
+
+  #authMenuItem{
+    margin-bottom:0!important;
+  }
+
+  #sidebarOverlay{
+    inset:0!important;
+    bottom:0!important;
+  }
+}
+</style>
+
+<script id="pspV143SidebarOpenGuard">
+(function(){
+  function syncSidebarChrome(){
+    var sidebar=document.getElementById('sidebar');
+    var nav=document.getElementById('userBottomNav');
+    if(!sidebar||!nav)return;
+    var mobile=window.matchMedia ? window.matchMedia('(max-width:768px)').matches : window.innerWidth<=768;
+    var open=sidebar.classList.contains('open');
+
+    document.documentElement.classList.toggle('psp-sidebar-open',mobile&&open);
+    document.body.classList.toggle('psp-sidebar-open',mobile&&open);
+
+    if(mobile&&open){
+      nav.style.setProperty('display','none','important');
+      nav.style.setProperty('visibility','hidden','important');
+      nav.style.setProperty('pointer-events','none','important');
+    }else{
+      nav.style.removeProperty('display');
+      nav.style.removeProperty('visibility');
+      nav.style.removeProperty('pointer-events');
+    }
+  }
+
+  function init(){
+    var sidebar=document.getElementById('sidebar');
+    if(sidebar&&window.MutationObserver){
+      new MutationObserver(syncSidebarChrome).observe(sidebar,{attributes:true,attributeFilter:['class']});
+    }
+    window.addEventListener('resize',syncSidebarChrome);
+    window.addEventListener('orientationchange',syncSidebarChrome);
+    syncSidebarChrome();
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
+})();
+</script>
+
+
+<style id="pspV144SidebarAlwaysVisibleControls">
+.psp-sidebar-utility-zone{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:5px!important;
+  margin:0 0 8px!important;
+  padding:0!important;
+}
+.psp-sidebar-utility-zone #pspNotifySidebarNav,
+.psp-sidebar-utility-zone #pwaSidebarInstall{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  min-height:40px!important;
+  margin:2px 0!important;
+}
+.sidebar{
+  display:flex!important;
+  flex-direction:column!important;
+  height:100vh!important;
+  height:100dvh!important;
+  overflow:hidden!important;
+}
+.sidebar .brand,
+.sidebar .user-card,
+.sidebar .menu-label{
+  flex:0 0 auto!important;
+}
+.sidebar .menu{
+  flex:1 1 0%!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior:contain!important;
+}
+.sidebar .sidebar-footer{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  flex:0 0 auto!important;
+  position:relative!important;
+  bottom:auto!important;
+  margin:0!important;
+  padding:7px 12px calc(9px + env(safe-area-inset-bottom,0px))!important;
+  border-top:1px solid var(--border)!important;
+  background:var(--bg-sidebar)!important;
+  z-index:60!important;
+  box-shadow:0 -8px 22px rgba(15,23,42,.04)!important;
+}
+.sidebar .sidebar-footer .menu-item{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  min-height:36px!important;
+  padding:7px 12px!important;
+  margin:1px 0!important;
+}
+#authMenuItem{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  margin-bottom:0!important;
+}
+#authMenuItem.psp-auth-logout,
+body.psp-authenticated #authMenuItem{
+  color:#d92d20!important;
+  background:linear-gradient(135deg,rgba(217,45,32,.10),rgba(217,45,32,.025))!important;
+}
+@media(max-width:768px){
+  .sidebar,.sidebar.open{
+    top:0!important;
+    bottom:0!important;
+    height:100dvh!important;
+    max-height:100dvh!important;
+    padding-bottom:0!important;
+    overflow:hidden!important;
+  }
+  .sidebar .menu{
+    flex:1 1 0%!important;
+    min-height:0!important;
+    overflow-y:auto!important;
+    padding-bottom:12px!important;
+  }
+  .sidebar .sidebar-footer{
+    position:relative!important;
+    flex:0 0 auto!important;
+    margin:0!important;
+    padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;
+  }
+  body.psp-sidebar-open #userBottomNav,
+  html.psp-sidebar-open #userBottomNav,
+  body:has(.sidebar.open) #userBottomNav{
+    display:none!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+  }
+}
+</style>
+
+<script id="pspV144SidebarStateSync">
+(function(){
+  function sync(){
+    var auth=document.getElementById('authMenuItem');
+    var authText=document.getElementById('authMenuText');
+    if(auth&&authText){
+      var isLogout=/logout/i.test(authText.textContent||'');
+      auth.classList.toggle('psp-auth-logout',isLogout);
+      document.body.classList.toggle('psp-authenticated',isLogout);
+    }
+    ['pspNotifySidebarNav','pwaSidebarInstall','authMenuItem'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(el){
+        el.style.setProperty('display','flex','important');
+        el.style.setProperty('visibility','visible','important');
+        el.style.setProperty('opacity','1','important');
+      }
+    });
+  }
+  function init(){
+    sync();
+    var authText=document.getElementById('authMenuText');
+    if(authText&&window.MutationObserver){
+      new MutationObserver(sync).observe(authText,{childList:true,characterData:true,subtree:true});
+    }
+    setTimeout(sync,300);
+    setTimeout(sync,1200);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
 })();
 </script>
 
