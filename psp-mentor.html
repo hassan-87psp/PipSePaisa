@@ -823,6 +823,41 @@ html.dark .psp-rh-dialog .psp-rh-preview-copy{
 }
 </style>
 
+
+<style id="pspV136UserPanelChartDateGroups">
+/* Mentor Charts date grouping now mirrors User Panel chart history. */
+.psp-chart-date-rail,
+.psp-chart-workspace{display:contents!important}
+.psp-rh-date-heading{
+  grid-column:1/-1;
+  margin:7px 0 0;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-height:30px;
+}
+.psp-rh-date-title{
+  color:var(--text);
+  font-size:13px;
+  line-height:1.2;
+  font-weight:900;
+  white-space:nowrap;
+}
+.psp-rh-date-line{
+  flex:1;
+  height:1px;
+  background:var(--border);
+}
+.psp-chart-results-head{
+  margin:0 0 1px!important;
+  min-height:24px!important;
+}
+@media(max-width:760px){
+  .psp-rh-date-heading{gap:9px;margin-top:5px}
+  .psp-rh-date-title{font-size:12px}
+}
+</style>
+
 <body><style id="darkfix-css">
 select{color-scheme:dark}
 select option,select optgroup{background:#0f1729!important;color:#e8eaf0!important}
@@ -1640,7 +1675,6 @@ async function loadAdminSignals(){
 /* ============ CHARTS — V134 PREMIUM RESEARCH HUB ============ */
 let mentorEditingChartId=null;
 let mentorChartsData=[];
-let mentorChartDateKey='all';
 
 function renderCharts(){
   const el=document.getElementById('pg-charts');if(!el)return;
@@ -1655,22 +1689,11 @@ function renderCharts(){
         <select class="psp-rh-field" id="rhChartPair" onchange="applyChartFilters()"><option value="all">All Pairs</option></select>
         <select class="psp-rh-field" id="rhChartSort" onchange="applyChartFilters()"><option value="newest">Newest First</option><option value="oldest">Oldest First</option></select>
       </div>
-      <div class="psp-chart-workspace">
-        <aside class="psp-chart-date-rail">
-          <div class="psp-chart-date-head">
-            <div class="psp-chart-date-kicker">Chart History</div>
-            <div class="psp-chart-date-title">Browse by Date</div>
-          </div>
-          <div id="rhChartDateList" class="psp-chart-date-list"></div>
-        </aside>
-        <section>
-          <div class="psp-chart-results-head">
-            <div id="rhChartResultsTitle" class="psp-chart-results-title">All Charts</div>
-            <div id="rhChartResultsMeta" class="psp-chart-results-meta"></div>
-          </div>
-          <div id="chList" class="psp-rh-grid"><div class="psp-rh-empty">Loading professional chart analysis...</div></div>
-        </section>
+      <div class="psp-chart-results-head">
+        <div class="psp-chart-results-title">Chart History</div>
+        <div id="rhChartResultsMeta" class="psp-chart-results-meta"></div>
       </div>
+      <div id="chList" class="psp-rh-grid"><div class="psp-rh-empty">Loading professional chart analysis...</div></div>
     </div>
     <div class="psp-rh-modal" id="chartEditorModal" onclick="if(event.target===this)closeChartEditor()"><div class="psp-rh-dialog">
       <div class="psp-rh-dialog-head"><div><h3 id="chartEditorTitle">New Chart Analysis</h3><p>Create a professional market-analysis card for the research hub.</p></div><button class="psp-rh-close" onclick="closeChartEditor()">×</button></div>
@@ -1714,72 +1737,24 @@ async function saveMentorChart(){
 async function loadCharts(){
   const box=document.getElementById('chList');if(!box)return;box.innerHTML='<div class="psp-rh-empty">Loading professional chart analysis...</div>';
   const {data,error}=await sb.from('charts').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false});
-  if(error){box.innerHTML=`<div class="psp-rh-empty" style="color:var(--red)">${esc(error.message)}</div>`;return;}mentorChartsData=data||[];hydrateChartFilters();renderChartDateRail();applyChartFilters();
+  if(error){box.innerHTML=`<div class="psp-rh-empty" style="color:var(--red)">${esc(error.message)}</div>`;return;}mentorChartsData=data||[];hydrateChartFilters();applyChartFilters();
 }
 
-function mentorChartLocalDateKey(value){
+function mentorChartDateKey(value){
   const d=value?new Date(value):new Date();
   if(Number.isNaN(d.getTime()))return '';
-  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
-  return `${y}-${m}-${day}`;
+  d.setHours(0,0,0,0);
+  return d.getTime();
 }
-function mentorChartDateFromKey(key){
-  const parts=String(key||'').split('-').map(Number);
-  if(parts.length!==3||parts.some(n=>!Number.isFinite(n)))return null;
-  return new Date(parts[0],parts[1]-1,parts[2]);
+function mentorChartGroupLabel(value){
+  const d=new Date(value);
+  const today=new Date();today.setHours(0,0,0,0);
+  const yesterday=new Date(today);yesterday.setDate(today.getDate()-1);
+  const key=mentorChartDateKey(value);
+  if(key===today.getTime())return 'Today Charts';
+  if(key===yesterday.getTime())return 'Yesterday Charts';
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 }
-function mentorChartDayDiff(key){
-  const d=mentorChartDateFromKey(key);if(!d)return 9999;
-  const now=new Date(),today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  const day=new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  return Math.round((today-day)/86400000);
-}
-function mentorChartDateLabel(key){
-  if(key==='all')return 'All Charts';
-  const diff=mentorChartDayDiff(key);
-  if(diff===0)return 'Today Charts';
-  if(diff===1)return 'Yesterday Charts';
-  const d=mentorChartDateFromKey(key);
-  return d?d.toLocaleDateString(undefined,{day:'numeric',month:'long'}):key;
-}
-function renderChartDateRail(){
-  const box=document.getElementById('rhChartDateList');if(!box)return;
-  const counts={};
-  mentorChartsData.forEach(c=>{
-    const key=mentorChartLocalDateKey(c.created_at);
-    if(key)counts[key]=(counts[key]||0)+1;
-  });
-  const keys=Object.keys(counts).sort((a,b)=>b.localeCompare(a));
-
-  if(mentorChartDateKey!=='all'&&!counts[mentorChartDateKey])mentorChartDateKey='all';
-
-  const todayKey=mentorChartLocalDateKey(new Date());
-  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
-  const yesterdayKey=mentorChartLocalDateKey(yesterday);
-
-  const rows=[];
-  rows.push({key:'all',label:'All Charts',count:mentorChartsData.length});
-  rows.push({divider:true});
-  rows.push({key:todayKey,label:'Today Charts',count:counts[todayKey]||0});
-  rows.push({key:yesterdayKey,label:'Yesterday Charts',count:counts[yesterdayKey]||0});
-
-  const historical=keys.filter(k=>k!==todayKey&&k!==yesterdayKey);
-  if(historical.length)rows.push({divider:true});
-  historical.forEach(k=>rows.push({key:k,label:mentorChartDateLabel(k),count:counts[k]||0}));
-
-  box.innerHTML=rows.map(row=>{
-    if(row.divider)return '<div class="psp-chart-date-divider"></div>';
-    return `<button class="psp-chart-date-btn ${mentorChartDateKey===row.key?'active':''}" onclick="selectMentorChartDate('${row.key}')">
-      <span>${esc(row.label)}</span><span class="psp-chart-date-count">${row.count}</span>
-    </button>`;
-  }).join('');
-}
-function selectMentorChartDate(key){
-  mentorChartDateKey=key||'all';
-  renderChartDateRail();
-  applyChartFilters();
-}
-
 function hydrateChartFilters(){const s=document.getElementById('rhChartPair');if(!s)return;const cur=s.value||'all',pairs=[...new Set(mentorChartsData.map(x=>String(x.pair||'').trim()).filter(Boolean))].sort();s.innerHTML='<option value="all">All Pairs</option>'+pairs.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');if([...s.options].some(o=>o.value===cur))s.value=cur;}
 function applyChartFilters(){
   const q=String(document.getElementById('rhChartSearch')?.value||'').toLowerCase().trim(),
@@ -1788,8 +1763,7 @@ function applyChartFilters(){
 
   let list=mentorChartsData.filter(c=>{
     const hay=[c.title,c.pair,c.notes].join(' ').toLowerCase();
-    const dateOk=mentorChartDateKey==='all'||mentorChartLocalDateKey(c.created_at)===mentorChartDateKey;
-    return(!q||hay.includes(q))&&(pair==='all'||String(c.pair||'')===pair)&&dateOk;
+    return(!q||hay.includes(q))&&(pair==='all'||String(c.pair||'')===pair);
   });
 
   list.sort((a,b)=>{
@@ -1797,16 +1771,53 @@ function applyChartFilters(){
     return sort==='oldest'?av-bv:bv-av;
   });
 
-  const title=document.getElementById('rhChartResultsTitle');
   const meta=document.getElementById('rhChartResultsMeta');
-  if(title)title.textContent=mentorChartDateLabel(mentorChartDateKey);
   if(meta)meta.textContent=list.length+' chart'+(list.length===1?'':'s');
 
   renderChartCards(list);
 }
 function renderChartCards(list){
-  const box=document.getElementById('chList');if(!box)return;if(!list.length){box.innerHTML='<div class="psp-rh-empty">No chart analysis matches this filter.</div>';return;}
-  box.innerHTML=list.map(c=>`<article class="psp-rh-card"><div class="psp-rh-media">${c.image_url?`<img src="${esc(c.image_url)}" alt="${esc(c.title||'Chart Analysis')}">`:`<div class="psp-rh-media-empty">MARKET ANALYSIS</div>`}<span class="psp-rh-media-badge">VIP RESEARCH</span></div><div class="psp-rh-body"><div class="psp-rh-meta"><span class="psp-rh-chip">${esc(c.pair||'Market')}</span><span>${c.created_at?pspFmtDT(c.created_at):''}</span></div><h3 class="psp-rh-card-title">${esc(c.title||'Chart Analysis')}</h3><div class="psp-rh-snippet">${esc(c.notes||'Professional market chart analysis.')}</div><div class="psp-rh-actions"><button class="psp-rh-action" onclick="openChartPreview('${c.id}')">View</button><button class="psp-rh-action" onclick="openChartEditor('${c.id}')">Edit</button><button class="psp-rh-action icon danger" onclick="delChart('${c.id}')">🗑</button></div></div></article>`).join('');
+  const box=document.getElementById('chList');if(!box)return;
+  if(!list.length){
+    box.innerHTML='<div class="psp-rh-empty">No chart analysis matches this filter.</div>';
+    return;
+  }
+
+  let lastKey=null;
+  let output='';
+
+  list.forEach(c=>{
+    const key=mentorChartDateKey(c.created_at);
+    if(key!==lastKey){
+      lastKey=key;
+      output+=`<div class="psp-rh-date-heading">
+        <div class="psp-rh-date-title">${mentorChartGroupLabel(c.created_at)}</div>
+        <div class="psp-rh-date-line"></div>
+      </div>`;
+    }
+
+    output+=`<article class="psp-rh-card">
+      <div class="psp-rh-media">
+        ${c.image_url?`<img src="${esc(c.image_url)}" alt="${esc(c.title||'Chart Analysis')}">`:`<div class="psp-rh-media-empty">MARKET ANALYSIS</div>`}
+        <span class="psp-rh-media-badge">VIP RESEARCH</span>
+      </div>
+      <div class="psp-rh-body">
+        <div class="psp-rh-meta">
+          <span class="psp-rh-chip">${esc(c.pair||'Market')}</span>
+          <span>${c.created_at?pspFmtDT(c.created_at):''}</span>
+        </div>
+        <h3 class="psp-rh-card-title">${esc(c.title||'Chart Analysis')}</h3>
+        <div class="psp-rh-snippet">${esc(c.notes||'Professional market chart analysis.')}</div>
+        <div class="psp-rh-actions">
+          <button class="psp-rh-action" onclick="openChartPreview('${c.id}')">View</button>
+          <button class="psp-rh-action" onclick="openChartEditor('${c.id}')">Edit</button>
+          <button class="psp-rh-action icon danger" onclick="delChart('${c.id}')">🗑</button>
+        </div>
+      </div>
+    </article>`;
+  });
+
+  box.innerHTML=output;
 }
 function openChartPreview(id){const c=mentorChartsData.find(x=>String(x.id)===String(id));if(!c)return;document.getElementById('chartPreviewTitle').textContent=c.title||'Chart Analysis';document.getElementById('chartPreviewMeta').textContent=(c.pair||'Market')+' • '+(c.created_at?pspFmtDT(c.created_at):'');document.getElementById('chartPreviewBody').innerHTML=`${c.image_url?`<img class="psp-rh-preview-img" src="${esc(c.image_url)}" alt="${esc(c.title||'Chart')}">`:''}<div class="psp-rh-preview-copy">${esc(c.notes||'No analysis notes added.').replace(/\n/g,'<br>')}</div>`;document.getElementById('chartPreviewModal').classList.add('open');}
 function closeChartPreview(){document.getElementById('chartPreviewModal')?.classList.remove('open');}
