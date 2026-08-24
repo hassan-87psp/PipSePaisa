@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light" class="psp-v20-booting">
 <head>
-<meta name="psp-build" content="2026-08-24-v145-route-sync">
+<meta name="psp-build" content="2026-08-24-v146-footer-controls">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -1166,19 +1166,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
     <div class="menu-label">Main Menu</div>
     
     <nav class="menu">
-      <div class="psp-sidebar-utility-zone" id="pspSidebarUtilityZone">
-<div class="menu-item psp-notify-sidebar-nav psp-always-utility" id="pspNotifySidebarNav" onclick="openPspNotificationCenter()" role="button" tabindex="0" title="Notification Settings">
-        <span class="menu-icon">🔔</span>
-        <strong id="pspNotifySidebarText">Enable Notifications</strong>
-        <span class="psp-notify-sidebar-badge" id="pspNotifySidebarBadge">OFF</span>
-      </div>
-      <div class="menu-item psp-install-app-nav psp-always-utility" id="pwaSidebarInstall" onclick="installPipSePaisaApp()" role="button" tabindex="0" title="Install PipSePaisa App">
-        <span class="menu-icon">⬇️</span>
-        <strong id="pwaSidebarInstallText">Install App</strong>
-        <span class="psp-install-new-badge" id="pwaSidebarInstallBadge">NEW</span>
-      </div>
-      </div>
-
       <div class="menu-item" data-page="mycourses" onclick="return openMyCoursesPage(this,event)"><span class="menu-icon">🎓</span><strong>My Courses</strong></div>
       <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">🏠</span>Dashboard</div>
       <div class="menu-item" data-page="journal" onclick="showPage('journal', this)"><span class="menu-icon">📔</span>Journal</div>
@@ -1211,6 +1198,17 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </nav>
     
     <div class="sidebar-footer">
+      <div class="menu-item psp-notify-sidebar-nav psp-always-utility" id="pspNotifySidebarNav" onclick="openPspNotificationCenter()" role="button" tabindex="0" title="Notification Settings">
+        <span class="menu-icon">🔔</span>
+        <strong id="pspNotifySidebarText">Enable Notifications</strong>
+        <span class="psp-notify-sidebar-badge" id="pspNotifySidebarBadge">OFF</span>
+      </div>
+      <div class="menu-item psp-install-app-nav psp-always-utility" id="pwaSidebarInstall" onclick="installPipSePaisaApp()" role="button" tabindex="0" title="Install PipSePaisa App">
+        <span class="menu-icon">⬇️</span>
+        <strong id="pwaSidebarInstallText">Install App</strong>
+        <span class="psp-install-new-badge" id="pwaSidebarInstallBadge">NEW</span>
+      </div>
+
       <div class="menu-item" data-page="about" onclick="showPage('about', this)"><span class="menu-icon">ℹ️</span>About</div>
       <div class="menu-item" data-page="settings" onclick="showPage('settings', this)"><span class="menu-icon">👤</span>Profile</div>
       <div class="menu-item" id="authMenuItem" onclick="authMenuClick()" style="background: linear-gradient(135deg, var(--green-bg), transparent); color: var(--green);"><span class="menu-icon">🔐</span><strong id="authMenuText">Login / Sign Up</strong></div>
@@ -3080,7 +3078,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20260824-v145-route-sync"></script>
+<script src="user-app-core-v29.js?v=20260824-v146-footer-controls"></script>
 
 <script id="mentorPortalAiJs">
 (function(){
@@ -4096,7 +4094,7 @@ window.addEventListener('message',function(event){
 
 
 <script src="psp-v28-fixes.js?v=20260813-v72-clean-routes"></script>
-<script src="push-subscribe-prompt.js?v=20260824-v145-route-sync"></script>
+<script src="push-subscribe-prompt.js?v=20260824-v146-footer-controls"></script>
 
 
 
@@ -4437,6 +4435,43 @@ body.psp-authenticated #authMenuItem{
   else init();
 })();
 </script>
+
+
+<style id="pspV146FooterUtilityControls">
+/* Notifications + Install App now live directly above About/Profile/Logout. */
+.psp-sidebar-utility-zone{display:none!important}
+
+.sidebar .sidebar-footer #pspNotifySidebarNav,
+.sidebar .sidebar-footer #pwaSidebarInstall{
+  display:flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  min-height:40px!important;
+  margin:3px 0 6px!important;
+}
+
+.sidebar .sidebar-footer #pwaSidebarInstall{
+  margin-bottom:8px!important;
+}
+
+/* Keep footer compact but allow all five rows to remain reachable. */
+.sidebar .sidebar-footer{
+  max-height:48vh!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+
+/* Mobile: footer stays visible; if screen is short, footer itself can scroll. */
+@media(max-width:768px){
+  .sidebar .sidebar-footer{
+    flex:0 0 auto!important;
+    max-height:46dvh!important;
+    overflow-y:auto!important;
+    padding-top:8px!important;
+  }
+}
+</style>
 
 </body>
 </html>
