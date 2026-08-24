@@ -1,0 +1,2168 @@
+/* PipSePaisa exact compact mobile composition — based on approved references */
+@media (max-width: 768px) {
+  :root { --mobile-edge: 6px; }
+  html { overflow-x: hidden !important; }
+  body { overflow-x: hidden !important; }
+  .container,
+  .page-partner #partner-programs > .container {
+    width: calc(100% - (var(--mobile-edge) * 2)) !important;
+    max-width: none !important;
+    margin-inline: var(--mobile-edge) !important;
+  }
+
+  /* Full compact navbar: keep all desktop links visible like the reference. */
+  .topbar { position: relative !important; box-shadow: 0 2px 8px rgba(40,25,4,.06) !important; }
+  .nav { height: 31px !important; min-height: 31px !important; gap: 3px !important; padding: 0 !important; }
+  .brand { gap: 3px !important; font-size: 8px !important; line-height: 1 !important; white-space: nowrap !important; flex: 0 0 auto !important; }
+  .brand img { width: 21px !important; height: 21px !important; border-radius: 5px !important; box-shadow: none !important; }
+  .brand span { display: inline !important; }
+  .menu,
+  .menu.is-open { display: flex !important; align-items: center !important; justify-content: center !important; gap: 1px !important; flex: 1 1 auto !important; min-width: 0 !important; white-space: nowrap !important; }
+  .menu a { display: block !important; padding: 10px 3px 9px !important; border-radius: 0 !important; font-size: 5.6px !important; font-weight: 800 !important; line-height: 1 !important; letter-spacing: -.02em !important; }
+  .menu a.active::after { bottom: 4px !important; height: 1px !important; }
+  .nav-actions,.actions { display: flex !important; gap: 3px !important; flex: 0 0 auto !important; }
+  .mobile-menu { display: none !important; }
+  .theme-btn { display: grid !important; width: 21px !important; height: 21px !important; font-size: 10px !important; border-radius: 50% !important; }
+  .nav .btn,.nav .login { min-height: 21px !important; padding: 4px 9px !important; border-radius: 6px !important; font-size: 6.5px !important; box-shadow: none !important; }
+
+  /* Global compact vertical rhythm. */
+  .section,.category,.category.alt,.broker-showcase,.social-showcase,.social-section,.services-premium,.partner-promo-section,.mentor-spotlight-section {
+    padding: 17px 0 !important;
+  }
+  .section-head,.section-heading { max-width: 100% !important; margin: 0 auto 9px !important; padding-inline: 4px !important; }
+  .section-head .mini,.section-heading .small,.mini { font-size: 5.7px !important; letter-spacing: .11em !important; }
+  .section-head h2,.section-heading h2 { margin: 3px 0 4px !important; font-size: 16px !important; line-height: 1.05 !important; letter-spacing: -.035em !important; }
+  .section-head p,.section-heading p { margin: 0 !important; font-size: 5.8px !important; line-height: 1.35 !important; }
+
+  /* Shared three-across broker cards. */
+  .broker-grid,.broker-logo-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+    gap: 5px !important;
+  }
+  .broker-card,.broker-logo-card { border-radius: 7px !important; box-shadow: 0 3px 8px rgba(55,35,5,.08) !important; }
+  .broker-card img { width: 100% !important; aspect-ratio: 3/1 !important; object-fit: cover !important; }
+  .broker-logo-card picture { aspect-ratio: 3/1 !important; }
+  .broker-logo-card picture img { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+  .broker-card-footer { display: none !important; }
+
+  /* Social blocks remain in one compact row. */
+  .social-grid,.social-grid-three {
+    display: grid !important;
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+    gap: 6px !important;
+    max-width: none !important;
+  }
+  .social-card,.social-platform {
+    min-height: 0 !important;
+    padding: 8px 3px !important;
+    border-radius: 8px !important;
+    box-shadow: 0 3px 9px rgba(55,35,5,.08) !important;
+  }
+  .social-icon {
+    width: 20px !important;
+    height: 20px !important;
+    margin: 0 auto 3px !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+  }
+  .social-icon svg { width: 11px !important; height: 11px !important; }
+  .social-card h3,.social-platform h3 { margin: 0 0 1px !important; font-size: 6.7px !important; line-height: 1.1 !important; }
+  .social-card p,.social-platform p { font-size: 4.8px !important; line-height: 1.15 !important; }
+
+  /* Compact 4-column footer matching the reference composition. */
+  footer { padding: 17px 0 8px !important; }
+  .footer-grid {
+    display: grid !important;
+    grid-template-columns: 1.55fr repeat(3,1fr) !important;
+    gap: 8px !important;
+  }
+  .footer-brand { font-size: 9px !important; }
+  .footer-grid p { margin: 4px 0 !important; font-size: 4.7px !important; line-height: 1.35 !important; }
+  .footer-grid h4 { margin: 1px 0 4px !important; font-size: 5.8px !important; }
+  .footer-grid ul { gap: 3px !important; font-size: 4.7px !important; }
+  footer li { margin: 0 !important; }
+  .disclaimer,.risk { margin-top: 8px !important; padding-top: 6px !important; font-size: 4.2px !important; line-height: 1.3 !important; }
+  .copyright { margin-top: 5px !important; font-size: 4px !important; gap: 4px !important; flex-direction: row !important; }
+
+  /* ================= HOME ================= */
+  body:not(.page-partner):not(:has(.course-section)):not(:has(.tools-suite)) .hero { padding: 7px 0 6px !important; }
+  .hero-overlay-banner {
+    min-height: 137px !important;
+    height: 137px !important;
+    border-radius: 8px !important;
+    background-size: cover !important;
+    background-position: center top !important;
+  }
+  .hero-text-layer {
+    width: 59% !important;
+    height: 100% !important;
+    padding: 7px 7px 5px !important;
+    justify-content: center !important;
+  }
+  .hero-eyebrow { margin-bottom: 3px !important; padding: 2px 4px !important; font-size: 4.7px !important; line-height: 1 !important; }
+  .hero-overlay-banner h1 { margin: 0 0 3px !important; font-size: 15.5px !important; line-height: .96 !important; }
+  .hero-course { margin: 0 0 3px !important; padding: 2px 4px !important; border-left-width: 2px !important; font-size: 4.8px !important; line-height: 1.1 !important; }
+  .hero-quote { margin: 0 0 3px !important; padding: 3px 4px !important; border-radius: 4px !important; }
+  .hero-quote strong { margin-bottom: 1px !important; padding: 1px 3px !important; border-radius: 2px !important; font-size: 4.3px !important; }
+  .hero-quote p { display: -webkit-box !important; overflow: hidden !important; -webkit-line-clamp: 3 !important; -webkit-box-orient: vertical !important; font-size: 3.7px !important; line-height: 1.2 !important; }
+  .hero-features { display: grid !important; grid-template-columns: repeat(4,1fr) !important; gap: 2px !important; margin: 2px 0 3px !important; }
+  .hero-feature { gap: 2px !important; padding-right: 1px !important; }
+  .hero-feature > span { width: 13px !important; height: 13px !important; border-radius: 3px !important; font-size: 6px !important; }
+  .hero-feature b { font-size: 3.8px !important; }
+  .hero-feature small { font-size: 3.2px !important; }
+  .hero-primary-cta { min-height: 16px !important; margin: 0 !important; padding: 3px 8px !important; border-radius: 4px !important; font-size: 5.5px !important; }
+
+  .broker-showcase { padding: 11px 0 13px !important; }
+  .social-showcase { padding: 11px 0 14px !important; }
+
+  .services-banner-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+    gap: 5px !important;
+  }
+  .service-banner-card { border-radius: 7px !important; }
+  .service-banner-card img { border-radius: 7px !important; }
+
+  .mentor-spotlight { min-height: 0 !important; display: grid !important; grid-template-columns: 43% 57% !important; gap: 0 !important; border-radius: 9px !important; overflow: hidden !important; }
+  .mentor-portrait { min-height: 128px !important; height: 128px !important; border-radius: 0 !important; }
+  .mentor-person { height: 126px !important; max-height: 126px !important; width: auto !important; }
+  .mentor-role-badge { left: 4px !important; right: auto !important; bottom: 4px !important; padding: 2px 4px !important; border-radius: 3px !important; font-size: 3.6px !important; }
+  .mentor-content { padding: 10px 8px !important; }
+  .mentor-eyebrow { font-size: 4.5px !important; }
+  .mentor-content h2 { margin: 3px 0 4px !important; font-size: 13px !important; line-height: 1.02 !important; }
+  .mentor-description { display: -webkit-box !important; overflow: hidden !important; -webkit-line-clamp: 4 !important; -webkit-box-orient: vertical !important; margin: 0 0 5px !important; font-size: 4.5px !important; line-height: 1.3 !important; }
+  .mentor-highlights { gap: 2px !important; margin-bottom: 5px !important; }
+  .mentor-highlights span { padding: 2px 3px !important; border-radius: 3px !important; font-size: 3.5px !important; }
+  .mentor-cta-row { gap: 4px !important; }
+  .mentor-cta-row a,.mentor-content .btn { min-height: 15px !important; padding: 3px 6px !important; border-radius: 4px !important; font-size: 4.4px !important; }
+
+  .partner-promo-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+    gap: 5px !important;
+  }
+  .partner-promo-card,.visual-promo-card,.visual-promo-card picture,.visual-promo-card img { border-radius: 7px !important; }
+
+  /* Keep the complete comparison table visible instead of converting rows to cards. */
+  .broker-comparison-section { padding: 14px 0 12px !important; }
+  .broker-table-wrap { overflow: hidden !important; border-radius: 7px !important; }
+  .broker-comparison-table { display: table !important; width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }
+  .broker-comparison-table colgroup { display: table-column-group !important; }
+  .broker-comparison-table thead { display: table-header-group !important; }
+  .broker-comparison-table tbody { display: table-row-group !important; }
+  .broker-comparison-table tr { display: table-row !important; border: 0 !important; box-shadow: none !important; }
+  .broker-comparison-table th,.broker-comparison-table td {
+    display: table-cell !important;
+    width: auto !important;
+    padding: 3px 1px !important;
+    border-bottom: 1px solid #eee1d1 !important;
+    text-align: center !important;
+    font-size: 3.6px !important;
+    line-height: 1.15 !important;
+  }
+  .broker-comparison-table th { font-size: 3.1px !important; }
+  .broker-comparison-table td::before { display: none !important; content: none !important; }
+  .broker-name { display: flex !important; flex-direction: column !important; justify-content: center !important; gap: 1px !important; }
+  .broker-name img,.broker-name img.broker-logo-icon { width: 23px !important; height: 12px !important; padding: 0 !important; border-radius: 2px !important; }
+  .broker-name strong { font-size: 3.6px !important; }
+  .broker-comparison-table .badge { padding: 1px 2px !important; font-size: 3px !important; }
+  .broker-data-note { margin: 4px 2px 0 !important; font-size: 3.5px !important; line-height: 1.25 !important; }
+  .broker-comparison-section .cta { display: none !important; }
+
+  /* ================= PARTNER / COURSES / TOOLS SHARED HERO ================= */
+  .page-partner .hero,.page-partner ~ .hero,
+  body:has(.course-section) .hero,
+  body:has(.tools-suite) .hero { padding: 7px 0 7px !important; }
+  .page-partner .hero-box,
+  body:has(.course-section) .hero-box,
+  body:has(.tools-suite) .hero-box {
+    display: block !important;
+    position: relative !important;
+    height: 144px !important;
+    min-height: 144px !important;
+    border-radius: 8px !important;
+  }
+  .page-partner .hero-copy,
+  body:has(.course-section) .hero-copy,
+  body:has(.tools-suite) .hero-copy {
+    width: 58% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 10px 7px !important;
+    justify-content: center !important;
+  }
+  .page-partner .hero h1,
+  body:has(.course-section) .hero h1,
+  body:has(.tools-suite) .hero h1 { margin: 3px 0 !important; font-size: 15px !important; line-height: .98 !important; }
+  .page-partner .hero p,
+  body:has(.course-section) .hero p,
+  body:has(.tools-suite) .hero p { display: -webkit-box !important; overflow: hidden !important; -webkit-line-clamp: 3 !important; -webkit-box-orient: vertical !important; font-size: 4.4px !important; line-height: 1.25 !important; }
+  .page-partner .hero .mini,
+  body:has(.course-section) .hero .mini,
+  body:has(.tools-suite) .hero .mini { font-size: 4.3px !important; }
+  .page-partner .hero .pills,
+  body:has(.course-section) .hero .pills,
+  body:has(.tools-suite) .hero .pills { gap: 2px !important; margin: 4px 0 !important; }
+  .page-partner .hero .pill,
+  body:has(.course-section) .hero .pill,
+  body:has(.tools-suite) .hero .pill { padding: 2px 3px !important; border-radius: 3px !important; font-size: 3.6px !important; }
+  .page-partner .hero .login,
+  body:has(.course-section) .hero .login,
+  body:has(.tools-suite) .hero .login { min-height: 16px !important; padding: 3px 7px !important; border-radius: 4px !important; font-size: 4.7px !important; }
+  .page-partner .hero-visual,
+  body:has(.course-section) .hero-visual,
+  body:has(.tools-suite) .hero-visual {
+    position: absolute !important;
+    inset: 0 0 0 auto !important;
+    width: 44% !important;
+    height: 144px !important;
+    min-height: 144px !important;
+    background-size: cover !important;
+    background-position: center !important;
+  }
+
+  /* Partner page. */
+  .benefits-bg .grid-4 {
+    display: grid !important;
+    grid-template-columns: repeat(4,minmax(0,1fr)) !important;
+    gap: 4px !important;
+  }
+  .benefits-bg .feature-card,.benefit-mini-banner { border-radius: 6px !important; }
+
+  .page-partner #partner-programs .partner-detail {
+    display: grid !important;
+    grid-template-columns: 49% 51% !important;
+    gap: 6px !important;
+    margin: 0 0 8px !important;
+    align-items: stretch !important;
+  }
+  .page-partner #partner-programs .partner-image {
+    width: 100% !important;
+    max-width: none !important;
+    aspect-ratio: 1/1 !important;
+    border-radius: 7px !important;
+  }
+  .page-partner #partner-programs .partner-image img { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+  .page-partner #partner-programs .partner-info {
+    min-height: 0 !important;
+    padding: 8px 6px !important;
+    border-radius: 7px !important;
+  }
+  .program-kicker { margin-bottom: 2px !important; font-size: 3.7px !important; }
+  .program-kicker::before { width: 7px !important; height: 1px !important; }
+  .partner-info h3 { margin: 0 0 2px !important; font-size: 10px !important; }
+  .partner-info > p { display: -webkit-box !important; overflow: hidden !important; -webkit-line-clamp: 2 !important; -webkit-box-orient: vertical !important; margin: 0 0 2px !important; font-size: 3.5px !important; line-height: 1.2 !important; }
+  .info-row { grid-template-columns: 15px 1fr !important; gap: 3px !important; padding: 3px 0 !important; }
+  .info-ico { width: 14px !important; height: 14px !important; border-radius: 4px !important; }
+  .info-ico svg { width: 8px !important; height: 8px !important; }
+  .info-row h4 { margin: 0 !important; font-size: 4px !important; }
+  .info-row p { display: -webkit-box !important; overflow: hidden !important; -webkit-line-clamp: 1 !important; -webkit-box-orient: vertical !important; font-size: 3px !important; line-height: 1.1 !important; }
+  .partner-info > .login { min-height: 13px !important; margin-top: 3px !important; padding: 2px 5px !important; font-size: 3.7px !important; border-radius: 3px !important; }
+  .program-note { margin-top: 2px !important; font-size: 2.8px !important; }
+  .partner-programs-note { margin: 2px 0 0 !important; padding: 3px !important; font-size: 3px !important; }
+
+  .cta-banner { height: 80px !important; min-height: 80px !important; border-radius: 7px !important; }
+  .cta-copy { position: absolute !important; width: 62% !important; height: 100% !important; padding: 7px 6px !important; justify-content: center !important; }
+  .cta-copy .logo-row { padding: 1px 3px !important; font-size: 3px !important; }
+  .cta-copy .logo-row img { width: 8px !important; height: 8px !important; }
+  .cta-copy h2 { margin: 2px 0 !important; font-size: 10px !important; }
+  .cta-copy > p { font-size: 3px !important; line-height: 1.15 !important; }
+  .cta-highlights { gap: 2px !important; margin: 3px 0 !important; }
+  .cta-highlights span { padding: 1px 2px !important; border-radius: 2px !important; font-size: 2.8px !important; }
+  .cta-copy > .login { min-height: 12px !important; padding: 2px 4px !important; font-size: 3px !important; }
+  .cta-art { inset: 0 0 0 auto !important; width: 42% !important; height: 100% !important; border-radius: 50% 0 0 55% / 40% 0 0 65% !important; border: 0 !important; }
+  .cta-person { height: 155% !important; max-width: 100% !important; right: -4% !important; bottom: -55% !important; }
+  .name-tag { right: 2px !important; left: auto !important; bottom: 2px !important; min-width: 48px !important; padding: 2px 3px !important; border-radius: 3px !important; }
+  .name-tag strong { font-size: 3.4px !important; }
+  .name-tag small { font-size: 2.4px !important; }
+
+  /* Courses page. */
+  .course-grid { display: grid !important; grid-template-columns: repeat(2,minmax(0,1fr)) !important; gap: 6px !important; }
+  .course-card { min-height: 0 !important; padding: 8px 6px !important; border-radius: 8px !important; }
+  .course-card h3 { margin: 2px 0 !important; font-size: 9px !important; }
+  .course-card p { font-size: 3.6px !important; line-height: 1.2 !important; }
+  .course-card .price { margin: 4px 0 !important; font-size: 10px !important; }
+  .course-card .topics { gap: 2px !important; margin-bottom: 3px !important; }
+  .course-card .topics li { font-size: 3.2px !important; line-height: 1.15 !important; }
+  .course-card .highlight { margin: 3px 0 0 !important; padding: 3px !important; font-size: 3.3px !important; }
+  .course-card .course-btn,.course-card .login { min-height: 14px !important; margin-top: 3px !important; padding: 3px !important; border-radius: 3px !important; font-size: 3.8px !important; }
+  .why-section .grid-4 { display: grid !important; grid-template-columns: repeat(4,minmax(0,1fr)) !important; gap: 4px !important; }
+  .why-section .feature-card,.course-process-banner { border-radius: 6px !important; }
+
+  /* Tools page. */
+  body:has(.tools-suite) .hero-copy { width: 43% !important; }
+  body:has(.tools-suite) .hero-visual { width: 57% !important; padding: 5px !important; }
+  .tools-suite { width: 100% !important; max-width: none !important; border-radius: 6px !important; }
+  .tools-suite-bar { min-height: 12px !important; padding: 2px 3px !important; font-size: 2.8px !important; }
+  .tools-suite-screen { padding: 3px !important; }
+  .tools-suite-caption { padding: 2px 3px !important; }
+  .tools-suite-caption b { font-size: 3.4px !important; }
+  .tools-suite-caption small { font-size: 2.5px !important; }
+  .tools-suite-tabs { gap: 2px !important; padding: 2px !important; }
+  .tools-suite-tab { min-height: 14px !important; padding: 2px !important; border-radius: 3px !important; font-size: 2.6px !important; }
+
+  .category-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3,minmax(0,1fr)) !important;
+    gap: 5px !important;
+  }
+  .services-grid { grid-template-columns: repeat(4,minmax(0,1fr)) !important; gap: 5px !important; }
+  .resource-card,.services-grid .resource-card {
+    min-height: 0 !important;
+    padding: 7px 5px !important;
+    border-radius: 7px !important;
+  }
+  .resource-card .num { top: 3px !important; right: 4px !important; font-size: 8px !important; }
+  .resource-card .iconbox { width: 17px !important; height: 17px !important; margin-bottom: 3px !important; border-radius: 5px !important; font-size: 8px !important; }
+  .resource-card .iconbox svg { width: 9px !important; height: 9px !important; }
+  .resource-card h3 { margin: 1px 0 2px !important; font-size: 5.3px !important; }
+  .resource-card p { display: -webkit-box !important; overflow: hidden !important; -webkit-line-clamp: 3 !important; -webkit-box-orient: vertical !important; margin: 0 0 3px !important; font-size: 3.2px !important; line-height: 1.15 !important; }
+  .resource-card a { font-size: 3.2px !important; }
+
+  /* Disable hover shifts on touch layouts. */
+  .broker-card:hover,.broker-logo-card:hover,.social-card:hover,.social-platform:hover,.resource-card:hover,.feature-card:hover { transform: none !important; }
+}
+
+/* Slightly larger compact mode for tablets while keeping the same approved composition. */
+@media (min-width: 481px) and (max-width: 768px) {
+  .menu a { font-size: 8px !important; padding-inline: 5px !important; }
+  .brand { font-size: 11px !important; }
+  .hero-overlay-banner { height: 230px !important; min-height: 230px !important; }
+  .hero-text-layer { padding: 13px 14px !important; }
+  .hero-overlay-banner h1 { font-size: 25px !important; }
+  .page-partner .hero-box,body:has(.course-section) .hero-box,body:has(.tools-suite) .hero-box { height: 230px !important; min-height: 230px !important; }
+  .page-partner .hero-visual,body:has(.course-section) .hero-visual,body:has(.tools-suite) .hero-visual { height: 230px !important; min-height: 230px !important; }
+}
+
+/* High-specificity mobile overrides for rules in public-upgrades.css. */
+@media (max-width: 768px) {
+  body.page-partner .hero-box > .hero-visual.partner-hero-visual {
+    inset: 0 !important;
+    width: 100% !important;
+    height: 144px !important;
+    min-height: 144px !important;
+    background-size: 100% 100% !important;
+    background-position: center !important;
+  }
+  body:has(.course-section) .hero-box > .hero-visual {
+    inset: 0 !important;
+    width: 100% !important;
+    height: 144px !important;
+    min-height: 144px !important;
+    background-size: cover !important;
+    background-position: center top !important;
+  }
+  body.page-tools .hero-box > .hero-visual.tools-visual {
+    inset: 0 0 0 auto !important;
+    width: 57% !important;
+    height: 144px !important;
+    min-height: 144px !important;
+    padding: 5px !important;
+  }
+  body.page-tools .tools-suite {
+    inset: 5px !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    padding: 3px !important;
+    gap: 2px !important;
+    border-radius: 6px !important;
+  }
+  .course-card .topic {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 2px !important;
+    font-size: 3.15px !important;
+    line-height: 1.15 !important;
+  }
+  .course-card .check { width: 6px !important; height: 6px !important; flex: 0 0 6px !important; font-size: 3.5px !important; }
+  .course-card .ribbon { top: 4px !important; right: -16px !important; padding: 2px 18px !important; font-size: 2.5px !important; }
+  .course-card .old,.course-card .save { font-size: 3px !important; }
+  .mentor-content .mentor-quote { margin: 0 0 5px !important; padding: 3px 5px !important; font-size: 3.8px !important; line-height: 1.2 !important; }
+  .mentor-content .mentor-cta { min-height: 15px !important; align-self: flex-start !important; padding: 3px 6px !important; border-radius: 4px !important; font-size: 4.3px !important; }
+}
+
+/* ============================================================
+   FINAL MOBILE ROOT FIX — 2026-07-27
+   The earlier build loaded desktop responsive rules but did not
+   neutralize the mobile drawer and late high-specificity upgrades.
+   These rules intentionally win last and reproduce the approved
+   compact, desktop-like mobile composition.
+   ============================================================ */
+@media (max-width: 768px) {
+  html, body { min-width: 0 !important; width: 100% !important; }
+
+  /* Keep every navigation item in one tiny horizontal row. */
+  .topbar .nav > .menu,
+  .topbar .nav > .menu.is-open,
+  .topbar .menu,
+  .topbar .menu.is-open {
+    position: static !important;
+    inset: auto !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: auto !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 1px !important;
+    overflow: visible !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: none !important;
+    z-index: auto !important;
+  }
+  .topbar .nav > .menu a,
+  .topbar .menu a {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 10px 2.5px 9px !important;
+    font-size: 5.2px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+  .topbar .mobile-menu,
+  .topbar .menu-toggle,
+  .topbar .hamburger { display: none !important; }
+
+  /* No blank sections while waiting for scroll observers. */
+  .reveal,
+  .reveal.left,
+  .reveal.right,
+  .reveal.up,
+  .reveal.down,
+  .stagger > *,
+  .feature-card.reveal,
+  .resource-card.reveal,
+  .course-card.reveal,
+  .partner-image.reveal,
+  .partner-info.reveal {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  .partner-info .program-kicker,
+  .partner-info > h3,
+  .partner-info > p,
+  .partner-info .info-row,
+  .partner-info .login,
+  .partner-info .program-note {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  /* Shared headings: prevent late desktop rules from enlarging them. */
+  main .section-head h2,
+  main .section-heading h2,
+  .social-section .section-head h2,
+  .social-showcase .section-heading h2,
+  body.page-tools .section-head h2,
+  body.page-partner .section-head h2,
+  body:has(.course-section) .section-head h2 {
+    margin: 3px 0 4px !important;
+    font-size: 16px !important;
+    line-height: 1.05 !important;
+    letter-spacing: -.035em !important;
+  }
+  main .section-head p,
+  main .section-heading p,
+  .social-section .section-head p,
+  body.page-tools .section-head p,
+  body.page-partner .section-head p,
+  body:has(.course-section) .section-head p {
+    margin: 0 !important;
+    font-size: 5.8px !important;
+    line-height: 1.35 !important;
+  }
+
+  /* Partner benefits are visible artwork cards, exactly four in one row. */
+  body.page-partner .benefits-bg .grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 4px !important;
+  }
+  body.page-partner .benefits-bg .feature-card {
+    display: block !important;
+    position: relative !important;
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    aspect-ratio: 15 / 8 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  body.page-partner .benefits-bg .feature-card > :not(.benefit-mini-banner) {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+  }
+  body.page-partner .benefits-bg .benefit-mini-banner,
+  body.page-partner .benefits-bg .benefit-mini-banner img {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+    object-fit: cover !important;
+  }
+
+  /* Partner program rows: square artwork + equally sized compact info panel. */
+  body.page-partner #partner-programs > .container {
+    width: calc(100% - 12px) !important;
+    margin-inline: 6px !important;
+  }
+  body.page-partner #partner-programs .partner-detail {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    align-items: stretch !important;
+    column-gap: 6px !important;
+    row-gap: 0 !important;
+    margin: 0 0 8px !important;
+  }
+  body.page-partner #partner-programs .partner-detail > .partner-image,
+  body.page-partner #partner-programs .partner-detail > .partner-info {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    align-self: stretch !important;
+  }
+  body.page-partner #partner-programs .partner-image,
+  body.page-partner #partner-programs .partner-image img {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    border-radius: 7px !important;
+  }
+  body.page-partner #partner-programs .partner-info {
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 7px 6px 5px !important;
+    overflow: hidden !important;
+    border-radius: 7px !important;
+  }
+  body.page-partner #partner-programs .program-kicker {
+    flex: 0 0 auto !important;
+    margin: 0 0 2px !important;
+    font-size: 3.4px !important;
+    line-height: 1 !important;
+  }
+  body.page-partner #partner-programs .partner-info h3 {
+    flex: 0 0 auto !important;
+    margin: 0 0 2px !important;
+    font-size: 9.5px !important;
+    line-height: 1.03 !important;
+    letter-spacing: -.025em !important;
+  }
+  body.page-partner #partner-programs .partner-info > p:not(.program-note) {
+    display: -webkit-box !important;
+    flex: 0 0 auto !important;
+    min-height: 0 !important;
+    margin: 0 0 2px !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 2 !important;
+    font-size: 3.2px !important;
+    line-height: 1.15 !important;
+  }
+  body.page-partner #partner-programs .info-row {
+    display: grid !important;
+    flex: 1 1 0 !important;
+    min-height: 0 !important;
+    grid-template-columns: 13px minmax(0,1fr) !important;
+    align-items: center !important;
+    gap: 3px !important;
+    padding: 2px 0 !important;
+  }
+  body.page-partner #partner-programs .info-ico {
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 3px !important;
+    font-size: 5px !important;
+  }
+  body.page-partner #partner-programs .info-row h4 {
+    margin: 0 !important;
+    font-size: 3.7px !important;
+    line-height: 1.05 !important;
+  }
+  body.page-partner #partner-programs .info-row p {
+    display: -webkit-box !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 1 !important;
+    font-size: 2.7px !important;
+    line-height: 1.05 !important;
+  }
+  body.page-partner #partner-programs .partner-info > .login {
+    flex: 0 0 auto !important;
+    align-self: flex-start !important;
+    min-height: 12px !important;
+    margin: 2px 0 0 !important;
+    padding: 2px 5px !important;
+    border-radius: 3px !important;
+    font-size: 3.4px !important;
+    line-height: 1 !important;
+  }
+  body.page-partner #partner-programs .partner-programs-note {
+    width: 100% !important;
+    margin: 2px 0 0 !important;
+    padding: 4px 5px !important;
+    border-radius: 4px !important;
+    font-size: 3px !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+  }
+
+  /* Courses: two complete compact cards in one row. */
+  body:has(.course-section) .course-section .course-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    gap: 6px !important;
+    align-items: stretch !important;
+  }
+  body:has(.course-section) .course-section .course-card,
+  body:has(.course-section) .course-section .course-card.advanced {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    padding: 8px 6px 6px !important;
+    border-radius: 8px !important;
+    transform: none !important;
+  }
+  body:has(.course-section) .course-section .course-card > .mini,
+  body:has(.course-section) .course-section .course-card.advanced > .mini {
+    max-width: calc(100% - 24px) !important;
+    padding: 2px 3px !important;
+    font-size: 3px !important;
+    line-height: 1 !important;
+  }
+  body:has(.course-section) .course-section .course-card h3,
+  body:has(.course-section) .course-section .course-card.advanced h3 {
+    margin: 3px 0 2px !important;
+    font-size: 8.5px !important;
+    line-height: 1.05 !important;
+  }
+  body:has(.course-section) .course-section .course-card p,
+  body:has(.course-section) .course-section .course-card.advanced p {
+    margin: 0 0 3px !important;
+    font-size: 3.25px !important;
+    line-height: 1.18 !important;
+  }
+  body:has(.course-section) .course-section .course-card .price,
+  body:has(.course-section) .course-section .course-card.advanced .price {
+    margin: 3px 0 !important;
+    font-size: 9.5px !important;
+    line-height: 1 !important;
+  }
+  body:has(.course-section) .course-section .course-card .old,
+  body:has(.course-section) .course-section .course-card .save {
+    font-size: 2.8px !important;
+    line-height: 1.1 !important;
+  }
+  body:has(.course-section) .course-section .course-card .topics {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    gap: 2px 3px !important;
+    margin: 3px 0 !important;
+  }
+  body:has(.course-section) .course-section .course-card .topic,
+  body:has(.course-section) .course-section .course-card.advanced .topic {
+    min-width: 0 !important;
+    gap: 2px !important;
+    padding: 0 !important;
+    font-size: 2.8px !important;
+    line-height: 1.12 !important;
+  }
+  body:has(.course-section) .course-section .course-card .check {
+    width: 5px !important;
+    height: 5px !important;
+    flex: 0 0 5px !important;
+    font-size: 3px !important;
+  }
+  body:has(.course-section) .course-section .course-card .highlight {
+    margin: 3px 0 0 !important;
+    padding: 2px !important;
+    font-size: 2.6px !important;
+    line-height: 1.1 !important;
+  }
+  body:has(.course-section) .course-section .course-card .course-btn {
+    min-height: 13px !important;
+    margin-top: 3px !important;
+    padding: 2px 3px !important;
+    border-radius: 3px !important;
+    font-size: 3.4px !important;
+    line-height: 1 !important;
+  }
+  body:has(.course-section) .course-section .course-card .ribbon {
+    top: 4px !important;
+    right: -14px !important;
+    padding: 2px 15px !important;
+    font-size: 2.2px !important;
+  }
+  body:has(.course-section) .why-section .grid-4 {
+    grid-template-columns: repeat(4, minmax(0,1fr)) !important;
+    gap: 4px !important;
+  }
+  body:has(.course-section) .why-section .feature-card {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    aspect-ratio: 15 / 8 !important;
+    margin: 0 !important;
+  }
+
+  /* Tools: 3x2 visual banners and four compact service cards. */
+  body.page-tools #tools .category-grid {
+    grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+    gap: 5px !important;
+  }
+  body.page-tools #tools .resource-card {
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    aspect-ratio: 15 / 8 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 7px !important;
+  }
+  body.page-tools #tools .tool-mini-banner,
+  body.page-tools #tools .tool-mini-banner img {
+    border-radius: 7px !important;
+  }
+  body.page-tools #learning-journey {
+    padding: 17px 0 !important;
+  }
+  body.page-tools #learning-journey .services-grid {
+    grid-template-columns: repeat(4, minmax(0,1fr)) !important;
+    gap: 5px !important;
+  }
+  body.page-tools #learning-journey .resource-card {
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 7px 5px 6px !important;
+    border-radius: 7px !important;
+  }
+  body.page-tools #learning-journey .resource-card .num {
+    top: 3px !important;
+    right: 4px !important;
+    font-size: 8px !important;
+    letter-spacing: 0 !important;
+  }
+  body.page-tools #learning-journey .resource-card .iconbox {
+    width: 17px !important;
+    height: 17px !important;
+    margin: 0 0 3px !important;
+    border-radius: 5px !important;
+  }
+  body.page-tools #learning-journey .resource-card .iconbox svg {
+    width: 9px !important;
+    height: 9px !important;
+  }
+  body.page-tools #learning-journey .resource-card h3 {
+    margin: 1px 0 2px !important;
+    font-size: 5.2px !important;
+    line-height: 1.1 !important;
+  }
+  body.page-tools #learning-journey .resource-card p {
+    display: -webkit-box !important;
+    margin: 0 0 3px !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    font-size: 3px !important;
+    line-height: 1.15 !important;
+  }
+  body.page-tools #learning-journey .resource-card > a {
+    min-height: 12px !important;
+    margin-top: auto !important;
+    padding: 2px 3px !important;
+    border-radius: 3px !important;
+    font-size: 3px !important;
+    line-height: 1 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Home hero: all copy must fit inside the 137px approved banner. */
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-text-layer {
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-eyebrow {
+    flex: 0 0 auto !important;
+    margin: 0 0 3px !important;
+    padding: 2px 4px !important;
+    font-size: 4.7px !important;
+    line-height: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner h1 {
+    flex: 0 0 auto !important;
+    margin: 0 0 3px !important;
+    font-size: 15.5px !important;
+    line-height: .96 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-course {
+    flex: 0 0 auto !important;
+    margin: 0 0 3px !important;
+    padding: 2px 4px !important;
+    border-left-width: 2px !important;
+    font-size: 4.8px !important;
+    line-height: 1.1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote {
+    flex: 0 0 auto !important;
+    max-width: none !important;
+    margin: 0 0 3px !important;
+    padding: 3px 4px !important;
+    border-radius: 4px !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote strong {
+    margin: 0 0 1px !important;
+    padding: 1px 3px !important;
+    font-size: 4.3px !important;
+    line-height: 1 !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote p {
+    display: -webkit-box !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    font-size: 3.7px !important;
+    line-height: 1.2 !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-features {
+    flex: 0 0 auto !important;
+    margin: 2px 0 3px !important;
+  }
+
+  /* Partner hero must use the clean right-side artwork, not the old text banner. */
+  body.page-partner .hero-box > .hero-visual.partner-hero-visual {
+    background-image: url('partner-hero-curved-light.webp') !important;
+    background-size: 100% 100% !important;
+    background-position: center !important;
+  }
+  body.dark.page-partner .hero-box > .hero-visual.partner-hero-visual,
+  body.dark-theme.page-partner .hero-box > .hero-visual.partner-hero-visual {
+    background-image: url('partner-hero-curved-dark.webp') !important;
+  }
+
+  /* Courses use a custom hero, so override its own late responsive rules. */
+  body:has(.course-section) .course-hero-box {
+    display: block !important;
+    position: relative !important;
+    height: 144px !important;
+    min-height: 144px !important;
+    overflow: hidden !important;
+    border-radius: 8px !important;
+  }
+  body:has(.course-section) .course-hero-copy {
+    position: relative !important;
+    z-index: 8 !important;
+    width: 58% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 8px 7px 6px !important;
+    justify-content: center !important;
+    overflow: hidden !important;
+  }
+  body:has(.course-section) .course-academy-label {
+    gap: 2px !important;
+    padding: 1px 3px 1px 2px !important;
+    border-radius: 3px !important;
+    font-size: 2.8px !important;
+    letter-spacing: .07em !important;
+  }
+  body:has(.course-section) .course-academy-label img {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 2px !important;
+  }
+  body:has(.course-section) .course-hero-copy h1 {
+    margin: 3px 0 2px !important;
+    font-size: 11px !important;
+    line-height: .98 !important;
+    letter-spacing: -.03em !important;
+  }
+  body:has(.course-section) .course-hero-copy p {
+    display: -webkit-box !important;
+    max-width: none !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    -webkit-box-orient: vertical !important;
+    -webkit-line-clamp: 3 !important;
+    font-size: 3px !important;
+    line-height: 1.18 !important;
+  }
+  body:has(.course-section) .course-hero-copy .pills {
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+    margin: 3px 0 !important;
+  }
+  body:has(.course-section) .course-hero-copy .pill {
+    padding: 1px 2px !important;
+    border-radius: 2px !important;
+    font-size: 2.6px !important;
+    line-height: 1 !important;
+  }
+  body:has(.course-section) .course-hero-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 2px !important;
+  }
+  body:has(.course-section) .course-hero-actions > a,
+  body:has(.course-section) .course-hero-actions > .login,
+  body:has(.course-section) .course-roadmap-btn {
+    width: auto !important;
+    min-height: 12px !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+    font-size: 2.7px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+  body:has(.course-section) .course-hero-art {
+    position: absolute !important;
+    z-index: 3 !important;
+    inset: 0 0 0 auto !important;
+    width: 46% !important;
+    height: 144px !important;
+    min-height: 144px !important;
+    border: 0 !important;
+    border-radius: 47% 0 0 59% / 39% 0 0 67% !important;
+  }
+  body:has(.course-section) .course-gold-curve {
+    display: block !important;
+    left: -20px !important;
+    width: 38px !important;
+    height: 100% !important;
+  }
+  body:has(.course-section) .course-portrait-glow {
+    right: 7% !important;
+    top: 9% !important;
+    width: 66% !important;
+  }
+  body:has(.course-section) .course-mentor-portrait {
+    right: -5% !important;
+    bottom: -40% !important;
+    height: 140% !important;
+    max-width: 100% !important;
+  }
+  body:has(.course-section) .course-mentor-badge {
+    left: auto !important;
+    right: 2px !important;
+    bottom: 2px !important;
+    min-width: 48px !important;
+    padding: 2px 3px !important;
+    border-radius: 3px !important;
+  }
+  body:has(.course-section) .course-mentor-badge strong {
+    font-size: 3.4px !important;
+    line-height: 1 !important;
+  }
+  body:has(.course-section) .course-mentor-badge span {
+    margin-top: 1px !important;
+    font-size: 2.2px !important;
+    line-height: 1 !important;
+    letter-spacing: .04em !important;
+  }
+}
+@media (max-width: 768px) {
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-eyebrow {
+    padding: 1px 3px !important;
+    margin-bottom: 2px !important;
+    font-size: 3.6px !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner h1 {
+    margin-bottom: 2px !important;
+    font-size: 13.2px !important;
+    line-height: .94 !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-course {
+    margin-bottom: 2px !important;
+    padding: 1px 3px !important;
+    font-size: 3.8px !important;
+    line-height: 1.05 !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote {
+    height: 27px !important;
+    min-height: 27px !important;
+    max-height: 27px !important;
+    margin-bottom: 2px !important;
+    padding: 2px 3px !important;
+    overflow: hidden !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote strong {
+    padding: 1px 2px !important;
+    font-size: 3.4px !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-quote p {
+    font-size: 2.9px !important;
+    line-height: 1.13 !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-features {
+    margin: 1px 0 2px !important;
+  }
+  body:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-primary-cta {
+    min-height: 14px !important;
+    padding: 2px 7px !important;
+    font-size: 4.7px !important;
+  }
+}
+
+/* V46 final lock: exact approved compact mobile references. */
+@media (max-width:768px){
+  .topbar .menu a,
+  .topbar .menu a.active,
+  .topbar .menu a:hover,
+  .topbar .menu a:focus{
+    text-decoration:none!important;
+    border-bottom:0!important;
+    box-shadow:none!important;
+    background-image:none!important;
+  }
+  .topbar .menu a::before,.topbar .menu a::after,
+  .topbar .menu a.active::before,.topbar .menu a.active::after{
+    content:none!important;display:none!important;width:0!important;height:0!important;
+  }
+  .topbar .menu a.active{color:#F88702!important;background:transparent!important}
+  /* Prevent legacy mobile rebuild from forcing swipe cards or oversized blocks. */
+  body.page-courses .course-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;overflow:visible!important;gap:6px!important;padding:0!important}
+  body.page-courses .course-card{width:auto!important;max-width:none!important;min-height:0!important;height:auto!important;flex:none!important;padding:8px 6px!important}
+  body.page-courses .why-section .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  body.page-partner #partner-programs .partner-detail{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+  body.page-tools #tools .category-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  body.page-tools #learning-journey .services-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .services-banner-grid,.partner-promo-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;overflow:visible!important;gap:5px!important;padding:0!important}
+  .service-banner-card,.visual-promo-card,.partner-promo-card{width:auto!important;max-width:none!important;flex:none!important}
+}
+
+/* V46 conflict killers for late legacy inline rules. */
+@media (max-width:768px){
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner{
+    height:137px!important;min-height:137px!important;max-height:137px!important;
+    background-size:cover!important;background-position:center top!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner .hero-text-layer{
+    width:59%!important;max-width:59%!important;height:100%!important;
+    padding:7px 7px 5px!important;justify-content:center!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner h1{
+    margin:0 0 3px!important;font-size:15.5px!important;line-height:.96!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-eyebrow{
+    width:auto!important;max-width:100%!important;margin:0 0 3px!important;padding:2px 4px!important;font-size:4.7px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-course{
+    width:100%!important;max-width:100%!important;margin:0 0 3px!important;padding:2px 4px!important;font-size:4.8px!important;line-height:1.1!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote{
+    width:100%!important;max-width:100%!important;margin:0 0 3px!important;padding:3px 4px!important;min-height:0!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote strong{font-size:4.3px!important;margin:0 0 1px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote p{font-size:3.7px!important;line-height:1.2!important;-webkit-line-clamp:3!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta{
+    min-height:16px!important;margin:0!important;padding:3px 8px!important;font-size:5.5px!important;border-radius:4px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-mentor-badge{
+    display:block!important;right:5px!important;bottom:4px!important;min-width:72px!important;padding:3px 5px!important;border-radius:4px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-mentor-badge strong{font-size:4.8px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-mentor-badge span{font-size:3px!important;margin-top:1px!important}
+
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-table-wrap{
+    overflow:hidden!important;border-radius:7px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table{
+    width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table th,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table td{
+    padding:3px 1px!important;font-size:3.6px!important;line-height:1.15!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table th{font-size:3.1px!important}
+}
+
+/* V46 visual QA fixes from exact supplied references. */
+@media (max-width:768px){
+  body.page-home .mentor-spotlight .mentor-portrait,
+  body.page-home .mentor-spotlight .mentor-content{
+    opacity:1!important;visibility:visible!important;transform:none!important;transition:none!important;
+  }
+  body.page-home .mentor-spotlight{height:128px!important;min-height:128px!important;grid-template-columns:43% 57%!important}
+  body.page-home .mentor-portrait{height:128px!important;min-height:128px!important}
+  body.page-home .mentor-person{height:126px!important;max-height:126px!important;bottom:-2px!important}
+  body.page-home .mentor-content{height:128px!important;padding:7px 6px!important;overflow:hidden!important}
+  body.page-home .mentor-content h2{font-size:11.4px!important;line-height:1!important;margin:2px 0 3px!important;letter-spacing:-.035em!important}
+  body.page-home .mentor-content h2 span{display:block!important;margin-top:1px!important}
+  body.page-home .mentor-description{font-size:3.8px!important;line-height:1.22!important;margin:0 0 3px!important;-webkit-line-clamp:4!important}
+  body.page-home .mentor-highlights{gap:2px!important;margin:0 0 3px!important}
+  body.page-home .mentor-highlights span{padding:1px 2px!important;font-size:2.8px!important}
+  body.page-home .mentor-cta{min-height:13px!important;padding:2px 4px!important;font-size:3.4px!important;border-radius:3px!important}
+  body.page-home .mentor-eyebrow{font-size:3.8px!important;margin-bottom:1px!important}
+
+  body.page-courses .discount-pricing{
+    display:grid!important;grid-template-columns:1fr 1fr!important;align-items:center!important;
+    gap:2px 4px!important;margin:4px 0!important;padding:4px 5px!important;border-radius:6px!important;overflow:hidden!important;
+  }
+  body.page-courses .discount-pricing .was-price,
+  body.page-courses .discount-pricing .now-price{gap:0!important;min-width:0!important}
+  body.page-courses .discount-pricing .was-price span,
+  body.page-courses .discount-pricing .now-price span{font-size:2.8px!important;line-height:1!important;letter-spacing:.05em!important}
+  body.page-courses .discount-pricing .was-price strong{font-size:8px!important;line-height:1!important;text-decoration-thickness:1px!important}
+  body.page-courses .discount-pricing .now-price strong{font-size:12px!important;line-height:1!important;white-space:nowrap!important}
+  body.page-courses .discount-pricing .save-price,
+  body.page-courses .discount-pricing .offer-label{font-size:3px!important;line-height:1.05!important;padding:3px!important;border-radius:3px!important;white-space:normal!important}
+}
+
+/* V46 home ending exactly like supplied reference. */
+@media (max-width:768px){
+  body.page-home .broker-bonus-note{
+    margin:4px 2px 2px!important;font-size:3.6px!important;line-height:1.2!important;color:#4f5662!important;
+  }
+  body.page-home .broker-data-note{
+    margin:2px!important;font-size:3.1px!important;line-height:1.2!important;
+  }
+  body.page-home .broker-comparison-section .cta{
+    display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;
+    min-height:42px!important;margin-top:8px!important;padding:7px 9px!important;border-radius:7px!important;
+  }
+  body.page-home .broker-comparison-section .cta h3{margin:0 0 1px!important;font-size:9px!important;line-height:1.05!important}
+  body.page-home .broker-comparison-section .cta p{margin:0!important;font-size:3.8px!important;line-height:1.2!important}
+  body.page-home .broker-comparison-section .cta .btn{
+    flex:0 0 auto!important;min-height:16px!important;padding:3px 6px!important;border-radius:4px!important;font-size:4.2px!important;
+  }
+}
+
+/* Preserve the harmless global stability rules previously supplied by V41. */
+img{max-width:100%}
+.theme-picture,.broker-card,.broker-logo-card,.service-banner-card,.visual-promo-card,
+.course-process-banner,.tool-mini-banner,.partner-image{background:#fff7ea}
+
+/* ============================================================
+   V47 MOBILE FOLLOW-UP — exact reference polish + performance
+   ============================================================ */
+@media (max-width:768px){
+  /* Home hero: use the full space, reduce quote marks and remove the empty
+     block below the CTA while keeping the approved image composition. */
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner{
+    height:166px!important;
+    min-height:166px!important;
+    max-height:166px!important;
+    background-size:cover!important;
+    background-position:center top!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner .hero-text-layer{
+    width:61%!important;
+    max-width:61%!important;
+    height:100%!important;
+    padding:7px 7px 5px!important;
+    justify-content:flex-start!important;
+    gap:0!important;
+    overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner h1{
+    margin:0 0 3px!important;
+    font-size:15.8px!important;
+    line-height:.95!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-eyebrow{
+    margin:0 0 3px!important;
+    padding:2px 4px!important;
+    font-size:4.5px!important;
+    line-height:1!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-course{
+    margin:0 0 3px!important;
+    padding:2px 4px!important;
+    font-size:4.4px!important;
+    line-height:1.08!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:39px!important;
+    min-height:39px!important;
+    max-height:39px!important;
+    margin:0 0 3px!important;
+    padding:4px 12px 3px!important;
+    overflow:hidden!important;
+    border-radius:4px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::before,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::after{
+    font-size:13px!important;
+    line-height:1!important;
+    opacity:.9!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::before{
+    left:3px!important;
+    top:2px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::after{
+    right:3px!important;
+    bottom:0!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote strong{
+    display:block!important;
+    margin:0 0 1px!important;
+    padding:0!important;
+    font-size:3.9px!important;
+    line-height:1.08!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote p{
+    margin:0!important;
+    font-size:3.45px!important;
+    line-height:1.16!important;
+    -webkit-line-clamp:3!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta{
+    min-height:16px!important;
+    margin:0!important;
+    padding:3px 8px!important;
+    border-radius:4px!important;
+    font-size:5.2px!important;
+    line-height:1!important;
+  }
+
+  /* Broker table: make official brands visible without turning the table
+     into cards or changing the approved compact full-table layout. */
+  .broker-comparison-table colgroup col:nth-child(1){width:16%!important}
+  .broker-comparison-table colgroup col:nth-child(2){width:10%!important}
+  .broker-comparison-table colgroup col:nth-child(3){width:13%!important}
+  .broker-comparison-table colgroup col:nth-child(4){width:13%!important}
+  .broker-comparison-table colgroup col:nth-child(5){width:10%!important}
+  .broker-comparison-table colgroup col:nth-child(6){width:9%!important}
+  .broker-comparison-table colgroup col:nth-child(7){width:11%!important}
+  .broker-comparison-table colgroup col:nth-child(8){width:8%!important}
+  .broker-comparison-table colgroup col:nth-child(9){width:10%!important}
+  .broker-comparison-table th,
+  .broker-comparison-table td{
+    padding:4px 1px!important;
+    font-size:3.55px!important;
+    line-height:1.14!important;
+  }
+  .broker-comparison-table th{font-size:3.05px!important}
+  .broker-name{
+    min-height:22px!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  .broker-name img,
+  .broker-name img.broker-logo-icon,
+  .broker-comparison-table img.broker-logo-icon{
+    display:block!important;
+    width:46px!important;
+    min-width:0!important;
+    max-width:94%!important;
+    height:20px!important;
+    min-height:20px!important;
+    max-height:20px!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    padding:0!important;
+    margin:0 auto!important;
+    border-radius:2px!important;
+    background:transparent!important;
+  }
+  .broker-comparison-table .badge{
+    padding:1px 2px!important;
+    font-size:2.9px!important;
+    line-height:1.08!important;
+  }
+  .broker-bonus-note,.broker-data-note{
+    font-size:3.2px!important;
+    line-height:1.25!important;
+  }
+
+  /* Tools hero: the complete dashboard must remain visible above the tabs. */
+  body.page-tools .tools-suite{
+    inset:5px!important;
+    padding:3px!important;
+    gap:2px!important;
+  }
+  body.page-tools .tools-suite-bar{
+    height:12px!important;
+    flex:0 0 12px!important;
+    gap:3px!important;
+    padding:0 2px!important;
+    font-size:2.8px!important;
+    line-height:1!important;
+  }
+  body.page-tools .tools-suite-dots{gap:2px!important}
+  body.page-tools .tools-suite-dots i{width:3px!important;height:3px!important}
+  body.page-tools .tools-suite-status{gap:2px!important;font-size:2.7px!important}
+  body.page-tools .tools-suite-status i{width:3px!important;height:3px!important;box-shadow:none!important}
+  body.page-tools .tools-suite-screen{
+    flex:1 1 auto!important;
+    min-height:0!important;
+    border-radius:4px!important;
+    background:#f7f1e6!important;
+  }
+  body.page-tools .tools-suite-image{
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    object-position:center top!important;
+    transform:none!important;
+  }
+  body.page-tools .tools-suite-screen::after{
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)!important;
+  }
+  body.page-tools .tools-suite-caption{
+    left:3px!important;
+    bottom:3px!important;
+    gap:2px!important;
+    max-width:65%!important;
+    padding:2px 3px 2px 2px!important;
+    border-radius:3px!important;
+    backdrop-filter:none!important;
+  }
+  body.page-tools .tools-suite-icon{
+    width:9px!important;
+    height:9px!important;
+    flex:0 0 9px!important;
+    border-radius:2px!important;
+    font-size:3px!important;
+  }
+  body.page-tools .tools-suite-caption b{font-size:3.2px!important;line-height:1!important}
+  body.page-tools .tools-suite-caption small{display:none!important}
+  body.page-tools .tools-suite-tabs{
+    height:22px!important;
+    flex:0 0 22px!important;
+    gap:2px!important;
+  }
+  body.page-tools .tools-suite-tab{
+    min-height:0!important;
+    padding:2px!important;
+    gap:0!important;
+    border-radius:3px!important;
+  }
+  body.page-tools .tools-suite-tab span{display:none!important}
+  body.page-tools .tools-suite-tab b{
+    font-size:3px!important;
+    line-height:1!important;
+    overflow:visible!important;
+    white-space:normal!important;
+  }
+  body.page-tools .tools-suite-tab.is-active::after{
+    left:2px!important;
+    right:2px!important;
+    height:1px!important;
+  }
+
+  /* Smart Tools artwork should nearly fill every card. */
+  body.page-tools #tools .resource-card{
+    aspect-ratio:15/8!important;
+    padding:0!important;
+    overflow:hidden!important;
+    border-radius:7px!important;
+  }
+  body.page-tools #tools .tool-mini-banner{
+    inset:1px!important;
+    width:auto!important;
+    height:auto!important;
+    border-radius:6px!important;
+  }
+  body.page-tools #tools .tool-mini-banner img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    transform:scale(1.035)!important;
+    border-radius:6px!important;
+  }
+  body.page-tools #tools .tool-mini-banner::after{display:none!important}
+
+  /* Make lower sections cheaper to render without changing their layout. */
+  .page-home main>section:not(.hero):not(.broker-showcase),
+  .page-courses main>section:not(.hero):not(.broker-showcase),
+  .page-partner main>section:not(.hero):not(.broker-showcase),
+  .page-tools main>section:not(.hero):not(.broker-showcase){
+    content-visibility:auto;
+    contain-intrinsic-size:1px 420px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto!important}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+/* ============================================================
+   V48 MOBILE REFERENCE CORRECTION
+   - Fix broker banner height attributes creating vertical slices
+   - Rebalance Home hero so content fills the left panel
+   ============================================================ */
+@media (max-width:768px){
+  /* The banner source files are 3:1. Explicit height:auto is required to
+     override the HTML height attribute after the cards shrink to 3 columns. */
+  .broker-grid,
+  .broker-logo-grid{
+    align-items:start!important;
+  }
+  .broker-card,
+  .broker-logo-card,
+  .broker-card picture,
+  .broker-logo-card picture{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    aspect-ratio:3/1!important;
+    overflow:hidden!important;
+  }
+  .broker-card img,
+  .broker-logo-card img,
+  .broker-card picture img,
+  .broker-logo-card picture img{
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    aspect-ratio:3/1!important;
+    object-fit:cover!important;
+    object-position:center!important;
+    transform:none!important;
+  }
+
+  /* Above-the-fold broker strips should render immediately, not as an
+     intrinsic-height placeholder while scrolling. */
+  body.page-courses main>section:has(.broker-grid),
+  body.page-partner main>section:has(.broker-grid),
+  body.page-tools main>section:has(.broker-grid){
+    content-visibility:visible!important;
+    contain-intrinsic-size:auto!important;
+  }
+
+  /* Home hero: preserve the complete mentor composition, enlarge the text
+     hierarchy and reduce the unused area below the CTA. */
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner{
+    height:132px!important;
+    min-height:132px!important;
+    max-height:132px!important;
+    background-size:auto 112%!important;
+    background-position:right center!important;
+    background-repeat:no-repeat!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner .hero-text-layer{
+    width:67%!important;
+    max-width:67%!important;
+    height:100%!important;
+    padding:6px 7px 5px!important;
+    justify-content:flex-start!important;
+    gap:0!important;
+    overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-eyebrow{
+    margin:0 0 3px!important;
+    padding:2px 4px!important;
+    font-size:5px!important;
+    line-height:1!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner h1{
+    margin:0 0 3px!important;
+    font-size:16.5px!important;
+    line-height:.95!important;
+    letter-spacing:-.045em!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-course{
+    margin:0 0 3px!important;
+    padding:2px 4px!important;
+    font-size:4.9px!important;
+    line-height:1.08!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:30px!important;
+    min-height:30px!important;
+    max-height:30px!important;
+    margin:0 0 3px!important;
+    padding:4px 10px 3px!important;
+    overflow:hidden!important;
+    border-radius:4px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::before,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::after{
+    font-size:11px!important;
+    line-height:1!important;
+    opacity:.82!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::before{
+    left:3px!important;
+    top:2px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote::after{
+    right:3px!important;
+    bottom:0!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote strong{
+    display:block!important;
+    margin:0 0 1px!important;
+    padding:0!important;
+    font-size:4.25px!important;
+    line-height:1.08!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote p{
+    margin:0!important;
+    font-size:3.7px!important;
+    line-height:1.16!important;
+    -webkit-line-clamp:3!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta{
+    min-height:16px!important;
+    margin:0!important;
+    padding:3px 8px!important;
+    border-radius:4px!important;
+    font-size:5.7px!important;
+    line-height:1!important;
+  }
+}
+
+/* V48 intrinsic-dimension safety: the added HTML width/height attributes must
+   not stretch the 3:1 broker banners on desktop or tablet. */
+.broker-card img{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  max-height:none!important;
+  aspect-ratio:3/1!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+
+/* ============================================================
+   V49 — THREE MOBILE SPACING FIXES ONLY
+   1) Home hero: equal vertical rhythm and minimal space below CTA
+   2) Courses: equal card bottoms and CTA baseline alignment
+   3) Become Partner hero: equal vertical rhythm and minimal space below CTA
+   Desktop and all other sections intentionally untouched.
+   ============================================================ */
+@media (max-width:480px){
+  /* HOME: keep the approved composition; redistribute only the vertical space. */
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner .hero-text-layer{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:space-between!important;
+    padding:6px 7px 5px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-eyebrow,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner h1,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-course,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta{
+    flex:0 0 auto!important;
+    margin-top:0!important;
+    margin-bottom:0!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta{
+    align-self:flex-start!important;
+  }
+
+  /* COURSES: same card bottom, same CTA line and no loose space after buttons. */
+  body.page-courses .course-grid{
+    align-items:stretch!important;
+  }
+  body.page-courses .course-card,
+  body.page-courses .course-card.advanced{
+    display:flex!important;
+    flex-direction:column!important;
+    height:100%!important;
+    min-height:0!important;
+    padding-bottom:5px!important;
+  }
+  body.page-courses .course-card .topics{
+    margin-bottom:2px!important;
+  }
+  body.page-courses .course-card .highlight{
+    margin-top:auto!important;
+    margin-bottom:3px!important;
+  }
+  body.page-courses .course-card .course-btn{
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-height:18px!important;
+    height:18px!important;
+    margin:0!important;
+    padding:3px 4px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    align-self:stretch!important;
+    line-height:1!important;
+  }
+
+  /* PARTNER: keep artwork and hero height; balance only the left copy block. */
+  body.page-partner .hero-box .hero-copy{
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:space-between!important;
+    padding:9px 7px 7px!important;
+  }
+  body.page-partner .hero-box .hero-copy > .mini,
+  body.page-partner .hero-box .hero-copy > h1,
+  body.page-partner .hero-box .hero-copy > p,
+  body.page-partner .hero-box .hero-copy > .pills,
+  body.page-partner .hero-box .hero-copy > .login{
+    flex:0 0 auto!important;
+    margin-top:0!important;
+    margin-bottom:0!important;
+  }
+  body.page-partner .hero-box .hero-copy > .login{
+    align-self:flex-start!important;
+  }
+}
+
+/* V49 specificity lock — wins over legacy :not()/:has() mobile selectors. */
+@media (max-width:480px){
+  html:not(.psp-desktop-mobile-view) body.page-home:not(.page-partner):not(.page-tools):not(:has(.course-section)) .hero-overlay-banner .hero-text-layer{
+    justify-content:space-between!important;
+  }
+
+  html body.page-courses:has(.course-section) .course-section .course-grid{
+    align-items:stretch!important;
+  }
+  html body.page-courses:has(.course-section) .course-section .course-card,
+  html body.page-courses:has(.course-section) .course-section .course-card.advanced{
+    display:flex!important;
+    flex-direction:column!important;
+    height:100%!important;
+    padding-bottom:5px!important;
+  }
+  html body.page-courses:has(.course-section) .course-section .course-card .topics{
+    margin-bottom:2px!important;
+  }
+  html body.page-courses:has(.course-section) .course-section .course-card .highlight{
+    margin-top:auto!important;
+    margin-bottom:3px!important;
+  }
+  html body.page-courses:has(.course-section) .course-section .course-card .course-btn{
+    width:100%!important;
+    min-height:18px!important;
+    height:18px!important;
+    margin:0!important;
+    padding:3px 4px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    align-self:stretch!important;
+    line-height:1!important;
+  }
+}
+
+/* ============================================================
+   V50 — THREE TARGETED MOBILE FIXES ONLY
+   1) Courses hero: move artwork/divider right for wider copy area
+   2) Become Partner hero: move curved artwork right for wider copy area
+   Desktop and every other public section are intentionally untouched.
+   ============================================================ */
+@media (max-width:480px){
+  /* Courses: preserve approved height/composition, only widen the left copy. */
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy{
+    width:64%!important;
+    padding-left:8px!important;
+    padding-right:5px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-art{
+    width:40%!important;
+    right:0!important;
+    left:auto!important;
+    border-radius:52% 0 0 62% / 42% 0 0 70%!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-gold-curve{
+    left:-13px!important;
+    width:31px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-mentor-portrait{
+    right:-7%!important;
+  }
+
+  /* Partner: artwork is a full baked background; scale it slightly narrower
+     and pin it right so the curved divider moves right without changing height. */
+  html:not(.psp-desktop-mobile-view) body.page-partner .hero-box > .hero-visual.partner-hero-visual{
+    width:100%!important;
+    inset:0!important;
+    background-size:94% 100%!important;
+    background-position:right center!important;
+    background-repeat:no-repeat!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-partner .hero-box > .hero-copy{
+    position:relative!important;
+    z-index:8!important;
+    width:62%!important;
+    padding-left:9px!important;
+    padding-right:5px!important;
+  }
+}
+
+/* ============================================================
+   V51 — COURSES MOBILE HERO EQUAL SPACING ONLY
+   Equal vertical rhythm between:
+   academy badge → heading → description → pills → CTA buttons.
+   Hero height, artwork/divider, desktop UI and all other sections untouched.
+   ============================================================ */
+@media (max-width:480px){
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    row-gap:4px!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .course-academy-label,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > h1,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > p,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .pills,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .course-hero-actions{
+    flex:0 0 auto!important;
+    margin-top:0!important;
+    margin-bottom:0!important;
+  }
+}
+
+/* ============================================================
+   V52 — COURSES MOBILE HERO LEFT-COPY SCALE + EQUAL SPACING ONLY
+   Targeted correction after V51: make the left hero copy readable while
+   preserving the approved hero height, artwork, divider and desktop UI.
+   ============================================================ */
+@media (max-width:480px){
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy{
+    width:64%!important;
+    height:100%!important;
+    min-height:0!important;
+    padding:10px 6px 9px 9px!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    row-gap:5px!important;
+    overflow:hidden!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .course-academy-label,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > h1,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > p,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .pills,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy > .course-hero-actions{
+    flex:0 0 auto!important;
+    margin:0!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-academy-label{
+    gap:3px!important;
+    min-height:13px!important;
+    padding:2px 4px 2px 3px!important;
+    border-radius:4px!important;
+    font-size:5px!important;
+    line-height:1!important;
+    letter-spacing:.055em!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-academy-label img{
+    width:11px!important;
+    height:11px!important;
+    border-radius:3px!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy h1{
+    max-width:100%!important;
+    font-size:15px!important;
+    line-height:.96!important;
+    letter-spacing:-.035em!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy p{
+    display:-webkit-box!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    -webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;
+    font-size:5.2px!important;
+    line-height:1.28!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy .pills{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    gap:3px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-copy .pill{
+    padding:2px 4px!important;
+    border-radius:3px!important;
+    font-size:4.8px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-actions{
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    flex-wrap:nowrap!important;
+    gap:4px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-hero-actions > a,
+  html:not(.psp-desktop-mobile-view) body.page-courses:has(.course-section) .course-roadmap-btn{
+    width:auto!important;
+    min-height:17px!important;
+    padding:3px 6px!important;
+    border-radius:4px!important;
+    font-size:4.8px!important;
+    line-height:1!important;
+    white-space:nowrap!important;
+  }
+}
+
+
+/* ============================================================
+   V78 FINAL HOME MOBILE REFERENCE LOCK
+   Fixes the V77 regression and matches the supplied 100624/100626/100628
+   reference composition. HOME MOBILE ONLY. Desktop and other pages untouched.
+   ============================================================ */
+@media (max-width:768px){
+  html:not(.psp-desktop-mobile-view) body.page-home{
+    overflow-x:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .container{
+    width:calc(100% - 12px)!important;
+    max-width:none!important;
+    margin-left:6px!important;
+    margin-right:6px!important;
+  }
+
+  /* Header: compact desktop-style row exactly like the supplied mobile reference. */
+  html:not(.psp-desktop-mobile-view) body.page-home .topbar{position:relative!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .nav{
+    height:31px!important;min-height:31px!important;padding:0!important;gap:3px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .brand{gap:3px!important;font-size:8px!important;white-space:nowrap!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .brand img{width:21px!important;height:21px!important;border-radius:5px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .menu,
+  html:not(.psp-desktop-mobile-view) body.page-home .menu.is-open{
+    display:flex!important;flex:1 1 auto!important;min-width:0!important;align-items:center!important;justify-content:center!important;gap:1px!important;white-space:nowrap!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .menu a{
+    display:block!important;padding:10px 3px 9px!important;font-size:5.6px!important;line-height:1!important;font-weight:800!important;border:0!important;text-decoration:none!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .mobile-menu{display:none!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .nav-actions{display:flex!important;gap:3px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .theme-btn{display:grid!important;width:21px!important;height:21px!important;font-size:10px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .nav .btn{min-height:21px!important;padding:4px 9px!important;border-radius:6px!important;font-size:6.5px!important;box-shadow:none!important}
+
+  /* Section rhythm from the approved reference. */
+  html:not(.psp-desktop-mobile-view) body.page-home .section,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-showcase,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-showcase,
+  html:not(.psp-desktop-mobile-view) body.page-home .services-premium,
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-section,
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-spotlight-section{padding:17px 0!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .section-heading{max-width:100%!important;margin:0 auto 9px!important;padding:0 4px!important;text-align:center!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .section-heading .small{font-size:5.7px!important;letter-spacing:.11em!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .section-heading h2{margin:3px 0 4px!important;font-size:16px!important;line-height:1.05!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .section-heading p{margin:0!important;font-size:5.8px!important;line-height:1.35!important}
+
+  /* Hero reference proportions. */
+  html:not(.psp-desktop-mobile-view) body.page-home .hero{padding:7px 0 6px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner{
+    height:166px!important;min-height:166px!important;max-height:166px!important;border-radius:8px!important;background-size:cover!important;background-position:center top!important;overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-text-layer{
+    width:61%!important;max-width:61%!important;height:100%!important;padding:7px 7px 5px!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important;overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-overlay-banner h1{margin:0 0 3px!important;font-size:15.8px!important;line-height:.95!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-eyebrow{margin:0 0 3px!important;padding:2px 4px!important;font-size:4.5px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-course{width:100%!important;margin:0 0 3px!important;padding:2px 4px!important;font-size:4.4px!important;line-height:1.08!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote{width:100%!important;height:39px!important;min-height:39px!important;max-height:39px!important;margin:0 0 3px!important;padding:4px 12px 3px!important;border-radius:4px!important;overflow:hidden!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote strong{font-size:3.9px!important;line-height:1.08!important;margin:0 0 1px!important;padding:0!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-quote p{font-size:3.45px!important;line-height:1.16!important;-webkit-line-clamp:3!important;margin:0!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta{align-self:flex-start!important;min-height:16px!important;margin:0!important;padding:3px 8px!important;border-radius:4px!important;font-size:5.2px!important}
+
+  /* Three broker banners in one row. */
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-grid,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-logo-grid{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;overflow:visible!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-card,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-logo-card,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-logo-card picture{
+    width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:3/1!important;border-radius:7px!important;overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-logo-card img{display:block!important;width:100%!important;height:auto!important;aspect-ratio:3/1!important;object-fit:cover!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-card-footer{display:none!important}
+
+  /* Community: exactly three compact cards. */
+  html:not(.psp-desktop-mobile-view) body.page-home .social-grid,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-grid-three{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .social-card,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-platform{min-height:0!important;padding:8px 3px!important;border-radius:8px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .social-icon{width:20px!important;height:20px!important;margin:0 auto 3px!important;border-radius:6px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .social-icon svg{width:11px!important;height:11px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .social-card h3,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-platform h3{margin:0 0 1px!important;font-size:6.7px!important;line-height:1.1!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .social-card p,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-platform p{font-size:4.8px!important;line-height:1.15!important}
+
+  /* Services: all three artwork cards visible in a single row. */
+  html:not(.psp-desktop-mobile-view) body.page-home .services-banner-grid{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;overflow:visible!important;padding:0!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .service-banner-card{display:block!important;width:auto!important;min-width:0!important;border-radius:7px!important;overflow:hidden!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .service-banner-card img{display:block!important;width:100%!important;height:auto!important;aspect-ratio:2400/1054!important;object-fit:cover!important;border-radius:7px!important}
+
+  /* Mentor: left portrait + right copy. */
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-spotlight{display:grid!important;grid-template-columns:43% 57%!important;height:128px!important;min-height:128px!important;border-radius:9px!important;overflow:hidden!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-portrait{height:128px!important;min-height:128px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-person{height:126px!important;max-height:126px!important;bottom:-2px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-content{height:128px!important;padding:7px 6px!important;overflow:hidden!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-eyebrow{font-size:3.8px!important;margin-bottom:1px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-content h2{font-size:11.4px!important;line-height:1!important;margin:2px 0 3px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-description{font-size:3.8px!important;line-height:1.22!important;margin:0 0 3px!important;-webkit-line-clamp:4!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-highlights{gap:2px!important;margin:0 0 3px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-highlights span{padding:1px 2px!important;font-size:2.8px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-cta{min-height:13px!important;padding:2px 4px!important;font-size:3.4px!important;border-radius:3px!important}
+
+  /* Partner reference: two equal cards on top, one wider Social Media card centered below. */
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-grid{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;overflow:visible!important;padding:0!important;align-items:start!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-item{min-width:0!important;width:auto!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-item:nth-child(3){grid-column:1/-1!important;width:72%!important;justify-self:center!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-card,
+  html:not(.psp-desktop-mobile-view) body.page-home .visual-promo-card{display:block!important;width:100%!important;max-width:none!important;border-radius:7px!important;overflow:hidden!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-card img,
+  html:not(.psp-desktop-mobile-view) body.page-home .visual-promo-card img{display:block!important;width:100%!important;height:auto!important;aspect-ratio:600/350!important;object-fit:cover!important}
+
+  /* Broker Reviews: full desktop-style table fitted into the mobile viewport. */
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-table-wrap{overflow:hidden!important;border-radius:7px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table{display:table!important;width:100%!important;min-width:0!important;max-width:100%!important;table-layout:fixed!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table thead{display:table-header-group!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table tbody{display:table-row-group!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table tr{display:table-row!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table th,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table td{display:table-cell!important;padding:4px 1px!important;font-size:3.55px!important;line-height:1.14!important;text-align:center!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table th{font-size:3.05px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table td::before{display:none!important;content:none!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-name img{display:block!important;width:46px!important;max-width:94%!important;height:20px!important;object-fit:contain!important;margin:0 auto!important;background:transparent!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table .badge{padding:1px 2px!important;font-size:2.9px!important;line-height:1.08!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-bonus-note{margin:4px 2px 2px!important;font-size:3.6px!important;line-height:1.2!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-data-note{margin:2px!important;font-size:3.1px!important;line-height:1.2!important}
+
+  /* Orange CTA under the table — do not hide it. */
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-section .cta{
+    display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;min-height:42px!important;margin-top:8px!important;padding:7px 9px!important;border-radius:7px!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-section .cta h3{margin:0 0 1px!important;font-size:9px!important;line-height:1.05!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-section .cta p{margin:0!important;font-size:3.8px!important;line-height:1.2!important}
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-section .cta .btn{flex:0 0 auto!important;min-height:16px!important;padding:3px 6px!important;border-radius:4px!important;font-size:4.2px!important}
+
+  /* Public footer from the reference. Brand block first, then 3 link columns. */
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer{
+    display:block!important;background:#081321!important;color:#e7ebf2!important;border-top:2px solid #F88702!important;padding:17px 0 8px!important;margin:0!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-grid{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px 9px!important;align-items:start!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-brand-block{grid-column:1/-1!important;width:47%!important;max-width:47%!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-brand{display:flex!important;align-items:center!important;gap:5px!important;color:#fff!important;font-size:9px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-brand img{display:block!important;width:18px!important;height:18px!important;object-fit:contain!important;border-radius:4px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-brand strong{font-size:9px!important;color:#fff!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-grid p{margin:5px 0!important;font-size:4.7px!important;line-height:1.35!important;color:#9fa9ba!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-socials{display:flex!important;gap:4px!important;margin-top:6px!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .footer-socials a{display:grid!important;place-items:center!important;width:13px!important;height:13px!important;border:1px solid #263247!important;border-radius:3px!important;background:#111e30!important;color:#f9a21b!important;font-size:6px!important;font-weight:900!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer h4{margin:0 0 5px!important;font-size:5.4px!important;line-height:1!important;letter-spacing:.12em!important;text-transform:uppercase!important;color:#f5a623!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer ul{display:flex!important;flex-direction:column!important;gap:4px!important;margin:0!important;padding:0!important;list-style:none!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer li{margin:0!important;font-size:4.6px!important;line-height:1.2!important;color:#9fa9ba!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer li a{color:#9fa9ba!important;text-decoration:none!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .disclaimer{margin-top:12px!important;padding:7px!important;border:1px solid #1c2b41!important;border-radius:5px!important;font-size:3.6px!important;line-height:1.3!important;color:#8995a8!important}
+  html:not(.psp-desktop-mobile-view) body.page-home footer.public-footer .copyright{display:flex!important;flex-direction:row!important;justify-content:space-between!important;gap:6px!important;margin-top:7px!important;padding-top:7px!important;border-top:1px solid #14233a!important;font-size:3.5px!important;line-height:1.2!important;color:#718097!important}
+}
+
+
+/* ============================================================
+   V79 CROSS-BROWSER MOBILE RENDER LOCK
+   Keep the approved Chrome mobile Home composition visually stable in
+   Samsung Internet, Android WebView/in-app browsers, Chrome, Edge, Firefox
+   and iOS Safari. HOME MOBILE ONLY; desktop and other pages untouched.
+   ============================================================ */
+@media (max-width:768px){
+  /*
+     Samsung Internet / Android WebViews may enlarge very small text even when
+     the CSS pixel viewport is identical. The V78 reference intentionally uses
+     compact typography to fit the approved 3-column composition, so browser
+     text autosizing must be disabled for this page only.
+  */
+  html,
+  html body.page-home,
+  html body.page-home *{
+    -webkit-text-size-adjust:none!important;
+    text-size-adjust:none!important;
+  }
+
+  html:not(.psp-desktop-mobile-view),
+  html:not(.psp-desktop-mobile-view) body.page-home{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    margin:0!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    overflow-x:hidden!important;
+    overscroll-behavior-x:none;
+  }
+
+  html:not(.psp-desktop-mobile-view) body.page-home{
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    font-synthesis:none;
+    font-kerning:normal;
+    font-variant-ligatures:normal;
+    touch-action:pan-y pinch-zoom;
+  }
+
+  /* Keep form controls/buttons on the exact same type scale as page text. */
+  html:not(.psp-desktop-mobile-view) body.page-home button,
+  html:not(.psp-desktop-mobile-view) body.page-home input,
+  html:not(.psp-desktop-mobile-view) body.page-home select,
+  html:not(.psp-desktop-mobile-view) body.page-home textarea{
+    font:inherit;
+    -webkit-appearance:none;
+    appearance:none;
+  }
+
+  /* Normalize browser-specific inline text wrapping/reflow. */
+  html:not(.psp-desktop-mobile-view) body.page-home .menu a,
+  html:not(.psp-desktop-mobile-view) body.page-home .nav .btn,
+  html:not(.psp-desktop-mobile-view) body.page-home .brand,
+  html:not(.psp-desktop-mobile-view) body.page-home .hero-primary-cta,
+  html:not(.psp-desktop-mobile-view) body.page-home .mentor-cta,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-section .cta .btn{
+    -webkit-hyphens:none!important;
+    hyphens:none!important;
+    word-break:keep-all!important;
+    overflow-wrap:normal!important;
+  }
+
+  /* Prevent browser defaults from adding unexpected margins to compact text. */
+  html:not(.psp-desktop-mobile-view) body.page-home h1,
+  html:not(.psp-desktop-mobile-view) body.page-home h2,
+  html:not(.psp-desktop-mobile-view) body.page-home h3,
+  html:not(.psp-desktop-mobile-view) body.page-home h4,
+  html:not(.psp-desktop-mobile-view) body.page-home p{
+    text-rendering:geometricPrecision;
+  }
+
+  /* Stable image sizing in browsers that resolve intrinsic dimensions differently. */
+  html:not(.psp-desktop-mobile-view) body.page-home img,
+  html:not(.psp-desktop-mobile-view) body.page-home picture,
+  html:not(.psp-desktop-mobile-view) body.page-home svg{
+    max-width:100%;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home img{
+    -webkit-user-drag:none;
+  }
+
+  /* Chromium/Samsung occasionally gives flex children a min-content width. */
+  html:not(.psp-desktop-mobile-view) body.page-home .nav > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .menu > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-grid > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-logo-grid > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-grid > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .social-grid-three > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .services-banner-grid > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .partner-promo-grid > *,
+  html:not(.psp-desktop-mobile-view) body.page-home .footer-grid > *{
+    min-width:0!important;
+    max-width:100%;
+  }
+
+  /* Lock the header geometry so Samsung text autosizing cannot collapse gaps. */
+  html:not(.psp-desktop-mobile-view) body.page-home .topbar .container.nav{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .menu,
+  html:not(.psp-desktop-mobile-view) body.page-home .menu.is-open{
+    overflow:hidden!important;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home .menu a{
+    flex:0 0 auto!important;
+  }
+
+  /* Table: keep browser font inflation from changing column geometry. */
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table,
+  html:not(.psp-desktop-mobile-view) body.page-home .broker-comparison-table *{
+    -webkit-text-size-adjust:none!important;
+    text-size-adjust:none!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Prevent tap highlight/auto-link decoration from changing the approved appearance. */
+  html:not(.psp-desktop-mobile-view) body.page-home a,
+  html:not(.psp-desktop-mobile-view) body.page-home button{
+    -webkit-tap-highlight-color:transparent;
+  }
+  html:not(.psp-desktop-mobile-view) body.page-home a[x-apple-data-detectors],
+  html:not(.psp-desktop-mobile-view) body.page-home a[href^="tel:"],
+  html:not(.psp-desktop-mobile-view) body.page-home a[href^="mailto:"]{
+    color:inherit!important;
+    text-decoration:none!important;
+    font:inherit!important;
+  }
+}
