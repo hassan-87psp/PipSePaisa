@@ -314,25 +314,34 @@
   function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
+    const nav = document.getElementById('userBottomNav');
     if (!sidebar) return;
 
     const willOpen = !sidebar.classList.contains('open');
     const mobile = window.matchMedia ? window.matchMedia('(max-width: 768px)').matches : window.innerWidth <= 768;
 
-    if (mobile) {
-      const nav = document.getElementById('userBottomNav');
-      const navH = nav && getComputedStyle(nav).display !== 'none'
-        ? Math.max(0, Math.ceil(nav.getBoundingClientRect().height))
-        : 0;
-      document.documentElement.style.setProperty('--psp-mobile-nav-h', navH + 'px');
-    }
-
     sidebar.classList.toggle('open', willOpen);
     if (overlay) overlay.style.display = willOpen ? 'block' : 'none';
-    document.documentElement.classList.toggle('psp-sidebar-open', willOpen);
-    document.body.classList.toggle('psp-sidebar-open', willOpen);
+
+    document.documentElement.classList.toggle('psp-sidebar-open', mobile && willOpen);
+    document.body.classList.toggle('psp-sidebar-open', mobile && willOpen);
 
     if (mobile) {
+      /* V143: drawer owns the full viewport. Bottom navigator must not cover footer/logout. */
+      document.documentElement.style.setProperty('--psp-mobile-nav-h', '0px');
+
+      if (nav) {
+        if (willOpen) {
+          nav.style.setProperty('display','none','important');
+          nav.style.setProperty('visibility','hidden','important');
+          nav.style.setProperty('pointer-events','none','important');
+        } else {
+          nav.style.removeProperty('display');
+          nav.style.removeProperty('visibility');
+          nav.style.removeProperty('pointer-events');
+        }
+      }
+
       if (willOpen) {
         window.__pspSidebarScrollY = window.scrollY || window.pageYOffset || 0;
         document.body.style.position = 'fixed';
@@ -5457,7 +5466,7 @@
       position:fixed!important;
       top:0!important;
       left:0!important;
-      bottom:var(--psp-mobile-nav-h,0px)!important;
+      bottom:0!important;
       height:auto!important;
       max-height:none!important;
       min-height:0!important;
@@ -5486,7 +5495,7 @@
       top:0!important;
       left:0!important;
       right:0!important;
-      bottom:var(--psp-mobile-nav-h,0px)!important;
+      bottom:0!important;
       height:auto!important;
       overscroll-behavior:none!important;
       touch-action:none!important;
