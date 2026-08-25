@@ -1,4 +1,4 @@
-/* PipSePaisa V55 — Account Verification + Admin Trial Countdown */
+/* PipSePaisa V157 — Account Verification + Authoritative Trial Bridge */
 (function(){
   'use strict';
   const PROTECTED=new Set(['journal','performance','addtrade','signals','charts','articles','newshub','strength','trades','analysis','tools','aireport','news','chats','vipplans','aitools','vipindicators','vipea']);
@@ -104,13 +104,29 @@
         }
       }catch(_){}
 
+      // V157: merge the authoritative Admin-trial row directly. This prevents a
+      // user with an active trial from being locked just because an older access RPC
+      // returned a stale cached state.
+      try{
+        const br=await c.rpc('psp_user_access_bridge_v157');
+        if(!br.error&&br.data){
+          const bx=Array.isArray(br.data)?(br.data[0]||{}):br.data;
+          state={...(state||{}),...(bx||{})};
+          if(bx.admin_trial_active){
+            state.temporary_access=true;
+            state.can_access=true;
+          }
+          if(bx.approved_active)state.can_access=true;
+        }
+      }catch(_){}
+
       if(state){
         const exp=state.approved_expires_at?new Date(state.approved_expires_at).getTime():0;
         if(state.submission_status==='approved'&&exp&&exp<=Date.now()){
           state.submission_status='expired';
           state.approved_active=false;
-          state.can_access=!!(state.direct_access_active||state.temporary_access);
-        }else if(approvedActive()||state.direct_access_active||state.temporary_access){
+          state.can_access=!!(state.direct_access_active||state.temporary_access||state.admin_trial_active);
+        }else if(approvedActive()||state.direct_access_active||state.temporary_access||state.admin_trial_active){
           state.can_access=true;
         }else{
           state.can_access=false;
@@ -122,6 +138,18 @@
       return state;
     }catch(e){
       console.warn('Account verification status unavailable:',e?.message||e);
+      // Even if the legacy status RPC fails, do one direct trial/approval bridge check
+      // before locking the user.
+      try{
+        const br=await c.rpc('psp_user_access_bridge_v157');
+        if(!br.error&&br.data){
+          const bx=Array.isArray(br.data)?(br.data[0]||{}):br.data;
+          state={verification_required:true,email_verified:false,submission_status:bx.submission_status||'not_submitted',admin_whatsapp:'601156961157',direct_access_enabled:false,direct_access_active:false,...bx};
+          state.temporary_access=!!bx.admin_trial_active;
+          state.can_access=!!(bx.admin_trial_active||bx.approved_active);
+          window.PSP_ACCOUNT_ACCESS_STATE=state;renderMini();markLocks();renderCard();return state;
+        }
+      }catch(_){}
       if(!silent){
         state={verification_required:true,can_access:false,email_verified:false,submission_status:'not_submitted',admin_whatsapp:'601156961157',direct_access_enabled:false,direct_access_active:false};
         renderMini();markLocks();renderCard()

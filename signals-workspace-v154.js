@@ -1,4 +1,4 @@
-/* PipSePaisa V155 — Desktop Signals Workspace + Publish Hotfix
+/* PipSePaisa V157 — Consolidated Desktop Signals Workspace + Reliable Publish
    - Restores the approved desktop Mentor/Admin Signals workspace.
    - Mobile (<=768px) deliberately falls back to the existing UI unchanged.
    - Adds automatic pips calculation for XAU/BTC/Forex and status actions.
@@ -44,10 +44,10 @@ function orderLabel(s){
 }
 function statusLabel(s){
   const st=String(s.status||'active').toLowerCase();
-  const map={active:'Active',pending:'Pending',tp1:'TP1 Hit',tp2:'TP2 Hit',tp3:'TP3 Hit',be:'BE Hit',sl:'SL Hit',sl_hit:'SL Hit',closed:'Closed'};
+  const map={active:'Active',pending:'Pending',tp1:'TP1 Hit',tp2:'TP2 Hit',tp3:'TP3 Hit',be:'BE Hit',sl:'SL Hit',sl_hit:'SL Hit',closed:'Closed',cancelled:'Cancelled',canceled:'Cancelled'};
   return map[st]||st;
 }
-function isFinished(s){ return ['sl','sl_hit','closed','tp3','be'].includes(String(s.status||'active').toLowerCase()); }
+function isFinished(s){ return ['sl','sl_hit','closed','tp3','be','cancelled','canceled'].includes(String(s.status||'active').toLowerCase()); }
 function noteButton(s){ return '<button class="psp154-note" onclick="PSP154Signals.showNote(\''+esc(s.id)+'\')">Note⌄</button>'; }
 
 function addCss(){
@@ -157,7 +157,7 @@ function drawTable(mode){
 }
 function getRow(mode,id){return rows(mode).find(x=>String(x.id)===String(id));}
 function closeModal(){const e=document.getElementById('psp154-modal-back');if(e)e.remove();modalCtx=null;}
-function modal(html,small){closeModal();const d=document.createElement('div');d.id='psp154-modal-back';d.className='psp154-modal-back';d.innerHTML='<div class="psp154-modal '+(small?'sm':'')+'">'+html+'</div>';d.addEventListener('mousedown',e=>{if(e.target===d)closeModal();});document.body.appendChild(d);}
+function modal(html,small){const old=document.getElementById('psp154-modal-back');if(old)old.remove();const d=document.createElement('div');d.id='psp154-modal-back';d.className='psp154-modal-back';d.innerHTML='<div class="psp154-modal '+(small?'sm':'')+'">'+html+'</div>';d.addEventListener('mousedown',e=>{if(e.target===d)closeModal();});document.body.appendChild(d);}
 function autoLine(pair,dir,entry,sl,tp1,tp2,tp3){
  const items=[['SL',sl],['TP1',tp1],['TP2',tp2],['TP3',tp3]].filter(x=>n(x[1])!=null).map(x=>x[0]+' '+fmtPips(calcPips(pair,dir,entry,x[1]))+' pips');
  return 'Auto pips: '+(items.length?items.join(' · '):'Enter levels to calculate automatically');
@@ -168,6 +168,17 @@ function formValues(){
  return {pair:v('p154-pair'),direction:dir,order_type:order,entry_price:n(v('p154-entry')),stop_loss:n(v('p154-sl')),take_profit1:n(v('p154-tp1')),take_profit2:n(v('p154-tp2')),take_profit3:n(v('p154-tp3')),take_profit4:v('p154-tp4').trim()||null,notes:v('p154-note').trim()||null,plan_name:v('p154-plan').trim()||null};
 }
 function refreshAuto(){const x=formValues();const e=document.getElementById('p154-auto');if(e)e.textContent=autoLine(x.pair,x.direction,x.entry_price,x.stop_loss,x.take_profit1,x.take_profit2,x.take_profit3);}
+function validateLevels(x){
+ const buy=String(x.direction||'BUY').toUpperCase()!=='SELL';
+ if(x.entry_price==null||x.stop_loss==null||x.take_profit1==null)return 'Pair, Entry, Stop Loss and TP1 are required.';
+ if(buy&&x.stop_loss>=x.entry_price)return 'For a BUY signal, Stop Loss must be below Entry.';
+ if(!buy&&x.stop_loss<=x.entry_price)return 'For a SELL signal, Stop Loss must be above Entry.';
+ if(buy&&x.take_profit1<=x.entry_price)return 'For a BUY signal, TP1 must be above Entry.';
+ if(!buy&&x.take_profit1>=x.entry_price)return 'For a SELL signal, TP1 must be below Entry.';
+ const t=[x.take_profit1,x.take_profit2,x.take_profit3].filter(v=>v!=null);
+ for(let i=1;i<t.length;i++){if(buy&&t[i]<=t[i-1])return 'BUY take-profit levels must increase from TP1 to TP3.';if(!buy&&t[i]>=t[i-1])return 'SELL take-profit levels must decrease from TP1 to TP3.';}
+ return '';
+}
 function openForm(mode,s){
  modalCtx={mode,id:s?.id||null};const edit=!!s;let ot='buy';if(s){const d=String(s.direction||'BUY').toLowerCase();const o=String(s.order_type||'market').toLowerCase();ot=o==='market'?d:(d+'_'+o);}
  const opts=pairOptionsHtml(mode==='admin');const notes=noteOptionsHtml(mode==='admin');
@@ -185,31 +196,35 @@ function openForm(mode,s){
  refreshAuto();
 }
 async function save(){
- if(!modalCtx)return;
+ if(!modalCtx){alert('Signal form session expired. Please reopen Create Signal.');return;}
  const x=formValues();
- if(!x.pair||x.entry_price==null||x.stop_loss==null||x.take_profit1==null){alert('Pair, Entry, Stop Loss and TP1 are required.');return;}
+ const validation=validateLevels(x);if(!x.pair||validation){alert(validation||'Pair is required.');return;}
  const mode=modalCtx.mode,id=modalCtx.id,c=db();
  if(!c){alert('Signals database is not connected. Please refresh the page and try again.');return;}
  const btn=document.querySelector('#psp154-modal-back .psp154-foot .primary');
  const oldText=btn?btn.textContent:'';
  if(btn){btn.disabled=true;btn.textContent=id?'Updating...':'Publishing...';}
  try{
-   const obj={...x,audience:'free,premium,vip',access_level:'free'};
+   const obj={...x,audience:'free,premium,vip',access_level:'free',auto_monitor:true};
    let r;
    if(id){
-     r=await c.from('signals').update(obj).eq('id',id);
+     // Editing levels must never reopen or reset the existing lifecycle state.
+     delete obj.auto_monitor;
+     r=await c.from('signals').update(obj).eq('id',id).select('id').maybeSingle();
    }else{
      const oid=await resolveOwnerId(mode);
      if(!oid) throw new Error('Your login session could not be identified. Please refresh the page and sign in again.');
-     obj.owner_id=oid;obj.is_official=true;obj.status='active';obj.tp_hit=0;
-     r=await c.from('signals').insert(obj);
+     obj.owner_id=oid;obj.is_official=true;obj.tp_hit=0;
+     obj.status=(x.order_type&&x.order_type!=='market')?'pending':'active';
+     obj.activated_at=obj.status==='active'?new Date().toISOString():null;
+     r=await c.from('signals').insert(obj).select('id').single();
    }
    if(r && r.error) throw r.error;
    if(!id){try{await window.pspCreateNotificationAndPush?.('📊 New Signal Published',x.pair+' '+x.direction+' signal is now available.','signal','/?tab=signals','all');}catch(_){} }
    closeModal();await load(mode);
    try{window.pipToast?.(id?'Signal updated successfully.':'Signal published successfully.','ok');}catch(_){ }
  }catch(err){
-   console.error('[V155 signals save]',err);
+   console.error('[V157 signals save]',err);
    alert('Signal '+(id?'update':'publish')+' failed: '+(err && err.message ? err.message : 'Unknown error'));
    if(btn){btn.disabled=false;btn.textContent=oldText|| (id?'▣ Update Signal':'🚀 Publish Signal');}
  }
@@ -227,9 +242,9 @@ async function hit(kind){
  if(kind==='be_move'){obj={be_moved:true};}
  else if(kind==='tp1'||kind==='tp2'||kind==='tp3'){
    const target=kind==='tp1'?s.take_profit1:kind==='tp2'?s.take_profit2:s.take_profit3;if(n(target)==null){alert(kind.toUpperCase()+' level is not set.');return;}
-   pips=calcPips(s.pair,s.direction,s.entry_price,target);obj={status:kind,tp_hit:kind==='tp1'?1:kind==='tp2'?2:3,result_pips:pips};if(kind==='tp3'){obj.closed_at=new Date().toISOString();terminal=true;}
- }else if(kind==='sl'){pips=calcPips(s.pair,s.direction,s.entry_price,s.stop_loss);obj={status:'sl',closed_at:new Date().toISOString(),result_pips:pips};terminal=true;}
- else if(kind==='be'){obj={status:'be',closed_at:new Date().toISOString(),result_pips:0};terminal=true;}
+   pips=calcPips(s.pair,s.direction,s.entry_price,target);obj={status:kind,tp_hit:kind==='tp1'?1:kind==='tp2'?2:3,result_pips:pips};if(kind==='tp3'){obj.closed_at=new Date().toISOString();obj.closing_price=n(target);terminal=true;}
+ }else if(kind==='sl'){pips=calcPips(s.pair,s.direction,s.entry_price,s.stop_loss);obj={status:'sl',closed_at:new Date().toISOString(),closing_price:n(s.stop_loss),result_pips:pips};terminal=true;}
+ else if(kind==='be'){obj={status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:0};terminal=true;}
  else if(kind==='closed'){
    let price=window.prompt('Enter closing price for automatic pips calculation:',s.closing_price||'');if(price===null)return;price=n(price);if(price==null){alert('Please enter a valid closing price.');return;}pips=calcPips(s.pair,s.direction,s.entry_price,price);obj={status:'closed',closed_at:new Date().toISOString(),closing_price:price,result_pips:pips};terminal=true;
  }
