@@ -260,7 +260,7 @@ async function load(force=false){
     try{await window.PSPAccountVerification?.load?.(true)}catch(_){}
     const sess=await c.auth.getSession(),user=sess?.data?.session?.user;if(!user)return;
     const all=await Promise.allSettled([
-      c.rpc('psp_user_signals_feed_v158',{p_limit:30}),
+      c.rpc('psp_user_signal_feed_v159'),
       c.from('charts').select('*').order('created_at',{ascending:false}).limit(8),
       c.from('articles').select('*').eq('is_published',true).order('created_at',{ascending:false}).limit(8),
       c.from('course_enrollments').select('*').eq('user_id',user.id).order('created_at',{ascending:false}),
@@ -271,6 +271,12 @@ async function load(force=false){
     const data=i=>all[i].status==='fulfilled'&&!all[i].value.error?(all[i].value.data||[]):[];
     let signals=data(0);
     if(all[0].status!=='fulfilled' || all[0].value?.error || !signals.length){
+      try{
+        const v158Rpc=await c.rpc('psp_user_signals_feed_v158',{p_limit:30});
+        if(!v158Rpc.error && (v158Rpc.data||[]).length) signals=v158Rpc.data||[];
+      }catch(_){}
+    }
+    if(!signals.length){
       try{
         const oldRpc=await c.rpc('psp_user_signals_feed',{p_limit:30});
         if(!oldRpc.error && (oldRpc.data||[]).length) signals=oldRpc.data||[];

@@ -3182,6 +3182,7 @@
       if (window.supabase && window.supabase.createClient) {
         sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-user-auth-v2",persistSession:true,autoRefreshToken:true}});
         window.sb=sb;
+        window.PSP_SIGNAL_DB=sb;
         window.PSP_SUPABASE_URL=SUPABASE_URL;
         window.PSP_SUPABASE_KEY=SUPABASE_KEY;
         console.log('✅ Supabase initialized');

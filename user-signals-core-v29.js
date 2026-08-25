@@ -55,63 +55,99 @@ function canAccessContent(svc,audienceStr){
   if(svcs===null) return true;
   return svcs.indexOf(svc)>=0;
 }
-async function pspV158WaitForSignalSession(){
-  if(!sb||!sb.auth||typeof sb.auth.getSession!=='function') return null;
-  for(var i=0;i<5;i++){
-    try{
-      var r=await sb.auth.getSession();
-      var session=r&&r.data&&r.data.session;
-      if(session&&session.user&&session.user.id) return session;
-    }catch(_){ }
-    await new Promise(function(resolve){setTimeout(resolve,220);});
+function pspSignalClientV159(){
+  try{
+    if(window.PSP_SIGNAL_DB && window.PSP_SIGNAL_DB.auth) return window.PSP_SIGNAL_DB;
+    if(window.sb && window.sb.auth) return window.sb;
+  }catch(_){ }
+  try{
+    if(typeof sb!=='undefined' && sb && sb.auth) return sb;
+  }catch(_){ }
+  return null;
+}
+async function pspV159WaitForSignalSession(){
+  for(var i=0;i<10;i++){
+    var c=pspSignalClientV159();
+    if(c&&c.auth&&typeof c.auth.getSession==='function'){
+      try{
+        var r=await c.auth.getSession();
+        var session=r&&r.data&&r.data.session;
+        if(session&&session.user&&session.user.id) return {client:c,session:session};
+      }catch(_){ }
+    }
+    await new Promise(function(resolve){setTimeout(resolve,180);});
   }
   return null;
 }
-async function pspV158FetchSignalFeed(){
+async function pspV159FetchSignalFeed(client){
+  var c=client||pspSignalClientV159();
   var attempts=[];
   async function run(name,fn){
     try{
       var r=await fn();
-      attempts.push({name:name,error:r&&r.error?r.error:null,count:Array.isArray(r&&r.data)?r.data.length:0});
+      var count=Array.isArray(r&&r.data)?r.data.length:(r&&r.data&&Array.isArray(r.data.signals)?r.data.signals.length:0);
+      attempts.push({name:name,error:r&&r.error?r.error:null,count:count});
       return r||{data:null,error:new Error(name+' returned no response')};
     }catch(e){attempts.push({name:name,error:e,count:0});return {data:null,error:e};}
   }
+  if(!c){return {data:null,error:new Error('Signal database client is not ready.')};}
 
-  // V158 primary feed: SECURITY DEFINER + authenticated EXECUTE grant.
-  // It does not depend on per-row RLS visibility, fixing accounts that received an empty feed.
-  var primary=await run('v158-rpc',function(){return sb.rpc('psp_user_signals_feed_v158',{p_limit:250});});
-  if(primary&&!primary.error&&Array.isArray(primary.data)&&primary.data.length){
-    window.__PSP_V158_SIGNAL_FEED_DIAG=attempts;return primary;
+  // V159 primary: unique no-argument SECURITY DEFINER JSON feed.
+  // Using a fresh RPC name avoids old PostgREST overload/schema-cache collisions.
+  var primary=await run('v159-json-rpc',function(){return c.rpc('psp_user_signal_feed_v159');});
+  if(primary&&!primary.error){
+    var pd=primary.data;
+    if(pd&&Array.isArray(pd.signals)) pd=pd.signals;
+    if(Array.isArray(pd)&&pd.length){
+      window.__PSP_SIGNAL_FEED_DIAG=attempts;
+      return {data:pd,error:null};
+    }
   }
 
-  // Compatibility with V154/V157 databases while the V158 SQL is being deployed.
-  var legacyRpc=await run('legacy-rpc',function(){return sb.rpc('psp_user_signals_feed',{p_limit:250});});
-  if(legacyRpc&&!legacyRpc.error&&Array.isArray(legacyRpc.data)&&legacyRpc.data.length){
-    window.__PSP_V158_SIGNAL_FEED_DIAG=attempts;return legacyRpc;
+  // V158 compatibility RPC.
+  var v158=await run('v158-rpc',function(){return c.rpc('psp_user_signals_feed_v158',{p_limit:250});});
+  if(v158&&!v158.error&&Array.isArray(v158.data)&&v158.data.length){
+    window.__PSP_SIGNAL_FEED_DIAG=attempts;return v158;
   }
 
-  // Final direct-table fallback. If RLS is restrictive this may be empty, but it
-  // provides compatibility with older database versions where the RPC was absent.
-  var direct=await run('direct-table',function(){return sb.from('signals').select('*').order('created_at',{ascending:false}).limit(250);});
+  // Legacy compatibility RPC.
+  var legacy=await run('legacy-rpc',function(){return c.rpc('psp_user_signals_feed',{p_limit:250});});
+  if(legacy&&!legacy.error&&Array.isArray(legacy.data)&&legacy.data.length){
+    window.__PSP_SIGNAL_FEED_DIAG=attempts;return legacy;
+  }
+
+  // Last fallback: direct authenticated table read.
+  var direct=await run('direct-table',function(){return c.from('signals').select('*').order('created_at',{ascending:false}).limit(250);});
   if(direct&&!direct.error&&Array.isArray(direct.data)&&direct.data.length){
-    window.__PSP_V158_SIGNAL_FEED_DIAG=attempts;return direct;
+    window.__PSP_SIGNAL_FEED_DIAG=attempts;return direct;
   }
 
-  window.__PSP_V158_SIGNAL_FEED_DIAG=attempts;
-  // A successful empty response means there are genuinely no rows visible.
-  if(primary&&!primary.error&&Array.isArray(primary.data)) return primary;
-  if(legacyRpc&&!legacyRpc.error&&Array.isArray(legacyRpc.data)) return legacyRpc;
+  window.__PSP_SIGNAL_FEED_DIAG=attempts;
+  // Prefer a real error over a misleading successful-empty fallback when the V159 RPC is missing.
+  if(primary&&primary.error && v158&&v158.error && legacy&&legacy.error && direct&&direct.error){
+    return {data:null,error:primary.error};
+  }
+  if(primary&&!primary.error){
+    var empty=primary.data;
+    if(empty&&Array.isArray(empty.signals)) empty=empty.signals;
+    if(Array.isArray(empty)) return {data:empty,error:null};
+  }
+  if(v158&&!v158.error&&Array.isArray(v158.data)) return v158;
+  if(legacy&&!legacy.error&&Array.isArray(legacy.data)) return legacy;
   if(direct&&!direct.error&&Array.isArray(direct.data)) return direct;
-  return primary&&primary.error?primary:(legacyRpc&&legacyRpc.error?legacyRpc:direct);
+  return {data:null,error:(primary&&primary.error)||(v158&&v158.error)||(legacy&&legacy.error)||(direct&&direct.error)||new Error('Signal feed unavailable.')};
 }
 async function loadSignalsFromDB(){
   const g=document.getElementById('signalsGrid');if(!g)return;
-  if(!sb){g.innerHTML='';return;}
+  var signalClient=pspSignalClientV159();
+  if(!signalClient){g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Connecting to signals…</div>';setTimeout(function(){try{loadSignalsFromDB();}catch(_){ }},500);return;}
   g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading signals...</div>';
 
   // Do not query before Supabase has restored the authenticated browser session.
   // The old race could call the RPC as anon and leave the Signals page empty.
-  var session=await pspV158WaitForSignalSession();
+  var sessionState=await pspV159WaitForSignalSession();
+  var session=sessionState&&sessionState.session;
+  if(sessionState&&sessionState.client) signalClient=sessionState.client;
   if(!session){
     g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Restoring your session…</div>';
     setTimeout(function(){try{loadSignalsFromDB();}catch(_){ }},700);
@@ -124,7 +160,7 @@ async function loadSignalsFromDB(){
     }
   }catch(_){ }
 
-  var feed=await pspV158FetchSignalFeed();
+  var feed=await pspV159FetchSignalFeed(signalClient);
   var data=feed&&feed.data;
   var error=feed&&feed.error;
   if(error){
