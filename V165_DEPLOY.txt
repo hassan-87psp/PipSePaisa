@@ -1,0 +1,22 @@
+PipSePaisa V165 — Signals No-Blink Hard Fix
+
+WHY IT WAS STILL BLINKING
+- The V162 no-blink code existed, but the V162 ZIP stored it inside a v162patch/ folder.
+- V164 did not include user-signals-core-v29.js or the clean user route pages.
+- Therefore the live /signals route could keep using/caching the older signal loader.
+
+DEPLOY
+1. Upload/replace ALL files from this ZIP at the WEBSITE ROOT, preserving folders.
+   Important: user-signals-core-v29.js must sit beside index.html at root.
+2. Make sure signals/index.html replaces the existing /signals/index.html.
+3. Hard refresh: Ctrl+Shift+R.
+
+NO SQL REQUIRED.
+NO EDGE FUNCTION REDEPLOY REQUIRED.
+NO MOBILE UI/CSS CHANGES.
+
+V165 behavior:
+- Initial Signals open may show one loading state only when there is no rendered data yet.
+- Realtime, 30-second fallback, focus, pageshow, and background refreshes are silent.
+- Existing table remains visible while fresh data is fetched.
+- DOM is re-rendered only when signal-visible data actually changes.

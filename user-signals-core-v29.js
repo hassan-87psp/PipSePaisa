@@ -168,14 +168,14 @@ async function loadSignalsFromDB(options){
   __pspSigLoadPromise=(async function(){
     var signalClient=pspSignalClientV159();
     if(!signalClient){
-      if(!__pspSigRenderedOnce)g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Connecting to signals…</div>';
+      if(!__pspSigRenderedOnce&&!options.silent)g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Connecting to signals…</div>';
       setTimeout(function(){try{loadSignalsFromDB({silent:__pspSigRenderedOnce,source:'client-wait'});}catch(_){ }},650);
       return;
     }
 
     // Only the first load is allowed to paint a loading state. Background
     // refreshes keep the current signal table visible until fresh data arrives.
-    if(!__pspSigRenderedOnce){
+    if(!__pspSigRenderedOnce&&!options.silent){
       g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading signals...</div>';
     }
 
@@ -183,7 +183,7 @@ async function loadSignalsFromDB(options){
     var session=sessionState&&sessionState.session;
     if(sessionState&&sessionState.client)signalClient=sessionState.client;
     if(!session){
-      if(!__pspSigRenderedOnce)g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Restoring your session…</div>';
+      if(!__pspSigRenderedOnce&&!options.silent)g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Restoring your session…</div>';
       setTimeout(function(){try{loadSignalsFromDB({silent:__pspSigRenderedOnce,source:'session-wait'});}catch(_){ }},900);
       return;
     }
@@ -2803,7 +2803,7 @@ function pspSigMobileShell(rows){
     try{
       var page=document.getElementById('page-signals');
       if(page && page.classList.contains('active') && typeof loadSignalsFromDB==='function'){
-        loadSignalsFromDB();
+        loadSignalsFromDB({silent:true,source:'focus-access-sync'});
       }
     }catch(_){}
   }
@@ -2833,7 +2833,7 @@ function pspSigMobileShell(rows){
       try{
         var page=document.getElementById('page-signals');
         if(page && page.classList.contains('active') && typeof loadSignalsFromDB==='function'){
-          loadSignalsFromDB();
+          loadSignalsFromDB({silent:true,source:'pageshow-access-sync'});
         }
       }catch(_){}
     },450);
@@ -2946,3 +2946,5 @@ function pspSigMobileDetail(s){
       (note?'<div class="psp-mobile-note"><b>📝 Mentor Note:</b><br>'+vEsc(note)+'</div>':'')+
     '</div></div>';
 }
+
+// PIPSEPAISA V165 — hard no-blink signal refresh. Background refreshes never replace the visible table with a loader.
