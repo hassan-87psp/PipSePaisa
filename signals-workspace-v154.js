@@ -1,4 +1,4 @@
-/* PipSePaisa V154 — Desktop Signals Workspace Restore
+/* PipSePaisa V155 — Desktop Signals Workspace + Publish Hotfix
    - Restores the approved desktop Mentor/Admin Signals workspace.
    - Mobile (<=768px) deliberately falls back to the existing UI unchanged.
    - Adds automatic pips calculation for XAU/BTC/Forex and status actions.
@@ -95,7 +95,29 @@ function rows(mode){return mode==='mentor'?mentorRows:adminRows;}
 function setRows(mode,v){if(mode==='mentor')mentorRows=v;else adminRows=v;}
 function currentView(mode){return mode==='mentor'?mentorView:adminView;}
 function setView(mode,v){if(mode==='mentor')mentorView=v;else adminView=v;renderWorkspace(mode);}
-function ownerId(mode){return mode==='mentor'?(window.ME&&ME.id):(window.currentAdmin&&currentAdmin.id);}
+function ownerId(mode){
+ try{
+   if(mode==='mentor'){
+     if(typeof ME!=='undefined' && ME && ME.id) return ME.id;
+     if(window.ME && window.ME.id) return window.ME.id;
+   }else{
+     if(typeof currentAdmin!=='undefined' && currentAdmin && currentAdmin.id) return currentAdmin.id;
+     if(window.currentAdmin && window.currentAdmin.id) return window.currentAdmin.id;
+   }
+ }catch(_){ }
+ return null;
+}
+async function resolveOwnerId(mode){
+ const direct=ownerId(mode); if(direct) return direct;
+ try{
+   const c=db();
+   if(c && c.auth){
+     const r=await c.auth.getUser();
+     if(r && r.data && r.data.user && r.data.user.id) return r.data.user.id;
+   }
+ }catch(_){ }
+ return null;
+}
 
 function renderWorkspace(mode){
  if(isMobile()){
@@ -113,9 +135,14 @@ function renderWorkspace(mode){
  load(mode);
 }
 async function load(mode){
- const c=db(),box=document.getElementById('psp154-list-'+mode);if(!c||!box)return;
+ const c=db(),box=document.getElementById('psp154-list-'+mode);if(!box)return;
+ if(!c){box.innerHTML='<div class="psp154-empty">Unable to connect to signals database. Please refresh and try again.</div>';return;}
  let q=c.from('signals').select('*').order('created_at',{ascending:false}).limit(100);
- if(mode==='mentor')q=q.eq('owner_id',ownerId(mode)); else q=q.eq('is_official',true);
+ if(mode==='mentor'){
+   const oid=await resolveOwnerId(mode);
+   if(!oid){box.innerHTML='<div class="psp154-empty">Mentor session is not ready. Please refresh the page.</div>';return;}
+   q=q.eq('owner_id',oid);
+ } else q=q.eq('is_official',true);
  const r=await q;if(r.error){box.innerHTML='<div class="psp154-empty">'+esc(r.error.message)+'</div>';return;}
  setRows(mode,r.data||[]);drawTable(mode);
 }
@@ -158,13 +185,34 @@ function openForm(mode,s){
  refreshAuto();
 }
 async function save(){
- if(!modalCtx)return;const x=formValues();if(!x.pair||x.entry_price==null||x.stop_loss==null||x.take_profit1==null){alert('Pair, Entry, Stop Loss and TP1 are required.');return;}
- const c=db(),mode=modalCtx.mode,id=modalCtx.id;const obj={...x,audience:'free,premium,vip',access_level:'free'};
- let r;if(id){r=await c.from('signals').update(obj).eq('id',id);}else{obj.owner_id=ownerId(mode);obj.is_official=true;obj.status='active';obj.tp_hit=0;r=await c.from('signals').insert(obj);}
- if(r.error){alert('Signal save failed: '+r.error.message);return;}
- if(!id){try{await window.pspCreateNotificationAndPush?.('📊 New Signal Published',x.pair+' '+x.direction+' signal is now available.','signal','/?tab=signals','all');}catch(_){}}
- closeModal();await load(mode);
- try{window.pipToast?.(id?'Signal updated successfully.':'Signal published successfully.','ok');}catch(_){ }
+ if(!modalCtx)return;
+ const x=formValues();
+ if(!x.pair||x.entry_price==null||x.stop_loss==null||x.take_profit1==null){alert('Pair, Entry, Stop Loss and TP1 are required.');return;}
+ const mode=modalCtx.mode,id=modalCtx.id,c=db();
+ if(!c){alert('Signals database is not connected. Please refresh the page and try again.');return;}
+ const btn=document.querySelector('#psp154-modal-back .psp154-foot .primary');
+ const oldText=btn?btn.textContent:'';
+ if(btn){btn.disabled=true;btn.textContent=id?'Updating...':'Publishing...';}
+ try{
+   const obj={...x,audience:'free,premium,vip',access_level:'free'};
+   let r;
+   if(id){
+     r=await c.from('signals').update(obj).eq('id',id);
+   }else{
+     const oid=await resolveOwnerId(mode);
+     if(!oid) throw new Error('Your login session could not be identified. Please refresh the page and sign in again.');
+     obj.owner_id=oid;obj.is_official=true;obj.status='active';obj.tp_hit=0;
+     r=await c.from('signals').insert(obj);
+   }
+   if(r && r.error) throw r.error;
+   if(!id){try{await window.pspCreateNotificationAndPush?.('📊 New Signal Published',x.pair+' '+x.direction+' signal is now available.','signal','/?tab=signals','all');}catch(_){} }
+   closeModal();await load(mode);
+   try{window.pipToast?.(id?'Signal updated successfully.':'Signal published successfully.','ok');}catch(_){ }
+ }catch(err){
+   console.error('[V155 signals save]',err);
+   alert('Signal '+(id?'update':'publish')+' failed: '+(err && err.message ? err.message : 'Unknown error'));
+   if(btn){btn.disabled=false;btn.textContent=oldText|| (id?'▣ Update Signal':'🚀 Publish Signal');}
+ }
 }
 function openManage(mode,s){
  modalCtx={mode,id:s.id};const type=orderLabel(s);const pv=s.result_pips;
