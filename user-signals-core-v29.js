@@ -137,54 +137,115 @@ async function pspV159FetchSignalFeed(client){
   if(direct&&!direct.error&&Array.isArray(direct.data)) return direct;
   return {data:null,error:(primary&&primary.error)||(v158&&v158.error)||(legacy&&legacy.error)||(direct&&direct.error)||new Error('Signal feed unavailable.')};
 }
-async function loadSignalsFromDB(){
-  const g=document.getElementById('signalsGrid');if(!g)return;
-  var signalClient=pspSignalClientV159();
-  if(!signalClient){g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Connecting to signals…</div>';setTimeout(function(){try{loadSignalsFromDB();}catch(_){ }},500);return;}
-  g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading signals...</div>';
+var __pspSigLoadPromise=null;
+var __pspSigLastRenderKey=null;
+var __pspSigRenderedOnce=false;
+var __pspSigLastFetchAt=0;
+var __pspSigAccessSyncAt=0;
 
-  // Do not query before Supabase has restored the authenticated browser session.
-  // The old race could call the RPC as anon and leave the Signals page empty.
-  var sessionState=await pspV159WaitForSignalSession();
-  var session=sessionState&&sessionState.session;
-  if(sessionState&&sessionState.client) signalClient=sessionState.client;
-  if(!session){
-    g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Restoring your session…</div>';
-    setTimeout(function(){try{loadSignalsFromDB();}catch(_){ }},700);
-    return;
-  }
-
+function pspV162SignalRenderKey(rows){
   try{
-    if(window.PSPAccountVerification&&typeof window.PSPAccountVerification.load==='function'){
-      await window.PSPAccountVerification.load(true);
+    return JSON.stringify((rows||[]).map(function(s){return [
+      s.id,s.pair,s.direction,s.order_type,
+      s.entry_price,s.stop_loss,s.take_profit1,s.take_profit2,s.take_profit3,s.take_profit4,
+      s.status,s.tp_hit,!!s.be_moved,s.result_pips,s.closed_at,s.closing_price,s.activated_at,
+      s.mentor_note,s.notes,s.note,s.vip_package,s.audience,s.access_level,s.plan_name,!!s.is_official
+    ];}));
+  }catch(_){return String(Date.now());}
+}
+
+async function loadSignalsFromDB(options){
+  options=options||{};
+  const g=document.getElementById('signalsGrid');if(!g)return;
+
+  // V162: multiple realtime/poll/focus hooks can request the same refresh.
+  // Share one in-flight request and suppress bursts so the Signals DOM is not
+  // repeatedly cleared/rebuilt (the visible "blinking" reported by users).
+  if(__pspSigLoadPromise)return __pspSigLoadPromise;
+  var background=!!options.silent||__pspSigRenderedOnce;
+  if(background && (Date.now()-__pspSigLastFetchAt)<750)return;
+
+  __pspSigLoadPromise=(async function(){
+    var signalClient=pspSignalClientV159();
+    if(!signalClient){
+      if(!__pspSigRenderedOnce)g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Connecting to signals…</div>';
+      setTimeout(function(){try{loadSignalsFromDB({silent:__pspSigRenderedOnce,source:'client-wait'});}catch(_){ }},650);
+      return;
     }
-  }catch(_){ }
 
-  var feed=await pspV159FetchSignalFeed(signalClient);
-  var data=feed&&feed.data;
-  var error=feed&&feed.error;
-  if(error){
-    console.error('Signals load failed:',error,window.__PSP_V158_SIGNAL_FEED_DIAG);
-    g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">Signals could not be loaded. Please refresh once. If the issue continues, contact Admin.</div>';
-    return;
-  }
+    // Only the first load is allowed to paint a loading state. Background
+    // refreshes keep the current signal table visible until fresh data arrives.
+    if(!__pspSigRenderedOnce){
+      g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Loading signals...</div>';
+    }
 
-  const _isVip=!!(currentProfile&&currentProfile.is_premium);
-  window._SIGRAW=window._SIGRAW||{};(data||[]).forEach(function(s){window._SIGRAW[s.id]=s;});
-  SIGNALS=(data||[]).map(s=>{
-    const audStr=s.audience||(((s.access_level||'free')==='vip')?'premium,vip':'free');
-    return {
-    id:s.id, pair:s.pair||'', dir:(/sell/i).test(s.direction||'')?'sell':'buy',
-    access:s.access_level||'free', plan:s.plan_name||'',
-    locked:!canAccessContent('signal',audStr),
-    entry:s.entry_price==null?'-':s.entry_price, sl:s.stop_loss==null?'-':s.stop_loss,
-    tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2, tp3:s.take_profit3==null?'-':s.take_profit3, tp4:(s.take_profit4||''),
-    tpHit:s.tp_hit||0, rawStatus:(s.status||'active'), beMoved:!!s.be_moved, orderType:((s.order_type||'market')+'').toLowerCase(), pips:(s.result_pips==null?null:s.result_pips), activatedAt:(s.activated_at||null), closingPrice:(s.closing_price==null?null:s.closing_price),
-    status:((s.status==='active'||s.status==='pending')?'active':((s.status==='sl'||s.status==='closed'||s.status==='be')?'closed':'tp')),
-    cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:pspFmtDateTime(s.created_at),
-    ts:s.created_at, closedTs:(s.closed_at||s.created_at)
-  };});
-  renderSignals();
+    var sessionState=await pspV159WaitForSignalSession();
+    var session=sessionState&&sessionState.session;
+    if(sessionState&&sessionState.client)signalClient=sessionState.client;
+    if(!session){
+      if(!__pspSigRenderedOnce)g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">Restoring your session…</div>';
+      setTimeout(function(){try{loadSignalsFromDB({silent:__pspSigRenderedOnce,source:'session-wait'});}catch(_){ }},900);
+      return;
+    }
+
+    // Account access does not need to be re-rendered on every market-price tick.
+    // Refresh it at most once per minute here; its own realtime module still
+    // handles approval/trial changes immediately.
+    if(!__pspSigRenderedOnce || (Date.now()-__pspSigAccessSyncAt)>60000){
+      try{
+        if(window.PSPAccountVerification&&typeof window.PSPAccountVerification.load==='function'){
+          await window.PSPAccountVerification.load(true);
+          __pspSigAccessSyncAt=Date.now();
+        }
+      }catch(_){ }
+    }
+
+    var feed=await pspV159FetchSignalFeed(signalClient);
+    var data=feed&&feed.data;
+    var error=feed&&feed.error;
+    if(error){
+      console.error('Signals load failed:',error,window.__PSP_SIGNAL_FEED_DIAG);
+      // A transient background failure must not destroy an already-visible table.
+      if(!__pspSigRenderedOnce){
+        g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">Signals could not be loaded. Please refresh once. If the issue continues, contact Admin.</div>';
+      }
+      return;
+    }
+
+    var rows=Array.isArray(data)?data:[];
+    var nextKey=pspV162SignalRenderKey(rows);
+    window._SIGRAW=window._SIGRAW||{};
+    rows.forEach(function(s){window._SIGRAW[s.id]=s;});
+
+    var nextSignals=rows.map(function(s){
+      const audStr=s.audience||(((s.access_level||'free')==='vip')?'premium,vip':'free');
+      return {
+        id:s.id, pair:s.pair||'', dir:(/sell/i).test(s.direction||'')?'sell':'buy',
+        access:s.access_level||'free', plan:s.plan_name||'',
+        locked:!canAccessContent('signal',audStr),
+        entry:s.entry_price==null?'-':s.entry_price, sl:s.stop_loss==null?'-':s.stop_loss,
+        tp1:s.take_profit1==null?'-':s.take_profit1, tp2:s.take_profit2==null?'-':s.take_profit2, tp3:s.take_profit3==null?'-':s.take_profit3, tp4:(s.take_profit4||''),
+        tpHit:s.tp_hit||0, rawStatus:(s.status||'active'), beMoved:!!s.be_moved, orderType:((s.order_type||'market')+'').toLowerCase(), pips:(s.result_pips==null?null:s.result_pips), activatedAt:(s.activated_at||null), closingPrice:(s.closing_price==null?null:s.closing_price),
+        status:((s.status==='active'||s.status==='pending')?'active':((s.status==='sl'||s.status==='closed'||s.status==='be')?'closed':'tp')),
+        cat:sigCat(s.pair), ico:sigIco(s.pair), official:!!s.is_official, time:pspFmtDateTime(s.created_at),
+        ts:s.created_at, closedTs:(s.closed_at||s.created_at)
+      };
+    });
+
+    SIGNALS=nextSignals;
+    __pspSigLastFetchAt=Date.now();
+
+    // Market monitor updates last_market_price every minute. Those fields are not
+    // visible in this table, so do not repaint the entire page for such updates.
+    if(!__pspSigRenderedOnce || nextKey!==__pspSigLastRenderKey){
+      __pspSigLastRenderKey=nextKey;
+      __pspSigRenderedOnce=true;
+      renderSignals();
+    }
+  })();
+
+  try{return await __pspSigLoadPromise;}
+  finally{__pspSigLoadPromise=null;}
 }
 
 function renderSigResultDash(rows,elId){
@@ -2792,7 +2853,7 @@ function pspSigMobileShell(rows){
       if(document.hidden||busy)return;
       var page=document.getElementById('page-signals');
       if(!page||!page.classList.contains('active')||typeof loadSignalsFromDB!=='function')return;
-      busy=true;await loadSignalsFromDB();
+      busy=true;await loadSignalsFromDB({silent:true,source:'fallback-poll'});
     }catch(_){ }finally{busy=false;}
   }
   window.addEventListener('online',function(){setTimeout(refreshIfVisible,120);});

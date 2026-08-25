@@ -4703,7 +4703,7 @@
     function act(id){var p=document.getElementById(id);return p&&p.classList.contains('active');}
     function rtContent(){
       try{
-        if(typeof loadSignalsFromDB==='function')loadSignalsFromDB();
+        if(act('page-signals')&&typeof loadSignalsFromDB==='function')loadSignalsFromDB({silent:true,source:'realtime'});
         if(act('page-articles')&&typeof loadArticlesFromDB==='function')loadArticlesFromDB();
         if(act('page-learn')&&typeof loadCourses==='function')loadCourses();
         if(act('page-news')&&typeof loadAdminNews==='function')loadAdminNews();

@@ -1,0 +1,17 @@
+PipSePaisa V162 — Signals Page No-Blink Hotfix
+
+What changed:
+- Signals background refresh no longer clears the visible table with a Loading state.
+- Multiple realtime/poll/focus refresh requests are deduplicated.
+- Signal DOM re-renders only when user-visible signal data actually changes.
+- monitor-only last_market_* updates no longer repaint the Signals page.
+- realtime signal refresh runs only while the Signals page is visible.
+- Existing 30-second fallback refresh remains, but runs silently.
+- No mobile UI/CSS/layout changes.
+- No database SQL changes.
+- No Edge Function changes.
+
+Deploy:
+1. Upload/replace every file from the V162 PATCH, preserving folders.
+2. Hard refresh the browser (Ctrl+Shift+R).
+3. No Supabase SQL or Edge Function redeploy is required for V162.
