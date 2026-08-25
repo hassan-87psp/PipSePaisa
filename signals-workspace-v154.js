@@ -1,4 +1,4 @@
-/* PipSePaisa V157 — Consolidated Desktop Signals Workspace + Reliable Publish
+/* PipSePaisa V164 — Consolidated Signals Workspace + BE/latest-TP result fix
    - Restores the approved desktop Mentor/Admin Signals workspace.
    - Mobile (<=768px) deliberately falls back to the existing UI unchanged.
    - Adds automatic pips calculation for XAU/BTC/Forex and status actions.
@@ -36,6 +36,17 @@ function calcPips(pair,dir,entry,target){
   entry=n(entry);target=n(target);if(entry==null||target==null)return null;
   const raw=(String(dir||'BUY').toUpperCase()==='SELL')?(entry-target):(target-entry);
   return Math.round(raw*pairFactor(pair)*10)/10;
+}
+function latestTpPips(s){
+  const st=String(s?.status||'').toLowerCase();let hit=Number(s?.tp_hit||0);
+  if(st==='tp3')hit=Math.max(hit,3);else if(st==='tp2')hit=Math.max(hit,2);else if(st==='tp1')hit=Math.max(hit,1);
+  const target=hit>=3?n(s?.take_profit3):hit>=2?n(s?.take_profit2):hit>=1?n(s?.take_profit1):null;
+  const p=target==null?null:calcPips(s?.pair,s?.direction,s?.entry_price,target);
+  if(p!=null&&Number.isFinite(p))return p;
+  const existing=n(s?.result_pips);return existing!=null&&existing>0?existing:0;
+}
+async function kickMonitor(){
+  try{const c=db();if(c?.functions?.invoke)await c.functions.invoke('monitor-signals',{body:{single_pass:true,mode:'kick'}});}catch(_){ }
 }
 function orderLabel(s){
   const d=String(s.direction||'BUY').toUpperCase()==='SELL'?'SELL':'BUY';
@@ -239,17 +250,20 @@ function openManage(mode,s){
 }
 async function hit(kind){
  if(!modalCtx)return;const {mode,id}=modalCtx,s=getRow(mode,id);if(!s)return;const c=db();let obj={};let pips=null;let terminal=false;
- if(kind==='be_move'){obj={be_moved:true};}
+ let notifyKind=kind;
+ if(kind==='be_move'){obj={be_moved:true,be_moved_at:new Date().toISOString()};}
  else if(kind==='tp1'||kind==='tp2'||kind==='tp3'){
    const target=kind==='tp1'?s.take_profit1:kind==='tp2'?s.take_profit2:s.take_profit3;if(n(target)==null){alert(kind.toUpperCase()+' level is not set.');return;}
    pips=calcPips(s.pair,s.direction,s.entry_price,target);obj={status:kind,tp_hit:kind==='tp1'?1:kind==='tp2'?2:3,result_pips:pips};if(kind==='tp3'){obj.closed_at=new Date().toISOString();obj.closing_price=n(target);terminal=true;}
- }else if(kind==='sl'){pips=calcPips(s.pair,s.direction,s.entry_price,s.stop_loss);obj={status:'sl',closed_at:new Date().toISOString(),closing_price:n(s.stop_loss),result_pips:pips};terminal=true;}
- else if(kind==='be'){obj={status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:0};terminal=true;}
+ }else if(kind==='sl'&&s.be_moved){pips=latestTpPips(s);obj={status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:pips};terminal=true;notifyKind='be';}
+ else if(kind==='sl'){pips=calcPips(s.pair,s.direction,s.entry_price,s.stop_loss);obj={status:'sl',closed_at:new Date().toISOString(),closing_price:n(s.stop_loss),result_pips:pips};terminal=true;}
+ else if(kind==='be'){pips=latestTpPips(s);obj={status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:pips};terminal=true;}
  else if(kind==='closed'){
    let price=window.prompt('Enter closing price for automatic pips calculation:',s.closing_price||'');if(price===null)return;price=n(price);if(price==null){alert('Please enter a valid closing price.');return;}pips=calcPips(s.pair,s.direction,s.entry_price,price);obj={status:'closed',closed_at:new Date().toISOString(),closing_price:price,result_pips:pips};terminal=true;
  }
  const r=await c.from('signals').update(obj).eq('id',id);if(r.error){alert('Status update failed: '+r.error.message);return;}
- try{const msg={tp1:['✅ TP1 Hit','TP1 hit.'],tp2:['✅ TP2 Hit','TP2 hit.'],tp3:['🏆 TP3 Hit','TP3 hit — signal closed.'],be_move:['🔒 Stop Loss at Breakeven','Move Stop Loss to entry.'],be:['🔒 Breakeven Hit','Breakeven hit — signal closed.'],sl:['🛑 Stop Loss Hit','Stop loss hit — signal closed.'],closed:['🔒 Signal Closed','Signal closed.']}[kind];if(msg)await window.pspCreateNotificationAndPush?.(msg[0],msg[1],'signal','/?tab=signals','all');}catch(_){ }
+ try{const msg={tp1:['✅ TP1 Hit','TP1 hit.'],tp2:['✅ TP2 Hit','TP2 hit.'],tp3:['🏆 TP3 Hit','TP3 hit — signal closed.'],be_move:['🔒 Stop Loss at Breakeven','Move Stop Loss to entry.'],be:['🔒 Breakeven Hit','Breakeven hit — signal closed.'],sl:['🛑 Stop Loss Hit','Stop loss hit — signal closed.'],closed:['🔒 Signal Closed','Signal closed.']}[notifyKind];if(msg)await window.pspCreateNotificationAndPush?.(msg[0],msg[1],'signal','/?tab=signals','all');}catch(_){ }
+ if(kind==='be_move')void kickMonitor();
  closeModal();await load(mode);try{window.pipToast?.('Signal status updated successfully.','ok');}catch(_){ }
 }
 function editCurrent(){if(!modalCtx)return;const s=getRow(modalCtx.mode,modalCtx.id),mode=modalCtx.mode;if(s)openForm(mode,s);}

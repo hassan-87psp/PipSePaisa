@@ -2382,12 +2382,16 @@ async function loadAdSigList(){
   }).join('');
 }
 async function updateSigStatus(id,kind){
-  var pi=document.getElementById('pips-'+id);var pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;var obj={};var terminal=['tp3','be','sl','closed'].indexOf(kind)>-1;
-  if(kind==='be_move'){obj={be_moved:true};}
+  var pi=document.getElementById('pips-'+id);var pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;var obj={};var effectiveKind=kind;
+  var sgRow={};try{var rr=await sb.from('signals').select('be_moved,entry_price,result_pips,tp_hit,take_profit1,take_profit2,take_profit3,pair,direction').eq('id',id).maybeSingle();sgRow=rr.data||{};}catch(e){}
+  var terminal=['tp3','be','sl','closed'].indexOf(kind)>-1;
+  if(kind==='be_move'){obj={be_moved:true,be_moved_at:new Date().toISOString()};}
   else if(kind==='tp1'||kind==='tp2'){obj={status:kind,tp_hit:kind==='tp1'?1:2};if(pips!==null&&!isNaN(pips))obj.result_pips=pips;}
+  else if(kind==='be'||(kind==='sl'&&sgRow.be_moved)){effectiveKind='be';obj={status:'be',closed_at:new Date().toISOString(),closing_price:sgRow.entry_price};if(pips!==null&&!isNaN(pips))obj.result_pips=pips;else if(sgRow.result_pips!=null)obj.result_pips=sgRow.result_pips;else obj.result_pips=0;}
   else{obj={status:kind,closed_at:new Date().toISOString()};if(kind==='tp3')obj.tp_hit=3;if(pips!==null&&!isNaN(pips))obj.result_pips=pips;}
   var r=await sb.from('signals').update(obj).eq('id',id);if(r.error){alert('Error: '+r.error.message);return;}
-  if(terminal){try{await pspCreateNotificationAndPush('🔒 Signal Closed',kind==='tp3'?'TP3 Hit — signal closed.':kind==='be'?'Breakeven Hit — signal closed.':kind==='sl'?'Stop Loss Hit — signal closed.':'Signal closed.','signal','/?tab=signals','all');}catch(e){}}
+  if(terminal){try{await pspCreateNotificationAndPush('🔒 Signal Closed',effectiveKind==='tp3'?'TP3 Hit — signal closed.':effectiveKind==='be'?'Breakeven Hit — signal closed.':effectiveKind==='sl'?'Stop Loss Hit — signal closed.':'Signal closed.','signal','/?tab=signals','all');}catch(e){}}
+  if(kind==='be_move'){try{sb.functions.invoke('monitor-signals',{body:{single_pass:true,mode:'kick'}}).catch(function(){});}catch(e){}}
   loadAdSigList();
 }
 async function delAdSig(id){if(!(await window.pspConfirm('Delete this signal?')))return;await sb.from('signals').delete().eq('id',id);loadAdSigList();}
@@ -4610,6 +4614,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 }
 </style>
 
-<script src="signals-workspace-v154.js?v=20260825-v157-consolidated"></script>
+<script src="signals-workspace-v154.js?v=20260825-v164-be-tp-fast"></script>
 </body>
 </html>
