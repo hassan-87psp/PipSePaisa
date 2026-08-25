@@ -1,0 +1,13 @@
+PIPSEPAISA V154
+
+1) Upload the website files from this ZIP to GitHub Pages exactly as usual.
+2) In Supabase SQL Editor, run:
+   68_V154_SIGNAL_VISIBILITY_AND_FEED_FIX.sql
+
+What this patch changes:
+- Restores the approved desktop Mentor/Admin Signals workspace.
+- Active / History / Report / Create Signal layout restored on desktop.
+- Manage Signal popup restored: TP1, TP2, TP3, SL->BE, BE Hit, SL Hit, Close, Edit, Delete.
+- Create/Edit popup restored with automatic pip calculations.
+- Mobile Signals UI is intentionally left unchanged (<=768px uses the existing UI).
+- Fixes blank Signals / Signal History / Live Charts for authenticated users, including users whose trial/access is active.
