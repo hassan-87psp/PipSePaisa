@@ -2349,7 +2349,7 @@ async function createAdSignal(){
   var obj={owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('as-pair').value,direction:_dirO.toUpperCase(),
     entry_price:isNaN(entry)?null:entry,stop_loss:parseFloat(v('as-sl'))||null,take_profit1:parseFloat(v('as-tp1'))||null,take_profit2:parseFloat(v('as-tp2'))||null,take_profit3:parseFloat(v('as-tp3'))||null,take_profit4:(v('as-tp4')||'').trim()||null,
     notes:v('as-notes')||null,audience:aud.join(','),access_level:aud.indexOf('free')>=0?'free':'vip',
-    plan_name:(!(aud.length===1&&aud[0]==='free'))?(v('as-plan')||null):null,status:'active',tp_hit:0,order_type:_otype};
+    plan_name:(!(aud.length===1&&aud[0]==='free'))?(v('as-plan')||null):null,status:_otype!=='market'?'pending':'active',tp_hit:0,order_type:_otype,auto_monitor:false,activated_at:_otype==='market'?new Date().toISOString():null};
   var r=await sb.from('signals').insert(obj);
   if(r.error){alert('Error: '+r.error.message);return;}
   await pspCreateNotificationAndPush('📊 New Signal Published', obj.pair+' '+obj.direction+' signal is now available.', 'signal', '/?tab=signals', obj.audience||'all');
@@ -2391,7 +2391,6 @@ async function updateSigStatus(id,kind){
   else{obj={status:kind,closed_at:new Date().toISOString()};if(kind==='tp3')obj.tp_hit=3;if(pips!==null&&!isNaN(pips))obj.result_pips=pips;}
   var r=await sb.from('signals').update(obj).eq('id',id);if(r.error){alert('Error: '+r.error.message);return;}
   if(terminal){try{await pspCreateNotificationAndPush('🔒 Signal Closed',effectiveKind==='tp3'?'TP3 Hit — signal closed.':effectiveKind==='be'?'Breakeven Hit — signal closed.':effectiveKind==='sl'?'Stop Loss Hit — signal closed.':'Signal closed.','signal','/?tab=signals','all');}catch(e){}}
-  if(kind==='be_move'){try{sb.functions.invoke('monitor-signals',{body:{single_pass:true,mode:'kick'}}).catch(function(){});}catch(e){}}
   loadAdSigList();
 }
 async function delAdSig(id){if(!(await window.pspConfirm('Delete this signal?')))return;await sb.from('signals').delete().eq('id',id);loadAdSigList();}
@@ -4614,6 +4613,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 }
 </style>
 
-<script src="signals-workspace-v154.js?v=20260825-v164-be-tp-fast"></script>
+<script src="signals-workspace-v154.js?v=20260826-v166-manual-signals"></script>
 </body>
 </html>

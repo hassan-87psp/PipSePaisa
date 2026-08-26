@@ -1496,7 +1496,7 @@ async function createSignal(){
     audience:audArr.join(','),
     access_level:audArr.indexOf('free')>=0?'free':'vip',
     plan_name:(!isFreeOnly)?(val('sgPlan')||null):null,
-    status:'active',tp_hit:0,order_type:_otype};
+    status:_otype!=='market'?'pending':'active',tp_hit:0,order_type:_otype,auto_monitor:false,activated_at:_otype==='market'?new Date().toISOString():null};
   const wasEditing=Boolean(editingSigId);
   let error=null;
   if(wasEditing){
@@ -1647,7 +1647,6 @@ async function updateMentorSigStatus(id,kind){
     const pd=pushData[effectiveKind];
     if(pd)await pspCreateNotificationAndPush(pd[0],pd[1],'signal','/?tab=signals','all');
   }catch(_){ }
-  if(kind==='be_move'){try{sb.functions.invoke('monitor-signals',{body:{single_pass:true,mode:'kick'}}).catch(function(){});}catch(_){ }}
   loadSignals();
 }
 async function setSigStatus(id,st){await sb.from('signals').update({status:st}).eq('id',id);loadSignals();}
@@ -2668,6 +2667,6 @@ console.log('PSP mentor v4 — More/drawer active');
 
 <script src="psp-mentor-report-v31.js?v=20260803-v31"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
-<script src="signals-workspace-v154.js?v=20260825-v164-be-tp-fast"></script>
+<script src="signals-workspace-v154.js?v=20260826-v166-manual-signals"></script>
 </body>
 </html>

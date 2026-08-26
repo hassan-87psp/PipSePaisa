@@ -1,7 +1,9 @@
-/* PipSePaisa V164 — Consolidated Signals Workspace + BE/latest-TP result fix
+/* PipSePaisa V166 — Manual Signals Workspace
    - Restores the approved desktop Mentor/Admin Signals workspace.
    - Mobile (<=768px) deliberately falls back to the existing UI unchanged.
-   - Adds automatic pips calculation for XAU/BTC/Forex and status actions.
+   - Manual lifecycle only: no live-price auto activation/TP/SL/BE closing.
+   - TP/SL/Close pips still calculate automatically when an action is pressed.
+   - Adds manual Running Pips update + pending-order activation controls on desktop.
 */
 (function(){
 'use strict';
@@ -45,9 +47,6 @@ function latestTpPips(s){
   if(p!=null&&Number.isFinite(p))return p;
   const existing=n(s?.result_pips);return existing!=null&&existing>0?existing:0;
 }
-async function kickMonitor(){
-  try{const c=db();if(c?.functions?.invoke)await c.functions.invoke('monitor-signals',{body:{single_pass:true,mode:'kick'}});}catch(_){ }
-}
 function orderLabel(s){
   const d=String(s.direction||'BUY').toUpperCase()==='SELL'?'SELL':'BUY';
   const o=String(s.order_type||'market').toLowerCase();
@@ -82,7 +81,7 @@ function addCss(){
  .psp154-body{padding:18px 20px}.psp154-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.psp154-field label{display:block;font-size:9px;font-weight:900;color:#8692a7;text-transform:uppercase;margin:0 0 6px}.psp154-field input,.psp154-field select,.psp154-field textarea{width:100%;box-sizing:border-box;border:1px solid #e5d8c4;background:#f7f0e2;color:#263044;border-radius:10px;padding:12px 13px;font:inherit;font-size:12px;outline:none}.psp154-field textarea{min-height:84px;resize:vertical}.psp154-wide{grid-column:1/-1}
  .psp154-auto{grid-column:1/-1;border:1px solid #f1d7a8;background:#fff9ee;border-radius:10px;padding:10px 12px;font-size:11px;color:#4d5564}.psp154-foot{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border,#eadfcd)}
  .psp154-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.psp154-summary>div{border:1px solid var(--border,#eadfcd);border-radius:10px;padding:10px;font-size:10px;color:#8390a5}.psp154-summary b{display:block;color:var(--text,#172033);font-size:12px;margin-top:3px}
- .psp154-levels{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}.psp154-levels>div{border:1px solid var(--border,#eadfcd);border-radius:9px;text-align:center;padding:9px;font-size:9px;color:#8b96a9}.psp154-levels b{display:block;color:var(--text,#172033);margin-top:2px;font-size:11px}.psp154-manage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.psp154-act{border:1px solid #d9dfdf;border-radius:9px;padding:9px 6px;font-size:10px;font-weight:900;cursor:pointer;background:#eefaf6;color:#169b73}.psp154-act.be{background:#eef7ff;color:#4f77b7}.psp154-act.purple{background:#f3efff;color:#7257bd}.psp154-act.red{background:#fff0f0;color:#d95050}.psp154-act.gray{background:#f1f1ef;color:#616a75}.psp154-act.edit{background:#fff5e7;color:#b16d13}.psp154-danger{margin-left:auto;background:#fff0f0;color:#d94747;border:1px solid #efcaca;border-radius:8px;padding:7px 10px;font-size:9px;font-weight:900;cursor:pointer}.psp154-note-box{margin-top:12px;border-left:3px solid #fb9201;background:#fff8ec;border-radius:8px;padding:10px 12px;font-size:10px;color:#6b6257}
+ .psp154-levels{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}.psp154-levels>div{border:1px solid var(--border,#eadfcd);border-radius:9px;text-align:center;padding:9px;font-size:9px;color:#8b96a9}.psp154-levels b{display:block;color:var(--text,#172033);margin-top:2px;font-size:11px}.psp154-manage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.psp154-act{border:1px solid #d9dfdf;border-radius:9px;padding:9px 6px;font-size:10px;font-weight:900;cursor:pointer;background:#eefaf6;color:#169b73}.psp154-act.be{background:#eef7ff;color:#4f77b7}.psp154-act.purple{background:#f3efff;color:#7257bd}.psp154-act.red{background:#fff0f0;color:#d95050}.psp154-act.gray{background:#f1f1ef;color:#616a75}.psp154-act.edit{background:#fff5e7;color:#b16d13}.psp154-danger{margin-left:auto;background:#fff0f0;color:#d94747;border:1px solid #efcaca;border-radius:8px;padding:7px 10px;font-size:9px;font-weight:900;cursor:pointer}.psp154-note-box{margin-top:12px;border-left:3px solid #fb9201;background:#fff8ec;border-radius:8px;padding:10px 12px;font-size:10px;color:#6b6257}.psp154-pips-editor{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-top:12px;padding:11px;border:1px solid var(--border,#eadfcd);border-radius:10px;background:rgba(251,146,1,.045)}.psp154-pips-editor label{grid-column:1/-1;font-size:9px;font-weight:900;color:#8692a7;text-transform:uppercase}.psp154-pips-editor input{width:100%;box-sizing:border-box;border:1px solid #e5d8c4;background:#f7f0e2;color:#263044;border-radius:9px;padding:10px 12px;font-size:12px;outline:none}.psp154-pips-save{border:1px solid #f0b557;background:#fff4df;color:#9a620c;border-radius:9px;padding:10px 13px;font-size:10px;font-weight:900;cursor:pointer;white-space:nowrap}.psp154-act.activate{background:#e9fff5;color:#087f5b;border-color:#bfead8}
  }
  `;document.head.appendChild(st);
 }
@@ -216,11 +215,11 @@ async function save(){
  const oldText=btn?btn.textContent:'';
  if(btn){btn.disabled=true;btn.textContent=id?'Updating...':'Publishing...';}
  try{
-   const obj={...x,audience:'free,premium,vip',access_level:'free',auto_monitor:true};
+   const obj={...x,audience:'free,premium,vip',access_level:'free',auto_monitor:false};
    let r;
    if(id){
      // Editing levels must never reopen or reset the existing lifecycle state.
-     delete obj.auto_monitor;
+     obj.auto_monitor=false;
      r=await c.from('signals').update(obj).eq('id',id).select('id').maybeSingle();
    }else{
      const oid=await resolveOwnerId(mode);
@@ -242,36 +241,56 @@ async function save(){
 }
 function openManage(mode,s){
  modalCtx={mode,id:s.id};const type=orderLabel(s);const pv=s.result_pips;
- modal('<div class="psp154-mhead"><div><div class="psp154-mtitle">Manage Signal</div><div class="psp154-msub">Update TP, breakeven, SL or close the signal.</div></div><button class="psp154-x" onclick="PSP154Signals.close()">×</button></div><div class="psp154-body">'+
+ const st=String(s.status||'active').toLowerCase();
+ const activateBtn=st==='pending'?'<button class="psp154-act activate" onclick="PSP154Signals.hit(\'activate\')">⚡ '+esc(type)+' Active</button>':'';
+ modal('<div class="psp154-mhead"><div><div class="psp154-mtitle">Manage Signal</div><div class="psp154-msub">Manual signal management — update activation, TP, breakeven, SL, pips or close.</div></div><button class="psp154-x" onclick="PSP154Signals.close()">×</button></div><div class="psp154-body">'+
  '<div class="psp154-summary"><div>Pair / Type<b>'+esc(s.pair)+' · '+esc(type)+'</b></div><div>Status<b>'+esc(statusLabel(s))+'</b></div><div>Pips<b>'+fmtPips(pv)+'</b></div></div>'+
  '<div class="psp154-levels"><div>Entry<b>'+fmt(s.entry_price)+'</b></div><div>SL<b style="color:#d94a4a">'+fmt(s.stop_loss)+'</b></div><div>TP1<b>'+fmt(s.take_profit1)+'</b></div><div>TP2<b>'+fmt(s.take_profit2)+'</b></div><div>TP3<b>'+fmt(s.take_profit3)+'</b></div><div>TP4<b>'+fmt(s.take_profit4)+'</b></div></div>'+
- '<div class="psp154-manage-grid"><button class="psp154-act" onclick="PSP154Signals.hit(\'tp1\')">TP1 Hit</button><button class="psp154-act" onclick="PSP154Signals.hit(\'tp2\')">TP2 Hit</button><button class="psp154-act" onclick="PSP154Signals.hit(\'tp3\')">TP3 Hit</button><button class="psp154-act be" onclick="PSP154Signals.hit(\'be_move\')">SL → BE</button><button class="psp154-act purple" onclick="PSP154Signals.hit(\'be\')">BE Hit</button><button class="psp154-act red" onclick="PSP154Signals.hit(\'sl\')">SL Hit</button><button class="psp154-act gray" onclick="PSP154Signals.hit(\'closed\')">Close</button><button class="psp154-act edit" onclick="PSP154Signals.editCurrent()">Edit</button></div>'+
+ '<div class="psp154-manage-grid">'+activateBtn+'<button class="psp154-act" onclick="PSP154Signals.hit(\'tp1\')">TP1 Hit</button><button class="psp154-act" onclick="PSP154Signals.hit(\'tp2\')">TP2 Hit</button><button class="psp154-act" onclick="PSP154Signals.hit(\'tp3\')">TP3 Hit</button><button class="psp154-act be" onclick="PSP154Signals.hit(\'be_move\')">SL → BE</button><button class="psp154-act purple" onclick="PSP154Signals.hit(\'be\')">BE Hit</button><button class="psp154-act red" onclick="PSP154Signals.hit(\'sl\')">SL Hit</button><button class="psp154-act gray" onclick="PSP154Signals.hit(\'closed\')">Close</button><button class="psp154-act edit" onclick="PSP154Signals.editCurrent()">Edit</button></div>'+
+ '<div class="psp154-pips-editor"><label>Running Pips</label><input id="p154-running-pips" type="number" step="0.1" value="'+(pv==null?'':esc(pv))+'" placeholder="e.g. 35 or -20"><button class="psp154-pips-save" onclick="PSP154Signals.updatePips()">Update Pips</button></div>'+
  '<div style="display:flex;margin-top:10px"><button class="psp154-danger" onclick="PSP154Signals.delCurrent()">Delete Signal</button></div>'+(s.notes?'<div class="psp154-note-box"><b>Mentor Note:</b> '+esc(s.notes).replace(/\n/g,'<br>')+'</div>':'')+'</div>',true);
 }
 async function hit(kind){
- if(!modalCtx)return;const {mode,id}=modalCtx,s=getRow(mode,id);if(!s)return;const c=db();let obj={};let pips=null;let terminal=false;
+ if(!modalCtx)return;const {mode,id}=modalCtx,s=getRow(mode,id);if(!s)return;const c=db();let obj={auto_monitor:false};let pips=null;let terminal=false;
  let notifyKind=kind;
- if(kind==='be_move'){obj={be_moved:true,be_moved_at:new Date().toISOString()};}
- else if(kind==='tp1'||kind==='tp2'||kind==='tp3'){
+ if(kind==='activate'){
+   obj={...obj,status:'active',activated_at:new Date().toISOString()};
+ }else if(kind==='be_move'){
+   obj={...obj,be_moved:true,be_moved_at:new Date().toISOString()};
+ }else if(kind==='tp1'||kind==='tp2'||kind==='tp3'){
    const target=kind==='tp1'?s.take_profit1:kind==='tp2'?s.take_profit2:s.take_profit3;if(n(target)==null){alert(kind.toUpperCase()+' level is not set.');return;}
-   pips=calcPips(s.pair,s.direction,s.entry_price,target);obj={status:kind,tp_hit:kind==='tp1'?1:kind==='tp2'?2:3,result_pips:pips};if(kind==='tp3'){obj.closed_at=new Date().toISOString();obj.closing_price=n(target);terminal=true;}
- }else if(kind==='sl'&&s.be_moved){pips=latestTpPips(s);obj={status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:pips};terminal=true;notifyKind='be';}
- else if(kind==='sl'){pips=calcPips(s.pair,s.direction,s.entry_price,s.stop_loss);obj={status:'sl',closed_at:new Date().toISOString(),closing_price:n(s.stop_loss),result_pips:pips};terminal=true;}
- else if(kind==='be'){pips=latestTpPips(s);obj={status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:pips};terminal=true;}
- else if(kind==='closed'){
-   let price=window.prompt('Enter closing price for automatic pips calculation:',s.closing_price||'');if(price===null)return;price=n(price);if(price==null){alert('Please enter a valid closing price.');return;}pips=calcPips(s.pair,s.direction,s.entry_price,price);obj={status:'closed',closed_at:new Date().toISOString(),closing_price:price,result_pips:pips};terminal=true;
- }
+   pips=calcPips(s.pair,s.direction,s.entry_price,target);obj={...obj,status:kind,tp_hit:kind==='tp1'?1:kind==='tp2'?2:3,result_pips:pips};if(kind==='tp3'){obj.closed_at=new Date().toISOString();obj.closing_price=n(target);terminal=true;}
+ }else if(kind==='sl'&&s.be_moved){
+   pips=latestTpPips(s);obj={...obj,status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:pips};terminal=true;notifyKind='be';
+ }else if(kind==='sl'){
+   pips=calcPips(s.pair,s.direction,s.entry_price,s.stop_loss);obj={...obj,status:'sl',closed_at:new Date().toISOString(),closing_price:n(s.stop_loss),result_pips:pips};terminal=true;
+ }else if(kind==='be'){
+   pips=latestTpPips(s);obj={...obj,status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:pips};terminal=true;
+ }else if(kind==='closed'){
+   let price=window.prompt('Enter closing price for automatic pips calculation:',s.closing_price||'');if(price===null)return;price=n(price);if(price==null){alert('Please enter a valid closing price.');return;}pips=calcPips(s.pair,s.direction,s.entry_price,price);obj={...obj,status:'closed',closed_at:new Date().toISOString(),closing_price:price,result_pips:pips};terminal=true;
+ }else return;
  const r=await c.from('signals').update(obj).eq('id',id);if(r.error){alert('Status update failed: '+r.error.message);return;}
- try{const msg={tp1:['✅ TP1 Hit','TP1 hit.'],tp2:['✅ TP2 Hit','TP2 hit.'],tp3:['🏆 TP3 Hit','TP3 hit — signal closed.'],be_move:['🔒 Stop Loss at Breakeven','Move Stop Loss to entry.'],be:['🔒 Breakeven Hit','Breakeven hit — signal closed.'],sl:['🛑 Stop Loss Hit','Stop loss hit — signal closed.'],closed:['🔒 Signal Closed','Signal closed.']}[notifyKind];if(msg)await window.pspCreateNotificationAndPush?.(msg[0],msg[1],'signal','/?tab=signals','all');}catch(_){ }
- if(kind==='be_move')void kickMonitor();
+ try{
+   let msg=null;
+   if(notifyKind==='activate')msg=['⚡ '+orderLabel(s)+' Active',s.pair+' '+orderLabel(s)+' is active now.'];
+   else msg={tp1:['✅ TP1 Hit','TP1 hit.'],tp2:['✅ TP2 Hit','TP2 hit.'],tp3:['🏆 TP3 Hit','TP3 hit — signal closed.'],be_move:['🔒 Stop Loss at Breakeven','Move Stop Loss to entry.'],be:['🔒 Breakeven Hit','Breakeven hit — signal closed.'],sl:['🛑 Stop Loss Hit','Stop loss hit — signal closed.'],closed:['🔒 Signal Closed','Signal closed.']}[notifyKind];
+   if(msg)await window.pspCreateNotificationAndPush?.(msg[0],msg[1],'signal','/?tab=signals','all');
+ }catch(_){ }
  closeModal();await load(mode);try{window.pipToast?.('Signal status updated successfully.','ok');}catch(_){ }
+}
+async function updatePips(){
+ if(!modalCtx)return;const {mode,id}=modalCtx;const inp=document.getElementById('p154-running-pips');const value=n(inp?.value);
+ if(value==null){alert('Please enter a valid pips value.');return;}
+ const r=await db().from('signals').update({result_pips:value,auto_monitor:false}).eq('id',id);
+ if(r.error){alert('Pips update failed: '+r.error.message);return;}
+ closeModal();await load(mode);try{window.pipToast?.('Running pips updated successfully.','ok');}catch(_){ }
 }
 function editCurrent(){if(!modalCtx)return;const s=getRow(modalCtx.mode,modalCtx.id),mode=modalCtx.mode;if(s)openForm(mode,s);}
 async function delCurrent(){if(!modalCtx)return;const {mode,id}=modalCtx;let ok=true;try{ok=window.pspConfirm?await window.pspConfirm('Delete this signal?'):confirm('Delete this signal?');}catch(_){ok=confirm('Delete this signal?');}if(!ok)return;const r=await db().from('signals').delete().eq('id',id);if(r.error){alert('Delete failed: '+r.error.message);return;}closeModal();await load(mode);}
 function showNote(id){const s=mentorRows.concat(adminRows).find(x=>String(x.id)===String(id));if(!s)return;modal('<div class="psp154-mhead"><div><div class="psp154-mtitle">Mentor Note</div><div class="psp154-msub">'+esc(s.pair||'Signal')+'</div></div><button class="psp154-x" onclick="PSP154Signals.close()">×</button></div><div class="psp154-body"><div style="white-space:pre-wrap;line-height:1.65;font-size:13px">'+esc(s.notes||'No note added.')+'</div></div>',true);}
 
 window.PSP154Signals={
- view:setView,create:mode=>openForm(mode,null),manage:(mode,id)=>{const s=getRow(mode,id);if(s)openManage(mode,s);},close:closeModal,save,hit,editCurrent,delCurrent,showNote,refreshAuto
+ view:setView,create:mode=>openForm(mode,null),manage:(mode,id)=>{const s=getRow(mode,id);if(s)openManage(mode,s);},close:closeModal,save,hit,updatePips,editCurrent,delCurrent,showNote,refreshAuto
 };
 
 if(typeof legacyMentorRender==='function') window.renderSignals=function(){return isMobile()?legacyMentorRender():renderWorkspace('mentor');};
