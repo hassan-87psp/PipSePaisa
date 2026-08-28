@@ -955,9 +955,20 @@ setTimeout(initSupabaseClient,700);
 window.addEventListener('load',initSupabaseClient);
 
 /* ---- trading pairs ---- */
-const PAIRS={Gold:['XAU/USD','XAG/USD'],
-  Forex:['EUR/USD','GBP/USD','USD/JPY','USD/CHF','AUD/USD','USD/CAD','NZD/USD','EUR/JPY','GBP/JPY','EUR/GBP'],
-  Crypto:['BTC/USD','ETH/USD','XRP/USD','SOL/USD','BNB/USD','DOGE/USD']};
+const PAIRS={
+  Metals:['XAU/USD','XAG/USD'],
+  Forex:[
+    'EUR/USD','GBP/USD','USD/JPY','USD/CHF','AUD/USD','USD/CAD','NZD/USD',
+    'EUR/GBP','EUR/JPY','EUR/AUD','EUR/CAD','EUR/CHF','EUR/NZD',
+    'GBP/JPY','GBP/AUD','GBP/CAD','GBP/CHF','GBP/NZD',
+    'AUD/JPY','AUD/CAD','AUD/CHF','AUD/NZD',
+    'CAD/JPY','CAD/CHF','CHF/JPY',
+    'NZD/JPY','NZD/CAD','NZD/CHF',
+    'USD/SGD','USD/HKD','USD/CNH','USD/TRY','USD/ZAR','USD/MXN','USD/SEK','USD/NOK','USD/PLN',
+    'EUR/TRY','EUR/ZAR','GBP/ZAR'
+  ],
+  Crypto:['BTC/USD','ETH/USD','XRP/USD','SOL/USD','BNB/USD','DOGE/USD','ADA/USD','LTC/USD','DOT/USD','AVAX/USD','LINK/USD']
+};
 function pairOptions(){let out=[];for(const g in PAIRS){out=out.concat(PAIRS[g]);}return out.map(p=>`<option value="${p}">${p}</option>`).join('');}
 
 const SIGNAL_NOTE_TEMPLATES = [
@@ -2667,6 +2678,6 @@ console.log('PSP mentor v4 — More/drawer active');
 
 <script src="psp-mentor-report-v31.js?v=20260803-v31"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
-<script src="signals-workspace-v154.js?v=20260826-v166-manual-signals"></script>
+<script src="signals-workspace-v154.js?v=20260828-v168-pairs-other"></script>
 </body>
 </html>

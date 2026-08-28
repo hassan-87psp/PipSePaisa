@@ -93,6 +93,19 @@ function pairOptionsHtml(admin){
   }catch(_){ }
   return '<option>XAU/USD</option><option>EUR/USD</option><option>GBP/USD</option><option>BTC/USD</option>';
 }
+function mentorPairOptionsHtml(){
+  let html=pairOptionsHtml(false);
+  if(!/value=["']__other__["']/.test(html)) html += '<option value="__other__">Other</option>';
+  return html;
+}
+function syncCustomPairField(){
+  const sel=document.getElementById('p154-pair');
+  const wrap=document.getElementById('p154-pair-other-wrap');
+  if(!sel||!wrap)return;
+  const show=sel.value==='__other__';
+  wrap.style.display=show?'block':'none';
+  if(show){const inp=document.getElementById('p154-pair-other');if(inp)inp.focus();}
+}
 function noteOptionsHtml(admin){
  try{
    if(admin&&typeof window.adSignalNoteOptions==='function')return window.adSignalNoteOptions();
@@ -175,7 +188,9 @@ function autoLine(pair,dir,entry,sl,tp1,tp2,tp3){
 function formValues(){
  const v=id=>document.getElementById(id)?.value||'';const ot=v('p154-order');let dir='BUY',order='market';
  if(ot==='buy'||ot==='sell'){dir=ot.toUpperCase();order='market';}else{const p=ot.split('_');dir=(p[0]||'buy').toUpperCase();order=p[1]||'market';}
- return {pair:v('p154-pair'),direction:dir,order_type:order,entry_price:n(v('p154-entry')),stop_loss:n(v('p154-sl')),take_profit1:n(v('p154-tp1')),take_profit2:n(v('p154-tp2')),take_profit3:n(v('p154-tp3')),take_profit4:v('p154-tp4').trim()||null,notes:v('p154-note').trim()||null,plan_name:v('p154-plan').trim()||null};
+ const selectedPair=v('p154-pair');
+ const pair=(selectedPair==='__other__'?v('p154-pair-other'):selectedPair).trim().toUpperCase();
+ return {pair:pair,direction:dir,order_type:order,entry_price:n(v('p154-entry')),stop_loss:n(v('p154-sl')),take_profit1:n(v('p154-tp1')),take_profit2:n(v('p154-tp2')),take_profit3:n(v('p154-tp3')),take_profit4:v('p154-tp4').trim()||null,notes:v('p154-note').trim()||null,plan_name:v('p154-plan').trim()||null};
 }
 function refreshAuto(){const x=formValues();const e=document.getElementById('p154-auto');if(e)e.textContent=autoLine(x.pair,x.direction,x.entry_price,x.stop_loss,x.take_profit1,x.take_profit2,x.take_profit3);}
 function validateLevels(x){
@@ -191,16 +206,25 @@ function validateLevels(x){
 }
 function openForm(mode,s){
  modalCtx={mode,id:s?.id||null};const edit=!!s;let ot='buy';if(s){const d=String(s.direction||'BUY').toLowerCase();const o=String(s.order_type||'market').toLowerCase();ot=o==='market'?d:(d+'_'+o);}
- const opts=pairOptionsHtml(mode==='admin');const notes=noteOptionsHtml(mode==='admin');
+ const opts=mode==='mentor'?mentorPairOptionsHtml():pairOptionsHtml(true);const notes=noteOptionsHtml(mode==='admin');
  modal('<div class="psp154-mhead"><div><div class="psp154-mtitle">'+(edit?'Edit Signal':'Create Signal')+'</div><div class="psp154-msub">'+(edit?'Update signal levels or mentor note.':'Publish a new official trading signal.')+'</div></div><button class="psp154-x" onclick="PSP154Signals.close()">×</button></div><div class="psp154-body"><div class="psp154-grid">'+
  '<div class="psp154-field"><label>Pair</label><select id="p154-pair">'+opts+'</select></div><div class="psp154-field"><label>Order Type</label><select id="p154-order"><option value="buy">Buy</option><option value="sell">Sell</option><option value="buy_limit">Buy Limit</option><option value="sell_limit">Sell Limit</option><option value="buy_stop">Buy Stop</option><option value="sell_stop">Sell Stop</option></select></div>'+
+ (mode==='mentor'?'<div class="psp154-field psp154-wide" id="p154-pair-other-wrap" style="display:none"><label>Other Pair</label><input id="p154-pair-other" type="text" placeholder="Type pair/symbol, e.g. EUR/SGD or US30"></div>':'')+
  '<div class="psp154-field"><label>Entry</label><input id="p154-entry" type="number" step="any" placeholder="Entry price"></div><div class="psp154-field"><label>Stop Loss</label><input id="p154-sl" type="number" step="any" placeholder="Stop Loss"></div>'+
  '<div class="psp154-field"><label>Take Profit 1</label><input id="p154-tp1" type="number" step="any" placeholder="TP1"></div><div class="psp154-field"><label>Take Profit 2</label><input id="p154-tp2" type="number" step="any" placeholder="TP2 (optional)"></div>'+
  '<div class="psp154-field"><label>Take Profit 3</label><input id="p154-tp3" type="number" step="any" placeholder="TP3 (optional)"></div><div class="psp154-field"><label>TP4 / Runner</label><input id="p154-tp4" type="text" placeholder="Number or Open"></div>'+
  '<div class="psp154-field psp154-wide"><label>Mentor Note Template</label><select id="p154-notetpl">'+notes+'</select></div><div class="psp154-field psp154-wide"><label>Mentor Note</label><textarea id="p154-note" placeholder="Optional note for users"></textarea></div>'+
  '<div class="psp154-field psp154-wide"><label>VIP Package</label><input id="p154-plan" placeholder="VIP package name (optional)"></div><div id="p154-auto" class="psp154-auto">Auto pips: Enter levels to calculate automatically</div></div></div><div class="psp154-foot"><button class="psp154-btn" onclick="PSP154Signals.close()">Cancel</button><button class="psp154-btn primary" onclick="PSP154Signals.save()">'+(edit?'▣ Update Signal':'🚀 Publish Signal')+'</button></div>');
  const set=(id,v)=>{const e=document.getElementById(id);if(e&&v!=null)e.value=v;};
- if(s){set('p154-pair',s.pair);set('p154-order',ot);set('p154-entry',s.entry_price);set('p154-sl',s.stop_loss);set('p154-tp1',s.take_profit1);set('p154-tp2',s.take_profit2);set('p154-tp3',s.take_profit3);set('p154-tp4',s.take_profit4);set('p154-note',s.notes);set('p154-plan',s.plan_name);}else set('p154-order','buy');
+ if(s){
+   const pairSel=document.getElementById('p154-pair');
+   const pairExists=pairSel&&Array.from(pairSel.options).some(o=>o.value===String(s.pair||''));
+   if(pairExists){set('p154-pair',s.pair);}else if(mode==='mentor'){set('p154-pair','__other__');set('p154-pair-other',s.pair||'');}
+   else{set('p154-pair',s.pair);}
+   set('p154-order',ot);set('p154-entry',s.entry_price);set('p154-sl',s.stop_loss);set('p154-tp1',s.take_profit1);set('p154-tp2',s.take_profit2);set('p154-tp3',s.take_profit3);set('p154-tp4',s.take_profit4);set('p154-note',s.notes);set('p154-plan',s.plan_name);
+ }else set('p154-order','buy');
+ const pairSel=document.getElementById('p154-pair');if(pairSel)pairSel.addEventListener('change',()=>{syncCustomPairField();refreshAuto();});
+ syncCustomPairField();
  document.querySelectorAll('#psp154-modal-back input,#psp154-modal-back select').forEach(e=>e.addEventListener('input',refreshAuto));
  const nt=document.getElementById('p154-notetpl');if(nt)nt.onchange=function(){if(!this.value)return;const t=document.getElementById('p154-note');t.value=t.value.trim()?t.value.trim()+'\n\n'+this.value:this.value;this.value='';};
  refreshAuto();
