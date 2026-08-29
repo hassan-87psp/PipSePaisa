@@ -5,6 +5,8 @@ var charts={growth:null,revenue:null};
 var cache={profiles:[],enrollments:[],courses:[],signals:[],verifications:[],paymentRequests:[]};
 var growthMode='weekly';
 var installed=false;
+var loading=false;
+var lastLoadAt=0;
 
 function db(){try{return typeof sb!=='undefined'&&sb?sb:(window.sb||window.adminSb||null)}catch(_){return window.sb||window.adminSb||null}}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
@@ -28,9 +30,9 @@ function addMonths(d,n){return new Date(d.getFullYear(),d.getMonth()+n,1)}
 function themeColor(name,fallback){try{return getComputedStyle(document.documentElement).getPropertyValue(name).trim()||fallback}catch(_){return fallback}}
 function status(v){return String(v||'').toLowerCase()}
 
-async function safe(table,orderCol){
+async function safe(table,orderCol,columns,limit){
   var c=db();if(!c)return [];
-  try{var q=c.from(table).select('*');if(orderCol)q=q.order(orderCol,{ascending:false});var r=await q;if(r&&r.error){console.warn('[V89 dashboard] '+table+':',r.error.message);return []}return (r&&r.data)||[]}catch(e){console.warn('[V89 dashboard] '+table+':',e);return []}
+  try{var q=c.from(table).select(columns||'*');if(orderCol)q=q.order(orderCol,{ascending:false});if(limit)q=q.limit(limit);var r=await q;if(r&&r.error){console.warn('[V89 dashboard] '+table+':',r.error.message);return []}return (r&&r.data)||[]}catch(e){console.warn('[V89 dashboard] '+table+':',e);return []}
 }
 
 function go(page){var el=document.querySelector('[data-page="'+page+'"]');if(typeof window.showPage==='function')window.showPage(page,el||null)}
@@ -161,17 +163,29 @@ function renderRevenueChart(){
 function renderCharts(){renderGrowthChart();renderRevenueChart()}
 
 async function load(force){
- if(!install())return;var c=db();if(!c)return;var page=document.getElementById('page-dashboard'),btn=document.getElementById('pdRefresh'),err=document.getElementById('pdError');if(page)page.classList.add('pd-loading');if(btn){btn.disabled=true;btn.textContent='↻ Loading…'}if(err){err.style.display='none';err.textContent=''};
+ if(!install())return;var c=db();if(!c)return;
+ if(loading)return;
+ if(!force&&lastLoadAt&&(Date.now()-lastLoadAt)<15000){renderKpis();renderUpcoming();renderCourseOverview();renderSignups();renderActivity();renderCharts();return;}
+ loading=true;lastLoadAt=Date.now();
+ var page=document.getElementById('page-dashboard'),btn=document.getElementById('pdRefresh'),err=document.getElementById('pdError');if(page)page.classList.add('pd-loading');if(btn){btn.disabled=true;btn.textContent='↻ Loading…'}if(err){err.style.display='none';err.textContent=''};
  try{
-  var results=await Promise.all([safe('profiles','created_at'),safe('course_enrollments','created_at'),safe('courses','display_order'),safe('signals','created_at'),safe('account_verifications','submitted_at'),safe('payment_requests','created_at')]);
-  cache.profiles=results[0];cache.enrollments=results[1];cache.courses=results[2];cache.signals=results[3];cache.verifications=results[4];cache.paymentRequests=results[5];
+  // V170: fetch only the fields the dashboard actually renders. The old code
+  // downloaded every column from six tables (including large receipt/profile data).
+  var results=await Promise.all([
+    safe('profiles','created_at','id,full_name,email,created_at'),
+    safe('course_enrollments','created_at','id,user_id,course_key,course_type,payment_status,enrollment_status,price,full_name,email,course_name,reviewed_at,access_granted_at,updated_at,created_at'),
+    safe('courses','display_order','id,is_published,display_order'),
+    safe('signals','created_at','id,pair,direction,status,created_at',200),
+    safe('account_verifications','submitted_at','id,submission_status,broker,trading_account_id,submitted_at,updated_at,created_at')
+  ]);
+  cache.profiles=results[0];cache.enrollments=results[1];cache.courses=results[2];cache.signals=results[3];cache.verifications=results[4];cache.paymentRequests=[];
   renderKpis();renderUpcoming();renderCourseOverview();renderSignups();renderActivity();renderCharts();
- }catch(e){console.error('[V89 dashboard]',e);if(err){err.textContent='Dashboard loaded with limited data: '+(e.message||e);err.style.display='block'}}finally{if(page)page.classList.remove('pd-loading');if(btn){btn.disabled=false;btn.textContent='↻ Refresh Dashboard'}}
+ }catch(e){console.error('[V89 dashboard]',e);if(err){err.textContent='Dashboard loaded with limited data: '+(e.message||e);err.style.display='block'}}finally{loading=false;if(page)page.classList.remove('pd-loading');if(btn){btn.disabled=false;btn.textContent='↻ Refresh Dashboard'}}
 }
 window.loadDashboardStats=load;
 window.PSPPremiumDashboard={load:load,renderCharts:renderCharts,cache:cache};
 
 function refreshOnTheme(){var mo=new MutationObserver(function(muts){if(muts.some(function(m){return m.attributeName==='data-theme'}))setTimeout(renderCharts,80)});try{mo.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']})}catch(_){}}
-function init(){install();refreshOnTheme();setTimeout(function(){if(db())load()},180)}
+function init(){install();refreshOnTheme();/* V170: authenticated admin bootstrap triggers the first load. */}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

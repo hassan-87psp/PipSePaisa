@@ -639,6 +639,7 @@ function renderCurrentDetail(key){
   const title=document.getElementById('pageTitle');if(title)title.textContent=courseData[key].title;
 }
 window.openCourseDetail=async function(key){
+  pspEnsureCourseRealtime();
   const c=courseData[key];if(!c)return;
   const token=++detailRenderToken;
   currentCourse=c;
@@ -659,6 +660,7 @@ window.openFreeCourseModules=function(){window.openCourseDetail('basic');};
 window.openAdvancedCourseModules=function(){window.openCourseDetail('advanced');};
 window.openEnrolledCourse=function(){window.openCourseDetail(currentCourse?.key||'basic');};
 window.loadMyCourses=async function(){
+  pspEnsureCourseRealtime();
   await loadCourseData();
   if(currentCourse){renderCurrentDetail(currentCourse.key);return;}
   renderMarketplace();
@@ -686,7 +688,10 @@ function init(){
     const page=ensureShell();if(!page)return setTimeout(wait,120);
     const nav=document.querySelector('.menu-item[data-page="mycourses"],.menu-item[data-page="learn"]');
     if(nav){nav.dataset.page='mycourses';nav.setAttribute('onclick','return openMyCoursesPage(this,event)');nav.innerHTML='<span class="menu-icon">🎓</span>My Courses';}
-    loadCourseData().then(renderMarketplace);
+    // V170 performance: the old init downloaded the complete course catalog,
+    // enrollment states, classes and Zoom registrations on every site visit.
+    // Load them only when My Courses is actually visible/opened.
+    if(page.classList.contains('active')) window.loadMyCourses();
   };
   wait();
 }
@@ -728,5 +733,11 @@ function subscribeCourseClasses(){
   }catch(e){console.warn('Course class realtime unavailable',e);}
 }
 
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{init();subscribeCourseCatalog();subscribeCourseClasses();});else{init();subscribeCourseCatalog();subscribeCourseClasses();}
+function pspEnsureCourseRealtime(){
+  if(window.__pspCourseRealtimeStarted)return;
+  window.__pspCourseRealtimeStarted=true;
+  subscribeCourseCatalog();
+  subscribeCourseClasses();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{init();});else{init();}
 })();

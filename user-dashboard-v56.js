@@ -253,27 +253,28 @@ window.openFreeCourseV71=function(){
   return false;
 };
 async function load(force=false){
-  const root=q('#psp56Dashboard');if(!root)return;if(loading)return;if(!force&&Date.now()-lastLoad<12000){startClock();return}
+  const root=q('#psp56Dashboard');if(!root)return;if(loading)return;if(!force&&Date.now()-lastLoad<30000){startClock();return}
   const c=db();if(!c){root.innerHTML='<div class="psp58-empty"><span>◌</span><b>Dashboard is waiting for connection…</b></div>';return}
   loading=true;lastLoad=Date.now();if(!q('.psp58-home',root))root.innerHTML=psp67Skeleton();root.classList.add('is-loading');
   try{
     try{await window.PSPAccountVerification?.load?.(true)}catch(_){}
     const sess=await c.auth.getSession(),user=sess?.data?.session?.user;if(!user)return;
     const all=await Promise.allSettled([
-      c.rpc('psp_user_signal_feed_v159'),
-      c.from('charts').select('*').order('created_at',{ascending:false}).limit(8),
-      c.from('articles').select('*').eq('is_published',true).order('created_at',{ascending:false}).limit(8),
-      c.from('course_enrollments').select('*').eq('user_id',user.id).order('created_at',{ascending:false}),
-      c.from('course_classes').select('*').order('class_number',{ascending:true}),
-      c.from('trades').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(100),
-      c.from('courses').select('*').order('display_order',{ascending:true}).limit(10)
+      // V170: request 30 signals first instead of the V159 500-row JSON feed.
+      c.rpc('psp_user_signals_feed_v158',{p_limit:30}),
+      c.from('charts').select('id,title,pair,notes,image_url,created_at,updated_at').order('created_at',{ascending:false}).limit(8),
+      c.from('articles').select('id,title,content,image_url,created_at,updated_at,is_published').eq('is_published',true).order('created_at',{ascending:false}).limit(8),
+      c.from('course_enrollments').select('id,course_key,payment_status,enrollment_status,created_at').eq('user_id',user.id).order('created_at',{ascending:false}),
+      c.from('course_classes').select('id,class_number,course_key,title,subtitle,is_active,scheduled_at').order('class_number',{ascending:true}),
+      c.from('trades').select('id,trade_date,created_at,pnl').eq('user_id',user.id).order('created_at',{ascending:false}).limit(100),
+      c.from('courses').select('id,course_key,title,mentor_name,display_order').order('display_order',{ascending:true}).limit(10)
     ]);
     const data=i=>all[i].status==='fulfilled'&&!all[i].value.error?(all[i].value.data||[]):[];
     let signals=data(0);
     if(all[0].status!=='fulfilled' || all[0].value?.error || !signals.length){
       try{
-        const v158Rpc=await c.rpc('psp_user_signals_feed_v158',{p_limit:30});
-        if(!v158Rpc.error && (v158Rpc.data||[]).length) signals=v158Rpc.data||[];
+        const v159Rpc=await c.rpc('psp_user_signal_feed_v159');
+        if(!v159Rpc.error && (v159Rpc.data||[]).length) signals=(v159Rpc.data||[]).slice(0,30);
       }catch(_){}
     }
     if(!signals.length){

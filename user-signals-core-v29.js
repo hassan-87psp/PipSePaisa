@@ -2858,7 +2858,7 @@ function pspSigMobileShell(rows){
   }
   window.addEventListener('online',function(){setTimeout(refreshIfVisible,120);});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)setTimeout(refreshIfVisible,120);});
-  setInterval(refreshIfVisible,30000);
+  setInterval(refreshIfVisible,120000);
 })();
 
 

@@ -268,12 +268,19 @@
     const pspPageLoadToken=window.__pspPageLoadToken;
     const runPageWork=function(){
       if(pspPageLoadToken!==window.__pspPageLoadToken)return;
-      if (page === 'journal') { try{ updateDashboard(); buildCalendar(); }catch(e){} }
-      if (page === 'analysis') updateAnalysis();
+      if (page === 'journal') {
+        Promise.resolve(pspEnsureTradesLoaded()).then(function(){try{ updateDashboard(); buildCalendar(); }catch(e){}});
+      }
+      if (page === 'trades') {
+        Promise.resolve(pspEnsureTradesLoaded()).then(function(){try{ updateTradesTable(); }catch(e){}});
+      }
+      if (page === 'analysis') {
+        Promise.resolve(pspEnsureTradesLoaded()).then(function(){try{ updateAnalysis(); }catch(e){}});
+      }
       if (page === 'news' && newsRawData.length === 0) loadNews();
       if (page === 'news') loadAdminNews();
-      if (page === 'learn') loadCourses();
-      if (page === 'mycourses' && typeof window.loadMyCourses==='function') window.loadMyCourses();
+      if (page === 'learn') { loadCourses(); pspEnsureQuizQuestionsLoaded(); }
+      if (page === 'mycourses' && typeof window.loadMyCourses==='function') { window.loadMyCourses(); pspEnsureQuizQuestionsLoaded(); }
       if (page === 'newshub' && window.nhInitLoad) window.nhInitLoad();
       if (page === 'strength') loadStrength();
       if (page === 'charts') loadChart();
@@ -885,7 +892,7 @@
     if (!currentUser || !sb) return;
     
     const { data, error } = await sb.from('trades')
-      .select('*')
+      .select('id,trade_date,pair,direction,entry_price,exit_price,lot_size,pnl,stop_loss,take_profit,strategy,emotion,notes')
       .eq('user_id', currentUser.id)
       .order('trade_date', { ascending: true });
     
@@ -915,6 +922,22 @@
     updateTradesTable();
     buildCalendar();
     console.log('✅ Loaded ' + trades.length + ' trades from database');
+  }
+
+  // V170 performance: hidden pages no longer fetch the entire journal on every login.
+  // The first Journal / My Trades / Analysis visit loads it, then reuses it briefly.
+  let _pspTradesLoadPromise = null;
+  let _pspTradesLoadedAt = 0;
+  async function pspEnsureTradesLoaded(force = false) {
+    if (!currentUser || !sb) return;
+    if (!force && _pspTradesLoadedAt && (Date.now() - _pspTradesLoadedAt) < 60000) return;
+    if (_pspTradesLoadPromise) return _pspTradesLoadPromise;
+    _pspTradesLoadPromise = Promise.resolve(loadTradesFromDB()).then(function(){
+      _pspTradesLoadedAt = Date.now();
+    }).finally(function(){
+      _pspTradesLoadPromise = null;
+    });
+    return _pspTradesLoadPromise;
   }
   
   // ============ COURSES LOADER ============
@@ -1006,6 +1029,14 @@
   }
   
   // ============ QUIZ QUESTIONS LOADER ============
+  let _pspQuizLoadPromise = null;
+  let _pspQuizLoaded = false;
+  function pspEnsureQuizQuestionsLoaded(){
+    if(_pspQuizLoaded) return Promise.resolve();
+    if(_pspQuizLoadPromise) return _pspQuizLoadPromise;
+    _pspQuizLoadPromise=Promise.resolve(loadQuizQuestionsFromDB()).then(function(){_pspQuizLoaded=true;}).finally(function(){_pspQuizLoadPromise=null;});
+    return _pspQuizLoadPromise;
+  }
   async function loadQuizQuestionsFromDB() {
     if (!sb) return;
     
@@ -3610,15 +3641,18 @@
     };
     
     updateAuthUI();
-    
-    // Load the Performance dashboard (default page) now that profile is ready
-    try{ loadPerformance(); }catch(e){}
-    
-    // Load user's trades from database
-    loadTradesFromDB();
-    // presence + DM unread badge
+
+    // V170 performance: hydrate only what the page on screen actually needs.
+    // Previously every login fetched performance signals, the full trade journal and
+    // up to 400 DM rows even when those pages were hidden.
+    try{
+      var activePage=document.querySelector('.page.active');
+      var activeId=activePage&&activePage.id?activePage.id:'';
+      if(activeId==='page-performance') loadPerformance();
+      if(activeId==='page-journal'||activeId==='page-trades'||activeId==='page-analysis') pspEnsureTradesLoaded();
+      if(activeId==='page-chats') loadDMList(true); else pspLoadDMUnreadBadgeOnly();
+    }catch(e){}
     try{pingPresence();}catch(e){}
-    try{loadDMList(true);}catch(e){}
   }
   
   function vEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -4201,6 +4235,15 @@
     if(_dmInitDone||!sb)return;_dmInitDone=true;
     try{sb.channel('rt-user-dm').on('postgres_changes',{event:'*',schema:'public',table:'dm_messages'},function(){loadDMList(true);if(_dmPeer)openDM(_dmPeer.id,_dmPeer,true);}).subscribe();}catch(e){}
   }
+  async function pspLoadDMUnreadBadgeOnly(){
+    if(!currentProfile||!sb)return;
+    try{
+      var r=await sb.from('dm_messages').select('id',{count:'exact',head:true}).eq('recipient_id',currentProfile.id).is('read_at',null);
+      var total=Number(r&&r.count)||0;
+      var nb=document.getElementById('chatsNavBadge');
+      if(nb){if(total){nb.style.display='inline-block';nb.textContent=total>9?'9+':total;}else nb.style.display='none';}
+    }catch(e){}
+  }
   async function loadDMList(silent){
     if(!currentProfile||!sb)return;dmInitRealtime();
     const me=currentProfile.id;
@@ -4714,7 +4757,7 @@
       sb.channel('rt-user-support').on('postgres_changes',{event:'*',schema:'public',table:'support_messages'},function(){var p=document.getElementById('page-support');if(p&&p.classList.contains('active'))loadSupport(true);}).subscribe();
       sb.channel('rt-user-notif').on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications'},function(){if(typeof checkAnnounceBanner==='function')checkAnnounceBanner();var p=document.getElementById('page-announce');if(p&&p.classList.contains('active'))loadAnnouncements();}).subscribe();
       sb.channel('rt-user-content')
-        .on('postgres_changes',{event:'*',schema:'public',table:'signals'},rtContent)
+        .on('postgres_changes',{event:'*',schema:'public',table:'signals'},function(){window.__pspLastSignalRealtimeAt=Date.now();rtContent();})
         .on('postgres_changes',{event:'*',schema:'public',table:'charts'},rtContent)
         .on('postgres_changes',{event:'*',schema:'public',table:'courses'},rtContent)
         .on('postgres_changes',{event:'*',schema:'public',table:'news_posts'},rtContent)
@@ -5410,22 +5453,16 @@
 
     updateTime();
     buildCalendar();
-    buildPerfChart();
-    setTimeout(function(){ try{ if(perfChart){ updateChartTheme(perfChart); perfChart.resize(); perfChart.update('none'); } }catch(e){} }, 120);
-    loadChart();
+
+    // V170 performance: Live Charts / performance chart are lazy. Their existing
+    // page handlers create them on first visit instead of competing with login.
     
     // Set today's date in journal
     const today = new Date().toISOString().split('T')[0];
     if (document.getElementById('t_date')) document.getElementById('t_date').value = today;
     
-    // Defer non-critical data so login and first page render stay fast.
-    const loadSecondaryData=function(){
-      if(document.hidden)return;
-      try{loadNews();}catch(e){}
-      try{loadQuizQuestionsFromDB();}catch(e){}
-    };
-    if('requestIdleCallback' in window) requestIdleCallback(loadSecondaryData,{timeout:3500});
-    else setTimeout(loadSecondaryData,2200);
+    // V170: News and quiz data are loaded only when their pages are opened.
+    // This removes background API/database traffic from the first interactive load.
     
     // (real session handled by loadUserProfile above)
   }
