@@ -32,13 +32,12 @@ window.v90RefreshPage=refreshPage;
 
 /* ---------- Sidebar groups ---------- */
 var GROUPS=[
- ['Overview',['dashboard','analytics']],
- ['Users & Payments',['users','payments','paymentreqs','subscriptions']],
- ['Trading & Content',['trades','courses','adsignals','adcharts','articles','news','adbanners','newshub','quiz','community']],
- ['Finance & Access',['revenue','verification','accesssettings']],
- ['Growth & Team',['linkmanager','teamaccess']],
+ ['Overview',['dashboard']],
+ ['Members & Revenue',['users','verification','paymentreqs','course-enrollments','courses','subscriptions','revenue','payments']],
+ ['Trading & Content',['trades','adsignals','adcharts','articles','news','newshub','adbanners','community','quiz']],
  ['Communication',['messages','chats','notifications','emails']],
- ['System',['settings','sitetabs','mentoraccess','admintabs','logs','profile']]
+ ['Growth & Team',['linkmanager','teamaccess','mentoraccess','accesssettings']],
+ ['System',['sitetabs','admintabs','logs','settings','profile']]
 ];
 function organizeSidebar(){
  var menu=q('#sidebar nav.menu');if(!menu)return;
@@ -52,16 +51,34 @@ function organizeSidebar(){
  qa('.menu-item[data-page]',menu).forEach(function(el){if(!mapped[el.dataset.page])menu.appendChild(el)});
 }
 
+var sidebarUserCountBusy=false,sidebarUserCountLastAt=0;
+async function syncSidebarUserCount(force){
+ var c=db(),badge=q('#sidebarUsersCount'),now=Date.now();if(!c||!badge||sidebarUserCountBusy)return;if(!force&&sidebarUserCountLastAt&&now-sidebarUserCountLastAt<30000)return;
+ sidebarUserCountBusy=true;
+ try{
+   var r=await c.from('profiles').select('*',{count:'exact',head:true});
+   if(!r.error&&typeof r.count==='number'){
+     var value=n(r.count);
+     badge.textContent=value.toLocaleString();
+     badge.dataset.liveCount=String(value);
+     badge.title='Registered users: '+value.toLocaleString();
+     sidebarUserCountLastAt=Date.now();
+   }
+ }catch(e){console.warn('[V189 sidebar users count]',e)}
+ finally{sidebarUserCountBusy=false}
+}
+window.v90SyncSidebarUserCount=syncSidebarUserCount;
+
 /* ---------- Page utility strips ---------- */
 var STRIPS={
  analytics:['DECISION ANALYTICS','Analytics & Trends','Use real registrations, enrollments, course revenue and conversion data to make operating decisions.',[['Dashboard','dashboard'],['Company Revenue','revenue']]],
- users:['USER OPERATIONS','User Directory & Access','Search users, verify email/access status, view referral source and jump directly to approval workflows.',[['Access Approvals','verification'],['Payments & Enrollments','paymentreqs']]],
+ users:['USER OPERATIONS','User Directory & Access','Search users, verify email/access status, view referral source and jump directly to approval workflows.',[['Access Approvals','verification'],['Course Enrollments','course-enrollments']]],
  trades:['TRADING DATA','All Trades','Use this area only for genuine user trade records and exports; avoid using estimated or demo performance data.',[['Signals','adsignals'],['Analytics','analytics']]],
- subscriptions:['MEMBERSHIP CONTROL','Subscriptions','Manage premium plans and member access separately from paid-course enrollments.',[['Payments & Enrollments','paymentreqs'],['Users','users']]],
- payments:['PAYMENT SETUP','Payment Methods','Manage the payment options shown to users. Keep instructions clear and disable methods that are not currently available.',[['Payments & Enrollments','paymentreqs'],['Company Revenue','revenue']]],
- paymentreqs:['PAYMENTS & ENROLLMENTS','Payments & Enrollments','One workspace for automatic API payments, manual receipts, free/paid course access and history.',[['Company Revenue','revenue'],['Users','users']]],
- 'course-enrollments':['PAYMENTS & ENROLLMENTS','Payments & Enrollments','Legacy route redirected into the unified payments workspace.',[['Payments & Enrollments','paymentreqs'],['Courses','courses']]],
- courses:['LEARNING OPERATIONS','Courses & Live Classes','Manage course catalog, enrollment flow and all live-class links from the same workspace.',[['Payments & Enrollments','paymentreqs'],['Company Revenue','revenue']]],
+ subscriptions:['MEMBERSHIP CONTROL','Subscriptions','Manage premium plans and member access separately from paid-course enrollments.',[['Payment Requests','paymentreqs'],['Users','users']]],
+ payments:['PAYMENT SETUP','Payment Methods','Manage the payment options shown to users. Keep instructions clear and disable methods that are not currently available.',[['Payment Requests','paymentreqs'],['Course Enrollments','course-enrollments']]],
+ paymentreqs:['PAYMENT REVIEW CENTER','Payment Requests','Review general/VIP payments and paid-course receipts from one place. Course approvals also feed Company Revenue automatically.',[['Course Enrollments','course-enrollments'],['Company Revenue','revenue']]],
+ 'course-enrollments':['COURSE ACCESS','Course Enrollments','Approve or reject paid-course receipts, edit payment details, resend status emails and manage course access.',[['Payment Requests','paymentreqs'],['Courses','courses']]],
+ courses:['LEARNING OPERATIONS','Courses & Live Classes','Manage course catalog, enrollment flow and all live-class links from the same workspace.',[['Enrollments','course-enrollments'],['Payments','paymentreqs']]],
  adsignals:['CONTENT DELIVERY','Official Signals','Publish only verified signals. Active status and updates should match what users see in the Signals tab.',[['Open User Site','__user_signals'],['Charts','adcharts']]],
  adcharts:['CONTENT DELIVERY','Charts & Analysis','Published charts are loaded directly from the charts table. Use Preview to verify the same user-facing view.',[['Preview User Charts','__user_charts'],['Articles','articles']]],
  articles:['CONTENT DELIVERY','Learning Articles','Draft, publish and preview educational articles. Only published articles should appear to users.',[['Preview User Articles','__user_articles'],['Charts','adcharts']]],
@@ -72,7 +89,7 @@ var STRIPS={
  quiz:['LEARNING ENGAGEMENT','Quiz Questions','Keep the question bank concise, accurate and aligned with the active course curriculum.',[['Courses','courses'],['Analytics','analytics']]],
  verification:['ACCESS CONTROL','Access Approvals','Review broker proof, account ID and deposit information before granting permanent access.',[['Users','users'],['Access Settings','accesssettings']]],
  accesssettings:['ACCESS CONTROL','Access Settings','Set temporary access duration and broker-verification rules without changing individual user records manually.',[['Access Approvals','verification'],['Users','users']]],
- linkmanager:['GROWTH TRACKING','Link Manager','Create tracked links, assign team references and measure clicks, signups and enrollments.',[['Team Performance','teamaccess'],['Analytics','analytics']]],
+ linkmanager:['GROWTH TRACKING','Link Manager','Create tracked links, assign team references and measure clicks, signups and enrollments.',[['Team Performance','teamaccess'],['Users','users']]],
  teamaccess:['TEAM CONTROL','Team Performance','Admin controls team accounts and assigned links; team members remain read-only for their own performance.',[['Link Manager','linkmanager'],['Users','users']]],
  messages:['COMMUNICATION','Messages & Support','Handle user support conversations and keep operational follow-up separate from marketing broadcasts.',[['Notifications','notifications'],['Users','users']]],
  chats:['COMMUNICATION','Member Chats','Review direct member conversations and support activity from one clean queue.',[['Messages','messages'],['Users','users']]],
@@ -125,11 +142,11 @@ async function refreshOpsCounts(){
  var accessPending=ver.filter(function(r){return String(r.submission_status||'').toLowerCase()==='pending'}).length;
  var generalPending=general.filter(function(r){return String(r.status||'').toLowerCase()==='pending'}).length;
  V90.counts={payments:coursePending,access:accessPending,general:generalPending};
- setNavCount('verification',accessPending);setNavCount('paymentreqs',coursePending+generalPending);
+ setNavCount('course-enrollments',coursePending);setNavCount('verification',accessPending);setNavCount('paymentreqs',coursePending+generalPending);
  var dot=q('.topbar .notif-dot');if(dot)dot.style.display=(coursePending+accessPending+generalPending)>0?'block':'none';
  renderNotificationOps();
 }
-function renderNotificationOps(){var p=q('#page-notifications');if(!p)return;var old=q('#v90OpSummary',p);if(old)old.remove();var el=document.createElement('div');el.id='v90OpSummary';el.className='v90-op-summary';el.innerHTML='<div class="v90-op-tile" onclick="v90Go(\'paymentreqs\')"><span>Course Payments</span><strong>'+V90.counts.payments+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'verification\')"><span>Access Reviews Pending</span><strong>'+V90.counts.access+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'paymentreqs\')"><span>General Payments</span><strong>'+V90.counts.general+'</strong></div>';var strip=q('.v90-page-strip',p);if(strip&&strip.nextSibling)p.insertBefore(el,strip.nextSibling);else p.insertBefore(el,p.firstChild)}
+function renderNotificationOps(){var p=q('#page-notifications');if(!p)return;var old=q('#v90OpSummary',p);if(old)old.remove();var el=document.createElement('div');el.id='v90OpSummary';el.className='v90-op-summary';el.innerHTML='<div class="v90-op-tile" onclick="v90Go(\'course-enrollments\')"><span>Course Payments Pending</span><strong>'+V90.counts.payments+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'verification\')"><span>Access Reviews Pending</span><strong>'+V90.counts.access+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'paymentreqs\')"><span>General Payment Requests</span><strong>'+V90.counts.general+'</strong></div>';var strip=q('.v90-page-strip',p);if(strip&&strip.nextSibling)p.insertBefore(el,strip.nextSibling);else p.insertBefore(el,p.firstChild)}
 
 /* ---------- Global search ---------- */
 async function safeRows(table,limit){var c=db();if(!c)return[];try{var r=await c.from(table).select('*').limit(limit||600);return r.error?[]:(r.data||[])}catch(_){return[]}}
@@ -138,7 +155,7 @@ function contains(row,term,keys){term=term.toLowerCase();return keys.some(functi
 function result(ico,title,sub,kind,page){return{ico:ico,title:title,sub:sub,kind:kind,page:page}}
 async function searchNow(term){var data=await loadSearchCache(),out=[];term=term.trim().toLowerCase();if(term.length<2)return out;
  data.users.filter(function(r){return contains(r,term,['full_name','email','whatsapp','client_id'])}).slice(0,5).forEach(function(r){out.push(result('👤',r.full_name||r.email||'User',[r.email,r.whatsapp,r.client_id&&('Client '+r.client_id)].filter(Boolean).join(' · '),'User','users'))});
- data.courses.filter(function(r){return contains(r,term,['full_name','email','whatsapp','course_name','transaction_id','payment_method'])}).slice(0,5).forEach(function(r){out.push(result('🎓',(r.full_name||r.email||'Student')+' — '+(r.course_name||'Course'),[r.payment_status,r.transaction_id].filter(Boolean).join(' · '),'Enrollment','paymentreqs'))});
+ data.courses.filter(function(r){return contains(r,term,['full_name','email','whatsapp','course_name','transaction_id','payment_method'])}).slice(0,5).forEach(function(r){out.push(result('🎓',(r.full_name||r.email||'Student')+' — '+(r.course_name||'Course'),[r.payment_status,r.transaction_id].filter(Boolean).join(' · '),'Enrollment','course-enrollments'))});
  data.access.filter(function(r){return contains(r,term,['broker','trading_account_id','rejection_reason'])}).slice(0,4).forEach(function(r){out.push(result('🔐',(r.broker||'Broker')+' — '+(r.trading_account_id||'Access request'),r.submission_status||'Verification','Access','verification'))});
  data.links.filter(function(r){return contains(r,term,['name','slug','source','campaign','assigned_name'])}).slice(0,4).forEach(function(r){out.push(result('🔗',r.name||r.slug||'Tracked link',[r.source,r.campaign,r.slug].filter(Boolean).join(' · '),'Link','linkmanager'))});
  data.payments.filter(function(r){return contains(r,term,['transaction_id','payment_method','status','sender_name','sender_number'])}).slice(0,4).forEach(function(r){out.push(result('🧾',r.sender_name||r.transaction_id||'Payment request',[r.status,r.payment_method].filter(Boolean).join(' · '),'Payment','paymentreqs'))});
@@ -147,7 +164,7 @@ function installSearch(){var box=q('.topbar .search-box'),input=box&&q('input',b
 
 /* ---------- Quick Add ---------- */
 function upgradeQuickAdd(){var menu=q('#qaMenu');if(!menu||menu.dataset.v90==='1')return;menu.dataset.v90='1';menu.innerHTML='<div onclick="qaGo(\'users\')">👤 Add / Find User</div><div onclick="qaGo(\'courses\')">🎓 Course / Live Class</div><div onclick="v90RevenueTransaction()">💰 Income / Expense</div><div onclick="qaGo(\'paymentreqs\')">🧾 Review Payment</div><div onclick="qaGo(\'verification\')">✅ Access Approval</div><div onclick="qaGo(\'notifications\')">🔔 Send Notification</div>'}
-window.v90RevenueTransaction=function(){go('revenue');setTimeout(function(){if(typeof window.pspF179OpenTxn==='function')window.pspF179OpenTxn();else if(typeof window.crSwitchTab==='function')window.crSwitchTab('transactions')},140)};
+window.v90RevenueTransaction=function(){go('revenue');setTimeout(function(){if(typeof window.crSwitchTab==='function')window.crSwitchTab('transactions')},100)};
 
 /* ---------- Company Revenue: dedicated Sajid Bhai tab ---------- */
 function installSajidTab(){
@@ -208,11 +225,11 @@ function addRevenueSyncButton(){var hero=q('#page-revenue .cr-period-panel');if(
 function wrapCourseApproval(){if(window.__v90CourseApproveWrapped)return;if(typeof window.approveCourseEnrollment!=='function')return;window.__v90CourseApproveWrapped=true;var old=window.approveCourseEnrollment;window.approveCourseEnrollment=async function(id){var r=await old.apply(this,arguments);await syncCourseRevenue(id,true);V90.searchCache=null;refreshOpsCounts();if(activePage()==='revenue'&&typeof window.loadCompanyRevenue==='function')window.loadCompanyRevenue();return r};if(typeof window.saveCoursePaymentEdit==='function'){var oldEdit=window.saveCoursePaymentEdit;window.saveCoursePaymentEdit=async function(){var id=(q('#aceEditId')||{}).value||null,r=await oldEdit.apply(this,arguments);if(id)await syncCourseRevenue(id,true);V90.searchCache=null;refreshOpsCounts();return r}}}
 
 /* ---------- showPage hook ---------- */
-var TITLES={paymentreqs:['Payments & Enrollments','Payments, course access and complete history'],verification:['Access Approvals','Broker proof and permanent access review'],accesssettings:['Access Settings','Temporary access and broker verification rules'],linkmanager:['Link Manager','Tracked referral links and conversions'],teamaccess:['Team Performance','Read-only team link performance'], 'course-enrollments':['Payments & Enrollments','Unified payment and course access workspace'],admintabs:['Admin Tabs','Admin sidebar visibility and organization']};
-function wrapShowPage(){if(V90.showWrapped||typeof window.showPage!=='function')return;V90.showWrapped=true;var old=window.showPage;window.showPage=function(page,el){var r=old.apply(this,arguments);setTimeout(function(){organizeSidebar();ensureAllStrips();if(TITLES[page]){var t=q('#pageTitle'),s=q('#pageSubtitle');if(t)t.textContent=TITLES[page][0];if(s)s.textContent=TITLES[page][1]}if(page==='courses')renderCourseSchedule();if(page==='adcharts')addContentVisibility('adcharts','charts');if(page==='articles')addContentVisibility('articles','articles');if(page==='settings')ensureSettingsMap();if(page==='notifications')renderNotificationOps();if(page==='revenue'){if(!window.__PSP_FINANCE_V179__){installSajidTab();addRevenueSyncButton();setTimeout(function(){reconcileSelectedMonth(true).then(function(){if(typeof window.loadCompanyRevenue==='function')window.loadCompanyRevenue()})},220)}}refreshOpsCounts()},40);return r}}
+var TITLES={paymentreqs:['Payment Review Center','Review general and course payments'],verification:['Access Approvals','Broker proof and permanent access review'],accesssettings:['Access Settings','Temporary access and broker verification rules'],linkmanager:['Link Manager','Tracked referral links and conversions'],teamaccess:['Team Performance','Read-only team link performance'], 'course-enrollments':['Course Enrollments','Paid/free course access and payment review'],admintabs:['Admin Tabs','Admin sidebar visibility and organization']};
+function wrapShowPage(){if(V90.showWrapped||typeof window.showPage!=='function')return;V90.showWrapped=true;var old=window.showPage;window.showPage=function(page,el){var r=old.apply(this,arguments);setTimeout(function(){organizeSidebar();ensureAllStrips();syncSidebarUserCount(page==='users');if(TITLES[page]){var t=q('#pageTitle'),s=q('#pageSubtitle');if(t)t.textContent=TITLES[page][0];if(s)s.textContent=TITLES[page][1]}if(page==='courses')renderCourseSchedule();if(page==='adcharts')addContentVisibility('adcharts','charts');if(page==='articles')addContentVisibility('articles','articles');if(page==='settings')ensureSettingsMap();if(page==='notifications')renderNotificationOps();if(page==='revenue'){installSajidTab();addRevenueSyncButton();setTimeout(function(){reconcileSelectedMonth(true).then(function(){if(typeof window.loadCompanyRevenue==='function')window.loadCompanyRevenue()})},220)}refreshOpsCounts()},40);return r}}
 
 function bindRevenueMonth(){var el=q('#crMonth');if(!el||el.dataset.v90Bound==='1')return;el.dataset.v90Bound='1';el.addEventListener('change',function(){setTimeout(function(){reconcileSelectedMonth(true)},250)})}
-function periodicInstall(){organizeSidebar();ensureAllStrips();renderCourseSchedule();installSearch();upgradeQuickAdd();installSajidTab();addRevenueSyncButton();ensureSettingsMap();wrapCourseApproval();bindRevenueMonth()}
-function init(){periodicInstall();wrapShowPage();refreshOpsCounts();setTimeout(periodicInstall,900);setTimeout(periodicInstall,2200);setInterval(function(){organizeSidebar();wrapCourseApproval()},6000)}
+function periodicInstall(){organizeSidebar();ensureAllStrips();renderCourseSchedule();installSearch();upgradeQuickAdd();installSajidTab();addRevenueSyncButton();ensureSettingsMap();wrapCourseApproval();bindRevenueMonth();syncSidebarUserCount()}
+function init(){periodicInstall();wrapShowPage();refreshOpsCounts();syncSidebarUserCount();setTimeout(periodicInstall,900);setTimeout(periodicInstall,2200);setInterval(function(){organizeSidebar();wrapCourseApproval();syncSidebarUserCount()},6000)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
