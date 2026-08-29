@@ -405,99 +405,11 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="admin-v29-final.css?v=20260802-v29-final">
 <link rel="stylesheet" href="admin-account-verification-v49.css?v=20260820-v116-admin-access-ui">
 
-<style id="companyRevenueV84Styles">
-#page-revenue .cr-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-#page-revenue .cr-filter{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
-#page-revenue .cr-filter .form-group{margin:0;min-width:190px}
-#page-revenue .cr-note{padding:12px 14px;border:1px solid rgba(245,158,11,.24);background:var(--gold-bg);border-radius:10px;color:var(--text-secondary);font-size:12px;line-height:1.55}
-#page-revenue .cr-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-#page-revenue .cr-breakdown-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:12px}
-#page-revenue .cr-breakdown-row:last-child{border-bottom:0}
-#page-revenue .cr-amount{font-weight:800;font-variant-numeric:tabular-nums}
-#page-revenue .cr-positive{color:var(--green)}
-#page-revenue .cr-negative{color:var(--red)}
-#page-revenue .cr-share-total{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;background:var(--bg-elevated);border:1px solid var(--border);font-size:12px;margin:10px 0 14px}
-#page-revenue .cr-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:10px}
-#page-revenue .cr-table-wrap .data-table{min-width:720px}
-#page-revenue .cr-empty{padding:24px;text-align:center;color:var(--text-muted);font-size:12px}
-#page-revenue .cr-helper{font-size:10px;color:var(--text-muted);margin-top:5px;line-height:1.45;text-transform:none;letter-spacing:0;font-weight:500}
-#page-revenue .cr-actions{display:flex;gap:4px;white-space:nowrap}
-#page-revenue .cr-status{min-height:18px;margin-top:8px;font-size:11px;color:var(--text-muted)}
-@media(max-width:900px){#page-revenue .two-col{grid-template-columns:1fr}#page-revenue .cr-form-grid{grid-template-columns:1fr}}
-@media(max-width:600px){#page-revenue .cr-toolbar{align-items:stretch}#page-revenue .cr-filter{width:100%}#page-revenue .cr-filter .form-group{flex:1;min-width:160px}#page-revenue .cr-filter .btn{justify-content:center}}
-#page-revenue .cr-subtabs{display:flex;gap:8px;margin:0 0 14px;padding:4px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:11px;width:max-content;max-width:100%}
-#page-revenue .cr-subtabs button{border:0;background:transparent;color:var(--text-secondary);padding:9px 14px;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;transition:.2s}
-#page-revenue .cr-subtabs button.active{background:var(--bg-card);color:var(--gold);box-shadow:var(--shadow)}
-#page-revenue .cr-summary-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
-#page-revenue .cr-share-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-#page-revenue .cr-share-summary>div,#page-revenue .cr-comp-summary>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:9px;background:var(--bg-elevated);border:1px solid var(--border);font-size:11px}
-#page-revenue .cr-share-summary span,#page-revenue .cr-comp-summary span{color:var(--text-secondary)}
-#page-revenue .cr-share-summary strong,#page-revenue .cr-comp-summary strong{font-size:12px;font-variant-numeric:tabular-nums}
-#page-revenue .cr-comp-summary{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}
-#page-revenue input[type=file]{padding:8px;background:var(--bg-elevated)}
-@media(max-width:1100px){#page-revenue .cr-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:600px){#page-revenue .cr-subtabs{width:100%}#page-revenue .cr-subtabs button{flex:1;padding:9px 8px}#page-revenue .cr-summary-grid{grid-template-columns:1fr 1fr}#page-revenue .cr-share-summary{grid-template-columns:1fr}}
 
-/* V88 premium monthly finance dashboard — scoped to Company Revenue only */
-#page-revenue{--cr-gold:#f59e0b;--cr-orange:#d97706;--cr-green:#10b981;--cr-red:#ef4444;--cr-blue:#3b82f6;--cr-purple:#8b5cf6}
-#page-revenue .cr-hero{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px 20px;margin-bottom:14px;border:1px solid rgba(245,158,11,.28);border-radius:16px;background:linear-gradient(135deg,rgba(245,158,11,.09),rgba(255,255,255,.02) 55%,rgba(59,130,246,.05));box-shadow:0 12px 35px rgba(15,23,42,.05)}
-#page-revenue .cr-eyebrow{font-size:9px;font-weight:900;letter-spacing:.13em;color:var(--gold);margin-bottom:5px}
-#page-revenue .cr-hero-title{font-size:20px;font-weight:900;color:var(--text-primary);letter-spacing:-.02em}
-#page-revenue .cr-hero-sub{font-size:11px;color:var(--text-muted);margin-top:5px;max-width:740px;line-height:1.5}
-#page-revenue .cr-period-panel{display:flex;align-items:flex-end;gap:7px;flex-wrap:wrap;justify-content:flex-end}
-#page-revenue .cr-month-field{min-width:175px;margin:0}
-#page-revenue .cr-icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:9px;background:var(--bg-card);color:var(--text-primary);font-size:20px;cursor:pointer;display:grid;place-items:center}
-#page-revenue .cr-month-pill{height:34px;display:inline-flex;align-items:center;padding:0 11px;border-radius:999px;font-size:9px;font-weight:900;letter-spacing:.08em;border:1px solid}
-#page-revenue .cr-month-pill.open{color:var(--green);background:rgba(16,185,129,.09);border-color:rgba(16,185,129,.28)}
-#page-revenue .cr-month-pill.closed{color:var(--red);background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25)}
-#page-revenue .cr-premium-tabs{width:100%;overflow:auto;scrollbar-width:none;padding:5px;background:linear-gradient(180deg,var(--bg-elevated),rgba(245,158,11,.025));position:sticky;top:0;z-index:5}
-#page-revenue .cr-premium-tabs::-webkit-scrollbar{display:none}
-#page-revenue .cr-premium-tabs button{white-space:nowrap;min-width:max-content}
-#page-revenue .cr-premium-tabs button.active{background:linear-gradient(135deg,var(--bg-card),rgba(245,158,11,.09));border:1px solid rgba(245,158,11,.22);color:var(--gold)}
-#page-revenue .cr-kpi-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:14px}
-#page-revenue .cr-kpi{position:relative;overflow:hidden;padding:16px;border-radius:14px;border:1px solid var(--border);background:var(--bg-card);box-shadow:0 10px 25px rgba(15,23,42,.04)}
-#page-revenue .cr-kpi:after{content:"";position:absolute;width:100px;height:100px;border-radius:50%;right:-44px;top:-44px;opacity:.09;background:currentColor}
-#page-revenue .cr-kpi.income{color:var(--cr-green)}#page-revenue .cr-kpi.expense{color:var(--cr-red)}#page-revenue .cr-kpi.profit{color:var(--cr-gold)}#page-revenue .cr-kpi.retained{color:var(--cr-blue)}#page-revenue .cr-kpi.pending{color:var(--cr-purple)}
-#page-revenue .cr-kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.cr-kpi-top span{font-size:19px}.cr-kpi-top em{font-style:normal;font-size:8px;font-weight:900;letter-spacing:.11em;padding:5px 7px;border-radius:999px;background:currentColor;color:#fff}
-#page-revenue .cr-kpi-label{font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--text-muted)}
-#page-revenue .cr-kpi-value{font-size:23px;line-height:1.15;font-weight:900;color:var(--text-primary);margin:5px 0 4px;font-variant-numeric:tabular-nums}
-#page-revenue .cr-kpi-meta{font-size:9px;color:var(--text-muted)}
-#page-revenue .cr-dashboard-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.75fr);gap:14px;margin-bottom:14px}
-#page-revenue .cr-chart-card{min-height:300px}.cr-chart-wrap{height:235px;margin-top:10px;position:relative}.cr-chart-wrap-small{height:235px}
-#page-revenue .cr-mini-badge{font-size:9px;font-weight:900;color:var(--gold);border:1px solid rgba(245,158,11,.25);background:var(--gold-bg);padding:5px 8px;border-radius:999px}
-#page-revenue .cr-sajid-card{background:linear-gradient(135deg,var(--bg-card),rgba(245,158,11,.055))}
-#page-revenue .cr-sajid-grid,#page-revenue .cr-glance-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-#page-revenue .cr-sajid-grid>div,#page-revenue .cr-glance-grid>div{padding:11px 12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-elevated);display:flex;align-items:center;justify-content:space-between;gap:10px}
-#page-revenue .cr-sajid-grid span,#page-revenue .cr-glance-grid span{font-size:10px;color:var(--text-muted)}
-#page-revenue .cr-sajid-grid strong,#page-revenue .cr-glance-grid strong{font-size:12px;color:var(--text-primary);font-variant-numeric:tabular-nums}
-#page-revenue .cr-sajid-grid .total{grid-column:1/-1;border-color:rgba(245,158,11,.28);background:var(--gold-bg)}#page-revenue .cr-sajid-grid .total strong{font-size:16px;color:var(--gold)}
-#page-revenue .cr-note-premium{border-left:3px solid var(--gold);background:linear-gradient(90deg,var(--gold-bg),transparent)}
-#page-revenue .cr-inline-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
-#page-revenue .cr-breakdown-panels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
-#page-revenue .cr-breakdown-head{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;padding:8px 10px;border-radius:8px}.cr-breakdown-head.income{color:var(--green);background:rgba(16,185,129,.08)}.cr-breakdown-head.expense{color:var(--red);background:rgba(239,68,68,.07)}
-#page-revenue .cr-ledger-filters{display:grid;grid-template-columns:2fr repeat(4,minmax(125px,1fr));gap:8px;margin:12px 0}
-#page-revenue .cr-ledger-filters input,#page-revenue .cr-ledger-filters select{min-width:0}
-#page-revenue .cr-status-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 7px;border-radius:999px;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.04em}.cr-status-badge.paid{color:#047857;background:#d1fae5}.cr-status-badge.pending{color:#b45309;background:#fef3c7}.cr-status-badge.partial{color:#7c3aed;background:#ede9fe}
-#page-revenue .cr-payment-meta{font-size:9px;color:var(--text-muted);line-height:1.4}.cr-payment-meta strong{color:var(--text-secondary)}
-#page-revenue .cr-report-hero{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px;margin-bottom:14px;border-radius:14px;background:linear-gradient(135deg,#0b1730,#12233e);color:#fff;border-top:3px solid var(--gold)}
-#page-revenue .cr-report-hero h3{font-size:22px;margin:2px 0 4px}.cr-report-hero p{font-size:10px;color:#aebbd0;margin:0}.cr-report-hero .cr-eyebrow{color:#fbbf24}
-#page-revenue .cr-report-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-bottom:14px}.cr-report-grid>div{padding:12px;border:1px solid var(--border);background:var(--bg-card);border-radius:10px}.cr-report-grid span{display:block;font-size:8px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin-bottom:5px}.cr-report-grid strong{font-size:14px;font-variant-numeric:tabular-nums}
-#page-revenue .cr-modal{position:fixed;inset:0;z-index:10050;background:rgba(2,6,23,.66);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px}.cr-modal.show{display:flex}.cr-modal-card{width:min(680px,96vw);max-height:90vh;overflow:auto;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 30px 80px rgba(0,0,0,.28)}
-#page-revenue .cr-receipt-modal-card{width:min(900px,96vw)}.cr-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}.cr-modal-x{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--bg-elevated);font-size:20px;cursor:pointer;color:var(--text-primary)}.cr-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.cr-receipt-preview{min-height:320px;margin-top:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-elevated);display:grid;place-items:center;overflow:hidden}.cr-receipt-preview img{max-width:100%;max-height:65vh;object-fit:contain}.cr-receipt-preview iframe{width:100%;height:65vh;border:0;background:#fff}
-#page-revenue .cr-lock-banner{display:none;padding:10px 13px;margin-bottom:12px;border:1px solid rgba(239,68,68,.25);background:rgba(239,68,68,.06);color:var(--red);border-radius:10px;font-size:10px;font-weight:700}.cr-month-closed #page-revenue .cr-lockable{position:relative}.cr-month-closed #page-revenue .cr-lockable:after{content:"MONTH CLOSED — REOPEN TO EDIT";position:absolute;inset:0;background:rgba(255,255,255,.62);backdrop-filter:blur(1px);display:grid;place-items:center;color:#b91c1c;font-size:10px;font-weight:900;letter-spacing:.08em;border-radius:inherit;z-index:4}
-#page-revenue .cr-table-wrap .data-table{min-width:920px}
-#page-revenue .cr-actions{flex-wrap:wrap}
-#page-revenue .cr-comp-summary{grid-template-columns:1fr 1fr}
-#page-revenue .cr-share-summary{grid-template-columns:1fr 1fr}
-@media(max-width:1280px){#page-revenue .cr-kpi-grid{grid-template-columns:repeat(3,1fr)}#page-revenue .cr-report-grid{grid-template-columns:repeat(3,1fr)}#page-revenue .cr-ledger-filters{grid-template-columns:2fr repeat(2,1fr)}}
-@media(max-width:900px){#page-revenue .cr-hero{align-items:flex-start;flex-direction:column}#page-revenue .cr-period-panel{justify-content:flex-start;width:100%}#page-revenue .cr-dashboard-grid{grid-template-columns:1fr}#page-revenue .cr-kpi-grid{grid-template-columns:1fr 1fr}#page-revenue .cr-ledger-filters{grid-template-columns:1fr 1fr}#page-revenue .cr-report-grid{grid-template-columns:1fr 1fr}.cr-chart-wrap{height:220px}}
-@media(max-width:600px){#page-revenue .cr-hero{padding:14px}#page-revenue .cr-hero-title{font-size:17px}#page-revenue .cr-period-panel{display:grid;grid-template-columns:34px 1fr 34px;align-items:end}#page-revenue .cr-period-panel .btn,#page-revenue .cr-period-panel .cr-month-pill{grid-column:span 1}#page-revenue .cr-month-field{min-width:0}#page-revenue .cr-kpi-grid{grid-template-columns:1fr 1fr;gap:8px}#page-revenue .cr-kpi{padding:12px}#page-revenue .cr-kpi-value{font-size:18px}#page-revenue .cr-sajid-grid,#page-revenue .cr-glance-grid,#page-revenue .cr-breakdown-panels,#page-revenue .cr-comp-summary,#page-revenue .cr-share-summary,#page-revenue .cr-report-grid{grid-template-columns:1fr}#page-revenue .cr-ledger-filters{grid-template-columns:1fr}#page-revenue .cr-report-hero{align-items:flex-start;flex-direction:column}#page-revenue .cr-chart-card{min-height:270px}.cr-chart-wrap{height:205px}}
-
-</style>
 <link rel="stylesheet" href="admin-dashboard-v89.css?v=20260819-v89-premium-ops">
 <link rel="stylesheet" href="admin-suite-v90.css?v=20260819-v90-admin-suite">
-<link rel="stylesheet" href="company-revenue-v93.css?v=20260819-v93-income-breakdown">
-<link rel="stylesheet" href="company-revenue-v178.css?v=20260829-v178-reference-match">
+<link rel="stylesheet" href="admin-shell-v179.css?v=20260829-v179-dark-admin">
+<link rel="stylesheet" href="finance-management-v179.css?v=20260829-v179-finance-system">
 
 <style id="pspV129CoursesAndEditor">
 /* Course Manager — compact KPI strip */
@@ -1567,216 +1479,10 @@ select option{background:#0f1729;color:#e8eaf0}
         </div>
       </div>
       
-      <!-- ========== COMPANY REVENUE ========== -->
+      <!-- ========== FINANCE & ACCOUNTS — V179 ========== -->
       <div class="page" id="page-revenue">
-        <div class="cr-hero">
-          <div>
-            <div class="cr-eyebrow">FINANCE CONTROL CENTER</div>
-            <div class="cr-hero-title">💰 Company Revenue Dashboard</div>
-            <div class="cr-hero-sub">Monthly income, expenses, payroll, partner payouts and profit reporting — all company totals in USD.</div>
-          </div>
-          <div class="cr-period-panel">
-            <button class="cr-icon-btn" type="button" onclick="crShiftMonth(-1)" title="Previous month">‹</button>
-            <div class="form-group cr-month-field"><label>Accounting Month</label><input type="month" id="crMonth" onchange="loadCompanyRevenue()"></div>
-            <button class="cr-icon-btn" type="button" onclick="crShiftMonth(1)" title="Next month">›</button>
-            <button class="btn btn-secondary btn-sm" type="button" onclick="crSetCurrentMonth()">Current Month</button>
-            <span class="cr-month-pill open" id="crMonthStatus">OPEN</span>
-            <button class="btn btn-sm" id="crMonthLockBtn" type="button" onclick="crToggleMonthLock()">🔒 Close Month</button>
-          </div>
-        </div>
-
-        <div class="cr-subtabs cr-premium-tabs">
-          <button type="button" class="active" id="crTabDashboard" onclick="crSwitchTab('dashboard')">📊 Dashboard</button>
-          <button type="button" id="crTabTransactions" onclick="crSwitchTab('transactions')">💳 Transactions</button>
-          <button type="button" id="crTabCompensation" onclick="crSwitchTab('compensation')">👥 Staff & Compensation</button>
-          <button type="button" id="crTabPayouts" onclick="crSwitchTab('payouts')">🤝 Partner Payouts</button>
-          <button type="button" id="crTabReports" onclick="crSwitchTab('reports')">📄 Reports & Audit</button>
-        </div>
-
-        <!-- DASHBOARD -->
-        <div id="crViewDashboard">
-          <div class="cr-kpi-grid">
-            <div class="cr-kpi income"><div class="cr-kpi-top"><span>↗</span><em>INCOME</em></div><div class="cr-kpi-label">Total Income</div><div class="cr-kpi-value" id="crTotalIncome">$0.00</div><div class="cr-kpi-meta" id="crIncomeMeta">Selected month</div></div>
-            <div class="cr-kpi expense"><div class="cr-kpi-top"><span>↘</span><em>EXPENSES</em></div><div class="cr-kpi-label">Total Expenses</div><div class="cr-kpi-value" id="crTotalExpenses">$0.00</div><div class="cr-kpi-meta">Marketing + Salaries + Other</div></div>
-            <div class="cr-kpi profit"><div class="cr-kpi-top"><span>◆</span><em>NET</em></div><div class="cr-kpi-label">Net Company Profit</div><div class="cr-kpi-value" id="crNetProfit">$0.00</div><div class="cr-kpi-meta">Income minus expenses</div></div>
-            <div class="cr-kpi retained"><div class="cr-kpi-top"><span>▣</span><em>RETAINED</em></div><div class="cr-kpi-label">Company Retained</div><div class="cr-kpi-value" id="crCompanyRetained">$0.00</div><div class="cr-kpi-meta">After configured profit shares</div></div>
-            <div class="cr-kpi pending"><div class="cr-kpi-top"><span>◷</span><em>PENDING</em></div><div class="cr-kpi-label">Pending Payables</div><div class="cr-kpi-value" id="crPendingPayables">$0.00</div><div class="cr-kpi-meta">Unpaid expenses + payout balances</div></div>
-          </div>
-
-          <div class="cr-dashboard-grid">
-            <div class="card cr-chart-card">
-              <div class="card-header"><div><div class="card-title">📈 12-Month Finance Trend</div><div class="card-meta">Income, expenses and net profit by month</div></div><span class="cr-mini-badge">USD</span></div>
-              <div class="cr-chart-wrap"><canvas id="crTrendChart"></canvas></div>
-            </div>
-            <div class="card cr-chart-card">
-              <div class="card-header"><div><div class="card-title">🧩 Income Source Mix</div><div class="card-meta" id="crSourceChartMeta">Selected month income sources</div></div></div>
-              <div class="cr-chart-wrap cr-chart-wrap-small"><canvas id="crSourceChart"></canvas></div>
-            </div>
-          </div>
-
-          <div class="cr-dashboard-grid">
-            <div class="card cr-sajid-card">
-              <div class="card-header"><div><div class="card-title">⭐ Sajid Bhai Compensation</div><div class="card-meta">Salary + configured revenue/profit share for this month</div></div><button class="btn btn-secondary btn-sm" onclick="crSwitchTab('compensation')">Manage</button></div>
-              <div class="cr-sajid-grid">
-                <div><span>Salary</span><strong id="crSajidSalary">$0.00</strong></div>
-                <div><span>Share Amount</span><strong id="crSajidShare">$0.00</strong></div>
-                <div class="total"><span>Total Payable</span><strong id="crSajidTotal">$0.00</strong></div>
-                <div><span>Paid / Recorded</span><strong id="crSajidPaid">$0.00</strong></div>
-              </div>
-              <div class="cr-helper" id="crSajidMeta">Add “Sajid Bhai” under Staff & Compensation to activate this summary.</div>
-            </div>
-            <div class="card">
-              <div class="card-header"><div><div class="card-title">⚡ Month at a Glance</div><div class="card-meta">Fast overview of the selected accounting month</div></div></div>
-              <div class="cr-glance-grid">
-                <div><span>Transactions</span><strong id="crTxnCount">0</strong></div>
-                <div><span>Paid Expenses</span><strong id="crPaidExpenseTotal">$0.00</strong></div>
-                <div><span>Pending Expenses</span><strong id="crPendingExpenseTotal">$0.00</strong></div>
-                <div><span>Partner Allocation</span><strong id="crPartnerAllocationInline">$0.00</strong></div>
-                <div><span>Course Share Deducted</span><strong id="crCourseShareDashboard">$0.00</strong></div>
-                <div><span>Month Status</span><strong id="crMonthStatusText">Open</strong></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="cr-note cr-note-premium"><strong>Monthly accounting:</strong> every transaction is assigned to its own accounting month. Closing a month locks its finance ledger from accidental edits until Admin reopens it.</div>
-        </div>
-
-        <!-- TRANSACTIONS -->
-        <div id="crViewTransactions" style="display:none;">
-          <div class="two-col">
-            <div class="card cr-lockable">
-              <div class="card-header"><div><div class="card-title">➕ Add Income / Expense</div><div class="card-meta">Record a company transaction for <span id="crEntryMonthLabel">this month</span>.</div></div><button class="btn btn-secondary btn-sm" id="crCancelEditBtn" onclick="crResetEntryForm()" style="display:none;">Cancel Edit</button></div>
-              <div class="cr-form-grid">
-                <div class="form-group"><label>Type</label><select id="crType" onchange="crSyncCategories();crSyncEntryFields()"><option value="income">Income</option><option value="expense">Expense</option></select></div>
-                <div class="form-group"><label>Category</label><select id="crCategory" onchange="crSyncEntryFields()"></select></div>
-                <div class="form-group" id="crMarketingSubWrap" style="display:none;"><label>Marketing Type</label><select id="crMarketingSub" onchange="crSyncEntryFields()"><option>Facebook Ads</option><option>Instagram Ads</option><option>Google Ads</option><option>Design & Creative</option><option>Influencer / Content</option><option>Events</option><option>Software / Tools</option><option>Other Marketing</option></select></div>
-                <div class="form-group" id="crSalaryPersonWrap" style="display:none;"><label>Salary For</label><select id="crSalaryPerson"><option value="">Select staff member</option></select><div class="cr-helper">Names come from Staff & Compensation.</div></div>
-                <div class="form-group" id="crOtherDetailsWrap" style="display:none;"><label id="crOtherDetailsLabel">Other Expense Details</label><input type="text" id="crOtherDetails" maxlength="160" placeholder="What is this expense?"><div class="cr-helper">Write the exact custom item.</div></div>
-                <div class="form-group"><label id="crAmountLabel">Amount (USD)</label><input type="number" id="crAmount" min="0.01" step="0.01" placeholder="0.00"><div class="cr-helper" id="crAmountHelper"></div></div>
-                <div class="form-group"><label>Transaction Date</label><input type="date" id="crEntryDate"></div>
-                <div class="form-group"><label>Payment Status</label><select id="crPaymentStatus" onchange="crSyncPaymentFields()"><option value="paid">Paid / Settled</option><option value="pending">Pending</option></select></div>
-                <div class="form-group cr-payment-field"><label>Payment Method</label><select id="crPaymentMethod"><option value="">Select method</option><option>Bank Transfer</option><option>Cash</option><option>USDT</option><option>Card</option><option>Other</option></select></div>
-                <div class="form-group cr-payment-field"><label>Payment Date</label><input type="date" id="crPaymentDate"></div>
-                <div class="form-group cr-payment-field"><label>Payment Reference</label><input type="text" id="crPaymentReference" maxlength="120" placeholder="Bank ref / TXID / receipt no."></div>
-              </div>
-              <div class="form-group"><label>Note / Details</label><textarea id="crNote" rows="3" placeholder="Invoice period, campaign, client, reason, etc."></textarea></div>
-              <div class="form-group" id="crReceiptWrap" style="display:none;"><label>Expense Receipt / Slip <span style="font-weight:500;color:var(--text-muted)">(Optional)</span></label><input type="file" id="crReceiptFile" accept="image/jpeg,image/png,image/webp,application/pdf"><div class="cr-helper" id="crReceiptHelper">Upload JPG, PNG, WEBP or PDF up to 10 MB.</div></div>
-              <button class="btn" id="crSaveEntryBtn" onclick="crSaveEntry()">+ Add Transaction</button>
-              <div class="cr-status" id="crEntryStatus"></div>
-            </div>
-
-            <div class="card">
-              <div class="card-title">📌 Monthly Breakdown</div>
-              <div class="cr-breakdown-panels">
-                <div><div class="cr-breakdown-head income">Income Sources</div><div id="crIncomeBreakdown"></div></div>
-                <div><div class="cr-breakdown-head expense">Expense Categories</div><div id="crExpenseBreakdown"></div></div>
-              </div>
-              <div class="cr-note" style="margin-top:12px;"><strong>Course Revenue:</strong> enter gross revenue. Configured Course Revenue shares are deducted automatically before company income is counted.</div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header"><div><div class="card-title">📒 Monthly Revenue Ledger</div><div class="card-meta" id="crLedgerMeta">Selected month transactions</div></div><div class="cr-inline-actions"><button class="btn btn-secondary btn-sm" onclick="crExportCsv()">⬇ CSV</button><button class="btn btn-secondary btn-sm" onclick="loadCompanyRevenue()">↻ Refresh</button></div></div>
-            <div class="cr-ledger-filters">
-              <input type="search" id="crLedgerSearch" placeholder="Search category, note, staff, reference..." oninput="crFilterLedger()">
-              <select id="crFilterType" onchange="crFilterLedger()"><option value="">All Types</option><option value="income">Income</option><option value="expense">Expense</option></select>
-              <select id="crFilterCategory" onchange="crFilterLedger()"><option value="">All Categories</option></select>
-              <select id="crFilterStatus" onchange="crFilterLedger()"><option value="">All Statuses</option><option value="paid">Paid</option><option value="pending">Pending</option></select>
-              <select id="crFilterStaff" onchange="crFilterLedger()"><option value="">All Staff</option></select>
-              <input type="date" id="crFilterFrom" onchange="crFilterLedger()" title="From date">
-              <input type="date" id="crFilterTo" onchange="crFilterLedger()" title="To date">
-            </div>
-            <div class="cr-table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Details</th><th>Amount</th><th>Status</th><th>Payment</th><th>Receipt</th><th>Actions</th></tr></thead><tbody id="crLedgerBody"><tr><td colspan="9" class="cr-empty">Loading...</td></tr></tbody></table></div>
-          </div>
-        </div>
-
-        <!-- STAFF & COMPENSATION -->
-        <div id="crViewCompensation" style="display:none;">
-          <div class="cr-note cr-note-premium"><strong>Recurring payroll:</strong> save each person once. The selected month automatically shows who is due; Admin only confirms/post salaries. PKR salaries retain the exact historical PKR/USD rate used when posted.</div>
-          <div class="two-col">
-            <div class="card cr-lockable">
-              <div class="card-header"><div><div class="card-title">👥 Staff & Compensation Setup</div><div class="card-meta">Fixed salary, currency and optional course/company share.</div></div><button class="btn btn-secondary btn-sm" id="crCancelPersonBtn" onclick="crResetPersonForm()" style="display:none;">Cancel Edit</button></div>
-              <div class="cr-form-grid">
-                <div class="form-group"><label>Name</label><input type="text" id="crPersonName" maxlength="80" placeholder="e.g. Sajid Bhai"></div>
-                <div class="form-group"><label>Fixed Monthly Salary</label><input type="number" id="crPersonSalary" min="0" step="0.01" placeholder="0.00"></div>
-                <div class="form-group"><label>Salary Currency</label><select id="crPersonSalaryCurrency" onchange="crSyncSalaryCurrency()"><option value="USD">USD ($)</option><option value="PKR">PKR (Rs)</option></select></div>
-                <div class="form-group" id="crSalaryFxWrap" style="display:none;"><label>PKR per 1 USD</label><input type="number" id="crPersonSalaryFx" min="0.000001" step="0.01" placeholder="e.g. 280"><div class="cr-helper">This rate is saved into the salary transaction when posted.</div></div>
-                <div class="form-group"><label>Share Type</label><select id="crPersonShareType" onchange="crSyncPersonShareFields()"><option value="none">No Share</option><option value="course_revenue">Course Revenue</option><option value="company_profit">Company Profit</option></select></div>
-                <div class="form-group"><label>Share %</label><input type="number" id="crPersonSharePercent" min="0" max="100" step="0.01" placeholder="0"></div>
-                <div class="form-group"><label>Recurring Salary</label><select id="crRecurringSalary"><option value="true">Yes — prepare monthly</option><option value="false">No</option></select></div>
-                <div class="form-group"><label>Salary Due Day</label><input type="number" id="crSalaryDueDay" min="1" max="28" step="1" value="1"><div class="cr-helper">Day 1–28 of each month.</div></div>
-              </div>
-              <button class="btn" id="crSavePersonBtn" onclick="crSavePerson()">+ Add Person</button><div class="cr-status" id="crPersonStatus"></div>
-            </div>
-
-            <div class="card cr-lockable">
-              <div class="card-header"><div><div class="card-title">🧾 Monthly Salary Queue</div><div class="card-meta" id="crCompPeriodMeta">Selected month recurring payroll</div></div><button class="btn btn-secondary btn-sm" onclick="crPostAllSalaries()">Post All Due Salaries</button></div>
-              <div class="cr-comp-summary">
-                <div><span>Gross Course Revenue</span><strong id="crGrossCourseTotal">$0.00</strong></div>
-                <div><span>Course Share Deducted</span><strong id="crCourseShareTotal">$0.00</strong></div>
-                <div><span>Recurring Salaries (USD Eq.)</span><strong id="crFixedSalaryTotal">$0.00</strong></div>
-                <div><span>Salaries Posted</span><strong id="crSalaryPostedCount">0 / 0</strong></div>
-              </div>
-              <div class="cr-helper">Posted salary becomes an expense for this month. Payment status can be updated from the transaction ledger.</div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header"><div><div class="card-title">💼 Compensation Breakdown</div><div class="card-meta">Salary + share + payment visibility for the selected month.</div></div><button class="btn btn-secondary btn-sm" onclick="loadCompanyRevenue()">↻ Refresh</button></div>
-            <div class="cr-table-wrap"><table class="data-table"><thead><tr><th>Name</th><th>Salary</th><th>Share</th><th>Share Due</th><th>Total Payable</th><th>Salary Status</th><th>Share Paid</th><th>Slip</th><th>Actions</th></tr></thead><tbody id="crCompBody"><tr><td colspan="9" class="cr-empty">No staff configured yet.</td></tr></tbody></table></div>
-          </div>
-        </div>
-
-        <!-- PARTNER PAYOUTS -->
-        <div id="crViewPayouts" style="display:none;">
-          <div class="cr-dashboard-grid">
-            <div class="card">
-              <div class="card-header"><div><div class="card-title">🤝 Partner Profit Share Setup</div><div class="card-meta">Configure each partner's share of net company profit.</div></div><button class="btn btn-secondary btn-sm" id="crCancelPartnerBtn" onclick="crResetPartnerForm()" style="display:none;">Cancel Edit</button></div>
-              <div class="cr-form-grid"><div class="form-group"><label>Partner Name</label><input type="text" id="crPartnerName" maxlength="80" placeholder="e.g. Partner A"></div><div class="form-group"><label>Share %</label><input type="number" id="crPartnerPercent" min="0" max="100" step="0.01" placeholder="0"></div></div>
-              <button class="btn" id="crSavePartnerBtn" onclick="crSavePartner()">+ Add Partner</button><div class="cr-status" id="crPartnerStatus"></div>
-              <div class="cr-share-summary"><div><span>Total Configured Share</span><strong id="crShareTotal">0%</strong></div><div><span>Total Partner Allocation</span><strong id="crPartnerAllocationPayout">$0.00</strong></div></div>
-              <div class="cr-helper" id="crProfitShareMeta"></div>
-            </div>
-            <div class="card">
-              <div class="card-title">💸 Payout Summary</div>
-              <div class="cr-glance-grid" style="margin-top:14px;"><div><span>Total Due</span><strong id="crPartnerDueTotal">$0.00</strong></div><div><span>Total Paid</span><strong id="crPartnerPaidTotal">$0.00</strong></div><div><span>Outstanding</span><strong id="crPartnerBalanceTotal">$0.00</strong></div><div><span>Paid Partners</span><strong id="crPartnerPaidCount">0</strong></div></div>
-              <div class="cr-note" style="margin-top:14px;">Closing a month snapshots partner amounts due. Payment records can still be updated after month close.</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header"><div><div class="card-title">💰 Partner Payout Tracking</div><div class="card-meta">Due, paid and outstanding balance for the selected month.</div></div><button class="btn btn-secondary btn-sm" onclick="crSyncPayoutDue()">Sync Amounts Due</button></div>
-            <div class="cr-table-wrap"><table class="data-table"><thead><tr><th>Partner</th><th>Share</th><th>Amount Due</th><th>Paid</th><th>Balance</th><th>Status</th><th>Payment</th><th>Receipt</th><th>Actions</th></tr></thead><tbody id="crPartnerBody"><tr><td colspan="9" class="cr-empty">No partners configured yet.</td></tr></tbody></table></div>
-          </div>
-        </div>
-
-        <!-- REPORTS & AUDIT -->
-        <div id="crViewReports" style="display:none;">
-          <div class="cr-report-hero">
-            <div><div class="cr-eyebrow">MONTHLY PROFIT REPORT</div><h3 id="crReportMonthTitle">Selected Month</h3><p>Income, expenses, profit, partner shares, outstanding amounts and audit history.</p></div>
-            <div class="cr-inline-actions"><button class="btn" onclick="crExportCsv()">⬇ Export CSV</button><button class="btn btn-secondary" onclick="crExportPdf()">🖨 Export PDF</button></div>
-          </div>
-          <div class="cr-report-grid">
-            <div><span>Total Income</span><strong id="crReportIncome">$0.00</strong></div><div><span>Total Expenses</span><strong id="crReportExpenses">$0.00</strong></div><div><span>Net Profit</span><strong id="crReportProfit">$0.00</strong></div><div><span>Partner Allocation</span><strong id="crReportAllocation">$0.00</strong></div><div><span>Company Retained</span><strong id="crReportRetained">$0.00</strong></div><div><span>Outstanding Payables</span><strong id="crReportOutstanding">$0.00</strong></div>
-          </div>
-          <div class="two-col">
-            <div class="card"><div class="card-header"><div><div class="card-title">💱 PKR / USD Rate History</div><div class="card-meta">Exact exchange rates saved with posted PKR salaries.</div></div></div><div class="cr-table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Staff</th><th>PKR Salary</th><th>PKR / USD</th><th>USD Equivalent</th></tr></thead><tbody id="crFxBody"><tr><td colspan="5" class="cr-empty">No PKR salary history this month.</td></tr></tbody></table></div></div>
-            <div class="card"><div class="card-header"><div><div class="card-title">🛡 Finance Audit Log</div><div class="card-meta">Who changed what and when.</div></div></div><div class="cr-table-wrap"><table class="data-table"><thead><tr><th>Time</th><th>Action</th><th>Area</th><th>Record</th></tr></thead><tbody id="crAuditBody"><tr><td colspan="4" class="cr-empty">No audit records yet.</td></tr></tbody></table></div></div>
-          </div>
-        </div>
-
-        <!-- Receipt Preview -->
-        <div class="cr-modal" id="crReceiptModal" onclick="if(event.target===this)crCloseReceiptModal()">
-          <div class="cr-modal-card cr-receipt-modal-card"><div class="cr-modal-head"><div><strong>Receipt / Slip Preview</strong><div class="cr-helper">Private signed preview</div></div><button class="cr-modal-x" onclick="crCloseReceiptModal()">×</button></div><div id="crReceiptPreview" class="cr-receipt-preview"></div><div class="cr-modal-actions"><a class="btn btn-secondary" id="crReceiptDownload" target="_blank" rel="noopener">Open / Download</a><button class="btn" onclick="crCloseReceiptModal()">Done</button></div></div>
-        </div>
-
-        <!-- Payout Modal -->
-        <div class="cr-modal" id="crPayoutModal" onclick="if(event.target===this)crClosePayoutModal()">
-          <div class="cr-modal-card"><div class="cr-modal-head"><div><strong id="crPayoutTitle">Record Payout</strong><div class="cr-helper" id="crPayoutMeta"></div></div><button class="cr-modal-x" onclick="crClosePayoutModal()">×</button></div>
-            <input type="hidden" id="crPayoutType"><input type="hidden" id="crPayoutId">
-            <div class="cr-form-grid"><div class="form-group"><label>Amount Due (USD)</label><input type="number" id="crPayoutDue" readonly></div><div class="form-group"><label>Total Paid To Date (USD)</label><input type="number" id="crPayoutPaid" min="0" step="0.01"></div><div class="form-group"><label>Payment Method</label><select id="crPayoutMethod"><option value="">Select method</option><option>Bank Transfer</option><option>Cash</option><option>USDT</option><option>Card</option><option>Other</option></select></div><div class="form-group"><label>Payment Date</label><input type="date" id="crPayoutDate"></div><div class="form-group"><label>Reference</label><input type="text" id="crPayoutReference" placeholder="Bank ref / TXID"></div><div class="form-group"><label>Receipt / Slip</label><input type="file" id="crPayoutReceipt" accept="image/jpeg,image/png,image/webp,application/pdf"></div></div>
-            <div class="form-group"><label>Note</label><textarea id="crPayoutNote" rows="2" placeholder="Optional payout note"></textarea></div><div class="cr-modal-actions"><button class="btn btn-secondary" onclick="crClosePayoutModal()">Cancel</button><button class="btn" onclick="crSavePayout()">Save Payout</button></div><div class="cr-status" id="crPayoutStatus"></div>
-          </div>
-        </div>
+        <div class="f179" id="f179Root"><div class="f179-loading">Loading Finance &amp; Accounts…</div></div>
+        <div class="f179-modal" id="f179Modal"><div class="f179-modal-card" id="f179ModalCard"></div></div>
       </div>
       
       <!-- ========== SETTINGS ========== -->
@@ -3109,7 +2815,7 @@ function showPage(page, el) {
   
   // Load real data for each page
   if (page === 'dashboard') loadDashboardStats();
-  if (page === 'revenue') loadCompanyRevenue();
+  if (page === 'revenue') { if (typeof window.pspFinance179Load === 'function') window.pspFinance179Load(); }
   if (page === 'users') loadAdminUsers();
   if (page === 'trades') loadAdminTrades();
   if (page === 'courses') loadAdminCourses();
@@ -4542,9 +4248,8 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 <script src="team-performance-admin-v56.js?v=20260811-v48-conversion"></script>
 <script src="admin-account-verification-v49.js?v=20260820-v116-90day-control"></script>
 <script src="admin-dashboard-v89.js?v=20260829-v170-performance"></script>
-<script src="admin-suite-v90.js?v=20260829-v174-admin-ux"></script>
-<script src="company-revenue-v93.js?v=20260829-v174-simple-revenue"></script>
-<script src="company-revenue-v178.js?v=20260829-v178-reference-match"></script>
+<script src="admin-suite-v90.js?v=20260829-v179-finance-system"></script>
+
 
 <script id="pspV129CourseWorkspace">
 (function(){
@@ -4617,7 +4322,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </style>
 
 <script src="audit-agent-v174.js?v=20260829-v174-audit"></script>
-<script src="admin-v174-ux.js?v=20260829-v175-course-revenue-fix"></script>
+<script src="admin-v174-ux.js?v=20260829-v179-finance-compatible"></script>
 <script src="signals-workspace-v154.js?v=20260826-v166-manual-signals"></script>
+<script src="finance-management-v179.js?v=20260829-v179-finance-system"></script>
 </body>
 </html>

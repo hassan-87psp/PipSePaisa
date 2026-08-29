@@ -1,0 +1,27 @@
+/* PipSePaisa V179 — permanent dark Admin shell */
+:root{--v179-orange:#fb9201;--v179-side:#0b1724;--v179-side2:#102235;--v179-sideText:#d7e0ea;--v179-sideMuted:#8190a3}
+.sidebar{width:178px!important;background:linear-gradient(180deg,#0a1622 0%,#0b1724 100%)!important;border-right:1px solid #172a3b!important;color:#fff!important;box-shadow:7px 0 24px rgba(5,18,31,.08)!important}
+.main{margin-left:178px!important}
+.sidebar .brand{min-height:68px!important;padding:13px 14px!important;border-bottom:1px solid rgba(255,255,255,.07)!important;gap:9px!important;background:rgba(255,255,255,.01)!important}
+.sidebar .brand-logo{width:36px!important;height:36px!important;background:transparent!important;box-shadow:none!important;border-radius:8px!important}
+.sidebar .brand-logo img{width:35px!important;height:35px!important;object-fit:contain!important}
+.sidebar .brand-text h1{font-size:12px!important;color:#fff!important;font-weight:800!important;line-height:1.15!important}
+.sidebar .brand-text p{font-size:7px!important;color:var(--v179-orange)!important;font-weight:900!important;letter-spacing:.09em!important;margin-top:3px!important}
+.sidebar .admin-card,.sidebar .menu-label{display:none!important}
+.sidebar .menu{padding:10px 9px 92px!important;overflow-y:auto!important}
+.sidebar .menu-item{min-height:38px!important;padding:9px 9px!important;margin:2px 0!important;border-radius:7px!important;color:var(--v179-sideText)!important;font-size:10.5px!important;font-weight:680!important;gap:8px!important;border:1px solid transparent!important;line-height:1.2!important}
+.sidebar .menu-item:hover{background:#11273a!important;color:#fff!important;border-color:rgba(255,255,255,.035)!important}
+.sidebar .menu-item.active{background:linear-gradient(90deg,#ff8200,#ff9c13)!important;color:#fff!important;border-color:#ff9b12!important;box-shadow:0 7px 17px rgba(251,146,1,.24)!important;font-weight:800!important}
+.sidebar .menu-item.active::before{display:none!important}
+.sidebar .menu-icon{width:16px!important;font-size:13px!important;color:inherit!important;filter:saturate(.9)!important}
+.sidebar .badge-count{font-size:7px!important;padding:2px 5px!important;min-width:18px!important;background:#ec2634!important}
+.sidebar-footer{display:none!important}
+.sidebar:after{content:'Better Financial Control\A Stronger Growth';white-space:pre;position:absolute;left:10px;right:10px;bottom:14px;border:1px solid rgba(251,146,1,.55);border-radius:9px;padding:13px 10px 28px;color:#fff;font-size:9px;line-height:1.4;font-weight:800;background:linear-gradient(145deg,#0d1d2d,#0a1622);pointer-events:none}
+.sidebar:before{content:'↗';position:absolute;right:20px;bottom:24px;color:var(--v179-orange);font-size:18px;font-weight:900;z-index:2;pointer-events:none}
+.topbar{background:#fffdf9!important;border-bottom:1px solid #eadfce!important;min-height:58px!important;height:58px!important;padding:0 18px!important}
+[data-theme="dark"] .topbar{background:#111827!important;border-color:#263346!important}
+.topbar .search-box{max-width:430px!important;margin-left:auto!important;margin-right:auto!important}
+.topbar .search-box input{height:38px!important;font-size:11px!important;background:#fffaf2!important;border-color:#e6d8c3!important}
+[data-theme="dark"] .topbar .search-box input{background:#172033!important;border-color:#2c394c!important}
+.content{padding:14px 16px!important}
+@media(max-width:900px){.sidebar{width:240px!important}.main{margin-left:0!important}.sidebar:not(.open){transform:translateX(-100%)!important}.sidebar.open{transform:translateX(0)!important}}
