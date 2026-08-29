@@ -497,6 +497,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="admin-dashboard-v89.css?v=20260819-v89-premium-ops">
 <link rel="stylesheet" href="admin-suite-v90.css?v=20260819-v90-admin-suite">
 <link rel="stylesheet" href="company-revenue-v93.css?v=20260819-v93-income-breakdown">
+<link rel="stylesheet" href="company-revenue-v176.css?v=20260829-v176-finance-accounts">
 
 <style id="pspV129CoursesAndEditor">
 /* Course Manager — compact KPI strip */
@@ -618,7 +619,7 @@ select option{background:#0f1729;color:#e8eaf0}
     <nav class="menu">
       <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">📊</span>Dashboard</div>
       <div class="menu-item" data-page="analytics" onclick="showPage('analytics', this)"><span class="menu-icon">📈</span>Analytics</div>
-      <div class="menu-item" data-page="revenue" onclick="showPage('revenue', this)"><span class="menu-icon">💰</span>Company Revenue</div>
+      <div class="menu-item" data-page="revenue" onclick="showPage('revenue', this)"><span class="menu-icon">💰</span>Finance &amp; Accounts</div>
       
       <div class="menu-label">Users & Trades</div>
       <div class="menu-item" data-page="users" onclick="showPage('users', this)"><span class="menu-icon">👥</span>Users<span class="badge-count" id="sidebarUsersCount">0</span></div>
@@ -3075,7 +3076,7 @@ function showPage(page, el) {
   const titles = {
     dashboard: ['Admin Dashboard', 'Overview of your platform'],
     analytics: ['Analytics & Reports', 'Detailed insights and trends'],
-    revenue: ['Company Revenue', 'Income, expenses and partner profit sharing'],
+    revenue: ['Finance & Accounts', 'Income, expenses, salaries and profit in one place'],
     users: ['User Management', 'Manage all registered users'],
     trades: ['All Trades', 'Live feed of user trading activity'],
     subscriptions: ['Subscriptions', 'Manage premium memberships and pricing'],
@@ -4543,6 +4544,7 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 <script src="admin-dashboard-v89.js?v=20260829-v170-performance"></script>
 <script src="admin-suite-v90.js?v=20260829-v174-admin-ux"></script>
 <script src="company-revenue-v93.js?v=20260829-v174-simple-revenue"></script>
+<script src="company-revenue-v176.js?v=20260829-v176-finance-accounts"></script>
 
 <script id="pspV129CourseWorkspace">
 (function(){
