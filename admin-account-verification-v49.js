@@ -28,58 +28,77 @@ function menu(){
 function approvalPage(){
   if(q('#page-verification'))return;
   const content=q('#content'); if(!content)return;
-  const page=document.createElement('div'); page.className='page'; page.id='page-verification';
+  const page=document.createElement('div'); page.className='page av185-page'; page.id='page-verification';
   page.innerHTML=`
-    <div class="av49-grid">
-      <div class="av49-stat"><span>Total Requests</span><strong id="av49Total">0</strong></div>
-      <div class="av49-stat"><span>Pending Review</span><strong id="av49Pending" style="color:#3b82f6">0</strong></div>
-      <div class="av49-stat"><span>90-Day Active</span><strong id="av49Approved" style="color:#10b981">0</strong></div>
-      <div class="av49-stat"><span>Rejected</span><strong id="av49Rejected" style="color:#ef4444">0</strong></div>
+    <section class="av185-hero">
+      <div class="av185-hero-copy">
+        <span class="av185-eyebrow">ACCESS CONTROL CENTER</span>
+        <h2>✅ Access Approvals</h2>
+        <p>Review broker verification, protect platform access and grant temporary or 90-day access from one clean workspace.</p>
+      </div>
+      <div class="av185-hero-actions">
+        <button class="btn btn-secondary" type="button" onclick="showPage('users',document.querySelector('[data-page=users]'))">👥 Users</button>
+        <button class="btn btn-secondary" type="button" onclick="showPage('accesssettings',document.querySelector('[data-page=accesssettings]'))">⚡ Access Settings</button>
+        <button class="btn av185-refresh" type="button" onclick="PSPAdminVerification.loadRows()">↻ Refresh</button>
+      </div>
+    </section>
+
+    <div class="av49-grid av185-kpi-grid">
+      <button class="av49-stat av185-kpi total" type="button" onclick="PSPAdminVerification.setStatusFilter('all')">
+        <span class="av185-kpi-icon">📋</span><span class="av185-kpi-label">Total Requests</span><strong id="av49Total">0</strong><small>All submitted verification requests</small>
+      </button>
+      <button class="av49-stat av185-kpi pending" type="button" onclick="PSPAdminVerification.setStatusFilter('pending')">
+        <span class="av185-kpi-icon">⏳</span><span class="av185-kpi-label">Pending Review</span><strong id="av49Pending">0</strong><small>Needs an admin decision</small>
+      </button>
+      <button class="av49-stat av185-kpi approved" type="button" onclick="PSPAdminVerification.setStatusFilter('approved')">
+        <span class="av185-kpi-icon">✅</span><span class="av185-kpi-label">90-Day Active</span><strong id="av49Approved">0</strong><small>Full access currently active</small>
+      </button>
+      <button class="av49-stat av185-kpi rejected" type="button" onclick="PSPAdminVerification.setStatusFilter('rejected')">
+        <span class="av185-kpi-icon">⛔</span><span class="av185-kpi-label">Rejected</span><strong id="av49Rejected">0</strong><small>Verification/access declined</small>
+      </button>
     </div>
 
-    <div class="card av116-card">
-      <div class="card-header av116-header">
+    <div class="av185-status-tabs" role="tablist" aria-label="Verification status filters">
+      <button type="button" data-av185-status="all" class="active" onclick="PSPAdminVerification.setStatusFilter('all')">All <b id="av185AllCount">0</b></button>
+      <button type="button" data-av185-status="pending" onclick="PSPAdminVerification.setStatusFilter('pending')">Pending <b id="av185PendingCount">0</b></button>
+      <button type="button" data-av185-status="approved" onclick="PSPAdminVerification.setStatusFilter('approved')">90-Day Active <b id="av185ApprovedCount">0</b></button>
+      <button type="button" data-av185-status="rejected" onclick="PSPAdminVerification.setStatusFilter('rejected')">Rejected <b id="av185RejectedCount">0</b></button>
+      <button type="button" data-av185-status="expired" onclick="PSPAdminVerification.setStatusFilter('expired')">Expired <b id="av185ExpiredCount">0</b></button>
+    </div>
+
+    <div class="card av116-card av185-workspace">
+      <div class="card-header av116-header av185-workspace-head">
         <div>
-          <div class="card-title">✅ Access Verification Requests</div>
-          <div class="card-meta">Review account proof, grant 90-day access, change status later, or give temporary trial time.</div>
+          <div class="card-title">🛡️ Verification Queue</div>
+          <div class="card-meta">Pending requests are prioritised. Search by student, email, account ID or broker and review proofs before granting access.</div>
         </div>
         <div class="av116-head-actions">
-          <button class="btn btn-secondary" type="button" onclick="PSPAdminVerification.toggleFilters()">⚙ Filter</button>
+          <button class="btn btn-secondary" type="button" onclick="PSPAdminVerification.toggleFilters()">⚙ Filters</button>
           <button class="btn btn-secondary" type="button" onclick="PSPAdminVerification.loadRows()">↻ Refresh</button>
         </div>
       </div>
 
-      <div id="av116Filters" class="av116-filters">
+      <div id="av116Filters" class="av116-filters av185-filters open">
         <div><label>Status</label><select id="av116Status">
-          <option value="all">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="approved">90-Day Active</option>
-          <option value="rejected">Rejected</option>
-          <option value="expired">Expired</option>
+          <option value="all">All Status</option><option value="pending">Pending</option><option value="approved">90-Day Active</option><option value="rejected">Rejected</option><option value="expired">Expired</option>
         </select></div>
         <div><label>Broker</label><select id="av116Broker">
-          <option value="all">All Brokers</option>
-          <option value="exness">Exness</option>
-          <option value="dprime">DPrime</option>
-          <option value="xm">XM</option>
+          <option value="all">All Brokers</option><option value="exness">Exness</option><option value="dprime">DPrime</option><option value="xm">XM</option>
         </select></div>
         <div><label>Access</label><select id="av116Access">
-          <option value="all">All Access</option>
-          <option value="approved">90-Day Access Active</option>
-          <option value="trial">Trial Active</option>
-          <option value="expired">Expired</option>
+          <option value="all">All Access</option><option value="approved">90-Day Access Active</option><option value="trial">Trial Active</option><option value="expired">Expired</option>
         </select></div>
-        <div class="av116-search"><label>Search</label><input id="av116Search" placeholder="Name, email, account ID…"></div>
-        <button class="av116-reset" type="button" onclick="PSPAdminVerification.resetFilters()">Reset</button>
+        <div class="av116-search"><label>Search Verification</label><div class="av185-search-wrap"><span>⌕</span><input id="av116Search" placeholder="Name, email, phone, account ID…"></div></div>
+        <button class="av116-reset" type="button" onclick="PSPAdminVerification.resetFilters()">Clear Filters</button>
       </div>
 
-      <div class="av49-table-wrap av116-table-wrap">
-        <table class="av49-table av116-table">
+      <div class="av185-table-caption"><span><b id="av185VisibleCount">0</b> requests shown</span><span class="av185-legend"><i class="p"></i>Pending <i class="a"></i>Active <i class="r"></i>Rejected</span></div>
+      <div class="av49-table-wrap av116-table-wrap av185-table-wrap">
+        <table class="av49-table av116-table av185-table">
           <thead><tr>
-            <th>User</th><th>Broker</th><th>Account ID</th><th>Deposit</th>
-            <th>Status</th><th>Access Time</th><th>Proof</th><th>Actions</th>
+            <th>User</th><th>Broker</th><th>Account ID</th><th>Deposit</th><th>Status</th><th>Access Time</th><th>Proof</th><th>Actions</th>
           </tr></thead>
-          <tbody id="av49Body"><tr><td colspan="8">Loading…</td></tr></tbody>
+          <tbody id="av49Body"><tr><td colspan="8"><div class="av185-empty">Loading verification requests…</div></td></tr></tbody>
         </table>
       </div>
     </div>`;
@@ -95,6 +114,13 @@ function approvalPage(){
     av116Filter.search=(this.value||'').trim().toLowerCase();
     renderRows();
   });
+}
+
+function av185SetStatusFilter(status){
+  av116Filter.status=status||'all';
+  const select=q('#av116Status'); if(select)select.value=av116Filter.status;
+  document.querySelectorAll('[data-av185-status]').forEach(btn=>btn.classList.toggle('active',btn.dataset.av185Status===av116Filter.status));
+  renderRows();
 }
 
 function settingsPage(){
@@ -283,90 +309,59 @@ function renderRows(){
   const submitted=rows.filter(x=>x.submission_status!=='not_submitted');
 
   const counts={pending:0,approved:0,rejected:0,expired:0};
-  submitted.forEach(x=>{
-    const st=av116DerivedStatus(x);
-    if(counts[st]!=null)counts[st]++;
-  });
-
-  [
-    ['av49Total',submitted.length],
-    ['av49Pending',counts.pending],
-    ['av49Approved',counts.approved],
-    ['av49Rejected',counts.rejected]
+  submitted.forEach(x=>{const st=av116DerivedStatus(x);if(counts[st]!=null)counts[st]++;});
+  [['av49Total',submitted.length],['av49Pending',counts.pending],['av49Approved',counts.approved],['av49Rejected',counts.rejected],
+   ['av185AllCount',submitted.length],['av185PendingCount',counts.pending],['av185ApprovedCount',counts.approved],['av185RejectedCount',counts.rejected],['av185ExpiredCount',counts.expired]
   ].forEach(([id,v])=>{if(q('#'+id))q('#'+id).textContent=v});
 
   const badge=q('#av49PendingBadge');
   if(badge){badge.textContent=counts.pending;badge.style.display=counts.pending?'inline-flex':'none'}
 
-  const visible=submitted.filter(x=>av116Match(x,profiles.get(x.user_id)||{}));
+  document.querySelectorAll('[data-av185-status]').forEach(btn=>btn.classList.toggle('active',btn.dataset.av185Status===av116Filter.status));
+
+  const rank={pending:0,approved:1,expired:2,rejected:3};
+  const visible=submitted.filter(x=>av116Match(x,profiles.get(x.user_id)||{})).sort((a,bx)=>{
+    const sa=rank[av116DerivedStatus(a)]??9,sb=rank[av116DerivedStatus(bx)]??9;
+    if(sa!==sb)return sa-sb;
+    return new Date(bx.submitted_at||0)-new Date(a.submitted_at||0);
+  });
+  if(q('#av185VisibleCount'))q('#av185VisibleCount').textContent=visible.length;
+
   if(!visible.length){
-    b.innerHTML='<tr><td colspan="8" style="text-align:center;padding:34px;color:var(--text-muted)">No verification requests match these filters.</td></tr>';
-    av116StartCountdown();
-    return;
+    b.innerHTML='<tr><td colspan="8"><div class="av185-empty"><div>✓</div><b>No matching verification requests</b><span>Try changing the status, broker, access or search filters.</span></div></td></tr>';
+    av116StartCountdown();return;
   }
 
+  const initials=s=>String(s||'?').trim().split(/\s+/).slice(0,2).map(v=>v[0]||'').join('').toUpperCase()||'?';
   b.innerHTML=visible.map(x=>{
     const p=profiles.get(x.user_id)||{};
-    const name=p.full_name||p.email||x.user_id;
-    const wa=p.whatsapp||p.phone||'';
-    const st=av116DerivedStatus(x);
-
-    const proofButtons=
-      '<div class="av49-actions av116-proof-actions">'+
-        (x.deposit_proof_path?'<button class="av49-proof" onclick="PSPAdminVerification.openProof(\''+esc(x.deposit_proof_path)+'\')">Deposit</button>':'')+
-        (x.proof_path?'<button class="av49-proof" onclick="PSPAdminVerification.openProof(\''+esc(x.proof_path)+'\')">Broker Email</button>':'')+
-        ((!x.deposit_proof_path&&!x.proof_path)?'<span class="av116-no-access">No proof</span>':'')+
-      '</div>';
+    const name=p.full_name||p.email||x.user_id, wa=p.whatsapp||p.phone||'', st=av116DerivedStatus(x);
+    const proofButtons='<div class="av49-actions av116-proof-actions">'+
+      (x.deposit_proof_path?'<button class="av49-proof" onclick="PSPAdminVerification.openProof(\''+esc(x.deposit_proof_path)+'\')">🧾 Deposit</button>':'')+
+      (x.proof_path?'<button class="av49-proof" onclick="PSPAdminVerification.openProof(\''+esc(x.proof_path)+'\')">✉ Broker Email</button>':'')+
+      ((!x.deposit_proof_path&&!x.proof_path)?'<span class="av185-missing-proof">No proof</span>':'')+'</div>';
 
     let action='';
-    if(st==='pending'){
-      action='<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">Approve 90 Days</button>'+
-             '<button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject</button>';
-    }else if(st==='approved'){
-      action='<button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject Access</button>';
-    }else{
-      action='<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">Approve 90 Days</button>'+
-             (st!=='rejected'?'<button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject</button>':'');
-    }
+    if(st==='pending') action='<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">✓ Approve 90 Days</button><button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject</button>';
+    else if(st==='approved') action='<button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Revoke Access</button>';
+    else action='<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">✓ Approve 90 Days</button>'+(st!=='rejected'?'<button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject</button>':'');
 
     const detailsId='av116-details-'+x.user_id;
-    return `
-      <tr class="av116-main-row">
-        <td>
-          <strong>${esc(name)}</strong>
-          <div class="av116-user-sub">${esc(p.email||'')}${wa?'<br>'+esc(wa):''}</div>
-        </td>
-        <td>
-          <strong>${esc((x.broker||'—').toUpperCase())}</strong>
-          <div class="av116-user-sub">${x.existing_account?'Existing shift':'New account'}</div>
-        </td>
-        <td><strong>${esc(x.trading_account_id||'—')}</strong></td>
-        <td>$${Number(x.available_deposit||0).toLocaleString(undefined,{maximumFractionDigits:2})}</td>
-        <td>${av116StatusPill(x)}</td>
-        <td>${av116AccessCell(x)}</td>
-        <td>${proofButtons}</td>
-        <td>
-          <div class="av49-actions av116-actions">
-            <button class="av55-trial-btn" onclick="PSPAdminVerification.grantTrial('${x.user_id}')">+ Trial</button>
-            ${action}
-            <button class="av116-details-btn" onclick="PSPAdminVerification.toggleDetails('${x.user_id}')">Details ▾</button>
-          </div>
-        </td>
-      </tr>
-      <tr id="${detailsId}" class="av116-details-row">
-        <td colspan="8">
-          <div class="av116-details-grid">
-            <div><span>Submitted</span><b>${esc(fmt(x.submitted_at))}</b></div>
-            <div><span>Email Subject</span><b>${esc(x.email_subject||'—')}</b></div>
-            <div><span>Reason</span><b>${esc(x.rejection_reason||'—')}</b></div>
-            <div><span>Approval Expires</span><b>${esc(x.approved_expires_at?fmt(x.approved_expires_at):'—')}</b></div>
-          </div>
-        </td>
-      </tr>`;
+    return `<tr class="av116-main-row av185-row av185-${esc(st)}">
+      <td><div class="av185-user"><div class="av185-avatar">${esc(initials(name))}</div><div><strong>${esc(name)}</strong><div class="av116-user-sub">${esc(p.email||'')}${wa?'<br>'+esc(wa):''}</div></div></div></td>
+      <td><div class="av185-broker"><b>${esc((x.broker||'—').toUpperCase())}</b><span>${x.existing_account?'Existing shift':'New account'}</span></div></td>
+      <td><code class="av185-account-id">${esc(x.trading_account_id||'—')}</code></td>
+      <td><strong class="av185-deposit">$${Number(x.available_deposit||0).toLocaleString(undefined,{maximumFractionDigits:2})}</strong></td>
+      <td>${av116StatusPill(x)}</td><td>${av116AccessCell(x)}</td><td>${proofButtons}</td>
+      <td><div class="av49-actions av116-actions av185-actions"><button class="av55-trial-btn" onclick="PSPAdminVerification.grantTrial('${x.user_id}')">＋ Trial</button>${action}<button class="av116-details-btn" onclick="PSPAdminVerification.toggleDetails('${x.user_id}')">Details ▾</button></div></td>
+    </tr>
+    <tr id="${detailsId}" class="av116-details-row"><td colspan="8"><div class="av116-details-grid av185-details-grid">
+      <div><span>Submitted</span><b>${esc(fmt(x.submitted_at))}</b></div><div><span>Email Subject</span><b>${esc(x.email_subject||'—')}</b></div><div><span>Reason / Admin Note</span><b>${esc(x.rejection_reason||'—')}</b></div><div><span>Approval Expires</span><b>${esc(x.approved_expires_at?fmt(x.approved_expires_at):'—')}</b></div>
+    </div></td></tr>`;
   }).join('');
-
   av116StartCountdown();
 }
+
 async function openProof(path){if(!path)return alert('No proof screenshot uploaded.');const pop=window.open('about:blank','_blank'),c=db(),r=await c.storage.from('verification-proofs').createSignedUrl(path,300);if(r.error){try{pop?.close()}catch(_){}return alert('Could not open proof: '+r.error.message)}if(pop){pop.opener=null;pop.location=r.data.signedUrl}else location.href=r.data.signedUrl}
 async function review(uid,action){
   if(action==='reject'){openRejectModal(uid);return;}
@@ -411,6 +406,6 @@ async function submitReview(uid,action,reason,throwOnError){
 
 function wrap(){if(window._av56Wrapped||typeof window.showPage!=='function')return;window._av56Wrapped=true;const old=window.showPage;window.showPage=function(page,el){const out=old.apply(this,arguments);const t=q('#pageTitle'),s=q('#pageSubtitle');if(page==='verification'){if(t)t.textContent='Access Approvals';if(s)s.textContent='Review broker proof and approve or reject Full Access';setTimeout(loadRows,0)}if(page==='accesssettings'){if(t)t.textContent='Access Settings';if(s)s.textContent='Manage trial days, broker links and verification setup';setTimeout(loadSettings,0)}return out}}
 function init(){if(installed)return;installed=true;menu();approvalPage();settingsPage();ensureActionModal();wrap();setTimeout(()=>{menu();approvalPage();settingsPage();ensureActionModal();wrap();loadRows().catch(()=>{})},500);const c=db();if(c){try{c.channel('admin-access-v56').on('postgres_changes',{event:'*',schema:'public',table:'account_verifications'},()=>loadRows()).on('postgres_changes',{event:'*',schema:'public',table:'account_verification_settings'},()=>loadSettings()).subscribe()}catch(_){}}}
-window.PSPAdminVerification={loadRows,loadSettings,openProof,review,saveSettings,grantTrial,trialFromForm,toggleFilters:av116ToggleFilters,resetFilters:av116ResetFilters,toggleDetails:av116ToggleDetails};
+window.PSPAdminVerification={loadRows,loadSettings,openProof,review,saveSettings,grantTrial,trialFromForm,toggleFilters:av116ToggleFilters,resetFilters:av116ResetFilters,toggleDetails:av116ToggleDetails,setStatusFilter:av185SetStatusFilter};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
