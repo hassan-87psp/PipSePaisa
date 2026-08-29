@@ -111,7 +111,9 @@ async function refresh(){const b=$('refreshBtn');b.disabled=true;b.textContent='
 async function logout(){const token=sessionToken;clearSession();setView(false);if(token){try{await client.rpc('psp_team_logout_v56',{p_session_token:token});}catch(_){}}}
 $('loginBtn').onclick=signIn;$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});$('logoutBtn').onclick=logout;$('refreshBtn').onclick=refresh;$('clientSearch').addEventListener('input',renderClients);$('copyLinkBtn').onclick=async()=>{const text=$('linkUrl').textContent;try{await navigator.clipboard.writeText(text);$('copyLinkBtn').textContent='Copied ✓';setTimeout(()=>$('copyLinkBtn').textContent='Copy Link',1200)}catch(_){}}
 (async()=>{try{if(sessionToken)await loadPanel();else setView(false);}catch(e){clearSession();message(e.message||'Please sign in.',true);setView(false)}})();
+window.__pspTeamAudit={client,getToken:()=>sessionToken,getDashboard:()=>dashboard};
 })();
 </script>
+<script src="audit-agent-v174.js?v=20260829-v174-audit"></script>
 </body>
 </html>
