@@ -3,7 +3,7 @@
 'use strict';
 let settings=null, rows=[], profiles=new Map(), enabled=true, installed=false;
 let av85ModalState={type:null,uid:null};
-let av116Filter={status:'all',broker:'all',access:'all',search:''};
+let av116Filter={status:'pending',broker:'all',access:'all',search:''};
 let av116CountdownTimer=null;
 const q=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
@@ -28,27 +28,14 @@ function menu(){
 function approvalPage(){
   if(q('#page-verification'))return;
   const content=q('#content'); if(!content)return;
-  const page=document.createElement('div'); page.className='page av185-page'; page.id='page-verification';
+  const page=document.createElement('div'); page.className='page av185-page av186-page'; page.id='page-verification';
   page.innerHTML=`
-    <section class="av185-hero">
-      <div class="av185-hero-copy">
-        <span class="av185-eyebrow">ACCESS CONTROL CENTER</span>
-        <h2>✅ Access Approvals</h2>
-        <p>Review broker verification, protect platform access and grant temporary or 90-day access from one clean workspace.</p>
-      </div>
-      <div class="av185-hero-actions">
-        <button class="btn btn-secondary" type="button" onclick="showPage('users',document.querySelector('[data-page=users]'))">👥 Users</button>
-        <button class="btn btn-secondary" type="button" onclick="showPage('accesssettings',document.querySelector('[data-page=accesssettings]'))">⚡ Access Settings</button>
-        <button class="btn av185-refresh" type="button" onclick="PSPAdminVerification.loadRows()">↻ Refresh</button>
-      </div>
-    </section>
-
-    <div class="av49-grid av185-kpi-grid">
+    <div class="av49-grid av185-kpi-grid av186-kpi-grid">
       <button class="av49-stat av185-kpi total" type="button" onclick="PSPAdminVerification.setStatusFilter('all')">
         <span class="av185-kpi-icon">📋</span><span class="av185-kpi-label">Total Requests</span><strong id="av49Total">0</strong><small>All submitted verification requests</small>
       </button>
       <button class="av49-stat av185-kpi pending" type="button" onclick="PSPAdminVerification.setStatusFilter('pending')">
-        <span class="av185-kpi-icon">⏳</span><span class="av185-kpi-label">Pending Review</span><strong id="av49Pending">0</strong><small>Needs an admin decision</small>
+        <span class="av185-kpi-icon">⏳</span><span class="av185-kpi-label">Needs Action</span><strong id="av49Pending">0</strong><small>Pending admin review</small>
       </button>
       <button class="av49-stat av185-kpi approved" type="button" onclick="PSPAdminVerification.setStatusFilter('approved')">
         <span class="av185-kpi-icon">✅</span><span class="av185-kpi-label">90-Day Active</span><strong id="av49Approved">0</strong><small>Full access currently active</small>
@@ -58,43 +45,39 @@ function approvalPage(){
       </button>
     </div>
 
-    <div class="av185-status-tabs" role="tablist" aria-label="Verification status filters">
-      <button type="button" data-av185-status="all" class="active" onclick="PSPAdminVerification.setStatusFilter('all')">All <b id="av185AllCount">0</b></button>
-      <button type="button" data-av185-status="pending" onclick="PSPAdminVerification.setStatusFilter('pending')">Pending <b id="av185PendingCount">0</b></button>
+    <div class="av185-status-tabs av186-status-tabs" role="tablist" aria-label="Verification status filters">
+      <button type="button" data-av185-status="pending" class="active" onclick="PSPAdminVerification.setStatusFilter('pending')">Needs Action <b id="av185PendingCount">0</b></button>
       <button type="button" data-av185-status="approved" onclick="PSPAdminVerification.setStatusFilter('approved')">90-Day Active <b id="av185ApprovedCount">0</b></button>
       <button type="button" data-av185-status="rejected" onclick="PSPAdminVerification.setStatusFilter('rejected')">Rejected <b id="av185RejectedCount">0</b></button>
       <button type="button" data-av185-status="expired" onclick="PSPAdminVerification.setStatusFilter('expired')">Expired <b id="av185ExpiredCount">0</b></button>
+      <button type="button" data-av185-status="all" onclick="PSPAdminVerification.setStatusFilter('all')">All History <b id="av185AllCount">0</b></button>
     </div>
 
-    <div class="card av116-card av185-workspace">
-      <div class="card-header av116-header av185-workspace-head">
+    <div class="card av116-card av185-workspace av186-workspace">
+      <div class="card-header av116-header av185-workspace-head av186-workspace-head">
         <div>
           <div class="card-title">🛡️ Verification Queue</div>
-          <div class="card-meta">Pending requests are prioritised. Search by student, email, account ID or broker and review proofs before granting access.</div>
+          <div class="card-meta">Pending reviews first — search users, brokers or account IDs and approve access from one compact queue.</div>
         </div>
         <div class="av116-head-actions">
-          <button class="btn btn-secondary" type="button" onclick="PSPAdminVerification.toggleFilters()">⚙ Filters</button>
-          <button class="btn btn-secondary" type="button" onclick="PSPAdminVerification.loadRows()">↻ Refresh</button>
+          <button class="btn btn-secondary av186-refresh" type="button" onclick="PSPAdminVerification.loadRows()">↻ Refresh</button>
         </div>
       </div>
 
-      <div id="av116Filters" class="av116-filters av185-filters open">
-        <div><label>Status</label><select id="av116Status">
-          <option value="all">All Status</option><option value="pending">Pending</option><option value="approved">90-Day Active</option><option value="rejected">Rejected</option><option value="expired">Expired</option>
-        </select></div>
-        <div><label>Broker</label><select id="av116Broker">
+      <div id="av116Filters" class="av116-filters av185-filters av186-filters open">
+        <div class="av116-search av186-search"><div class="av185-search-wrap"><span>⌕</span><input id="av116Search" placeholder="Search name, email, phone, account ID…"></div></div>
+        <div><select id="av116Broker" aria-label="Broker filter">
           <option value="all">All Brokers</option><option value="exness">Exness</option><option value="dprime">DPrime</option><option value="xm">XM</option>
         </select></div>
-        <div><label>Access</label><select id="av116Access">
+        <div><select id="av116Access" aria-label="Access filter">
           <option value="all">All Access</option><option value="approved">90-Day Access Active</option><option value="trial">Trial Active</option><option value="expired">Expired</option>
         </select></div>
-        <div class="av116-search"><label>Search Verification</label><div class="av185-search-wrap"><span>⌕</span><input id="av116Search" placeholder="Name, email, phone, account ID…"></div></div>
-        <button class="av116-reset" type="button" onclick="PSPAdminVerification.resetFilters()">Clear Filters</button>
+        <button class="av116-reset av186-reset" type="button" onclick="PSPAdminVerification.resetFilters()">Clear Filters</button>
       </div>
 
-      <div class="av185-table-caption"><span><b id="av185VisibleCount">0</b> requests shown</span><span class="av185-legend"><i class="p"></i>Pending <i class="a"></i>Active <i class="r"></i>Rejected</span></div>
-      <div class="av49-table-wrap av116-table-wrap av185-table-wrap">
-        <table class="av49-table av116-table av185-table">
+      <div class="av185-table-caption av186-table-caption"><span><b id="av185VisibleCount">0</b> requests shown</span><span class="av185-legend"><i class="p"></i>Pending <i class="a"></i>Active <i class="r"></i>Rejected</span></div>
+      <div class="av49-table-wrap av116-table-wrap av185-table-wrap av186-table-wrap">
+        <table class="av49-table av116-table av185-table av186-table">
           <thead><tr>
             <th>User</th><th>Broker</th><th>Account ID</th><th>Deposit</th><th>Status</th><th>Access Time</th><th>Proof</th><th>Actions</th>
           </tr></thead>
@@ -104,9 +87,9 @@ function approvalPage(){
     </div>`;
   content.appendChild(page);
 
-  ['av116Status','av116Broker','av116Access'].forEach(id=>{
+  ['av116Broker','av116Access'].forEach(id=>{
     q('#'+id)?.addEventListener('change',function(){
-      av116Filter[id==='av116Status'?'status':id==='av116Broker'?'broker':'access']=this.value;
+      av116Filter[id==='av116Broker'?'broker':'access']=this.value;
       renderRows();
     });
   });
@@ -281,8 +264,9 @@ function av116ToggleFilters(){
   q('#av116Filters')?.classList.toggle('open');
 }
 function av116ResetFilters(){
-  av116Filter={status:'all',broker:'all',access:'all',search:''};
-  [['av116Status','all'],['av116Broker','all'],['av116Access','all'],['av116Search','']].forEach(([id,v])=>{
+  const currentStatus=av116Filter.status||'pending';
+  av116Filter={status:currentStatus,broker:'all',access:'all',search:''};
+  [['av116Broker','all'],['av116Access','all'],['av116Search','']].forEach(([id,v])=>{
     const el=q('#'+id);if(el)el.value=v;
   });
   renderRows();
