@@ -5,28 +5,24 @@ const defaults={
   basic:{
     key:'basic',title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
     thumbnail:'basic-course-thumbnail.webp',
-    short:'Build a strong foundation in Forex trading, technical analysis, market sentiment, risk management and beginner-level strategies.',
-    description:'A structured beginner program designed to help new traders understand the Forex market, read price behaviour, control risk and develop a disciplined trading process.',
-    descriptionExtra:'Every module follows a clear learning path with practical market examples, defined objectives and expected outcomes. The goal is to help students understand the process rather than copy random trades.',
-    included:['9 foundation modules','Beginner-friendly practical learning','Mobile and desktop access','Progress saved in your account'],
+    short:'Build a strong foundation in Forex trading, technical analysis, candlestick behaviour, indicators and high-probability trading strategies.',
+    description:'A structured 5-module beginner program designed to help new traders understand financial markets, read price behaviour, use technical tools correctly and build a practical trading edge.',
+    descriptionExtra:'Each module follows a clear learning path with practical market examples, defined objectives and expected outcomes. Live-session dates and Zoom access will be added when the new schedule is announced.',
+    included:['5 structured modules','Beginner-friendly practical learning','Mobile and desktop access','Progress saved in your account'],
     contentNote:'One module opens at a time',
     secureNote:'Direct account-linked enrollment',
     learningHeading:"What you'll learn",outcomesHeading:'Course Outcomes',contentHeading:'Course content',requirementsHeading:'Requirements',audienceHeading:'Who this course is for',descriptionHeading:'Description',relatedHeading:'Other PipSePaisa Courses',
     requirements:['This course is suitable even if you are completely new to forex.','A mobile phone or computer with internet access.','A willingness to practise on a demo account and follow risk-management rules.'],
     audience:['Complete beginners starting their Forex journey.','Traders who want to rebuild their foundation correctly.','Students who prefer structured, practical learning.'],
     modules:[
-      {title:"FINANCIAL MARKETS BLUEPRINT",duration:'90 min',summary:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:"2026-08-10T21:00:00+05:00",points:["Global financial markets", "Forex ecosystem", "Market participants"]},
-      {title:"THE LANGUAGE OF PRICE INTELLIGENCE",duration:'90 min',summary:"Mastering Technical Analysis",scheduled_at:"2026-08-13T21:00:00+05:00",points:["Support & resistance", "Trend lines and structure", "Technical analysis foundations"]},
-      {title:"DECODING AND DISSECTING CANDLESTICKS",duration:'90 min',summary:"Cracking the Hidden Price Behaviors",scheduled_at:"2026-08-15T21:00:00+05:00",points:["Candlestick structure", "Price behaviour", "Rejection and momentum"]},
-      {title:"EXPLORING TRADER'S TOOLKIT",duration:'90 min',summary:"Mastering Technical Indicators",scheduled_at:"2026-08-17T21:00:00+05:00",points:["Technical indicators", "Confirmation tools", "Indicator interpretation"]},
-      {title:"TRADING WITH MARKET PULSE",duration:'90 min',summary:"Reading Market Sentiment",scheduled_at:"2026-08-18T21:00:00+05:00",points:["Market sentiment", "Bullish vs bearish bias", "Reading market pulse"]},
-      {title:"UNDERSTANDING REAL MARKET DRIVERS",duration:'90 min',summary:"Understanding Fundamental Analysis",scheduled_at:"2026-08-20T21:00:00+05:00",points:["Economic market drivers", "Fundamental events", "Central-bank and data impact"]},
-      {title:"ULTIMATE SUCCESS CODE — THE MINDSET",duration:'90 min',summary:"Psychology, Risk & Capital Management",scheduled_at:"2026-08-24T21:00:00+05:00",points:["Trading psychology", "Risk management", "Capital management"]},
-      {title:"BUILDING YOUR TRADING EDGE",duration:'90 min',summary:"Developing High-Probability Trading Strategies",scheduled_at:"2026-08-25T21:00:00+05:00",points:["Strategy development", "High-probability setups", "Entry and exit rules"]},
-      {title:"MASTER THE ART OF TRADING",duration:'90 min',summary:"Advanced Strategies, Execution & Trade Management",scheduled_at:"2026-08-27T18:00:00+05:00",points:["Advanced execution", "Trade management", "Professional trading process"]}
+      {title:"FINANCIAL MARKETS BLUEPRINT",duration:'90 min',summary:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:null,points:["Global financial markets", "Forex ecosystem", "Market participants"]},
+      {title:"THE LANGUAGE OF PRICE INTELLIGENCE",duration:'90 min',summary:"Mastering Technical Analysis",scheduled_at:null,points:["Support & resistance", "Trend lines and structure", "Technical analysis foundations"]},
+      {title:"DECODING AND DISSECTING CANDLESTICKS",duration:'90 min',summary:"Cracking the Hidden Price Behaviors",scheduled_at:null,points:["Candlestick structure", "Price behaviour", "Rejection and momentum"]},
+      {title:"EXPLORING TRADER'S TOOLKIT",duration:'90 min',summary:"Mastering Technical Indicators",scheduled_at:null,points:["Technical indicators", "Confirmation tools", "Indicator interpretation"]},
+      {title:"BUILDING YOUR TRADING EDGE",duration:'90 min',summary:"Developing High-Probability Trading Strategies",scheduled_at:null,points:["Strategy development", "High-probability setups", "Entry and exit rules"]}
     ],
-    learn:['Understand how the Forex market and currency pairs work.','Read candlestick behaviour, trends and important price levels.','Use technical indicators as confirmation rather than dependency.','Prepare for economic news and fundamental market events.','Build a repeatable trading strategy with clear risk rules.','Develop discipline, patience and a professional trading routine.'],
-    achievement:['Understand forex market structure and price movement clearly.','Identify stronger entry and exit areas with confidence.','Use technical tools and chart analysis in a practical way.','Build better risk-management and trading-discipline habits.','Improve decision-making using real market examples.','Develop a repeatable trading approach for consistent learning.']
+    learn:['Understand the ecosystem of global financial markets.','Build a strong technical-analysis foundation.','Read candlestick behaviour and hidden price clues.','Use technical indicators as confirmation tools.','Develop a high-probability trading strategy with clear rules.'],
+    achievement:['Understand how financial markets and Forex connect.','Read price action and candlestick behaviour with more clarity.','Use technical-analysis tools in a practical way.','Combine indicators with price behaviour instead of depending on them.','Build a structured trading edge for continued learning.']
   },
   advanced:{
     key:'advanced',title:'Advanced Forex Course',price:250,oldPrice:500,type:'paid',level:'Advanced',badge:'ADVANCED PROFESSIONAL COURSE',
@@ -58,15 +54,11 @@ const defaults={
 
 
 const BASIC_LIVE_SCHEDULE=[
-  {course_key:'basic',class_number:1,title:"FINANCIAL MARKETS BLUEPRINT",subtitle:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:"2026-08-10T21:00:00+05:00",is_active:true},
-  {course_key:'basic',class_number:2,title:"THE LANGUAGE OF PRICE INTELLIGENCE",subtitle:"Mastering Technical Analysis",scheduled_at:"2026-08-13T21:00:00+05:00",is_active:true},
-  {course_key:'basic',class_number:3,title:"DECODING AND DISSECTING CANDLESTICKS",subtitle:"Cracking the Hidden Price Behaviors",scheduled_at:"2026-08-15T21:00:00+05:00",is_active:true},
-  {course_key:'basic',class_number:4,title:"EXPLORING TRADER'S TOOLKIT",subtitle:"Mastering Technical Indicators",scheduled_at:"2026-08-17T21:00:00+05:00",is_active:true},
-  {course_key:'basic',class_number:5,title:"TRADING WITH MARKET PULSE",subtitle:"Reading Market Sentiment",scheduled_at:"2026-08-18T21:00:00+05:00",is_active:true},
-  {course_key:'basic',class_number:6,title:"UNDERSTANDING REAL MARKET DRIVERS",subtitle:"Understanding Fundamental Analysis",scheduled_at:"2026-08-20T21:00:00+05:00",is_active:true},
-  {course_key:'basic',class_number:7,title:"ULTIMATE SUCCESS CODE — THE MINDSET",subtitle:"Psychology, Risk & Capital Management",scheduled_at:"2026-08-24T21:00:00+05:00",is_active:true},
-  {course_key:'basic',class_number:8,title:"BUILDING YOUR TRADING EDGE",subtitle:"Developing High-Probability Trading Strategies",scheduled_at:"2026-08-25T21:00:00+05:00",is_active:true},
-  {course_key:'basic',class_number:9,title:"MASTER THE ART OF TRADING",subtitle:"Advanced Strategies, Execution & Trade Management",scheduled_at:"2026-08-27T18:00:00+05:00",is_active:true}
+  {course_key:'basic',class_number:1,title:"FINANCIAL MARKETS BLUEPRINT",subtitle:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:null,is_active:true},
+  {course_key:'basic',class_number:2,title:"THE LANGUAGE OF PRICE INTELLIGENCE",subtitle:"Mastering Technical Analysis",scheduled_at:null,is_active:true},
+  {course_key:'basic',class_number:3,title:"DECODING AND DISSECTING CANDLESTICKS",subtitle:"Cracking the Hidden Price Behaviors",scheduled_at:null,is_active:true},
+  {course_key:'basic',class_number:4,title:"EXPLORING TRADER'S TOOLKIT",subtitle:"Mastering Technical Indicators",scheduled_at:null,is_active:true},
+  {course_key:'basic',class_number:5,title:"BUILDING YOUR TRADING EDGE",subtitle:"Developing High-Probability Trading Strategies",scheduled_at:null,is_active:true}
 ];
 const BASIC_SCHEDULE_BY_NUMBER=new Map(BASIC_LIVE_SCHEDULE.map(x=>[x.class_number,x]));
 const CLASS_COMPLETION_GRACE_MS=3*60*60*1000;
@@ -85,7 +77,7 @@ let detailRenderToken=0;
 
 function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 function client(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(_){return null}}
-function systemThumbnail(key){return key==='advanced'?'advanced-course-thumbnail.webp?v=20260802-v29-final':'basic-course-thumbnail.webp?v=20260802-v29-final';}
+function systemThumbnail(key){return key==='advanced'?'advanced-course-thumbnail.webp?v=20260802-v29-final':'basic-course-thumbnail.webp?v=20260829-v187-basic5';}
 function resolveThumbnail(key,value){
   const raw=String(value||'').trim();
   if(!raw||/service-banners\/forex-education/i.test(raw)||/^(?:\.\/)?course-thumbnails\//i.test(raw)||/(?:^|\/)basic-course-thumbnail\.webp(?:\?|$)/i.test(raw)||/(?:^|\/)advanced-course-thumbnail\.webp(?:\?|$)/i.test(raw))return systemThumbnail(key);
@@ -225,17 +217,17 @@ async function loadCourseDataFresh(){
   courseData={
     basic:{...defaults.basic,...(basic?{
       dbId:basic.id||'',title:'Basic Forex Course',
-      short:basic.short_description||basic.description||defaults.basic.short,
-      description:basic.description||defaults.basic.description,
-      descriptionExtra:basic.description_extra||defaults.basic.descriptionExtra,
-      included:arrayValue(basic.included_items,defaults.basic.included),
+      short:defaults.basic.short,
+      description:defaults.basic.description,
+      descriptionExtra:defaults.basic.descriptionExtra,
+      included:defaults.basic.included,
       contentNote:basic.content_note||defaults.basic.contentNote,secureNote:basic.secure_note||defaults.basic.secureNote,
       level:basic.level||defaults.basic.level,badge:basic.course_badge||defaults.basic.badge,
       thumbnail:resolveThumbnail('basic',basic.thumbnail),videoUrl:'',
       requirements:arrayValue(basic.requirements,defaults.basic.requirements),
       audience:arrayValue(basic.audience,defaults.basic.audience),
-      learn:arrayValue(basic.learning_outcomes,defaults.basic.learn),
-      achievement:arrayValue(basic.achievement_outcomes,defaults.basic.achievement),
+      learn:defaults.basic.learn,
+      achievement:defaults.basic.achievement,
       modules:canonicalModules('basic',basic.modules_json),
       accessLabel:basic.access_label||'FREE COURSE ACCESS',buyNote:basic.buy_note||'Complete the enrollment form and begin learning.',
       actionButtonText:basic.action_button_text||'',mentorName:basic.mentor_name||'Sajid Khan Ghori',mentorTitle:basic.mentor_title||'Asia Top Instructor',
@@ -474,6 +466,7 @@ function classAccessPanel(c,state){
   if(state!=='approved')return '';
   const rows=(courseClasses[c.key]&&courseClasses[c.key].length?courseClasses[c.key]:defaultClasses(c.key));
   const isBasic=c.key==='basic';
+  if(isBasic&&!rows.some(row=>row&&row.scheduled_at))return '';
   const upcomingRows=rows.filter(row=>!classIsCompleted(row));
   const targetCount=isBasic?upcomingRows.length:rows.length;
   const readyCount=(isBasic?upcomingRows:rows).filter(x=>/^https?:\/\//i.test(String(x.join_url||x.zoom_url||''))).length;
@@ -520,16 +513,17 @@ function moduleRows(c,unlocked){
   return `<div class="psp-module-list">${c.modules.map((m,i)=>{
     const schedule=c.key==='basic'?(basicScheduleRow(i+1)||{scheduled_at:m.scheduled_at,title:m.title,subtitle:m.summary}):null;
     const completed=schedule?classIsCompleted(schedule):false;
-    const scheduleLine=schedule?`<small class="psp-module-schedule">📅 ${esc(classScheduleText(schedule))}</small>`:'';
-    const stateBadge=schedule&&completed?'<span class="psp-module-completed">✓ COMPLETED</span>':'';
-    return `<div class="psp-module-row ${completed?'completed':''}"><button class="psp-module-toggle" type="button"><span><strong>${String(i+1).padStart(2,'0')}. ${esc(m.title)}</strong>${m.summary?`<small class="psp-module-subtitle">${esc(m.summary)}</small>`:''}</span><span class="psp-module-right">${stateBadge}${scheduleLine}<small>${esc(m.duration)}</small><span class="psp-module-arrow">⌄</span></span></button><div class="psp-module-panel"><div>${esc(m.summary)}</div>${schedule?`<div class="psp-module-live-datetime"><b>Live Class</b><span>📅 ${esc(classScheduleText(schedule))}</span>${completed?'<em>Completed</em>':'<em>Upcoming</em>'}</div>`:''}<div class="psp-module-points">${m.points.map(p=>`<span><b style="color:#d97706">✓</b>${esc(p)}</span>`).join('')}</div></div></div>`;
+    const hasSchedule=!!(schedule&&schedule.scheduled_at);
+    const scheduleLine=hasSchedule?`<small class="psp-module-schedule">📅 ${esc(classScheduleText(schedule))}</small>`:'';
+    const stateBadge=hasSchedule&&completed?'<span class="psp-module-completed">✓ COMPLETED</span>':'';
+    return `<div class="psp-module-row ${completed?'completed':''}"><button class="psp-module-toggle" type="button"><span><strong>${String(i+1).padStart(2,'0')}. ${esc(m.title)}</strong>${m.summary?`<small class="psp-module-subtitle">${esc(m.summary)}</small>`:''}</span><span class="psp-module-right">${stateBadge}${scheduleLine}<small>${esc(m.duration)}</small><span class="psp-module-arrow">⌄</span></span></button><div class="psp-module-panel"><div>${esc(m.summary)}</div>${hasSchedule?`<div class="psp-module-live-datetime"><b>Live Class</b><span>📅 ${esc(classScheduleText(schedule))}</span>${completed?'<em>Completed</em>':'<em>Upcoming</em>'}</div>`:''}<div class="psp-module-points">${m.points.map(p=>`<span><b style="color:#d97706">✓</b>${esc(p)}</span>`).join('')}</div></div></div>`;
   }).join('')}</div>`;
 }
 function detailMarkup(c){
   const state=enrollmentState[c.key];const unlocked=c.type==='free'||state==='approved';
   const other=Object.values(courseData).find(x=>x.key!==c.key&&x.published!==false)||courseData.basic;
   const totalMinutes=c.modules.reduce((sum,m)=>sum+(parseInt(m.duration,10)||0),0);
-  const totalHours=Math.max(1,Math.round(totalMinutes/60));
+  const totalHours=c.key==='basic'?'7.5':Math.max(1,Math.round(totalMinutes/60));
   return `<div class="psp-course-detail-shell psp-course-${c.key} psp-course-${c.type}">
     <div class="psp-course-detail-left">
       <div class="psp-course-detail-hero"><div class="psp-course-detail-hero-inner">
@@ -542,7 +536,7 @@ function detailMarkup(c){
             <div class="psp-course-detail-badges"><span>${c.modules.length} Modules</span><span>${esc(c.level)} Level</span><span>Practical Learning</span><span>${c.type==='free'?'100% Free':'Professional Program'}</span></div>
             <div class="psp-course-hero-value-grid"><div><strong>${c.modules.length}</strong><span>Structured Modules</span></div><div><strong>${totalHours}+ hrs</strong><span>Guided Learning</span></div><div><strong>Practical</strong><span>Market-Focused Lessons</span></div><div><strong>Account</strong><span>Progress Tracking</span></div></div>
           </div>
-          <div class="psp-course-mentor-visual"><div class="psp-course-mentor-glow"></div><img src="sajid-ghori.webp" alt="Sajid Khan Ghori — Asia Top Instructor"><div class="psp-course-mentor-badge"><span>LEARN WITH</span><strong>${esc(c.mentorName||'Sajid Khan Ghori')}</strong><small>${esc(c.mentorTitle||'Asia Top Instructor')}</small></div><div class="psp-course-floating-chip chip-one"><b>9</b><span>Structured<br>Modules</span></div><div class="psp-course-floating-chip chip-two"><b>✓</b><span>Practical<br>Learning</span></div></div>
+          <div class="psp-course-mentor-visual"><div class="psp-course-mentor-glow"></div><img src="sajid-ghori.webp" alt="Sajid Khan Ghori — Asia Top Instructor"><div class="psp-course-mentor-badge"><span>LEARN WITH</span><strong>${esc(c.mentorName||'Sajid Khan Ghori')}</strong><small>${esc(c.mentorTitle||'Asia Top Instructor')}</small></div><div class="psp-course-floating-chip chip-one"><b>${c.modules.length}</b><span>Structured<br>Modules</span></div><div class="psp-course-floating-chip chip-two"><b>✓</b><span>Practical<br>Learning</span></div></div>
         </div>
       </div></div>
       <main class="psp-course-main-column psp-course-detail-body">
@@ -639,7 +633,6 @@ function renderCurrentDetail(key){
   const title=document.getElementById('pageTitle');if(title)title.textContent=courseData[key].title;
 }
 window.openCourseDetail=async function(key){
-  pspEnsureCourseRealtime();
   const c=courseData[key];if(!c)return;
   const token=++detailRenderToken;
   currentCourse=c;
@@ -660,7 +653,6 @@ window.openFreeCourseModules=function(){window.openCourseDetail('basic');};
 window.openAdvancedCourseModules=function(){window.openCourseDetail('advanced');};
 window.openEnrolledCourse=function(){window.openCourseDetail(currentCourse?.key||'basic');};
 window.loadMyCourses=async function(){
-  pspEnsureCourseRealtime();
   await loadCourseData();
   if(currentCourse){renderCurrentDetail(currentCourse.key);return;}
   renderMarketplace();
@@ -688,10 +680,7 @@ function init(){
     const page=ensureShell();if(!page)return setTimeout(wait,120);
     const nav=document.querySelector('.menu-item[data-page="mycourses"],.menu-item[data-page="learn"]');
     if(nav){nav.dataset.page='mycourses';nav.setAttribute('onclick','return openMyCoursesPage(this,event)');nav.innerHTML='<span class="menu-icon">🎓</span>My Courses';}
-    // V170 performance: the old init downloaded the complete course catalog,
-    // enrollment states, classes and Zoom registrations on every site visit.
-    // Load them only when My Courses is actually visible/opened.
-    if(page.classList.contains('active')) window.loadMyCourses();
+    loadCourseData().then(renderMarketplace);
   };
   wait();
 }
@@ -733,11 +722,5 @@ function subscribeCourseClasses(){
   }catch(e){console.warn('Course class realtime unavailable',e);}
 }
 
-function pspEnsureCourseRealtime(){
-  if(window.__pspCourseRealtimeStarted)return;
-  window.__pspCourseRealtimeStarted=true;
-  subscribeCourseCatalog();
-  subscribeCourseClasses();
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{init();});else{init();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{init();subscribeCourseCatalog();subscribeCourseClasses();});else{init();subscribeCourseCatalog();subscribeCourseClasses();}
 })();
