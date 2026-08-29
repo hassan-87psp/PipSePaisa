@@ -411,6 +411,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="admin-shell-v179.css?v=20260829-v179-dark-admin">
 <link rel="stylesheet" href="finance-management-v179.css?v=20260829-v179-finance-system">
 <link rel="stylesheet" href="admin-premium-v182.css?v=20260829-v182-premium-all-tabs">
+<link rel="stylesheet" href="payment-methods-v183.css?v=20260829-v183-payment-premium">
 
 <style id="pspV129CoursesAndEditor">
 /* Course Manager — compact KPI strip */
@@ -1826,18 +1827,61 @@ function aEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,
 var APMS='padding:10px;border-radius:8px;background:var(--input-bg,#0d1322);border:1px solid var(--border,#1f2937);color:var(--text,#e8eaf0);width:100%';
 async function loadAdminPayments(){
   const wrap=document.getElementById('apmWrap');if(!wrap)return;
-  wrap.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">'+
-    '<div class="card"><h3 style="margin:0 0 7px">➕ Add Manual Payment Method</h3><div style="font-size:11px;color:#94a0b8;margin-bottom:12px;line-height:1.55">Local Bank Transfer is built in and managed securely by the payment API. Add/edit only your manual methods here.</div><div style="display:grid;gap:11px">'+
-      '<select id="apmType" onchange="apmTypeChange()" style="'+APMS+'"><option value="easypaisa">EasyPaisa</option><option value="jazzcash">JazzCash</option><option value="bank">Bank Transfer</option><option value="crypto">Crypto (USDT TRC20)</option></select>'+ 
-      '<input id="apmLabel" placeholder="Label (optional)" style="'+APMS+'">'+
-      '<input id="apmTitle" class="apm-title" placeholder="Account Title" style="'+APMS+'">'+
-      '<input id="apmNum" class="apm-num" placeholder="Account Number" style="'+APMS+'">'+
-      '<input id="apmBank" class="apm-bank" placeholder="Bank Name" style="display:none;'+APMS+'">'+
-      '<input id="apmWallet" class="apm-wallet" placeholder="Wallet Address (TRC20)" style="display:none;'+APMS+'">'+
-      '<input id="apmNet" class="apm-net" placeholder="Network" value="TRC20" style="display:none;'+APMS+'">'+
-      '<button onclick="addAdminPM()" style="padding:11px;border:none;border-radius:8px;background:linear-gradient(135deg,#FB9201,#e07e00);color:#0a0e1a;font-weight:800;cursor:pointer">💾 Save Method</button>'+ 
-    '</div></div>'+ 
-    '<div class="card"><h3 style="margin:0 0 7px">💳 Payment Methods</h3><div style="font-size:11px;color:#94a0b8;margin-bottom:12px">System methods are locked. Manual methods remain editable.</div><div id="apmList">Loading...</div></div></div>';
+  wrap.innerHTML=`
+    <section class="pm183-shell">
+      <div class="pm183-hero">
+        <div class="pm183-hero-copy">
+          <span class="pm183-eyebrow">PAYMENT CONTROL CENTER</span>
+          <h2><span class="pm183-hero-icon">💳</span> Payment Methods</h2>
+          <p>Manage secure checkout options from one clean workspace. System methods stay protected while manual methods remain fully manageable.</p>
+        </div>
+        <div class="pm183-hero-actions">
+          <span class="pm183-secure-chip">🛡️ Secure setup</span>
+          <button type="button" class="pm183-refresh-btn" onclick="loadAdminPayments()">↻ Refresh</button>
+        </div>
+      </div>
+
+      <div class="pm183-kpis">
+        <div class="pm183-kpi"><span class="pm183-kpi-icon green">✓</span><div><small>Active Methods</small><strong id="pm183Active">—</strong><span>Available to users</span></div></div>
+        <div class="pm183-kpi"><span class="pm183-kpi-icon orange">🔒</span><div><small>System Managed</small><strong id="pm183System">—</strong><span>API protected</span></div></div>
+        <div class="pm183-kpi"><span class="pm183-kpi-icon blue">✦</span><div><small>Manual Methods</small><strong id="pm183Manual">—</strong><span>Managed by admin</span></div></div>
+        <div class="pm183-kpi"><span class="pm183-kpi-icon purple">⚡</span><div><small>Checkout Status</small><strong>Ready</strong><span>Payment setup online</span></div></div>
+      </div>
+
+      <div class="pm183-main-grid">
+        <section class="pm183-panel pm183-builder">
+          <div class="pm183-panel-head">
+            <div class="pm183-title-wrap"><span class="pm183-title-icon">＋</span><div><h3>Add Manual Payment Method</h3><p>Create EasyPaisa, JazzCash, bank or crypto payment options.</p></div></div>
+            <span class="pm183-pill manual">MANUAL</span>
+          </div>
+
+          <div class="pm183-note"><span>ℹ</span><div><b>Local Bank Transfer is API managed.</b><br>Use this form only for manual payment methods. System methods cannot be edited or deleted.</div></div>
+
+          <div class="pm183-form-grid">
+            <label class="pm183-field pm183-field-full"><span>Payment Type</span>
+              <select id="apmType" onchange="apmTypeChange()"><option value="easypaisa">EasyPaisa</option><option value="jazzcash">JazzCash</option><option value="bank">Bank Transfer</option><option value="crypto">Crypto (USDT TRC20)</option></select>
+            </label>
+            <label class="pm183-field pm183-field-full"><span>Display Label <em>optional</em></span><input id="apmLabel" placeholder="e.g. Company EasyPaisa"></label>
+            <label class="pm183-field"><span>Account Title</span><input id="apmTitle" class="apm-title" placeholder="Account holder name"></label>
+            <label class="pm183-field"><span>Account Number</span><input id="apmNum" class="apm-num" placeholder="Enter account number"></label>
+            <label class="pm183-field pm183-field-full apm-bank" style="display:none"><span>Bank Name</span><input id="apmBank" placeholder="Bank name"></label>
+            <label class="pm183-field pm183-field-full apm-wallet" style="display:none"><span>Wallet Address</span><input id="apmWallet" placeholder="USDT TRC20 wallet address"></label>
+            <label class="pm183-field pm183-field-full apm-net" style="display:none"><span>Network</span><input id="apmNet" placeholder="Network" value="TRC20"></label>
+          </div>
+          <button class="pm183-save-btn" onclick="addAdminPM()"><span>💾</span> Save Payment Method</button>
+          <div class="pm183-form-foot"><span>🔐</span> Payment credentials are stored in your project database. Review account details before enabling a method.</div>
+        </section>
+
+        <section class="pm183-panel pm183-methods">
+          <div class="pm183-panel-head">
+            <div class="pm183-title-wrap"><span class="pm183-title-icon">▣</span><div><h3>Configured Methods</h3><p>See what users can currently choose at checkout.</p></div></div>
+            <span class="pm183-pill live">LIVE</span>
+          </div>
+          <div class="pm183-legend"><span><i class="on"></i> Enabled</span><span><i class="system"></i> System managed</span><span><i class="manual"></i> Manual</span></div>
+          <div id="apmList" class="pm183-list"><div class="pm183-loading"><span></span> Loading payment methods...</div></div>
+        </section>
+      </div>
+    </section>`;
   apmTypeChange();loadAdminPMList();
 }
 function apmTypeChange(){var t=document.getElementById('apmType').value;var S=function(c,on){var e=document.querySelector(c);if(e)e.style.display=on?'block':'none';};S('.apm-bank',t==='bank');S('.apm-wallet',t==='crypto');S('.apm-net',t==='crypto');S('.apm-title',t!=='crypto');S('.apm-num',t!=='crypto');}
@@ -1855,18 +1899,26 @@ async function addAdminPM(){
 async function loadAdminPMList(){
   var box=document.getElementById('apmList');if(!box)return;
   var r=await sb.from('payment_methods').select('*').order('created_at',{ascending:false});
-  if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}
+  if(r.error){box.innerHTML='<div class="pm183-error">⚠ '+aEsc(r.error.message)+'</div>';return;}
   var data=(r.data||[]).filter(function(m){return m.is_system===true||m.owner_id===currentAdmin.id;});
   data.sort(function(a,b){return Number(b.is_system===true)-Number(a.is_system===true)||String(b.created_at||'').localeCompare(String(a.created_at||''));});
-  if(!data.length){box.innerHTML='<div style="color:#94a0b8">No payment methods yet.</div>';return;}
+  var active=data.filter(function(m){return m.enabled!==false}).length;
+  var systemCount=data.filter(function(m){return m.is_system===true||m.system_key==='infinity_local_bank'||m.type==='infinity'}).length;
+  var manualCount=Math.max(0,data.length-systemCount);
+  var setText=function(id,val){var e=document.getElementById(id);if(e)e.textContent=val;};
+  setText('pm183Active',active);setText('pm183System',systemCount);setText('pm183Manual',manualCount);
+  if(!data.length){box.innerHTML='<div class="pm183-empty"><span>💳</span><b>No payment methods yet</b><small>Add a manual method from the form.</small></div>';return;}
+  var icons={easypaisa:'📱',jazzcash:'📲',bank:'🏦',crypto:'₮',infinity:'🏛️'};
   box.innerHTML=data.map(function(m){
     var system=m.is_system===true||m.system_key==='infinity_local_bank'||m.type==='infinity';
-    var tl={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'Crypto USDT',infinity:'Local Bank Transfer'}[m.type]||m.type;
-    var det=system?'Secure hosted bank transfer · API managed':(m.type==='crypto'?(aEsc(m.wallet||'')+' ('+aEsc(m.network||'TRC20')+')'):(aEsc(m.account_title||'')+' · '+aEsc(m.account_number||'')+(m.bank_name?(' · '+aEsc(m.bank_name)):'')));
-    var status='<span style="font-size:10px;padding:2px 7px;border-radius:10px;background:'+(m.enabled?'rgba(16,185,129,.18);color:#10b981':'rgba(148,160,184,.18);color:#94a0b8')+'">'+(m.enabled?'ON':'OFF')+'</span>';
-    var lock=system?' <span style="font-size:9px;padding:3px 7px;border-radius:999px;background:rgba(251,146,1,.14);color:#FB9201;font-weight:900;letter-spacing:.05em">SYSTEM · LOCKED</span>':'';
-    var actions=system?'<span style="font-size:11px;color:#94a0b8">🔒 Managed automatically</span>':'<div style="display:flex;gap:6px"><button onclick="toggleAdminPM(\''+m.id+'\','+(m.enabled?'false':'true')+')" style="padding:5px 10px;border-radius:7px;background:transparent;border:1px solid var(--border,#1f2937);color:var(--text,#e8eaf0);cursor:pointer;font-size:12px">'+(m.enabled?'Disable':'Enable')+'</button><button onclick="delAdminPM(\''+m.id+'\')" style="padding:5px 9px;border-radius:7px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer">🗑️</button></div>';
-    return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--border,#1f2937)"><div><strong>'+aEsc(m.label||tl)+'</strong> '+status+lock+'<div style="font-size:12px;color:#94a0b8;margin-top:4px">'+tl+' · '+det+'</div></div>'+actions+'</div>';
+    var tl={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'USDT TRC20',infinity:'Local Bank Transfer'}[m.type]||m.type||'Payment Method';
+    var det=system?'Secure hosted bank transfer · API managed':(m.type==='crypto'?(aEsc(m.wallet||'')+' · '+aEsc(m.network||'TRC20')):(aEsc(m.account_title||'')+(m.account_number?(' · '+aEsc(m.account_number)):'')+(m.bank_name?(' · '+aEsc(m.bank_name)):'')));
+    var enabled=m.enabled!==false;
+    var status='<span class="pm183-status '+(enabled?'enabled':'disabled')+'"><i></i>'+(enabled?'Enabled':'Disabled')+'</span>';
+    var badge=system?'<span class="pm183-method-badge system">SYSTEM · LOCKED</span>':'<span class="pm183-method-badge manual">MANUAL</span>';
+    var actions=system?'<div class="pm183-system-lock">🔒 Managed automatically</div>':'<div class="pm183-actions"><button class="pm183-toggle '+(enabled?'disable':'enable')+'" onclick="toggleAdminPM(\''+m.id+'\','+(enabled?'false':'true')+')">'+(enabled?'Disable':'Enable')+'</button><button class="pm183-delete" title="Delete method" onclick="delAdminPM(\''+m.id+'\')">🗑</button></div>';
+    var label=aEsc(m.label||tl);
+    return '<article class="pm183-method-card '+(system?'is-system':'is-manual')+' '+(enabled?'is-enabled':'is-disabled')+'"><div class="pm183-method-icon">'+(icons[m.type]||'💳')+'</div><div class="pm183-method-content"><div class="pm183-method-top"><div><h4>'+label+'</h4><div class="pm183-method-tags">'+status+badge+'</div></div>'+actions+'</div><div class="pm183-method-detail"><b>'+aEsc(tl)+'</b><span>'+det+'</span></div></div></article>';
   }).join('');
 }
 async function toggleAdminPM(id,on){
