@@ -6,6 +6,8 @@
   const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
   const COURSE_INFO={
     basic:{key:'basic',name:'Basic Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
+    'basic-b2':{key:'basic-b2',name:'Basic Forex Course — Batch 2',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
+    fundamental:{key:'fundamental',name:'Fundamental Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     advanced:{key:'advanced',name:'Advanced Forex Course',type:'paid',price:250,oldPrice:500,currency:'USD',localBankPricePkr:0}
   };
   const courseConfigCache=new Map();
@@ -1128,7 +1130,7 @@
       if(text)text.innerHTML=postSignup.mode==='referral'
         ?`Thank You for Joining! You are registered for the course.<br><strong>${postCopy.detail}</strong><br>${postCopy.note}<br><small>${postCopy.redirect}</small>`
         :(selectedCourse.type==='free'
-          ?'Thank You for Joining! You are logged in and enrolled in the Basic Forex Course. Please follow our WhatsApp Channel for important course updates, market insights, and announcements. Redirecting you now...'
+          ?`Thank You for Joining! You are logged in and enrolled in the ${selectedCourse.name}. Please follow our WhatsApp Channel for important course updates, market insights, and announcements. Redirecting you now...`
           :'Thank You for Joining! You are logged in and your payment receipt has been submitted for verification. Please follow our WhatsApp Channel for important course updates and announcements. Redirecting you now...');
       showStep('ceStepSuccess');
       try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));}catch(_){ }

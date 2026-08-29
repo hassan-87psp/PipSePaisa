@@ -3,11 +3,11 @@
 
 const defaults={
   basic:{
-    key:'basic',title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
+    key:'basic',displayOrder:1,enrollmentKey:'basic-b2',batchLabel:'Batch 2',zoomEnabled:false,title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
     thumbnail:'basic-course-thumbnail.webp',
     short:'Build a strong foundation in Forex trading, technical analysis, candlestick behaviour, indicators and high-probability trading strategies.',
     description:'A structured 5-module beginner program designed to help new traders understand financial markets, read price behaviour, use technical tools correctly and build a practical trading edge.',
-    descriptionExtra:'Each module follows a clear learning path with practical market examples, defined objectives and expected outcomes. Live-session dates and Zoom access will be added when the new schedule is announced.',
+    descriptionExtra:'Each module follows a clear learning path with practical market examples, defined objectives and expected outcomes. Batch 2 runs across five focused sessions from 3 to 7 September 2026.',
     included:['5 structured modules','Beginner-friendly practical learning','Mobile and desktop access','Progress saved in your account'],
     contentNote:'One module opens at a time',
     secureNote:'Direct account-linked enrollment',
@@ -15,17 +15,36 @@ const defaults={
     requirements:['This course is suitable even if you are completely new to forex.','A mobile phone or computer with internet access.','A willingness to practise on a demo account and follow risk-management rules.'],
     audience:['Complete beginners starting their Forex journey.','Traders who want to rebuild their foundation correctly.','Students who prefer structured, practical learning.'],
     modules:[
-      {title:"FINANCIAL MARKETS BLUEPRINT",duration:'90 min',summary:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:null,points:["Global financial markets", "Forex ecosystem", "Market participants"]},
-      {title:"THE LANGUAGE OF PRICE INTELLIGENCE",duration:'90 min',summary:"Mastering Technical Analysis",scheduled_at:null,points:["Support & resistance", "Trend lines and structure", "Technical analysis foundations"]},
-      {title:"DECODING AND DISSECTING CANDLESTICKS",duration:'90 min',summary:"Cracking the Hidden Price Behaviors",scheduled_at:null,points:["Candlestick structure", "Price behaviour", "Rejection and momentum"]},
-      {title:"EXPLORING TRADER'S TOOLKIT",duration:'90 min',summary:"Mastering Technical Indicators",scheduled_at:null,points:["Technical indicators", "Confirmation tools", "Indicator interpretation"]},
-      {title:"BUILDING YOUR TRADING EDGE",duration:'90 min',summary:"Developing High-Probability Trading Strategies",scheduled_at:null,points:["Strategy development", "High-probability setups", "Entry and exit rules"]}
+      {title:"FINANCIAL MARKETS BLUEPRINT",duration:'90 min',summary:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:'2026-09-03T23:59:00+05:00',date_only:true,points:["Global financial markets", "Forex ecosystem", "Market participants"]},
+      {title:"THE LANGUAGE OF PRICE INTELLIGENCE",duration:'90 min',summary:"Mastering Technical Analysis",scheduled_at:'2026-09-04T23:59:00+05:00',date_only:true,points:["Support & resistance", "Trend lines and structure", "Technical analysis foundations"]},
+      {title:"DECODING AND DISSECTING CANDLESTICKS",duration:'90 min',summary:"Cracking the Hidden Price Behaviors",scheduled_at:'2026-09-05T23:59:00+05:00',date_only:true,points:["Candlestick structure", "Price behaviour", "Rejection and momentum"]},
+      {title:"EXPLORING TRADER'S TOOLKIT",duration:'90 min',summary:"Mastering Technical Indicators",scheduled_at:'2026-09-06T23:59:00+05:00',date_only:true,points:["Technical indicators", "Confirmation tools", "Indicator interpretation"]},
+      {title:"BUILDING YOUR TRADING EDGE",duration:'90 min',summary:"Developing High-Probability Trading Strategies",scheduled_at:'2026-09-07T23:59:00+05:00',date_only:true,points:["Strategy development", "High-probability setups", "Entry and exit rules"]}
     ],
     learn:['Understand the ecosystem of global financial markets.','Build a strong technical-analysis foundation.','Read candlestick behaviour and hidden price clues.','Use technical indicators as confirmation tools.','Develop a high-probability trading strategy with clear rules.'],
     achievement:['Understand how financial markets and Forex connect.','Read price action and candlestick behaviour with more clarity.','Use technical-analysis tools in a practical way.','Combine indicators with price behaviour instead of depending on them.','Build a structured trading edge for continued learning.']
   },
+  fundamental:{
+    key:'fundamental',displayOrder:3,enrollmentKey:'fundamental',zoomEnabled:false,title:'Fundamental Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'100% FREE COURSE',
+    thumbnail:'fundamental-course-thumbnail.png',mentorImage:'ghulam-abbas.png',mentorName:'Ghulam Abbas',mentorTitle:'Fundamental Expert & Trainer',
+    short:'Learn how economic events, central banks and FOMC decisions influence Forex markets and create trading opportunities.',
+    description:'Build a strong foundation in Forex fundamentals by understanding economic events, central bank decisions and major market-moving factors. This course helps beginners learn how fundamental analysis supports smarter trading decisions.',
+    descriptionExtra:'Three focused sessions explain the key fundamental drivers in a simple, practical way so traders can follow important market events with better clarity.',
+    included:['3 focused sessions','100% free learning','Fundamental market knowledge','Mobile and desktop access'],
+    contentNote:'3 focused sessions',secureNote:'Direct account-linked enrollment',
+    learningHeading:"What you'll learn",outcomesHeading:'Course Outcomes',contentHeading:'Course content',requirementsHeading:'Requirements',audienceHeading:'Who this course is for',descriptionHeading:'Description',relatedHeading:'Other PipSePaisa Courses',
+    requirements:['No previous fundamental-analysis experience is required.','A mobile phone or computer with internet access.','Basic interest in understanding what moves Forex markets.'],
+    audience:['Beginner traders who want to understand fundamental analysis.','Technical traders who want stronger market context.','Students who want to understand economic events and central-bank decisions.'],
+    modules:[
+      {title:'TRADING WITH THE ECONOMIC CALENDAR',duration:'Session',summary:'Identify Potential Trade Setups Using Key Economic Events',points:['Read high-impact economic events','Understand event timing and expectations','Identify potential trade opportunities']},
+      {title:'CENTRAL BANKS & MARKET IMPACT',duration:'Session',summary:'Understand How Central Bank Policies Influence Forex Markets',points:['Understand central-bank policy','Learn the role of interest-rate decisions','Recognize policy impact on currencies']},
+      {title:'DECODING THE FOMC',duration:'Session',summary:'Understand FOMC Decisions and Their Impact on Forex Trading',points:['Understand what the FOMC is','Read key policy decisions','Connect FOMC outcomes with Forex movement']}
+    ],
+    learn:['Use the Economic Calendar to spot important market events.','Understand how Central Banks influence Forex markets.','Learn the impact of FOMC and major policy decisions.','Build a basic understanding of fundamental market drivers.'],
+    achievement:['Understand the core concepts of Forex fundamental analysis.','Read important economic events with better clarity.','Recognize how news and policy decisions affect price movement.','Improve overall market understanding for better trading decisions.']
+  },
   advanced:{
-    key:'advanced',title:'Advanced Forex Course',price:250,oldPrice:500,type:'paid',level:'Advanced',badge:'ADVANCED PROFESSIONAL COURSE',
+    key:'advanced',displayOrder:2,title:'Advanced Forex Course',price:250,oldPrice:500,type:'paid',level:'Advanced',badge:'ADVANCED PROFESSIONAL COURSE',
     thumbnail:'advanced-course-thumbnail.webp',
     short:'Develop a professional trading mindset and study advanced market behaviour, session timing, liquidity, correlations and strategy development.',
     description:'A professional program for serious traders who want to study institutional structure, liquidity, session behaviour, advanced risk management, macro analysis and precise execution models.',
@@ -54,33 +73,35 @@ const defaults={
 
 
 const BASIC_LIVE_SCHEDULE=[
-  {course_key:'basic',class_number:1,title:"FINANCIAL MARKETS BLUEPRINT",subtitle:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:null,is_active:true},
-  {course_key:'basic',class_number:2,title:"THE LANGUAGE OF PRICE INTELLIGENCE",subtitle:"Mastering Technical Analysis",scheduled_at:null,is_active:true},
-  {course_key:'basic',class_number:3,title:"DECODING AND DISSECTING CANDLESTICKS",subtitle:"Cracking the Hidden Price Behaviors",scheduled_at:null,is_active:true},
-  {course_key:'basic',class_number:4,title:"EXPLORING TRADER'S TOOLKIT",subtitle:"Mastering Technical Indicators",scheduled_at:null,is_active:true},
-  {course_key:'basic',class_number:5,title:"BUILDING YOUR TRADING EDGE",subtitle:"Developing High-Probability Trading Strategies",scheduled_at:null,is_active:true}
+  {course_key:'basic-b2',class_number:1,title:"FINANCIAL MARKETS BLUEPRINT",subtitle:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:'2026-09-03T23:59:00+05:00',date_only:true,is_active:true},
+  {course_key:'basic-b2',class_number:2,title:"THE LANGUAGE OF PRICE INTELLIGENCE",subtitle:"Mastering Technical Analysis",scheduled_at:'2026-09-04T23:59:00+05:00',date_only:true,is_active:true},
+  {course_key:'basic-b2',class_number:3,title:"DECODING AND DISSECTING CANDLESTICKS",subtitle:"Cracking the Hidden Price Behaviors",scheduled_at:'2026-09-05T23:59:00+05:00',date_only:true,is_active:true},
+  {course_key:'basic-b2',class_number:4,title:"EXPLORING TRADER'S TOOLKIT",subtitle:"Mastering Technical Indicators",scheduled_at:'2026-09-06T23:59:00+05:00',date_only:true,is_active:true},
+  {course_key:'basic-b2',class_number:5,title:"BUILDING YOUR TRADING EDGE",subtitle:"Developing High-Probability Trading Strategies",scheduled_at:'2026-09-07T23:59:00+05:00',date_only:true,is_active:true}
 ];
 const BASIC_SCHEDULE_BY_NUMBER=new Map(BASIC_LIVE_SCHEDULE.map(x=>[x.class_number,x]));
 const CLASS_COMPLETION_GRACE_MS=3*60*60*1000;
 function basicScheduleRow(n){return BASIC_SCHEDULE_BY_NUMBER.get(Number(n))||null;}
 function classIsCompleted(row){const d=row&&row.scheduled_at?new Date(row.scheduled_at):null;return !!(d&&Number.isFinite(d.getTime())&&Date.now()>d.getTime()+CLASS_COMPLETION_GRACE_MS);}
 function classScheduleText(row){
-  const d=row&&row.scheduled_at?new Date(row.scheduled_at):null;if(!d||!Number.isFinite(d.getTime()))return 'Date & time to be announced';
-  try{const date=d.toLocaleDateString('en-GB',{timeZone:'Asia/Karachi',day:'2-digit',month:'short',year:'numeric'});const time=d.toLocaleTimeString('en-US',{timeZone:'Asia/Karachi',hour:'numeric',minute:'2-digit',hour12:true});return `${date} • ${time} PKT`;}catch(_){return String(row.scheduled_at||'');}
+  const d=row&&row.scheduled_at?new Date(row.scheduled_at):null;if(!d||!Number.isFinite(d.getTime()))return 'Date to be announced';
+  try{const date=d.toLocaleDateString('en-GB',{timeZone:'Asia/Karachi',day:'2-digit',month:'short',year:'numeric'});if(row&&row.date_only)return date;const time=d.toLocaleTimeString('en-US',{timeZone:'Asia/Karachi',hour:'numeric',minute:'2-digit',hour12:true});return `${date} • ${time} PKT`;}catch(_){return String(row.scheduled_at||'');}
 }
 
-let courseData={basic:{...defaults.basic},advanced:{...defaults.advanced}};
-let enrollmentState={basic:'not_enrolled',advanced:'not_enrolled'};
-let courseClasses={basic:[],advanced:[]};
+let courseData={basic:{...defaults.basic},fundamental:{...defaults.fundamental},advanced:{...defaults.advanced}};
+let enrollmentState={basic:'not_enrolled',fundamental:'not_enrolled',advanced:'not_enrolled'};
+let courseClasses={basic:[],fundamental:[],advanced:[]};
 let currentCourse=null;
 let detailRenderToken=0;
 
 function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 function client(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(_){return null}}
-function systemThumbnail(key){return key==='advanced'?'advanced-course-thumbnail.webp?v=20260802-v29-final':'basic-course-thumbnail.webp?v=20260829-v187-basic5';}
+function enrollmentKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.enrollmentKey||key||'').trim();}
+function displayKeyForEnrollment(key){key=String(key||'').trim().toLowerCase();if(key==='basic-b2')return'basic';return key;}
+function systemThumbnail(key){if(key==='advanced')return'advanced-course-thumbnail.webp?v=20260802-v29-final';if(key==='fundamental')return'fundamental-course-thumbnail.png?v=20260829-v188';return'basic-course-thumbnail.webp?v=20260829-v188-batch2';}
 function resolveThumbnail(key,value){
   const raw=String(value||'').trim();
-  if(!raw||/service-banners\/forex-education/i.test(raw)||/^(?:\.\/)?course-thumbnails\//i.test(raw)||/(?:^|\/)basic-course-thumbnail\.webp(?:\?|$)/i.test(raw)||/(?:^|\/)advanced-course-thumbnail\.webp(?:\?|$)/i.test(raw))return systemThumbnail(key);
+  if(!raw||/service-banners\/forex-education/i.test(raw)||/^(?:\.\/)?course-thumbnails\//i.test(raw)||/(?:^|\/)basic-course-thumbnail\.webp(?:\?|$)/i.test(raw)||/(?:^|\/)advanced-course-thumbnail\.webp(?:\?|$)/i.test(raw)||/(?:^|\/)fundamental-course-thumbnail\.(?:png|webp)(?:\?|$)/i.test(raw))return systemThumbnail(key);
   return raw;
 }
 function thumbAttrs(c,label){
@@ -108,7 +129,7 @@ async function getEnrollment(key){
   const db=client();if(!db)return null;
   try{
     const s=await db.auth.getSession();const user=s?.data?.session?.user;if(!user)return null;
-    const r=await db.from('course_enrollments').select('*').eq('user_id',user.id).eq('course_key',key).maybeSingle();
+    const enrollmentKey=enrollmentKeyFor(key);const r=await db.from('course_enrollments').select('*').eq('user_id',user.id).eq('course_key',enrollmentKey).maybeSingle();
     if(r.error&&!/0 rows|no rows/i.test(r.error.message||''))throw r.error;
     return r.data||null;
   }catch(e){console.warn('Course enrollment state unavailable',e);return null;}
@@ -135,6 +156,8 @@ async function loadCourseClasses(){
       });
     }
   }catch(e){console.warn('Legacy course class metadata unavailable.',e);}
+
+  if(courseData.basic?.zoomEnabled===false)return;
 
   try{
     const sessionResult=await db.auth.getSession();
@@ -210,32 +233,54 @@ async function loadCourseDataFresh(){
     ||rows.find(x=>norm(x.course_key)==='basic'&&Number(x.display_order||0)===1)||null;
   const adv=rows.find(x=>norm(x.title)==='advanced forex course')
     ||rows.find(x=>norm(x.course_key)==='advanced'&&Number(x.display_order||0)===2)||null;
+  const fundamental=rows.find(x=>norm(x.title)==='fundamental forex course')
+    ||rows.find(x=>norm(x.course_key)==='fundamental')||null;
 
-  const systemIds=new Set([basic&&String(basic.id),adv&&String(adv.id)].filter(Boolean));
+  const systemIds=new Set([basic&&String(basic.id),adv&&String(adv.id),fundamental&&String(fundamental.id)].filter(Boolean));
   const customRows=rows.filter(x=>!systemIds.has(String(x.id)));
 
   courseData={
     basic:{...defaults.basic,...(basic?{
-      dbId:basic.id||'',title:'Basic Forex Course',
+      dbId:basic.id||'',title:'Basic Forex Course',enrollmentKey:'basic-b2',batchLabel:'Batch 2',zoomEnabled:false,mentorImage:'sajid-ghori.webp',
       short:defaults.basic.short,
       description:defaults.basic.description,
       descriptionExtra:defaults.basic.descriptionExtra,
       included:defaults.basic.included,
-      contentNote:basic.content_note||defaults.basic.contentNote,secureNote:basic.secure_note||defaults.basic.secureNote,
-      level:basic.level||defaults.basic.level,badge:basic.course_badge||defaults.basic.badge,
+      contentNote:defaults.basic.contentNote,secureNote:defaults.basic.secureNote,
+      level:defaults.basic.level,badge:defaults.basic.badge,
       thumbnail:resolveThumbnail('basic',basic.thumbnail),videoUrl:'',
-      requirements:arrayValue(basic.requirements,defaults.basic.requirements),
-      audience:arrayValue(basic.audience,defaults.basic.audience),
+      requirements:defaults.basic.requirements,
+      audience:defaults.basic.audience,
       learn:defaults.basic.learn,
       achievement:defaults.basic.achievement,
-      modules:canonicalModules('basic',basic.modules_json),
+      modules:canonicalModules('basic',defaults.basic.modules),
       accessLabel:basic.access_label||'FREE COURSE ACCESS',buyNote:basic.buy_note||'Complete the enrollment form and begin learning.',
       actionButtonText:basic.action_button_text||'',mentorName:basic.mentor_name||'Sajid Khan Ghori',mentorTitle:basic.mentor_title||'Asia Top Instructor',
       learningHeading:basic.learning_heading||defaults.basic.learningHeading,outcomesHeading:basic.outcomes_heading||defaults.basic.outcomesHeading,
       contentHeading:basic.content_heading||defaults.basic.contentHeading,requirementsHeading:basic.requirements_heading||defaults.basic.requirementsHeading,
       audienceHeading:basic.audience_heading||defaults.basic.audienceHeading,descriptionHeading:basic.description_heading||defaults.basic.descriptionHeading,
       relatedHeading:basic.related_heading||defaults.basic.relatedHeading,price:0,oldPrice:0,published:basic.is_published!==false
-    }:{published:true,videoUrl:'',thumbnail:systemThumbnail('basic'),modules:canonicalModules('basic',defaults.basic.modules)})},
+    }:{...defaults.basic,published:true,videoUrl:'',thumbnail:systemThumbnail('basic'),modules:canonicalModules('basic',defaults.basic.modules)})},
+
+    fundamental:{...defaults.fundamental,...(fundamental?{
+      dbId:fundamental.id||'',title:'Fundamental Forex Course',enrollmentKey:'fundamental',zoomEnabled:false,
+      short:fundamental.short_description||fundamental.description||defaults.fundamental.short,
+      description:fundamental.description||defaults.fundamental.description,
+      descriptionExtra:fundamental.description_extra||defaults.fundamental.descriptionExtra,
+      included:arrayValue(fundamental.included_items,defaults.fundamental.included),
+      contentNote:fundamental.content_note||defaults.fundamental.contentNote,secureNote:fundamental.secure_note||defaults.fundamental.secureNote,
+      level:fundamental.level||defaults.fundamental.level,badge:fundamental.course_badge||defaults.fundamental.badge,
+      thumbnail:resolveThumbnail('fundamental',fundamental.thumbnail),mentorImage:'ghulam-abbas.png',videoUrl:'',
+      requirements:arrayValue(fundamental.requirements,defaults.fundamental.requirements),audience:arrayValue(fundamental.audience,defaults.fundamental.audience),
+      learn:arrayValue(fundamental.learning_outcomes,defaults.fundamental.learn),achievement:arrayValue(fundamental.achievement_outcomes,defaults.fundamental.achievement),
+      modules:canonicalModules('fundamental',fundamental.modules_json),accessLabel:fundamental.access_label||'FREE FUNDAMENTAL COURSE ACCESS',
+      buyNote:fundamental.buy_note||'Complete the free enrollment form and begin learning.',actionButtonText:fundamental.action_button_text||'',
+      mentorName:fundamental.mentor_name||'Ghulam Abbas',mentorTitle:fundamental.mentor_title||'Fundamental Expert & Trainer',
+      learningHeading:fundamental.learning_heading||defaults.fundamental.learningHeading,outcomesHeading:fundamental.outcomes_heading||defaults.fundamental.outcomesHeading,
+      contentHeading:fundamental.content_heading||defaults.fundamental.contentHeading,requirementsHeading:fundamental.requirements_heading||defaults.fundamental.requirementsHeading,
+      audienceHeading:fundamental.audience_heading||defaults.fundamental.audienceHeading,descriptionHeading:fundamental.description_heading||defaults.fundamental.descriptionHeading,
+      relatedHeading:fundamental.related_heading||defaults.fundamental.relatedHeading,price:0,oldPrice:0,published:fundamental.is_published!==false
+    }:{...defaults.fundamental,published:true})},
 
     advanced:{...defaults.advanced,...(adv?{
       dbId:adv.id||'',title:'Advanced Forex Course',
@@ -263,25 +308,25 @@ async function loadCourseDataFresh(){
 
   // Stable keys for real custom courses. Reserved-key collisions caused by the
   // previous Add Course bug are converted to a safe display/catalog key.
-  const used=new Set(['basic','advanced']);
+  const used=new Set(['basic','fundamental','advanced']);
   customRows.forEach(row=>{
     let k=norm(row.course_key);
-    if(k&&k!=='basic'&&k!=='advanced')used.add(k);
+    if(k&&k!=='basic'&&k!=='advanced'&&k!=='fundamental')used.add(k);
   });
 
   const catalogRegistry={};
   customRows.forEach(row=>{
     let key=norm(row.course_key);
-    if(!key||key==='basic'||key==='advanced'){
+    if(!key||key==='basic'||key==='advanced'||key==='fundamental'){
       key=slug(row.title);
-      if(key==='basic'||key==='advanced')key=key+'-course';
+      if(key==='basic'||key==='advanced'||key==='fundamental')key=key+'-course';
       if(used.has(key))key=key+'-'+String(row.id||'').replace(/[^a-z0-9]/gi,'').slice(0,6).toLowerCase();
     }
     used.add(key);
     const paid=row.is_premium===true||numberValue(row.price,0)>0;
     const modules=genericModules(row.modules_json);
     courseData[key]={
-      key,dbId:row.id||'',title:String(row.title||'Untitled Course'),
+      key,dbId:row.id||'',displayOrder:Number(row.display_order||99),title:String(row.title||'Untitled Course'),
       price:paid?numberValue(row.price,0):0,oldPrice:paid?numberValue(row.old_price,0):0,type:paid?'paid':'free',
       level:String(row.level||'All Levels'),badge:String(row.course_badge||(paid?'PROFESSIONAL COURSE':'FOREX COURSE')),
       thumbnail:String(row.thumbnail||''),short:String(row.short_description||row.description||''),
@@ -328,17 +373,17 @@ async function loadCourseData(force=false){
 }
 
 async function loadEnrollmentStatesOnly(courseKey){
-  const keys=courseKey&&courseData[courseKey]?[courseKey]:['basic','advanced'];
+  const displayKey=displayKeyForEnrollment(courseKey);const keys=displayKey&&courseData[displayKey]?[displayKey]:Object.keys(courseData);
   const rows=await Promise.all(keys.map(key=>getEnrollment(key)));
   keys.forEach((key,index)=>{enrollmentState[key]=normalize(rows[index],key);});
 }
 function statusLabel(key){
   const s=enrollmentState[key];
-  if(s==='approved')return {text:key==='basic'?'Enrolled':'Course Unlocked',cls:''};
+  if(s==='approved')return {text:(key==='basic'||key==='fundamental')?'Enrolled':'Course Unlocked',cls:''};
   if(s==='pending')return {text:'Payment Pending',cls:'pending'};
   if(s==='rejected')return {text:'Payment Rejected',cls:'rejected'};
   if(s==='revoked')return {text:'Access Revoked',cls:'rejected'};
-  return {text:key==='basic'?'Free Enrollment':'Payment Required',cls:'pending'};
+  return {text:(key==='basic'||key==='fundamental')?'Free Enrollment':'Payment Required',cls:'pending'};
 }
 function tileMarkup(c){
   const st=statusLabel(c.key);
@@ -348,7 +393,7 @@ function tileMarkup(c){
       <img class="psp-course-thumb-main" ${thumbAttrs(c,`${c.title} thumbnail`)}>
     </div>
     <div class="psp-course-tile-body">
-      <div class="psp-course-tile-top"><h3>${esc(c.title)}</h3><div class="psp-course-price">${c.price?('$'+c.price):'Free'}</div></div>
+      <div class="psp-course-tile-top"><h3>${esc(c.title)}${c.batchLabel?` <span class="psp-course-batch-badge">${esc(c.batchLabel)}</span>`:''}</h3><div class="psp-course-price">${c.price?('$'+c.price):'Free'}</div></div>
       <p>${esc(c.short)}</p>
       <div class="psp-course-meta"><span>${c.modules.length} Modules</span><span>${esc(c.level)}</span><span>Mentor Support</span></div>
       <div class="psp-course-tile-footer"><span class="psp-course-status-pill ${st.cls}">${esc(st.text)}</span><button class="psp-course-open-btn" type="button">View Course →</button></div>
@@ -357,15 +402,16 @@ function tileMarkup(c){
 }
 function ensureShell(){
   const page=document.getElementById('page-mycourses');if(!page)return null;
+  if(!document.getElementById('pspCourseV188Style')){const s=document.createElement('style');s.id='pspCourseV188Style';s.textContent='.psp-course-batch-badge{display:inline-flex;vertical-align:middle;margin-left:6px;padding:4px 8px;border:1px solid rgba(251,146,1,.42);border-radius:999px;background:rgba(251,146,1,.10);color:#d97706;font-size:10px;font-weight:900;white-space:nowrap}.psp-course-detail-title .psp-course-batch-badge{font-size:12px;transform:translateY(-3px)}';document.head.appendChild(s);}
   if(!page.querySelector('.psp-course-marketplace-v3')){
-    page.innerHTML=`<div class="psp-course-marketplace-v3"><section class="psp-course-marketplace"><div class="psp-course-market-head"><div><h2>Explore Forex Courses</h2><p>Choose a course, review the complete details and enroll from one professional page.</p></div><span class="psp-course-market-count" id="pspCourseActiveCount">2 Active Courses</span></div><div class="psp-course-card-grid" id="pspCourseCardGrid"></div></section><section class="psp-course-detail" id="pspCourseDetail"></section></div>`;
+    page.innerHTML=`<div class="psp-course-marketplace-v3"><section class="psp-course-marketplace"><div class="psp-course-market-head"><div><h2>Explore Forex Courses</h2><p>Choose a course, review the complete details and enroll from one professional page.</p></div><span class="psp-course-market-count" id="pspCourseActiveCount">3 Active Courses</span></div><div class="psp-course-card-grid" id="pspCourseCardGrid"></div></section><section class="psp-course-detail" id="pspCourseDetail"></section></div>`;
   }
   return page;
 }
 function renderMarketplace(){
   const page=ensureShell();if(!page)return;
   const grid=page.querySelector('#pspCourseCardGrid');if(!grid)return;
-  const visible=Object.values(courseData).filter(c=>c.published!==false);
+  const visible=Object.values(courseData).filter(c=>c.published!==false).sort((a,b)=>Number(a.displayOrder||99)-Number(b.displayOrder||99));
   const count=page.querySelector('#pspCourseActiveCount');
   if(count)count.textContent=`${visible.length} Active Course${visible.length===1?'':'s'}`;
   grid.innerHTML=visible.map(tileMarkup).join('');
@@ -417,7 +463,7 @@ function stickyAccessPanel(c,state){
     eyebrow=approved?'ALREADY ENROLLED':'INSTANT COURSE ACCESS';
     helper=approved?'Your enrollment is active. Open the modules or use the live-class box below.':'Confirm your profile details once and start learning immediately.';
     status=approved
-      ?'<div class="psp-course-buy-status approved"><b>✓ Already Enrolled</b><span>Your Basic Forex Course access is active.</span></div>'
+      ?'<div class="psp-course-buy-status approved"><b>✓ Already Enrolled</b><span>Your free course access is active.</span></div>'
       :'<div class="psp-course-buy-status"><b>100% Free Enrollment</b><span>No payment or admin approval required.</span></div>';
     button=approved?'Already Enrolled — Open Modules':'Enroll Now';
     steps='<div class="psp-access-steps"><span class="done">1</span><b>Profile</b><i></i><span class="'+(approved?'done':'')+'">2</span><b>Access</b></div>';
@@ -463,7 +509,7 @@ function stickyAccessPanel(c,state){
   </div>`;
 }
 function classAccessPanel(c,state){
-  if(state!=='approved')return '';
+  if(state!=='approved'||c.zoomEnabled===false)return '';
   const rows=(courseClasses[c.key]&&courseClasses[c.key].length?courseClasses[c.key]:defaultClasses(c.key));
   const isBasic=c.key==='basic';
   if(isBasic&&!rows.some(row=>row&&row.scheduled_at))return '';
@@ -521,9 +567,10 @@ function moduleRows(c,unlocked){
 }
 function detailMarkup(c){
   const state=enrollmentState[c.key];const unlocked=c.type==='free'||state==='approved';
-  const other=Object.values(courseData).find(x=>x.key!==c.key&&x.published!==false)||courseData.basic;
+  const others=Object.values(courseData).filter(x=>x.key!==c.key&&x.published!==false).sort((a,b)=>Number(a.displayOrder||99)-Number(b.displayOrder||99)).slice(0,2);
   const totalMinutes=c.modules.reduce((sum,m)=>sum+(parseInt(m.duration,10)||0),0);
-  const totalHours=c.key==='basic'?'7.5':Math.max(1,Math.round(totalMinutes/60));
+  const totalHours=c.key==='basic'?7.5:(totalMinutes>0?Math.max(1,Math.round((totalMinutes/60)*10)/10):0);
+  const totalTimeLabel=totalHours?`${totalHours}+ hrs`:`${c.modules.length} Sessions`;
   return `<div class="psp-course-detail-shell psp-course-${c.key} psp-course-${c.type}">
     <div class="psp-course-detail-left">
       <div class="psp-course-detail-hero"><div class="psp-course-detail-hero-inner">
@@ -531,22 +578,22 @@ function detailMarkup(c){
         <div class="psp-course-detail-hero-grid">
           <div class="psp-course-hero-copy">
             <div class="psp-course-breadcrumb">Forex Education › ${esc(c.level)} › ${esc(c.title)}</div>
-            <h1 class="psp-course-detail-title">${esc(c.title)}</h1>
+            <h1 class="psp-course-detail-title">${esc(c.title)}${c.batchLabel?` <span class="psp-course-batch-badge">${esc(c.batchLabel)}</span>`:''}</h1>
             <p class="psp-course-detail-subtitle">${esc(c.short)}</p>
             <div class="psp-course-detail-badges"><span>${c.modules.length} Modules</span><span>${esc(c.level)} Level</span><span>Practical Learning</span><span>${c.type==='free'?'100% Free':'Professional Program'}</span></div>
-            <div class="psp-course-hero-value-grid"><div><strong>${c.modules.length}</strong><span>Structured Modules</span></div><div><strong>${totalHours}+ hrs</strong><span>Guided Learning</span></div><div><strong>Practical</strong><span>Market-Focused Lessons</span></div><div><strong>Account</strong><span>Progress Tracking</span></div></div>
+            <div class="psp-course-hero-value-grid"><div><strong>${c.modules.length}</strong><span>Structured Modules</span></div><div><strong>${totalTimeLabel}</strong><span>Guided Learning</span></div><div><strong>Practical</strong><span>Market-Focused Lessons</span></div><div><strong>Account</strong><span>Progress Tracking</span></div></div>
           </div>
-          <div class="psp-course-mentor-visual"><div class="psp-course-mentor-glow"></div><img src="sajid-ghori.webp" alt="Sajid Khan Ghori — Asia Top Instructor"><div class="psp-course-mentor-badge"><span>LEARN WITH</span><strong>${esc(c.mentorName||'Sajid Khan Ghori')}</strong><small>${esc(c.mentorTitle||'Asia Top Instructor')}</small></div><div class="psp-course-floating-chip chip-one"><b>${c.modules.length}</b><span>Structured<br>Modules</span></div><div class="psp-course-floating-chip chip-two"><b>✓</b><span>Practical<br>Learning</span></div></div>
+          <div class="psp-course-mentor-visual"><div class="psp-course-mentor-glow"></div><img src="${esc(c.mentorImage||'sajid-ghori.webp')}" alt="${esc((c.mentorName||'Sajid Khan Ghori')+' — '+(c.mentorTitle||'Instructor'))}"><div class="psp-course-mentor-badge"><span>LEARN WITH</span><strong>${esc(c.mentorName||'Sajid Khan Ghori')}</strong><small>${esc(c.mentorTitle||'Asia Top Instructor')}</small></div><div class="psp-course-floating-chip chip-one"><b>${c.modules.length}</b><span>Structured<br>Modules</span></div><div class="psp-course-floating-chip chip-two"><b>✓</b><span>Practical<br>Learning</span></div></div>
         </div>
       </div></div>
       <main class="psp-course-main-column psp-course-detail-body">
         <div class="psp-course-overview-grid"><section class="psp-course-section psp-course-section-accent"><h3>${esc(c.learningHeading||"What you'll learn")}</h3><div class="psp-learn-grid">${c.learn.map(x=>`<div class="psp-learn-item"><span>✓</span><div>${esc(x)}</div></div>`).join('')}</div></section>
         <section class="psp-course-section psp-course-section-accent"><h3>${esc(c.outcomesHeading||'Course Outcomes')}</h3><div class="psp-includes-grid">${(c.achievement||[]).map((x,i)=>`<div class="psp-includes-item"><b style="color:#d97706">✓</b> ${esc(x)}</div>`).join('')}</div></section></div>
-        <section class="psp-course-section psp-course-content-card"><div class="psp-course-content-head"><div><div class="psp-section-kicker">STRUCTURED ROADMAP</div><h3 style="margin:0">${esc(c.contentHeading||'Course content')}</h3></div><small>${c.modules.length} modules • ${totalHours}+ hours • ${esc(c.contentNote||'One module opens at a time')}</small></div>${moduleRows(c,unlocked)}</section>
+        <section class="psp-course-section psp-course-content-card"><div class="psp-course-content-head"><div><div class="psp-section-kicker">STRUCTURED ROADMAP</div><h3 style="margin:0">${esc(c.contentHeading||'Course content')}</h3></div><small>${c.modules.length} modules • ${totalTimeLabel} • ${esc(c.contentNote||'One module opens at a time')}</small></div>${moduleRows(c,unlocked)}</section>
         <div class="psp-course-info-grid"><section class="psp-course-section"><div class="psp-section-kicker">BEFORE YOU START</div><h3>${esc(c.requirementsHeading||'Requirements')}</h3><div class="psp-course-copy"><ul>${c.requirements.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section>
         <section class="psp-course-section"><div class="psp-section-kicker">BEST MATCH</div><h3>${esc(c.audienceHeading||'Who this course is for')}</h3><div class="psp-course-copy"><ul>${c.audience.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section></div>
         <section class="psp-course-section psp-course-description-card"><div class="psp-section-kicker">ABOUT THIS PROGRAM</div><h3>${esc(c.descriptionHeading||'Description')}</h3><div class="psp-course-copy"><p>${esc(c.description)}</p>${c.descriptionExtra?`<p>${esc(c.descriptionExtra)}</p>`:''}</div></section>
-        <section class="psp-course-section"><div class="psp-section-kicker">CONTINUE LEARNING</div><h3>${esc(c.relatedHeading||'Other PipSePaisa Courses')}</h3><div class="psp-related-grid"><article class="psp-related-card" onclick="openCourseDetail('${other.key}')"><img ${thumbAttrs(other,other.title)}><div><h4>${esc(other.title)}</h4><p>${other.price?('$'+other.price):'100% Free'} • ${other.modules.length} Modules • View details →</p></div></article></div></section>
+        <section class="psp-course-section"><div class="psp-section-kicker">CONTINUE LEARNING</div><h3>${esc(c.relatedHeading||'Other PipSePaisa Courses')}</h3><div class="psp-related-grid">${others.map(other=>`<article class="psp-related-card" onclick="openCourseDetail('${other.key}')"><img ${thumbAttrs(other,other.title)}><div><h4>${esc(other.title)}</h4><p>${other.price?('$'+other.price):'100% Free'} • ${other.modules.length} Modules • View details →</p></div></article>`).join('')}</div></section>
       </main>
     </div>
     <aside class="psp-course-detail-side psp-course-sticky-column">${stickyAccessPanel(c,state)}${classAccessPanel(c,state)}</aside>
@@ -572,7 +619,7 @@ function handleAction(){
     (section||first)?.scrollIntoView({behavior:'smooth',block:'start'});
     return;
   }
-  if(typeof window.openCourseEnrollment==='function'){window.openCourseEnrollment(key);return;}
+  if(typeof window.openCourseEnrollment==='function'){window.openCourseEnrollment(enrollmentKeyFor(key));return;}
   console.error('Course enrollment modal is unavailable.');
   (window.pspAlert||window.alert)('Enrollment form could not open. Please refresh the page and try again.');
 }
@@ -599,8 +646,9 @@ function refreshCourseAccessOnly(courseKey){
   if(openIndex>=0){document.querySelectorAll('#pspCourseDetail .psp-module-row')[openIndex]?.classList.add('open');}
 }
 window.pspRefreshCourseAccess=async function(courseKey){
-  await loadEnrollmentStatesOnly(courseKey);
-  refreshCourseAccessOnly(courseKey);
+  const displayKey=displayKeyForEnrollment(courseKey);
+  await loadEnrollmentStatesOnly(displayKey);
+  refreshCourseAccessOnly(displayKey);
 };
 
 function refreshClassPanel(){
@@ -651,6 +699,7 @@ window.backToCourseMarketplace=function(){
 };
 window.openFreeCourseModules=function(){window.openCourseDetail('basic');};
 window.openAdvancedCourseModules=function(){window.openCourseDetail('advanced');};
+window.openFundamentalCourseModules=function(){window.openCourseDetail('fundamental');};
 window.openEnrolledCourse=function(){window.openCourseDetail(currentCourse?.key||'basic');};
 window.loadMyCourses=async function(){
   await loadCourseData();
@@ -686,7 +735,7 @@ function init(){
 }
 let enrollmentRefreshTimer=0;
 window.addEventListener('course-enrollment-updated',event=>{
-  const key=event?.detail?.courseKey||currentCourse?.key||'';
+  const key=displayKeyForEnrollment(event?.detail?.courseKey||currentCourse?.key||'');
   clearTimeout(enrollmentRefreshTimer);
   enrollmentRefreshTimer=setTimeout(async()=>{
     await loadEnrollmentStatesOnly(key);
