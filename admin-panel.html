@@ -412,6 +412,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="finance-management-v179.css?v=20260829-v179-finance-system">
 <link rel="stylesheet" href="admin-premium-v182.css?v=20260829-v182-premium-all-tabs">
 <link rel="stylesheet" href="payment-methods-v183.css?v=20260829-v183-payment-premium">
+<link rel="stylesheet" href="payments-enrollments-v184.css?v=20260829-v184-payments-executive">
 
 <style id="pspV129CoursesAndEditor">
 /* Course Manager — compact KPI strip */
@@ -532,7 +533,6 @@ select option{background:#0f1729;color:#e8eaf0}
     <div class="menu-label">Overview</div>
     <nav class="menu">
       <div class="menu-item active" data-page="dashboard" onclick="showPage('dashboard', this)"><span class="menu-icon">📊</span>Dashboard</div>
-      <div class="menu-item" data-page="analytics" onclick="showPage('analytics', this)"><span class="menu-icon">📈</span>Analytics</div>
       <div class="menu-item" data-page="revenue" onclick="showPage('revenue', this)"><span class="menu-icon">💰</span>Finance &amp; Accounts</div>
       
       <div class="menu-label">Users & Trades</div>
@@ -1426,58 +1426,6 @@ select option{background:#0f1729;color:#e8eaf0}
               <tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">No email campaigns sent yet</td></tr>
             </tbody>
           </table>
-        </div>
-      </div>
-      
-      <!-- ========== ANALYTICS ========== -->
-      <div class="page" id="page-analytics">
-        <div class="card">
-          <div style="padding: 18px; background: var(--blue-bg); border: 1px solid rgba(59,130,246,0.3); border-radius: 10px; font-size: 12px; color: var(--blue);">
-            ℹ️ <strong>Note:</strong> Page Views, Bounce Rate, Sessions, Devices, and Sources tracking requires a separate analytics service (like Google Analytics or Plausible). Connect one to see this data. For now, showing real data from your database.
-          </div>
-        </div>
-        
-        <div class="stats-grid">
-          <div class="stat-card"><div class="stat-header"><div class="stat-icon blue">👥</div><span class="stat-tag">Total</span></div><div class="stat-label">Registered Users</div><div class="stat-value" id="anaTotalUsers">0</div></div>
-          <div class="stat-card"><div class="stat-header"><div class="stat-icon green">📈</div><span class="stat-tag">Total</span></div><div class="stat-label">Trades Recorded</div><div class="stat-value" id="anaTotalTrades">0</div></div>
-          <div class="stat-card"><div class="stat-header"><div class="stat-icon gold">💎</div><span class="stat-tag">Active</span></div><div class="stat-label">Premium Members</div><div class="stat-value" id="anaPremium">0</div></div>
-          <div class="stat-card"><div class="stat-header"><div class="stat-icon purple">🎓</div><span class="stat-tag">Live</span></div><div class="stat-label">Active Courses</div><div class="stat-value" id="anaCourses">0</div></div>
-        </div>
-        
-        <div class="two-col">
-          <div class="card">
-            <div class="card-title">📈 User Growth Trend</div>
-            <div class="chart-container" style="margin-top: 12px;"><canvas id="trafficChart"></canvas></div>
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 10px; text-align: center;">Trades activity by day of week</div>
-          </div>
-          
-          <div class="card">
-            <div class="card-title">🌐 Users by Country</div>
-            <div id="anaCountriesList" style="margin-top: 14px;">
-              <div class="empty-state" style="height: 150px;"><div style="font-size: 12px;">Loading...</div></div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="three-col">
-          <div class="card">
-            <div class="card-title">🥇 Top Pairs Traded</div>
-            <div id="anaTopPairs" style="margin-top: 14px;">
-              <div class="empty-state" style="height: 100px;"><div style="font-size: 12px;">Loading...</div></div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-title">📊 User Status</div>
-            <div id="anaUserStatus" style="margin-top: 14px;">
-              <div class="empty-state" style="height: 100px;"><div style="font-size: 12px;">Loading...</div></div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-title">🎯 Quiz Stats</div>
-            <div id="anaQuizStats" style="margin-top: 14px;">
-              <div class="empty-state" style="height: 100px;"><div style="font-size: 12px;">Loading...</div></div>
-            </div>
-          </div>
         </div>
       </div>
       
@@ -2834,7 +2782,6 @@ function showPage(page, el) {
   
   const titles = {
     dashboard: ['Admin Command Center', 'Executive overview of users, payments, access, signals and growth'],
-    analytics: ['Analytics & Reports', 'Detailed insights and trends'],
     revenue: ['Finance & Accounts', 'Income, expenses, salaries and profit in one place'],
     users: ['User Management', 'Manage all registered users'],
     trades: ['All Trades', 'Live feed of user trading activity'],
@@ -4291,7 +4238,7 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 
 <script src="course-enrollments-admin.js?v=20260829-v174-unified-payments"></script>
 <script src="admin-final-overrides.js?v=20260829-v171-payment-watchdog"></script>
-<script src="admin-payments-ux-v174.js?v=20260829-v174-unified-center"></script>
+<script src="admin-payments-ux-v174.js?v=20260829-v184-premium-center"></script>
 <script src="psp-v18-admin-control.js?v=20260822-v131-safe-new-course-key"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
 <script src="admin-v28-fixes.js?v=20260801-v28-final"></script>
