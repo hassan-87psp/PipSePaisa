@@ -1239,7 +1239,7 @@
 
     if(paymentStartInFlight)return;
     paymentStartInFlight=true;
-    const existingNormalLabel=values.paymentFlow==='infinity'?'Continue to Local Bank Transfer':'Submit Payment for Approval';
+    const existingNormalLabel=selectedCourse.type==='free'?'Confirm Free Enrollment':(values.paymentFlow==='infinity'?'Continue to Local Bank Transfer':'Submit Payment for Approval');
     setBusy('ceDetailsSubmitBtn',true,values.paymentFlow==='infinity'?'Preparing Local Bank Transfer...':'Submitting...',existingNormalLabel);
 
     if(values.paymentFlow!=='infinity'){const optimistic={already:false,pending:false};showSuccess(optimistic,false);}
