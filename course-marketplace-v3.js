@@ -3,7 +3,7 @@
 
 const defaults={
   basic:{
-    key:'basic',displayOrder:1,enrollmentKey:'basic-b2',batchLabel:'Batch 2',zoomEnabled:false,title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
+    key:'basic',displayOrder:1,enrollmentKey:'basic-b2',batchLabel:'Batch 2',zoomEnabled:true,title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
     thumbnail:'basic-course-thumbnail.webp',
     short:'Build a strong foundation in Forex trading, technical analysis, candlestick behaviour, indicators and high-probability trading strategies.',
     description:'A structured 5-module beginner program designed to help new traders understand financial markets, read price behaviour, use technical tools correctly and build a practical trading edge.',
@@ -15,17 +15,17 @@ const defaults={
     requirements:['This course is suitable even if you are completely new to forex.','A mobile phone or computer with internet access.','A willingness to practise on a demo account and follow risk-management rules.'],
     audience:['Complete beginners starting their Forex journey.','Traders who want to rebuild their foundation correctly.','Students who prefer structured, practical learning.'],
     modules:[
-      {title:"FINANCIAL MARKETS BLUEPRINT",duration:'90 min',summary:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:'2026-09-03T23:59:00+05:00',date_only:true,points:["Global financial markets", "Forex ecosystem", "Market participants"]},
-      {title:"THE LANGUAGE OF PRICE INTELLIGENCE",duration:'90 min',summary:"Mastering Technical Analysis",scheduled_at:'2026-09-04T23:59:00+05:00',date_only:true,points:["Support & resistance", "Trend lines and structure", "Technical analysis foundations"]},
-      {title:"DECODING AND DISSECTING CANDLESTICKS",duration:'90 min',summary:"Cracking the Hidden Price Behaviors",scheduled_at:'2026-09-05T23:59:00+05:00',date_only:true,points:["Candlestick structure", "Price behaviour", "Rejection and momentum"]},
-      {title:"EXPLORING TRADER'S TOOLKIT",duration:'90 min',summary:"Mastering Technical Indicators",scheduled_at:'2026-09-06T23:59:00+05:00',date_only:true,points:["Technical indicators", "Confirmation tools", "Indicator interpretation"]},
-      {title:"BUILDING YOUR TRADING EDGE",duration:'90 min',summary:"Developing High-Probability Trading Strategies",scheduled_at:'2026-09-07T23:59:00+05:00',date_only:true,points:["Strategy development", "High-probability setups", "Entry and exit rules"]}
+      {title:"FINANCIAL MARKETS BLUEPRINT",duration:'90 min',summary:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:'2026-09-03T22:00:00+05:00',points:["Global financial markets", "Forex ecosystem", "Market participants"]},
+      {title:"THE LANGUAGE OF PRICE INTELLIGENCE",duration:'90 min',summary:"Mastering Technical Analysis",scheduled_at:'2026-09-04T22:00:00+05:00',points:["Support & resistance", "Trend lines and structure", "Technical analysis foundations"]},
+      {title:"DECODING AND DISSECTING CANDLESTICKS",duration:'90 min',summary:"Cracking the Hidden Price Behaviors",scheduled_at:'2026-09-05T22:00:00+05:00',points:["Candlestick structure", "Price behaviour", "Rejection and momentum"]},
+      {title:"EXPLORING TRADER'S TOOLKIT",duration:'90 min',summary:"Mastering Technical Indicators",scheduled_at:'2026-09-06T22:00:00+05:00',points:["Technical indicators", "Confirmation tools", "Indicator interpretation"]},
+      {title:"BUILDING YOUR TRADING EDGE",duration:'90 min',summary:"Developing High-Probability Trading Strategies",scheduled_at:'2026-09-07T22:00:00+05:00',points:["Strategy development", "High-probability setups", "Entry and exit rules"]}
     ],
     learn:['Understand the ecosystem of global financial markets.','Build a strong technical-analysis foundation.','Read candlestick behaviour and hidden price clues.','Use technical indicators as confirmation tools.','Develop a high-probability trading strategy with clear rules.'],
     achievement:['Understand how financial markets and Forex connect.','Read price action and candlestick behaviour with more clarity.','Use technical-analysis tools in a practical way.','Combine indicators with price behaviour instead of depending on them.','Build a structured trading edge for continued learning.']
   },
   fundamental:{
-    key:'fundamental',displayOrder:3,enrollmentKey:'fundamental',zoomEnabled:false,title:'Fundamental Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'100% FREE COURSE',
+    key:'fundamental',displayOrder:3,enrollmentKey:'fundamental',zoomEnabled:true,title:'Fundamental Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'100% FREE COURSE',
     thumbnail:'fundamental-course-thumbnail.png',mentorImage:'ghulam-abbas.png',mentorName:'Ghulam Abbas',mentorTitle:'Fundamental Expert & Trainer',
     short:'Learn how economic events, central banks and FOMC decisions influence Forex markets and create trading opportunities.',
     description:'Build a strong foundation in Forex fundamentals by understanding economic events, central bank decisions and major market-moving factors. This course helps beginners learn how fundamental analysis supports smarter trading decisions.',
@@ -36,9 +36,9 @@ const defaults={
     requirements:['No previous fundamental-analysis experience is required.','A mobile phone or computer with internet access.','Basic interest in understanding what moves Forex markets.'],
     audience:['Beginner traders who want to understand fundamental analysis.','Technical traders who want stronger market context.','Students who want to understand economic events and central-bank decisions.'],
     modules:[
-      {title:'TRADING WITH THE ECONOMIC CALENDAR',duration:'Session',summary:'Identify Potential Trade Setups Using Key Economic Events',points:['Read high-impact economic events','Understand event timing and expectations','Identify potential trade opportunities']},
-      {title:'CENTRAL BANKS & MARKET IMPACT',duration:'Session',summary:'Understand How Central Bank Policies Influence Forex Markets',points:['Understand central-bank policy','Learn the role of interest-rate decisions','Recognize policy impact on currencies']},
-      {title:'DECODING THE FOMC',duration:'Session',summary:'Understand FOMC Decisions and Their Impact on Forex Trading',points:['Understand what the FOMC is','Read key policy decisions','Connect FOMC outcomes with Forex movement']}
+      {title:'TRADING WITH THE ECONOMIC CALENDAR',duration:'90 min',summary:'Identify Potential Trade Setups Using Key Economic Events',scheduled_at:'2026-09-08T22:00:00+05:00',points:['Read high-impact economic events','Understand event timing and expectations','Identify potential trade opportunities']},
+      {title:'CENTRAL BANKS & MARKET IMPACT',duration:'90 min',summary:'Understand How Central Bank Policies Influence Forex Markets',scheduled_at:'2026-09-09T22:00:00+05:00',points:['Understand central-bank policy','Learn the role of interest-rate decisions','Recognize policy impact on currencies']},
+      {title:'DECODING THE FOMC',duration:'90 min',summary:'Understand FOMC Decisions and Their Impact on Forex Trading',scheduled_at:'2026-09-10T22:00:00+05:00',points:['Understand what the FOMC is','Read key policy decisions','Connect FOMC outcomes with Forex movement']}
     ],
     learn:['Use the Economic Calendar to spot important market events.','Understand how Central Banks influence Forex markets.','Learn the impact of FOMC and major policy decisions.','Build a basic understanding of fundamental market drivers.'],
     achievement:['Understand the core concepts of Forex fundamental analysis.','Read important economic events with better clarity.','Recognize how news and policy decisions affect price movement.','Improve overall market understanding for better trading decisions.']
@@ -72,20 +72,31 @@ const defaults={
 };
 
 
-const BASIC_LIVE_SCHEDULE=[
-  {course_key:'basic-b2',class_number:1,title:"FINANCIAL MARKETS BLUEPRINT",subtitle:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:'2026-09-03T23:59:00+05:00',date_only:true,is_active:true},
-  {course_key:'basic-b2',class_number:2,title:"THE LANGUAGE OF PRICE INTELLIGENCE",subtitle:"Mastering Technical Analysis",scheduled_at:'2026-09-04T23:59:00+05:00',date_only:true,is_active:true},
-  {course_key:'basic-b2',class_number:3,title:"DECODING AND DISSECTING CANDLESTICKS",subtitle:"Cracking the Hidden Price Behaviors",scheduled_at:'2026-09-05T23:59:00+05:00',date_only:true,is_active:true},
-  {course_key:'basic-b2',class_number:4,title:"EXPLORING TRADER'S TOOLKIT",subtitle:"Mastering Technical Indicators",scheduled_at:'2026-09-06T23:59:00+05:00',date_only:true,is_active:true},
-  {course_key:'basic-b2',class_number:5,title:"BUILDING YOUR TRADING EDGE",subtitle:"Developing High-Probability Trading Strategies",scheduled_at:'2026-09-07T23:59:00+05:00',date_only:true,is_active:true}
-];
-const BASIC_SCHEDULE_BY_NUMBER=new Map(BASIC_LIVE_SCHEDULE.map(x=>[x.class_number,x]));
+const FREE_WEBINAR_SCHEDULES={
+  basic:[
+    {course_key:'basic-b2',class_number:1,title:'FINANCIAL MARKETS BLUEPRINT',subtitle:'Understanding the Ecosystem of Global Financial Markets',scheduled_at:'2026-09-03T22:00:00+05:00',webinar_id:'965 3055 0551',join_url:'https://zoom.us/webinar/register/WN_vMmkxtOSSK6xZbbMveGfww',is_active:true},
+    {course_key:'basic-b2',class_number:2,title:'THE LANGUAGE OF PRICE INTELLIGENCE',subtitle:'Mastering Technical Analysis',scheduled_at:'2026-09-04T22:00:00+05:00',webinar_id:'959 6399 6559',join_url:'https://zoom.us/webinar/register/WN_T4TUovX7TnGAejmG9AqAyw',is_active:true},
+    {course_key:'basic-b2',class_number:3,title:'DECODING AND DISSECTING CANDLESTICKS',subtitle:'Cracking the Hidden Price Behaviors',scheduled_at:'2026-09-05T22:00:00+05:00',webinar_id:'964 9312 3401',join_url:'https://zoom.us/webinar/register/WN_hmhtzkQbTxy-aQgXn3l61A',is_active:true},
+    {course_key:'basic-b2',class_number:4,title:"EXPLORING TRADER'S TOOLKIT",subtitle:'Mastering Technical Indicators',scheduled_at:'2026-09-06T22:00:00+05:00',webinar_id:'912 8968 2755',join_url:'https://zoom.us/webinar/register/WN_snyuRGWfT86BqhKFsVw-WQ',is_active:true},
+    {course_key:'basic-b2',class_number:5,title:'BUILDING YOUR TRADING EDGE',subtitle:'Developing High-Probability Trading Strategies',scheduled_at:'2026-09-07T22:00:00+05:00',webinar_id:'943 3022 2793',join_url:'https://zoom.us/webinar/register/WN_o4wPJSxrSROBjp1QeBLZOQ',is_active:true}
+  ],
+  fundamental:[
+    {course_key:'fundamental',class_number:1,title:'TRADING WITH THE ECONOMIC CALENDAR',subtitle:'Identify Potential Trade Setups Using Key Economic Events',scheduled_at:'2026-09-08T22:00:00+05:00',webinar_id:'967 5307 4646',join_url:'https://zoom.us/webinar/register/WN_NHAPVGUHS326dPecYlfCtA',is_active:true},
+    {course_key:'fundamental',class_number:2,title:'CENTRAL BANKS & MARKET IMPACT',subtitle:'Understand How Central Bank Policies Influence Forex Markets',scheduled_at:'2026-09-09T22:00:00+05:00',webinar_id:'934 1812 1824',join_url:'https://zoom.us/webinar/register/WN_NVp6_5pfTj6zZ91Ixp1A4Q',is_active:true},
+    {course_key:'fundamental',class_number:3,title:'DECODING THE FOMC',subtitle:'Understand FOMC Decisions and Their Impact on Forex Trading',scheduled_at:'2026-09-10T22:00:00+05:00',webinar_id:'931 1316 6876',join_url:'https://zoom.us/webinar/register/WN_l9z72561SpSqA5xgneongA',is_active:true}
+  ]
+};
+const FREE_SCHEDULE_BY_NUMBER={
+  basic:new Map(FREE_WEBINAR_SCHEDULES.basic.map(x=>[x.class_number,x])),
+  fundamental:new Map(FREE_WEBINAR_SCHEDULES.fundamental.map(x=>[x.class_number,x]))
+};
 const CLASS_COMPLETION_GRACE_MS=3*60*60*1000;
-function basicScheduleRow(n){return BASIC_SCHEDULE_BY_NUMBER.get(Number(n))||null;}
+function freeScheduleRow(key,n){return FREE_SCHEDULE_BY_NUMBER[key]?.get(Number(n))||null;}
+function basicScheduleRow(n){return freeScheduleRow('basic',n);}
 function classIsCompleted(row){const d=row&&row.scheduled_at?new Date(row.scheduled_at):null;return !!(d&&Number.isFinite(d.getTime())&&Date.now()>d.getTime()+CLASS_COMPLETION_GRACE_MS);}
 function classScheduleText(row){
-  const d=row&&row.scheduled_at?new Date(row.scheduled_at):null;if(!d||!Number.isFinite(d.getTime()))return 'Date to be announced';
-  try{const date=d.toLocaleDateString('en-GB',{timeZone:'Asia/Karachi',day:'2-digit',month:'short',year:'numeric'});if(row&&row.date_only)return date;const time=d.toLocaleTimeString('en-US',{timeZone:'Asia/Karachi',hour:'numeric',minute:'2-digit',hour12:true});return `${date} • ${time} PKT`;}catch(_){return String(row.scheduled_at||'');}
+  const d=row&&row.scheduled_at?new Date(row.scheduled_at):null;if(!d||!Number.isFinite(d.getTime()))return 'Date & time to be announced';
+  try{const date=d.toLocaleDateString('en-GB',{timeZone:'Asia/Karachi',day:'2-digit',month:'short',year:'numeric'});const time=d.toLocaleTimeString('en-US',{timeZone:'Asia/Karachi',hour:'numeric',minute:'2-digit',hour12:true});return `${date} • ${time} PKT`;}catch(_){return String(row.scheduled_at||'');}
 }
 
 let courseData={basic:{...defaults.basic},fundamental:{...defaults.fundamental},advanced:{...defaults.advanced}};
@@ -135,7 +146,7 @@ async function getEnrollment(key){
   }catch(e){console.warn('Course enrollment state unavailable',e);return null;}
 }
 function defaultClasses(key){
-  if(key==='basic')return BASIC_LIVE_SCHEDULE.map(row=>({...row,zoom_url:'',join_url:'',registration_status:'not_registered',zoom_error_message:''}));
+  if(FREE_WEBINAR_SCHEDULES[key])return FREE_WEBINAR_SCHEDULES[key].map(row=>({...row,zoom_url:row.join_url,registration_status:'ready',zoom_error_message:''}));
   const mods=Array.isArray(courseData[key]?.modules)?courseData[key].modules:[];
   return mods.map((m,index)=>({course_key:key,class_number:index+1,title:m?.title||`Class ${index+1}`,zoom_url:'',join_url:'',registration_status:'not_registered',scheduled_at:null,zoom_error_message:'',is_active:true}));
 }
@@ -241,7 +252,7 @@ async function loadCourseDataFresh(){
 
   courseData={
     basic:{...defaults.basic,...(basic?{
-      dbId:basic.id||'',title:'Basic Forex Course',enrollmentKey:'basic-b2',batchLabel:'Batch 2',zoomEnabled:false,mentorImage:'sajid-ghori.webp',
+      dbId:basic.id||'',title:'Basic Forex Course',enrollmentKey:'basic-b2',batchLabel:'Batch 2',zoomEnabled:true,mentorImage:'sajid-ghori.webp',
       short:defaults.basic.short,
       description:defaults.basic.description,
       descriptionExtra:defaults.basic.descriptionExtra,
@@ -263,7 +274,7 @@ async function loadCourseDataFresh(){
     }:{...defaults.basic,published:true,videoUrl:'',thumbnail:systemThumbnail('basic'),modules:canonicalModules('basic',defaults.basic.modules)})},
 
     fundamental:{...defaults.fundamental,...(fundamental?{
-      dbId:fundamental.id||'',title:'Fundamental Forex Course',enrollmentKey:'fundamental',zoomEnabled:false,
+      dbId:fundamental.id||'',title:'Fundamental Forex Course',enrollmentKey:'fundamental',zoomEnabled:true,
       short:fundamental.short_description||fundamental.description||defaults.fundamental.short,
       description:fundamental.description||defaults.fundamental.description,
       descriptionExtra:fundamental.description_extra||defaults.fundamental.descriptionExtra,
@@ -509,47 +520,21 @@ function stickyAccessPanel(c,state){
   </div>`;
 }
 function classAccessPanel(c,state){
-  if(state!=='approved'||c.zoomEnabled===false)return '';
-  const rows=(courseClasses[c.key]&&courseClasses[c.key].length?courseClasses[c.key]:defaultClasses(c.key));
-  const isBasic=c.key==='basic';
-  if(isBasic&&!rows.some(row=>row&&row.scheduled_at))return '';
-  const upcomingRows=rows.filter(row=>!classIsCompleted(row));
-  const targetCount=isBasic?upcomingRows.length:rows.length;
-  const readyCount=(isBasic?upcomingRows:rows).filter(x=>/^https?:\/\//i.test(String(x.join_url||x.zoom_url||''))).length;
-  const generating=isBasic&&window.__pspZoomGenerating===true;
-  const failedCount=upcomingRows.filter(row=>/^(failed|error|rejected)$/i.test(String(row.registration_status||''))).length;
-  const pendingCount=upcomingRows.filter(row=>/^(pending|processing|registering)$/i.test(String(row.registration_status||''))).length;
-  const showRetry=isBasic&&targetCount>0&&readyCount<targetCount&&!generating&&pendingCount===0;
-  const retryText=readyCount>0?'Retry Missing Links':'Generate Upcoming Links';
-  const progress=generating||pendingCount>0
-    ?'<div class="psp-zoom-progress" role="status"><span class="psp-zoom-spinner"></span><span>Generating your personal upcoming class links…</span></div>'
-    :'';
-  const linkSummary=isBasic?`${readyCount}/${targetCount} Upcoming Links Ready`:`${readyCount}/${rows.length} Links Ready`;
-  return `<section class="psp-live-class-card" id="pspLiveClassCard" aria-label="${esc(c.title)} live classes">
-    <div class="psp-live-class-head"><div><span>LIVE CLASS ACCESS</span><h3>Your ${rows.length} Classes</h3></div><b>${linkSummary}</b></div>
-    <p>${isBasic?'Completed classes stay visible as Completed. New students only receive personal Zoom links for upcoming classes.':'Select a class to view its live-class access.'}</p>
-    ${progress}
-    ${showRetry?`<button type="button" class="psp-zoom-retry-btn" onclick="return window.retryZoomCourseRegistration?.(event)">${retryText}</button>`:''}
-    ${isBasic&&failedCount>0&&!generating?`<div class="psp-zoom-small-note">${failedCount} upcoming link${failedCount===1?'':'s'} need another attempt.</div>`:''}
+  if(state!=='approved'||!FREE_WEBINAR_SCHEDULES[c.key]||c.zoomEnabled===false)return '';
+  const rows=FREE_WEBINAR_SCHEDULES[c.key];
+  const upcoming=rows.filter(row=>!classIsCompleted(row)).length;
+  const completed=rows.length-upcoming;
+  return `<section class="psp-live-class-card" id="pspLiveClassCard" aria-label="${esc(c.title)} live webinars">
+    <div class="psp-live-class-head"><div><span>FREE LIVE WEBINAR ACCESS</span><h3>Your ${rows.length} Sessions</h3></div><b>${upcoming} Upcoming${completed?` • ${completed} Completed`:''}</b></div>
+    <p>Your enrollment is active. Each session opens its official Zoom webinar registration page.</p>
     <div class="psp-live-class-list">${rows.map((row,index)=>{
-      const completed=classIsCompleted(row);
-      const url=String(row.join_url||row.zoom_url||'').trim();
-      const safeUrl=!completed&&/^https?:\/\//i.test(url)?url:'';
-      const canonical=isBasic?basicScheduleRow(row.class_number):null;
-      const title=canonical?.title||(c.modules&&c.modules[index]&&c.modules[index].title)||row.title||`Class ${index+1}`;
-      const subtitle=canonical?.subtitle||row.subtitle||'';
-      const status=String(row.registration_status||'not_registered');
-      const failed=!completed&&/^(failed|error|rejected)$/i.test(status);
-      const pending=!completed&&(generating||/^(pending|processing|registering)$/i.test(status));
-      const stateText=completed?'✓ COMPLETED':safeUrl?'Zoom Ready':failed?'Registration Failed':pending?'Generating':'Link Pending';
-      const panel=completed
-        ?`<span class="psp-class-completed-note">✓ This class is completed. No new Zoom link is generated for completed classes.</span>`
-        :safeUrl
-          ?`<a href="${esc(safeUrl)}" target="_blank" rel="noopener">Join Webinar →</a>`
-          :failed
-            ?`<span>${esc(row.zoom_error_message||'Zoom registration failed. Use the retry button above.')}</span>`
-            :'<span>Your unique Zoom link is generated automatically for this upcoming class.</span>';
-      return `<div class="psp-live-class-row ${completed?'completed':safeUrl?'has-link':failed?'failed':'waiting'}"><button type="button" class="psp-live-class-toggle"><span><i>${String(index+1).padStart(2,'0')}</i><span class="psp-live-class-title-wrap"><strong>${esc(title)}</strong>${subtitle?`<small>${esc(subtitle)}</small>`:''}<em>📅 ${esc(classScheduleText(row))}</em></span></span><span class="psp-live-class-state">${stateText}${completed?'':'⌄'}</span></button><div class="psp-live-class-panel">${panel}</div></div>`;
+      const done=classIsCompleted(row);
+      const title=row.title||c.modules?.[index]?.title||`Session ${index+1}`;
+      const subtitle=row.subtitle||c.modules?.[index]?.summary||'';
+      const panel=done
+        ?'<span class="psp-class-completed-note">✓ This session has been completed.</span>'
+        :`<a href="${esc(row.join_url)}" target="_blank" rel="noopener">Join Webinar →</a><span>Webinar ID: ${esc(row.webinar_id)}</span>`;
+      return `<div class="psp-live-class-row ${done?'completed':'has-link'}"><button type="button" class="psp-live-class-toggle"><span><i>${String(index+1).padStart(2,'0')}</i><span class="psp-live-class-title-wrap"><strong>${esc(title)}</strong>${subtitle?`<small>${esc(subtitle)}</small>`:''}<em>📅 ${esc(classScheduleText(row))}</em></span></span><span class="psp-live-class-state">${done?'✓ COMPLETED':'Zoom Ready'}${done?'':'⌄'}</span></button><div class="psp-live-class-panel">${panel}</div></div>`;
     }).join('')}</div>
   </section>`;
 }
@@ -557,7 +542,7 @@ function classAccessPanel(c,state){
 function moduleRows(c,unlocked){
   if(c.type==='paid'&&!unlocked){return `<div class="psp-course-locked-roadmap"><div class="psp-course-locked-intro"><div class="lock">🔒</div><div><h4>Advanced Modules Locked</h4><p>Module details unlock after payment approval. You can still preview the complete learning roadmap below.</p></div></div>${c.modules.map((m,i)=>`<div class="psp-module-row locked"><div class="psp-module-toggle"><span><strong>${String(i+1).padStart(2,'0')}. ${esc(m.title)}</strong></span><span class="psp-locked-label">🔒 Locked</span></div></div>`).join('')}</div>`;}
   return `<div class="psp-module-list">${c.modules.map((m,i)=>{
-    const schedule=c.key==='basic'?(basicScheduleRow(i+1)||{scheduled_at:m.scheduled_at,title:m.title,subtitle:m.summary}):null;
+    const schedule=FREE_WEBINAR_SCHEDULES[c.key]?(freeScheduleRow(c.key,i+1)||{scheduled_at:m.scheduled_at,title:m.title,subtitle:m.summary}):null;
     const completed=schedule?classIsCompleted(schedule):false;
     const hasSchedule=!!(schedule&&schedule.scheduled_at);
     const scheduleLine=hasSchedule?`<small class="psp-module-schedule">📅 ${esc(classScheduleText(schedule))}</small>`:'';

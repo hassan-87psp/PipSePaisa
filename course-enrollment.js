@@ -1139,10 +1139,8 @@
           if(!result.already || (selectedCourse.type==='free'&&result.updated)){
             const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
             const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
-            if(selectedCourse.key==='basic')jobs.push(registerZoomCourse(values));
             const jobResults=await Promise.all(jobs);
             if(!jobResults[0]?.ok)console.warn('Enrollment saved but email delivery failed.',jobResults[0]?.error||jobResults[0]);
-            if(selectedCourse.type==='free'&&!jobResults[1]?.ok)console.warn('Course enrolled but Zoom registration needs attention.',jobResults[1]?.error||jobResults[1]);
           }
         }).catch(error=>console.warn('Post-enrollment background task failed.',error));
       },0);
@@ -1265,22 +1263,11 @@
       if(!result.already || (selectedCourse.type==='free'&&result.updated)){
         const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
         const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
-        if(selectedCourse.key==='basic')jobs.push(registerZoomCourse(values));
         const jobResults=await Promise.all(jobs);const emailResult=jobResults[0];
         if(!emailResult.ok){
           console.warn('Enrollment saved but email delivery failed. Check send-course-email logs.',emailResult.error);
           const note=emailResult.detail||emailResult.error?.message||'Email delivery failed.';
           if(window.pipToast)window.pipToast(`Enrollment saved. Email not sent: ${note}`,'err');
-        }
-        if(selectedCourse.key==='basic'){
-          const zoomResult=jobResults[1];
-          if(zoomResult?.ok){if(window.pipToast)window.pipToast('Enrollment complete. Zoom registration for all 9 classes is confirmed.','ok');}
-          else{
-            console.warn('Course enrolled but Zoom registration needs attention.',zoomResult?.error);
-            const note=zoomResult?.detail||zoomResult?.error?.message||'Zoom registration failed.';
-            if(window.pipToast)window.pipToast(`Course enrolled. Zoom registration needs attention: ${note}`,'err');
-          }
-          try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:zoomResult?.data||{}}));}catch(_){ }
         }
       }
       showSuccess(result);
