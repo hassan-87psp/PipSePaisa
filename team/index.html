@@ -177,7 +177,33 @@ async function copyText(text){try{await navigator.clipboard.writeText(text);toas
 window.pspCopyTeamLinkV206=i=>{const l=S.links[i];if(l)copyText(buildUrl(l))};
 function conversion(a,b){return b>0?(a*100/b):0}
 function autoBadge(v){return `<span class="auto-badge">AUTO TRACKED</span>`}
-async function signIn(){const btn=$('loginBtn'),u=$('loginId').value.trim(),p=$('loginPassword').value;if(!u||!p)return authMsg('Enter your username and password.',true);btn.disabled=true;btn.textContent='Signing in…';authMsg('');try{const r=await db.rpc('psp_team_login_v56',{p_username:u,p_password:p});if(r.error)throw r.error;const x=row(r.data);if(!x?.session_token)throw new Error('Username or password is incorrect.');S.token=x.session_token;localStorage.setItem(SESSION_KEY,S.token);await loadAll();setView(true)}catch(e){S.token='';localStorage.removeItem(SESSION_KEY);authMsg(e.message||'Could not sign in.',true);setView(false)}finally{btn.disabled=false;btn.textContent='Sign In'}}
+async function signIn(){
+  const btn=$('loginBtn'),u=$('loginId').value.trim(),p=$('loginPassword').value;
+  if(!u||!p)return authMsg('Enter your username and password.',true);
+  btn.disabled=true;btn.textContent='Signing in…';authMsg('');
+  try{
+    const r=await db.rpc('psp_team_login_v56',{p_username:u,p_password:p});
+    if(r.error)throw r.error;
+    const x=row(r.data);
+    if(!x?.session_token)throw new Error('Username or password is incorrect.');
+    S.token=x.session_token;
+    localStorage.setItem(SESSION_KEY,S.token);
+    setView(true);
+    try{
+      await loadAll();
+    }catch(loadError){
+      console.error('Team dashboard load failed after successful login:',loadError);
+      S.metrics=S.metrics||{};
+      renderAll();
+      toast('Signed in, but Team Performance data could not load. Run the latest V206.1 SQL hotfix.','bad');
+    }
+  }catch(e){
+    S.token='';localStorage.removeItem(SESSION_KEY);
+    authMsg(e.message||'Could not sign in.',true);setView(false);
+  }finally{
+    btn.disabled=false;btn.textContent='Sign In';
+  }
+}
 async function logout(){const t=S.token;S.token='';localStorage.removeItem(SESSION_KEY);setView(false);if(t)try{await db.rpc('psp_team_logout_v56',{p_session_token:t})}catch(_){}}
 async function loadLinks(){const my=selectedMY();try{let r=await db.rpc('psp_team_links_v206',{p_session_token:S.token,p_month:my.month,p_year:my.year});if(r.error){console.warn('V206 link metrics fallback:',r.error);r=await db.rpc('psp_team_my_links_v201',{p_session_token:S.token});}if(r.error)throw r.error;S.links=r.data||[]}catch(e){console.warn(e);S.links=[]}}
 async function loadClients(){try{const r=await db.rpc('psp_team_clients_v206',{p_session_token:S.token,p_limit:1500});if(r.error)throw r.error;S.clients=r.data||[]}catch(e){console.warn(e);S.clients=[];if(S.view==='clients')toast('Client attribution data needs V206 SQL.','bad')}}
@@ -206,7 +232,19 @@ function renderSource(){const rows=Array.isArray(S.metrics?.source_performance)?
 function renderHistory(){const hist=Array.isArray(S.metrics?.history)?S.metrics.history:[];$('historyRows').innerHTML=hist.length?hist.map(h=>`<tr><td><b>${shortMonth(h.period_month)}</b></td><td>${fmt(h.registrations)}</td><td>${fmt(h.clients)}</td><td>${money(h.course_performance)}</td><td>${fmt(h.vip_clients)}</td><td>${fmt(h.xm_lots)}</td><td>${fmt(h.dprime_lots)}</td><td>${fmt(h.exness_lots)}</td><td>${fmt(h.overall_lots)}</td><td>${money(h.course_earnings)}</td><td>${money(h.vip_earnings)}</td><td>${money(h.lot_earnings)}</td><td><b>${money(h.total_earnings)}</b></td></tr>`).join(''):'<tr><td colspan="13" class="empty">No monthly history yet.</td></tr>'}
 function changeView(v){S.view=v;document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='view-'+v));window.scrollTo({top:0,behavior:'smooth'})}
 function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>changeView(b.dataset.view));$('loginBtn').onclick=signIn;$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});$('logoutBtn').onclick=logout;$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');$('monthSelect').onchange=async()=>{try{await loadAll()}catch(e){toast(e.message,'bad')}};$('yearSelect').onchange=$('monthSelect').onchange;$('dailySaveBtn').onclick=saveDaily;$('clientSearch').oninput=renderClients;$('clientStatusFilter').onchange=renderClients;$('notifyBtn').onclick=()=>toast('No new Team notifications.')}
-(async()=>{initSelectors();applyTheme(localStorage.getItem(THEME_KEY)||'dark');bind();try{if(S.token){await loadAll();setView(true)}else setView(false)}catch(e){console.warn(e);S.token='';localStorage.removeItem(SESSION_KEY);setView(false);authMsg('Please sign in again. If this is the first V206 deployment, run the V206 SQL first.',true)}})();
+(async()=>{
+  initSelectors();applyTheme(localStorage.getItem(THEME_KEY)||'dark');bind();
+  if(!S.token){setView(false);return}
+  setView(true);
+  try{
+    await loadAll();
+  }catch(e){
+    console.error('Saved Team session is valid but dashboard data failed:',e);
+    S.metrics=S.metrics||{};
+    renderAll();
+    toast('Team Performance data could not load. Run the latest V206.1 SQL hotfix.','bad');
+  }
+})();
 })();
 </script>
 <script src="/audit-agent-v174.js?v=20260902-v206-team-command-center"></script>
