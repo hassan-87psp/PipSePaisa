@@ -1678,6 +1678,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 }
 </style>
 <link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
+<script defer src="/course-auth-path-v207.js?v=20260902-v2062-course-auth"></script>
 <link rel="canonical" href="https://pipsepaisa.com/sign-in">
 <script src="/psp-direct-signup-v1.js?v=20260813-v76-referral-fix"></script>
 </head>
@@ -2116,7 +2117,8 @@ async function landingLoginUser(){
 
       loginResult={ok:true,userId:result.data.user.id};
       localStorage.setItem('pipsepaisa_last_login_email',email);
-      location.replace('./?logged_in=1');
+      const courseTarget=window.PSPCourseAuthFlow?.afterAuth?.()||'';
+      location.replace(courseTarget||'/?logged_in=1');
     }
 
     if(!loginResult?.ok){
@@ -2173,10 +2175,17 @@ async function landingSignupUser(){
   if(btn){btn.disabled=true;btn.textContent='⏳ Creating account...';}
   try{
     const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
-    const metadata={full_name:fullName,username,phone,whatsapp:phone,role:'user',psp_auto_enroll_course:'basic',...(window.PSPTrack?.authMetadata?.()||{})};
-    const data=await window.PSPDirectSignup(landingSb,{email,password,metadata});
+    const courseIntent=window.PSPCourseAuthFlow?.read?.()?.key||'';
+    const metadata={full_name:fullName,username,phone,whatsapp:phone,role:'user',...(courseIntent?{psp_course_interest:courseIntent}:{psp_auto_enroll_course:'basic'}),...(window.PSPTrack?.authMetadata?.()||{})};
+    const data=await window.PSPDirectSignup(landingSb,{email,password,metadata,skipAutoEnrollment:!!courseIntent});
     if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
     try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
+    if(courseIntent){
+      const target=window.PSPCourseAuthFlow?.afterAuth?.()||('/?open=mycourses&psp_enroll='+encodeURIComponent(courseIntent));
+      showLandingAuthMessage('success','Account created. Opening your course enrollment…','landingSignupMessage');
+      setTimeout(()=>location.replace(target),350);
+      return;
+    }
     try{await window.PSPTrack?.enrollment?.('basic',data.user.id,{source:'website-signup'});}catch(_){}
     const postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
     const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
