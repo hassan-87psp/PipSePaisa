@@ -242,9 +242,10 @@
               'Content-Type':'application/json',
               'apikey':SUPABASE_KEY,
               'Authorization':`Bearer ${session.access_token}`,
-              'x-client-info':'pipsepaisa-web-v29-smooth-zoom-links'
+              'x-client-info':'pipsepaisa-web-v194-auto-zoom-repair'
             },
             body:JSON.stringify({
+              course_key:selectedCourse?.key||'',
               full_name:values?.name||activeProfile?.full_name||activeUser?.user_metadata?.full_name||activeUser?.user_metadata?.name||'PipSePaisa Student'
             })
           });
@@ -1122,7 +1123,7 @@
         return;
       }
 
-      const postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+      const postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id,{courseKey:selectedCourse.key,courseName:selectedCourse.name})||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
       const postCopy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
       const title=document.getElementById('ceSuccessTitle');
       const text=document.getElementById('ceSuccessText');
@@ -1134,17 +1135,22 @@
           :'Thank You for Joining! You are logged in and your payment receipt has been submitted for verification. Please follow our WhatsApp Channel for important course updates and announcements. Redirecting you now...');
       showStep('ceStepSuccess');
       try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));}catch(_){ }
-      setTimeout(()=>{
-        Promise.resolve().then(async()=>{
-          if(!result.already || (selectedCourse.type==='free'&&result.updated)){
-            const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
-            const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
-            const jobResults=await Promise.all(jobs);
-            if(!jobResults[0]?.ok)console.warn('Enrollment saved but email delivery failed.',jobResults[0]?.error||jobResults[0]);
-          }
-        }).catch(error=>console.warn('Post-enrollment background task failed.',error));
-      },0);
-      setTimeout(()=>{window.location.href=postSignup.url;},1000);
+      const isCurrentFreeZoomCourse=selectedCourse.type==='free'&&['basic-b2','fundamental'].includes(selectedCourse.key);
+      try{
+        if(!result.already || (selectedCourse.type==='free'&&result.updated)){
+          const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
+          const emailResult=await sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined});
+          if(!emailResult.ok)console.warn('Enrollment saved but email delivery failed.',emailResult.error||emailResult);
+        }
+        if(isCurrentFreeZoomCourse){
+          const zoomResult=await registerZoomCourse(values);
+          try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:zoomResult.data||{}}));}catch(_){ }
+          if(!zoomResult.ok)console.warn('Course enrolled but Zoom auto-registration needs attention.',zoomResult.error||zoomResult);
+        }
+      }catch(postError){
+        console.warn('Post-enrollment task failed.',postError);
+      }
+      setTimeout(()=>{window.location.href=postSignup.url;},1200);
     }catch(error){
       let msg=values.paymentFlow==='infinity'?localBankUserMessage(error):(error?.message||'Account creation failed.');
       if(values.paymentFlow!=='infinity'&&/already|registered|exists/i.test(msg))msg='This email is already registered. Please use the “Already a User” button.';
@@ -1260,14 +1266,24 @@
         return;
       }
 
+      const isCurrentFreeZoomCourse=selectedCourse.type==='free'&&['basic-b2','fundamental'].includes(selectedCourse.key);
+      let emailResult={ok:true};
       if(!result.already || (selectedCourse.type==='free'&&result.updated)){
         const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
-        const jobs=[sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined})];
-        const jobResults=await Promise.all(jobs);const emailResult=jobResults[0];
+        emailResult=await sendCourseEmail(mailType,values,{enrollment_id:result.row?.id||undefined});
         if(!emailResult.ok){
           console.warn('Enrollment saved but email delivery failed. Check send-course-email logs.',emailResult.error);
           const note=emailResult.detail||emailResult.error?.message||'Email delivery failed.';
           if(window.pipToast)window.pipToast(`Enrollment saved. Email not sent: ${note}`,'err');
+        }
+      }
+      if(isCurrentFreeZoomCourse){
+        setMessage('ceDetailsMessage','info','Enrollment confirmed. Registering your Zoom webinars...');
+        const zoomResult=await registerZoomCourse(values);
+        try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:zoomResult.data||{}}));}catch(_){ }
+        if(!zoomResult.ok){
+          console.warn('Enrollment active but Zoom auto-registration needs attention.',zoomResult.error||zoomResult);
+          if(window.pipToast)window.pipToast(`Course enrolled. Zoom registration needs attention: ${zoomResult.detail||zoomResult.error?.message||'Please retry from the course page.'}`,'err');
         }
       }
       showSuccess(result);

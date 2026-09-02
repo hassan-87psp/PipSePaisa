@@ -40,7 +40,7 @@
     <div class="user-actions"><div class="member-chip"><strong id="memberName">Team Member</strong><span id="memberUsername">@username</span></div><button class="logout" id="logoutBtn">Logout</button></div>
   </header>
   <main class="wrap">
-    <div class="page-head"><div><h1>My Performance</h1><p>Live performance for your Admin-assigned tracking link.</p></div><button class="refresh" id="refreshBtn">↻ Refresh</button></div>
+    <div class="page-head"><div><h1>My Performance</h1><p>Live performance for all tracking links assigned to you by Admin.</p></div><button class="refresh" id="refreshBtn">↻ Refresh</button></div>
     <div class="stats">
       <div class="stat"><span>Total Clicks</span><strong id="statClicks">0</strong></div>
       <div class="stat"><span>Unique Visitors</span><strong id="statUnique">0</strong></div>
@@ -49,15 +49,9 @@
       <div class="stat"><span>Conversion</span><strong id="statConversion">0%</strong></div>
     </div>
     <section class="card">
-      <div class="card-head"><div><div class="card-title">My Assigned Link</div><div class="card-sub">This link is read-only and managed by Admin.</div></div><span class="status on" id="linkStatus">Active</span></div>
-      <div class="link-box">
-        <div class="link-block"><label>Link Name</label><strong id="linkName">—</strong></div>
-        <div class="link-block"><label>Source</label><strong id="linkSource">—</strong></div>
-        <div class="link-block"><label>Campaign</label><strong id="linkCampaign">—</strong></div>
-        <div class="link-block"><label>Destination</label><strong id="linkDestination">—</strong></div>
-      </div>
-      <div class="link-url"><code id="linkUrl">—</code><button class="copy" id="copyLinkBtn">Copy Link</button></div>
-      <div class="security-note"><span>🔒</span><span>You can view and copy only this assigned link. Link creation/editing/deletion, PINs, Lock/Unlock, Set Time, New PIN, role changes and all Admin controls are unavailable in this panel.</span></div>
+      <div class="card-head"><div><div class="card-title">My Assigned Links</div><div class="card-sub">All links assigned by Admin are shown together. Links are read-only.</div></div><span class="status on" id="linkStatus">Active</span></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Link Name</th><th>Destination</th><th>Source / Campaign</th><th>Clicks</th><th>Unique</th><th>Signups</th><th>Enrollments</th><th>Conversion</th><th>Link</th></tr></thead><tbody id="assignedLinksTable"><tr><td colspan="9" class="empty">Loading assigned links…</td></tr></tbody></table></div>
+      <div class="security-note"><span>🔒</span><span>Links are created and managed only by Admin. You can view performance and copy your assigned links.</span></div>
     </section>
     <section class="card">
       <div class="card-head"><div><div class="card-title">My Referred Clients</div><div class="card-sub" id="clientCount">Clients attributed to your link.</div></div><div class="table-tools"><input class="search" id="clientSearch" placeholder="Search name, Client ID, WhatsApp or course"></div></div>
@@ -73,14 +67,14 @@ const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const BASE='https://pipsepaisa.com';
 const SESSION_KEY='pipsepaisa-team-session-v56';
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
-let dashboard=null,clients=[],sessionToken=localStorage.getItem(SESSION_KEY)||'';
+let dashboard=null,assignedLinks=[],clients=[],sessionToken=localStorage.getItem(SESSION_KEY)||'';
 const $=id=>document.getElementById(id);const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const fmt=v=>Number(v||0).toLocaleString();
 function setView(logged){$('boot').classList.add('hidden');$('authView').classList.toggle('hidden',logged);$('appView').classList.toggle('hidden',!logged)}
 function message(text,bad){const e=$('authMsg');e.textContent=text||'';e.className='auth-msg '+(bad?'bad':'ok')}
 function conversionRate(enrollments,signups){const s=Number(signups||0),e=Number(enrollments||0);return s>0?(e/s)*100:0;}
 function date(v){if(!v)return '—';try{return new Date(v).toLocaleString();}catch(_){return '—'}}
 function buildUrl(d){if(!d)return '';const p=d.destination_path||'/';return BASE+p+(p.includes('?')?'&':'?')+'ref='+encodeURIComponent(d.link_slug||'')}
-function clearSession(){sessionToken='';localStorage.removeItem(SESSION_KEY);dashboard=null;clients=[];}
+function clearSession(){sessionToken='';localStorage.removeItem(SESSION_KEY);dashboard=null;assignedLinks=[];clients=[];}
 function rpcRow(data){return Array.isArray(data)?data[0]:data;}
 async function signIn(){
   const btn=$('loginBtn'),username=$('loginId').value.trim(),password=$('loginPassword').value;
@@ -101,15 +95,55 @@ async function loadPanel(){
   if(error)throw error;
   const row=rpcRow(data);
   if(!row){clearSession();setView(false);throw new Error('This Team Panel session is inactive or expired. Please sign in again.');}
-  dashboard=row;renderDashboard();setView(true);await loadClients();
+  dashboard=row;await loadAssignedLinks();renderDashboard();setView(true);await loadClients();
 }
-function renderDashboard(){const d=dashboard;$('memberName').textContent=d.display_name||'Team Member';$('memberUsername').textContent='@'+(d.username||'team');$('statClicks').textContent=fmt(d.total_clicks);$('statUnique').textContent=fmt(d.unique_visitors);$('statSignups').textContent=fmt(d.signups);$('statEnrollments').textContent=fmt(d.enrollments);$('statConversion').textContent=conversionRate(d.enrollments,d.signups).toFixed(1)+'%';$('linkName').textContent=d.link_name||'—';$('linkSource').textContent=d.source||'—';$('linkCampaign').textContent=d.campaign||'—';$('linkDestination').textContent=d.destination_path||'—';$('linkUrl').textContent=buildUrl(d);$('linkStatus').textContent=d.link_is_active?'Active':'Disabled';$('linkStatus').className='status '+(d.link_is_active?'on':'off')}
+async function loadAssignedLinks(){
+  assignedLinks=[];
+  try{
+    const {data,error}=await client.rpc('psp_team_my_links_v201',{p_session_token:sessionToken});
+    if(error)throw error;
+    assignedLinks=data||[];
+  }catch(e){
+    console.warn('Multiple assigned links are not available yet.',e);
+  }
+  if(!assignedLinks.length&&dashboard){
+    assignedLinks=[{
+      link_id:dashboard.link_id||'',link_name:dashboard.link_name||'Assigned Link',link_slug:dashboard.link_slug||'',
+      destination_path:dashboard.destination_path||'/',source:dashboard.source||'',campaign:dashboard.campaign||'',
+      is_active:dashboard.link_is_active!==false,total_clicks:Number(dashboard.total_clicks||0),
+      unique_visitors:Number(dashboard.unique_visitors||0),signups:Number(dashboard.signups||0),enrollments:Number(dashboard.enrollments||0)
+    }];
+  }
+}
+function renderDashboard(){
+  const d=dashboard||{};
+  $('memberName').textContent=d.display_name||'Team Member';
+  $('memberUsername').textContent='@'+(d.username||'team');
+  const clicks=assignedLinks.reduce((a,x)=>a+Number(x.total_clicks||0),0);
+  const unique=assignedLinks.reduce((a,x)=>a+Number(x.unique_visitors||0),0);
+  const signups=assignedLinks.reduce((a,x)=>a+Number(x.signups||0),0);
+  const enrollments=assignedLinks.reduce((a,x)=>a+Number(x.enrollments||0),0);
+  $('statClicks').textContent=fmt(clicks);$('statUnique').textContent=fmt(unique);$('statSignups').textContent=fmt(signups);$('statEnrollments').textContent=fmt(enrollments);$('statConversion').textContent=conversionRate(enrollments,signups).toFixed(1)+'%';
+  $('linkStatus').textContent=assignedLinks.filter(x=>x.is_active!==false).length+' Active';
+  $('linkStatus').className='status '+(assignedLinks.some(x=>x.is_active!==false)?'on':'off');
+  const tbody=$('assignedLinksTable');
+  if(!assignedLinks.length){tbody.innerHTML='<tr><td colspan="9" class="empty">No links are assigned to this Team Member.</td></tr>';return;}
+  tbody.innerHTML=assignedLinks.map((x,i)=>{
+    const conv=conversionRate(x.enrollments,x.signups).toFixed(1)+'%';
+    return `<tr><td><div class="client-name">${esc(x.link_name||'Tracked Link')}</div><div class="muted">${esc(x.link_slug||'')}</div></td><td>${esc(x.destination_path||'—')}</td><td>${esc(x.source||'—')}<div class="muted">${esc(x.campaign||'No campaign')}</div></td><td><strong>${fmt(x.total_clicks)}</strong></td><td>${fmt(x.unique_visitors)}</td><td>${fmt(x.signups)}</td><td>${fmt(x.enrollments)}</td><td>${conv}</td><td><button class="copy" onclick="copyAssignedLinkV201(${i})">Copy Link</button></td></tr>`;
+  }).join('');
+}
+window.copyAssignedLinkV201=async function(index){
+  const row=assignedLinks[index];if(!row)return;
+  const text=buildUrl(row);
+  try{await navigator.clipboard.writeText(text);}catch(_){}
+};
 function whatsappLink(value){const digits=String(value||'').replace(/\D/g,'');return digits?`https://wa.me/${digits}`:''}
 async function loadClients(){const tbody=$('clientTable');tbody.innerHTML='<tr><td colspan="5" class="empty">Loading clients…</td></tr>';const {data,error}=await client.rpc('psp_team_my_clients_v56',{p_session_token:sessionToken,p_limit:1000});if(error){tbody.innerHTML='<tr><td colspan="5" class="empty">'+esc(error.message)+'</td></tr>';return}clients=data||[];renderClients();}
 function renderClients(){const q=$('clientSearch').value.trim().toLowerCase();const rows=clients.filter(c=>!q||[c.full_name,c.client_id,c.whatsapp,c.courses].some(v=>String(v||'').toLowerCase().includes(q)));$('clientCount').textContent=rows.length+' client'+(rows.length===1?'':'s')+' shown · '+clients.length+' total attributed.';const tbody=$('clientTable');if(!rows.length){tbody.innerHTML='<tr><td colspan="5" class="empty">No matching referred clients.</td></tr>';return}tbody.innerHTML=rows.map(c=>{const wa=whatsappLink(c.whatsapp);const waButton=wa?`<a class="wa-btn" href="${wa}" target="_blank" rel="noopener noreferrer">Open WhatsApp</a>`:`<span class="wa-btn disabled">No WhatsApp</span>`;const verified=c.email_verified===true;return `<tr><td><div class="client-name">${esc(c.full_name||'User')}</div><div class="muted"><strong>${esc(c.client_id||'—')}</strong> · ${fmt(c.enrollment_count)} enrollment${Number(c.enrollment_count)===1?'':'s'}</div></td><td><span class="verify ${verified?'yes':'no'}">${verified?'✓ Verified':'Unverified'}</span></td><td>${waButton}</td><td>${esc(date(c.signup_at))}</td><td>${esc(c.courses||'—')}<div class="muted">${c.latest_enrollment_at?'Latest: '+date(c.latest_enrollment_at):''}</div></td></tr>`}).join('')}
 async function refresh(){const b=$('refreshBtn');b.disabled=true;b.textContent='Refreshing…';try{await loadPanel();}catch(e){clearSession();setView(false);message(e.message||'Could not refresh.',true)}finally{b.disabled=false;b.textContent='↻ Refresh'}}
 async function logout(){const token=sessionToken;clearSession();setView(false);if(token){try{await client.rpc('psp_team_logout_v56',{p_session_token:token});}catch(_){}}}
-$('loginBtn').onclick=signIn;$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});$('logoutBtn').onclick=logout;$('refreshBtn').onclick=refresh;$('clientSearch').addEventListener('input',renderClients);$('copyLinkBtn').onclick=async()=>{const text=$('linkUrl').textContent;try{await navigator.clipboard.writeText(text);$('copyLinkBtn').textContent='Copied ✓';setTimeout(()=>$('copyLinkBtn').textContent='Copy Link',1200)}catch(_){}}
+$('loginBtn').onclick=signIn;$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});$('logoutBtn').onclick=logout;$('refreshBtn').onclick=refresh;$('clientSearch').addEventListener('input',renderClients);
 (async()=>{try{if(sessionToken)await loadPanel();else setView(false);}catch(e){clearSession();message(e.message||'Please sign in.',true);setView(false)}})();
 window.__pspTeamAudit={client,getToken:()=>sessionToken,getDashboard:()=>dashboard};
 })();

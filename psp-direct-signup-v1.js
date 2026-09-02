@@ -77,17 +77,38 @@
     }catch(_){return null;}
   }
 
+
+  function referralCourseName(referral,context){
+    const explicit=String(context?.courseName||'').trim();
+    if(explicit){
+      if(String(context?.courseKey||'').toLowerCase()==='fundamental')return 'Free Fundamental Forex Course';
+      return explicit;
+    }
+    const key=String(context?.courseKey||'').toLowerCase();
+    if(key==='basic-b2')return 'Basic Forex Course — Batch 2';
+    if(key==='fundamental')return 'Free Fundamental Forex Course';
+    try{
+      const path=String(referral?.destination_path||'');
+      const u=new URL(path,'https://pipsepaisa.com');
+      const fromLink=String(u.searchParams.get('psp_enroll')||'').toLowerCase();
+      if(fromLink==='basic-b2')return 'Basic Forex Course — Batch 2';
+      if(fromLink==='fundamental')return 'Free Fundamental Forex Course';
+    }catch(_){}
+    return 'Free Forex Course';
+  }
+
   window.PSPPostSignup={
     channelUrl:PSP_WHATSAPP_CHANNEL,
-    async resolve(client,userId){
+    async resolve(client,userId,context={}){
       const clientId=await resolveClientId(client,userId);
       const referral=await resolveReferralTarget(client,userId);
       if(!referral){
         return {mode:'channel',url:PSP_WHATSAPP_CHANNEL,clientId,linkName:''};
       }
-      const message=`Hi, maine signup kar liya hai aur course me registration bhi kar li hai. Ye meri Client ID hai: ${clientId||'Pending'}. Kindly verify kar dein.`;
+      const courseName=referralCourseName(referral,context);
+      const message=`Hello, ye meri Client ID hai: ${clientId||'Pending'}. Maine PipSePaisa ${courseName} ke liye registration complete kar li hai. Kindly meri registration verify kar dein.`;
       const url=`https://wa.me/${referral.whatsapp_digits}?text=${encodeURIComponent(message)}`;
-      return {mode:'referral',url,clientId,linkName:String(referral.link_name||''),whatsapp:String(referral.whatsapp_number||''),message};
+      return {mode:'referral',url,clientId,linkName:String(referral.link_name||''),whatsapp:String(referral.whatsapp_number||''),courseName,message};
     },
     successCopy(result){
       if(result?.mode==='referral'){
