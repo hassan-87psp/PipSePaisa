@@ -4,7 +4,7 @@
 'use strict';
 
 const S={
-  courseRows:[], paymentGeneral:[], paymentCourse:[], profiles:{}, referrals:{},
+  courseRows:[], paymentGeneral:[], paymentCourse:[], profiles:{}, referrals:{}, registrationAt:{},
   courseTab:'needs', paymentTab:(localStorage.getItem('psp_v174_payment_tab')||'needs'), paymentCourseFilter:'',
   courseSelected:new Set(), paymentSelected:new Set(),
   courseExpanded:new Set(), paymentExpanded:new Set(),
@@ -21,17 +21,15 @@ function money(n,c='USD'){const x=Number(n||0);return `${esc(c||'USD')} ${Number
 function dt(v){if(!v)return '—';try{return new Date(v).toLocaleString()}catch(_){return '—'}}
 function shortDate(v){if(!v)return '—';try{return new Date(v).toLocaleDateString()}catch(_){return '—'}}
 function sameDay(v){if(!v)return false;const a=new Date(v),b=new Date();return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
-const V205_BATCH2_CUTOFF_MS=Date.parse('2026-08-29T00:00:00+08:00');
+const V205_BATCH2_CUTOFF_MS=Date.parse('2026-09-01T00:00:00+08:00');
+function registrationAtV205(r){const uid=String(r&&r.user_id||'');return S.registrationAt[uid]||S.profiles[uid]?.created_at||r?.signup_at||r?.created_at||'';}
 function courseSegmentV205(r){
   if(!r)return 'other';
-  const explicit=low(r.course_segment);
-  if(['batch1','batch2','fundamental','advanced'].includes(explicit))return explicit;
-  const key=low(r.course_key),name=low(r.course_name),text=key+' '+name;
-  if(key==='fundamental'||/fundamental/.test(text))return 'fundamental';
-  if(key==='advanced'||/advanced/.test(text))return 'advanced';
-  if(['basic-b2','basic-batch-2'].includes(key)||/batch[\s_-]*2/.test(text))return 'batch2';
-  if(['basic-b1','basic-batch-1'].includes(key)||/batch[\s_-]*1/.test(text))return 'batch1';
-  if(key==='basic'||/basic forex course|free course/.test(text)){const t=Date.parse(r.created_at||'');return Number.isFinite(t)&&t<V205_BATCH2_CUTOFF_MS?'batch1':'batch2';}
+  const explicit=low(r.course_segment),key=low(r.course_key),name=low(r.course_name),text=[explicit,key,name].join(' ');
+  if(explicit==='fundamental'||key==='fundamental'||/fundamental/.test(text))return 'fundamental';
+  if(explicit==='advanced'||key==='advanced'||/advanced/.test(text))return 'advanced';
+  const isBasic=['batch1','batch2'].includes(explicit)||['basic','basic-b1','basic-batch-1','basic-b2','basic-batch-2'].includes(key)||/basic forex course|free course|batch[\s_-]*[12]/.test(text);
+  if(isBasic){const t=Date.parse(registrationAtV205(r));if(Number.isFinite(t))return t<V205_BATCH2_CUTOFF_MS?'batch1':'batch2';if(explicit==='batch1'||['basic-b1','basic-batch-1'].includes(key)||/batch[\s_-]*1/.test(text))return 'batch1';return 'batch2';}
   return 'other';
 }
 function minutesOld(r){const v=r.created_at||r.updated_at;if(!v)return 0;return Math.max(0,(Date.now()-new Date(v).getTime())/60000)}
@@ -77,19 +75,23 @@ function registrationLinkInfo(row){
 }
 async function loadPaymentReferralSources(client,ids){
   S.referrals={};
+  S.registrationAt={};
+  Object.keys(S.profiles||{}).forEach(uid=>{const v=S.profiles[uid]?.created_at;if(v)S.registrationAt[String(uid)]=v;});
   const unique=uniq(ids);
   if(!client||!unique.length)return;
   try{
     for(let n=0;n<unique.length;n+=60){
       const chunk=unique.slice(n,n+60);
       const ev=await client.from('tracked_link_events')
-        .select('user_id,created_at,tracked_links(name,slug,source,campaign)')
+        .select('user_id,event_type,created_at,tracked_links(name,slug,source,campaign)')
         .in('user_id',chunk)
         .order('created_at',{ascending:true});
       if(ev.error){console.warn('Registration link source unavailable.',ev.error);continue;}
       (ev.data||[]).forEach(e=>{
         const uid=String(e.user_id||'');
-        if(uid&&!S.referrals[uid])S.referrals[uid]=e.tracked_links||{};
+        if(!uid)return;
+        if(low(e.event_type)==='signup'&&!S.registrationAt[uid])S.registrationAt[uid]=e.created_at;
+        if(!S.referrals[uid])S.referrals[uid]=e.tracked_links||{};
       });
     }
     if(document.getElementById('page-paymentreqs')?.classList.contains('active'))renderPaymentPage();
@@ -211,7 +213,7 @@ window.pspV172PaymentToggleAll=on=>{paymentFiltered().filter(payNeeds).forEach(i
 window.pspV172ClearPaymentSelection=()=>{S.paymentSelected.clear();renderPaymentPage()};
 
 window.loadAdminPaymentReqs=function(){installCss();ensureOverlays();const wrap=document.getElementById('aprWrap');if(wrap)wrap.innerHTML='<div class="card"><div class="v172-empty">Loading payment requests…</div></div>';window.loadAprList(true)};
-window.loadAprList=async function(){installCss();ensureOverlays();const client=db(),wrap=document.getElementById('aprWrap');if(!client||!wrap)return;try{const [g,cq]=await Promise.all([client.from('payment_requests').select('*').order('created_at',{ascending:false}),client.from('course_enrollments').select('*').order('created_at',{ascending:false})]);if(g.error)console.warn('General payments load warning:',g.error);if(cq.error)console.warn('Course payments load warning:',cq.error);S.paymentGeneral=g.data||[];S.paymentCourse=cq.data||[];const profileIds=uniq(S.paymentGeneral.map(x=>x.user_id));S.profiles={};if(profileIds.length){try{for(let n=0;n<profileIds.length;n+=80){const chunk=profileIds.slice(n,n+80);const pr=await client.from('profiles').select('*').in('id',chunk);if(pr.error){console.warn('Payment profile lookup warning:',pr.error);continue}(pr.data||[]).forEach(p=>S.profiles[p.id]=p)}}catch(e){console.warn('Payment profile lookup warning:',e)}}renderPaymentPage();const referralIds=uniq(S.paymentGeneral.map(x=>x.user_id).concat(S.paymentCourse.map(x=>x.user_id)));loadPaymentReferralSources(client,referralIds);}catch(e){console.error('Payments & Enrollments load failed:',e);wrap.innerHTML=`<div class="card"><div class="v172-empty"><strong>Payments could not load.</strong><div style="margin-top:8px">${esc(e&&e.message||e||'Unknown error')}</div><button class="v172-btn primary" style="margin-top:12px" onclick="loadAprList(true)">Retry</button></div></div>`;}};
+window.loadAprList=async function(){installCss();ensureOverlays();const client=db(),wrap=document.getElementById('aprWrap');if(!client||!wrap)return;try{const [g,cq]=await Promise.all([client.from('payment_requests').select('*').order('created_at',{ascending:false}),client.from('course_enrollments').select('*').order('created_at',{ascending:false})]);if(g.error)console.warn('General payments load warning:',g.error);if(cq.error)console.warn('Course payments load warning:',cq.error);S.paymentGeneral=g.data||[];S.paymentCourse=cq.data||[];const profileIds=uniq(S.paymentGeneral.map(x=>x.user_id).concat(S.paymentCourse.map(x=>x.user_id)));S.profiles={};S.registrationAt={};if(profileIds.length){try{for(let n=0;n<profileIds.length;n+=80){const chunk=profileIds.slice(n,n+80);const pr=await client.from('profiles').select('*').in('id',chunk);if(pr.error){console.warn('Payment profile lookup warning:',pr.error);continue}(pr.data||[]).forEach(p=>{S.profiles[p.id]=p;if(p.created_at)S.registrationAt[String(p.id)]=p.created_at})}}catch(e){console.warn('Payment profile lookup warning:',e)}}renderPaymentPage();const referralIds=uniq(S.paymentGeneral.map(x=>x.user_id).concat(S.paymentCourse.map(x=>x.user_id)));loadPaymentReferralSources(client,referralIds);}catch(e){console.error('Payments & Enrollments load failed:',e);wrap.innerHTML=`<div class="card"><div class="v172-empty"><strong>Payments could not load.</strong><div style="margin-top:8px">${esc(e&&e.message||e||'Unknown error')}</div><button class="v172-btn primary" style="margin-top:12px" onclick="loadAprList(true)">Retry</button></div></div>`;}};
 window.pspV172BulkPayment=async action=>{if(action==='refresh'){await window.loadAprList(true);return}const items=paymentItems().filter(i=>S.paymentSelected.has(`${i.kind}:${i.id}`)&&payNeeds(i));if(!items.length)return;const label=action==='approve'?'Approve':action==='reject'?'Reject':'Resend email for';const ok=await confirmOne(`${label} ${items.length} selected payment request(s)?`);if(!ok)return;let done=0,failed=0;if(action==='email'){for(const i of items){if(i.kind!=='course'){failed++;continue}(await batchCourseEmail(i.raw))?done++:failed++}}else{for(const i of items){let good=false;if(i.kind==='general')good=await directGeneral(i.id,action);else good=(await batchCourseRpc(i.raw,action,action==='reject'?'Bulk declined by Admin.':'')).ok;good?done++:failed++}}S.paymentSelected.clear();await window.loadAprList(true);toast(`${done} updated${failed?`, ${failed} skipped/failed`:''}`,failed?'error':'success')};
 
 
