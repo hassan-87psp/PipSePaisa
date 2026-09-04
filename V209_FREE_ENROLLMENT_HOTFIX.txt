@@ -1,0 +1,11 @@
+PipSePaisa V209 — Free Enrollment Hotfix
+
+Fixes:
+1) Batch 2 and Fundamental never show the legacy Trading Level / Main Goal questionnaire.
+2) Batch 2 and Fundamental never enter paid/payment setup flow.
+3) Logged-out free course visitors authenticate first; selected course + referral intent is preserved.
+4) Logged-in free course visitors see one simple Confirm Free Enrollment step.
+5) Advanced remains the only paid/payment course.
+6) course-enrollment.js cache version is bumped on all active pages to stop intermittent old-popup caching.
+
+No SQL required for this frontend hotfix.

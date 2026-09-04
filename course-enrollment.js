@@ -101,8 +101,10 @@
     next.id=row.id||null;
     next.name=String(row.title||next.name);
     next.currency=normalizeCurrency(row.currency||next.currency||'USD',next.currency||'USD');
-    if(key==='basic'){
+    if(['basic','basic-b2','fundamental'].includes(key)){
       next.type='free';next.price=0;next.oldPrice=0;next.localBankPricePkr=0;
+      if(key==='basic-b2')next.name='Basic Forex Course — Batch 2';
+      if(key==='fundamental')next.name='Fundamental Forex Course';
     }else if(key==='advanced'){
       next.type='paid';next.price=Math.max(0,amountNumber(row.price,250))||250;next.oldPrice=Math.max(0,amountNumber(row.old_price,500));next.localBankPricePkr=Math.max(0,amountNumber(row.local_bank_price_pkr,0));
     }else{
@@ -351,6 +353,15 @@
         <div class="ce-body">
           <section class="ce-step" id="ceStepPaymentChoice"></section>
 
+          <section class="ce-step" id="ceStepFreeDirect">
+            <div class="ce-course-summary"><strong id="ceFreeCourseName">Course</strong><span class="ce-price">100% Free</span></div>
+            <div class="ce-signed-in">You are signed in to PipSePaisa.</div>
+            <h3 style="margin:0 0 8px">Confirm Free Enrollment</h3>
+            <p style="margin:0;color:#64748b;font-size:13px;line-height:1.6">No payment and no enrollment questionnaire is required for this free course.</p>
+            <div class="ce-message" id="ceFreeMessage"></div>
+            <div class="ce-actions"><button class="ce-btn secondary" type="button" onclick="closeCourseEnrollment()">Cancel</button><button class="ce-btn primary" id="ceFreeSubmitBtn" type="button" onclick="courseEnrollmentSubmitFreeDirect()">Confirm Free Enrollment</button></div>
+          </section>
+
           <section class="ce-step" id="ceStepManualPayment">
             <div class="ce-course-summary"><strong id="ceManualCourseName">Advanced Forex Course</strong><span class="ce-price" id="ceManualCoursePrice">$0</span></div>
             <h3 id="ceManualMethodTitle" style="margin:0 0 7px">Payment Details</h3>
@@ -437,7 +448,7 @@
   function setCourseText(){
     const text=selectedCourse?.name||'Course';
     const price=selectedCourse?priceText(selectedCourse):'';
-    ['ceChoiceCourseName','ceLoginCourseName','ceNewCourseName','ceDetailsCourseName'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=text;});
+    ['ceChoiceCourseName','ceLoginCourseName','ceNewCourseName','ceDetailsCourseName','ceFreeCourseName'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=text;});
     ['ceChoicePrice','ceLoginPrice','ceNewPrice','ceDetailsPrice'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=price;});
   }
 
@@ -886,6 +897,7 @@
   async function saveEnrollment(values,receiptFile){
     const old=await existingEnrollment();
     if(old?.enrollment_status==='enrolled' || old?.payment_status==='approved'){
+      if(selectedCourse.type==='free'&&values?.directFree)return {already:true,row:old};
       if(selectedCourse.type==='free'){
         const updates={full_name:values.name,email:activeUser.email,whatsapp:values.phone,experience:values.experience,learning_goal:values.goal||null,updated_at:new Date().toISOString()};
         const {data,error}=await getClient().from('course_enrollments').update(updates).eq('id',old.id).select().single();
@@ -1007,13 +1019,19 @@
       renderInitialPaymentChoice();
       showStep('ceStepPaymentChoice');
     }else if(activeUser){
-      paidProfileConfirmed=true;
-      fillExistingDetails();
-      showStep('ceStepDetails');
-      setTimeout(()=>document.getElementById('ceDetailsExperience')?.focus(),60);
+      // V209: Free Batch 2 / Fundamental never use the old questionnaire/payment UI.
+      setMessage('ceFreeMessage','','');
+      showStep('ceStepFreeDirect');
     }else{
-      showStep('ceStepNew');
-      setTimeout(()=>document.getElementById('ceNewName')?.focus(),60);
+      // Free courses always authenticate first and preserve the selected course/referral intent.
+      try{
+        window.PSPCourseAuthFlow?.remember?.(selectedCourse.key);
+        const target=window.PSPCourseAuthFlow?.authUrl?.(selectedCourse.key,'login');
+        if(target){location.assign(target);return;}
+      }catch(_){ }
+      const q=new URLSearchParams();q.set('psp_course',selectedCourse.key);q.set('psp_auth','login');
+      try{const now=new URLSearchParams(location.search);['ref','psp_ref','utm_source','utm_medium','utm_campaign','utm_content'].forEach(k=>{const v=now.get(k);if(v)q.set(k,v);});}catch(_){ }
+      location.assign('/sign-in?'+q.toString());return;
     }
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden','false');
@@ -1159,6 +1177,61 @@
     }finally{setBusy('ceNewSubmitBtn',false,'Creating account...',normalLabel);updatePaymentSubmitLabel('ceNew');}
   };
 
+  window.courseEnrollmentSubmitFreeDirect=async function(){
+    if(!selectedCourse||selectedCourse.type!=='free')return;
+    if(!activeUser)await currentSession();
+    if(!activeUser){
+      try{
+        window.PSPCourseAuthFlow?.remember?.(selectedCourse.key);
+        const target=window.PSPCourseAuthFlow?.authUrl?.(selectedCourse.key,'login');
+        if(target){location.assign(target);return;}
+      }catch(_){ }
+      location.assign('/sign-in?psp_course='+encodeURIComponent(selectedCourse.key)+'&psp_auth=login');
+      return;
+    }
+    const meta=activeUser?.user_metadata||{};
+    const profile=panelProfile()||{};
+    const values={
+      name:firstValue(profile.full_name,profile.name,meta.full_name,meta.name,meta.username,(activeUser.email||'').split('@')[0],'PipSePaisa Student'),
+      phone:firstValue(profile.whatsapp,profile.phone,meta.whatsapp,meta.phone),
+      email:activeUser.email||'',
+      password:'',experience:null,goal:null,paymentFlow:null,paymentMethod:null,transactionId:null,directFree:true
+    };
+    setBusy('ceFreeSubmitBtn',true,'Enrolling…','Confirm Free Enrollment');
+    setMessage('ceFreeMessage','info','Confirming your free course enrollment…');
+    try{
+      const result=await saveEnrollment(values,null);
+      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser.id,{enrollment_id:result.row?.id||null,course_type:'free'});}catch(_){ }
+      if(!result.already||result.updated){
+        const emailResult=await sendCourseEmail('free_course_enrolled',values,{enrollment_id:result.row?.id||undefined});
+        if(!emailResult.ok)console.warn('Free enrollment saved but email delivery failed.',emailResult.error||emailResult);
+      }
+      if(['basic-b2','fundamental'].includes(selectedCourse.key)){
+        const zoomResult=await registerZoomCourse(values);
+        try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:zoomResult.data||{}}));}catch(_){ }
+        if(!zoomResult.ok)console.warn('Free course enrolled but Zoom auto-registration needs attention.',zoomResult.error||zoomResult);
+      }
+      setMessage('ceFreeMessage','','');
+      showSuccess(result);
+    }catch(error){
+      // Race/duplicate protection: if enrollment already exists, treat it as success.
+      try{
+        const old=await existingEnrollment();
+        if(old&&(old.enrollment_status==='enrolled'||old.payment_status==='approved')){showSuccess({already:true,row:old});return;}
+      }catch(_){ }
+      const raw=String(error?.message||error||'');
+      let msg='Free course enrollment could not be completed. Please try again.';
+      if(/authentication required|session.*expired|jwt|not authenticated/i.test(raw))msg='Your login session has expired. Please sign in again.';
+      else if(/enrollment.*closed/i.test(raw))msg='Enrollment for this free course is currently closed.';
+      else if(/not currently published/i.test(raw))msg='This free course is not currently available.';
+      // Never show any paid/payment setup message for a free course.
+      setMessage('ceFreeMessage','error',msg);
+      if(window.pipToast)window.pipToast(msg,'err');
+    }finally{
+      setBusy('ceFreeSubmitBtn',false,'Enrolling…','Confirm Free Enrollment');
+    }
+  };
+
   window.courseEnrollmentSubmitManual=async function(){
     if(!activeUser){
       setMessage('ceManualMessage','error','Please sign in to your PipSePaisa account before making a course payment.');
@@ -1229,7 +1302,7 @@
     };
     const receipt=manual?(document.getElementById('ceExistingReceipt')?.files?.[0]||null):null;
     if(!activeUser&&(!values.name||!values.phone||!values.email)){setMessage('ceDetailsMessage','error','Please complete your account details before enrollment.');return;}
-    if(!values.experience||!values.goal){setMessage('ceDetailsMessage','error','Please answer both enrollment questions.');return;}
+    if(selectedCourse.type==='paid'&&(!values.experience||!values.goal)){setMessage('ceDetailsMessage','error','Please answer both enrollment questions.');return;}
     if(!activeUser&&!values.password){setMessage('ceDetailsMessage','error','Please enter your PipSePaisa password.');return;}
     if(activeUser&&selectedCourse.type==='paid'&&!paidProfileConfirmed){
       paidProfileConfirmed=true;
@@ -1292,9 +1365,11 @@
       if(values.paymentFlow==='infinity'){
         msg=localBankUserMessage(error);
       }else{
-        msg=/course_enrollments/i.test(error?.message||'')
-          ?'Course payment setup is temporarily unavailable. Please try again later.'
-          :(error?.message||'Enrollment could not be completed.');
+        msg=selectedCourse?.type==='free'
+          ?'Free course enrollment could not be completed. Please try again.'
+          :(/course_enrollments/i.test(error?.message||'')
+            ?'Course payment setup is temporarily unavailable. Please try again later.'
+            :(error?.message||'Enrollment could not be completed.'));
       }
       showStep('ceStepDetails');
       setMessage('ceDetailsMessage','error',msg);
