@@ -1,0 +1,16 @@
+PipSePaisa V210.1 — Salary Payment Hotfix
+
+Fixes Supabase/Postgres error:
+"there is no unique or exclusion constraint matching the ON CONFLICT specification"
+
+What changed:
+- Salary payment no longer uses upsert(... onConflict: source_ref).
+- It first looks for an existing SALARY:<salary_run_id> transaction.
+- Existing transaction => update. Missing transaction => insert.
+- Prevents dependency on a UNIQUE constraint for finance_transactions.source_ref.
+- Same defensive fix also applied to obligation settlement flow.
+- No SQL migration required.
+
+Deploy these files over V210:
+- finance-management-v179.js
+- admin-panel.html
