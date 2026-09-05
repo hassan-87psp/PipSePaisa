@@ -61,3 +61,7 @@
 #page-revenue .f179-btn{font-size:9.5px!important}
 #page-revenue .f179-help{font-size:8px!important}
 #page-revenue .f179-footer{font-size:8px!important}
+
+/* V210 — month-specific salary UX */
+#page-revenue .f179-mini-btn:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.25)}
+#page-revenue .f179-table td .f179-pill.green{white-space:nowrap}
