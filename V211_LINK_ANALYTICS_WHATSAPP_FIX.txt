@@ -1,0 +1,21 @@
+PipSePaisa V211 — Link Analytics + WhatsApp Redirect Fix
+
+1) Link Manager analytics
+- Clicks: tracked click/visit/pageview events.
+- Unique: unique tracked visitors.
+- Signups: unique signup/registration users.
+- Enrolled Users: unique users who enrolled; repeat enrollment events do not inflate the count.
+- Conversion: Enrolled Users / Unique Visitors, capped at 100%.
+- New SQL view: tracked_link_stats_v211.
+- Frontend falls back to the old view if SQL is not yet installed, but V211 SQL is recommended for corrected enrolled-user counts.
+
+2) Free course WhatsApp redirect
+- Batch 2 and Fundamental stay free/direct enrollment.
+- After successful free enrollment (including already-enrolled retry), the page resolves the tracked referral WhatsApp target.
+- If the tracked link has a Referral WhatsApp number, the user is redirected to that WhatsApp chat.
+- If no referral WhatsApp exists, the normal PipSePaisa WhatsApp Channel fallback is used.
+- Referral attribution remains preserved through Login/Signup.
+
+Deployment order:
+A) Run 85_V211_LINK_ANALYTICS_WHATSAPP.sql in Supabase SQL Editor.
+B) Upload/merge this patch.

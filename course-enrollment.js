@@ -992,6 +992,28 @@
     }
   }
 
+
+  async function showFreeSuccessAndRedirect(result){
+    showSuccess(result);
+    if(!selectedCourse||selectedCourse.type!=='free'||!activeUser)return;
+    try{
+      const client=getClient();
+      const target=await window.PSPPostSignup?.resolve?.(client,activeUser.id,{courseKey:selectedCourse.key,courseName:selectedCourse.name});
+      if(!target?.url)return;
+      const copy=window.PSPPostSignup?.successCopy?.(target);
+      const text=document.getElementById('ceSuccessText');
+      if(text){
+        const extra=target.mode==='referral'
+          ?`${copy?.detail||''}${copy?.detail?'<br>':''}${copy?.note||'Opening your referral WhatsApp chat...'}<br><small>${copy?.redirect||'Redirecting to WhatsApp...'}</small>`
+          :'Please follow our WhatsApp Channel for important course updates.<br><small>Redirecting you now...</small>';
+        text.innerHTML=`${text.innerHTML}<br><br>${extra}`;
+      }
+      setTimeout(()=>{window.location.assign(String(target.url));},1100);
+    }catch(error){
+      console.warn('Post-enrollment WhatsApp redirect could not be prepared.',error?.message||error);
+    }
+  }
+
   window.openCourseEnrollment=async function(courseKey){
     try{
       document.querySelectorAll('.course-modalshell.open').forEach(function(shell){
@@ -1212,12 +1234,12 @@
         if(!zoomResult.ok)console.warn('Free course enrolled but Zoom auto-registration needs attention.',zoomResult.error||zoomResult);
       }
       setMessage('ceFreeMessage','','');
-      showSuccess(result);
+      await showFreeSuccessAndRedirect(result);
     }catch(error){
       // Race/duplicate protection: if enrollment already exists, treat it as success.
       try{
         const old=await existingEnrollment();
-        if(old&&(old.enrollment_status==='enrolled'||old.payment_status==='approved')){showSuccess({already:true,row:old});return;}
+        if(old&&(old.enrollment_status==='enrolled'||old.payment_status==='approved')){await showFreeSuccessAndRedirect({already:true,row:old});return;}
       }catch(_){ }
       const raw=String(error?.message||error||'');
       let msg='Free course enrollment could not be completed. Please try again.';
