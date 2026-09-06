@@ -1,0 +1,13 @@
+PipSePaisa V211.1 — Strict Link Cohort Analytics
+
+Fixes:
+- Enrolled Users can never exceed Signups.
+- Signups are unique people from the exact tracked link.
+- Enrolled Users are only those same signup people who later enrolled on the same link.
+- Repeated enrollments / multiple courses do not inflate Enrolled Users.
+- Conversion = Enrolled Users / Signups, capped at 100%.
+- Existing click and raw tracking-event history is preserved.
+
+Deploy:
+1. Run 86_V211_1_LINK_COHORT_ANALYTICS.sql in Supabase SQL Editor.
+2. Upload admin-panel.html and link-manager-v211-1.js from this patch.
