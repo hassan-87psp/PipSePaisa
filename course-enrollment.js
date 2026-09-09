@@ -1,4 +1,4 @@
-/* PipSePaisa V118 — restored direct logged-in paid checkout + $250 dynamic pricing + Infinity Local Bank Transfer. */
+/* PipSePaisa V214.1 — fast Local Bank checkout: warm Edge Function + no forced token refresh. */
 (function(){
   'use strict';
 
@@ -8,7 +8,7 @@
     basic:{key:'basic',name:'Basic Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     'basic-b2':{key:'basic-b2',name:'Basic Forex Course — Batch 2',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     fundamental:{key:'fundamental',name:'Fundamental Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
-    advanced:{key:'advanced',name:'Advanced Forex Course',type:'paid',price:250,oldPrice:500,currency:'USD',localBankPricePkr:0}
+    advanced:{key:'advanced',name:'ADVANCE COURSE',type:'paid',price:250,oldPrice:500,currency:'USD',localBankPricePkr:0}
   };
   const courseConfigCache=new Map();
 
@@ -22,6 +22,7 @@
   let paymentMethods=[];
   let paymentSelections={ceNew:null,ceExisting:null};
   let paymentStartInFlight=false;
+  let infinityWarmStarted=false;
 
   function getClient(){
     if(client)return client;
@@ -154,6 +155,21 @@
     if(last.message===safe && now-Number(last.at||0)<4500)return;
     window.__pspCoursePaymentError={message:safe,at:now};
     if(window.pipToast)window.pipToast(safe,'err');
+  }
+
+
+
+  function warmInfinityCheckout(){
+    if(infinityWarmStarted)return;
+    infinityWarmStarted=true;
+    try{
+      fetch(`${SUPABASE_URL}/functions/v1/create-infinity-payment`,{
+        method:'OPTIONS',
+        headers:{'apikey':SUPABASE_KEY,'x-client-info':'pipsepaisa-web-v2141-warm'},
+        cache:'no-store',
+        keepalive:true
+      }).catch(()=>{});
+    }catch(_){ }
   }
 
   async function getEmailSession(sb, forceRefresh=false){
@@ -363,7 +379,7 @@
           </section>
 
           <section class="ce-step" id="ceStepManualPayment">
-            <div class="ce-course-summary"><strong id="ceManualCourseName">Advanced Forex Course</strong><span class="ce-price" id="ceManualCoursePrice">$0</span></div>
+            <div class="ce-course-summary"><strong id="ceManualCourseName">ADVANCE COURSE</strong><span class="ce-price" id="ceManualCoursePrice">$0</span></div>
             <h3 id="ceManualMethodTitle" style="margin:0 0 7px">Payment Details</h3>
             <p style="margin:0 0 15px;color:#64748b;font-size:13px;line-height:1.55">Complete the payment below and submit your transaction reference and receipt.</p>
             <div id="ceManualPaymentDetails"></div>
@@ -593,6 +609,7 @@
   function renderInitialPaymentChoice(){
     const step=document.getElementById('ceStepPaymentChoice');if(!step||selectedCourse?.type!=='paid')return;
     const manual=manualPaymentMethods();const local=infinityPaymentMethod();
+    if(local)warmInfinityCheckout();
     const cards=[
       ...manual.map((m,i)=>`<button type="button" class="ce-method-card" data-initial-kind="manual" data-initial-index="${i}" onclick="courseEnrollmentInitialPayment('manual',${i})"><div class="ce-method-top"><span class="ce-method-icon">${String(m.type||'').toLowerCase()==='crypto'?'₮':'💳'}</span></div><strong>${escapeHtml(methodLabel(m))}</strong><small>Pay with the payment method already available on PipSePaisa.</small></button>`),
       ...(local?[`<button type="button" class="ce-method-card" data-initial-kind="infinity" data-initial-index="0" onclick="courseEnrollmentInitialPayment('infinity',0)"><div class="ce-method-top"><span class="ce-method-icon">🏦</span></div><strong>Local Bank Transfer</strong><small>Secure hosted bank transfer with automatic payment verification and course activation.</small></button>`]:[])
@@ -621,7 +638,7 @@
       return false;
     }
     paymentSelections.ceExisting={kind:'manual',index:Number(index||0)};
-    const name=document.getElementById('ceManualCourseName');if(name)name.textContent=selectedCourse?.name||'Advanced Forex Course';
+    const name=document.getElementById('ceManualCourseName');if(name)name.textContent=selectedCourse?.name||'ADVANCE COURSE';
     const price=document.getElementById('ceManualCoursePrice');if(price)price.textContent=formatMoney(selectedCourse?.price||0,selectedCourse?.currency||'USD');
     const title=document.getElementById('ceManualMethodTitle');if(title)title.textContent=methodLabel(method);
     const details=document.getElementById('ceManualPaymentDetails');if(details)details.innerHTML=paymentMethodDetails(method);
@@ -925,20 +942,43 @@
   async function startInfinityPayment(enrollmentRow){
     const sb=getClient();
     if(!sb)throw new Error('Connection problem. Please reload and try again.');
-    const session=await getEmailSession(sb,true);
+
+    // Fast path: use the already-valid cached session. Previously this forced a
+    // refresh-token network request on every Local Bank click, adding ~1s+ before
+    // the payment Edge Function even started. We refresh only if the token is near
+    // expiry, missing, or the server explicitly answers 401.
+    let session=await getEmailSession(sb,false);
     if(!session?.access_token)throw new Error('Your login session is missing or expired. Please sign in again.');
-    const response=await fetch(`${SUPABASE_URL}/functions/v1/create-infinity-payment`,{
+
+    const payload=JSON.stringify(enrollmentRow?.id
+      ?{course_id:selectedCourse?.key||'advanced',enrollment_id:enrollmentRow.id}
+      :{course_id:selectedCourse?.key||'advanced'});
+
+    const request=token=>fetch(`${SUPABASE_URL}/functions/v1/create-infinity-payment`,{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
         'apikey':SUPABASE_KEY,
-        'Authorization':`Bearer ${session.access_token}`,
-        'x-client-info':'pipsepaisa-web-v99-direct-paid-checkout'
+        'Authorization':`Bearer ${token}`,
+        'x-client-info':'pipsepaisa-web-v2141-fast-checkout'
       },
-      body:JSON.stringify(enrollmentRow?.id?{course_id:selectedCourse?.key||'advanced',enrollment_id:enrollmentRow.id}:{course_id:selectedCourse?.key||'advanced'})
+      body:payload
     });
+
+    let response=await request(session.access_token);
     let data={};
     try{data=await response.json();}catch(_){data={};}
+
+    // One safe retry only when the backend says the auth token is stale.
+    if(response.status===401){
+      const refreshed=await getEmailSession(sb,true);
+      if(refreshed?.access_token){
+        session=refreshed;
+        response=await request(session.access_token);
+        try{data=await response.json();}catch(_){data={};}
+      }
+    }
+
     if(!response.ok||data?.success===false||!data?.redirect_url){
       console.warn('Local Bank Transfer start failed',{status:response.status,code:data?.code||null,request_id:data?.request_id||null});
       const error=new Error(localBankUserMessage(data?.error||`Local Bank Transfer could not start (${response.status}).`));

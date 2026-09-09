@@ -1517,8 +1517,9 @@ async function createSignal(){
     const r=await sb.from('signals').update(obj).eq('id',editingSigId);
     error=r.error;
   }else{
-    const r=await sb.from('signals').insert(obj);
+    const r=await sb.from('signals').insert(obj).select('*').single();
     error=r.error;
+    if(!error&&r.data)window.__pspLastPublishedSignalV215=r.data;
   }
   if(error){
     if(window.pipToast)window.pipToast('Unable to '+(wasEditing?'update':'publish')+' the signal. Please try again.','err');
@@ -1533,6 +1534,7 @@ async function createSignal(){
     if(window.pipToast)window.pipToast('Signal published successfully.','ok');
     else mentorAlert('Signal published successfully.');
     try{await pspCreateNotificationAndPush('📊 New Signal Published',obj.pair+' '+obj.direction+' signal is now available.','signal','/?tab=signals',obj.audience||'all');}catch(_){ }
+    try{if(window.__pspLastPublishedSignalV215&&window.PSP154Signals?.reminder)setTimeout(()=>window.PSP154Signals.reminder(window.__pspLastPublishedSignalV215),80);}catch(_){ }
   }
   ['sgEntry','sgSL','sgTP1','sgTP2','sgTP3','sgTP4','sgNotes','sgPlan'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
   loadSignals();
@@ -1614,17 +1616,16 @@ function cancelSigEdit(){
 async function updateMentorSigStatus(id,kind){
   const pi=document.getElementById('pips-'+id);const pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;
   let sgRow={};try{const rr=await sb.from('signals').select('be_moved,entry_price,result_pips,tp_hit,take_profit1,take_profit2,take_profit3,pair,direction').eq('id',id).maybeSingle();sgRow=rr.data||{};}catch(_){ }
-  let obj={};let effectiveKind=kind;const terminal=['tp3','be','sl','closed'].includes(kind);
+  let obj={auto_monitor:false};let effectiveKind=kind;const terminal=['tp3','be','sl','closed'].includes(kind);
   if(kind==='be_move'){
-    obj={be_moved:true,be_moved_at:new Date().toISOString()};
+    obj={be_moved:true,be_moved_at:new Date().toISOString(),auto_monitor:false};
   }else if(kind==='tp1'||kind==='tp2'){
-    obj={status:kind,tp_hit:kind==='tp1'?1:2};
+    obj={status:kind,tp_hit:kind==='tp1'?1:2,auto_monitor:false};
     if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
   }else if(kind==='be'||(kind==='sl'&&sgRow.be_moved)){
-    effectiveKind='be';obj={status:'be',closed_at:new Date().toISOString(),closing_price:sgRow.entry_price};
-    if(pips!==null&&!isNaN(pips))obj.result_pips=pips;else if(sgRow.result_pips!=null)obj.result_pips=sgRow.result_pips;else obj.result_pips=0;
+    effectiveKind='be';obj={status:'be',closed_at:new Date().toISOString(),closing_price:sgRow.entry_price,result_pips:0,auto_monitor:false};
   }else{
-    obj={status:kind,closed_at:new Date().toISOString()};
+    obj={status:kind,closed_at:new Date().toISOString(),auto_monitor:false};
     if(kind==='tp3')obj.tp_hit=3;
     if(pips!==null&&!isNaN(pips))obj.result_pips=pips;
   }
@@ -2678,7 +2679,7 @@ console.log('PSP mentor v4 — More/drawer active');
 
 <script src="psp-mentor-report-v31.js?v=20260803-v31"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
-<script src="signals-workspace-v154.js?v=20260828-v168-pairs-other"></script>
+<script src="signals-workspace-v154.js?v=20260909-v215-copy-pips"></script>
 <script src="audit-agent-v174.js?v=20260829-v174-audit"></script>
 </body>
 </html>

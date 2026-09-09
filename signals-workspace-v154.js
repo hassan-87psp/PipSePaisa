@@ -74,7 +74,7 @@ function addCss(){
  .psp154-table td{padding:13px 10px;border-bottom:1px solid var(--border,#eee4d3);font-size:12px;color:var(--text,#20283a);vertical-align:middle}.psp154-table tr:last-child td{border-bottom:0}
  .psp154-pair{font-weight:900}.psp154-type{display:inline-block;border:1px solid rgba(16,185,129,.22);background:rgba(16,185,129,.10);color:#0b9b68;border-radius:999px;padding:4px 8px;font-size:9px;font-weight:900}.psp154-type.sell{border-color:rgba(239,68,68,.22);background:rgba(239,68,68,.09);color:#df4650}
  .psp154-sl{color:#e04747;font-weight:800}.psp154-tp{color:#11a873;font-weight:800}.psp154-status{display:inline-block;background:rgba(16,185,129,.10);color:#14a775;border-radius:999px;padding:5px 10px;font-size:9px;font-weight:900}.psp154-pips.pos{color:#0bab70;font-weight:900}.psp154-pips.neg{color:#e04747;font-weight:900}
- .psp154-note{border:1px solid #eadfcf;background:#fff8ea;border-radius:9px;padding:7px 10px;font-size:10px;font-weight:800;cursor:pointer;color:#9b681c}.psp154-manage{border:0;background:#fb9201;border-radius:9px;padding:8px 12px;font-size:10px;font-weight:900;cursor:pointer;color:#151515}
+ .psp154-note{border:1px solid #eadfcf;background:#fff8ea;border-radius:9px;padding:7px 10px;font-size:10px;font-weight:800;cursor:pointer;color:#9b681c}.psp154-manage{border:0;background:#fb9201;border-radius:9px;padding:8px 12px;font-size:10px;font-weight:900;cursor:pointer;color:#151515}.psp154-copy{border:1px solid #e5b46c;background:#fff8eb;border-radius:9px;padding:8px 10px;font-size:10px;font-weight:900;cursor:pointer;color:#9b620a;margin-right:5px}.psp154-copy-preview{white-space:pre-wrap;font:600 13px/1.7 system-ui,-apple-system,Segoe UI,sans-serif;background:rgba(251,146,1,.06);border:1px solid rgba(251,146,1,.28);border-radius:12px;padding:14px;color:var(--text,#172033)}
  .psp154-empty{padding:38px;text-align:center;color:var(--text-muted,#8a96aa);font-size:13px}
  .psp154-modal-back{position:fixed;inset:0;background:rgba(16,20,27,.62);z-index:100000;display:flex;align-items:center;justify-content:center;padding:22px}.psp154-modal{width:min(700px,95vw);max-height:92vh;overflow:auto;background:var(--bg-card,#fff);color:var(--text,#172033);border:1px solid var(--border,#eadfcd);border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.28)}
  .psp154-modal.sm{width:min(500px,94vw)}.psp154-mhead{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 20px 14px;border-bottom:1px solid var(--border,#eadfcd)}.psp154-mtitle{font-size:17px;font-weight:900}.psp154-msub{font-size:10px;color:var(--text-muted,#8995aa);margin-top:3px}.psp154-x{width:34px;height:34px;border:1px solid var(--border,#eadfcd);background:transparent;border-radius:10px;font-size:18px;cursor:pointer;color:inherit}
@@ -175,7 +175,7 @@ function drawTable(mode){
  if(!list.length){box.innerHTML='<div class="psp154-empty">'+(currentView(mode)==='active'?'No active signals right now. Check History for past results.':'No closed signals yet.')+'</div>';return;}
  box.innerHTML='<table class="psp154-table"><thead><tr><th>Date</th><th>Pair</th><th>Type</th><th>Entry</th><th>SL</th><th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th><th>Status</th><th>Pips</th><th>Note</th><th>Manage</th></tr></thead><tbody>'+list.map(s=>{
    const type=orderLabel(s),sell=type.startsWith('SELL');const pv=s.result_pips;
-   return '<tr><td>'+fmtDate(s.created_at)+'</td><td class="psp154-pair">'+esc(s.pair||'—')+'</td><td><span class="psp154-type '+(sell?'sell':'')+'">'+esc(type)+'</span></td><td>'+fmt(s.entry_price)+'</td><td class="psp154-sl">'+fmt(s.stop_loss)+'</td><td class="psp154-tp">'+fmt(s.take_profit1)+'</td><td class="psp154-tp">'+fmt(s.take_profit2)+'</td><td class="psp154-tp">'+fmt(s.take_profit3)+'</td><td>'+fmt(s.take_profit4)+'</td><td><span class="psp154-status">'+esc(statusLabel(s))+'</span></td><td><span class="psp154-pips '+(Number(pv)>=0?'pos':'neg')+'">'+fmtPips(pv)+'</span></td><td>'+noteButton(s)+'</td><td><button class="psp154-manage" onclick="PSP154Signals.manage(\''+mode+'\',\''+esc(s.id)+'\')">Manage</button></td></tr>';
+   return '<tr><td>'+fmtDate(s.created_at)+'</td><td class="psp154-pair">'+esc(s.pair||'—')+'</td><td><span class="psp154-type '+(sell?'sell':'')+'">'+esc(type)+'</span></td><td>'+fmt(s.entry_price)+'</td><td class="psp154-sl">'+fmt(s.stop_loss)+'</td><td class="psp154-tp">'+fmt(s.take_profit1)+'</td><td class="psp154-tp">'+fmt(s.take_profit2)+'</td><td class="psp154-tp">'+fmt(s.take_profit3)+'</td><td>'+fmt(s.take_profit4)+'</td><td><span class="psp154-status">'+esc(statusLabel(s))+'</span></td><td><span class="psp154-pips '+(Number(pv)>=0?'pos':'neg')+'">'+fmtPips(pv)+'</span></td><td>'+noteButton(s)+'</td><td><button class="psp154-copy" onclick="PSP154Signals.copy(\''+mode+'\',\''+esc(s.id)+'\')">Copy</button><button class="psp154-manage" onclick="PSP154Signals.manage(\''+mode+'\',\''+esc(s.id)+'\')">Manage</button></td></tr>';
  }).join('')+'</tbody></table>';
 }
 function getRow(mode,id){return rows(mode).find(x=>String(x.id)===String(id));}
@@ -229,6 +229,31 @@ function openForm(mode,s){
  const nt=document.getElementById('p154-notetpl');if(nt)nt.onchange=function(){if(!this.value)return;const t=document.getElementById('p154-note');t.value=t.value.trim()?t.value.trim()+'\n\n'+this.value:this.value;this.value='';};
  refreshAuto();
 }
+function signalCopyText(s){
+ const type=orderLabel(s);const isSell=type.indexOf('SELL')===0;
+ const lines=[];
+ lines.push((isSell?'🔴':'🟢')+' '+String(s.pair||'SIGNAL').toUpperCase()+' — '+type);
+ if(n(s.entry_price)!=null)lines.push('📍 Entry: '+fmt(s.entry_price));
+ if(n(s.stop_loss)!=null)lines.push('🛑 SL: '+fmt(s.stop_loss));
+ if(n(s.take_profit1)!=null)lines.push('🎯 TP1: '+fmt(s.take_profit1));
+ if(n(s.take_profit2)!=null)lines.push('🎯 TP2: '+fmt(s.take_profit2));
+ if(n(s.take_profit3)!=null)lines.push('🎯 TP3: '+fmt(s.take_profit3));
+ if(n(s.take_profit4)!=null)lines.push('🎯 TP4: '+fmt(s.take_profit4));
+ if(String(s.notes||'').trim())lines.push('', '📝 Note: '+String(s.notes).trim());
+ return lines.join('\n');
+}
+async function writeSignalClipboard(text){
+ try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);return true;}}catch(_){ }
+ try{const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();return !!ok;}catch(_){return false;}
+}
+function showCopyPreview(s,afterPublish){
+ const text=signalCopyText(s);
+ modal('<div class="psp154-mhead"><div><div class="psp154-mtitle">'+(afterPublish?'Signal Published — Copy for WhatsApp':'Copy Signal')+'</div><div class="psp154-msub">WhatsApp-ready format using the exact saved signal details.</div></div><button class="psp154-x" onclick="PSP154Signals.close()">×</button></div><div class="psp154-body"><div class="psp154-copy-preview">'+esc(text).replace(/\n/g,'<br>')+'</div></div><div class="psp154-foot"><button class="psp154-btn" onclick="PSP154Signals.close()">Close</button><button class="psp154-btn primary" onclick="PSP154Signals.copyPreview()">Copy Signal</button></div>',true);
+ window.__PSP154_COPY_TEXT=text;
+}
+async function copyPreview(){const ok=await writeSignalClipboard(window.__PSP154_COPY_TEXT||'');try{window.pipToast?.(ok?'Signal copied for WhatsApp.':'Could not copy signal.','ok');}catch(_){ } }
+async function copySignal(mode,id){const s=getRow(mode,id);if(!s)return;const text=signalCopyText(s);const ok=await writeSignalClipboard(text);try{window.pipToast?.(ok?'Signal copied for WhatsApp.':'Could not copy signal.','ok');}catch(_){ } }
+
 async function save(){
  if(!modalCtx){alert('Signal form session expired. Please reopen Create Signal.');return;}
  const x=formValues();
@@ -251,12 +276,14 @@ async function save(){
      obj.owner_id=oid;obj.is_official=true;obj.tp_hit=0;
      obj.status=(x.order_type&&x.order_type!=='market')?'pending':'active';
      obj.activated_at=obj.status==='active'?new Date().toISOString():null;
-     r=await c.from('signals').insert(obj).select('id').single();
+     r=await c.from('signals').insert(obj).select('*').single();
    }
    if(r && r.error) throw r.error;
    if(!id){try{await window.pspCreateNotificationAndPush?.('📊 New Signal Published',x.pair+' '+x.direction+' signal is now available.','signal','/?tab=signals','all');}catch(_){} }
+   const publishedRow=(!id&&r&&r.data)?r.data:null;
    closeModal();await load(mode);
    try{window.pipToast?.(id?'Signal updated successfully.':'Signal published successfully.','ok');}catch(_){ }
+   if(publishedRow){setTimeout(function(){showCopyPreview(publishedRow,true);},60);}
  }catch(err){
    console.error('[V157 signals save]',err);
    alert('Signal '+(id?'update':'publish')+' failed: '+(err && err.message ? err.message : 'Unknown error'));
@@ -285,13 +312,13 @@ async function hit(kind){
    const target=kind==='tp1'?s.take_profit1:kind==='tp2'?s.take_profit2:s.take_profit3;if(n(target)==null){alert(kind.toUpperCase()+' level is not set.');return;}
    pips=calcPips(s.pair,s.direction,s.entry_price,target);obj={...obj,status:kind,tp_hit:kind==='tp1'?1:kind==='tp2'?2:3,result_pips:pips};if(kind==='tp3'){obj.closed_at=new Date().toISOString();obj.closing_price=n(target);terminal=true;}
  }else if(kind==='sl'&&s.be_moved){
-   pips=latestTpPips(s);obj={...obj,status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:pips};terminal=true;notifyKind='be';
+   pips=0;obj={...obj,status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:0};terminal=true;notifyKind='be';
  }else if(kind==='sl'){
    pips=calcPips(s.pair,s.direction,s.entry_price,s.stop_loss);obj={...obj,status:'sl',closed_at:new Date().toISOString(),closing_price:n(s.stop_loss),result_pips:pips};terminal=true;
  }else if(kind==='be'){
-   pips=latestTpPips(s);obj={...obj,status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:pips};terminal=true;
+   pips=0;obj={...obj,status:'be',closed_at:new Date().toISOString(),closing_price:n(s.entry_price),result_pips:0};terminal=true;
  }else if(kind==='closed'){
-   let price=window.prompt('Enter closing price for automatic pips calculation:',s.closing_price||'');if(price===null)return;price=n(price);if(price==null){alert('Please enter a valid closing price.');return;}pips=calcPips(s.pair,s.direction,s.entry_price,price);obj={...obj,status:'closed',closed_at:new Date().toISOString(),closing_price:price,result_pips:pips};terminal=true;
+   let entered=window.prompt('Enter result pips for this close:',s.result_pips!=null?s.result_pips:'');if(entered===null)return;entered=n(entered);if(entered==null){alert('Please enter a valid pips value.');return;}pips=entered;obj={...obj,status:'closed',closed_at:new Date().toISOString(),result_pips:entered,auto_monitor:false};terminal=true;
  }else return;
  const r=await c.from('signals').update(obj).eq('id',id);if(r.error){alert('Status update failed: '+r.error.message);return;}
  try{
@@ -314,7 +341,7 @@ async function delCurrent(){if(!modalCtx)return;const {mode,id}=modalCtx;let ok=
 function showNote(id){const s=mentorRows.concat(adminRows).find(x=>String(x.id)===String(id));if(!s)return;modal('<div class="psp154-mhead"><div><div class="psp154-mtitle">Mentor Note</div><div class="psp154-msub">'+esc(s.pair||'Signal')+'</div></div><button class="psp154-x" onclick="PSP154Signals.close()">×</button></div><div class="psp154-body"><div style="white-space:pre-wrap;line-height:1.65;font-size:13px">'+esc(s.notes||'No note added.')+'</div></div>',true);}
 
 window.PSP154Signals={
- view:setView,create:mode=>openForm(mode,null),manage:(mode,id)=>{const s=getRow(mode,id);if(s)openManage(mode,s);},close:closeModal,save,hit,updatePips,editCurrent,delCurrent,showNote,refreshAuto
+ view:setView,create:mode=>openForm(mode,null),manage:(mode,id)=>{const s=getRow(mode,id);if(s)openManage(mode,s);},copy:copySignal,copyPreview,reminder:(s)=>showCopyPreview(s,true),close:closeModal,save,hit,updatePips,editCurrent,delCurrent,showNote,refreshAuto
 };
 
 if(typeof legacyMentorRender==='function') window.renderSignals=function(){return isMobile()?legacyMentorRender():renderWorkspace('mentor');};

@@ -1467,8 +1467,24 @@ function renderSignals(){
       var ds=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
       return t>=ds;
     }
+    if(sigTimeF==='yesterday'){
+      var ys=new Date(d.getFullYear(),d.getMonth(),d.getDate()-1).getTime();
+      var ye=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
+      return t>=ys && t<ye;
+    }
     if(sigTimeF==='week')return t>=now-7*86400000;
-    if(sigTimeF==='month')return t>=new Date(d.getFullYear(),d.getMonth(),1).getTime();
+    if(sigTimeF==='month'){
+      var lmStart=new Date(d.getFullYear(),d.getMonth()-1,1).getTime();
+      var lmEnd=new Date(d.getFullYear(),d.getMonth(),1).getTime();
+      return t>=lmStart && t<lmEnd;
+    }
+    if(sigTimeF==='custom'){
+      var from=window.__pspSigCustomFrom?new Date(window.__pspSigCustomFrom+'T00:00:00').getTime():null;
+      var to=window.__pspSigCustomTo?new Date(window.__pspSigCustomTo+'T23:59:59.999').getTime():null;
+      if(from!=null && t<from)return false;
+      if(to!=null && t>to)return false;
+      return true;
+    }
     return true;
   }
 
@@ -2948,3 +2964,128 @@ function pspSigMobileDetail(s){
 }
 
 // PIPSEPAISA V165 — hard no-blink signal refresh. Background refreshes never replace the visible table with a loader.
+
+
+// ============================================================================
+// PIPSEPAISA V215 — MOBILE SIGNAL HISTORY NAVIGATION
+// - Mobile-only surgical UI change.
+// - Removes Daily / Weekly / Monthly fixed dock.
+// - Adds one History button beside All / Forex / Gold / Crypto.
+// - History filters: Today / Yesterday / Last 7 Days / Last Month / Custom.
+// ============================================================================
+(function pspV215MobileSignalHistory(){
+  if(window.__PSP_V215_MOBILE_HISTORY__)return;
+  window.__PSP_V215_MOBILE_HISTORY__=true;
+
+  function mobile(){return !!(window.matchMedia&&window.matchMedia('(max-width:760px)').matches);}
+  function removeLegacyDock(){
+    var dock=document.getElementById('pspSignalPeriodDockV104');
+    if(dock){dock.style.display='none';dock.setAttribute('aria-hidden','true');}
+  }
+  // Override the legacy dock sync without touching desktop signal rendering.
+  try{
+    window.pspV104SyncPeriodDock=function(){
+      var dock=document.getElementById('pspSignalPeriodDockV104');
+      if(dock)dock.style.display='none';
+    };
+  }catch(_){ }
+
+  function syncHistoryButton(){
+    var b=document.getElementById('pspMobileHistoryV215');
+    if(!b)return;
+    var on=(typeof sigView!=='undefined'&&sigView==='history');
+    b.classList.toggle('active',on);
+    b.textContent=on?'← Active':'History';
+    b.setAttribute('aria-pressed',on?'true':'false');
+  }
+
+  function ensureCustomRange(){
+    var row=document.getElementById('sigTimeFilters');
+    if(!row||document.getElementById('pspSigCustomRangeV215'))return;
+    var box=document.createElement('div');
+    box.id='pspSigCustomRangeV215';
+    box.innerHTML='<label>From<input id="pspSigFromV215" type="date"></label><label>To<input id="pspSigToV215" type="date"></label><button type="button" class="sig-fbtn" id="pspSigApplyV215">Apply</button>';
+    row.parentElement.insertAdjacentElement('afterend',box);
+    document.getElementById('pspSigApplyV215').onclick=function(){
+      window.__pspSigCustomFrom=document.getElementById('pspSigFromV215').value||'';
+      window.__pspSigCustomTo=document.getElementById('pspSigToV215').value||'';
+      if(window.__pspSigCustomFrom&&window.__pspSigCustomTo&&window.__pspSigCustomFrom>window.__pspSigCustomTo){
+        alert('From date must be before To date.');return;
+      }
+      if(typeof renderSignals==='function')renderSignals();
+    };
+  }
+
+  window.pspV215SetHistoryRange=function(key,btn){
+    sigTimeF=key;
+    document.querySelectorAll('#sigTimeFilters .sig-fbtn').forEach(function(x){x.classList.remove('active')});
+    if(btn)btn.classList.add('active');
+    ensureCustomRange();
+    var box=document.getElementById('pspSigCustomRangeV215');
+    if(box)box.style.display=(key==='custom')?'grid':'none';
+    if(typeof renderSignals==='function')renderSignals();
+  };
+
+  window.pspV215ToggleSignalHistory=function(){
+    if(typeof sigView==='undefined')return;
+    if(sigView==='history'){
+      sigView='active';sigTimeF='all';
+      var tf=document.getElementById('sigTimeFilters');if(tf)tf.style.display='none';
+      var cr=document.getElementById('pspSigCustomRangeV215');if(cr)cr.style.display='none';
+    }else{
+      sigView='history';sigTimeF='today';
+      var tf2=document.getElementById('sigTimeFilters');if(tf2)tf2.style.display='flex';
+    }
+    var a=document.getElementById('sigViewActive'),h=document.getElementById('sigViewHistory');
+    if(a)a.classList.toggle('active',sigView==='active');if(h)h.classList.toggle('active',sigView==='history');
+    syncHistoryButton();
+    if(typeof renderSignals==='function')renderSignals();
+  };
+
+  function install(){
+    if(!mobile()){removeLegacyDock();return;}
+    removeLegacyDock();
+    var filters=document.getElementById('sigFilters');
+    if(filters&&!document.getElementById('pspMobileHistoryV215')){
+      var b=document.createElement('button');
+      b.id='pspMobileHistoryV215';b.type='button';b.className='sig-fbtn psp-v215-history-btn';b.textContent='History';
+      b.onclick=window.pspV215ToggleSignalHistory;
+      filters.appendChild(b);
+    }
+    var tf=document.getElementById('sigTimeFilters');
+    if(tf&&!tf.dataset.v215){
+      tf.dataset.v215='1';
+      tf.innerHTML=''+
+        '<button class="sig-fbtn active" onclick="pspV215SetHistoryRange(\'today\',this)">Today</button>'+
+        '<button class="sig-fbtn" onclick="pspV215SetHistoryRange(\'yesterday\',this)">Yesterday</button>'+
+        '<button class="sig-fbtn" onclick="pspV215SetHistoryRange(\'week\',this)">Last 7 Days</button>'+
+        '<button class="sig-fbtn" onclick="pspV215SetHistoryRange(\'month\',this)">Last Month</button>'+
+        '<button class="sig-fbtn" onclick="pspV215SetHistoryRange(\'custom\',this)">Custom</button>';
+    }
+    ensureCustomRange();syncHistoryButton();
+  }
+
+  var st=document.createElement('style');st.id='psp-v215-mobile-history-css';st.textContent=`
+    @media(max-width:760px){
+      #pspSignalPeriodDockV104,.psp-period-wrap,.psp-period-tabs{display:none!important}
+      #page-signals .sig-filter-row>div:last-child{display:none!important}
+      #page-signals #sigFilters{width:100%;display:flex!important;gap:6px!important;align-items:center!important;flex-wrap:wrap!important}
+      #page-signals .psp-v215-history-btn{margin-left:auto!important;border-color:rgba(251,146,1,.55)!important;color:#FB9201!important;font-weight:850!important}
+      #page-signals .psp-v215-history-btn.active{background:#FB9201!important;color:#101724!important}
+      #page-signals #sigTimeFilters{width:100%;gap:6px!important;margin-top:8px!important;border-top:1px solid var(--border)!important;padding-top:8px!important}
+      #page-signals #sigTimeFilters .sig-fbtn{font-size:10px!important;padding:7px 9px!important;white-space:nowrap!important}
+      #pspSigCustomRangeV215{display:none;grid-template-columns:1fr 1fr auto;gap:7px;align-items:end;margin:8px 0 0;padding:9px;border:1px solid var(--border);border-radius:12px;background:var(--bg-elevated,var(--bg-card))}
+      #pspSigCustomRangeV215 label{font-size:8px;font-weight:800;color:var(--text-muted);text-transform:uppercase}
+      #pspSigCustomRangeV215 input{display:block;width:100%;box-sizing:border-box;margin-top:4px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);padding:8px;font-size:10px}
+      #pspSigCustomRangeV215 .sig-fbtn{height:34px}
+    }
+    @media(max-width:420px){#pspSigCustomRangeV215{grid-template-columns:1fr 1fr}#pspSigCustomRangeV215 .sig-fbtn{grid-column:1/-1}}
+  `;document.head.appendChild(st);
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+  window.addEventListener('resize',function(){if(mobile())install();removeLegacyDock();});
+
+  // Keep button state synced after any existing renderer/view handler runs.
+  var baseRender=window.renderSignals;
+  if(typeof baseRender==='function')window.renderSignals=function(){var r=baseRender.apply(this,arguments);setTimeout(function(){removeLegacyDock();syncHistoryButton();},0);return r;};
+})();

@@ -2058,8 +2058,9 @@ async function createAdSignal(){
     entry_price:isNaN(entry)?null:entry,stop_loss:parseFloat(v('as-sl'))||null,take_profit1:parseFloat(v('as-tp1'))||null,take_profit2:parseFloat(v('as-tp2'))||null,take_profit3:parseFloat(v('as-tp3'))||null,take_profit4:(v('as-tp4')||'').trim()||null,
     notes:v('as-notes')||null,audience:aud.join(','),access_level:aud.indexOf('free')>=0?'free':'vip',
     plan_name:(!(aud.length===1&&aud[0]==='free'))?(v('as-plan')||null):null,status:_otype!=='market'?'pending':'active',tp_hit:0,order_type:_otype,auto_monitor:false,activated_at:_otype==='market'?new Date().toISOString():null};
-  var r=await sb.from('signals').insert(obj);
+  var r=await sb.from('signals').insert(obj).select('*').single();
   if(r.error){alert('Error: '+r.error.message);return;}
+  try{if(r.data&&window.PSP154Signals?.reminder)setTimeout(function(){window.PSP154Signals.reminder(r.data)},80)}catch(e){}
   await pspCreateNotificationAndPush('📊 New Signal Published', obj.pair+' '+obj.direction+' signal is now available.', 'signal', '/?tab=signals', obj.audience||'all');
   ['as-entry','as-sl','as-tp1','as-tp2','as-tp3','as-notes','as-plan'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
   loadAdSigList();
@@ -2090,13 +2091,13 @@ async function loadAdSigList(){
   }).join('');
 }
 async function updateSigStatus(id,kind){
-  var pi=document.getElementById('pips-'+id);var pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;var obj={};var effectiveKind=kind;
+  var pi=document.getElementById('pips-'+id);var pips=(pi&&pi.value!=='')?parseFloat(pi.value):null;var obj={auto_monitor:false};var effectiveKind=kind;
   var sgRow={};try{var rr=await sb.from('signals').select('be_moved,entry_price,result_pips,tp_hit,take_profit1,take_profit2,take_profit3,pair,direction').eq('id',id).maybeSingle();sgRow=rr.data||{};}catch(e){}
   var terminal=['tp3','be','sl','closed'].indexOf(kind)>-1;
-  if(kind==='be_move'){obj={be_moved:true,be_moved_at:new Date().toISOString()};}
-  else if(kind==='tp1'||kind==='tp2'){obj={status:kind,tp_hit:kind==='tp1'?1:2};if(pips!==null&&!isNaN(pips))obj.result_pips=pips;}
-  else if(kind==='be'||(kind==='sl'&&sgRow.be_moved)){effectiveKind='be';obj={status:'be',closed_at:new Date().toISOString(),closing_price:sgRow.entry_price};if(pips!==null&&!isNaN(pips))obj.result_pips=pips;else if(sgRow.result_pips!=null)obj.result_pips=sgRow.result_pips;else obj.result_pips=0;}
-  else{obj={status:kind,closed_at:new Date().toISOString()};if(kind==='tp3')obj.tp_hit=3;if(pips!==null&&!isNaN(pips))obj.result_pips=pips;}
+  if(kind==='be_move'){obj={be_moved:true,be_moved_at:new Date().toISOString(),auto_monitor:false};}
+  else if(kind==='tp1'||kind==='tp2'){obj={status:kind,tp_hit:kind==='tp1'?1:2,auto_monitor:false};if(pips!==null&&!isNaN(pips))obj.result_pips=pips;}
+  else if(kind==='be'||(kind==='sl'&&sgRow.be_moved)){effectiveKind='be';obj={status:'be',closed_at:new Date().toISOString(),closing_price:sgRow.entry_price,result_pips:0,auto_monitor:false};}
+  else{obj={status:kind,closed_at:new Date().toISOString(),auto_monitor:false};if(kind==='tp3')obj.tp_hit=3;if(pips!==null&&!isNaN(pips))obj.result_pips=pips;}
   var r=await sb.from('signals').update(obj).eq('id',id);if(r.error){alert('Error: '+r.error.message);return;}
   if(terminal){try{await pspCreateNotificationAndPush('🔒 Signal Closed',effectiveKind==='tp3'?'TP3 Hit — signal closed.':effectiveKind==='be'?'Breakeven Hit — signal closed.':effectiveKind==='sl'?'Stop Loss Hit — signal closed.':'Signal closed.','signal','/?tab=signals','all');}catch(e){}}
   loadAdSigList();
@@ -2845,7 +2846,7 @@ const SITE_TAB_DEFS=[
  ['aireport','🤖 AI Report'],['charts','📊 Live Charts'],['chats','💬 Member Chats'],
  ['signals','📶 Signals'],['articles','📝 Articles'],['vipplans','💎 VIP Plans'],
  ['news','📰 Economic News'],['newshub','📡 World News Hub'],['strength','💪 Currency Strength'],
- ['tools','🔧 Tools'],['learn','🎓 Learn Forex'],['vipindicators','⭐ VIP Indicators'],['vipea','🤖 VIP EAs'],
+ ['tools','🔧 Tools'],['eaindicator','🧩 EA & Indicator'],['learn','🎓 Learn Forex'],['vipindicators','⭐ VIP Indicators'],['vipea','🤖 VIP EAs'],
  ['banners','🖼️ Banners'],
  ['aitools','🤖 AI Tools'],['about','ℹ️ About'],['announce','📢 Announcements'],['support','💬 Support']
 ];
@@ -4322,9 +4323,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 }
 </style>
 
+<script src="admin-ea-indicator-v215.js?v=20260909-v215"></script>
 <script src="audit-agent-v174.js?v=20260829-v174-audit"></script>
 <script src="admin-v174-ux.js?v=20260829-v179-finance-compatible"></script>
-<script src="signals-workspace-v154.js?v=20260826-v166-manual-signals"></script>
+<script src="signals-workspace-v154.js?v=20260909-v215-copy-pips"></script>
 <script src="finance-management-v179.js?v=20260905-v2101-salary-pay-hotfix"></script>
 <script src="admin-premium-v182.js?v=20260829-v182-premium-all-tabs"></script>
 

@@ -4980,6 +4980,7 @@
       };
       updateAuthUI();
       enterApp();
+      window.__pspLoginCompletedAt=Date.now();
 
       _lastAuthHydrationUserId = user.id;
       _lastAuthHydrationAt = Date.now();
@@ -5141,10 +5142,12 @@
     }
     const app=document.getElementById('mainApp');
     const appVisible=!!(app && getComputedStyle(app).display!=='none');
-    if(!appVisible) enterApp();
+    const now=Date.now();
+    const justLoggedIn=Number(window.__pspLoginCompletedAt||0)>0 && (now-Number(window.__pspLoginCompletedAt||0))<2500;
+    if(!appVisible && !justLoggedIn) enterApp();
     else updateAuthUI();
 
-    const now=Date.now();
+
     if(_lastAuthHydrationUserId===user.id&&(now-_lastAuthHydrationAt)<1200){
       return;
     }
@@ -5545,4 +5548,15 @@
     }
   }`;
   document.head.appendChild(s);
+})();
+
+
+// PIPSEPAISA V215 — EA & Indicator marketplace loader
+(function(){
+  if(window.__PSP_EAI_LOADER_V215__)return;window.__PSP_EAI_LOADER_V215__=true;
+  function load(){
+    if(document.querySelector('script[data-psp-eai-v215]'))return;
+    var sc=document.createElement('script');sc.src='/ea-indicator-user-v215.js?v=20260909-v215';sc.defer=true;sc.dataset.pspEaiV215='1';document.head.appendChild(sc);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();
 })();
