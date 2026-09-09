@@ -1,0 +1,28 @@
+PipSePaisa V216 — Signals History + Instruments Cleanup
+
+1) MOBILE SIGNALS
+- Removed legacy Daily / Weekly / Monthly dock on mobile.
+- History switch now sits below the Trading Signals card, not inside the All/Forex/Gold/Crypto row.
+- Signal History filters: Today, Yesterday, Last 7 Days, Last Month, Custom From/To.
+- Existing signal cards, expanded-card layout and bottom navigation styling are otherwise unchanged.
+
+2) ADMIN SITE TAB VISIBILITY
+- Site Tabs now also hides/shows matching items in the fixed mobile bottom nav.
+- If a disabled user tab is opened directly, the app returns to Dashboard after settings load.
+
+3) STANDARD INSTRUMENT LIST
+Order everywhere in Admin/Mentor authoring:
+- Top Markets: XAU/USD, BTC/USD
+- 7 Major Forex pairs
+- 21 Cross / Minor Forex pairs
+- Other Popular: XAG/USD, ETH/USD
+- Other / Add Custom Pair
+Custom symbols such as US30, NAS100, EUR/SGD etc. can be typed manually.
+Applied to Signal, Chart and Article authoring.
+
+4) ARTICLES
+- Added optional pair/instrument field to article authoring and user article cards.
+- Run 89_V216_ARTICLE_PAIR.sql before using the article pair field.
+
+5) EA & INDICATOR SIDEBAR
+- Keeps EA & Indicator directly after Tools instead of jumping to the top due to sidebar flex ordering.

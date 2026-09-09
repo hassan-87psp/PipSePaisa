@@ -213,6 +213,24 @@
       var pg=m.getAttribute('data-tabkey');
       m.style.display=_disabledTabs[pg]===false?'':'none';
     });
+    // V216: Site Tabs must also control the fixed mobile bottom navigation.
+    // Previously Signals could be disabled in Admin but still remain visible on mobile.
+    document.querySelectorAll('#userBottomNav .ubn-item[data-page]').forEach(function(m){
+      var pg=m.getAttribute('data-page');
+      if(PSP_ALWAYS_VISIBLE_TABS[pg]){m.style.display='';return;}
+      if(PSP_SITE_TAB_KEYS.indexOf(pg)!==-1){m.style.display=_disabledTabs[pg]===false?'':'none';return;}
+      m.style.display='';
+    });
+    // If a user directly opens a disabled route, return to Dashboard after settings resolve.
+    if(_tabSettingsReady){
+      var active=document.querySelector('.page.active[id^="page-"]');
+      var activeKey=active?active.id.replace(/^page-/,''):'';
+      if(activeKey && _disabledTabs[activeKey] && activeKey!=='dashboard'){
+        setTimeout(function(){
+          try{showPage('dashboard',document.querySelector('.menu-item[data-page="dashboard"]'));}catch(_){ }
+        },0);
+      }
+    }
   }
   // Hide controlled tabs immediately, before Supabase/session resolution.
   _disabledTabs=pspBuildDisabledTabs([]);
@@ -5556,7 +5574,7 @@
   if(window.__PSP_EAI_LOADER_V215__)return;window.__PSP_EAI_LOADER_V215__=true;
   function load(){
     if(document.querySelector('script[data-psp-eai-v215]'))return;
-    var sc=document.createElement('script');sc.src='/ea-indicator-user-v215.js?v=20260909-v215';sc.defer=true;sc.dataset.pspEaiV215='1';document.head.appendChild(sc);
+    var sc=document.createElement('script');sc.src='/ea-indicator-user-v215.js?v=20260909-v216-order';sc.defer=true;sc.dataset.pspEaiV215='1';document.head.appendChild(sc);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();
 })();

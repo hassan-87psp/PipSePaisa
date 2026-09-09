@@ -209,7 +209,7 @@ function openForm(mode,s){
  const opts=mode==='mentor'?mentorPairOptionsHtml():pairOptionsHtml(true);const notes=noteOptionsHtml(mode==='admin');
  modal('<div class="psp154-mhead"><div><div class="psp154-mtitle">'+(edit?'Edit Signal':'Create Signal')+'</div><div class="psp154-msub">'+(edit?'Update signal levels or mentor note.':'Publish a new official trading signal.')+'</div></div><button class="psp154-x" onclick="PSP154Signals.close()">×</button></div><div class="psp154-body"><div class="psp154-grid">'+
  '<div class="psp154-field"><label>Pair</label><select id="p154-pair">'+opts+'</select></div><div class="psp154-field"><label>Order Type</label><select id="p154-order"><option value="buy">Buy</option><option value="sell">Sell</option><option value="buy_limit">Buy Limit</option><option value="sell_limit">Sell Limit</option><option value="buy_stop">Buy Stop</option><option value="sell_stop">Sell Stop</option></select></div>'+
- (mode==='mentor'?'<div class="psp154-field psp154-wide" id="p154-pair-other-wrap" style="display:none"><label>Other Pair</label><input id="p154-pair-other" type="text" placeholder="Type pair/symbol, e.g. EUR/SGD or US30"></div>':'')+
+ '<div class="psp154-field psp154-wide" id="p154-pair-other-wrap" style="display:none"><label>Other / Custom Pair</label><input id="p154-pair-other" type="text" placeholder="Type pair/symbol, e.g. EUR/SGD or US30"></div>'+
  '<div class="psp154-field"><label>Entry</label><input id="p154-entry" type="number" step="any" placeholder="Entry price"></div><div class="psp154-field"><label>Stop Loss</label><input id="p154-sl" type="number" step="any" placeholder="Stop Loss"></div>'+
  '<div class="psp154-field"><label>Take Profit 1</label><input id="p154-tp1" type="number" step="any" placeholder="TP1"></div><div class="psp154-field"><label>Take Profit 2</label><input id="p154-tp2" type="number" step="any" placeholder="TP2 (optional)"></div>'+
  '<div class="psp154-field"><label>Take Profit 3</label><input id="p154-tp3" type="number" step="any" placeholder="TP3 (optional)"></div><div class="psp154-field"><label>TP4 / Runner</label><input id="p154-tp4" type="text" placeholder="Number or Open"></div>'+
@@ -219,8 +219,7 @@ function openForm(mode,s){
  if(s){
    const pairSel=document.getElementById('p154-pair');
    const pairExists=pairSel&&Array.from(pairSel.options).some(o=>o.value===String(s.pair||''));
-   if(pairExists){set('p154-pair',s.pair);}else if(mode==='mentor'){set('p154-pair','__other__');set('p154-pair-other',s.pair||'');}
-   else{set('p154-pair',s.pair);}
+   if(pairExists){set('p154-pair',s.pair);}else{set('p154-pair','__other__');set('p154-pair-other',s.pair||'');}
    set('p154-order',ot);set('p154-entry',s.entry_price);set('p154-sl',s.stop_loss);set('p154-tp1',s.take_profit1);set('p154-tp2',s.take_profit2);set('p154-tp3',s.take_profit3);set('p154-tp4',s.take_profit4);set('p154-note',s.notes);set('p154-plan',s.plan_name);
  }else set('p154-order','buy');
  const pairSel=document.getElementById('p154-pair');if(pairSel)pairSel.addEventListener('change',()=>{syncCustomPairField();refreshAuto();});

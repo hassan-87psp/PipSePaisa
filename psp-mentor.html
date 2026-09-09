@@ -1481,7 +1481,7 @@ function setDir(d){sigDir=d;var b=document.getElementById('bsBuy'),s=document.ge
 function setPv(v){pipsView=v;loadSignals();}
 async function createSignal(){
   const val=id=>{const e=document.getElementById(id);return e?(e.value||'').trim():'';};
-  const pair=document.getElementById('sgPair').value;
+  const pair=(window.PSPPairsV216?.value('sgPair')||document.getElementById('sgPair').value);
   const entry=parseFloat(val('sgEntry'));
   const slv=parseFloat(val('sgSL'));
   const tp1v=parseFloat(val('sgTP1'));
@@ -1729,7 +1729,7 @@ function renderCharts(){
 function openChartEditor(id=null){
   mentorEditingChartId=id||null;const row=id?mentorChartsData.find(x=>String(x.id)===String(id)):null;
   document.getElementById('chartEditorTitle').textContent=row?'Edit Chart Analysis':'New Chart Analysis';
-  if(row?.pair)document.getElementById('chPair').value=row.pair;
+  if(row?.pair){if(window.PSPPairsV216)window.PSPPairsV216.setValue('chPair',row.pair);else document.getElementById('chPair').value=row.pair;}
   document.getElementById('chTitle').value=row?.title||'';document.getElementById('chNotes').value=row?.notes||'';document.getElementById('chFile').value='';
   document.getElementById('chPreview').innerHTML=row?.image_url?`<img src="${esc(row.image_url)}" alt="Current chart">`:'';
   document.getElementById('chBtn').textContent=row?'Save Changes':'Publish Analysis';document.getElementById('chartEditorModal').classList.add('open');
@@ -1739,7 +1739,7 @@ function previewMentorChartFile(inp){const file=inp.files&&inp.files[0],box=docu
 async function saveMentorChart(){
   const btn=document.getElementById('chBtn');if(!btn)return;const editing=mentorEditingChartId;btn.disabled=true;btn.textContent='Saving...';
   try{
-    const pair=document.getElementById('chPair').value,title=document.getElementById('chTitle').value.trim(),notes=document.getElementById('chNotes').value.trim()||null;
+    const pair=(window.PSPPairsV216?.value('chPair')||document.getElementById('chPair').value),title=document.getElementById('chTitle').value.trim(),notes=document.getElementById('chNotes').value.trim()||null;
     if(!title){mentorAlert('Title is required');return;}
     const current=editing?mentorChartsData.find(x=>String(x.id)===String(editing)):null;let image_url=current?.image_url||'';const file=document.getElementById('chFile').files[0];
     if(file){const path=ME.id+'/'+Date.now()+'_'+file.name.replace(/[^a-zA-Z0-9.]/g,'');const up=await sb.storage.from('charts').upload(path,file,{upsert:true});if(up.error){mentorAlert('Upload failed: '+up.error.message);return;}image_url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}
@@ -1863,7 +1863,8 @@ function renderMentorArticles(){
     <div class="psp-rh-modal" id="articleEditorModal" onclick="if(event.target===this)closeArticleEditor()"><div class="psp-rh-dialog wide">
       <div class="psp-rh-dialog-head"><div><h3 id="articleEditorTitle">New Article</h3><p>Build a polished research article for the PipSePaisa content hub.</p></div><button class="psp-rh-close" onclick="closeArticleEditor()">×</button></div>
       <div class="psp-rh-form">
-        <div class="psp-rh-form-grid"><label class="psp-rh-label">Title<input id="maTitle" class="psp-rh-input" type="text" placeholder="e.g. Why Gold Reacts to US Yields"></label><label class="psp-rh-label">Category<select id="maCategory" class="psp-rh-select"><option value="analysis">Analysis</option><option value="strategy">Strategy</option><option value="education">Education</option></select></label></div>
+        <div class="psp-rh-form-grid"><label class="psp-rh-label">Pair / Instrument<select id="maPair" class="psp-rh-select"></select></label><label class="psp-rh-label">Category<select id="maCategory" class="psp-rh-select"><option value="analysis">Analysis</option><option value="strategy">Strategy</option><option value="education">Education</option></select></label></div>
+        <label class="psp-rh-label">Title<input id="maTitle" class="psp-rh-input" type="text" placeholder="e.g. Why Gold Reacts to US Yields"></label>
         <div class="psp-rh-form-grid"><label class="psp-rh-label">Publication Status<select id="maStatus" class="psp-rh-select"><option value="published">Published</option><option value="draft">Draft</option></select></label><label class="psp-rh-label">Image URL<input id="maImage" class="psp-rh-input" type="text" placeholder="Optional image URL"></label></div>
         <label class="psp-rh-label">Cover Image<div class="psp-rh-upload"><input id="maFile" class="psp-rh-input" type="file" accept="image/*" onchange="mentorArticleUpload(this)"><div id="maPreview" class="psp-rh-upload-preview"></div></div></label>
         <label class="psp-rh-label">English Content<textarea id="maContent" class="psp-rh-textarea" rows="8" placeholder="Write the main article content..."></textarea></label>
@@ -1879,7 +1880,7 @@ function renderMentorArticles(){
 }
 function openArticleEditor(id=null){
   mentorEditingArticleId=id||null;const a=id?mentorArticlesData.find(x=>String(x.id)===String(id)):null;
-  document.getElementById('articleEditorTitle').textContent=a?'Edit Article':'New Article';document.getElementById('maTitle').value=a?.title||'';document.getElementById('maCategory').value=a?.category||'education';document.getElementById('maStatus').value=a?.is_published===false?'draft':'published';document.getElementById('maImage').value=a?.image_url||'';document.getElementById('maContent').value=a?.content||'';document.getElementById('maContentUr').value=a?.content_ur||'';document.getElementById('maFile').value='';document.getElementById('maPreview').innerHTML=a?.image_url?`<img src="${esc(a.image_url)}" alt="Current article image">`:'';document.getElementById('maBtn').textContent=a?'Save Changes':'Publish Article';document.getElementById('articleEditorModal').classList.add('open');
+  document.getElementById('articleEditorTitle').textContent=a?'Edit Article':'New Article';if(window.PSPPairsV216)window.PSPPairsV216.setValue('maPair',a?.pair||'XAU/USD');document.getElementById('maTitle').value=a?.title||'';document.getElementById('maCategory').value=a?.category||'education';document.getElementById('maStatus').value=a?.is_published===false?'draft':'published';document.getElementById('maImage').value=a?.image_url||'';document.getElementById('maContent').value=a?.content||'';document.getElementById('maContentUr').value=a?.content_ur||'';document.getElementById('maFile').value='';document.getElementById('maPreview').innerHTML=a?.image_url?`<img src="${esc(a.image_url)}" alt="Current article image">`:'';document.getElementById('maBtn').textContent=a?'Save Changes':'Publish Article';document.getElementById('articleEditorModal').classList.add('open');
 }
 function closeArticleEditor(){document.getElementById('articleEditorModal')?.classList.remove('open');mentorEditingArticleId=null;}
 async function mentorArticleUpload(inp){
@@ -1888,7 +1889,7 @@ async function mentorArticleUpload(inp){
 }
 async function createMentorArticle(){
   if(!sb){mentorAlert('Supabase not connected');return;}const btn=document.getElementById('maBtn');if(!btn)return;const editing=mentorEditingArticleId;btn.disabled=true;btn.textContent='Saving...';
-  try{const title=document.getElementById('maTitle').value.trim();if(!title){mentorAlert('Title is required');return;}const payload={type:'single',title,category:document.getElementById('maCategory').value,image_url:document.getElementById('maImage').value.trim(),content:document.getElementById('maContent').value.trim(),content_ur:document.getElementById('maContentUr').value.trim()||null,is_published:document.getElementById('maStatus').value==='published'};const result=editing?await sb.from('articles').update(payload).eq('id',editing):await sb.from('articles').insert({...payload,is_official:true,author_id:ME.id});if(result.error){mentorAlert('Error: '+result.error.message);return;}closeArticleEditor();if(window.pipToast)window.pipToast(editing?'Article updated successfully.':'Article saved successfully.','ok');await loadMentorArticles();}catch(e){mentorAlert(e.message);}finally{btn.disabled=false;btn.textContent='Publish Article';}
+  try{const title=document.getElementById('maTitle').value.trim();if(!title){mentorAlert('Title is required');return;}const payload={type:'single',title,pair:(window.PSPPairsV216?.value('maPair')||document.getElementById('maPair')?.value||null),category:document.getElementById('maCategory').value,image_url:document.getElementById('maImage').value.trim(),content:document.getElementById('maContent').value.trim(),content_ur:document.getElementById('maContentUr').value.trim()||null,is_published:document.getElementById('maStatus').value==='published'};const result=editing?await sb.from('articles').update(payload).eq('id',editing):await sb.from('articles').insert({...payload,is_official:true,author_id:ME.id});if(result.error){mentorAlert('Error: '+result.error.message);return;}closeArticleEditor();if(window.pipToast)window.pipToast(editing?'Article updated successfully.':'Article saved successfully.','ok');await loadMentorArticles();}catch(e){mentorAlert(e.message);}finally{btn.disabled=false;btn.textContent='Publish Article';}
 }
 async function loadMentorArticles(){const box=document.getElementById('maList');if(!box)return;box.innerHTML='<div class="psp-rh-empty">Loading professional articles...</div>';const {data,error}=await sb.from('articles').select('*').order('created_at',{ascending:false});if(error){box.innerHTML='<div class="psp-rh-empty" style="color:var(--red)">Error: '+esc(error.message)+'</div>';return;}mentorArticlesData=data||[];applyArticleFilters();}
 
@@ -1910,7 +1911,7 @@ function mentorArticleGroupLabel(value){
 
 function applyArticleFilters(){
   const q=String(document.getElementById('rhArticleSearch')?.value||'').toLowerCase().trim(),category=document.getElementById('rhArticleCategory')?.value||'all',status=document.getElementById('rhArticleStatus')?.value||'all',sort=document.getElementById('rhArticleSort')?.value||'newest';
-  let list=mentorArticlesData.filter(a=>{const hay=[a.title,a.category,a.content,a.content_ur].join(' ').toLowerCase(),statusOk=status==='all'||(status==='published'?a.is_published!==false:a.is_published===false);return(!q||hay.includes(q))&&(category==='all'||String(a.category||'')===category)&&statusOk;});
+  let list=mentorArticlesData.filter(a=>{const hay=[a.title,a.pair,a.category,a.content,a.content_ur].join(' ').toLowerCase(),statusOk=status==='all'||(status==='published'?a.is_published!==false:a.is_published===false);return(!q||hay.includes(q))&&(category==='all'||String(a.category||'')===category)&&statusOk;});
   list.sort((a,b)=>{const av=new Date(a.created_at||0).getTime(),bv=new Date(b.created_at||0).getTime();return sort==='oldest'?av-bv:bv-av;});renderArticleCards(list);
 }
 function renderArticleCards(list){
@@ -1942,7 +1943,7 @@ function renderArticleCards(list){
       <div class="psp-rh-body">
         <div class="psp-rh-meta">
           <span class="psp-rh-status ${a.is_published===false?'draft':'published'}">${a.is_published===false?'Draft':'Published'}</span>
-          <span>${a.created_at?pspFmtDT(a.created_at):''}</span>
+          <span>${a.pair?esc(a.pair)+' • ':''}${a.created_at?pspFmtDT(a.created_at):''}</span>
         </div>
         <h3 class="psp-rh-card-title">${esc(a.title||'(untitled)')}</h3>
         <div class="psp-rh-snippet">${esc(a.content||a.content_ur||'Professional PipSePaisa research article.')}</div>
@@ -2679,7 +2680,8 @@ console.log('PSP mentor v4 — More/drawer active');
 
 <script src="psp-mentor-report-v31.js?v=20260803-v31"></script>
 <script src="realtime-complete.js?v=20260728-v2"></script>
-<script src="signals-workspace-v154.js?v=20260909-v215-copy-pips"></script>
+<script src="psp-pairs-v216.js?v=20260909-v216"></script>
+<script src="signals-workspace-v154.js?v=20260909-v216-pairs"></script>
 <script src="audit-agent-v174.js?v=20260829-v174-audit"></script>
 </body>
 </html>

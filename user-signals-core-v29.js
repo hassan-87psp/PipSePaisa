@@ -657,7 +657,7 @@ async function loadArticlesFromDB(){
   const grad='linear-gradient(135deg,#3a2f1e,#1f0f33)';
   ARTICLE_ITEMS=(ares.data||[]).filter(a=>a.type!=='chart').map(a=>({
     kind:'article', cat:(a.category||'education'), tag:(a.category||'Article'), ico:'📝', grad:grad,
-    title:a.title||'(untitled)', ex:(a.content||'').slice(0,140), content:a.content||'', contentUr:a.content_ur||'',
+    title:a.title||'(untitled)', pair:a.pair||'', ex:(a.content||'').slice(0,140), content:a.content||'', contentUr:a.content_ur||'',
     image:a.image_url||'', date:pspFmtDateTime(a.created_at), ts:new Date(a.created_at).getTime()
   }));
   CHART_ITEMS=(cres&&cres.error)?[]:((cres&&cres.data)||[]).map(c=>{
@@ -665,7 +665,7 @@ async function loadArticlesFromDB(){
     const locked=!canAccessContent('chart',audStr);
     return {
       kind:'chart', cat:'chart', tag:'Chart', ico:'📈', grad:grad,
-      title:c.title||'Chart Analysis',
+      title:c.title||'Chart Analysis', pair:c.pair||'',
       ex:locked?('🔒 Members-only chart — unlock to view'):(c.notes||'').slice(0,140),
       content:locked?('🔒 This chart is shared with selected members only.\n\nUpgrade from the VIP Plans page to unlock mentor charts & analysis.'):(c.notes||''),
       image:locked?'':(c.image_url||''), locked:locked,
@@ -711,7 +711,7 @@ function renderArticles(){
       <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover no-repeat'):a.grad}">${a.image?'':a.ico}${a.locked?'<span style="position:absolute;top:10px;right:10px;background:var(--gold);color:#0a0e1a;font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px">🔒 LOCKED</span>':''}</div>
       <div class="art-body">
         <div class="art-title">${String(a.title||'Untitled').replace(/</g,'&lt;')}</div>
-        <div class="art-time">${String(a.date||'').replace(/</g,'&lt;')}</div>
+        <div class="art-time">${a.pair?('<b style="color:var(--gold);margin-right:7px">'+String(a.pair).replace(/</g,'&lt;')+'</b>'):''}${String(a.date||'').replace(/</g,'&lt;')}</div>
         <button type="button" class="art-details-btn" onclick="event.stopPropagation();openArt(${idx})">${actionLabel} <span aria-hidden="true">→</span></button>
       </div>
     </div>`;
@@ -2967,125 +2967,106 @@ function pspSigMobileDetail(s){
 
 
 // ============================================================================
-// PIPSEPAISA V215 — MOBILE SIGNAL HISTORY NAVIGATION
+// PIPSEPAISA V216 — MOBILE SIGNAL HISTORY NAVIGATION
 // - Mobile-only surgical UI change.
-// - Removes Daily / Weekly / Monthly fixed dock.
-// - Adds one History button beside All / Forex / Gold / Crypto.
+// - Removes the old Daily / Weekly / Monthly dock.
+// - Puts one History / Active switch BELOW the Trading Signals card.
 // - History filters: Today / Yesterday / Last 7 Days / Last Month / Custom.
 // ============================================================================
-(function pspV215MobileSignalHistory(){
-  if(window.__PSP_V215_MOBILE_HISTORY__)return;
-  window.__PSP_V215_MOBILE_HISTORY__=true;
+(function pspV216MobileSignalHistory(){
+  if(window.__PSP_V216_MOBILE_HISTORY__)return;
+  window.__PSP_V216_MOBILE_HISTORY__=true;
 
   function mobile(){return !!(window.matchMedia&&window.matchMedia('(max-width:760px)').matches);}
   function removeLegacyDock(){
-    var dock=document.getElementById('pspSignalPeriodDockV104');
-    if(dock){dock.style.display='none';dock.setAttribute('aria-hidden','true');}
+    ['pspSignalPeriodDockV104','pspMobileHistoryV215','pspSigCustomRangeV215'].forEach(function(id){var x=document.getElementById(id);if(x)x.remove();});
+    document.querySelectorAll('.psp-period-wrap,.psp-period-tabs').forEach(function(x){x.style.display='none';x.setAttribute('aria-hidden','true')});
   }
-  // Override the legacy dock sync without touching desktop signal rendering.
-  try{
-    window.pspV104SyncPeriodDock=function(){
-      var dock=document.getElementById('pspSignalPeriodDockV104');
-      if(dock)dock.style.display='none';
-    };
-  }catch(_){ }
+  try{window.pspV104SyncPeriodDock=function(){removeLegacyDock();};}catch(_){ }
 
-  function syncHistoryButton(){
-    var b=document.getElementById('pspMobileHistoryV215');
-    if(!b)return;
-    var on=(typeof sigView!=='undefined'&&sigView==='history');
-    b.classList.toggle('active',on);
-    b.textContent=on?'← Active':'History';
-    b.setAttribute('aria-pressed',on?'true':'false');
-  }
-
-  function ensureCustomRange(){
-    var row=document.getElementById('sigTimeFilters');
-    if(!row||document.getElementById('pspSigCustomRangeV215'))return;
-    var box=document.createElement('div');
-    box.id='pspSigCustomRangeV215';
-    box.innerHTML='<label>From<input id="pspSigFromV215" type="date"></label><label>To<input id="pspSigToV215" type="date"></label><button type="button" class="sig-fbtn" id="pspSigApplyV215">Apply</button>';
-    row.parentElement.insertAdjacentElement('afterend',box);
-    document.getElementById('pspSigApplyV215').onclick=function(){
-      window.__pspSigCustomFrom=document.getElementById('pspSigFromV215').value||'';
-      window.__pspSigCustomTo=document.getElementById('pspSigToV215').value||'';
-      if(window.__pspSigCustomFrom&&window.__pspSigCustomTo&&window.__pspSigCustomFrom>window.__pspSigCustomTo){
-        alert('From date must be before To date.');return;
-      }
-      if(typeof renderSignals==='function')renderSignals();
-    };
-  }
-
-  window.pspV215SetHistoryRange=function(key,btn){
-    sigTimeF=key;
-    document.querySelectorAll('#sigTimeFilters .sig-fbtn').forEach(function(x){x.classList.remove('active')});
-    if(btn)btn.classList.add('active');
-    ensureCustomRange();
-    var box=document.getElementById('pspSigCustomRangeV215');
-    if(box)box.style.display=(key==='custom')?'grid':'none';
-    if(typeof renderSignals==='function')renderSignals();
-  };
-
-  window.pspV215ToggleSignalHistory=function(){
-    if(typeof sigView==='undefined')return;
-    if(sigView==='history'){
-      sigView='active';sigTimeF='all';
-      var tf=document.getElementById('sigTimeFilters');if(tf)tf.style.display='none';
-      var cr=document.getElementById('pspSigCustomRangeV215');if(cr)cr.style.display='none';
-    }else{
-      sigView='history';sigTimeF='today';
-      var tf2=document.getElementById('sigTimeFilters');if(tf2)tf2.style.display='flex';
+  function ensureShell(){
+    if(!mobile())return null;
+    var page=document.getElementById('page-signals');if(!page)return null;
+    var first=page.querySelector(':scope > .card:first-child');if(!first)return null;
+    var shell=document.getElementById('pspSigHistoryNavV216');
+    if(!shell){
+      shell=document.createElement('div');shell.id='pspSigHistoryNavV216';shell.className='psp-v216-history-shell';
+      shell.innerHTML='\
+        <div class="psp-v216-history-toggle"><button id="pspSigHistoryToggleV216" type="button" class="sig-fbtn" onclick="pspV216ToggleSignalHistory()">History</button></div>\
+        <div id="pspSigHistoryFiltersV216" class="psp-v216-history-filters" style="display:none">\
+          <button class="sig-fbtn active" data-range="today" onclick="pspV216SetHistoryRange(\'today\',this)">Today</button>\
+          <button class="sig-fbtn" data-range="yesterday" onclick="pspV216SetHistoryRange(\'yesterday\',this)">Yesterday</button>\
+          <button class="sig-fbtn" data-range="week" onclick="pspV216SetHistoryRange(\'week\',this)">Last 7 Days</button>\
+          <button class="sig-fbtn" data-range="month" onclick="pspV216SetHistoryRange(\'month\',this)">Last Month</button>\
+          <button class="sig-fbtn" data-range="custom" onclick="pspV216SetHistoryRange(\'custom\',this)">Custom</button>\
+        </div>\
+        <div id="pspSigCustomRangeV216" class="psp-v216-custom-range" style="display:none">\
+          <label>From<input id="pspSigFromV216" type="date"></label>\
+          <label>To<input id="pspSigToV216" type="date"></label>\
+          <button type="button" class="sig-fbtn" onclick="pspV216ApplyCustomRange()">Apply</button>\
+        </div>';
+      first.insertAdjacentElement('afterend',shell);
     }
+    return shell;
+  }
+
+  function sync(){
+    if(!mobile())return;
+    removeLegacyDock();ensureShell();
+    var on=(typeof sigView!=='undefined'&&sigView==='history');
+    var b=document.getElementById('pspSigHistoryToggleV216');
+    var f=document.getElementById('pspSigHistoryFiltersV216');
+    var c=document.getElementById('pspSigCustomRangeV216');
+    if(b){b.classList.toggle('active',on);b.textContent=on?'← Active':'History';b.setAttribute('aria-pressed',on?'true':'false');}
+    if(f)f.style.display=on?'flex':'none';
+    if(c)c.style.display=(on&&sigTimeF==='custom')?'grid':'none';
+    document.querySelectorAll('#pspSigHistoryFiltersV216 .sig-fbtn').forEach(function(x){x.classList.toggle('active',x.dataset.range===sigTimeF)});
+    // Hide the old built-in Active / History and time rows on mobile only.
+    var oldTime=document.getElementById('sigTimeFilters');if(oldTime)oldTime.style.display='none';
+  }
+
+  window.pspV216ToggleSignalHistory=function(){
+    if(typeof sigView==='undefined')return;
+    if(sigView==='history'){sigView='active';sigTimeF='all';}
+    else{sigView='history';sigTimeF='today';}
     var a=document.getElementById('sigViewActive'),h=document.getElementById('sigViewHistory');
     if(a)a.classList.toggle('active',sigView==='active');if(h)h.classList.toggle('active',sigView==='history');
-    syncHistoryButton();
+    sync();if(typeof renderSignals==='function')renderSignals();
+  };
+  window.pspV216SetHistoryRange=function(key,btn){
+    sigTimeF=key;
+    document.querySelectorAll('#pspSigHistoryFiltersV216 .sig-fbtn').forEach(function(x){x.classList.remove('active')});
+    if(btn)btn.classList.add('active');sync();
+    if(key!=='custom'&&typeof renderSignals==='function')renderSignals();
+  };
+  window.pspV216ApplyCustomRange=function(){
+    window.__pspSigCustomFrom=document.getElementById('pspSigFromV216')?.value||'';
+    window.__pspSigCustomTo=document.getElementById('pspSigToV216')?.value||'';
+    if(window.__pspSigCustomFrom&&window.__pspSigCustomTo&&window.__pspSigCustomFrom>window.__pspSigCustomTo){alert('From date must be before To date.');return;}
     if(typeof renderSignals==='function')renderSignals();
   };
 
-  function install(){
-    if(!mobile()){removeLegacyDock();return;}
-    removeLegacyDock();
-    var filters=document.getElementById('sigFilters');
-    if(filters&&!document.getElementById('pspMobileHistoryV215')){
-      var b=document.createElement('button');
-      b.id='pspMobileHistoryV215';b.type='button';b.className='sig-fbtn psp-v215-history-btn';b.textContent='History';
-      b.onclick=window.pspV215ToggleSignalHistory;
-      filters.appendChild(b);
-    }
-    var tf=document.getElementById('sigTimeFilters');
-    if(tf&&!tf.dataset.v215){
-      tf.dataset.v215='1';
-      tf.innerHTML=''+
-        '<button class="sig-fbtn active" onclick="pspV215SetHistoryRange(\'today\',this)">Today</button>'+
-        '<button class="sig-fbtn" onclick="pspV215SetHistoryRange(\'yesterday\',this)">Yesterday</button>'+
-        '<button class="sig-fbtn" onclick="pspV215SetHistoryRange(\'week\',this)">Last 7 Days</button>'+
-        '<button class="sig-fbtn" onclick="pspV215SetHistoryRange(\'month\',this)">Last Month</button>'+
-        '<button class="sig-fbtn" onclick="pspV215SetHistoryRange(\'custom\',this)">Custom</button>';
-    }
-    ensureCustomRange();syncHistoryButton();
-  }
-
-  var st=document.createElement('style');st.id='psp-v215-mobile-history-css';st.textContent=`
+  function install(){removeLegacyDock();if(mobile())ensureShell();sync();}
+  var st=document.createElement('style');st.id='psp-v216-mobile-history-css';st.textContent=`
     @media(max-width:760px){
-      #pspSignalPeriodDockV104,.psp-period-wrap,.psp-period-tabs{display:none!important}
-      #page-signals .sig-filter-row>div:last-child{display:none!important}
+      #pspSignalPeriodDockV104,.psp-period-wrap,.psp-period-tabs,#pspMobileHistoryV215,#pspSigCustomRangeV215{display:none!important}
+      #page-signals .sig-filter-row>div:last-child,#page-signals #sigTimeFilters{display:none!important}
       #page-signals #sigFilters{width:100%;display:flex!important;gap:6px!important;align-items:center!important;flex-wrap:wrap!important}
-      #page-signals .psp-v215-history-btn{margin-left:auto!important;border-color:rgba(251,146,1,.55)!important;color:#FB9201!important;font-weight:850!important}
-      #page-signals .psp-v215-history-btn.active{background:#FB9201!important;color:#101724!important}
-      #page-signals #sigTimeFilters{width:100%;gap:6px!important;margin-top:8px!important;border-top:1px solid var(--border)!important;padding-top:8px!important}
-      #page-signals #sigTimeFilters .sig-fbtn{font-size:10px!important;padding:7px 9px!important;white-space:nowrap!important}
-      #pspSigCustomRangeV215{display:none;grid-template-columns:1fr 1fr auto;gap:7px;align-items:end;margin:8px 0 0;padding:9px;border:1px solid var(--border);border-radius:12px;background:var(--bg-elevated,var(--bg-card))}
-      #pspSigCustomRangeV215 label{font-size:8px;font-weight:800;color:var(--text-muted);text-transform:uppercase}
-      #pspSigCustomRangeV215 input{display:block;width:100%;box-sizing:border-box;margin-top:4px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);padding:8px;font-size:10px}
-      #pspSigCustomRangeV215 .sig-fbtn{height:34px}
+      #pspSigHistoryNavV216{margin:-3px 0 9px!important}
+      .psp-v216-history-toggle{display:flex;justify-content:flex-end;align-items:center}
+      #pspSigHistoryToggleV216{min-width:92px;border-color:rgba(251,146,1,.5)!important;color:#FB9201!important;font-weight:900!important}
+      #pspSigHistoryToggleV216.active{background:#FB9201!important;color:#101724!important;border-color:#FB9201!important}
+      .psp-v216-history-filters{gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding:7px 0 1px}
+      .psp-v216-history-filters::-webkit-scrollbar{display:none}
+      .psp-v216-history-filters .sig-fbtn{font-size:9.5px!important;padding:7px 9px!important;white-space:nowrap!important;flex:0 0 auto}
+      .psp-v216-custom-range{grid-template-columns:1fr 1fr auto;gap:7px;align-items:end;margin-top:7px;padding:9px;border:1px solid var(--border);border-radius:12px;background:var(--bg-elevated,var(--bg-card))}
+      .psp-v216-custom-range label{font-size:8px;font-weight:800;color:var(--text-muted);text-transform:uppercase}
+      .psp-v216-custom-range input{display:block;width:100%;box-sizing:border-box;margin-top:4px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text);padding:8px;font-size:10px}
+      .psp-v216-custom-range .sig-fbtn{height:34px}
     }
-    @media(max-width:420px){#pspSigCustomRangeV215{grid-template-columns:1fr 1fr}#pspSigCustomRangeV215 .sig-fbtn{grid-column:1/-1}}
+    @media(max-width:420px){.psp-v216-custom-range{grid-template-columns:1fr 1fr}.psp-v216-custom-range .sig-fbtn{grid-column:1/-1}}
   `;document.head.appendChild(st);
-
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
-  window.addEventListener('resize',function(){if(mobile())install();removeLegacyDock();});
-
-  // Keep button state synced after any existing renderer/view handler runs.
-  var baseRender=window.renderSignals;
-  if(typeof baseRender==='function')window.renderSignals=function(){var r=baseRender.apply(this,arguments);setTimeout(function(){removeLegacyDock();syncHistoryButton();},0);return r;};
+  window.addEventListener('resize',install);
+  var baseRender=window.renderSignals;if(typeof baseRender==='function')window.renderSignals=function(){var r=baseRender.apply(this,arguments);setTimeout(sync,0);return r;};
 })();

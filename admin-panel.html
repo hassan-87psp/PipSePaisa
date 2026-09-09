@@ -1486,6 +1486,7 @@ select option{background:#0f1729;color:#e8eaf0}
           <div class="card-title">📝 Create Article</div>
           <div style="display:grid;gap:12px;margin-top:14px;max-width:640px">
             <input id="artTitle" class="search-input" type="text" placeholder="Article title">
+            <select id="artPair" class="search-input"></select>
             <select id="artCategory" class="search-input">
               <option value="analysis">Analysis</option>
               <option value="strategy">Strategy</option>
@@ -2054,7 +2055,7 @@ async function createAdSignal(){
   var _otv=((document.getElementById('as-ordertype')||{}).value)||'market';
   var _dirO=(_otv!=='market')?_otv.split('_')[0]:adSigDir;
   var _otype=(_otv!=='market')?_otv.split('_')[1]:'market';
-  var obj={owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('as-pair').value,direction:_dirO.toUpperCase(),
+  var obj={owner_id:currentAdmin.id,is_official:true,pair:(window.PSPPairsV216?.value('as-pair')||document.getElementById('as-pair').value),direction:_dirO.toUpperCase(),
     entry_price:isNaN(entry)?null:entry,stop_loss:parseFloat(v('as-sl'))||null,take_profit1:parseFloat(v('as-tp1'))||null,take_profit2:parseFloat(v('as-tp2'))||null,take_profit3:parseFloat(v('as-tp3'))||null,take_profit4:(v('as-tp4')||'').trim()||null,
     notes:v('as-notes')||null,audience:aud.join(','),access_level:aud.indexOf('free')>=0?'free':'vip',
     plan_name:(!(aud.length===1&&aud[0]==='free'))?(v('as-plan')||null):null,status:_otype!=='market'?'pending':'active',tp_hit:0,order_type:_otype,auto_monitor:false,activated_at:_otype==='market'?new Date().toISOString():null};
@@ -2123,7 +2124,7 @@ async function createAdChart(){
   var aud=['free','premium','vip'];
   var image_url='';var file=document.getElementById('ac-file').files[0];
   if(file){var ext=(file.name.split('.').pop()||'jpg').toLowerCase();var path='official/'+Date.now()+'.'+ext;var up=await sb.storage.from('charts').upload(path,file,{upsert:true});if(up.error){alert('Upload failed: '+up.error.message);return;}image_url=sb.storage.from('charts').getPublicUrl(path).data.publicUrl;}
-  var chartObj={owner_id:currentAdmin.id,is_official:true,pair:document.getElementById('ac-pair').value,title:title,image_url:image_url,audience:aud.join(','),notes:(document.getElementById('ac-notes').value||'').trim()||null};
+  var chartObj={owner_id:currentAdmin.id,is_official:true,pair:(window.PSPPairsV216?.value('ac-pair')||document.getElementById('ac-pair').value),title:title,image_url:image_url,audience:aud.join(','),notes:(document.getElementById('ac-notes').value||'').trim()||null};
   var r=await sb.from('charts').insert(chartObj);
   if(r.error){alert('Error: '+r.error.message);return;}
   await pspCreateNotificationAndPush('📈 New Chart Published', (chartObj.title||chartObj.pair+' chart')+' is now available.', 'chart', '/?tab=charts', chartObj.audience||'all');
@@ -4173,6 +4174,7 @@ async function createArticle(){
   if(!sb){alert('Supabase not connected');return;}
   const type='single';
   const category=document.getElementById('artCategory').value;
+  const pair=(window.PSPPairsV216?.value('artPair')||document.getElementById('artPair')?.value||'').trim();
   const title=document.getElementById('artTitle').value.trim();
   const image_url=document.getElementById('artImage').value.trim();
   const content=document.getElementById('artContent').value.trim();
@@ -4180,12 +4182,12 @@ async function createArticle(){
   const is_published=true;
   if(!title){alert('Title is required');return;}
   if(editingArticleId){
-    const {error}=await sb.from('articles').update({type,title,category,image_url,content,content_ur,is_published}).eq('id',editingArticleId);
+    const {error}=await sb.from('articles').update({type,title,category,pair:pair||null,image_url,content,content_ur,is_published}).eq('id',editingArticleId);
     if(error){alert('Error: '+error.message);return;}
     editingArticleId=null;const b=document.getElementById('artBtn');if(b)b.textContent='➕ Create Article';
   }else{
     const {data:{user}}=await sb.auth.getUser();
-    const articleObj={type,title,category,image_url,content,content_ur,is_published,is_official:true,author_id:user?user.id:null};
+    const articleObj={type,title,category,pair:pair||null,image_url,content,content_ur,is_published,is_official:true,author_id:user?user.id:null};
     const {error}=await sb.from('articles').insert(articleObj);
     if(error){alert('Error: '+error.message);return;}
     if(is_published) await pspCreateNotificationAndPush('📖 New Article Published', title+' is now available.', 'article', '/?tab=charts&sub=articles', 'all');
@@ -4197,6 +4199,7 @@ async function editArticle(id){
   const {data,error}=await sb.from('articles').select('*').eq('id',id).single();
   if(error||!data){alert('Could not load article');return;}
   if(document.getElementById('artCategory'))document.getElementById('artCategory').value=data.category||'education';
+  if(window.PSPPairsV216)window.PSPPairsV216.setValue('artPair',data.pair||'XAU/USD');
   document.getElementById('artTitle').value=data.title||'';
   document.getElementById('artImage').value=data.image_url||'';
   document.getElementById('artContent').value=data.content||'';
@@ -4323,10 +4326,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 }
 </style>
 
+<script src="psp-pairs-v216.js?v=20260909-v216"></script>
 <script src="admin-ea-indicator-v215.js?v=20260909-v215"></script>
 <script src="audit-agent-v174.js?v=20260829-v174-audit"></script>
 <script src="admin-v174-ux.js?v=20260829-v179-finance-compatible"></script>
-<script src="signals-workspace-v154.js?v=20260909-v215-copy-pips"></script>
+<script src="signals-workspace-v154.js?v=20260909-v216-pairs"></script>
 <script src="finance-management-v179.js?v=20260905-v2101-salary-pay-hotfix"></script>
 <script src="admin-premium-v182.js?v=20260829-v182-premium-all-tabs"></script>
 
