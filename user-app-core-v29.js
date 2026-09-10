@@ -3229,7 +3229,23 @@
     try {
       if (sb) return true;
       if (window.supabase && window.supabase.createClient) {
-        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {auth:{storageKey:"pipsepaisa-user-auth-v2",persistSession:true,autoRefreshToken:true}});
+        // V217: keep exactly one persistent auth client per page. The embedded
+        // landing page now uses a non-persistent public client, so it can no longer
+        // compete for the same single-use refresh token on mobile browsers.
+        if (window.__PSP_USER_SUPABASE_CLIENT_V217) {
+          sb = window.__PSP_USER_SUPABASE_CLIENT_V217;
+        } else {
+          sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+            auth:{
+              storageKey:"pipsepaisa-user-auth-v2",
+              persistSession:true,
+              autoRefreshToken:true,
+              detectSessionInUrl:true,
+              flowType:"pkce"
+            }
+          });
+          window.__PSP_USER_SUPABASE_CLIENT_V217 = sb;
+        }
         window.sb=sb;
         window.PSP_SIGNAL_DB=sb;
         window.PSP_SUPABASE_URL=SUPABASE_URL;
@@ -3433,12 +3449,11 @@
     btn.disabled = true; btn.textContent = '⏳ Creating account...';
     try {
       const username = email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
-      const metadata = { full_name: fullName, username, phone, whatsapp: phone, role: 'user', portal: 'user', psp_auto_enroll_course: 'basic', ...(window.PSPTrack?.authMetadata?.()||{}) };
+      const metadata = { full_name: fullName, username, phone, whatsapp: phone, role: 'user', portal: 'user', ...(window.PSPTrack?.authMetadata?.()||{}) };
       if (typeof window.PSPDirectSignup !== 'function') throw new Error('Signup system did not load correctly. Please refresh and try again.');
       const data = await window.PSPDirectSignup(sb, { email, password, metadata });
       if (!data?.user || !data?.session) throw new Error('Account was created, but the login session could not be started.');
       try { await window.PSPTrack?.signup?.(data.user.id); } catch (_) {}
-      try { await window.PSPTrack?.enrollment?.('basic', data.user.id, {source:'home-signup'}); } catch (_) {}
 
       currentUser = data.user;
       currentProfile = {
@@ -3515,6 +3530,9 @@
       closeModal('auth');
       enterApp();
       resetAuthModalState();
+      window.__pspLoginCompletedAt=Date.now();
+      window.__pspLastAuthenticatedAt=Date.now();
+      try{localStorage.setItem('pipsepaisa_last_login_email',email);}catch(_){}
 
       setTimeout(function(){
         Promise.resolve(loadUserProfile(data.user)).catch(function(error){
@@ -3581,6 +3599,7 @@
   // ============ LOGOUT ============
   async function logoutUser() {
     if (!(await window.pspConfirm('Are you sure you want to logout?'))) return;
+    window.__pspExplicitLogout = true;
     try {
       await sb.auth.signOut();
       currentUser = null;
@@ -3598,6 +3617,8 @@
     } catch (error) {
       console.error('Logout error:', error);
       alert('Logout failed: ' + error.message);
+    } finally {
+      setTimeout(function(){ window.__pspExplicitLogout = false; }, 1200);
     }
   }
   
@@ -3632,6 +3653,19 @@
       profile = pr.data || null;
       profileError = pr.error || null;
     } catch (e) { profileError = e; }
+
+    if (!profile) {
+      // V217: ask the DB-side SECURITY DEFINER helper to recreate a missing
+      // profile row. This avoids RLS/profile drift turning a valid Auth session
+      // into a broken-looking login on mobile.
+      try {
+        const er = await sb.rpc('psp_ensure_my_profile_v217');
+        if (!er.error) {
+          const pr2 = await sb.from('profiles').select('*').eq('id', user.id).maybeSingle();
+          if (!pr2.error && pr2.data) profile = pr2.data;
+        }
+      } catch (e) {}
+    }
 
     if (!profile) {
       const fallback = {
@@ -5027,6 +5061,85 @@
     }
   };
 
+  // ============ DIRECT SAME-ORIGIN LANDING SIGNUP ============
+  // V217: signup from the embedded landing page is completed by the parent auth
+  // client. This keeps one persistent refresh-token owner and avoids mobile
+  // session churn / repeated logout after signup or login.
+  window.pspSignupFromLanding = async function(payload) {
+    if (window._pspDirectSignupBusy) {
+      throw new Error('Signup is already processing. Please wait a moment.');
+    }
+    window._pspDirectSignupBusy = true;
+    try {
+      const ready = await ensureSupabaseClient();
+      if (!ready || !sb) throw new Error('Connection problem. Please reload and try again.');
+
+      const fullName=String(payload?.fullName||'').trim();
+      const email=String(payload?.email||'').trim().toLowerCase();
+      const phone=String(payload?.phone||'').trim();
+      const password=String(payload?.password||'');
+      if(!fullName||!email||!phone||!password) throw new Error('Please complete all required fields.');
+      if(phone.length<7) throw new Error('Please enter a valid WhatsApp number.');
+      if(password.length<6) throw new Error('Password must be at least 6 characters.');
+      if(typeof window.PSPDirectSignup!=='function') throw new Error('Signup system did not load correctly. Please refresh and try again.');
+
+      const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
+      const incomingMeta=(payload?.metadata&&typeof payload.metadata==='object')?payload.metadata:{};
+      const metadata={
+        full_name:fullName,
+        username,
+        phone,
+        whatsapp:phone,
+        role:'user',
+        portal:'user',
+        ...incomingMeta,
+        ...(window.PSPTrack?.authMetadata?.()||{})
+      };
+      // Never revive the retired auth-trigger auto-enrollment path.
+      delete metadata.psp_auto_enroll_course;
+
+      const data=await window.PSPDirectSignup(sb,{email,password,metadata,skipAutoEnrollment:true});
+      if(!data?.user||!data?.session) throw new Error('Account was created, but the login session could not be started.');
+      try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
+
+      currentUser=data.user;
+      currentProfile={
+        id:data.user.id,
+        full_name:data.user.user_metadata?.full_name || (data.user.email||'User').split('@')[0],
+        username:data.user.user_metadata?.username || (data.user.email||'User').split('@')[0],
+        email:data.user.email || '',
+        role:'user',
+        is_premium:false,
+        member_type:'free'
+      };
+      window.__pspLoginCompletedAt=Date.now();
+      window.__pspLastAuthenticatedAt=Date.now();
+      updateAuthUI();
+      enterApp();
+      try{localStorage.setItem('pipsepaisa_last_login_email',email);}catch(_){}
+
+      let postSignup={mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+      try{
+        postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id,payload?.context||{})||postSignup;
+      }catch(_){}
+      let copy={detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important updates.',redirect:'Redirecting you now...'};
+      try{ copy=window.PSPPostSignup?.successCopy?.(postSignup)||copy; }catch(_){}
+
+      setTimeout(function(){
+        Promise.resolve(loadUserProfile(data.user)).catch(function(error){
+          console.warn('Signup profile load failed:',error);
+          try{updateAuthUI();}catch(e){}
+        });
+      },0);
+      return {ok:true,userId:data.user.id,postSignup,copy};
+    } catch(error) {
+      const raw=error?.message||'Signup failed. Please try again.';
+      throw new Error(/already|registered|exists/i.test(raw)?'This email is already registered. Please log in.':raw);
+    } finally {
+      window._pspDirectSignupBusy=false;
+    }
+  };
+
   // ============ LANDING IFRAME LOGIN BRIDGE ============
   // The landing page is an iframe. Authentication is completed by this
   // parent page so the dashboard opens immediately without refreshing back
@@ -5147,6 +5260,7 @@
     if(!user)return;
 
     currentUser=user;
+    window.__pspLastAuthenticatedAt=Date.now();
     if(!currentProfile || currentProfile.id!==user.id){
       currentProfile={
         id:user.id,
@@ -5192,6 +5306,7 @@
         } else if (event === 'TOKEN_REFRESHED') {
           if (session && session.user) {
             currentUser=session.user;
+            window.__pspLastAuthenticatedAt=Date.now();
             updateAuthUI();
           }
         } else if (
@@ -5203,12 +5318,37 @@
             try { history.replaceState(null, '', location.pathname.replace(/index\.html$/,'')); } catch(e) {}
           }
         } else if (event === 'SIGNED_OUT') {
-          currentUser = null;
-          currentProfile = null;
-          updateAuthUI();
-          try { closeModal('auth'); } catch(e) {}
-          resetAuthModalState();
-          showLandingPage();
+          // V217: Supabase refresh tokens are single-use. A stale embedded/mobile
+          // client used to emit a transient SIGNED_OUT and kick a valid user back
+          // to landing. Explicit logout remains immediate; background sign-outs
+          // get one short session re-check before changing the UI.
+          if (window.__pspExplicitLogout) {
+            currentUser = null;
+            currentProfile = null;
+            updateAuthUI();
+            try { closeModal('auth'); } catch(e) {}
+            resetAuthModalState();
+            showLandingPage();
+          } else {
+            setTimeout(async function(){
+              try {
+                const check = await sb.auth.getSession();
+                const live = check?.data?.session || null;
+                if (live?.user) {
+                  currentUser = live.user;
+                  window.__pspLastAuthenticatedAt=Date.now();
+                  queueAuthenticatedUser(live.user);
+                  return;
+                }
+              } catch(e) {}
+              currentUser = null;
+              currentProfile = null;
+              updateAuthUI();
+              try { closeModal('auth'); } catch(e) {}
+              resetAuthModalState();
+              showLandingPage();
+            }, 650);
+          }
         }
       },0);
     });

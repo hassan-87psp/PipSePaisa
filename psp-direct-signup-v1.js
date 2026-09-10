@@ -130,7 +130,12 @@
     if(!client)throw new Error('Connection problem. Please reload and try again.');
     const email=String(options?.email||'').trim().toLowerCase();
     const password=String(options?.password||'');
-    const metadata=options?.metadata&&typeof options.metadata==='object'?options.metadata:{};
+    const metadata={...((options?.metadata&&typeof options.metadata==='object')?options.metadata:{})};
+    // V217: this legacy flag used to ask an auth.users trigger to create a
+    // course enrollment during user creation. Course enrollment now happens
+    // only after Auth succeeds, so keeping the flag can make Auth fail with
+    // "Database error creating new user" when course triggers/schema evolve.
+    delete metadata.psp_auto_enroll_course;
 
     try{
       sessionStorage.removeItem('psp-manual-signin-required');
@@ -153,29 +158,8 @@
     // V49: legacy Free Access PIN welcome email removed. Account verification is initiated from Profile.
 
 
-    if(!options?.skipAutoEnrollment && String(metadata.psp_auto_enroll_course||'').toLowerCase()==='basic'){
-      try{
-        const fullName=String(metadata.full_name||'').trim()||email.split('@')[0];
-        const phone=String(metadata.whatsapp||metadata.phone||'').trim()||null;
-        const enrollment={
-          user_id:login.data.user.id,
-          course_key:'basic',
-          course_name:'Basic Forex Course',
-          course_type:'free',
-          price:0,
-          currency:'USD',
-          full_name:fullName,
-          email,
-          whatsapp:phone,
-          payment_status:'not_required',
-          enrollment_status:'enrolled'
-        };
-        const result=await client.from('course_enrollments').upsert(enrollment,{onConflict:'user_id,course_key',ignoreDuplicates:true});
-        if(result.error)console.warn('Automatic Free Course enrollment could not be completed:',result.error.message||result.error);
-      }catch(error){
-        console.warn('Automatic Free Course enrollment could not be completed:',error);
-      }
-    }
+    // V217: no auth-time course enrollment. Course pages save enrollment after login.
+
 
     try{localStorage.setItem('pipsepaisa_last_login_email',email);}catch(_){ }
     try{

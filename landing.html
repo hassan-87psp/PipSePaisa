@@ -1696,7 +1696,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 </style>
 <link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><link href="psp-mobile-reference-v46.css?v=20260814-v79-cross-browser-mobile-lock" media="(max-width: 768px)" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
 <link rel="canonical" href="https://pipsepaisa.com/">
-<script src="psp-direct-signup-v1.js?v=20260813-v76-referral-fix"></script>
+<script src="psp-direct-signup-v1.js?v=20260910-v217-auth-stability"></script>
 
 <style id="pspV81HomeFooterExactTools">
 body.page-home footer.psp-footer{background:#07111f!important;color:#fff!important;padding:0!important;border-top:4px solid transparent!important;border-image:linear-gradient(90deg,#f88702,#f5a623,#f88702) 1!important}
@@ -2039,7 +2039,20 @@ themeButton?.addEventListener('click',()=>applyLandingTheme(!document.body.class
 
 const LANDING_SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
 const LANDING_SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
-const landingSb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(LANDING_SUPABASE_URL,LANDING_SUPABASE_KEY,{auth:{storageKey:'pipsepaisa-user-auth-v2',persistSession:true,autoRefreshToken:true}}):null;
+const LANDING_IS_EMBEDDED=!!(window.parent&&window.parent!==window);
+// V217: when landing.html is inside the authenticated app iframe it must NOT
+// own/persist/refresh the user's auth session. The parent is the single auth owner.
+const landingSb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(
+  LANDING_SUPABASE_URL,
+  LANDING_SUPABASE_KEY,
+  {auth:{
+    storageKey:LANDING_IS_EMBEDDED?'pipsepaisa-landing-public-v217':'pipsepaisa-user-auth-v2',
+    persistSession:!LANDING_IS_EMBEDDED,
+    autoRefreshToken:!LANDING_IS_EMBEDDED,
+    detectSessionInUrl:!LANDING_IS_EMBEDDED,
+    flowType:'pkce'
+  }}
+):null;
 function safeJson(v){try{return JSON.parse(v||'{}')}catch(e){return {}}}
 async function loadLandingAdminContent(){
   if(!landingSb)return;
@@ -2230,14 +2243,31 @@ async function landingSignupUser(){
   if(btn){btn.disabled=true;btn.textContent='⏳ Creating account...';}
   try{
     const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
-    const metadata={full_name:fullName,username,phone,whatsapp:phone,role:'user',psp_auto_enroll_course:'basic',...(window.PSPTrack?.authMetadata?.()||{})};
-    const data=await window.PSPDirectSignup(landingSb,{email,password,metadata});
-    if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
-    try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
-    try{await window.PSPTrack?.enrollment?.('basic',data.user.id,{source:'website-signup'});}catch(_){}
+    const metadata={full_name:fullName,username,phone,whatsapp:phone,role:'user',...(window.PSPTrack?.authMetadata?.()||{})};
+    let data=null,postSignup=null,copy=null;
 
-    const postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
-    const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
+    if(LANDING_IS_EMBEDDED){
+      // Complete signup through the parent persistent auth client so the iframe
+      // never consumes/refreshes the same mobile refresh token.
+      let attempts=0;
+      while(typeof window.parent.pspSignupFromLanding!=='function'&&attempts<100){
+        await new Promise(resolve=>setTimeout(resolve,100));
+        attempts++;
+      }
+      if(typeof window.parent.pspSignupFromLanding!=='function')throw new Error('Signup system did not load correctly. Please refresh and try again.');
+      const result=await window.parent.pspSignupFromLanding({fullName,email,phone,password,metadata});
+      if(!result?.ok)throw new Error('Account could not be created.');
+      data={user:{id:result.userId},session:true};
+      postSignup=result.postSignup||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+      copy=result.copy||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
+    }else{
+      const directData=await window.PSPDirectSignup(landingSb,{email,password,metadata,skipAutoEnrollment:true});
+      if(!directData?.user||!directData?.session)throw new Error('Account was created, but the login session could not be started.');
+      data=directData;
+      try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
+      postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+      copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
+    }
     const panel=document.getElementById('landingSignupPanel');
     if(panel)panel.innerHTML=`<div style="text-align:center;padding:14px 4px"><div style="font-size:42px;margin-bottom:10px">✅</div><h3 style="margin:0 0 7px">Account Created</h3><h4 style="margin:0 0 9px;color:#16a34a;font-size:16px">Thank You for Joining!</h4><p style="color:var(--muted);line-height:1.6;margin:0 0 8px;font-weight:${postSignup.mode==='referral'?'800':'400'}">${copy.detail}</p><p style="color:var(--muted);line-height:1.6;margin:0 0 8px">${copy.note}</p><p style="font-size:12px;color:var(--muted);margin-top:10px">${copy.redirect}</p></div>`;
     const title=document.getElementById('landingAuthTitle'),sub=document.getElementById('landingAuthSubtitle');
