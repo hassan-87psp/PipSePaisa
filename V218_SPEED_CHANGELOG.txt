@@ -1,0 +1,15 @@
+PipSePaisa V218 — Speed & Smoothness only
+
+- Lazy-loads Chart.js for User Journal/Analysis instead of parsing it on every login.
+- Defers heavy page/tab work until after the selected screen paints.
+- Runs account verification alongside dashboard data instead of serially.
+- Uses cached Admin Site Tab visibility first, then refreshes it after first paint.
+- Moves non-critical DM/presence/tab refresh work to idle time.
+- Adds content-visibility for off-screen cards/sections where supported.
+- Disables expensive live backdrop blur on touch/mobile internal panels.
+- Pauses decorative continuous motion only during active scrolling.
+- Lazy-decodes / lazy-loads non-critical images.
+- Adds network preconnect hints for Supabase and jsDelivr.
+- Cache-bumps changed performance/dashboard assets.
+
+No SQL. No feature/data/business-rule changes.

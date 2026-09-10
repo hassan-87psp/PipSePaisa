@@ -7,6 +7,45 @@
   let currentTheme = 'light';
   let newsData = [];
   let newsFilters = { time: 'all', impact: 'all', currency: 'all' };
+
+  // ============ V218 PERFORMANCE HELPERS ============
+  // Run non-critical work after the browser has painted the current screen.
+  function pspIdleV218(fn, timeout){
+    timeout=Number(timeout||1200);
+    if(typeof requestIdleCallback==='function'){
+      return requestIdleCallback(function(){try{fn();}catch(e){}},{timeout:timeout});
+    }
+    return setTimeout(function(){try{fn();}catch(e){}},Math.min(180,Math.max(40,timeout/6)));
+  }
+
+  // Chart.js is intentionally lazy-loaded. It was previously downloaded and parsed
+  // on every login even though its canvases live on hidden Journal/Analysis pages.
+  let __pspChartJsPromiseV218=null;
+  function pspEnsureChartJsV218(){
+    if(typeof Chart!=='undefined') return Promise.resolve(true);
+    if(__pspChartJsPromiseV218) return __pspChartJsPromiseV218;
+    __pspChartJsPromiseV218=new Promise(function(resolve){
+      var urls=[
+        'https://cdn.jsdelivr.net/npm/chart.js',
+        'https://unpkg.com/chart.js/dist/chart.umd.js'
+      ];
+      var i=0;
+      function next(){
+        if(typeof Chart!=='undefined') return resolve(true);
+        if(i>=urls.length) return resolve(false);
+        var sc=document.createElement('script');
+        sc.src=urls[i++];
+        sc.async=true;
+        sc.dataset.pspLazyChart='v218';
+        sc.onload=function(){resolve(typeof Chart!=='undefined');};
+        sc.onerror=next;
+        document.head.appendChild(sc);
+      }
+      next();
+    });
+    return __pspChartJsPromiseV218;
+  }
+  window.pspEnsureChartJsV218=pspEnsureChartJsV218;
   
   // Quiz state — daily 3 questions, no repeats EVER
   let quizState = {
@@ -232,8 +271,16 @@
       }
     }
   }
-  // Hide controlled tabs immediately, before Supabase/session resolution.
-  _disabledTabs=pspBuildDisabledTabs([]);
+  // V218: use the last known tab configuration immediately, then refresh it
+  // quietly from Supabase after first paint. This avoids an early DB request
+  // competing with session restore while still preventing disabled-tab flashes.
+  var _pspInitialTabCacheV218=pspTabCacheRead();
+  if(_pspInitialTabCacheV218&&Array.isArray(_pspInitialTabCacheV218.rows)){
+    _disabledTabs=pspBuildDisabledTabs(_pspInitialTabCacheV218.rows);
+    _tabSettingsReady=true;
+  }else{
+    _disabledTabs=pspBuildDisabledTabs([]);
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyTabVisibility,{once:true});else applyTabVisibility();
   function pspReleaseMobileDrawerLock(){
     try{
@@ -287,13 +334,15 @@
     const runPageWork=function(){
       if(pspPageLoadToken!==window.__pspPageLoadToken)return;
       if (page === 'journal') {
-        Promise.resolve(pspEnsureTradesLoaded()).then(function(){try{ updateDashboard(); buildCalendar(); }catch(e){}});
+        Promise.all([Promise.resolve(pspEnsureTradesLoaded()),pspEnsureChartJsV218()]).then(function(){
+          try{ updateDashboard(); buildCalendar(); ensurePerformanceGraphVisible(); }catch(e){}
+        });
       }
       if (page === 'trades') {
         Promise.resolve(pspEnsureTradesLoaded()).then(function(){try{ updateTradesTable(); }catch(e){}});
       }
       if (page === 'analysis') {
-        Promise.resolve(pspEnsureTradesLoaded()).then(function(){try{ updateAnalysis(); }catch(e){}});
+        Promise.all([Promise.resolve(pspEnsureTradesLoaded()),pspEnsureChartJsV218()]).then(function(){try{ updateAnalysis(); }catch(e){}});
       }
       if (page === 'news' && newsRawData.length === 0) loadNews();
       if (page === 'news') loadAdminNews();
@@ -621,7 +670,13 @@
   // ============ PERFORMANCE CHART ============
   function buildPerfChart() {
     const ctx = document.getElementById('perfChart');
-    if (!ctx || typeof Chart === 'undefined') return;
+    if (!ctx) return;
+    if (typeof Chart === 'undefined') {
+      pspEnsureChartJsV218().then(function(ok){
+        if(ok && !perfChart) buildPerfChart();
+      });
+      return;
+    }
     const colors = getThemeChartColors();
     if (perfChart) { try { perfChart.destroy(); } catch(e){} }
     perfChart = new Chart(ctx, {
@@ -3251,7 +3306,7 @@
         window.PSP_SUPABASE_URL=SUPABASE_URL;
         window.PSP_SUPABASE_KEY=SUPABASE_KEY;
         console.log('✅ Supabase initialized');
-        try{loadTabSettings();}catch(e){}
+        pspIdleV218(function(){try{loadTabSettings();}catch(e){}},900);
         return true;
       }
       console.warn('⚠️ Supabase library not loaded yet');
@@ -3702,9 +3757,10 @@
       var activeId=activePage&&activePage.id?activePage.id:'';
       if(activeId==='page-performance') loadPerformance();
       if(activeId==='page-journal'||activeId==='page-trades'||activeId==='page-analysis') pspEnsureTradesLoaded();
-      if(activeId==='page-chats') loadDMList(true); else pspLoadDMUnreadBadgeOnly();
+      if(activeId==='page-chats') loadDMList(true);
+      else pspIdleV218(function(){try{pspLoadDMUnreadBadgeOnly();}catch(e){}},1800);
     }catch(e){}
-    try{pingPresence();}catch(e){}
+    pspIdleV218(function(){try{pingPresence();}catch(e){}},2400);
   }
   
   function vEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -5528,10 +5584,8 @@
       showPage('dashboard', dashboardItem);
       setTimeout(function(){if(typeof window.pspApplyIntendedRoute==='function')window.pspApplyIntendedRoute();},0);
 
-      requestAnimationFrame(function(){
-        setTimeout(ensurePerformanceGraphVisible, 80);
-        setTimeout(ensurePerformanceGraphVisible, 450);
-      });
+      // V218: do not build/resize the hidden Journal chart during login.
+      // It is created on first Journal visit instead.
     }
   }
   
@@ -5603,17 +5657,19 @@
       };
       updateAuthUI();
       enterApp();
-      setTimeout(function(){
+      pspIdleV218(function(){
         Promise.resolve(loadUserProfile(restoredSession.user)).catch(function(error){
           console.warn('Restored profile load failed:',error);
         });
-      },0);
+      },650);
     } else {
       showLandingPage();
     }
 
     updateTime();
-    buildCalendar();
+    // V218: Calendar is not visible on the initial Dashboard. Build it during idle
+    // as a fallback; opening Journal builds a fresh copy immediately.
+    pspIdleV218(function(){try{buildCalendar();}catch(e){}},2200);
 
     // V170 performance: Live Charts / performance chart are lazy. Their existing
     // page handlers create them on first visit instead of competing with login.

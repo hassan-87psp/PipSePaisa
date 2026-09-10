@@ -1,0 +1,131 @@
+/* PipSePaisa V218 — performance-only rendering layer.
+   No feature, data, route or brand logic is changed here. */
+
+html.psp-perf-v218{
+  scrollbar-gutter:stable;
+}
+
+/* Let the browser skip painting content that is far outside the viewport.
+   Intrinsic sizes keep the scroll bar stable and prevent visible jumps. */
+@supports (content-visibility:auto){
+  html.psp-public-page main > section:not(.hero){
+    content-visibility:auto;
+    contain-intrinsic-size:auto 720px;
+  }
+
+  html.psp-app-page #mainApp .page .card,
+  html.psp-app-page #mainApp .page .stat-card,
+  html.psp-app-page #mainApp .page .gold-card,
+  html.psp-app-page #mainApp .page .sig-card,
+  html.psp-app-page #mainApp .page .art-card,
+  html.psp-app-page #mainApp .page .psp-mobile-sig-row,
+  html.psp-app-page #mainApp .page .sig-history-mobile-card,
+  html.psp-app-page #mainApp .page .session-card,
+  html.psp-app-page #mainApp .page .tool-card,
+  html.psp-app-page #mainApp .page .tool-card-expand{
+    content-visibility:auto;
+    contain-intrinsic-size:auto 180px;
+  }
+}
+
+/* Touch devices do not need desktop hover animation work. Keeping hover transforms
+   disabled on coarse pointers avoids needless repaints during finger scrolling. */
+@media (hover:none), (pointer:coarse){
+  html.psp-app-page .card:hover,
+  html.psp-app-page .stat-card:hover,
+  html.psp-app-page .tool-card:hover,
+  html.psp-app-page .btn:hover,
+  html.psp-app-page button:hover{
+    transform:none!important;
+  }
+
+  html.psp-app-page #userBottomNav{
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+  }
+
+  html.psp-app-page .sidebar.open{
+    will-change:transform;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+  }
+}
+
+/* The public sticky header previously blurred the whole moving page underneath it.
+   That is expensive on Android GPUs. Use the same warm surface without live blur. */
+@media (max-width:768px), (pointer:coarse){
+  html.psp-public-page .topbar{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+    background:rgba(255,250,241,.985)!important;
+  }
+  html.psp-public-page body.dark-theme .topbar{
+    background:rgba(7,16,31,.985)!important;
+  }
+
+  /* These remain visually translucent but no longer re-blur every frame while scrolling. */
+  html.psp-public-page .hero-eyebrow,
+  html.psp-public-page .hero-course,
+  html.psp-public-page .hero-quote{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+  }
+}
+
+/* Pause purely decorative continuous animation only while the user is actively scrolling.
+   It resumes immediately after scrolling stops. */
+html.psp-scroll-active .hero-highlight,
+html.psp-scroll-active .mentor-spotlight:after,
+html.psp-scroll-active .mentor-spotlight-section:after{
+  animation-play-state:paused!important;
+}
+
+/* Keep native touch scrolling in control; no synthetic smooth-scroll engine is used. */
+html.psp-perf-v218 body{
+  overscroll-behavior-y:auto;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+
+/* V218.1 — keep complex internal panels cheap to paint without changing layout. */
+@supports (content-visibility:auto){
+  html.psp-app-page .page.active > .card,
+  html.psp-app-page .page.active > .grid,
+  html.psp-app-page .page.active > section,
+  html.psp-app-page .content > .card,
+  html.psp-app-page .content > section{
+    content-visibility:auto;
+    contain-intrinsic-size:auto 260px;
+  }
+}
+
+/* Expensive live backdrop blurs are a common source of Android scroll jank.
+   On touch devices preserve the same surfaces, but stop re-blurring the moving page. */
+@media (hover:none), (pointer:coarse), (max-width:768px){
+  html.psp-app-page .topbar,
+  html.psp-app-page .sidebar,
+  html.psp-app-page .card,
+  html.psp-app-page .auth{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+  }
+  html.psp-app-page body,
+  html.psp-app-page .main,
+  html.psp-app-page .content{
+    touch-action:pan-y;
+  }
+}
+
+/* Suspend decorative infinite motion only while a real scroll gesture is active. */
+html.psp-scroll-active body::before,
+html.psp-scroll-active .pip-orb,
+html.psp-scroll-active [class*="ambient"],
+html.psp-scroll-active [class*="glow"]{
+  animation-play-state:paused!important;
+}
+
+/* optimizeLegibility can be measurably expensive on long mobile pages. */
+html.psp-perf-v218 body{
+  text-rendering:auto;
+}

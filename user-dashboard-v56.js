@@ -257,19 +257,20 @@ async function load(force=false){
   const c=db();if(!c){root.innerHTML='<div class="psp58-empty"><span>◌</span><b>Dashboard is waiting for connection…</b></div>';return}
   loading=true;lastLoad=Date.now();if(!q('.psp58-home',root))root.innerHTML=psp67Skeleton();root.classList.add('is-loading');
   try{
-    try{await window.PSPAccountVerification?.load?.(true)}catch(_){}
     const sess=await c.auth.getSession(),user=sess?.data?.session?.user;if(!user)return;
+    // V218: account-access sync is independent of the dashboard queries. Running it
+    // in parallel removes one full network round-trip from the critical path.
     const all=await Promise.allSettled([
-      // V170: request 30 signals first instead of the V159 500-row JSON feed.
       c.rpc('psp_user_signals_feed_v158',{p_limit:30}),
       c.from('charts').select('id,title,pair,notes,image_url,created_at,updated_at').order('created_at',{ascending:false}).limit(8),
       c.from('articles').select('id,title,content,image_url,created_at,updated_at,is_published').eq('is_published',true).order('created_at',{ascending:false}).limit(8),
       c.from('course_enrollments').select('id,course_key,payment_status,enrollment_status,created_at').eq('user_id',user.id).order('created_at',{ascending:false}),
       c.from('course_classes').select('id,class_number,course_key,title,subtitle,is_active,scheduled_at').order('class_number',{ascending:true}),
       c.from('trades').select('id,trade_date,created_at,pnl').eq('user_id',user.id).order('created_at',{ascending:false}).limit(100),
-      c.from('courses').select('id,course_key,title,mentor_name,display_order').order('display_order',{ascending:true}).limit(10)
+      c.from('courses').select('id,course_key,title,mentor_name,display_order').order('display_order',{ascending:true}).limit(10),
+      Promise.resolve(window.PSPAccountVerification?.load?.(true))
     ]);
-    const data=i=>all[i].status==='fulfilled'&&!all[i].value.error?(all[i].value.data||[]):[];
+    const data=i=>all[i].status==='fulfilled'&&!all[i].value?.error?(all[i].value.data||[]):[];
     let signals=data(0);
     if(all[0].status!=='fulfilled' || all[0].value?.error || !signals.length){
       try{
@@ -358,7 +359,7 @@ async function load(force=false){
   finally{loading=false;root.classList.remove('is-loading')}
 }
 function wrap(){if(window.__psp58DashWrap||typeof window.showPage!=='function')return;window.__psp58DashWrap=true;const old=window.showPage;window.showPage=function(page,el){const r=old.apply(this,arguments);if(page==='dashboard')setTimeout(()=>load(),0);return r}}
-function init(){wrap();setTimeout(()=>{wrap();if(q('#page-dashboard')?.classList.contains('active'))load(true)},300);window.addEventListener('pageshow',()=>{if(q('#page-dashboard')?.classList.contains('active'))setTimeout(()=>load(true),180)})}
+function init(){wrap();setTimeout(()=>{wrap();if(q('#page-dashboard')?.classList.contains('active'))load(false)},360);window.addEventListener('pageshow',()=>{if(q('#page-dashboard')?.classList.contains('active'))setTimeout(()=>load(false),220)})}
 window.PSPUserDashboard={load};window.psp58Nav=nav;window.goDashboardHome=function(){nav('dashboard')};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
@@ -376,11 +377,12 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   function st(el){if(!states.has(el))states.set(el,{x:50,y:50,tx:50,ty:50,rx:0,ry:0,trx:0,try:0,lift:0,tlift:0,sx:0,sy:12,tsx:0,tsy:12,mx:0,my:0,tmx:0,tmy:0,hover:false});return states.get(el)}
   function light(el){if(!el||el.dataset.psp67Light==='1')return;el.dataset.psp67Light='1';const i=document.createElement('i');i.className='psp60-hover-light';i.setAttribute('aria-hidden','true');el.appendChild(i)}
   function decorate(){if(!root||!fine())return;root.querySelectorAll(lightSelector).forEach(light)}
-  function targets(el,e){const r=el.getBoundingClientRect(),s=st(el);if(!r.width||!r.height)return;const x=Math.max(0,Math.min(r.width,e.clientX-r.left)),y=Math.max(0,Math.min(r.height,e.clientY-r.top)),nx=x/r.width-.5,ny=y/r.height-.5;s.tx=x;s.ty=y;s.hover=true;s.tlift=el.matches(tiltSelector)?-2.6:-1.45;s.tsx=-nx*8.5;s.tsy=13-ny*6;if(el.matches(tiltSelector)){s.try=nx*1.45;s.trx=-ny*1.0}if(el.matches('.psp63-welcome')){el.style.setProperty('--psp67-parallax-x',(-nx*6).toFixed(2)+'px');el.style.setProperty('--psp67-parallax-y',(-ny*4).toFixed(2)+'px')}el.classList.add('psp60-lit')}
-  function magnet(el,e){const r=el.getBoundingClientRect(),s=st(el);if(!r.width||!r.height)return;s.tmx=(e.clientX-(r.left+r.width/2))*.045;s.tmy=(e.clientY-(r.top+r.height/2))*.06;el.classList.add('psp67-magnetic')}
-  function leave(el){const s=st(el),r=el.getBoundingClientRect();s.hover=false;s.tx=r.width/2;s.ty=r.height/2;s.trx=0;s.try=0;s.tlift=0;s.tsx=0;s.tsy=12;s.tmx=0;s.tmy=0;if(el.matches('.psp63-welcome')){el.style.setProperty('--psp67-parallax-x','0px');el.style.setProperty('--psp67-parallax-y','0px')}el.classList.remove('psp60-lit','psp67-magnetic')}
+  function psp67Wake(){if(!raf)raf=requestAnimationFrame(loop)}
+  function targets(el,e){const r=el.getBoundingClientRect(),s=st(el);if(!r.width||!r.height)return;const x=Math.max(0,Math.min(r.width,e.clientX-r.left)),y=Math.max(0,Math.min(r.height,e.clientY-r.top)),nx=x/r.width-.5,ny=y/r.height-.5;s.tx=x;s.ty=y;s.hover=true;s.tlift=el.matches(tiltSelector)?-2.6:-1.45;s.tsx=-nx*8.5;s.tsy=13-ny*6;if(el.matches(tiltSelector)){s.try=nx*1.45;s.trx=-ny*1.0}if(el.matches('.psp63-welcome')){el.style.setProperty('--psp67-parallax-x',(-nx*6).toFixed(2)+'px');el.style.setProperty('--psp67-parallax-y',(-ny*4).toFixed(2)+'px')}el.classList.add('psp60-lit');psp67Wake()}
+  function magnet(el,e){const r=el.getBoundingClientRect(),s=st(el);if(!r.width||!r.height)return;s.tmx=(e.clientX-(r.left+r.width/2))*.045;s.tmy=(e.clientY-(r.top+r.height/2))*.06;el.classList.add('psp67-magnetic');psp67Wake()}
+  function leave(el){const s=st(el),r=el.getBoundingClientRect();s.hover=false;s.tx=r.width/2;s.ty=r.height/2;s.trx=0;s.try=0;s.tlift=0;s.tsx=0;s.tsy=12;s.tmx=0;s.tmy=0;if(el.matches('.psp63-welcome')){el.style.setProperty('--psp67-parallax-x','0px');el.style.setProperty('--psp67-parallax-y','0px')}el.classList.remove('psp60-lit','psp67-magnetic');psp67Wake()}
   function lerp(a,b,k){return a+(b-a)*k}
-  function loop(){let moving=false;states.forEach((s,el)=>{if(!el.isConnected){states.delete(el);return}s.x=lerp(s.x,s.tx,.18);s.y=lerp(s.y,s.ty,.18);s.rx=lerp(s.rx,s.trx,.095);s.ry=lerp(s.ry,s.try,.095);s.lift=lerp(s.lift,s.tlift,.105);s.sx=lerp(s.sx,s.tsx,.09);s.sy=lerp(s.sy,s.tsy,.09);s.mx=lerp(s.mx,s.tmx,.17);s.my=lerp(s.my,s.tmy,.17);el.style.setProperty('--psp60-x',s.x+'px');el.style.setProperty('--psp60-y',s.y+'px');el.style.setProperty('--psp60-rx',s.rx.toFixed(3)+'deg');el.style.setProperty('--psp60-ry',s.ry.toFixed(3)+'deg');el.style.setProperty('--psp67-lift',s.lift.toFixed(2)+'px');el.style.setProperty('--psp67-shadow-x',s.sx.toFixed(2)+'px');el.style.setProperty('--psp67-shadow-y',s.sy.toFixed(2)+'px');el.style.setProperty('--psp67-mx',s.mx.toFixed(2)+'px');el.style.setProperty('--psp67-my',s.my.toFixed(2)+'px');if(Math.abs(s.rx-s.trx)>.01||Math.abs(s.ry-s.try)>.01||Math.abs(s.x-s.tx)>.2||Math.abs(s.y-s.ty)>.2||Math.abs(s.lift-s.tlift)>.03||Math.abs(s.mx-s.tmx)>.03||Math.abs(s.my-s.tmy)>.03)moving=true});raf=requestAnimationFrame(loop)}
+  function loop(){let moving=false;states.forEach((s,el)=>{if(!el.isConnected){states.delete(el);return}s.x=lerp(s.x,s.tx,.18);s.y=lerp(s.y,s.ty,.18);s.rx=lerp(s.rx,s.trx,.095);s.ry=lerp(s.ry,s.try,.095);s.lift=lerp(s.lift,s.tlift,.105);s.sx=lerp(s.sx,s.tsx,.09);s.sy=lerp(s.sy,s.tsy,.09);s.mx=lerp(s.mx,s.tmx,.17);s.my=lerp(s.my,s.tmy,.17);el.style.setProperty('--psp60-x',s.x+'px');el.style.setProperty('--psp60-y',s.y+'px');el.style.setProperty('--psp60-rx',s.rx.toFixed(3)+'deg');el.style.setProperty('--psp60-ry',s.ry.toFixed(3)+'deg');el.style.setProperty('--psp67-lift',s.lift.toFixed(2)+'px');el.style.setProperty('--psp67-shadow-x',s.sx.toFixed(2)+'px');el.style.setProperty('--psp67-shadow-y',s.sy.toFixed(2)+'px');el.style.setProperty('--psp67-mx',s.mx.toFixed(2)+'px');el.style.setProperty('--psp67-my',s.my.toFixed(2)+'px');if(Math.abs(s.rx-s.trx)>.01||Math.abs(s.ry-s.try)>.01||Math.abs(s.x-s.tx)>.2||Math.abs(s.y-s.ty)>.2||Math.abs(s.lift-s.tlift)>.03||Math.abs(s.mx-s.tmx)>.03||Math.abs(s.my-s.tmy)>.03)moving=true});raf=moving?requestAnimationFrame(loop):0}
   function bind(){root=document.querySelector('#psp56Dashboard');if(!root||!fine())return;decorate();if(root.dataset.psp67Bound==='1')return;root.dataset.psp67Bound='1';root.addEventListener('pointermove',e=>{const el=e.target.closest(lightSelector);if(el&&root.contains(el)){light(el);targets(el,e)}const b=e.target.closest(magneticSelector);if(b&&root.contains(b))magnet(b,e)},{passive:true});root.addEventListener('pointerout',e=>{const el=e.target.closest(lightSelector);if(el&&root.contains(el)&&!(e.relatedTarget&&el.contains(e.relatedTarget)))leave(el);const b=e.target.closest(magneticSelector);if(b&&root.contains(b)&&!(e.relatedTarget&&b.contains(e.relatedTarget)))leave(b)},{passive:true});observer=new MutationObserver(()=>requestAnimationFrame(decorate));observer.observe(root,{childList:true,subtree:true});if(!raf)raf=requestAnimationFrame(loop)}
   function refresh(){bind()}
   const old=window.PSPUserDashboard&&window.PSPUserDashboard.load;if(old)window.PSPUserDashboard.load=async function(){const r=await old.apply(this,arguments);requestAnimationFrame(refresh);return r};
