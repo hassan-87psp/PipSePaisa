@@ -5770,7 +5770,7 @@
   if(window.__PSP_EAI_LOADER_V215__)return;window.__PSP_EAI_LOADER_V215__=true;
   function load(){
     if(document.querySelector('script[data-psp-eai-v215]'))return;
-    var sc=document.createElement('script');sc.src='/ea-indicator-user-v215.js?v=20260909-v216-order';sc.defer=true;sc.dataset.pspEaiV215='1';document.head.appendChild(sc);
+    var sc=document.createElement('script');sc.src='/ea-indicator-user-v215.js?v=20260910-v219-pivot';sc.defer=true;sc.dataset.pspEaiV215='1';document.head.appendChild(sc);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();
 })();
