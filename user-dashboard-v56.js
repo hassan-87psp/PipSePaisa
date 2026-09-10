@@ -2,6 +2,15 @@
 (function(){
 'use strict';
 let loading=false,lastLoad=0,clockTimer=null;
+const PSP_DASH_CACHE_TTL_V220=45000;
+function dashCacheKeyV220(uid){return 'psp_dashboard_v220_'+String(uid||'guest')}
+function readDashCacheV220(uid){
+  try{const x=JSON.parse(sessionStorage.getItem(dashCacheKeyV220(uid))||'null');if(!x||!x.html||!x.savedAt)return null;return x}catch(_){return null}
+}
+function writeDashCacheV220(uid,html){
+  try{sessionStorage.setItem(dashCacheKeyV220(uid),JSON.stringify({savedAt:Date.now(),html:String(html||'')}))}catch(_){ }
+}
+
 const q=(s,r=document)=>r.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const PKT_TZ='Asia/Karachi';
@@ -258,6 +267,20 @@ async function load(force=false){
   loading=true;lastLoad=Date.now();if(!q('.psp58-home',root))root.innerHTML=psp67Skeleton();root.classList.add('is-loading');
   try{
     const sess=await c.auth.getSession(),user=sess?.data?.session?.user;if(!user)return;
+
+    // V220: restore the last rendered dashboard immediately from session cache.
+    // This makes refresh/back-navigation feel instant while a stale cache quietly
+    // refreshes from Supabase. Cache is per authenticated user and short-lived.
+    const dashCacheV220=readDashCacheV220(user.id);
+    if(dashCacheV220&&dashCacheV220.html&&!q('.psp58-home',root)){
+      root.innerHTML=dashCacheV220.html;
+      root.classList.remove('is-loading');
+      startClock();
+    }
+    if(!force&&dashCacheV220&&(Date.now()-Number(dashCacheV220.savedAt||0))<PSP_DASH_CACHE_TTL_V220){
+      lastLoad=Date.now();loading=false;return;
+    }
+
     // V218: account-access sync is independent of the dashboard queries. Running it
     // in parallel removes one full network round-trip from the critical path.
     const all=await Promise.allSettled([
@@ -354,6 +377,7 @@ async function load(force=false){
       <section class="psp59-grid-primary"><div class="psp58-card featured"><div class="psp58-card-head"><div><span class="eyebrow">MARKET SIGNAL</span><h3>Latest Signal</h3></div><button class="psp58-link" onclick="psp58Nav('signals')">View All →</button></div>${latestSignalsHTML(signals,allowed)}</div><div class="psp58-card class-card"><div class="psp58-card-head"><div><span class="eyebrow">LIVE LEARNING</span><h3>Next Live Class</h3></div><button class="psp58-link" onclick="navMyCoursesV58()">My Courses →</button></div>${nextClassHTML(classes,enrollments,courses)}</div></section>
       <section class="psp59-grid-secondary"><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">MARKET INTELLIGENCE</span><h3>Latest Market Analysis</h3></div><button class="psp58-link" onclick="psp58Nav('articles')">Explore →</button></div>${analysisHTML(charts,articles,allowed)}</div><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">YOUR TRADING JOURNAL</span><h3>Journal Snapshot</h3></div><button class="psp58-link" onclick="psp58Nav('journal')">Open Journal →</button></div>${journalHTML(trades,allowed)}<div class="psp58-tools"><button onclick="psp58Nav('newshub')">📡 <span>World News Hub</span></button><button onclick="psp58Nav('strength')">💪 <span>Strength Meter</span></button><button onclick="psp58Nav('charts')">📊 <span>Live Charts</span></button><button onclick="psp58Nav('aireport')">🤖 <span>AI Report</span></button></div></div></section>
     </div>`;
+    writeDashCacheV220(user.id,root.innerHTML);
     animateCounters(root);startClock();
   }catch(e){console.warn('Dashboard load failed',e);root.innerHTML='<div class="psp58-empty"><span>⚠</span><b>Dashboard could not refresh right now</b><button onclick="PSPUserDashboard.load(true)">Try Again →</button></div>'}
   finally{loading=false;root.classList.remove('is-loading')}

@@ -1,0 +1,140 @@
+/* PipSePaisa V220 — deeper speed + smoothness layer.
+   Performance-only: no business rules, routes, payments or data semantics. */
+
+html.psp-perf-v220{scrollbar-gutter:stable;}
+html.psp-perf-v220 body{
+  -webkit-font-smoothing:antialiased;
+  text-rendering:auto;
+  overscroll-behavior-y:auto;
+}
+
+/* Instant page switches feel much faster than re-running entrance animations on
+   every internal tab change. Public marketing reveals are left untouched. */
+html.psp-app-page .page,
+html.psp-app-page .page.active{
+  animation:none!important;
+}
+
+/* Keep the browser from painting large off-screen sections/lists. */
+@supports (content-visibility:auto){
+  html.psp-public-page main > section:not(.hero),
+  html.psp-public-page .section,
+  html.psp-public-page footer{
+    content-visibility:auto;
+    contain-intrinsic-size:auto 720px;
+  }
+
+  html.psp-app-page .page.active > .card,
+  html.psp-app-page .page.active > section,
+  html.psp-app-page .page.active > .grid,
+  html.psp-app-page .page.active .psp58-card,
+  html.psp-app-page .page.active .stat-card,
+  html.psp-app-page .page.active .tool-card,
+  html.psp-app-page .page.active .sig-card,
+  html.psp-app-page .page.active .art-card,
+  html.psp-app-page .page.active .sig-history-mobile-card,
+  html.psp-app-page .page.active .psp-mobile-sig-row,
+  html.psp-app-page .page.active tbody tr{
+    content-visibility:auto;
+    contain-intrinsic-size:auto 170px;
+  }
+}
+
+/* Reduce layout/paint propagation from common card surfaces without changing size. */
+html.psp-app-page .card,
+html.psp-app-page .stat-card,
+html.psp-app-page .psp58-card,
+html.psp-app-page .tool-card,
+html.psp-app-page .sig-card,
+html.psp-app-page .art-card{
+  contain:paint style;
+}
+
+/* Touch devices: remove expensive live blur + hover paint work. */
+@media (hover:none), (pointer:coarse), (max-width:768px){
+  html.psp-app-page .topbar,
+  html.psp-app-page .sidebar,
+  html.psp-app-page .card,
+  html.psp-app-page .auth,
+  html.psp-public-page .topbar,
+  html.psp-public-page .hero-eyebrow,
+  html.psp-public-page .hero-course,
+  html.psp-public-page .hero-quote{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+  }
+
+  html.psp-public-page .topbar{background:rgba(255,250,241,.985)!important;}
+  html.psp-public-page body.dark-theme .topbar{background:rgba(7,16,31,.985)!important;}
+
+  html.psp-app-page .card:hover,
+  html.psp-app-page .stat-card:hover,
+  html.psp-app-page .tool-card:hover,
+  html.psp-app-page .btn:hover,
+  html.psp-app-page button:hover{
+    transform:none!important;
+  }
+
+  html.psp-app-page .main,
+  html.psp-app-page .content,
+  html.psp-app-page body{touch-action:pan-y;}
+
+  /* Continuous decorative motion looks nice on desktop but costs mobile frames. */
+  html.psp-app-page .time-dot,
+  html.psp-app-page .psp58-live-dot,
+  html.psp-app-page [class*="glow"],
+  html.psp-app-page [class*="ambient"],
+  html.psp-app-page .pip-orb,
+  html.psp-public-page #landingPage::before,
+  html.psp-public-page #landingPage::after{
+    animation:none!important;
+  }
+
+  /* Complex shadows are one of the biggest paint costs while scrolling. */
+  html.psp-scroll-active .card,
+  html.psp-scroll-active .stat-card,
+  html.psp-scroll-active .psp58-card,
+  html.psp-scroll-active .tool-card,
+  html.psp-scroll-active .sig-card,
+  html.psp-scroll-active .art-card,
+  html.psp-scroll-active #userBottomNav,
+  html.psp-scroll-active .topbar{
+    box-shadow:none!important;
+  }
+}
+
+/* During an actual scroll gesture, decorative transitions/animations are paused.
+   Spinners and functional progress indicators are intentionally not targeted. */
+html.psp-scroll-active .card,
+html.psp-scroll-active .stat-card,
+html.psp-scroll-active .tool-card,
+html.psp-scroll-active .btn,
+html.psp-scroll-active .menu-item,
+html.psp-scroll-active .submenu-item,
+html.psp-scroll-active .pip-reveal,
+html.psp-scroll-active .hero-highlight,
+html.psp-scroll-active .mentor-spotlight:after,
+html.psp-scroll-active .mentor-spotlight-section:after{
+  transition:none!important;
+  animation-play-state:paused!important;
+}
+
+html.psp-page-hidden *{animation-play-state:paused!important;}
+
+/* GPU-friendly fixed navigation. */
+html.psp-app-page .topbar,
+html.psp-app-page #userBottomNav{
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  transform:translateZ(0);
+}
+
+/* Prefer no motion where the OS asks for it. */
+@media (prefers-reduced-motion:reduce){
+  html.psp-perf-v220 *,html.psp-perf-v220 *::before,html.psp-perf-v220 *::after{
+    scroll-behavior:auto!important;
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+  }
+}
