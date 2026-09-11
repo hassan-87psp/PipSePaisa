@@ -1,4 +1,4 @@
-/* PipSePaisa V214.1 — fast Local Bank checkout: warm Edge Function + no forced token refresh. */
+/* PipSePaisa V221 — multi paid-course enrollment (Advance Fundamental added) + V214.1 fast Local Bank flow. */
 (function(){
   'use strict';
 
@@ -8,7 +8,8 @@
     basic:{key:'basic',name:'Basic Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     'basic-b2':{key:'basic-b2',name:'Basic Forex Course — Batch 2',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     fundamental:{key:'fundamental',name:'Fundamental Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
-    advanced:{key:'advanced',name:'ADVANCE COURSE',type:'paid',price:250,oldPrice:500,currency:'USD',localBankPricePkr:0}
+    advanced:{key:'advanced',name:'ADVANCE COURSE',type:'paid',price:250,oldPrice:500,currency:'USD',localBankPricePkr:0},
+    'advance-fundamental':{key:'advance-fundamental',name:'Advance Fundamental',type:'paid',price:150,oldPrice:250,currency:'USD',localBankPricePkr:0}
   };
   const courseConfigCache=new Map();
 
@@ -71,9 +72,15 @@
         if(error)throw error;
         const rows=Array.isArray(data)?data:[];
         if(fallback){
-          row=rows.find(r=>key==='basic'&&/^basic forex course$/i.test(String(r.title||'').trim()))
-            ||rows.find(r=>key==='advanced'&&/^advanced forex course$/i.test(String(r.title||'').trim()))
-            ||rows.find(r=>String(r.course_key||'').toLowerCase()===key&&((key==='basic'&&Number(r.display_order||0)===1)||(key==='advanced'&&Number(r.display_order||0)===2)));
+          if(key==='basic'){
+            row=rows.find(r=>/^basic forex course$/i.test(String(r.title||'').trim()))
+              ||rows.find(r=>String(r.course_key||'').toLowerCase()==='basic'&&Number(r.display_order||0)===1)||null;
+          }else if(key==='advanced'){
+            row=rows.find(r=>/^advance(d)? forex course$/i.test(String(r.title||'').trim()))
+              ||rows.find(r=>String(r.course_key||'').toLowerCase()==='advanced'&&Number(r.display_order||0)===2)||null;
+          }else{
+            row=rows.find(r=>String(r.course_key||'').toLowerCase()===key)||null;
+          }
         }else{
           row=rows.find(r=>String(r.course_key||'').toLowerCase()===key)||null;
         }
@@ -108,6 +115,8 @@
       if(key==='fundamental')next.name='Fundamental Forex Course';
     }else if(key==='advanced'){
       next.type='paid';next.price=Math.max(0,amountNumber(row.price,250))||250;next.oldPrice=Math.max(0,amountNumber(row.old_price,500));next.localBankPricePkr=Math.max(0,amountNumber(row.local_bank_price_pkr,0));
+    }else if(key==='advance-fundamental'){
+      next.type='paid';next.name=String(row.title||'Advance Fundamental');next.price=Math.max(0,amountNumber(row.price,150))||150;next.oldPrice=Math.max(0,amountNumber(row.old_price,250));next.localBankPricePkr=Math.max(0,amountNumber(row.local_bank_price_pkr,0));
     }else{
       next.type=paid?'paid':'free';
       next.price=paid?Math.max(0,amountNumber(row.price,0)):0;
@@ -121,13 +130,16 @@
   }
 
   async function refreshPublicCoursePricing(){
-    const course=await loadCourseConfig('advanced',{refresh:true});
-    if(!course)return;
-    document.querySelectorAll('.course-card.advanced .now-price strong').forEach(el=>{el.textContent=formatMoney(course.price,course.currency);});
-    if(course.oldPrice>0){
-      document.querySelectorAll('.course-card.advanced .was-price strong').forEach(el=>{el.textContent=formatMoney(course.oldPrice,course.currency);});
-      const saving=Math.max(0,course.oldPrice-course.price);
-      document.querySelectorAll('.course-card.advanced .save-price').forEach(el=>{el.textContent=saving>0?`You Save ${formatMoney(saving,course.currency)}`:'';});
+    const configs=[['advanced','.course-card.advanced'],['advance-fundamental','.course-card.advance-fundamental']];
+    for(const [key,selector] of configs){
+      const course=await loadCourseConfig(key,{refresh:true});
+      if(!course)continue;
+      document.querySelectorAll(`${selector} .now-price strong`).forEach(el=>{el.textContent=formatMoney(course.price,course.currency);});
+      if(course.oldPrice>0){
+        document.querySelectorAll(`${selector} .was-price strong`).forEach(el=>{el.textContent=formatMoney(course.oldPrice,course.currency);});
+        const saving=Math.max(0,course.oldPrice-course.price);
+        document.querySelectorAll(`${selector} .save-price`).forEach(el=>{el.textContent=saving>0?`You Save ${formatMoney(saving,course.currency)}`:'';});
+      }
     }
   }
 
