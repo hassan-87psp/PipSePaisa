@@ -1,6 +1,7 @@
 /* PipSePaisa Course Marketplace V3 */
 body .sidebar nav.menu .menu-item[data-page="mycourses"],
-body .sidebar nav.menu .menu-item[data-page="learn"]{
+body .sidebar nav.menu .menu-item[data-page="learn"],
+body .sidebar nav.menu .menu-item[data-page="eaindicator"]{
   background:linear-gradient(135deg,#f6a609,#df7600)!important;
   border:1px solid #d97706!important;
   color:#111827!important;
@@ -8,16 +9,19 @@ body .sidebar nav.menu .menu-item[data-page="learn"]{
   box-shadow:0 12px 26px rgba(217,119,6,.22)!important;
 }
 body .sidebar nav.menu .menu-item[data-page="mycourses"] .menu-icon,
-body .sidebar nav.menu .menu-item[data-page="learn"] .menu-icon{
+body .sidebar nav.menu .menu-item[data-page="learn"] .menu-icon,
+body .sidebar nav.menu .menu-item[data-page="eaindicator"] .menu-icon{
   color:#111827!important;
 }
 body .sidebar nav.menu .menu-item[data-page="mycourses"]:hover,
-body .sidebar nav.menu .menu-item[data-page="learn"]:hover{
+body .sidebar nav.menu .menu-item[data-page="learn"]:hover,
+body .sidebar nav.menu .menu-item[data-page="eaindicator"]:hover{
   background:linear-gradient(135deg,#ffb41f,#e77d00)!important;
   transform:translateX(2px)!important;
 }
 body .sidebar nav.menu .menu-item[data-page="mycourses"].active,
-body .sidebar nav.menu .menu-item[data-page="learn"].active{
+body .sidebar nav.menu .menu-item[data-page="learn"].active,
+body .sidebar nav.menu .menu-item[data-page="eaindicator"].active{
   background:linear-gradient(135deg,#e98700,#c96200)!important;
   color:#fff!important;
   box-shadow:0 14px 30px rgba(198,98,0,.3)!important;
@@ -1037,4 +1041,47 @@ body.dark .psp-live-class-card,[data-theme="dark"] .psp-live-class-card{
 }
 @media(max-width:760px){
   #page-mycourses .psp-course-card-grid{grid-template-columns:1fr!important}
+}
+
+
+/* V222 — paid courses first, Advance Fundamental no-count hero, full instructor name */
+#page-mycourses .psp-course-card-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  max-width:1120px!important;
+}
+#page-mycourses .psp-course-advance-fundamental .psp-course-mentor-badge,
+#page-mycourses .psp-course-advanced-fundamental .psp-course-mentor-badge{
+  width:320px!important;
+  max-width:calc(100% - 18px)!important;
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  box-sizing:border-box!important;
+  padding-left:10px!important;
+  padding-right:10px!important;
+}
+#page-mycourses .psp-course-advance-fundamental .psp-course-mentor-badge strong,
+#page-mycourses .psp-course-advanced-fundamental .psp-course-mentor-badge strong{
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  word-break:normal!important;
+  font-size:16px!important;
+  line-height:1.14!important;
+}
+#page-mycourses .psp-course-advance-fundamental .psp-course-mentor-badge small,
+#page-mycourses .psp-course-advanced-fundamental .psp-course-mentor-badge small{
+  white-space:normal!important;
+  line-height:1.2!important;
+}
+#page-mycourses .psp-course-advance-fundamental .psp-course-floating-chip.chip-one,
+#page-mycourses .psp-course-advanced-fundamental .psp-course-floating-chip.chip-one{
+  min-width:90px!important;
+}
+@media(max-width:760px){
+  #page-mycourses .psp-course-card-grid{grid-template-columns:1fr!important;max-width:none!important}
+  #page-mycourses .psp-course-advance-fundamental .psp-course-mentor-badge,
+  #page-mycourses .psp-course-advanced-fundamental .psp-course-mentor-badge{width:260px!important;max-width:calc(100% - 12px)!important}
+  #page-mycourses .psp-course-advance-fundamental .psp-course-mentor-badge strong,
+  #page-mycourses .psp-course-advanced-fundamental .psp-course-mentor-badge strong{font-size:14px!important}
 }

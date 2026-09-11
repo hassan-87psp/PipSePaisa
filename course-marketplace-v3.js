@@ -3,7 +3,7 @@
 
 const defaults={
   basic:{
-    key:'basic',displayOrder:1,enrollmentKey:'basic-b2',batchLabel:'Batch 2',zoomEnabled:true,title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
+    key:'basic',displayOrder:3,enrollmentKey:'basic-b2',batchLabel:'Batch 2',zoomEnabled:true,title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
     thumbnail:'basic-course-thumbnail.webp',
     short:'Build a strong foundation in Forex trading, technical analysis, candlestick behaviour, indicators and high-probability trading strategies.',
     description:'A structured 5-module beginner program designed to help new traders understand financial markets, read price behaviour, use technical tools correctly and build a practical trading edge.',
@@ -25,8 +25,8 @@ const defaults={
     achievement:['Understand how financial markets and Forex connect.','Read price action and candlestick behaviour with more clarity.','Use technical-analysis tools in a practical way.','Combine indicators with price behaviour instead of depending on them.','Build a structured trading edge for continued learning.']
   },
   fundamental:{
-    key:'fundamental',displayOrder:3,enrollmentKey:'fundamental',zoomEnabled:true,title:'Fundamental Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'100% FREE COURSE',
-    thumbnail:'fundamental-course-thumbnail.png',mentorImage:'ghulam-abbas.png',mentorName:'Ghulam Abbas',mentorTitle:'Fundamental Expert & Trainer',
+    key:'fundamental',displayOrder:4,enrollmentKey:'fundamental',zoomEnabled:true,title:'Fundamental Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'100% FREE COURSE',
+    thumbnail:'fundamental-course-thumbnail.png',mentorImage:'ghulam-abbas.png',mentorName:'Sir Malik Ghulam Abbas',mentorTitle:'Fundamental Expert & Trainer',
     short:'Learn how economic events, central banks and FOMC decisions influence Forex markets and create trading opportunities.',
     description:'Build a strong foundation in Forex fundamentals by understanding economic events, central bank decisions and major market-moving factors. This course helps beginners learn how fundamental analysis supports smarter trading decisions.',
     descriptionExtra:'Three focused sessions explain the key fundamental drivers in a simple, practical way so traders can follow important market events with better clarity.',
@@ -44,7 +44,7 @@ const defaults={
     achievement:['Understand the core concepts of Forex fundamental analysis.','Read important economic events with better clarity.','Recognize how news and policy decisions affect price movement.','Improve overall market understanding for better trading decisions.']
   },
   advanced:{
-    key:'advanced',displayOrder:2,title:'Advanced Forex Course',price:250,oldPrice:500,type:'paid',level:'Advanced',badge:'ADVANCED PROFESSIONAL COURSE',
+    key:'advanced',displayOrder:1,title:'Advanced Forex Course',price:150,oldPrice:250,type:'paid',level:'Advanced',badge:'ADVANCED PROFESSIONAL COURSE',
     thumbnail:'advanced-course-thumbnail.webp',
     short:'Develop a professional trading mindset and study advanced market behaviour, session timing, liquidity, correlations and strategy development.',
     description:'A professional program for serious traders who want to study institutional structure, liquidity, session behaviour, advanced risk management, macro analysis and precise execution models.',
@@ -109,7 +109,7 @@ function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,s=>({'&':'&amp;',
 function client(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(_){return null}}
 function enrollmentKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.enrollmentKey||key||'').trim();}
 function displayKeyForEnrollment(key){key=String(key||'').trim().toLowerCase();if(key==='basic-b2')return'basic';return key;}
-function systemThumbnail(key){if(key==='advanced')return'advanced-course-thumbnail.webp?v=20260802-v29-final';if(key==='fundamental')return'fundamental-course-thumbnail.png?v=20260829-v188';return'basic-course-thumbnail.webp?v=20260829-v188-batch2';}
+function systemThumbnail(key){if(key==='advanced')return'advanced-course-thumbnail.webp?v=20260911-v222';if(key==='fundamental')return'fundamental-course-thumbnail.png?v=20260911-v222';if(key==='advance-fundamental'||key==='advanced-fundamental')return'assets/courses/advance-fundamental-thumbnail.png?v=20260911-v222';return'basic-course-thumbnail.webp?v=20260911-v222';}
 function resolveThumbnail(key,value){
   const raw=String(value||'').trim();
   if(!raw||/service-banners\/forex-education/i.test(raw)||/^(?:\.\/)?course-thumbnails\//i.test(raw)||/(?:^|\/)basic-course-thumbnail\.webp(?:\?|$)/i.test(raw)||/(?:^|\/)advanced-course-thumbnail\.webp(?:\?|$)/i.test(raw)||/(?:^|\/)fundamental-course-thumbnail\.(?:png|webp)(?:\?|$)/i.test(raw))return systemThumbnail(key);
@@ -286,7 +286,7 @@ async function loadCourseDataFresh(){
       learn:arrayValue(fundamental.learning_outcomes,defaults.fundamental.learn),achievement:arrayValue(fundamental.achievement_outcomes,defaults.fundamental.achievement),
       modules:canonicalModules('fundamental',fundamental.modules_json),accessLabel:fundamental.access_label||'FREE FUNDAMENTAL COURSE ACCESS',
       buyNote:fundamental.buy_note||'Complete the free enrollment form and begin learning.',actionButtonText:fundamental.action_button_text||'',
-      mentorName:fundamental.mentor_name||'Ghulam Abbas',mentorTitle:fundamental.mentor_title||'Fundamental Expert & Trainer',
+      mentorName:fundamental.mentor_name||'Sir Malik Ghulam Abbas',mentorTitle:fundamental.mentor_title||'Fundamental Expert & Trainer',
       learningHeading:fundamental.learning_heading||defaults.fundamental.learningHeading,outcomesHeading:fundamental.outcomes_heading||defaults.fundamental.outcomesHeading,
       contentHeading:fundamental.content_heading||defaults.fundamental.contentHeading,requirementsHeading:fundamental.requirements_heading||defaults.fundamental.requirementsHeading,
       audienceHeading:fundamental.audience_heading||defaults.fundamental.audienceHeading,descriptionHeading:fundamental.description_heading||defaults.fundamental.descriptionHeading,
@@ -313,8 +313,8 @@ async function loadCourseDataFresh(){
       contentHeading:adv.content_heading||defaults.advanced.contentHeading,requirementsHeading:adv.requirements_heading||defaults.advanced.requirementsHeading,
       audienceHeading:adv.audience_heading||defaults.advanced.audienceHeading,descriptionHeading:adv.description_heading||defaults.advanced.descriptionHeading,
       relatedHeading:adv.related_heading||defaults.advanced.relatedHeading,
-      price:numberValue(adv.price,250),oldPrice:numberValue(adv.old_price,defaults.advanced.oldPrice),published:adv.is_published!==false
-    }:{published:true,videoUrl:'',thumbnail:systemThumbnail('advanced'),price:250,modules:canonicalModules('advanced',defaults.advanced.modules)})}
+      price:numberValue(adv.price,150),oldPrice:numberValue(adv.old_price,defaults.advanced.oldPrice),published:adv.is_published!==false
+    }:{published:true,videoUrl:'',thumbnail:systemThumbnail('advanced'),price:150,oldPrice:250,modules:canonicalModules('advanced',defaults.advanced.modules)})}
   };
 
   // Stable keys for real custom courses. Reserved-key collisions caused by the
@@ -336,26 +336,33 @@ async function loadCourseDataFresh(){
     used.add(key);
     const paid=row.is_premium===true||numberValue(row.price,0)>0;
     const modules=genericModules(row.modules_json);
+    const isAdvanceFundamental=['advance-fundamental','advanced-fundamental'].includes(key);
+    const afLearn=['Central Banks & Interest Rates','CPI, PCE & Inflation','NFP & Labour Market','GDP, PMI & Retail Sales','Bonds, Yields, DXY & Gold','Fundamental Bias & Market Sentiment'];
+    const afOutcomes=['Read Economic Data','Understand Market Drivers','Build Trading Bias','Analyze Major Events','Connect Fundamentals with Price','Improve Trade Decisions'];
+    const afRequirements=['Basic Forex knowledge is recommended.','Access to an economic calendar and charting platform.','Commitment to live-class learning and responsible risk management.'];
+    const afAudience=['Traders who want to understand what moves currencies and Gold.','Technical traders who want stronger fundamental context.','Students building a structured daily and weekly market bias.'];
     courseData[key]={
-      key,dbId:row.id||'',displayOrder:Number(row.display_order||99),title:String(row.title||'Untitled Course'),
-      price:paid?numberValue(row.price,0):0,oldPrice:paid?numberValue(row.old_price,0):0,type:paid?'paid':'free',
-      level:String(row.level||'All Levels'),badge:String(row.course_badge||(paid?'PROFESSIONAL COURSE':'FOREX COURSE')),
-      thumbnail:String(row.thumbnail||''),short:String(row.short_description||row.description||''),
-      description:String(row.description||row.short_description||''),
+      key,dbId:row.id||'',displayOrder:isAdvanceFundamental?2:Number(row.display_order||99),title:String(row.title||'Untitled Course'),
+      price:paid?numberValue(row.price,isAdvanceFundamental?150:0):0,oldPrice:paid?numberValue(row.old_price,isAdvanceFundamental?250:0):0,type:paid?'paid':'free',
+      level:String(row.level||(isAdvanceFundamental?'Advanced':'All Levels')),badge:String(row.course_badge||(isAdvanceFundamental?'ADVANCE FUNDAMENTAL':(paid?'PROFESSIONAL COURSE':'FOREX COURSE'))),
+      thumbnail:isAdvanceFundamental?'assets/courses/advance-fundamental-thumbnail.png':String(row.thumbnail||''),short:String(row.short_description||row.description||(isAdvanceFundamental?'Master the true drivers of currency and Gold movements through live advanced fundamental analysis.':'')),
+      description:String(row.description||row.short_description||(isAdvanceFundamental?'Learn how central banks, inflation, labour data, yields, the Dollar and risk sentiment shape Forex and Gold markets.':'')),
       descriptionExtra:String(row.description_extra||''),
-      included:arrayValue(row.included_items,modules.length?[`${modules.length} structured modules`]:['Structured learning program']),
-      contentNote:String(row.content_note||'Learn module by module'),
+      included:arrayValue(row.included_items,isAdvanceFundamental?['Live classes','Advanced fundamental analysis','Real-market insights','Account-linked course access']:(modules.length?[`${modules.length} structured modules`]:['Structured learning program'])),
+      contentNote:String(row.content_note||(isAdvanceFundamental?'Curriculum details will be announced soon.':'Learn module by module')),
       secureNote:String(row.secure_note||'Secure account-linked enrollment'),
-      requirements:arrayValue(row.requirements,[]),audience:arrayValue(row.audience,[]),
-      modules,learn:arrayValue(row.learning_outcomes,[]),achievement:arrayValue(row.achievement_outcomes,[]),
-      accessLabel:String(row.access_label||(paid?'PROFESSIONAL COURSE ACCESS':'COURSE ACCESS')),
-      buyNote:String(row.buy_note||(paid?'One-time course payment • Secure verification':'Free course enrollment')),
-      actionButtonText:String(row.action_button_text||''),
-      mentorName:String(row.mentor_name||'Sajid Khan Ghori'),mentorTitle:String(row.mentor_title||'Asia Top Instructor'),
+      requirements:arrayValue(row.requirements,isAdvanceFundamental?afRequirements:[]),audience:arrayValue(row.audience,isAdvanceFundamental?afAudience:[]),
+      modules,learn:arrayValue(row.learning_outcomes,isAdvanceFundamental?afLearn:[]),achievement:arrayValue(row.achievement_outcomes,isAdvanceFundamental?afOutcomes:[]),
+      accessLabel:String(row.access_label||(isAdvanceFundamental?'STARTING SOON':(paid?'PROFESSIONAL COURSE ACCESS':'COURSE ACCESS'))),
+      buyNote:String(row.buy_note||(isAdvanceFundamental?'Limited-seat offer. Live classes only.':(paid?'One-time course payment • Secure verification':'Free course enrollment'))),
+      actionButtonText:String(row.action_button_text||(isAdvanceFundamental?'Enroll Now':'')),
+      mentorImage:isAdvanceFundamental?'ghulam-abbas.png':String(row.mentor_image||'sajid-ghori.webp'),
+      mentorName:isAdvanceFundamental?'Sir Malik Ghulam Abbas':String(row.mentor_name||'Sajid Khan Ghori'),mentorTitle:isAdvanceFundamental?'Fundamental Trading Instructor':String(row.mentor_title||'Asia Top Instructor'),
       learningHeading:String(row.learning_heading||"What you'll learn"),outcomesHeading:String(row.outcomes_heading||'Course Outcomes'),
       contentHeading:String(row.content_heading||'Course content'),requirementsHeading:String(row.requirements_heading||'Requirements'),
       audienceHeading:String(row.audience_heading||'Who this course is for'),descriptionHeading:String(row.description_heading||'Description'),
-      relatedHeading:String(row.related_heading||'Other PipSePaisa Courses'),published:row.is_published!==false
+      relatedHeading:String(row.related_heading||'Other PipSePaisa Courses'),published:row.is_published!==false,
+      hideModuleCounts:isAdvanceFundamental,hideContentRoadmap:isAdvanceFundamental&&modules.length===0
     };
     catalogRegistry[key]={...row,course_key:key,_db_course_key:String(row.course_key||'')};
   });
@@ -396,9 +403,12 @@ function statusLabel(key){
   if(s==='revoked')return {text:'Access Revoked',cls:'rejected'};
   return {text:(key==='basic'||key==='fundamental')?'Free Enrollment':'Payment Required',cls:'pending'};
 }
+function courseCardLearningMeta(c){
+  if(c.hideModuleCounts)return 'Live Classes';
+  return c.modules.length?`${c.modules.length} Modules`:'Structured Learning';
+}
 function tileMarkup(c){
   const st=statusLabel(c.key);
-  const hasVideo=/^https?:\/\//i.test(String(c.videoUrl||'').trim());
   return `<article class="psp-course-tile ${c.type==='paid'?'paid':''}" data-course="${c.key}" tabindex="0" role="button" aria-label="Open ${esc(c.title)} details">
     <div class="psp-course-thumb">
       <img class="psp-course-thumb-main" ${thumbAttrs(c,`${c.title} thumbnail`)}>
@@ -406,7 +416,7 @@ function tileMarkup(c){
     <div class="psp-course-tile-body">
       <div class="psp-course-tile-top"><h3>${esc(c.title)}${c.batchLabel?` <span class="psp-course-batch-badge">${esc(c.batchLabel)}</span>`:''}</h3><div class="psp-course-price">${c.price?('$'+c.price):'Free'}</div></div>
       <p>${esc(c.short)}</p>
-      <div class="psp-course-meta"><span>${c.modules.length} Modules</span><span>${esc(c.level)}</span><span>Mentor Support</span></div>
+      <div class="psp-course-meta"><span>${esc(courseCardLearningMeta(c))}</span><span>${esc(c.level)}</span><span>Mentor Support</span></div>
       <div class="psp-course-tile-footer"><span class="psp-course-status-pill ${st.cls}">${esc(st.text)}</span><button class="psp-course-open-btn" type="button">View Course →</button></div>
     </div>
   </article>`;
@@ -415,7 +425,7 @@ function ensureShell(){
   const page=document.getElementById('page-mycourses');if(!page)return null;
   if(!document.getElementById('pspCourseV188Style')){const s=document.createElement('style');s.id='pspCourseV188Style';s.textContent='.psp-course-batch-badge{display:inline-flex;vertical-align:middle;margin-left:6px;padding:4px 8px;border:1px solid rgba(251,146,1,.42);border-radius:999px;background:rgba(251,146,1,.10);color:#d97706;font-size:10px;font-weight:900;white-space:nowrap}.psp-course-detail-title .psp-course-batch-badge{font-size:12px;transform:translateY(-3px)}';document.head.appendChild(s);}
   if(!page.querySelector('.psp-course-marketplace-v3')){
-    page.innerHTML=`<div class="psp-course-marketplace-v3"><section class="psp-course-marketplace"><div class="psp-course-market-head"><div><h2>Explore Forex Courses</h2><p>Choose a course, review the complete details and enroll from one professional page.</p></div><span class="psp-course-market-count" id="pspCourseActiveCount">3 Active Courses</span></div><div class="psp-course-card-grid" id="pspCourseCardGrid"></div></section><section class="psp-course-detail" id="pspCourseDetail"></section></div>`;
+    page.innerHTML=`<div class="psp-course-marketplace-v3"><section class="psp-course-marketplace"><div class="psp-course-market-head"><div><h2>Explore Forex Courses</h2><p>Choose a course, review the complete details and enroll from one professional page.</p></div><span class="psp-course-market-count" id="pspCourseActiveCount">4 Active Courses</span></div><div class="psp-course-card-grid" id="pspCourseCardGrid"></div></section><section class="psp-course-detail" id="pspCourseDetail"></section></div>`;
   }
   return page;
 }
@@ -555,7 +565,18 @@ function detailMarkup(c){
   const others=Object.values(courseData).filter(x=>x.key!==c.key&&x.published!==false).sort((a,b)=>Number(a.displayOrder||99)-Number(b.displayOrder||99)).slice(0,2);
   const totalMinutes=c.modules.reduce((sum,m)=>sum+(parseInt(m.duration,10)||0),0);
   const totalHours=c.key==='basic'?7.5:(totalMinutes>0?Math.max(1,Math.round((totalMinutes/60)*10)/10):0);
-  const totalTimeLabel=totalHours?`${totalHours}+ hrs`:`${c.modules.length} Sessions`;
+  const totalTimeLabel=totalHours?`${totalHours}+ hrs`:(c.modules.length?`${c.modules.length} Sessions`:'');
+  const noCounts=!!c.hideModuleCounts;
+  const badgeMarkup=noCounts
+    ?`<span>Live Classes</span><span>${esc(c.level)} Level</span><span>Practical Learning</span><span>Professional Program</span>`
+    :`<span>${c.modules.length} Modules</span><span>${esc(c.level)} Level</span><span>Practical Learning</span><span>${c.type==='free'?'100% Free':'Professional Program'}</span>`;
+  const valueMarkup=noCounts
+    ?`<div><strong>Live</strong><span>Classes</span></div><div><strong>Starting Soon</strong><span>Enrollment Open</span></div><div><strong>Practical</strong><span>Market-Focused Lessons</span></div><div><strong>Account</strong><span>Progress Tracking</span></div>`
+    :`<div><strong>${c.modules.length}</strong><span>Structured Modules</span></div><div><strong>${totalTimeLabel}</strong><span>Guided Learning</span></div><div><strong>Practical</strong><span>Market-Focused Lessons</span></div><div><strong>Account</strong><span>Progress Tracking</span></div>`;
+  const firstMentorChip=noCounts
+    ?`<div class="psp-course-floating-chip chip-one"><b>LIVE</b><span>Advanced<br>Learning</span></div>`
+    :`<div class="psp-course-floating-chip chip-one"><b>${c.modules.length}</b><span>Structured<br>Modules</span></div>`;
+  const contentSection=c.hideContentRoadmap?'':`<section class="psp-course-section psp-course-content-card"><div class="psp-course-content-head"><div><div class="psp-section-kicker">STRUCTURED ROADMAP</div><h3 style="margin:0">${esc(c.contentHeading||'Course content')}</h3></div><small>${c.modules.length} modules • ${totalTimeLabel} • ${esc(c.contentNote||'One module opens at a time')}</small></div>${moduleRows(c,unlocked)}</section>`;
   return `<div class="psp-course-detail-shell psp-course-${c.key} psp-course-${c.type}">
     <div class="psp-course-detail-left">
       <div class="psp-course-detail-hero"><div class="psp-course-detail-hero-inner">
@@ -565,20 +586,20 @@ function detailMarkup(c){
             <div class="psp-course-breadcrumb">Forex Education › ${esc(c.level)} › ${esc(c.title)}</div>
             <h1 class="psp-course-detail-title">${esc(c.title)}${c.batchLabel?` <span class="psp-course-batch-badge">${esc(c.batchLabel)}</span>`:''}</h1>
             <p class="psp-course-detail-subtitle">${esc(c.short)}</p>
-            <div class="psp-course-detail-badges"><span>${c.modules.length} Modules</span><span>${esc(c.level)} Level</span><span>Practical Learning</span><span>${c.type==='free'?'100% Free':'Professional Program'}</span></div>
-            <div class="psp-course-hero-value-grid"><div><strong>${c.modules.length}</strong><span>Structured Modules</span></div><div><strong>${totalTimeLabel}</strong><span>Guided Learning</span></div><div><strong>Practical</strong><span>Market-Focused Lessons</span></div><div><strong>Account</strong><span>Progress Tracking</span></div></div>
+            <div class="psp-course-detail-badges">${badgeMarkup}</div>
+            <div class="psp-course-hero-value-grid">${valueMarkup}</div>
           </div>
-          <div class="psp-course-mentor-visual"><div class="psp-course-mentor-glow"></div><img src="${esc(c.mentorImage||'sajid-ghori.webp')}" alt="${esc((c.mentorName||'Sajid Khan Ghori')+' — '+(c.mentorTitle||'Instructor'))}"><div class="psp-course-mentor-badge"><span>LEARN WITH</span><strong>${esc(c.mentorName||'Sajid Khan Ghori')}</strong><small>${esc(c.mentorTitle||'Asia Top Instructor')}</small></div><div class="psp-course-floating-chip chip-one"><b>${c.modules.length}</b><span>Structured<br>Modules</span></div><div class="psp-course-floating-chip chip-two"><b>✓</b><span>Practical<br>Learning</span></div></div>
+          <div class="psp-course-mentor-visual"><div class="psp-course-mentor-glow"></div><img src="${esc(c.mentorImage||'sajid-ghori.webp')}" alt="${esc((c.mentorName||'Sajid Khan Ghori')+' — '+(c.mentorTitle||'Instructor'))}"><div class="psp-course-mentor-badge"><span>LEARN WITH</span><strong>${esc(c.mentorName||'Sajid Khan Ghori')}</strong><small>${esc(c.mentorTitle||'Asia Top Instructor')}</small></div>${firstMentorChip}<div class="psp-course-floating-chip chip-two"><b>✓</b><span>Practical<br>Learning</span></div></div>
         </div>
       </div></div>
       <main class="psp-course-main-column psp-course-detail-body">
         <div class="psp-course-overview-grid"><section class="psp-course-section psp-course-section-accent"><h3>${esc(c.learningHeading||"What you'll learn")}</h3><div class="psp-learn-grid">${c.learn.map(x=>`<div class="psp-learn-item"><span>✓</span><div>${esc(x)}</div></div>`).join('')}</div></section>
-        <section class="psp-course-section psp-course-section-accent"><h3>${esc(c.outcomesHeading||'Course Outcomes')}</h3><div class="psp-includes-grid">${(c.achievement||[]).map((x,i)=>`<div class="psp-includes-item"><b style="color:#d97706">✓</b> ${esc(x)}</div>`).join('')}</div></section></div>
-        <section class="psp-course-section psp-course-content-card"><div class="psp-course-content-head"><div><div class="psp-section-kicker">STRUCTURED ROADMAP</div><h3 style="margin:0">${esc(c.contentHeading||'Course content')}</h3></div><small>${c.modules.length} modules • ${totalTimeLabel} • ${esc(c.contentNote||'One module opens at a time')}</small></div>${moduleRows(c,unlocked)}</section>
+        <section class="psp-course-section psp-course-section-accent"><h3>${esc(c.outcomesHeading||'Course Outcomes')}</h3><div class="psp-includes-grid">${(c.achievement||[]).map(x=>`<div class="psp-includes-item"><b style="color:#d97706">✓</b> ${esc(x)}</div>`).join('')}</div></section></div>
+        ${contentSection}
         <div class="psp-course-info-grid"><section class="psp-course-section"><div class="psp-section-kicker">BEFORE YOU START</div><h3>${esc(c.requirementsHeading||'Requirements')}</h3><div class="psp-course-copy"><ul>${c.requirements.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section>
         <section class="psp-course-section"><div class="psp-section-kicker">BEST MATCH</div><h3>${esc(c.audienceHeading||'Who this course is for')}</h3><div class="psp-course-copy"><ul>${c.audience.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></section></div>
         <section class="psp-course-section psp-course-description-card"><div class="psp-section-kicker">ABOUT THIS PROGRAM</div><h3>${esc(c.descriptionHeading||'Description')}</h3><div class="psp-course-copy"><p>${esc(c.description)}</p>${c.descriptionExtra?`<p>${esc(c.descriptionExtra)}</p>`:''}</div></section>
-        <section class="psp-course-section"><div class="psp-section-kicker">CONTINUE LEARNING</div><h3>${esc(c.relatedHeading||'Other PipSePaisa Courses')}</h3><div class="psp-related-grid">${others.map(other=>`<article class="psp-related-card" onclick="openCourseDetail('${other.key}')"><img ${thumbAttrs(other,other.title)}><div><h4>${esc(other.title)}</h4><p>${other.price?('$'+other.price):'100% Free'} • ${other.modules.length} Modules • View details →</p></div></article>`).join('')}</div></section>
+        <section class="psp-course-section"><div class="psp-section-kicker">CONTINUE LEARNING</div><h3>${esc(c.relatedHeading||'Other PipSePaisa Courses')}</h3><div class="psp-related-grid">${others.map(other=>`<article class="psp-related-card" onclick="openCourseDetail('${other.key}')"><img ${thumbAttrs(other,other.title)}><div><h4>${esc(other.title)}</h4><p>${other.price?('$'+other.price):'100% Free'} • ${esc(courseCardLearningMeta(other))} • View details →</p></div></article>`).join('')}</div></section>
       </main>
     </div>
     <aside class="psp-course-detail-side psp-course-sticky-column">${stickyAccessPanel(c,state)}${classAccessPanel(c,state)}</aside>

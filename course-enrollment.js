@@ -8,7 +8,7 @@
     basic:{key:'basic',name:'Basic Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     'basic-b2':{key:'basic-b2',name:'Basic Forex Course — Batch 2',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     fundamental:{key:'fundamental',name:'Fundamental Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
-    advanced:{key:'advanced',name:'ADVANCE COURSE',type:'paid',price:250,oldPrice:500,currency:'USD',localBankPricePkr:0},
+    advanced:{key:'advanced',name:'ADVANCE COURSE',type:'paid',price:150,oldPrice:250,currency:'USD',localBankPricePkr:0},
     'advance-fundamental':{key:'advance-fundamental',name:'Advance Fundamental',type:'paid',price:150,oldPrice:250,currency:'USD',localBankPricePkr:0}
   };
   const courseConfigCache=new Map();
@@ -114,7 +114,7 @@
       if(key==='basic-b2')next.name='Basic Forex Course — Batch 2';
       if(key==='fundamental')next.name='Fundamental Forex Course';
     }else if(key==='advanced'){
-      next.type='paid';next.price=Math.max(0,amountNumber(row.price,250))||250;next.oldPrice=Math.max(0,amountNumber(row.old_price,500));next.localBankPricePkr=Math.max(0,amountNumber(row.local_bank_price_pkr,0));
+      next.type='paid';next.price=Math.max(0,amountNumber(row.price,150))||150;next.oldPrice=Math.max(0,amountNumber(row.old_price,250));next.localBankPricePkr=Math.max(0,amountNumber(row.local_bank_price_pkr,0));
     }else if(key==='advance-fundamental'){
       next.type='paid';next.name=String(row.title||'Advance Fundamental');next.price=Math.max(0,amountNumber(row.price,150))||150;next.oldPrice=Math.max(0,amountNumber(row.old_price,250));next.localBankPricePkr=Math.max(0,amountNumber(row.local_bank_price_pkr,0));
     }else{
