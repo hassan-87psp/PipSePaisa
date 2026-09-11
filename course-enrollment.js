@@ -180,7 +180,7 @@
     try{
       fetch(`${SUPABASE_URL}/functions/v1/create-infinity-payment`,{
         method:'OPTIONS',
-        headers:{'apikey':SUPABASE_KEY,'x-client-info':'pipsepaisa-web-v2141-warm'},
+        headers:{'apikey':SUPABASE_KEY,'x-client-info':'pipsepaisa-web-v226-warm'},
         cache:'no-store',
         keepalive:true
       }).catch(()=>{});
@@ -975,7 +975,7 @@
         'Content-Type':'application/json',
         'apikey':SUPABASE_KEY,
         'Authorization':`Bearer ${token}`,
-        'x-client-info':'pipsepaisa-web-v2141-fast-checkout'
+        'x-client-info':'pipsepaisa-web-v226-final-checkout'
       },
       body:payload
     });
@@ -1213,7 +1213,6 @@
       try{await window.PSPTrack?.enrollment?.(selectedCourse.key,data.user.id,{source:'course-signup',enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){ }
 
       if(selectedCourse.type==='paid'&&values.paymentFlow==='infinity'){
-        if(result.already){showSuccess(result);return;}
         setMessage('ceNewMessage','info','Opening secure Local Bank Transfer...');
         await startInfinityPayment(result.row);
         return;
@@ -1411,7 +1410,9 @@
       try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser?.id,{enrollment_id:result.row?.id||null,course_type:selectedCourse.type});}catch(_){ }
 
       if(selectedCourse.type==='paid'&&values.paymentFlow==='infinity'){
-        if(result.already){showSuccess(result);return;}
+        // V226: always ask the payment backend to verify the real access state.
+        // A legacy interrupted checkout can leave only status flags behind; the
+        // Edge Function distinguishes that stale state from genuine paid access.
         setMessage('ceDetailsMessage','info','Opening secure Local Bank Transfer...');
         await startInfinityPayment(result.row);
         return;

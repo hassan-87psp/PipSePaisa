@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light" class="psp-v20-booting">
 <head>
-<meta name="psp-build" content="2026-09-11-v225-payment-dashboard-stability">
+<meta name="psp-build" content="2026-09-11-v226-final-payment-dashboard-repair">
 <meta http-equiv="Cache-Control" content="no-cache">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -48,12 +48,12 @@ html.psp-v20-booting body::after{content:"";position:fixed;left:50%;top:50%;z-in
 <script>
   window.PSP_PORTAL_MODE = (new URLSearchParams(location.search).get('portal') === 'mentor') ? 'mentor' : 'user';
 </script>
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#f59e0b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PipSePaisa">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1038,9 +1038,9 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @media(max-width:1050px){.mentor-ai-grid{grid-template-columns:1fr}.mentor-ai-output{min-height:300px}}@media(max-width:650px){.mentor-ai-hero{min-height:250px}.mentor-ai-hero-copy{padding:26px 20px}.mentor-ai-hero-copy h2{font-size:23px}.mentor-ai-form-grid{grid-template-columns:1fr}.mentor-ai-card{padding:15px}.mentor-ai-tabs button{min-width:125px}.mentor-ai-output-actions{align-items:flex-start;flex-direction:column}.mentor-ai-output-actions button{width:100%}}
 </style>
 
-<link rel="stylesheet" href="psp-final-fixes.css?v=20260804-v32">
+<link rel="stylesheet" href="/psp-final-fixes.css?v=20260804-v32">
 
-<link rel="stylesheet" href="push-subscribe-prompt.css?v=20260728-always-prompt-v2">
+<link rel="stylesheet" href="/push-subscribe-prompt.css?v=20260728-always-prompt-v2">
 
 <style id="finalSidebarOrderLock">
 #sidebar .menu{display:flex!important;flex-direction:column!important}
@@ -1067,16 +1067,16 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 </style>
 
 <style id="pspCoursePageIsolationCss">#page-mycourses:not(.active){display:none!important}#page-mycourses.active{display:block!important}.brand-logo-img{width:42px;height:42px;object-fit:contain;display:block;flex:0 0 42px;border-radius:10px}</style>
-<link rel="stylesheet" href="course-marketplace-v3.css?v=20260911-v223-course-ui">
-<link rel="stylesheet" href="psp-v18-auth-access.css?v=20260731-v19-fix">
-<link rel="stylesheet" href="account-verification-v49.css?v=20260812-v56">
-<link rel="stylesheet" href="user-dashboard-v56.css?v=20260820-v107-latest-card-auto-height">
-<link rel="stylesheet" href="psp-v20-final.css?v=20260731-v20-final">
-<link rel="stylesheet" href="psp-v28-fixes.css?v=20260813-v74-mobile-baseline-restore">
-<link rel="stylesheet" href="psp-v29-final.css?v=20260802-v29-final">
-<link rel="stylesheet" href="psp-v30-hotfix.css?v=20260803-v30-hotfix">
+<link rel="stylesheet" href="/course-marketplace-v3.css?v=20260911-v223-course-ui">
+<link rel="stylesheet" href="/psp-v18-auth-access.css?v=20260731-v19-fix">
+<link rel="stylesheet" href="/account-verification-v49.css?v=20260812-v56">
+<link rel="stylesheet" href="/user-dashboard-v56.css?v=20260820-v107-latest-card-auto-height">
+<link rel="stylesheet" href="/psp-v20-final.css?v=20260731-v20-final">
+<link rel="stylesheet" href="/psp-v28-fixes.css?v=20260813-v74-mobile-baseline-restore">
+<link rel="stylesheet" href="/psp-v29-final.css?v=20260802-v29-final">
+<link rel="stylesheet" href="/psp-v30-hotfix.css?v=20260803-v30-hotfix">
 <script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
-<script src="psp-direct-signup-v1.js?v=20260910-v217-auth-stability"></script>
+<script src="/psp-direct-signup-v1.js?v=20260910-v217-auth-stability"></script>
 <script defer src="/psp-performance-v218.js?v=20260910-v2181"></script>
 </head>
 
@@ -1149,7 +1149,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   <!-- ========== SIDEBAR ========== -->
   <aside class="sidebar" id="sidebar">
     <div class="brand" onclick="goDashboardHome()" title="Go to Dashboard" style="cursor:pointer;">
-      <img class="brand-logo-img" src="icon-192.png" alt="PipSePaisa logo">
+      <img class="brand-logo-img" src="/icon-192.png" alt="PipSePaisa logo">
       <div class="brand-text">
         <h1>PipSePaisa</h1>
         <p id="portalBrandSub" style="display:none"></p>
@@ -1849,7 +1849,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         </div>
         <div id="nhToasts" style="position:fixed;bottom:80px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:300px"></div>
 
-        <script src="user-news-hub-v29.js?v=20260802-v29-final"></script>
+        <script src="/user-news-hub-v29.js?v=20260802-v29-final"></script>
       </div>
 
       <!-- ========== CURRENCY STRENGTH ========== -->
@@ -2224,7 +2224,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="page" id="page-aitools">
         <section class="mentor-ai-shell">
           <div class="mentor-ai-hero">
-            <img id="mentorAiHeroImage" src="ai-tools-light.webp" data-light="ai-tools-light.webp" data-dark="ai-tools-dark.webp" alt="PipSePaisa Mentor AI Tools">
+            <img id="mentorAiHeroImage" src="/ai-tools-light.webp" data-light="ai-tools-light.webp" data-dark="ai-tools-dark.webp" alt="PipSePaisa Mentor AI Tools">
             <div class="mentor-ai-hero-copy">
               <span>MENTOR AI STUDIO</span>
               <h2>Create stronger content, analysis and trading prompts</h2>
@@ -2622,7 +2622,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="page" id="page-about">
         <div class="card" style="max-width: 700px; margin: 0 auto; text-align: center; padding: 40px;">
           <div style="width:100px;height:100px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;">
-            <img src="icon-192.png" alt="PipSePaisa logo" style="width:100px;height:100px;object-fit:contain;display:block;border-radius:24px;box-shadow:0 8px 24px rgba(245,158,11,0.18);">
+            <img src="/icon-192.png" alt="PipSePaisa logo" style="width:100px;height:100px;object-fit:contain;display:block;border-radius:24px;box-shadow:0 8px 24px rgba(245,158,11,0.18);">
           </div>
           <h2 style="font-size: 26px; margin-bottom: 8px;">PipSePaisa</h2>
           <p style="color: var(--gold); font-weight: 600; margin-bottom: 16px; letter-spacing: 1px;">YOUR TRADING PLATFORM</p>
@@ -2839,7 +2839,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   <div class="modal auth-modal-card">
     <button class="auth-modal-close" type="button" aria-label="Close login popup" onclick="closeModal('auth')">×</button>
     <div style="text-align: center; margin-bottom: 18px;">
-      <img class="auth-brand-mark" src="favicon.png" alt="PipSePaisa">
+      <img class="auth-brand-mark" src="/favicon.png" alt="PipSePaisa">
       <h2 style="font-size: 22px; margin-bottom: 4px;" id="authTitle">Welcome Back</h2>
       <p style="font-size: 12px; color: var(--text-muted);" id="authSubtitle">Login to your trading hub</p>
     </div>
@@ -3080,7 +3080,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20260911-v223-sidebar"></script>
+<script src="/user-app-core-v29.js?v=20260911-v226-dashboard-boot"></script>
 
 <script id="mentorPortalAiJs">
 (function(){
@@ -3665,7 +3665,7 @@ html.dark .psp-install-guide-head h3{color:#f4f7fb}
 </style>
 
 <div id="pwaInstallBanner" aria-live="polite">
-  <div class="pwa-install-logo"><img src="icon-192.png" alt="PipSePaisa"></div>
+  <div class="pwa-install-logo"><img src="/icon-192.png" alt="PipSePaisa"></div>
   <div class="pwa-install-copy">
     <div class="pwa-install-title">Install PipSePaisa App</div>
     <div class="pwa-install-sub">Get faster access from your Home Screen.</div>
@@ -3680,7 +3680,7 @@ html.dark .psp-install-guide-head h3{color:#f4f7fb}
   <div class="psp-install-guide-card" role="dialog" aria-modal="true" aria-labelledby="pwaGuideTitle">
     <div class="psp-install-guide-head">
       <div class="psp-install-guide-brand">
-        <div class="psp-install-guide-icon"><img src="icon-192.png" alt="PipSePaisa"></div>
+        <div class="psp-install-guide-icon"><img src="/icon-192.png" alt="PipSePaisa"></div>
         <div>
           <h3 id="pwaGuideTitle">Install PipSePaisa App</h3>
           <p id="pwaGuideSubtitle">Add PipSePaisa to your Home Screen.</p>
@@ -3918,7 +3918,7 @@ window.addEventListener('keydown',(e)=>{
 .art-modal-box .body p{margin-bottom:14px}
 </style>
 <div id="artModal" onclick="if(event.target===this)closeArt()"><div class="art-modal-box" id="artModalBox"></div></div>
-<script src="user-signals-core-v29.js?v=20260909-v216-cleanup"></script>
+<script src="/user-signals-core-v29.js?v=20260909-v216-cleanup"></script>
 <script id="pspV78LandingFooterIsolation">
 /* V78: The logged-in dashboard footer must never be moved inside the public landing overlay.
    landing.html already owns its public footer. Keeping the two footers isolated prevents the
@@ -4049,8 +4049,8 @@ window.addEventListener('message',function(event){
 });
 </script>
 <script src="/course-auth-path-v207.js?v=20260911-v221-advance-fundamental"></script>
-<script src="course-enrollment.js?v=20260911-v225-payment-stability"></script>
-<script src="course-marketplace-v3.js?v=20260911-v223-course-ui"></script>
+<script src="/course-enrollment.js?v=20260911-v226-final-payment-repair"></script>
+<script src="/course-marketplace-v3.js?v=20260911-v223-course-ui"></script>
 <script defer src="/course-post-auth-v207.js?v=20260902-v2062-course-auth"></script>
 
 
@@ -4097,18 +4097,18 @@ window.addEventListener('message',function(event){
 
 
 
-<script src="psp-v28-fixes.js?v=20260911-v225-dashboard-stability"></script>
-<script src="push-subscribe-prompt.js?v=20260824-v146-footer-controls"></script>
+<script src="/psp-v28-fixes.js?v=20260911-v226-dashboard-route-repair"></script>
+<script src="/push-subscribe-prompt.js?v=20260824-v146-footer-controls"></script>
 
 
 
 
 <style id="pspNoTopTickerFinal">#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker{display:none!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}</style>
 <script id="pspNoTopTickerFinalScript">(function(){function clean(){document.querySelectorAll('#pipTickerTapeWrap,.pip-ticker-tape-wrap,#pipLandingTicker').forEach(function(n){n.remove();});}document.addEventListener('DOMContentLoaded',clean);window.addEventListener('pageshow',clean);setTimeout(clean,250);setTimeout(clean,1200);})();</script>
-<script src="psp-v49-auth-compat.js?v=20260814-v81-speed"></script>
-<script src="psp-v29-final.js?v=20260802-v29-final"></script>
-<script src="account-verification-v49.js?v=20260820-v116-90day-expiry"></script>
-<script src="user-dashboard-v56.js?v=20260910-v218-speed"></script>
+<script src="/psp-v49-auth-compat.js?v=20260814-v81-speed"></script>
+<script src="/psp-v29-final.js?v=20260802-v29-final"></script>
+<script src="/account-verification-v49.js?v=20260820-v116-90day-expiry"></script>
+<script src="/user-dashboard-v56.js?v=20260910-v218-speed"></script>
 
 <style id="pspV119NoInternalFooter">
 /* V119: logged-in/internal user panel never displays the website footer. */

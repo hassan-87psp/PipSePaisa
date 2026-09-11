@@ -5588,6 +5588,8 @@
       // It is created on first Journal visit instead.
     }
   }
+  // V226: expose one safe app-entry hook for deep-link/session recovery.
+  window.PSPEnterApp = enterApp;
   
   // Auto-hide landing page when user logs in
   function hideLandingAfterLogin() {
@@ -5684,7 +5686,50 @@
     // (real session handled by loadUserProfile above)
   }
   
-  init();
+  init().catch(function(error){
+    console.error('PipSePaisa app initialization failed:', error);
+    // Never leave both shells hidden. Recover the saved session once, otherwise
+    // show the landing page. This is deliberately non-looping to avoid refresh storms.
+    setTimeout(async function(){
+      try{
+        await ensureSupabaseClient();
+        const r=await sb.auth.getSession();
+        const session=r?.data?.session||null;
+        if(session?.user){
+          currentUser=session.user;
+          currentProfile=currentProfile&&currentProfile.id===session.user.id?currentProfile:{
+            id:session.user.id,
+            full_name:session.user.user_metadata?.full_name || (session.user.email||'User').split('@')[0],
+            username:session.user.user_metadata?.username || (session.user.email||'User').split('@')[0],
+            email:session.user.email || '', role:'user', is_premium:false, member_type:'free'
+          };
+          updateAuthUI();
+          enterApp();
+        }else showLandingPage();
+      }catch(_){ showLandingPage(); }
+    },120);
+  });
+
+  // V226 boot watchdog: direct /dashboard and /my-courses opens on mobile/desktop
+  // must never remain on a blank shell because a route script loaded late.
+  setTimeout(async function(){
+    try{
+      const app=document.getElementById('mainApp');
+      const landing=document.getElementById('landingPage');
+      const appOn=!!(app&&getComputedStyle(app).display!=='none');
+      const landingOn=!!(landing&&getComputedStyle(landing).display!=='none');
+      if(!appOn&&!landingOn){
+        await ensureSupabaseClient();
+        const r=await sb.auth.getSession();
+        const session=r?.data?.session||null;
+        if(session?.user){ currentUser=session.user; enterApp(); }
+        else showLandingPage();
+      }else if(appOn && /^\/dashboard\/?$/i.test(location.pathname)){
+        const item=document.querySelector('.menu-item[data-page="dashboard"]');
+        if(typeof window.showPage==='function') window.showPage('dashboard',item||undefined);
+      }
+    }catch(e){ console.warn('PipSePaisa boot watchdog:',e); }
+  },1800);
   
   // ============ AUTO REFRESH (every 5 minutes during market hours) ============
   setInterval(() => {
