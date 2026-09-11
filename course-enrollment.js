@@ -995,7 +995,8 @@
     }
 
     if(!response.ok||data?.success===false||!data?.redirect_url){
-      console.warn('Local Bank Transfer start failed',{status:response.status,code:data?.code||null,request_id:data?.request_id||null});
+      try{window.PSP_LAST_LOCAL_BANK_ERROR={...data,http_status:response.status,at:new Date().toISOString()};}catch(_){ }
+      console.warn('Local Bank Transfer start failed',{status:response.status,code:data?.code||null,phase:data?.phase||null,provider_http_status:data?.provider_http_status||null,request_id:data?.request_id||null,version:data?.version||null});
       const error=new Error(localBankUserMessage(data?.error||`Local Bank Transfer could not start (${response.status}).`));
       error.status=response.status;
       error.code=data?.code||null;
