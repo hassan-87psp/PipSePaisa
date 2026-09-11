@@ -103,16 +103,26 @@ window.loadAdminCourses=async function(){
 
   function norm(v){return String(v||'').trim().toLowerCase()}
   function slug(v){return norm(v).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,52)||'course'}
-  function isBasic(x){var t=norm(x&&x.title),k=norm(x&&x.course_key);return t==='basic forex course'||k==='basic'}
-  function isAdvanced(x){var t=norm(x&&x.title),k=norm(x&&x.course_key);return t==='advanced forex course'||k==='advanced'}
+  function keyOf(x){return norm(x&&x.course_key).replaceAll('_','-')}
+  function titleOf(x){return norm(x&&x.title).replace(/\s+/g,' ')}
+  function isBasic(x){return keyOf(x)==='basic'||['basic forex course','basic course'].includes(titleOf(x))}
+  function isAdvanced(x){return ['advanced','advanced-course','advance-course'].includes(keyOf(x))||['advanced forex course','advance forex course','advance course','advanced course'].includes(titleOf(x))}
+  function isFundamental(x){return keyOf(x)==='fundamental'||titleOf(x)==='fundamental forex course'}
+  function isAdvanceFundamental(x){return ['advance-fundamental','advanced-fundamental'].includes(keyOf(x))||['advance fundamental','advance fundamental trading course','advanced fundamental','advanced fundamental trading course'].includes(titleOf(x))}
 
-  var basic=courses.find(function(x){return norm(x.title)==='basic forex course'})
-    ||courses.find(function(x){return norm(x.course_key)==='basic'})||null;
-  var advanced=courses.find(function(x){return norm(x.title)==='advanced forex course'})
-    ||courses.find(function(x){return norm(x.course_key)==='advanced'})||null;
+  var basic=courses.find(function(x){return keyOf(x)==='basic'})||courses.find(isBasic)||null;
+  var advanced=courses.find(function(x){return keyOf(x)==='advanced'})||courses.find(function(x){return titleOf(x)==='advanced forex course'})||courses.find(isAdvanced)||null;
+  var fundamental=courses.find(function(x){return keyOf(x)==='fundamental'})||courses.find(isFundamental)||null;
+  var advanceFundamental=courses.find(function(x){return keyOf(x)==='advance-fundamental'})||courses.find(function(x){return keyOf(x)==='advanced-fundamental'})||courses.find(isAdvanceFundamental)||null;
 
   var systemIds=new Set([basic&&String(basic.id),advanced&&String(advanced.id)].filter(Boolean));
-  var customs=courses.filter(function(x){return !systemIds.has(String(x.id))});
+  var customs=courses.filter(function(x){
+    if(systemIds.has(String(x.id)))return false;
+    if(isBasic(x)||isAdvanced(x))return false;
+    if(isFundamental(x))return !!fundamental&&String(x.id)===String(fundamental.id);
+    if(isAdvanceFundamental(x))return !!advanceFundamental&&String(x.id)===String(advanceFundamental.id);
+    return true;
+  });
 
   // Repair rows accidentally created with reserved keys by the old Add Course form.
   var used=new Set(['basic','advanced']);
@@ -148,8 +158,9 @@ window.loadAdminCourses=async function(){
   advancedView.display_order=1;
   advancedView.price=Number(advancedView.price||150);
 
-  var free=rows.filter(function(x){return x.course_key==='basic'||x.course_type==='free'});
-  var paid=rows.filter(function(x){return x.course_key==='advanced'||x.course_type==='paid'});
+  function seg(row){return norm(row&&row.course_segment)}
+  var free=rows.filter(function(x){var k=keyOf(x);return ['basic','basic-b2','basic-batch-1','basic-batch-2'].includes(k)||['batch1','batch2'].includes(seg(x))});
+  var paid=rows.filter(function(x){var k=keyOf(x),n=norm(x&&x.course_name);return k==='advanced'||seg(x)==='advanced'||n==='advanced forex course'||n==='advance course'});
   var approved=paid.filter(function(x){return x.payment_status==='approved'||x.enrollment_status==='enrolled'});
 
   var catalog=[basicView,advancedView].concat(customs);
@@ -181,7 +192,13 @@ window.loadAdminCourses=async function(){
   function customCard(course){
     var premium=course.is_premium===true||Number(course.price||0)>0;
     var key=String(course.course_key||'');
-    var enrolled=rows.filter(function(r){return String(r.course_key||'')===key}).length;
+    var nk=keyOf(course);
+    var enrolled=rows.filter(function(r){
+      var rk=keyOf(r),rs=seg(r);
+      if(['advance-fundamental','advanced-fundamental'].includes(nk))return ['advance-fundamental','advanced-fundamental'].includes(rk)||rs==='advance_fundamental';
+      if(nk==='fundamental')return rk==='fundamental'||rs==='fundamental';
+      return rk===nk;
+    }).length;
     var mm=moduleMeta(course);
     return '<article class="psp-system-course psp-custom-course '+(premium?'paid':'')+'">'
       +thumbnail(course,premium?SYSTEM_COURSE_DEFAULTS.advanced.thumbnail:SYSTEM_COURSE_DEFAULTS.basic.thumbnail)
@@ -201,10 +218,11 @@ window.loadAdminCourses=async function(){
 
   var grid=document.querySelector('#page-courses .courses-grid');if(!grid)return;
   grid.className='psp-system-course-grid';
-  grid.innerHTML=''
-   +'<article class="psp-system-course">'+thumbnail(basicView,SYSTEM_COURSE_DEFAULTS.basic.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(basicView,'Free')+'</div><h3>Basic Forex Course</h3><p>'+esc(basicView.description)+'</p><div class="psp-system-course-meta"><div>Course Type<strong>Free</strong></div><div>Modules<strong>5</strong></div><div>Enrollments<strong>'+free.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'basic\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'free\')">View Enrollments</button></div></article>'
-   +'<article class="psp-system-course paid">'+thumbnail(advancedView,SYSTEM_COURSE_DEFAULTS.advanced.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(advancedView,'Paid')+'</div><h3>Advanced Forex Course</h3><p>'+esc(advancedView.description)+'</p><div class="psp-system-course-meta"><div>Course Fee<strong>$'+Number(advancedView.price||150).toFixed(0)+'</strong></div><div>Modules<strong>8</strong></div><div>Approved Users<strong>'+approved.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'advanced\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'paid-approved\')">View Enrollments</button></div></article>'
-   +customs.map(customCard).join('');
+  var basicHtml='<article class="psp-system-course">'+thumbnail(basicView,SYSTEM_COURSE_DEFAULTS.basic.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(basicView,'Free')+'</div><h3>Basic Forex Course</h3><p>'+esc(basicView.description)+'</p><div class="psp-system-course-meta"><div>Course Type<strong>Free</strong></div><div>Modules<strong>5</strong></div><div>Enrollments<strong>'+free.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'basic\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'free\')">View Enrollments</button></div></article>';
+  var advancedHtml='<article class="psp-system-course paid">'+thumbnail(advancedView,SYSTEM_COURSE_DEFAULTS.advanced.thumbnail)+'<div class="psp-system-course-head">'+stateBadge(advancedView,'Paid')+'</div><h3>Advanced Forex Course</h3><p>'+esc(advancedView.description)+'</p><div class="psp-system-course-meta"><div>Course Fee<strong>$'+Number(advancedView.price||150).toFixed(0)+'</strong></div><div>Modules<strong>8</strong></div><div>Approved Users<strong>'+approved.length+'</strong></div></div><div class="psp-course-admin-actions"><button class="btn btn-secondary" onclick="editSystemCourse(\'advanced\')">✏️ Edit Course</button><button class="btn" onclick="openSystemCourseEnrollments(\'paid-approved\')">View Enrollments</button></div></article>';
+  var cards=[{order:1,html:advancedHtml},{order:3,html:basicHtml}].concat(customs.map(function(course){return {order:Number(course.display_order||99),html:customCard(course)}}));
+  cards.sort(function(a,b){return a.order-b.order});
+  grid.innerHTML=cards.map(function(x){return x.html}).join('');
 
   var createBtn=document.querySelector('#page-courses .card-header .btn');
   if(createBtn)createBtn.style.removeProperty('display');

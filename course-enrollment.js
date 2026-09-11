@@ -73,13 +73,16 @@
         const rows=Array.isArray(data)?data:[];
         if(fallback){
           if(key==='basic'){
-            row=rows.find(r=>/^basic forex course$/i.test(String(r.title||'').trim()))
-              ||rows.find(r=>String(r.course_key||'').toLowerCase()==='basic'&&Number(r.display_order||0)===1)||null;
+            row=rows.find(r=>String(r.course_key||'').trim().toLowerCase()==='basic')
+              ||rows.find(r=>/^basic forex course$/i.test(String(r.title||'').trim()))||null;
           }else if(key==='advanced'){
-            row=rows.find(r=>/^advance(d)? forex course$/i.test(String(r.title||'').trim()))
-              ||rows.find(r=>String(r.course_key||'').toLowerCase()==='advanced'&&Number(r.display_order||0)===2)||null;
+            row=rows.find(r=>String(r.course_key||'').trim().toLowerCase()==='advanced')
+              ||rows.find(r=>/^advance(d)? forex course$/i.test(String(r.title||'').trim()))||null;
+          }else if(key==='advance-fundamental'){
+            row=rows.find(r=>['advance-fundamental','advanced-fundamental'].includes(String(r.course_key||'').trim().toLowerCase().replaceAll('_','-')))
+              ||rows.find(r=>/^advance(d)? fundamental(?: trading course)?$/i.test(String(r.title||'').trim()))||null;
           }else{
-            row=rows.find(r=>String(r.course_key||'').toLowerCase()===key)||null;
+            row=rows.find(r=>String(r.course_key||'').trim().toLowerCase()===key)||null;
           }
         }else{
           row=rows.find(r=>String(r.course_key||'').toLowerCase()===key)||null;

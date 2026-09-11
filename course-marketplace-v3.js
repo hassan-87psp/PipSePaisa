@@ -49,23 +49,23 @@ const defaults={
     short:'Develop a professional trading mindset and study advanced market behaviour, session timing, liquidity, correlations and strategy development.',
     description:'A professional program for serious traders who want to study institutional structure, liquidity, session behaviour, advanced risk management, macro analysis and precise execution models.',
     descriptionExtra:'Every module follows a clear learning path with practical market examples, defined objectives and expected outcomes. The goal is to help students understand the process rather than copy random trades.',
-    included:['9 advanced modules','Institutional concepts & mentor guidance','Mobile and desktop access','Progress saved in your account'],
+    included:['8 advanced modules','Institutional concepts & mentor guidance','Mobile and desktop access','Progress saved in your account'],
     contentNote:'One module opens at a time',
     secureNote:'Secure proof submission • Admin verification',
     learningHeading:"What you'll learn",outcomesHeading:'Course Outcomes',contentHeading:'Course content',requirementsHeading:'Requirements',audienceHeading:'Who this course is for',descriptionHeading:'Description',relatedHeading:'Other PipSePaisa Courses',
     requirements:['This course is suitable even if you are completely new to forex.','Completion of the Basic Forex Course is recommended.','Access to a charting platform and a demo trading account.'],
     audience:['Intermediate traders seeking professional structure.','Traders struggling with consistency and execution.','Students who want institutional concepts and advanced risk management.'],
     modules:[
-      {title:'Advanced Market Structure and Liquidity',duration:'90 min',summary:'Study institutional structure, liquidity behaviour and confirmation.',points:['Internal and external structure','Liquidity pools and sweeps','Multi-timeframe confirmation']},
-      {title:'Session Timing and Market Behaviour',duration:'90 min',summary:'Understand Asian, London and New York session behaviour.',points:['Session opens and overlaps','Volatility windows','Session-based trade planning']},
-      {title:'Advanced Supply, Demand and Order Flow',duration:'90 min',summary:'Refine institutional zones with displacement, imbalance and mitigation.',points:['Premium supply and demand zones','Displacement and imbalance','Mitigation and order-flow shifts']},
-      {title:'Intermarket Correlations and Currency Strength',duration:'90 min',summary:'Use currency strength, the dollar and correlated markets to confirm bias.',points:['Currency-strength relationships','Dollar and gold correlation','Cross-market confirmation']},
-      {title:'Professional Risk and Position Management',duration:'90 min',summary:'Apply professional position sizing, partials and drawdown control.',points:['Dynamic position sizing','Partial profits and breakeven','Exposure and drawdown control']},
-      {title:'Advanced Fundamental and News Analysis',duration:'90 min',summary:'Interpret central-bank policy, inflation and labour data.',points:['Central-bank policy cycles','Inflation and employment data','Pre-news and post-news behaviour']},
-      {title:'Institutional Entry Models',duration:'90 min',summary:'Build precise entries using sweeps, CHoCH, BOS, order blocks and FVGs.',points:['Liquidity sweep entry model','CHoCH and BOS confirmation','Order block and FVG execution']},
-      {title:'Trading Psychology for Professional Execution',duration:'90 min',summary:'Strengthen discipline and decision quality under pressure.',points:['Process-based decisions','Managing revenge trading','Performance journaling']},
-      {title:'Strategy Development and Performance Review',duration:'90 min',summary:'Build, test and refine a complete trading strategy.',points:['Strategy rule development','Backtesting and forward testing','Performance metrics and optimisation']}
+      {title:'Think Like a Professional Trader',duration:'90 min',summary:'Professional Mindset, Discipline & High-Performance Trading Habits',points:['Professional trading mindset','Discipline and routine','High-performance habits']},
+      {title:'Mastering the Forex Clock',duration:'90 min',summary:'How Trading Sessions, Liquidity & Timing Create Trading Opportunities',points:['Asian, London and New York sessions','Liquidity windows','Timing high-probability opportunities']},
+      {title:'Follow the Currency Flow',duration:'90 min',summary:'Using Currency Indices to Identify Strength, Weakness & Major Trends',points:['Currency strength and weakness','Currency indices','Major directional trends']},
+      {title:'The Confluence Edge',duration:'90 min',summary:'Using Correlations to Confirm Direction & Increase Trading Probability',points:['Correlation analysis','Directional confirmation','Confluence-based probability']},
+      {title:'Order Flow Mastery',duration:'90 min',summary:'Understanding Forex Market Microstructure, Liquidity & Order Flow',points:['Market microstructure','Liquidity behaviour','Order-flow confirmation']},
+      {title:'Make Money with Market Pulse',duration:'90 min',summary:'Analyzing Market Sentiment',points:['Market sentiment','Risk-on and risk-off behaviour','Sentiment confirmation']},
+      {title:'The Professional Trading Playbook',duration:'90 min',summary:'High-Probability Setups, Confluence & Trade Planning',points:['High-probability setups','Trade planning','Entry and exit preparation']},
+      {title:'Uncovering the Secrets of Profitable Trading',duration:'90 min',summary:'Advanced Execution, Position Management & Strategy Integration',points:['Advanced execution','Position management','Strategy integration']}
     ],
+
     learn:['Map advanced market structure and institutional liquidity.','Select stronger opportunities using session timing and volatility.','Combine supply, demand, order flow and multi-timeframe confirmation.','Use correlations and currency strength to improve directional bias.','Manage positions, partial profits and portfolio exposure professionally.','Build and review a complete trading playbook using performance data.'],
     achievement:['Read institutional structure and liquidity with greater clarity.','Build high-quality entry models using confirmation and timing.','Combine order flow, supply, demand and multi-timeframe analysis.','Improve risk, exposure and position-management decisions.','Use correlations and macro context to strengthen directional bias.','Create and review a professional, repeatable trading playbook.']
   }
@@ -238,17 +238,29 @@ async function loadCourseDataFresh(){
     }));
   };
 
-  // IMPORTANT: exact system identity first. A custom row with an accidentally
-  // duplicated reserved key must never replace Basic/Advanced.
-  const basic=rows.find(x=>norm(x.title)==='basic forex course')
-    ||rows.find(x=>norm(x.course_key)==='basic'&&Number(x.display_order||0)===1)||null;
-  const adv=rows.find(x=>norm(x.title)==='advanced forex course')
-    ||rows.find(x=>norm(x.course_key)==='advanced'&&Number(x.display_order||0)===2)||null;
-  const fundamental=rows.find(x=>norm(x.title)==='fundamental forex course')
-    ||rows.find(x=>norm(x.course_key)==='fundamental')||null;
+  // V223: resolve the four live courses by canonical key first and suppress
+  // legacy duplicate rows (for example an old "ADVANCE COURSE" row). This keeps
+  // My Courses at exactly one card per real course even when old catalog rows still
+  // exist in Supabase.
+  const keyOf=x=>norm(x&&x.course_key).replaceAll('_','-');
+  const titleOf=x=>norm(x&&x.title).replace(/\s+/g,' ');
+  const isBasicAlias=x=>keyOf(x)==='basic'||['basic forex course','basic course'].includes(titleOf(x));
+  const isAdvancedAlias=x=>['advanced','advanced-course','advance-course'].includes(keyOf(x))||['advanced forex course','advance forex course','advance course','advanced course'].includes(titleOf(x));
+  const isFundamentalAlias=x=>keyOf(x)==='fundamental'||titleOf(x)==='fundamental forex course';
+  const isAdvanceFundamentalAlias=x=>['advance-fundamental','advanced-fundamental'].includes(keyOf(x))||['advance fundamental','advance fundamental trading course','advanced fundamental','advanced fundamental trading course'].includes(titleOf(x));
+
+  const basic=rows.find(x=>keyOf(x)==='basic')||rows.find(isBasicAlias)||null;
+  const adv=rows.find(x=>keyOf(x)==='advanced')||rows.find(x=>titleOf(x)==='advanced forex course')||rows.find(isAdvancedAlias)||null;
+  const fundamental=rows.find(x=>keyOf(x)==='fundamental')||rows.find(isFundamentalAlias)||null;
+  const advanceFundamental=rows.find(x=>keyOf(x)==='advance-fundamental')||rows.find(x=>keyOf(x)==='advanced-fundamental')||rows.find(isAdvanceFundamentalAlias)||null;
 
   const systemIds=new Set([basic&&String(basic.id),adv&&String(adv.id),fundamental&&String(fundamental.id)].filter(Boolean));
-  const customRows=rows.filter(x=>!systemIds.has(String(x.id)));
+  const customRows=rows.filter(x=>{
+    if(systemIds.has(String(x.id)))return false;
+    if(isBasicAlias(x)||isAdvancedAlias(x)||isFundamentalAlias(x))return false;
+    if(isAdvanceFundamentalAlias(x))return !!advanceFundamental&&String(x.id)===String(advanceFundamental.id);
+    return true;
+  });
 
   courseData={
     basic:{...defaults.basic,...(basic?{
