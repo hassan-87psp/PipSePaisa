@@ -129,12 +129,23 @@ function canonicalModules(key,items){
 
 function normalize(row,key){
   if(!row)return 'not_enrolled';
-  if(row.enrollment_status==='enrolled'||row.payment_status==='approved'||row.payment_status==='paid')return 'approved';
+  const provider=String(row.payment_provider||'').trim().toLowerCase();
+  const method=String(row.payment_method||'').trim().toLowerCase();
+  const ps=String(row.provider_status||'').trim().toLowerCase();
+  const infinity=provider==='infinity'||method.includes('local bank');
+  if(row.enrollment_status==='enrolled'||row.payment_status==='approved'||row.payment_status==='paid'||['accepted','success','successful','completed','paid','confirmed','verified','settled'].includes(ps))return 'approved';
+  if(infinity&&ps==='expired')return 'expired';
+  if(infinity&&['failed','failure','rejected','declined','cancelled','canceled','void','reversed'].includes(ps))return 'rejected';
   if(row.payment_status==='revoked'||row.enrollment_status==='cancelled')return 'revoked';
   if(row.enrollment_status==='rejected'||row.payment_status==='rejected')return 'rejected';
+  if(infinity&&(row.payment_status==='pending'||row.enrollment_status==='pending'||['initiated','created','submitted','pending','processing','waiting','awaiting','in_process','queued'].includes(ps)))return 'processing';
   if(row.payment_status==='pending'||row.enrollment_status==='pending')return 'pending';
   if(key==='basic'&&row.id)return 'approved';
   return 'not_enrolled';
+}
+async function reconcileMyInfinity(){
+  const db=client();if(!db)return;
+  try{await db.rpc('psp_reconcile_my_infinity_payments');}catch(_){ }
 }
 async function getEnrollment(key){
   const db=client();if(!db)return null;
@@ -381,6 +392,7 @@ async function loadCourseDataFresh(){
   window.__pspCourseCatalogByKey=catalogRegistry;
 
   const keys=Object.keys(courseData);
+  await reconcileMyInfinity();
   const enrollments=await Promise.all(keys.map(k=>getEnrollment(k)));
   enrollmentState={};
   keys.forEach((k,i)=>{enrollmentState[k]=normalize(enrollments[i],k);});
@@ -404,12 +416,15 @@ async function loadCourseData(force=false){
 
 async function loadEnrollmentStatesOnly(courseKey){
   const displayKey=displayKeyForEnrollment(courseKey);const keys=displayKey&&courseData[displayKey]?[displayKey]:Object.keys(courseData);
+  await reconcileMyInfinity();
   const rows=await Promise.all(keys.map(key=>getEnrollment(key)));
   keys.forEach((key,index)=>{enrollmentState[key]=normalize(rows[index],key);});
 }
 function statusLabel(key){
   const s=enrollmentState[key];
   if(s==='approved')return {text:(key==='basic'||key==='fundamental')?'Enrolled':'Course Unlocked',cls:''};
+  if(s==='processing')return {text:'Bank Payment Processing',cls:'pending'};
+  if(s==='expired')return {text:'Payment Expired — Retry',cls:'rejected'};
   if(s==='pending')return {text:'Payment Pending',cls:'pending'};
   if(s==='rejected')return {text:'Payment Rejected',cls:'rejected'};
   if(s==='revoked')return {text:'Access Revoked',cls:'rejected'};
@@ -456,7 +471,7 @@ function renderMarketplace(){
   });
 }
 function buyPanel(c,state){
-  const approved=state==='approved',pending=state==='pending',rejected=state==='rejected',revoked=state==='revoked';
+  const approved=state==='approved',processing=state==='processing',expired=state==='expired',pending=state==='pending',rejected=state==='rejected',revoked=state==='revoked';
   let status='',button='',disabled='';
   if(c.type==='free'){
     status=approved?'<div class="psp-course-buy-status approved">You are already enrolled in this course.</div>':'<div class="psp-course-buy-status">Free enrollment — no payment required.</div>';
@@ -464,18 +479,24 @@ function buyPanel(c,state){
   }else if(approved){
     status='<div class="psp-course-buy-status approved">Payment approved — course access is unlocked.</div>';
     button='Open Advanced Course';
+  }else if(processing){
+    status='<div class="psp-course-buy-status pending"><b>🏦 Bank Payment Processing</b><span>Infinity will update this automatically. No Admin approval is required.</span></div>';
+    button='Open / Continue Bank Payment';
+  }else if(expired){
+    status='<div class="psp-course-buy-status rejected"><b>Payment Expired</b><span>The 20-minute bank-payment window ended. Start a new Local Bank Transfer.</span></div>';
+    button='Try Local Bank Again';
   }else if(pending){
-    status='<div class="psp-course-buy-status">Payment verification is pending.</div>';
-    button='Waiting for Admin Approval';
+    status='<div class="psp-course-buy-status">Manual payment verification is pending.</div>';
+    button='Waiting for Verification';
     disabled='disabled';
   }else if(rejected||revoked){
     status=`<div class="psp-course-buy-status rejected">${revoked?'Access was revoked by the admin.':'Payment was rejected.'} Submit your details again.</div>`;
     button='Resubmit Payment — $'+c.price;
   }else{
-    status='<div class="psp-course-buy-status">Payment and admin approval are required.</div>';
+    status='<div class="psp-course-buy-status">Choose Local Bank for automatic Infinity verification, or USDT for manual proof review.</div>';
     button='Enroll & Pay — $'+c.price;
   }
-  if(c.actionButtonText&&!approved&&!pending)button=c.actionButtonText;
+  if(c.actionButtonText&&!approved&&!pending&&!processing&&!expired)button=c.actionButtonText;
   return `<aside class="psp-course-buy-card">
     <div class="psp-course-buy-thumb"><img ${thumbAttrs(c,`${c.title} thumbnail`)}></div>
     <div class="psp-course-buy-body">
@@ -490,7 +511,7 @@ function buyPanel(c,state){
   </aside>`;
 }
 function stickyAccessPanel(c,state){
-  const approved=state==='approved',pending=state==='pending',rejected=state==='rejected',revoked=state==='revoked';
+  const approved=state==='approved',processing=state==='processing',expired=state==='expired',pending=state==='pending',rejected=state==='rejected',revoked=state==='revoked';
   let status='',button='',disabled='',eyebrow='',helper='',steps='';
   if(c.type==='free'){
     eyebrow=approved?'ALREADY ENROLLED':'INSTANT COURSE ACCESS';
@@ -506,11 +527,23 @@ function stickyAccessPanel(c,state){
     status='<div class="psp-course-buy-status approved"><b>✓ Payment Approved</b><span>Premium course access is active.</span></div>';
     button='Open Advanced Course';
     steps='<div class="psp-access-steps"><span class="done">1</span><b>Enroll</b><i></i><span class="done">2</span><b>Pay</b><i></i><span class="done">3</span><b>Unlock</b></div>';
+  }else if(processing){
+    eyebrow='BANK PAYMENT PROCESSING';
+    helper='Infinity is verifying this Local Bank payment automatically. No Admin approval is required.';
+    status='<div class="psp-course-buy-status pending"><b>🏦 Automatic Verification</b><span>Success unlocks the course immediately; rejected payments are closed automatically.</span></div>';
+    button='Open / Continue Bank Payment';
+    steps='<div class="psp-access-steps"><span class="done">1</span><b>Enroll</b><i></i><span class="done">2</span><b>Pay</b><i></i><span>3</span><b>Auto Unlock</b></div>';
+  }else if(expired){
+    eyebrow='PAYMENT WINDOW EXPIRED';
+    helper='The 20-minute Infinity payment window ended. No Admin action is needed — simply start a new Local Bank Transfer.';
+    status='<div class="psp-course-buy-status rejected"><b>⏱ Payment Expired</b><span>You can retry immediately.</span></div>';
+    button='Try Local Bank Again';
+    steps='<div class="psp-access-steps"><span class="done">1</span><b>Enroll</b><i></i><span>2</span><b>Retry Pay</b><i></i><span>3</span><b>Auto Unlock</b></div>';
   }else if(pending){
     eyebrow='PAYMENT UNDER REVIEW';
-    helper='Your proof has been submitted. Access will unlock immediately after admin approval.';
-    status='<div class="psp-course-buy-status pending"><b>⏳ Approval Pending</b><span>Please wait while your payment is verified.</span></div>';
-    button='Waiting for Admin Approval';disabled='disabled';
+    helper='Your manual payment proof has been submitted. This manual-payment method requires verification.';
+    status='<div class="psp-course-buy-status pending"><b>⏳ Manual Verification Pending</b><span>Please wait while your payment proof is verified.</span></div>';
+    button='Waiting for Verification';disabled='disabled';
     steps='<div class="psp-access-steps"><span class="done">1</span><b>Enroll</b><i></i><span class="done">2</span><b>Pay</b><i></i><span>3</span><b>Unlock</b></div>';
   }else if(rejected||revoked){
     eyebrow='ACTION REQUIRED';
@@ -520,12 +553,12 @@ function stickyAccessPanel(c,state){
     steps='<div class="psp-access-steps"><span class="done">1</span><b>Enroll</b><i></i><span>2</span><b>Repay</b><i></i><span>3</span><b>Unlock</b></div>';
   }else{
     eyebrow='PROFESSIONAL COURSE ACCESS';
-    helper='Confirm your profile, submit payment proof and unlock the course after admin approval.';
-    status='<div class="psp-course-buy-status"><b>🔒 Course Locked</b><span>Payment and admin approval are required.</span></div>';
+    helper='Choose your payment method. Local Bank is verified automatically by Infinity; USDT proof uses manual review.';
+    status='<div class="psp-course-buy-status"><b>🔒 Course Locked</b><span>Complete payment to unlock course access.</span></div>';
     button='Enroll & Pay — $'+c.price;
     steps='<div class="psp-access-steps"><span>1</span><b>Enroll</b><i></i><span>2</span><b>Pay</b><i></i><span>3</span><b>Unlock</b></div>';
   }
-  if(c.actionButtonText&&!approved&&!pending)button=c.actionButtonText;
+  if(c.actionButtonText&&!approved&&!pending&&!processing&&!expired)button=c.actionButtonText;
   return `<div class="psp-course-side-card psp-course-side-card-premium ${c.type} ${state}">
     <div class="psp-course-side-preview">
       <img class="psp-course-side-preview-main" ${thumbAttrs(c,`${c.title} preview`)}>
@@ -562,7 +595,7 @@ function classAccessPanel(c,state){
 }
 
 function moduleRows(c,unlocked){
-  if(c.type==='paid'&&!unlocked){return `<div class="psp-course-locked-roadmap"><div class="psp-course-locked-intro"><div class="lock">🔒</div><div><h4>Advanced Modules Locked</h4><p>Module details unlock after payment approval. You can still preview the complete learning roadmap below.</p></div></div>${c.modules.map((m,i)=>`<div class="psp-module-row locked"><div class="psp-module-toggle"><span><strong>${String(i+1).padStart(2,'0')}. ${esc(m.title)}</strong></span><span class="psp-locked-label">🔒 Locked</span></div></div>`).join('')}</div>`;}
+  if(c.type==='paid'&&!unlocked){return `<div class="psp-course-locked-roadmap"><div class="psp-course-locked-intro"><div class="lock">🔒</div><div><h4>Advanced Modules Locked</h4><p>Module details unlock after successful payment verification. You can still preview the complete learning roadmap below.</p></div></div>${c.modules.map((m,i)=>`<div class="psp-module-row locked"><div class="psp-module-toggle"><span><strong>${String(i+1).padStart(2,'0')}. ${esc(m.title)}</strong></span><span class="psp-locked-label">🔒 Locked</span></div></div>`).join('')}</div>`;}
   return `<div class="psp-module-list">${c.modules.map((m,i)=>{
     const schedule=FREE_WEBINAR_SCHEDULES[c.key]?(freeScheduleRow(c.key,i+1)||{scheduled_at:m.scheduled_at,title:m.title,subtitle:m.summary}):null;
     const completed=schedule?classIsCompleted(schedule):false;

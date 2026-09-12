@@ -1,4 +1,4 @@
-/* PipSePaisa V221 — multi paid-course enrollment (Advance Fundamental added) + V214.1 fast Local Bank flow. */
+/* PipSePaisa V228 — paid-course enrollment with automatic-only Infinity Local Bank flow. */
 (function(){
   'use strict';
 
@@ -180,7 +180,7 @@
     try{
       fetch(`${SUPABASE_URL}/functions/v1/create-infinity-payment`,{
         method:'OPTIONS',
-        headers:{'apikey':SUPABASE_KEY,'x-client-info':'pipsepaisa-web-v226-warm'},
+        headers:{'apikey':SUPABASE_KEY,'x-client-info':'pipsepaisa-web-v228-auto-bank'},
         cache:'no-store',
         keepalive:true
       }).catch(()=>{});
@@ -975,7 +975,7 @@
         'Content-Type':'application/json',
         'apikey':SUPABASE_KEY,
         'Authorization':`Bearer ${token}`,
-        'x-client-info':'pipsepaisa-web-v226-final-checkout'
+        'x-client-info':'pipsepaisa-web-v228-auto-bank'
       },
       body:payload
     });
@@ -1013,12 +1013,17 @@
       const url=new URL(window.location.href);
       if(url.searchParams.get('payment')!=='return')return;
       const course=url.searchParams.get('course')||'advanced';
-      const message='Local Bank Transfer submitted. Your payment status updates automatically after bank verification.';
+      const message='Checking your Local Bank payment. Infinity updates access automatically — no Admin approval is required.';
       if(window.pipToast)window.pipToast(message,'ok');
       else setTimeout(()=>{if(window.pipToast)window.pipToast(message,'ok');},500);
       url.searchParams.delete('payment');url.searchParams.delete('course');
       window.history.replaceState({},'',url.pathname+(url.searchParams.toString()?('?'+url.searchParams.toString()):'')+url.hash);
-      try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:course}}));}catch(_){ }
+      const refresh=()=>{
+        try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:course}}));}catch(_){ }
+        try{window.pspRefreshCourseAccess?.(course);}catch(_){ }
+      };
+      refresh();
+      [1200,3000,6000,12000].forEach(ms=>setTimeout(refresh,ms));
     }catch(_){ }
   }
 
@@ -1029,7 +1034,7 @@
       text=result.updated?`Your enrollment details have been confirmed. The ${selectedCourse.name} remains available in My Courses.`:`You are already enrolled in the ${selectedCourse.name}. Your course access is available in My Courses.`;
     }else if(result.pending){
       title='Enrollment Request Already Submitted';
-      text=`Your payment verification is pending. The ${selectedCourse.name} will unlock after admin approval.`;
+      text=`Your manual payment verification is pending. The ${selectedCourse.name} will unlock after verification.`;
     }else if(selectedCourse.type==='free'){
       text=accountWasCreated
         ?`Your PipSePaisa account has been created and you are successfully enrolled in the ${selectedCourse.name}.`
@@ -1037,8 +1042,8 @@
     }else{
       title='Payment Receipt Received';
       text=result.resubmitted
-        ?'Your new payment receipt has been received and sent for verification. Course access will unlock after admin approval.'
-        :'Your payment receipt has been received successfully and is now under review. Course access will unlock after admin approval.';
+        ?'Your new manual payment receipt has been received and sent for verification. Course access will unlock after verification.'
+        :'Your manual payment receipt has been received successfully and is now under review. Course access will unlock after verification.';
     }
     document.getElementById('ceSuccessTitle').textContent=title;
     document.getElementById('ceSuccessText').textContent=text;
