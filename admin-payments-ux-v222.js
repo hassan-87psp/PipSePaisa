@@ -1,4 +1,4 @@
-/* PipSePaisa V228 — Unified Payments & Enrollments Admin Center
+/* PipSePaisa V229 — Unified Payments & Enrollments Admin Center
    Infinity Local Bank is 100% provider-managed; Admin never approves/rejects it.
    Manual Paid Access + Fast Unified Payments & Enrollments Admin Center
    One admin tab: manual review, auto processing, enrolled, rejected, free and history. */
@@ -228,6 +228,34 @@ window.pspV172BulkCourse=async action=>{const ids=[...S.courseSelected],chosen=S
 async function reconcileInfinityAutomatic(client){
   try{await client.rpc('psp_reconcile_all_infinity_expiry');}catch(_){ }
 }
+
+// V229: while Infinity payments are processing, refresh only those enrollment rows.
+// This makes accepted/rejected callbacks appear in Admin within ~2.5s without
+// reloading the full payments center or requiring any Admin action.
+let infinityStatusPollTimer=null,infinityStatusPollBusy=false;
+function stopInfinityStatusPoll(){if(infinityStatusPollTimer){clearInterval(infinityStatusPollTimer);infinityStatusPollTimer=null}}
+async function pollInfinityStatusRows(){
+  if(infinityStatusPollBusy)return;
+  const ids=uniq((S.paymentCourse||[]).filter(courseProcessing).map(r=>r.id));
+  if(!ids.length){stopInfinityStatusPoll();return}
+  const client=db();if(!client)return;
+  infinityStatusPollBusy=true;
+  try{
+    const q=await client.from('course_enrollments').select('*').in('id',ids);
+    if(q.error)return;
+    const fresh=q.data||[],byId=new Map(fresh.map(r=>[String(r.id),r]));
+    let changed=false;
+    S.paymentCourse=S.paymentCourse.map(r=>{const n=byId.get(String(r.id));if(!n)return r;if(providerRaw(n)!==providerRaw(r)||low(n.payment_status)!==low(r.payment_status)||low(n.enrollment_status)!==low(r.enrollment_status)||String(n.provider_last_error||'')!==String(r.provider_last_error||'')){changed=true}return n});
+    S.courseRows=S.courseRows.map(r=>byId.get(String(r.id))||r);
+    if(changed){S.loadedAt=Date.now();renderPaymentPage();if(document.getElementById('page-course-enrollments')?.classList.contains('active'))renderCoursePage()}
+    if(!(S.paymentCourse||[]).some(courseProcessing))stopInfinityStatusPoll();
+  }catch(_){ }finally{infinityStatusPollBusy=false}
+}
+function ensureInfinityStatusPoll(){
+  const has=(S.paymentCourse||[]).some(courseProcessing);
+  if(!has){stopInfinityStatusPoll();return}
+  if(!infinityStatusPollTimer)infinityStatusPollTimer=setInterval(pollInfinityStatusRows,2500);
+}
 window.loadAdminCourseEnrollments=async function(force){installCss();ensureOverlays();const client=db();if(!client)return;await reconcileInfinityAutomatic(client);const p=ensureCoursePage();if(p&&!S.courseRows.length)p.innerHTML='<div class="card"><div class="v172-empty">Loading course enrollments…</div></div>';const r=await client.from('course_enrollments').select('*').order('created_at',{ascending:false});if(r.error){if(p)p.innerHTML=`<div class="card"><div class="v172-empty" style="color:var(--red)">${esc(r.error.message)}</div></div>`;return}S.courseRows=r.data||[];S.courseSelected=new Set([...S.courseSelected].filter(id=>S.courseRows.some(r=>String(r.id)===id)));renderCoursePage();};
 
 // ---------- Payment Requests unified action queue ----------
@@ -301,7 +329,7 @@ async function loadPaymentEnrichment(client,profileIds){
   try{const results=await Promise.all(chunks.map(async chunk=>{let pr=await client.from('profiles').select('id,full_name,email,whatsapp,phone,created_at').in('id',chunk);if(pr.error)pr=await client.from('profiles').select('*').in('id',chunk);return pr}));S.profiles={};for(const pr of results){if(pr.error){console.warn('Payment profile lookup warning:',pr.error);continue}(pr.data||[]).forEach(p=>{S.profiles[p.id]=p;if(p.created_at)S.registrationAt[String(p.id)]=p.created_at})}renderPaymentPage()}catch(e){console.warn('Payment profile lookup warning:',e)}
   await loadPaymentReferralSources(client,profileIds);
 }
-window.loadAprList=async function(force=false){installCss();ensureOverlays();const client=db(),wrap=document.getElementById('aprWrap');if(!client||!wrap)return;if(!force&&S.loadedAt&&Date.now()-S.loadedAt<45000&&(S.paymentGeneral.length||S.paymentCourse.length)){renderPaymentPage();return}if(S.loadingPromise)return S.loadingPromise;S.loadingPromise=(async()=>{try{await reconcileInfinityAutomatic(client);const [g,cq]=await Promise.all([client.from('payment_requests').select('*').order('created_at',{ascending:false}),client.from('course_enrollments').select('*').order('created_at',{ascending:false})]);if(g.error)console.warn('General payments load warning:',g.error);if(cq.error)console.warn('Course payments load warning:',cq.error);S.paymentGeneral=g.data||[];S.paymentCourse=cq.data||[];S.loadedAt=Date.now();S.paymentPage=1;renderPaymentPage();const profileIds=uniq(S.paymentGeneral.map(x=>x.user_id).concat(S.paymentCourse.map(x=>x.user_id)));loadPaymentEnrichment(client,profileIds).catch(e=>console.warn('Payment enrichment warning:',e));}catch(e){console.error('Payments & Enrollments load failed:',e);wrap.innerHTML=`<div class="card"><div class="v172-empty"><strong>Payments could not load.</strong><div style="margin-top:8px">${esc(e&&e.message||e||'Unknown error')}</div><button class="v172-btn primary" style="margin-top:12px" onclick="loadAprList(true)">Retry</button></div></div>`;}finally{S.loadingPromise=null}})();return S.loadingPromise};
+window.loadAprList=async function(force=false){installCss();ensureOverlays();const client=db(),wrap=document.getElementById('aprWrap');if(!client||!wrap)return;if(!force&&S.loadedAt&&Date.now()-S.loadedAt<45000&&(S.paymentGeneral.length||S.paymentCourse.length)){renderPaymentPage();return}if(S.loadingPromise)return S.loadingPromise;S.loadingPromise=(async()=>{try{await reconcileInfinityAutomatic(client);const [g,cq]=await Promise.all([client.from('payment_requests').select('*').order('created_at',{ascending:false}),client.from('course_enrollments').select('*').order('created_at',{ascending:false})]);if(g.error)console.warn('General payments load warning:',g.error);if(cq.error)console.warn('Course payments load warning:',cq.error);S.paymentGeneral=g.data||[];S.paymentCourse=cq.data||[];S.loadedAt=Date.now();S.paymentPage=1;renderPaymentPage();ensureInfinityStatusPoll();const profileIds=uniq(S.paymentGeneral.map(x=>x.user_id).concat(S.paymentCourse.map(x=>x.user_id)));loadPaymentEnrichment(client,profileIds).catch(e=>console.warn('Payment enrichment warning:',e));}catch(e){console.error('Payments & Enrollments load failed:',e);wrap.innerHTML=`<div class="card"><div class="v172-empty"><strong>Payments could not load.</strong><div style="margin-top:8px">${esc(e&&e.message||e||'Unknown error')}</div><button class="v172-btn primary" style="margin-top:12px" onclick="loadAprList(true)">Retry</button></div></div>`;}finally{S.loadingPromise=null}})();return S.loadingPromise};
 window.pspV172BulkPayment=async action=>{if(action==='refresh'){await window.loadAprList(true);return}const items=paymentItems().filter(i=>S.paymentSelected.has(`${i.kind}:${i.id}`)&&payNeeds(i));if(!items.length)return;const label=action==='approve'?'Approve':action==='reject'?'Reject':'Resend email for';const ok=await confirmOne(`${label} ${items.length} selected payment request(s)?`);if(!ok)return;let done=0,failed=0;if(action==='email'){for(const i of items){if(i.kind!=='course'){failed++;continue}(await batchCourseEmail(i.raw))?done++:failed++}}else{for(const i of items){let good=false;if(i.kind==='general')good=await directGeneral(i.id,action);else good=(await batchCourseRpc(i.raw,action,action==='reject'?'Bulk declined by Admin.':'')).ok;good?done++:failed++}}S.paymentSelected.clear();await window.loadAprList(true);toast(`${done} updated${failed?`, ${failed} skipped/failed`:''}`,failed?'error':'success')};
 
 

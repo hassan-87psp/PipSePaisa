@@ -180,7 +180,7 @@
     try{
       fetch(`${SUPABASE_URL}/functions/v1/create-infinity-payment`,{
         method:'OPTIONS',
-        headers:{'apikey':SUPABASE_KEY,'x-client-info':'pipsepaisa-web-v228-auto-bank'},
+        headers:{'apikey':SUPABASE_KEY,'x-client-info':'pipsepaisa-web-v229-auto-bank'},
         cache:'no-store',
         keepalive:true
       }).catch(()=>{});
@@ -975,7 +975,7 @@
         'Content-Type':'application/json',
         'apikey':SUPABASE_KEY,
         'Authorization':`Bearer ${token}`,
-        'x-client-info':'pipsepaisa-web-v228-auto-bank'
+        'x-client-info':'pipsepaisa-web-v229-auto-bank'
       },
       body:payload
     });
@@ -1503,6 +1503,6 @@
     }
   });
   document.addEventListener('keydown',event=>{if(event.key==='Escape')closeCourseEnrollment();});
-  document.addEventListener('DOMContentLoaded',()=>{injectModal();handleInfinityReturnNotice();refreshPublicCoursePricing().catch(()=>{});});
+  document.addEventListener('DOMContentLoaded',()=>{injectModal();handleInfinityReturnNotice();refreshPublicCoursePricing().catch(()=>{});setTimeout(()=>warmInfinityCheckout(),250);});
   if(document.readyState!=='loading')refreshPublicCoursePricing().catch(()=>{});
 })();
