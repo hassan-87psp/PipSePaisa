@@ -1,0 +1,20 @@
+V244 QA CHECKLIST
+
+PASS criteria:
+[ ] live-desk-v242.js syntax valid
+[ ] team-live-desk-v242.js syntax valid
+[ ] all public Live Desk HTML references cache-busted to v244
+[ ] Team Panel references cache-busted to v244
+[ ] AI Edge Function contains CORS + retry + safe fallback
+[ ] no browser alert() in visitor/team Live Desk JS
+[ ] no payment / Infinity / course / finance files included
+[ ] ZIP integrity passes
+
+Runtime checks after deployment:
+[ ] AI replies automatically to every new visitor message
+[ ] Human request disables AI
+[ ] Visitor keyboard does not hide header/messages
+[ ] Visitor composer does not overlap bubbles
+[ ] Team mobile inbox visible
+[ ] Team mobile conversation bubbles do not clip
+[ ] Team AI tools do not show raw Failed to fetch alert
