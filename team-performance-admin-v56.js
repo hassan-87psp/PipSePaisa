@@ -8,11 +8,10 @@ const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const TEAM_URL='https://pipsepaisa.com/team';
 const BASE_DOMAIN='https://pipsepaisa.com';
 let fallbackClient=null;
-let links=[];
 let teamRows=[];
+let linkStats=new Map();
 let realtimeChannel=null;
 let lastCreatedCredentials=null;
-let leadFeatureReady=false;
 
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function fmt(v){return Number(v||0).toLocaleString();}
@@ -29,11 +28,12 @@ function getSb(){
   }catch(_){return null;}
 }
 async function waitForSb(){for(let i=0;i<40;i++){const c=getSb();if(c)return c;await new Promise(r=>setTimeout(r,100));}return null;}
-function trackedUrl(row){if(!row)return '';const path=row.destination_path||'/';return BASE_DOMAIN+path+(path.includes('?')?'&':'?')+'ref='+encodeURIComponent(row.link_slug||row.slug||'');}
 async function copyText(text){try{await navigator.clipboard.writeText(text);}catch(_){const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();}}
 function randomPassword(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$';let out='';if(window.crypto?.getRandomValues){const a=new Uint32Array(12);crypto.getRandomValues(a);for(const n of a)out+=chars[n%chars.length];}else{for(let i=0;i<12;i++)out+=chars[Math.floor(Math.random()*chars.length)];}return out;}
-
 function cleanWhatsapp(v){return String(v||'').replace(/\D/g,'');}
+function trackedUrl(destination,slug){if(!destination||!slug)return '';return BASE_DOMAIN+destination+(destination.includes('?')?'&':'?')+'ref='+encodeURIComponent(slug);}
+function statFor(id){return linkStats.get(String(id||''))||{};}
+function statNum(id,key){return Number(statFor(id)[key]||0);}
 
 function addStyles(){
   if(document.getElementById('teamAdminV56Styles'))return;
@@ -45,8 +45,8 @@ function addStyles(){
   #page-teamaccess .ta-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   #page-teamaccess .ta-form .wide{grid-column:1/-1}
   #page-teamaccess .ta-form label{display:block;font-size:10px;font-weight:800;color:var(--text-muted);margin:0 0 6px}
-  #page-teamaccess .ta-form input,#page-teamaccess .ta-form select{width:100%;padding:11px 12px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);border-radius:9px;font:inherit;font-size:12px;outline:none}
-  #page-teamaccess .ta-form input:focus,#page-teamaccess .ta-form select:focus{border-color:var(--gold)}
+  #page-teamaccess .ta-form input{width:100%;padding:11px 12px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);border-radius:9px;font:inherit;font-size:12px;outline:none}
+  #page-teamaccess .ta-form input:focus{border-color:var(--gold)}
   #page-teamaccess .ta-password-wrap{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:stretch}
   #page-teamaccess .ta-password-wrap .ta-btn{white-space:nowrap}
   #page-teamaccess .ta-note{margin-top:12px;padding:12px 14px;border:1px solid rgba(16,185,129,.25);background:rgba(16,185,129,.06);border-radius:10px;color:var(--text-muted);font-size:11px;line-height:1.55}
@@ -67,15 +67,21 @@ function addStyles(){
   #page-teamaccess .ta-status{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:800}
   #page-teamaccess .ta-status.on{background:rgba(16,185,129,.12);color:#059669}.ta-status.off{background:rgba(239,68,68,.1);color:#dc2626}
   #page-teamaccess .ta-sub{font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.35}
-  #teamAssignModal,#teamPasswordModal{position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px}
-  #teamAssignModal.open,#teamPasswordModal.open{display:flex}
-  #teamAssignModal .ta-modal-card,#teamPasswordModal .ta-modal-card{width:min(520px,100%);background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 25px 80px rgba(0,0,0,.25)}
-  #teamAssignModal h3,#teamPasswordModal h3{margin:0 0 5px;font-size:18px}#teamAssignModal p,#teamPasswordModal p{margin:0 0 15px;color:var(--text-muted);font-size:11px}
-  #teamAssignModal select,#teamPasswordModal input{width:100%;padding:11px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);border-radius:9px;margin-bottom:14px}
-  #teamAssignModal .row,#teamPasswordModal .row{display:flex;gap:8px;justify-content:flex-end}
+  #page-teamaccess .ta-link-stack{display:grid;gap:8px;min-width:360px}
+  #page-teamaccess .ta-link-item{border:1px solid var(--border);background:var(--bg-elevated);border-radius:10px;padding:9px 10px}
+  #page-teamaccess .ta-link-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  #page-teamaccess .ta-link-title{font-size:10px;font-weight:850;color:var(--text-primary)}
+  #page-teamaccess .ta-link-url{font-size:9px;color:var(--text-muted);margin-top:4px;word-break:break-all;max-width:520px}
+  #page-teamaccess .ta-link-metrics{font-size:9px;color:var(--text-muted);margin-top:5px}
+  #teamPasswordModal{position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px}
+  #teamPasswordModal.open{display:flex}
+  #teamPasswordModal .ta-modal-card{width:min(520px,100%);background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 25px 80px rgba(0,0,0,.25)}
+  #teamPasswordModal h3{margin:0 0 5px;font-size:18px}#teamPasswordModal p{margin:0 0 15px;color:var(--text-muted);font-size:11px}
+  #teamPasswordModal input{width:100%;padding:11px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);border-radius:9px;margin-bottom:14px}
+  #teamPasswordModal .row{display:flex;gap:8px;justify-content:flex-end}
   #teamPasswordModal .pw-row{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:start}
   #teamPasswordModal .pw-row input{margin:0}
-  @media(max-width:900px){#page-teamaccess .ta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#page-teamaccess .ta-form{grid-template-columns:1fr}#page-teamaccess .ta-credentials-grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:900px){#page-teamaccess .ta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#page-teamaccess .ta-form{grid-template-columns:1fr}#page-teamaccess .ta-credentials-grid{grid-template-columns:1fr 1fr}#page-teamaccess .ta-link-stack{min-width:280px}}
   `;document.head.appendChild(s);
 }
 
@@ -96,30 +102,28 @@ function addMenuAndPage(retry){
   page.innerHTML=`
     <div class="ta-grid">
       <div class="ta-stat"><span>Team Accounts</span><strong id="taAccounts">0</strong></div>
-      <div class="ta-stat"><span>Total Clicks</span><strong id="taClicks">0</strong></div>
-      <div class="ta-stat"><span>Signups</span><strong id="taSignups">0</strong></div>
-      <div class="ta-stat"><span>Enrollments</span><strong id="taEnrollments">0</strong></div>
+      <div class="ta-stat"><span>New Link Clicks</span><strong id="taClicks">0</strong></div>
+      <div class="ta-stat"><span>New Signups</span><strong id="taSignups">0</strong></div>
+      <div class="ta-stat"><span>New Enrollments</span><strong id="taEnrollments">0</strong></div>
     </div>
     <div class="card" style="margin-bottom:18px">
-      <div class="card-header"><div><div class="card-title">👥 Create Team Panel Account</div><div class="card-meta">Create the Team Panel account, add WhatsApp, and control automatic lead rotation.</div></div><button class="btn btn-secondary btn-sm" id="taCopyLogin">Copy Team Login</button></div>
+      <div class="card-header"><div><div class="card-title">👥 Create Team Panel Account</div><div class="card-meta">Create the Team Panel account. Both free-course tracking links are created automatically.</div></div><button class="btn btn-secondary btn-sm" id="taCopyLogin">Copy Team Login</button></div>
       <div class="ta-form">
         <div><label>Team Member Name *</label><input id="taName" placeholder="Miss Memona"></div>
         <div><label>Username *</label><input id="taUsername" placeholder="memona" autocomplete="off"></div>
         <div><label>WhatsApp Number *</label><input id="taWhatsapp" inputmode="tel" placeholder="60123456789"></div>
         <div><label>Automatic Leads</label><div class="ta-lead-box"><span>Receive new enrollment leads</span><input id="taLeadEnabled" class="ta-lead-check" type="checkbox" checked></div></div>
         <div class="wide"><label>Password *</label><div class="ta-password-wrap"><input id="taPassword" type="password" minlength="6" placeholder="Minimum 6 characters" autocomplete="new-password"><button class="ta-btn" type="button" id="taShowPassword">Show</button><button class="ta-btn" type="button" id="taGeneratePassword">Generate</button></div></div>
-        <div class="wide"><label>Assigned Admin-Created Link *</label><select id="taLink"><option value="">Loading tracked links…</option></select></div>
       </div>
-      <div class="ta-note"><b>V245 Lead Rotation:</b> every new enrollment goes 1-by-1 to Team Members whose <b>Automatic Leads</b> switch is ON. Turning leads OFF only pauses new leads; Team Panel login remains active. Assigned clients appear in that member's My Clients section.</div>
+      <div class="ta-note"><b>New data only:</b> this Team Panel Access page does not include old tracking history. Old data stays separately in <b>Team Performance / Link Manager</b>. Every member automatically gets a <b>Basic Forex Course — Batch 2</b> link and a <b>Fundamental Forex Course</b> link.</div>
       <div id="taCredentials" class="ta-credentials"><div style="font-weight:800;margin-bottom:10px">Account ready — copy these details now</div><div class="ta-credentials-grid"><div class="ta-credential"><label>Username</label><strong id="taCredUsername">—</strong></div><div class="ta-credential"><label>Password</label><strong id="taCredPassword">—</strong></div><div class="ta-credential"><label>Login</label><strong>${TEAM_URL}</strong></div><button class="ta-btn" id="taCopyCredentials">Copy Details</button></div></div>
       <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn" id="taCreateBtn">Create Team Account</button></div>
       <div id="taCreateMsg" class="card-meta" style="margin-top:8px"></div>
     </div>
     <div class="card">
-      <div class="card-header"><div><div class="card-title">Team Performance Access</div><div class="card-meta">Admin controls accounts and links. Team members have read-only performance/client access.</div></div><button class="btn btn-secondary btn-sm" id="taRefresh">↻ Refresh</button></div>
-      <div class="table-wrap"><table class="data-table"><thead><tr><th>Team Member</th><th>WhatsApp</th><th>Leads</th><th>Assigned Leads</th><th>Assigned Link</th><th>Clicks</th><th>Unique</th><th>Signups</th><th>Enrollments</th><th>Conversion</th><th>Team Access</th><th>Actions</th></tr></thead><tbody id="taTable"><tr><td colspan="12">Open Team Panel Access to load data.</td></tr></tbody></table></div>
+      <div class="card-header"><div><div class="card-title">Team Lead Distribution</div><div class="card-meta">Only V246 auto links and new lead data are shown here. Historical performance remains separate.</div></div><button class="btn btn-secondary btn-sm" id="taRefresh">↻ Refresh</button></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Team Member</th><th>WhatsApp</th><th>Leads</th><th>New Assigned Leads</th><th>2 Auto Free-Course Links</th><th>Team Access</th><th>Actions</th></tr></thead><tbody id="taTable"><tr><td colspan="7">Open Team Panel Access to load data.</td></tr></tbody></table></div>
     </div>
-    <div id="teamAssignModal"><div class="ta-modal-card"><h3>Change Assigned Link</h3><p id="taAssignWho"></p><select id="taAssignSelect"></select><div class="row"><button class="btn btn-secondary" id="taAssignCancel">Cancel</button><button class="btn" id="taAssignSave">Save Assignment</button></div></div></div>
     <div id="teamPasswordModal"><div class="ta-modal-card"><h3>Set New Team Password</h3><p id="taPasswordWho"></p><div class="pw-row"><input id="taNewPassword" type="password" minlength="6" autocomplete="new-password" placeholder="Minimum 6 characters"><button class="ta-btn" id="taShowNewPassword" type="button">Show</button><button class="ta-btn" id="taGenerateNewPassword" type="button">Generate</button></div><div class="ta-note" style="margin:12px 0">The new password is visible to Admin while setting/resetting it. For security, the stored password cannot be read back later.</div><div class="row"><button class="btn btn-secondary" id="taPasswordCancel">Cancel</button><button class="btn" id="taPasswordSave">Save New Password</button></div></div></div>
   `;
   content.appendChild(page);
@@ -136,22 +140,10 @@ function bindUi(){
   document.getElementById('taGeneratePassword').onclick=()=>{const i=document.getElementById('taPassword');i.value=randomPassword();i.type='text';document.getElementById('taShowPassword').textContent='Hide';};
   document.getElementById('taCopyCredentials').onclick=async()=>{if(!lastCreatedCredentials)return;await copyText(`PipSePaisa Team Panel\nLogin: ${TEAM_URL}\nUsername: ${lastCreatedCredentials.username}\nPassword: ${lastCreatedCredentials.password}`);toast('Team login details copied.','ok');};
   const u=document.getElementById('taUsername');u.addEventListener('input',()=>{u.value=u.value.replace(/[^A-Za-z0-9._-]/g,'').slice(0,40);});
-  document.getElementById('taAssignCancel').onclick=()=>document.getElementById('teamAssignModal').classList.remove('open');
-  document.getElementById('teamAssignModal').addEventListener('click',e=>{if(e.target.id==='teamAssignModal')e.currentTarget.classList.remove('open');});
   document.getElementById('taPasswordCancel').onclick=()=>document.getElementById('teamPasswordModal').classList.remove('open');
   document.getElementById('teamPasswordModal').addEventListener('click',e=>{if(e.target.id==='teamPasswordModal')e.currentTarget.classList.remove('open');});
   document.getElementById('taShowNewPassword').onclick=function(){togglePassword('taNewPassword',this)};
   document.getElementById('taGenerateNewPassword').onclick=()=>{const i=document.getElementById('taNewPassword');i.value=randomPassword();i.type='text';document.getElementById('taShowNewPassword').textContent='Hide';};
-}
-
-async function loadLinks(){
-  const client=await waitForSb();const sel=document.getElementById('taLink');if(!client||!sel)return;
-  const {data,error}=await client.from('tracked_links').select('id,name,slug,destination_path,source,campaign,is_active').order('created_at',{ascending:false});
-  if(error){sel.innerHTML='<option value="">Run V56 SQL after Link Tracking SQL</option>';return;}
-  links=data||[];
-  const assigned=new Set(teamRows.map(r=>r.link_id));
-  const available=links.filter(l=>!assigned.has(l.id));
-  sel.innerHTML='<option value="">Select tracked link</option>'+available.map(l=>`<option value="${esc(l.id)}">${esc(l.name)} — ${esc(l.slug)}${l.is_active?'':' (disabled)'}</option>`).join('');
 }
 
 async function createTeamAccount(){
@@ -162,96 +154,125 @@ async function createTeamAccount(){
   const password=document.getElementById('taPassword').value;
   const whatsapp=cleanWhatsapp(document.getElementById('taWhatsapp').value);
   const leadsOn=document.getElementById('taLeadEnabled').checked;
-  const linkId=document.getElementById('taLink').value;
-  if(!name||!username||password.length<6||!linkId||whatsapp.length<8){msg.textContent='Enter name, WhatsApp number, username, a 6+ character password and choose the existing tracked link.';msg.style.color='var(--red)';return;}
+  if(!name||!username||password.length<6||whatsapp.length<8){msg.textContent='Enter name, WhatsApp number, username and a 6+ character password.';msg.style.color='var(--red)';return;}
   btn.disabled=true;btn.textContent='Creating…';msg.textContent='';
   try{
-    const result=await client.rpc('psp_admin_create_team_member_v56',{p_display_name:name,p_username:username,p_password:password,p_link_id:linkId,p_is_active:true});
+    const result=await client.rpc('psp_admin_create_team_member_v246',{p_display_name:name,p_username:username,p_password:password,p_whatsapp_number:whatsapp,p_lead_distribution_enabled:leadsOn,p_is_active:true});
     if(result.error)throw result.error;
-    const leadSetup=await client.rpc('psp_admin_set_team_lead_settings_by_username_v245',{p_username:username,p_whatsapp_number:whatsapp,p_lead_distribution_enabled:leadsOn});
-    if(leadSetup.error)console.warn('V245 lead settings were not saved:',leadSetup.error);else leadFeatureReady=true;
     lastCreatedCredentials={username,password};
     document.getElementById('taCredUsername').textContent=username;
     document.getElementById('taCredPassword').textContent=password;
     document.getElementById('taCredentials').classList.add('show');
-    msg.textContent=leadFeatureReady?'Team account is ready. WhatsApp lead rotation is configured and this member can receive assigned clients in Team Panel.':'Team account is ready, but V245 Lead Distribution SQL still needs to be installed before automatic leads can start.';
+    msg.textContent='Team account is ready. Both free-course links were created automatically and new data starts separately.';
     msg.style.color='var(--green)';
-    document.getElementById('taName').value='';document.getElementById('taUsername').value='';document.getElementById('taWhatsapp').value='';document.getElementById('taLeadEnabled').checked=true;document.getElementById('taPassword').value='';document.getElementById('taPassword').type='password';document.getElementById('taShowPassword').textContent='Show';document.getElementById('taLink').value='';
+    document.getElementById('taName').value='';document.getElementById('taUsername').value='';document.getElementById('taWhatsapp').value='';document.getElementById('taLeadEnabled').checked=true;document.getElementById('taPassword').value='';document.getElementById('taPassword').type='password';document.getElementById('taShowPassword').textContent='Show';
     await loadAll();
-  }catch(e){msg.textContent=e.message||'Team account could not be created.';msg.style.color='var(--red)';}
+  }catch(e){msg.textContent=(e.message||'Team account could not be created.')+(String(e.message||'').includes('psp_admin_create_team_member_v246')?' Run V246 SQL first.':'');msg.style.color='var(--red)';}
   finally{btn.disabled=false;btn.textContent='Create Team Account';}
 }
 
-async function loadTeam(){
-  const client=await waitForSb(),tbody=document.getElementById('taTable');if(!tbody)return;
-  if(!client){tbody.innerHTML='<tr><td colspan="12">Supabase is not ready.</td></tr>';return;}
-  tbody.innerHTML='<tr><td colspan="12">Loading team accounts…</td></tr>';
-  const {data,error}=await client.rpc('psp_admin_team_directory');
-  if(error){tbody.innerHTML='<tr><td colspan="12"><b style="color:var(--red)">V56 Team Panel update is not installed.</b><br>Install the existing Team Panel SQL first.</td></tr>';return;}
-  teamRows=data||[];
-  leadFeatureReady=false;
-  try{
-    const lead=await client.rpc('psp_admin_team_lead_directory_v245');
-    if(!lead.error){
-      leadFeatureReady=true;
-      const map=new Map((lead.data||[]).map(x=>[String(x.team_member_id),x]));
-      teamRows=teamRows.map(r=>Object.assign({},r,map.get(String(r.team_member_id))||{}));
-    }else console.warn('V245 Lead Directory not ready:',lead.error);
-  }catch(e){console.warn('V245 Lead Directory not ready:',e);}
+async function ensureAutoLinks(client){
+  try{const r=await client.rpc('psp_admin_ensure_all_team_free_links_v246');if(r.error)throw r.error;return true;}
+  catch(e){console.warn('V246 auto link setup is not ready:',e);return false;}
+}
+
+async function loadLinkStats(client){
+  linkStats=new Map();
+  const ids=[...new Set(teamRows.flatMap(r=>[r.basic_link_id,r.fundamental_link_id]).filter(Boolean).map(String))];
+  if(!ids.length)return;
+  let r=await client.from('tracked_link_stats_v211').select('*').in('id',ids);
+  if(r.error)r=await client.from('tracked_link_stats').select('*').in('id',ids);
+  if(r.error){console.warn('New auto-link stats unavailable:',r.error);return;}
+  (r.data||[]).forEach(x=>linkStats.set(String(x.id),x));
+}
+
+function renderLinkItem(row,type){
+  const isBasic=type==='basic';
+  const id=isBasic?row.basic_link_id:row.fundamental_link_id;
+  const name=isBasic?(row.basic_link_name||'Basic Forex Course — Batch 2'):(row.fundamental_link_name||'Fundamental Forex Course');
+  const slug=isBasic?row.basic_link_slug:row.fundamental_link_slug;
+  const destination=isBasic?row.basic_link_destination:row.fundamental_link_destination;
+  const url=trackedUrl(destination,slug);
+  if(!id||!slug||!destination)return `<div class="ta-link-item"><div class="ta-link-title">${esc(name)}</div><div class="ta-link-url">Link is being prepared. Press Refresh.</div></div>`;
+  return `<div class="ta-link-item"><div class="ta-link-head"><div class="ta-link-title">${esc(name)}</div><button class="ta-btn" onclick="copyAutoCourseLinkV246('${esc(row.team_member_id)}','${type}')">Copy</button></div><div class="ta-link-url">${esc(url)}</div><div class="ta-link-metrics">New only: Clicks ${fmt(statNum(id,'total_clicks'))} · Signups ${fmt(statNum(id,'signups'))} · Enrollments ${fmt(statNum(id,'enrollments'))}</div></div>`;
+}
+
+function renderTeam(){
+  const tbody=document.getElementById('taTable');if(!tbody)return;
+  const autoIds=[...new Set(teamRows.flatMap(r=>[r.basic_link_id,r.fundamental_link_id]).filter(Boolean).map(String))];
   document.getElementById('taAccounts').textContent=fmt(teamRows.filter(r=>r.is_active).length);
-  document.getElementById('taClicks').textContent=fmt(teamRows.reduce((a,r)=>a+Number(r.total_clicks||0),0));
-  document.getElementById('taSignups').textContent=fmt(teamRows.reduce((a,r)=>a+Number(r.signups||0),0));
-  document.getElementById('taEnrollments').textContent=fmt(teamRows.reduce((a,r)=>a+Number(r.enrollments||0),0));
-  if(!teamRows.length){tbody.innerHTML='<tr><td colspan="12">No Team Panel accounts yet.</td></tr>';return;}
-  tbody.innerHTML=teamRows.map(r=>{const leadOn=leadFeatureReady&&r.lead_distribution_enabled!==false,wa=cleanWhatsapp(r.whatsapp_number||'');return `<tr>
-    <td><strong>${esc(r.display_name)}</strong><div class="ta-sub">@${esc(r.username)} · Username/password login</div></td>
+  document.getElementById('taClicks').textContent=fmt(autoIds.reduce((a,id)=>a+statNum(id,'total_clicks'),0));
+  document.getElementById('taSignups').textContent=fmt(autoIds.reduce((a,id)=>a+statNum(id,'signups'),0));
+  document.getElementById('taEnrollments').textContent=fmt(autoIds.reduce((a,id)=>a+statNum(id,'enrollments'),0));
+  if(!teamRows.length){tbody.innerHTML='<tr><td colspan="7">No Team Panel accounts yet.</td></tr>';return;}
+  tbody.innerHTML=teamRows.map(r=>{const leadOn=r.lead_distribution_enabled!==false,wa=cleanWhatsapp(r.whatsapp_number||'');return `<tr>
+    <td><strong>${esc(r.display_name)}</strong><div class="ta-sub">@${esc(r.username)} · New dashboard starts from V246</div></td>
     <td><div class="ta-wa-number">${esc(wa||'Not added')}</div><button class="ta-btn" style="margin-top:5px" onclick="editTeamWhatsappV245('${r.team_member_id}')">Edit Number</button></td>
-    <td>${leadFeatureReady?`<label class="ta-lead-state ${leadOn?'on':'off'}"><input class="ta-lead-check" type="checkbox" ${leadOn?'checked':''} onchange="toggleTeamLeadsV245('${r.team_member_id}',this.checked)">${leadOn?'ON':'OFF'}</label>`:'<span class="ta-sub">Run V245 SQL</span>'}</td>
-    <td><strong>${fmt(r.assigned_lead_count||0)}</strong><div class="ta-sub">Round-robin</div></td>
-    <td><strong>${esc(r.link_name)}</strong><div class="ta-sub">${esc(r.destination_path)}?ref=${esc(r.link_slug)} · ${esc(r.source||'—')} · Full history</div></td>
-    <td><strong>${fmt(r.total_clicks)}</strong></td><td>${fmt(r.unique_visitors)}</td><td>${fmt(r.signups)}</td><td>${fmt(r.enrollments)}</td><td>${Number(r.conversion_rate||0).toFixed(1)}%</td>
+    <td><label class="ta-lead-state ${leadOn?'on':'off'}"><input class="ta-lead-check" type="checkbox" ${leadOn?'checked':''} onchange="toggleTeamLeadsV245('${r.team_member_id}',this.checked)">${leadOn?'ON':'OFF'}</label></td>
+    <td><strong>${fmt(r.assigned_lead_count||0)}</strong><div class="ta-sub">Basic: ${fmt(r.basic_lead_count||0)} · Fundamental: ${fmt(r.fundamental_lead_count||0)}<br>Only leads assigned after V246 start</div></td>
+    <td><div class="ta-link-stack">${renderLinkItem(r,'basic')}${renderLinkItem(r,'fundamental')}</div></td>
     <td><span class="ta-status ${r.is_active?'on':'off'}">${r.is_active?'Active':'Disabled'}</span></td>
-    <td><div class="ta-actions"><button class="ta-btn" onclick="copyTeamAssignedLinkV56('${r.team_member_id}')">Copy Link</button><button class="ta-btn" onclick="changeTeamLinkV56('${r.team_member_id}')">Change Link</button><button class="ta-btn" onclick="resetTeamPasswordV56('${r.team_member_id}')">New Password</button><button class="ta-btn" onclick="toggleTeamAccessV56('${r.team_member_id}',${r.is_active?'false':'true'})">${r.is_active?'Disable':'Enable'}</button><button class="ta-btn" onclick="removeTeamAccessV56('${r.team_member_id}')">Remove</button></div></td>
+    <td><div class="ta-actions"><button class="ta-btn" onclick="resetTeamPasswordV56('${r.team_member_id}')">New Password</button><button class="ta-btn" onclick="toggleTeamAccessV56('${r.team_member_id}',${r.is_active?'false':'true'})">${r.is_active?'Disable':'Enable'}</button><button class="ta-btn" onclick="removeTeamAccessV246('${r.team_member_id}')">Remove</button></div></td>
   </tr>`}).join('');
 }
 
-async function loadAll(){await loadTeam();await loadLinks();}
+async function loadAll(){
+  const client=await waitForSb(),tbody=document.getElementById('taTable');if(!tbody)return;
+  if(!client){tbody.innerHTML='<tr><td colspan="7">Supabase is not ready.</td></tr>';return;}
+  tbody.innerHTML='<tr><td colspan="7">Loading new Team Lead Distribution data…</td></tr>';
+  const ready=await ensureAutoLinks(client);
+  if(!ready){tbody.innerHTML='<tr><td colspan="7"><b style="color:var(--red)">V246 Team Lead update is not installed.</b><br>Run 108_V246_ISOLATED_TEAM_LEADS_AUTO_FREE_LINKS.sql after V245 SQL.</td></tr>';return;}
+  const r=await client.rpc('psp_admin_team_lead_directory_v246');
+  if(r.error){tbody.innerHTML='<tr><td colspan="7"><b style="color:var(--red)">V246 Team Lead directory could not load.</b><br>'+esc(r.error.message||'Run V246 SQL.')+'</td></tr>';return;}
+  teamRows=r.data||[];
+  await loadLinkStats(client);
+  renderTeam();
+}
 
-window.copyTeamAssignedLinkV56=async function(id){const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;await copyText(trackedUrl(row));toast('Assigned link copied.','ok');};
+window.copyAutoCourseLinkV246=async function(id,type){
+  const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;
+  const slug=type==='basic'?row.basic_link_slug:row.fundamental_link_slug;
+  const destination=type==='basic'?row.basic_link_destination:row.fundamental_link_destination;
+  const url=trackedUrl(destination,slug);if(!url)return toast('This link is not ready yet. Press Refresh.','err');
+  await copyText(url);toast(type==='basic'?'Basic Forex Course link copied.':'Fundamental Forex Course link copied.','ok');
+};
 window.toggleTeamLeadsV245=async function(id,state){
   const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;
   let wa=cleanWhatsapp(row.whatsapp_number||'');
-  if(state&&wa.length<8){
-    const entered=prompt('Enter WhatsApp number with country code for '+(row.display_name||'this member')+':',wa||'');
-    wa=cleanWhatsapp(entered||'');
-    if(wa.length<8){toast('Valid WhatsApp number is required before Leads can be ON.','err');loadAll();return;}
-  }
+  if(state&&wa.length<8){const entered=prompt('Enter WhatsApp number with country code for '+(row.display_name||'this member')+':',wa||'');wa=cleanWhatsapp(entered||'');if(wa.length<8){toast('Valid WhatsApp number is required before Leads can be ON.','err');loadAll();return;}}
   const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_lead_settings_v245',{p_team_member_id:String(id),p_whatsapp_number:wa,p_lead_distribution_enabled:state});
   if(error){toast(error.message||'Lead setting could not be updated.','err');loadAll();return;}
   toast(state?'Automatic leads ON. New enrollments can be assigned to this member.':'Automatic leads OFF. New enrollments will skip this member.','ok');loadAll();
 };
 window.editTeamWhatsappV245=async function(id){
   const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;
-  const entered=prompt('WhatsApp number with country code:',cleanWhatsapp(row.whatsapp_number||''));
-  if(entered===null)return;
+  const entered=prompt('WhatsApp number with country code:',cleanWhatsapp(row.whatsapp_number||''));if(entered===null)return;
   const wa=cleanWhatsapp(entered);if(wa.length<8)return toast('Enter a valid WhatsApp number with country code.','err');
   const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_lead_settings_v245',{p_team_member_id:String(id),p_whatsapp_number:wa,p_lead_distribution_enabled:row.lead_distribution_enabled!==false});
   if(error)return toast(error.message||'WhatsApp number could not be updated.','err');toast('WhatsApp number updated.','ok');loadAll();
 };
 window.toggleTeamAccessV56=async function(id,state){const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_member_status',{p_team_member_id:id,p_is_active:state});if(error)return toast(error.message,'err');toast(state?'Team access enabled.':'Team access disabled.','ok');loadAll();};
-window.removeTeamAccessV56=async function(id){const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;const ok=window.pspConfirm?await window.pspConfirm('Remove Team Panel access for '+row.display_name+'?\n\nThis does NOT delete the tracked link or its historical data.','Remove Team Access'):confirm('Remove Team Panel access?');if(!ok)return;const client=await waitForSb();const {error}=await client.rpc('psp_admin_delete_team_member',{p_team_member_id:id});if(error)return toast(error.message,'err');toast('Team Panel access removed.','ok');loadAll();};
-window.changeTeamLinkV56=function(id){const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;const modal=document.getElementById('teamAssignModal'),sel=document.getElementById('taAssignSelect');document.getElementById('taAssignWho').textContent=row.display_name+' currently uses '+row.link_name+'. Selecting another existing link immediately switches the panel to that link’s complete historical record.';const used=new Set(teamRows.filter(x=>x.team_member_id!==id).map(x=>x.link_id));sel.innerHTML=links.filter(l=>!used.has(l.id)).map(l=>`<option value="${esc(l.id)}" ${l.id===row.link_id?'selected':''}>${esc(l.name)} — ${esc(l.slug)}</option>`).join('');modal.dataset.teamId=id;modal.classList.add('open');document.getElementById('taAssignSave').onclick=saveAssignment;};
-async function saveAssignment(){const modal=document.getElementById('teamAssignModal'),id=modal.dataset.teamId,linkId=document.getElementById('taAssignSelect').value;if(!id||!linkId)return;const client=await waitForSb();const {error}=await client.rpc('psp_admin_change_team_member_link',{p_team_member_id:id,p_link_id:linkId});if(error)return toast(error.message,'err');modal.classList.remove('open');toast('Assigned link updated. Full historical data for the new link is now visible.','ok');loadAll();}
+window.removeTeamAccessV246=async function(id){
+  const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;
+  const ok=window.pspConfirm?await window.pspConfirm('Remove Team Panel access for '+row.display_name+'?\n\nOld historical data is not deleted. The two V246 auto links will be disabled.','Remove Team Access'):confirm('Remove Team Panel access?');if(!ok)return;
+  const client=await waitForSb();
+  const linkIds=[row.basic_link_id,row.fundamental_link_id].filter(Boolean);
+  if(linkIds.length)try{await client.from('tracked_links').update({is_active:false,assigned_team_member_id:null}).in('id',linkIds);}catch(_){}
+  const {error}=await client.rpc('psp_admin_delete_team_member',{p_team_member_id:id});if(error)return toast(error.message,'err');toast('Team Panel access removed. Auto free-course links disabled.','ok');loadAll();
+};
 window.resetTeamPasswordV56=function(id){const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;const modal=document.getElementById('teamPasswordModal'),input=document.getElementById('taNewPassword');document.getElementById('taPasswordWho').textContent='Set a new password for '+row.display_name+' (@'+row.username+').';input.value='';input.type='password';document.getElementById('taShowNewPassword').textContent='Show';modal.dataset.teamId=id;modal.classList.add('open');document.getElementById('taPasswordSave').onclick=saveNewPassword;};
 async function saveNewPassword(){const modal=document.getElementById('teamPasswordModal'),id=modal.dataset.teamId,input=document.getElementById('taNewPassword'),password=input.value;if(!id||password.length<6)return toast('Use a password with at least 6 characters.','err');const row=teamRows.find(r=>String(r.team_member_id)===String(id));const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_password_v56',{p_team_member_id:id,p_new_password:password});if(error)return toast(error.message,'err');modal.classList.remove('open');await copyText(`PipSePaisa Team Panel\nLogin: ${TEAM_URL}\nUsername: ${row?.username||''}\nPassword: ${password}`);toast('New password saved and login details copied.','ok');}
 
 function installShowPageHook(){
   if(typeof window.showPage!=='function'||window.__pspTeamAccessShowHookV56)return;
   window.__pspTeamAccessShowHookV56=true;const original=window.showPage;
-  window.showPage=function(page,el){const result=original.apply(this,arguments);if(page==='teamaccess'){const t=document.getElementById('pageTitle'),s=document.getElementById('pageSubtitle');if(t)t.textContent='Team Panel Access';if(s)s.textContent='Create username/password team accounts and assign read-only tracked links';setTimeout(loadAll,0);}return result;};
+  window.showPage=function(page,el){const result=original.apply(this,arguments);if(page==='teamaccess'){const t=document.getElementById('pageTitle'),s=document.getElementById('pageSubtitle');if(t)t.textContent='Team Panel Access';if(s)s.textContent='New lead rotation and auto free-course links — historical Team Performance stays separate';setTimeout(loadAll,0);}return result;};
 }
 
-async function setupRealtime(){const client=await waitForSb();if(!client||realtimeChannel)return;try{realtimeChannel=client.channel('admin-team-access-v56').on('postgres_changes',{event:'*',schema:'public',table:'team_members'},()=>{if(document.getElementById('page-teamaccess')?.classList.contains('active'))loadAll();}).subscribe();}catch(_){}}
+async function setupRealtime(){
+  const client=await waitForSb();if(!client||realtimeChannel)return;
+  try{realtimeChannel=client.channel('admin-team-access-v246').on('postgres_changes',{event:'*',schema:'public',table:'team_members'},()=>{if(document.getElementById('page-teamaccess')?.classList.contains('active'))loadAll();}).on('postgres_changes',{event:'*',schema:'public',table:'tracked_links'},()=>{if(document.getElementById('page-teamaccess')?.classList.contains('active'))loadAll();}).on('postgres_changes',{event:'*',schema:'public',table:'psp_lead_assignments'},()=>{if(document.getElementById('page-teamaccess')?.classList.contains('active'))loadAll();}).subscribe();}catch(_){}
+}
 function init(){addStyles();if(addMenuAndPage(0)){installShowPageHook();setTimeout(setupRealtime,800);}else setTimeout(()=>{installShowPageHook();setupRealtime();},1200);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
