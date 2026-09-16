@@ -1,0 +1,36 @@
+PipSePaisa V243 QA Checklist
+============================
+
+PUBLIC / VISITOR
+[ ] Fresh browser/profile: open pipsepaisa.com and confirm chat prompt opens automatically after ~1 second.
+[ ] Close it; confirm it does not auto-open on every page, but the floating chat button remains.
+[ ] Start chat requires valid WhatsApp number + email.
+[ ] Send: "advance fundamental ki payment kasy krni ha".
+[ ] AI replies naturally (no menu/options) and gives the correct tracked enrollment link.
+[ ] Follow with: "local bank se?" and confirm AI remembers context.
+[ ] Send: "human se bat krni ha".
+[ ] Confirm AI sends one transfer message, stops replying, and visitor header changes to human-support/manager state.
+[ ] Send more messages after human handoff; confirm AI does NOT answer.
+[ ] Mobile: focus the composer and open keyboard. Header must remain visible, messages must resize, and composer must sit directly above keyboard with no overlap.
+[ ] Mobile: keyboard close/open several times; last message stays visible and no large blank area appears.
+[ ] Navigate Home -> Courses -> Broker Reviews; chat token/history persists.
+
+TEAM PANEL
+[ ] Open Live Chat on desktop; inbox, conversation, customer profile all render.
+[ ] Open Live Chat on mobile; inbox list must be visible (not blank/cut).
+[ ] Tap a chat; conversation slides full-screen. Back returns to inbox.
+[ ] Open keyboard in Team chat; header + messages remain visible and composer stays above keyboard.
+[ ] Human-request chat appears in Unassigned or assigned manager queue.
+[ ] Take Over / Assign to Me changes AI mode to Human.
+[ ] Quick reply inserts text only; it must NOT auto-send.
+[ ] AI Suggest Reply returns a suggestion; Use Reply fills composer only; manager still presses Send.
+[ ] AI Summary / Intent / Next Action return manager-only assistance.
+[ ] Transfer, Waiting, Close/Reopen, notes, tags, follow-up and lead stage still work.
+
+REGRESSION
+[ ] User login/dashboard still opens.
+[ ] Advanced Forex + Advance Fundamental payment flows unchanged.
+[ ] Infinity Local Bank callback/status unchanged.
+[ ] EA & Indicator/licensing unchanged.
+[ ] Signals unchanged.
+[ ] Finance/Admin Dashboard unchanged.
