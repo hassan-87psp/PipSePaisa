@@ -7,272 +7,105 @@ const SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
 const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const TEAM_URL='https://pipsepaisa.com/team';
 const BASE_DOMAIN='https://pipsepaisa.com';
-let fallbackClient=null;
-let teamRows=[];
-let linkStats=new Map();
-let realtimeChannel=null;
-let lastCreatedCredentials=null;
+const BASIC_SHARED=BASE_DOMAIN+'/courses.html?psp_enroll=basic-b2';
+const FUND_SHARED=BASE_DOMAIN+'/courses.html?psp_enroll=fundamental';
+let fallbackClient=null,teamRows=[],summary=null,realtimeChannel=null,lastCreatedCredentials=null;
 
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function fmt(v){return Number(v||0).toLocaleString();}
 function toast(msg,type){if(window.pipToast)window.pipToast(msg,type);else alert(msg);}
-function getSb(){
-  try{
-    if(typeof sb!=='undefined'&&sb)return sb;
-    if(window.sb)return window.sb;
-    if(window.adminSb)return window.adminSb;
-    if(!fallbackClient&&window.supabase?.createClient){
-      fallbackClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:'pipsepaisa-admin-auth-v2',persistSession:true,autoRefreshToken:true}});
-    }
-    return fallbackClient;
-  }catch(_){return null;}
-}
+function cleanWhatsapp(v){return String(v||'').replace(/\D/g,'');}
+function getSb(){try{if(typeof sb!=='undefined'&&sb)return sb;if(window.sb)return window.sb;if(window.adminSb)return window.adminSb;if(!fallbackClient&&window.supabase?.createClient)fallbackClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{storageKey:'pipsepaisa-admin-auth-v2',persistSession:true,autoRefreshToken:true}});return fallbackClient;}catch(_){return null;}}
 async function waitForSb(){for(let i=0;i<40;i++){const c=getSb();if(c)return c;await new Promise(r=>setTimeout(r,100));}return null;}
 async function copyText(text){try{await navigator.clipboard.writeText(text);}catch(_){const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();}}
 function randomPassword(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$';let out='';if(window.crypto?.getRandomValues){const a=new Uint32Array(12);crypto.getRandomValues(a);for(const n of a)out+=chars[n%chars.length];}else{for(let i=0;i<12;i++)out+=chars[Math.floor(Math.random()*chars.length)];}return out;}
-function cleanWhatsapp(v){return String(v||'').replace(/\D/g,'');}
-function trackedUrl(destination,slug){if(!destination||!slug)return '';return BASE_DOMAIN+destination+(destination.includes('?')?'&':'?')+'ref='+encodeURIComponent(slug);}
-function statFor(id){return linkStats.get(String(id||''))||{};}
-function statNum(id,key){return Number(statFor(id)[key]||0);}
 
 function addStyles(){
-  if(document.getElementById('teamAdminV56Styles'))return;
-  const s=document.createElement('style');s.id='teamAdminV56Styles';s.textContent=`
-  #page-teamaccess .ta-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
-  #page-teamaccess .ta-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow-sm)}
-  #page-teamaccess .ta-stat span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:800;margin-bottom:8px}
-  #page-teamaccess .ta-stat strong{font-size:28px;color:var(--text-primary)}
-  #page-teamaccess .ta-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  #page-teamaccess .ta-form .wide{grid-column:1/-1}
-  #page-teamaccess .ta-form label{display:block;font-size:10px;font-weight:800;color:var(--text-muted);margin:0 0 6px}
-  #page-teamaccess .ta-form input{width:100%;padding:11px 12px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);border-radius:9px;font:inherit;font-size:12px;outline:none}
-  #page-teamaccess .ta-form input:focus{border-color:var(--gold)}
-  #page-teamaccess .ta-password-wrap{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:stretch}
-  #page-teamaccess .ta-password-wrap .ta-btn{white-space:nowrap}
-  #page-teamaccess .ta-note{margin-top:12px;padding:12px 14px;border:1px solid rgba(16,185,129,.25);background:rgba(16,185,129,.06);border-radius:10px;color:var(--text-muted);font-size:11px;line-height:1.55}
-  #page-teamaccess .ta-credentials{display:none;margin-top:12px;padding:14px;border:1px solid rgba(248,135,2,.35);background:rgba(248,135,2,.07);border-radius:11px}
-  #page-teamaccess .ta-credentials.show{display:block}
-  #page-teamaccess .ta-credentials-grid{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;gap:9px;align-items:end}
-  #page-teamaccess .ta-credential label{display:block;font-size:9px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-  #page-teamaccess .ta-credential strong{font-size:12px;word-break:break-all}
-  #page-teamaccess .ta-actions{display:flex;gap:6px;flex-wrap:wrap}
-  #page-teamaccess .ta-btn{border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);border-radius:8px;padding:7px 9px;font-weight:700;font-size:10px;cursor:pointer}
-  #page-teamaccess .ta-btn:hover{border-color:var(--gold);color:var(--gold)}
-  #page-teamaccess .ta-lead-box{min-height:40px;border:1px solid var(--border);background:var(--bg-elevated);border-radius:9px;padding:8px 11px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-  #page-teamaccess .ta-lead-box span{font-size:11px;font-weight:800;color:var(--text-primary)}
-  #page-teamaccess .ta-lead-check{width:18px;height:18px;accent-color:var(--gold);cursor:pointer}
-  #page-teamaccess .ta-lead-state{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:850;white-space:nowrap}
-  #page-teamaccess .ta-lead-state.on{color:#059669}.ta-lead-state.off{color:#dc2626}
-  #page-teamaccess .ta-wa-number{font-weight:800;white-space:nowrap}
-  #page-teamaccess .ta-status{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:800}
-  #page-teamaccess .ta-status.on{background:rgba(16,185,129,.12);color:#059669}.ta-status.off{background:rgba(239,68,68,.1);color:#dc2626}
-  #page-teamaccess .ta-sub{font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.35}
-  #page-teamaccess .ta-link-stack{display:grid;gap:8px;min-width:360px}
-  #page-teamaccess .ta-link-item{border:1px solid var(--border);background:var(--bg-elevated);border-radius:10px;padding:9px 10px}
-  #page-teamaccess .ta-link-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  #page-teamaccess .ta-link-title{font-size:10px;font-weight:850;color:var(--text-primary)}
-  #page-teamaccess .ta-link-url{font-size:9px;color:var(--text-muted);margin-top:4px;word-break:break-all;max-width:520px}
-  #page-teamaccess .ta-link-metrics{font-size:9px;color:var(--text-muted);margin-top:5px}
-  #teamPasswordModal{position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px}
-  #teamPasswordModal.open{display:flex}
-  #teamPasswordModal .ta-modal-card{width:min(520px,100%);background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 25px 80px rgba(0,0,0,.25)}
-  #teamPasswordModal h3{margin:0 0 5px;font-size:18px}#teamPasswordModal p{margin:0 0 15px;color:var(--text-muted);font-size:11px}
-  #teamPasswordModal input{width:100%;padding:11px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);border-radius:9px;margin-bottom:14px}
-  #teamPasswordModal .row{display:flex;gap:8px;justify-content:flex-end}
-  #teamPasswordModal .pw-row{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:start}
-  #teamPasswordModal .pw-row input{margin:0}
-  @media(max-width:900px){#page-teamaccess .ta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#page-teamaccess .ta-form{grid-template-columns:1fr}#page-teamaccess .ta-credentials-grid{grid-template-columns:1fr 1fr}#page-teamaccess .ta-link-stack{min-width:280px}}
-  `;document.head.appendChild(s);
+ if(document.getElementById('teamAdminV56Styles'))return;
+ const s=document.createElement('style');s.id='teamAdminV56Styles';s.textContent=`
+ #page-teamaccess .ta-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+ #page-teamaccess .ta-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow-sm)}
+ #page-teamaccess .ta-stat span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:800;margin-bottom:8px}
+ #page-teamaccess .ta-stat strong{font-size:28px;color:var(--text-primary)}
+ #page-teamaccess .ta-shared-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+ #page-teamaccess .ta-shared-link{border:1px solid var(--border);background:var(--bg-elevated);border-radius:12px;padding:13px}
+ #page-teamaccess .ta-shared-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+ #page-teamaccess .ta-shared-head strong{font-size:12px}.ta-shared-url{font-size:10px;color:var(--text-muted);word-break:break-all;line-height:1.45}
+ #page-teamaccess .ta-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ #page-teamaccess .ta-form .wide{grid-column:1/-1}#page-teamaccess .ta-form label{display:block;font-size:10px;font-weight:800;color:var(--text-muted);margin:0 0 6px}
+ #page-teamaccess .ta-form input{width:100%;padding:11px 12px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);border-radius:9px;font:inherit;font-size:12px;outline:none}
+ #page-teamaccess .ta-form input:focus{border-color:var(--gold)}#page-teamaccess .ta-password-wrap{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:stretch}
+ #page-teamaccess .ta-note{margin-top:12px;padding:12px 14px;border:1px solid rgba(16,185,129,.25);background:rgba(16,185,129,.06);border-radius:10px;color:var(--text-muted);font-size:11px;line-height:1.55}
+ #page-teamaccess .ta-credentials{display:none;margin-top:12px;padding:14px;border:1px solid rgba(248,135,2,.35);background:rgba(248,135,2,.07);border-radius:11px}.ta-credentials.show{display:block}
+ #page-teamaccess .ta-credentials-grid{display:grid;grid-template-columns:1fr 1fr 1.2fr auto;gap:9px;align-items:end}.ta-credential label{display:block;font-size:9px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}.ta-credential strong{font-size:12px;word-break:break-all}
+ #page-teamaccess .ta-actions{display:flex;gap:6px;flex-wrap:wrap}.ta-btn{border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);border-radius:8px;padding:7px 9px;font-weight:700;font-size:10px;cursor:pointer}.ta-btn:hover{border-color:var(--gold);color:var(--gold)}
+ #page-teamaccess .ta-lead-box{min-height:40px;border:1px solid var(--border);background:var(--bg-elevated);border-radius:9px;padding:8px 11px;display:flex;align-items:center;justify-content:space-between;gap:10px}.ta-lead-box span{font-size:11px;font-weight:800;color:var(--text-primary)}
+ #page-teamaccess .ta-lead-check{width:18px;height:18px;accent-color:var(--gold);cursor:pointer}.ta-lead-state{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:850;white-space:nowrap}.ta-lead-state.on{color:#059669}.ta-lead-state.off{color:#dc2626}
+ #page-teamaccess .ta-wa-number{font-weight:800;white-space:nowrap}.ta-status{display:inline-flex;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:800}.ta-status.on{background:rgba(16,185,129,.12);color:#059669}.ta-status.off{background:rgba(239,68,68,.1);color:#dc2626}.ta-sub{font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.35}
+ #teamPasswordModal{position:fixed;inset:0;background:rgba(15,23,42,.58);z-index:99999;display:none;align-items:center;justify-content:center;padding:20px}#teamPasswordModal.open{display:flex}#teamPasswordModal .ta-modal-card{width:min(520px,100%);background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 25px 80px rgba(0,0,0,.25)}#teamPasswordModal h3{margin:0 0 5px;font-size:18px}#teamPasswordModal p{margin:0 0 15px;color:var(--text-muted);font-size:11px}#teamPasswordModal input{width:100%;padding:11px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);border-radius:9px;margin-bottom:14px}#teamPasswordModal .row{display:flex;gap:8px;justify-content:flex-end}#teamPasswordModal .pw-row{display:grid;grid-template-columns:1fr auto auto;gap:7px;align-items:start}#teamPasswordModal .pw-row input{margin:0}
+ @media(max-width:900px){#page-teamaccess .ta-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#page-teamaccess .ta-shared-grid{grid-template-columns:1fr}#page-teamaccess .ta-form{grid-template-columns:1fr}#page-teamaccess .ta-credentials-grid{grid-template-columns:1fr 1fr}}
+ `;document.head.appendChild(s);
 }
 
 function addMenuAndPage(retry){
-  if(document.getElementById('page-teamaccess'))return true;
-  const linkItem=document.querySelector('.menu-item[data-page="linkmanager"]');
-  const logs=document.querySelector('.menu-item[data-page="logs"]');
-  const anchor=linkItem||logs;
-  if(!anchor){if((retry||0)<20)setTimeout(()=>addMenuAndPage((retry||0)+1),150);return false;}
-  const item=document.createElement('div');
-  item.className='menu-item';item.dataset.page='teamaccess';
-  item.innerHTML='<span class="menu-icon">👥</span>Team Panel Access';
-  item.onclick=function(){window.showPage('teamaccess',item);};
-  if(linkItem&&linkItem.nextSibling)linkItem.parentNode.insertBefore(item,linkItem.nextSibling);else anchor.parentNode.insertBefore(item,anchor);
-
-  const content=document.getElementById('content');if(!content)return false;
-  const page=document.createElement('div');page.className='page';page.id='page-teamaccess';
-  page.innerHTML=`
-    <div class="ta-grid">
-      <div class="ta-stat"><span>Team Accounts</span><strong id="taAccounts">0</strong></div>
-      <div class="ta-stat"><span>New Link Clicks</span><strong id="taClicks">0</strong></div>
-      <div class="ta-stat"><span>New Signups</span><strong id="taSignups">0</strong></div>
-      <div class="ta-stat"><span>New Enrollments</span><strong id="taEnrollments">0</strong></div>
-    </div>
-    <div class="card" style="margin-bottom:18px">
-      <div class="card-header"><div><div class="card-title">👥 Create Team Panel Account</div><div class="card-meta">Create the Team Panel account. Both free-course tracking links are created automatically.</div></div><button class="btn btn-secondary btn-sm" id="taCopyLogin">Copy Team Login</button></div>
-      <div class="ta-form">
-        <div><label>Team Member Name *</label><input id="taName" placeholder="Miss Memona"></div>
-        <div><label>Username *</label><input id="taUsername" placeholder="memona" autocomplete="off"></div>
-        <div><label>WhatsApp Number *</label><input id="taWhatsapp" inputmode="tel" placeholder="60123456789"></div>
-        <div><label>Automatic Leads</label><div class="ta-lead-box"><span>Receive new enrollment leads</span><input id="taLeadEnabled" class="ta-lead-check" type="checkbox" checked></div></div>
-        <div class="wide"><label>Password *</label><div class="ta-password-wrap"><input id="taPassword" type="password" minlength="6" placeholder="Minimum 6 characters" autocomplete="new-password"><button class="ta-btn" type="button" id="taShowPassword">Show</button><button class="ta-btn" type="button" id="taGeneratePassword">Generate</button></div></div>
-      </div>
-      <div class="ta-note"><b>New data only:</b> this Team Panel Access page does not include old tracking history. Old data stays separately in <b>Team Performance / Link Manager</b>. Every member automatically gets a <b>Basic Forex Course — Batch 2</b> link and a <b>Fundamental Forex Course</b> link.</div>
-      <div id="taCredentials" class="ta-credentials"><div style="font-weight:800;margin-bottom:10px">Account ready — copy these details now</div><div class="ta-credentials-grid"><div class="ta-credential"><label>Username</label><strong id="taCredUsername">—</strong></div><div class="ta-credential"><label>Password</label><strong id="taCredPassword">—</strong></div><div class="ta-credential"><label>Login</label><strong>${TEAM_URL}</strong></div><button class="ta-btn" id="taCopyCredentials">Copy Details</button></div></div>
-      <div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn" id="taCreateBtn">Create Team Account</button></div>
-      <div id="taCreateMsg" class="card-meta" style="margin-top:8px"></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><div><div class="card-title">Team Lead Distribution</div><div class="card-meta">Only V246 auto links and new lead data are shown here. Historical performance remains separate.</div></div><button class="btn btn-secondary btn-sm" id="taRefresh">↻ Refresh</button></div>
-      <div class="table-wrap"><table class="data-table"><thead><tr><th>Team Member</th><th>WhatsApp</th><th>Leads</th><th>New Assigned Leads</th><th>2 Auto Free-Course Links</th><th>Team Access</th><th>Actions</th></tr></thead><tbody id="taTable"><tr><td colspan="7">Open Team Panel Access to load data.</td></tr></tbody></table></div>
-    </div>
-    <div id="teamPasswordModal"><div class="ta-modal-card"><h3>Set New Team Password</h3><p id="taPasswordWho"></p><div class="pw-row"><input id="taNewPassword" type="password" minlength="6" autocomplete="new-password" placeholder="Minimum 6 characters"><button class="ta-btn" id="taShowNewPassword" type="button">Show</button><button class="ta-btn" id="taGenerateNewPassword" type="button">Generate</button></div><div class="ta-note" style="margin:12px 0">The new password is visible to Admin while setting/resetting it. For security, the stored password cannot be read back later.</div><div class="row"><button class="btn btn-secondary" id="taPasswordCancel">Cancel</button><button class="btn" id="taPasswordSave">Save New Password</button></div></div></div>
-  `;
-  content.appendChild(page);
-  bindUi();
-  return true;
+ if(document.getElementById('page-teamaccess'))return true;
+ const linkItem=document.querySelector('.menu-item[data-page="linkmanager"]'),logs=document.querySelector('.menu-item[data-page="logs"]'),anchor=linkItem||logs;
+ if(!anchor){if((retry||0)<20)setTimeout(()=>addMenuAndPage((retry||0)+1),150);return false;}
+ const item=document.createElement('div');item.className='menu-item';item.dataset.page='teamaccess';item.innerHTML='<span class="menu-icon">👥</span>Team Panel Access';item.onclick=function(){window.showPage('teamaccess',item);};
+ if(linkItem&&linkItem.nextSibling)linkItem.parentNode.insertBefore(item,linkItem.nextSibling);else anchor.parentNode.insertBefore(item,anchor);
+ const content=document.getElementById('content');if(!content)return false;
+ const page=document.createElement('div');page.className='page';page.id='page-teamaccess';page.innerHTML=`
+ <div class="ta-grid"><div class="ta-stat"><span>Team Accounts</span><strong id="taAccounts">0</strong></div><div class="ta-stat"><span>Sir Sajid Batch 2 Leads</span><strong id="taBasic">0</strong></div><div class="ta-stat"><span>Fundamental Batch 2 Leads</span><strong id="taFundamental">0</strong></div><div class="ta-stat"><span>Total New Leads</span><strong id="taEnrollments">0</strong></div></div>
+ <div class="card" style="margin-bottom:18px"><div class="card-header"><div><div class="card-title">🔗 Shared Free Course Links</div><div class="card-meta">Only these two links are used. Every new enrollment is distributed automatically to the next Team Member with Leads ON.</div></div></div><div class="ta-shared-grid"><div class="ta-shared-link"><div class="ta-shared-head"><strong>Sir Sajid Free Course — Batch 2</strong><button class="ta-btn" onclick="copySharedLeadLinkV247('basic')">Copy</button></div><div class="ta-shared-url" id="taBasicLink">${BASIC_SHARED}</div></div><div class="ta-shared-link"><div class="ta-shared-head"><strong>Sir Ghulam Abbas Fundamental — Batch 2</strong><button class="ta-btn" onclick="copySharedLeadLinkV247('fundamental')">Copy</button></div><div class="ta-shared-url" id="taFundamentalLink">${FUND_SHARED}</div></div></div></div>
+ <div class="card" style="margin-bottom:18px"><div class="card-header"><div><div class="card-title">👥 Create Team Panel Account</div><div class="card-meta">Add Team Member details. No personal course link is created or shown.</div></div><button class="btn btn-secondary btn-sm" id="taCopyLogin">Copy Team Login</button></div><div class="ta-form"><div><label>Team Member Name *</label><input id="taName" placeholder="Miss Memona"></div><div><label>Username *</label><input id="taUsername" placeholder="memona" autocomplete="off"></div><div><label>WhatsApp Number *</label><input id="taWhatsapp" inputmode="tel" placeholder="60123456789"></div><div><label>Automatic Leads</label><div class="ta-lead-box"><span>Receive new enrollment leads</span><input id="taLeadEnabled" class="ta-lead-check" type="checkbox" checked></div></div><div class="wide"><label>Password *</label><div class="ta-password-wrap"><input id="taPassword" type="password" minlength="6" placeholder="Minimum 6 characters" autocomplete="new-password"><button class="ta-btn" type="button" id="taShowPassword">Show</button><button class="ta-btn" type="button" id="taGeneratePassword">Generate</button></div></div></div><div class="ta-note"><b>Fresh system only:</b> this page shows only leads assigned by the new shared-link round-robin system. Old Link Manager / Team Performance history stays separate.</div><div id="taCredentials" class="ta-credentials"><div style="font-weight:800;margin-bottom:10px">Account ready — copy these details now</div><div class="ta-credentials-grid"><div class="ta-credential"><label>Username</label><strong id="taCredUsername">—</strong></div><div class="ta-credential"><label>Password</label><strong id="taCredPassword">—</strong></div><div class="ta-credential"><label>Login</label><strong>${TEAM_URL}</strong></div><button class="ta-btn" id="taCopyCredentials">Copy Details</button></div></div><div style="display:flex;justify-content:flex-end;margin-top:14px"><button class="btn" id="taCreateBtn">Create Team Account</button></div><div id="taCreateMsg" class="card-meta" style="margin-top:8px"></div></div>
+ <div class="card"><div class="card-header"><div><div class="card-title">Round-Robin Team Members</div><div class="card-meta">Leads OFF pauses only new lead assignment. Team login remains controlled separately.</div></div><button class="btn btn-secondary btn-sm" onclick="window.loadTeamAccessV247&&loadTeamAccessV247()">↻ Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Team Member</th><th>WhatsApp</th><th>Leads</th><th>New Assigned Leads</th><th>Account</th><th>Actions</th></tr></thead><tbody id="taTable"><tr><td colspan="6">Loading…</td></tr></tbody></table></div></div>
+ <div id="teamPasswordModal"><div class="ta-modal-card"><h3>Set New Password</h3><p id="taPasswordWho"></p><div class="pw-row"><input id="taNewPassword" type="password" minlength="6" placeholder="New password"><button class="ta-btn" id="taShowNewPassword" type="button">Show</button><button class="ta-btn" id="taGenerateNewPassword" type="button">Generate</button></div><div class="row" style="margin-top:14px"><button class="ta-btn" onclick="document.getElementById('teamPasswordModal').classList.remove('open')">Cancel</button><button class="btn" id="taPasswordSave">Save Password</button></div></div></div>`;
+ content.appendChild(page);bindControls();return true;
 }
 
-function togglePassword(inputId,button){const i=document.getElementById(inputId);if(!i)return;i.type=i.type==='password'?'text':'password';button.textContent=i.type==='password'?'Show':'Hide';}
-function bindUi(){
-  document.getElementById('taCreateBtn').onclick=createTeamAccount;
-  document.getElementById('taRefresh').onclick=loadAll;
-  document.getElementById('taCopyLogin').onclick=async()=>{await copyText(TEAM_URL);toast('Team Panel login link copied.','ok');};
-  document.getElementById('taShowPassword').onclick=function(){togglePassword('taPassword',this)};
-  document.getElementById('taGeneratePassword').onclick=()=>{const i=document.getElementById('taPassword');i.value=randomPassword();i.type='text';document.getElementById('taShowPassword').textContent='Hide';};
-  document.getElementById('taCopyCredentials').onclick=async()=>{if(!lastCreatedCredentials)return;await copyText(`PipSePaisa Team Panel\nLogin: ${TEAM_URL}\nUsername: ${lastCreatedCredentials.username}\nPassword: ${lastCreatedCredentials.password}`);toast('Team login details copied.','ok');};
-  const u=document.getElementById('taUsername');u.addEventListener('input',()=>{u.value=u.value.replace(/[^A-Za-z0-9._-]/g,'').slice(0,40);});
-  document.getElementById('taPasswordCancel').onclick=()=>document.getElementById('teamPasswordModal').classList.remove('open');
-  document.getElementById('teamPasswordModal').addEventListener('click',e=>{if(e.target.id==='teamPasswordModal')e.currentTarget.classList.remove('open');});
-  document.getElementById('taShowNewPassword').onclick=function(){togglePassword('taNewPassword',this)};
-  document.getElementById('taGenerateNewPassword').onclick=()=>{const i=document.getElementById('taNewPassword');i.value=randomPassword();i.type='text';document.getElementById('taShowNewPassword').textContent='Hide';};
+function bindControls(){
+ const create=document.getElementById('taCreateBtn');if(create)create.onclick=createTeamAccount;
+ const copyLogin=document.getElementById('taCopyLogin');if(copyLogin)copyLogin.onclick=async()=>{await copyText(TEAM_URL);toast('Team login link copied.','ok');};
+ const gen=document.getElementById('taGeneratePassword');if(gen)gen.onclick=()=>{const i=document.getElementById('taPassword');i.value=randomPassword();i.type='text';document.getElementById('taShowPassword').textContent='Hide';};
+ const show=document.getElementById('taShowPassword');if(show)show.onclick=()=>{const i=document.getElementById('taPassword');i.type=i.type==='password'?'text':'password';show.textContent=i.type==='password'?'Show':'Hide';};
+ const copyCred=document.getElementById('taCopyCredentials');if(copyCred)copyCred.onclick=async()=>{if(!lastCreatedCredentials)return;await copyText(`PipSePaisa Team Panel\nLogin: ${TEAM_URL}\nUsername: ${lastCreatedCredentials.username}\nPassword: ${lastCreatedCredentials.password}`);toast('Login details copied.','ok');};
+ const showNew=document.getElementById('taShowNewPassword');if(showNew)showNew.onclick=()=>{const i=document.getElementById('taNewPassword');i.type=i.type==='password'?'text':'password';showNew.textContent=i.type==='password'?'Show':'Hide';};
+ const genNew=document.getElementById('taGenerateNewPassword');if(genNew)genNew.onclick=()=>{const i=document.getElementById('taNewPassword');i.value=randomPassword();i.type='text';document.getElementById('taShowNewPassword').textContent='Hide';};
 }
 
 async function createTeamAccount(){
-  const client=await waitForSb(),btn=document.getElementById('taCreateBtn'),msg=document.getElementById('taCreateMsg');
-  if(!client)return toast('Supabase is still loading. Refresh once and try again.','err');
-  const name=document.getElementById('taName').value.trim();
-  const username=document.getElementById('taUsername').value.trim();
-  const password=document.getElementById('taPassword').value;
-  const whatsapp=cleanWhatsapp(document.getElementById('taWhatsapp').value);
-  const leadsOn=document.getElementById('taLeadEnabled').checked;
-  if(!name||!username||password.length<6||whatsapp.length<8){msg.textContent='Enter name, WhatsApp number, username and a 6+ character password.';msg.style.color='var(--red)';return;}
-  btn.disabled=true;btn.textContent='Creating…';msg.textContent='';
-  try{
-    const result=await client.rpc('psp_admin_create_team_member_v246',{p_display_name:name,p_username:username,p_password:password,p_whatsapp_number:whatsapp,p_lead_distribution_enabled:leadsOn,p_is_active:true});
-    if(result.error)throw result.error;
-    lastCreatedCredentials={username,password};
-    document.getElementById('taCredUsername').textContent=username;
-    document.getElementById('taCredPassword').textContent=password;
-    document.getElementById('taCredentials').classList.add('show');
-    msg.textContent='Team account is ready. Both free-course links were created automatically and new data starts separately.';
-    msg.style.color='var(--green)';
-    document.getElementById('taName').value='';document.getElementById('taUsername').value='';document.getElementById('taWhatsapp').value='';document.getElementById('taLeadEnabled').checked=true;document.getElementById('taPassword').value='';document.getElementById('taPassword').type='password';document.getElementById('taShowPassword').textContent='Show';
-    await loadAll();
-  }catch(e){msg.textContent=(e.message||'Team account could not be created.')+(String(e.message||'').includes('psp_admin_create_team_member_v246')?' Run V246 SQL first.':'');msg.style.color='var(--red)';}
-  finally{btn.disabled=false;btn.textContent='Create Team Account';}
-}
-
-async function ensureAutoLinks(client){
-  try{const r=await client.rpc('psp_admin_ensure_all_team_free_links_v246');if(r.error)throw r.error;return true;}
-  catch(e){console.warn('V246 auto link setup is not ready:',e);return false;}
-}
-
-async function loadLinkStats(client){
-  linkStats=new Map();
-  const ids=[...new Set(teamRows.flatMap(r=>[r.basic_link_id,r.fundamental_link_id]).filter(Boolean).map(String))];
-  if(!ids.length)return;
-  let r=await client.from('tracked_link_stats_v211').select('*').in('id',ids);
-  if(r.error)r=await client.from('tracked_link_stats').select('*').in('id',ids);
-  if(r.error){console.warn('New auto-link stats unavailable:',r.error);return;}
-  (r.data||[]).forEach(x=>linkStats.set(String(x.id),x));
-}
-
-function renderLinkItem(row,type){
-  const isBasic=type==='basic';
-  const id=isBasic?row.basic_link_id:row.fundamental_link_id;
-  const name=isBasic?(row.basic_link_name||'Basic Forex Course — Batch 2'):(row.fundamental_link_name||'Fundamental Forex Course');
-  const slug=isBasic?row.basic_link_slug:row.fundamental_link_slug;
-  const destination=isBasic?row.basic_link_destination:row.fundamental_link_destination;
-  const url=trackedUrl(destination,slug);
-  if(!id||!slug||!destination)return `<div class="ta-link-item"><div class="ta-link-title">${esc(name)}</div><div class="ta-link-url">Link is being prepared. Press Refresh.</div></div>`;
-  return `<div class="ta-link-item"><div class="ta-link-head"><div class="ta-link-title">${esc(name)}</div><button class="ta-btn" onclick="copyAutoCourseLinkV246('${esc(row.team_member_id)}','${type}')">Copy</button></div><div class="ta-link-url">${esc(url)}</div><div class="ta-link-metrics">New only: Clicks ${fmt(statNum(id,'total_clicks'))} · Signups ${fmt(statNum(id,'signups'))} · Enrollments ${fmt(statNum(id,'enrollments'))}</div></div>`;
+ const client=await waitForSb(),btn=document.getElementById('taCreateBtn'),msg=document.getElementById('taCreateMsg');if(!client)return toast('Supabase is still loading. Refresh once and try again.','err');
+ const name=document.getElementById('taName').value.trim(),username=document.getElementById('taUsername').value.trim(),password=document.getElementById('taPassword').value,whatsapp=cleanWhatsapp(document.getElementById('taWhatsapp').value),leadsOn=document.getElementById('taLeadEnabled').checked;
+ if(!name||!username||password.length<6||whatsapp.length<8){msg.textContent='Enter name, WhatsApp number, username and a 6+ character password.';msg.style.color='var(--red)';return;}
+ btn.disabled=true;btn.textContent='Creating…';msg.textContent='';
+ try{const result=await client.rpc('psp_admin_create_team_member_v247',{p_display_name:name,p_username:username,p_password:password,p_whatsapp_number:whatsapp,p_lead_distribution_enabled:leadsOn,p_is_active:true});if(result.error)throw result.error;lastCreatedCredentials={username,password};document.getElementById('taCredUsername').textContent=username;document.getElementById('taCredPassword').textContent=password;document.getElementById('taCredentials').classList.add('show');msg.textContent='Team account is ready. Shared course links stay the same for everyone.';msg.style.color='var(--green)';document.getElementById('taName').value='';document.getElementById('taUsername').value='';document.getElementById('taWhatsapp').value='';document.getElementById('taLeadEnabled').checked=true;document.getElementById('taPassword').value='';document.getElementById('taPassword').type='password';document.getElementById('taShowPassword').textContent='Show';await loadAll();}
+ catch(e){msg.textContent=(e.message||'Team account could not be created.')+(String(e.message||'').includes('v247')?' Run V247 SQL first.':'');msg.style.color='var(--red)';}
+ finally{btn.disabled=false;btn.textContent='Create Team Account';}
 }
 
 function renderTeam(){
-  const tbody=document.getElementById('taTable');if(!tbody)return;
-  const autoIds=[...new Set(teamRows.flatMap(r=>[r.basic_link_id,r.fundamental_link_id]).filter(Boolean).map(String))];
-  document.getElementById('taAccounts').textContent=fmt(teamRows.filter(r=>r.is_active).length);
-  document.getElementById('taClicks').textContent=fmt(autoIds.reduce((a,id)=>a+statNum(id,'total_clicks'),0));
-  document.getElementById('taSignups').textContent=fmt(autoIds.reduce((a,id)=>a+statNum(id,'signups'),0));
-  document.getElementById('taEnrollments').textContent=fmt(autoIds.reduce((a,id)=>a+statNum(id,'enrollments'),0));
-  if(!teamRows.length){tbody.innerHTML='<tr><td colspan="7">No Team Panel accounts yet.</td></tr>';return;}
-  tbody.innerHTML=teamRows.map(r=>{const leadOn=r.lead_distribution_enabled!==false,wa=cleanWhatsapp(r.whatsapp_number||'');return `<tr>
-    <td><strong>${esc(r.display_name)}</strong><div class="ta-sub">@${esc(r.username)} · New dashboard starts from V246</div></td>
-    <td><div class="ta-wa-number">${esc(wa||'Not added')}</div><button class="ta-btn" style="margin-top:5px" onclick="editTeamWhatsappV245('${r.team_member_id}')">Edit Number</button></td>
-    <td><label class="ta-lead-state ${leadOn?'on':'off'}"><input class="ta-lead-check" type="checkbox" ${leadOn?'checked':''} onchange="toggleTeamLeadsV245('${r.team_member_id}',this.checked)">${leadOn?'ON':'OFF'}</label></td>
-    <td><strong>${fmt(r.assigned_lead_count||0)}</strong><div class="ta-sub">Basic: ${fmt(r.basic_lead_count||0)} · Fundamental: ${fmt(r.fundamental_lead_count||0)}<br>Only leads assigned after V246 start</div></td>
-    <td><div class="ta-link-stack">${renderLinkItem(r,'basic')}${renderLinkItem(r,'fundamental')}</div></td>
-    <td><span class="ta-status ${r.is_active?'on':'off'}">${r.is_active?'Active':'Disabled'}</span></td>
-    <td><div class="ta-actions"><button class="ta-btn" onclick="resetTeamPasswordV56('${r.team_member_id}')">New Password</button><button class="ta-btn" onclick="toggleTeamAccessV56('${r.team_member_id}',${r.is_active?'false':'true'})">${r.is_active?'Disable':'Enable'}</button><button class="ta-btn" onclick="removeTeamAccessV246('${r.team_member_id}')">Remove</button></div></td>
-  </tr>`}).join('');
+ const tbody=document.getElementById('taTable');if(!tbody)return;
+ document.getElementById('taAccounts').textContent=fmt(teamRows.filter(r=>r.is_active).length);
+ document.getElementById('taBasic').textContent=fmt(summary?.basic_batch2||0);document.getElementById('taFundamental').textContent=fmt(summary?.fundamental_batch2||0);document.getElementById('taEnrollments').textContent=fmt(summary?.total_leads||0);
+ if(summary?.basic_shared_path)document.getElementById('taBasicLink').textContent=BASE_DOMAIN+summary.basic_shared_path;if(summary?.fundamental_shared_path)document.getElementById('taFundamentalLink').textContent=BASE_DOMAIN+summary.fundamental_shared_path;
+ if(!teamRows.length){tbody.innerHTML='<tr><td colspan="6">No Team Panel accounts yet.</td></tr>';return;}
+ tbody.innerHTML=teamRows.map(r=>{const leadOn=r.lead_distribution_enabled!==false,wa=cleanWhatsapp(r.whatsapp_number||'');return `<tr><td><strong>${esc(r.display_name)}</strong><div class="ta-sub">@${esc(r.username)} · Fresh round-robin only</div></td><td><div class="ta-wa-number">${esc(wa||'Not added')}</div><button class="ta-btn" style="margin-top:5px" onclick="editTeamWhatsappV245('${esc(r.team_member_id)}')">Edit Number</button></td><td><label class="ta-lead-state ${leadOn?'on':'off'}"><input class="ta-lead-check" type="checkbox" ${leadOn?'checked':''} onchange="toggleTeamLeadsV245('${esc(r.team_member_id)}',this.checked)">${leadOn?'ON':'OFF'}</label></td><td><strong>${fmt(r.assigned_lead_count||0)}</strong><div class="ta-sub">Sir Sajid B2: ${fmt(r.basic_lead_count||0)} · Fundamental B2: ${fmt(r.fundamental_lead_count||0)}</div></td><td><span class="ta-status ${r.is_active?'on':'off'}">${r.is_active?'Active':'Disabled'}</span></td><td><div class="ta-actions"><button class="ta-btn" onclick="resetTeamPasswordV56('${esc(r.team_member_id)}')">New Password</button><button class="ta-btn" onclick="toggleTeamAccessV56('${esc(r.team_member_id)}',${r.is_active?'false':'true'})">${r.is_active?'Disable':'Enable'}</button><button class="ta-btn" onclick="removeTeamAccessV247('${esc(r.team_member_id)}')">Remove</button></div></td></tr>`}).join('');
 }
 
 async function loadAll(){
-  const client=await waitForSb(),tbody=document.getElementById('taTable');if(!tbody)return;
-  if(!client){tbody.innerHTML='<tr><td colspan="7">Supabase is not ready.</td></tr>';return;}
-  tbody.innerHTML='<tr><td colspan="7">Loading new Team Lead Distribution data…</td></tr>';
-  const ready=await ensureAutoLinks(client);
-  if(!ready){tbody.innerHTML='<tr><td colspan="7"><b style="color:var(--red)">V246 Team Lead update is not installed.</b><br>Run 108_V246_ISOLATED_TEAM_LEADS_AUTO_FREE_LINKS.sql after V245 SQL.</td></tr>';return;}
-  const r=await client.rpc('psp_admin_team_lead_directory_v246');
-  if(r.error){tbody.innerHTML='<tr><td colspan="7"><b style="color:var(--red)">V246 Team Lead directory could not load.</b><br>'+esc(r.error.message||'Run V246 SQL.')+'</td></tr>';return;}
-  teamRows=r.data||[];
-  await loadLinkStats(client);
-  renderTeam();
+ const client=await waitForSb(),tbody=document.getElementById('taTable');if(!tbody)return;if(!client){tbody.innerHTML='<tr><td colspan="6">Supabase is not ready.</td></tr>';return;}tbody.innerHTML='<tr><td colspan="6">Loading fresh lead distribution data…</td></tr>';
+ const [r,s]=await Promise.all([client.rpc('psp_admin_team_lead_directory_v247'),client.rpc('psp_admin_lead_pool_summary_v247')]);if(r.error||s.error){tbody.innerHTML='<tr><td colspan="6"><b style="color:var(--red)">V247 Team Lead update is not installed.</b><br>'+esc(r.error?.message||s.error?.message||'Run 109_V247 SQL.')+'</td></tr>';return;}teamRows=r.data||[];summary=Array.isArray(s.data)?(s.data[0]||{}):(s.data||{});renderTeam();
 }
-
-window.copyAutoCourseLinkV246=async function(id,type){
-  const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;
-  const slug=type==='basic'?row.basic_link_slug:row.fundamental_link_slug;
-  const destination=type==='basic'?row.basic_link_destination:row.fundamental_link_destination;
-  const url=trackedUrl(destination,slug);if(!url)return toast('This link is not ready yet. Press Refresh.','err');
-  await copyText(url);toast(type==='basic'?'Basic Forex Course link copied.':'Fundamental Forex Course link copied.','ok');
-};
-window.toggleTeamLeadsV245=async function(id,state){
-  const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;
-  let wa=cleanWhatsapp(row.whatsapp_number||'');
-  if(state&&wa.length<8){const entered=prompt('Enter WhatsApp number with country code for '+(row.display_name||'this member')+':',wa||'');wa=cleanWhatsapp(entered||'');if(wa.length<8){toast('Valid WhatsApp number is required before Leads can be ON.','err');loadAll();return;}}
-  const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_lead_settings_v245',{p_team_member_id:String(id),p_whatsapp_number:wa,p_lead_distribution_enabled:state});
-  if(error){toast(error.message||'Lead setting could not be updated.','err');loadAll();return;}
-  toast(state?'Automatic leads ON. New enrollments can be assigned to this member.':'Automatic leads OFF. New enrollments will skip this member.','ok');loadAll();
-};
-window.editTeamWhatsappV245=async function(id){
-  const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;
-  const entered=prompt('WhatsApp number with country code:',cleanWhatsapp(row.whatsapp_number||''));if(entered===null)return;
-  const wa=cleanWhatsapp(entered);if(wa.length<8)return toast('Enter a valid WhatsApp number with country code.','err');
-  const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_lead_settings_v245',{p_team_member_id:String(id),p_whatsapp_number:wa,p_lead_distribution_enabled:row.lead_distribution_enabled!==false});
-  if(error)return toast(error.message||'WhatsApp number could not be updated.','err');toast('WhatsApp number updated.','ok');loadAll();
-};
+window.loadTeamAccessV247=loadAll;
+window.copySharedLeadLinkV247=async function(type){const path=type==='basic'?(summary?.basic_shared_path||'/courses.html?psp_enroll=basic-b2'):(summary?.fundamental_shared_path||'/courses.html?psp_enroll=fundamental');await copyText(BASE_DOMAIN+path);toast(type==='basic'?'Sir Sajid Batch 2 link copied.':'Fundamental Batch 2 link copied.','ok');};
+window.toggleTeamLeadsV245=async function(id,state){const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;let wa=cleanWhatsapp(row.whatsapp_number||'');if(state&&wa.length<8){const entered=prompt('Enter WhatsApp number with country code for '+(row.display_name||'this member')+':',wa||'');wa=cleanWhatsapp(entered||'');if(wa.length<8){toast('Valid WhatsApp number is required before Leads can be ON.','err');loadAll();return;}}const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_lead_settings_v245',{p_team_member_id:String(id),p_whatsapp_number:wa,p_lead_distribution_enabled:state});if(error){toast(error.message||'Lead setting could not be updated.','err');loadAll();return;}toast(state?'Automatic leads ON.':'Automatic leads OFF.','ok');loadAll();};
+window.editTeamWhatsappV245=async function(id){const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;const entered=prompt('WhatsApp number with country code:',cleanWhatsapp(row.whatsapp_number||''));if(entered===null)return;const wa=cleanWhatsapp(entered);if(wa.length<8)return toast('Enter a valid WhatsApp number with country code.','err');const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_lead_settings_v245',{p_team_member_id:String(id),p_whatsapp_number:wa,p_lead_distribution_enabled:row.lead_distribution_enabled!==false});if(error)return toast(error.message||'WhatsApp number could not be updated.','err');toast('WhatsApp number updated.','ok');loadAll();};
 window.toggleTeamAccessV56=async function(id,state){const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_member_status',{p_team_member_id:id,p_is_active:state});if(error)return toast(error.message,'err');toast(state?'Team access enabled.':'Team access disabled.','ok');loadAll();};
-window.removeTeamAccessV246=async function(id){
-  const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;
-  const ok=window.pspConfirm?await window.pspConfirm('Remove Team Panel access for '+row.display_name+'?\n\nOld historical data is not deleted. The two V246 auto links will be disabled.','Remove Team Access'):confirm('Remove Team Panel access?');if(!ok)return;
-  const client=await waitForSb();
-  const linkIds=[row.basic_link_id,row.fundamental_link_id].filter(Boolean);
-  if(linkIds.length)try{await client.from('tracked_links').update({is_active:false,assigned_team_member_id:null}).in('id',linkIds);}catch(_){}
-  const {error}=await client.rpc('psp_admin_delete_team_member',{p_team_member_id:id});if(error)return toast(error.message,'err');toast('Team Panel access removed. Auto free-course links disabled.','ok');loadAll();
-};
+window.removeTeamAccessV247=async function(id){const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;const ok=window.pspConfirm?await window.pspConfirm('Remove Team Panel access for '+row.display_name+'?\n\nHistorical records are not deleted.','Remove Team Access'):confirm('Remove Team Panel access?');if(!ok)return;const client=await waitForSb();const {error}=await client.rpc('psp_admin_delete_team_member',{p_team_member_id:id});if(error)return toast(error.message,'err');toast('Team Panel access removed.','ok');loadAll();};
 window.resetTeamPasswordV56=function(id){const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;const modal=document.getElementById('teamPasswordModal'),input=document.getElementById('taNewPassword');document.getElementById('taPasswordWho').textContent='Set a new password for '+row.display_name+' (@'+row.username+').';input.value='';input.type='password';document.getElementById('taShowNewPassword').textContent='Show';modal.dataset.teamId=id;modal.classList.add('open');document.getElementById('taPasswordSave').onclick=saveNewPassword;};
 async function saveNewPassword(){const modal=document.getElementById('teamPasswordModal'),id=modal.dataset.teamId,input=document.getElementById('taNewPassword'),password=input.value;if(!id||password.length<6)return toast('Use a password with at least 6 characters.','err');const row=teamRows.find(r=>String(r.team_member_id)===String(id));const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_password_v56',{p_team_member_id:id,p_new_password:password});if(error)return toast(error.message,'err');modal.classList.remove('open');await copyText(`PipSePaisa Team Panel\nLogin: ${TEAM_URL}\nUsername: ${row?.username||''}\nPassword: ${password}`);toast('New password saved and login details copied.','ok');}
-
-function installShowPageHook(){
-  if(typeof window.showPage!=='function'||window.__pspTeamAccessShowHookV56)return;
-  window.__pspTeamAccessShowHookV56=true;const original=window.showPage;
-  window.showPage=function(page,el){const result=original.apply(this,arguments);if(page==='teamaccess'){const t=document.getElementById('pageTitle'),s=document.getElementById('pageSubtitle');if(t)t.textContent='Team Panel Access';if(s)s.textContent='New lead rotation and auto free-course links — historical Team Performance stays separate';setTimeout(loadAll,0);}return result;};
-}
-
-async function setupRealtime(){
-  const client=await waitForSb();if(!client||realtimeChannel)return;
-  try{realtimeChannel=client.channel('admin-team-access-v246').on('postgres_changes',{event:'*',schema:'public',table:'team_members'},()=>{if(document.getElementById('page-teamaccess')?.classList.contains('active'))loadAll();}).on('postgres_changes',{event:'*',schema:'public',table:'tracked_links'},()=>{if(document.getElementById('page-teamaccess')?.classList.contains('active'))loadAll();}).on('postgres_changes',{event:'*',schema:'public',table:'psp_lead_assignments'},()=>{if(document.getElementById('page-teamaccess')?.classList.contains('active'))loadAll();}).subscribe();}catch(_){}
-}
+function installShowPageHook(){if(typeof window.showPage!=='function'||window.__pspTeamAccessShowHookV56)return;window.__pspTeamAccessShowHookV56=true;const original=window.showPage;window.showPage=function(page,el){const result=original.apply(this,arguments);if(page==='teamaccess'){const t=document.getElementById('pageTitle'),s=document.getElementById('pageSubtitle');if(t)t.textContent='Team Panel Access';if(s)s.textContent='Shared free-course links + fresh round-robin lead distribution';setTimeout(loadAll,0);}return result;};}
+async function setupRealtime(){const client=await waitForSb();if(!client||realtimeChannel)return;try{realtimeChannel=client.channel('admin-team-access-v247').on('postgres_changes',{event:'*',schema:'public',table:'team_members'},()=>{if(document.getElementById('page-teamaccess')?.classList.contains('active'))loadAll();}).on('postgres_changes',{event:'*',schema:'public',table:'psp_lead_assignments'},()=>{if(document.getElementById('page-teamaccess')?.classList.contains('active'))loadAll();}).subscribe();}catch(_){}}
 function init(){addStyles();if(addMenuAndPage(0)){installShowPageHook();setTimeout(setupRealtime,800);}else setTimeout(()=>{installShowPageHook();setupRealtime();},1200);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
