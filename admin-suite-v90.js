@@ -32,8 +32,8 @@ window.v90RefreshPage=refreshPage;
 
 /* ---------- Sidebar groups ---------- */
 var GROUPS=[
- ['Overview',['dashboard']],
- ['Members & Revenue',['users','verification','paymentreqs','course-enrollments','courses','subscriptions','revenue','payments']],
+ ['Overview',['dashboard','revenue']],
+ ['Members & Access',['users','verification','paymentreqs','course-enrollments','courses','subscriptions','payments']],
  ['Trading & Content',['trades','adsignals','adcharts','articles','news','newshub','adbanners','community','quiz']],
  ['Communication',['messages','chats','notifications','emails']],
  ['Growth & Team',['linkmanager','teamaccess','mentoraccess','accesssettings']],
