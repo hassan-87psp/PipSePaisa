@@ -27,11 +27,11 @@
     if(!client||!userId||!enrollmentId)return null;
     try{
       let row=null,lastError=null;
-      for(let attempt=0;attempt<3&&!row;attempt++){
+      for(let attempt=0;attempt<6&&!row;attempt++){
         const {data,error}=await client.rpc('psp_assign_enrollment_lead_v245',{p_enrollment_id:enrollmentId});
         if(error)lastError=error;
         else row=firstRow(data);
-        if(!row&&attempt<2)await new Promise(resolve=>setTimeout(resolve,160*(attempt+1)));
+        if(!row&&attempt<5)await new Promise(resolve=>setTimeout(resolve,220*(attempt+1)));
       }
       if(!row){
         if(lastError)console.warn('V249 team lead assignment:',lastError.message||lastError);
@@ -64,7 +64,7 @@ Please mujhe next process ke liye guide kar dein.`;
         message
       };
     }catch(error){
-      console.warn('V245 lead assignment fallback:',error?.message||error);
+      console.warn('V250 team lead assignment fallback:',error?.message||error);
       return null;
     }
   }
@@ -148,6 +148,11 @@ Please mujhe next process ke liye guide kar dein.`;
       const roundRobin=await resolveRoundRobinLead(client,userId,context);
       if(roundRobin)return roundRobin;
       const clientId=await resolveClientId(client,userId);
+      // Current free-course enrollments must go ONLY to the round-robin Team
+      // Member WhatsApp. Never fall back to an old referral/channel route.
+      if(String(context?.enrollmentId||context?.enrollment_id||'').trim()){
+        return {mode:'no_team',url:'',clientId,linkName:''};
+      }
       const referral=await resolveReferralTarget(client,userId);
       if(referral){
         const courseName=referralCourseName(referral,context);
