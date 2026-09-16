@@ -101,6 +101,7 @@ function classScheduleText(row){
 
 let courseData={basic:{...defaults.basic},fundamental:{...defaults.fundamental},advanced:{...defaults.advanced}};
 let enrollmentState={basic:'not_enrolled',fundamental:'not_enrolled',advanced:'not_enrolled'};
+let enrollmentRows={};
 let courseClasses={basic:[],fundamental:[],advanced:[]};
 let currentCourse=null;
 let detailRenderToken=0;
@@ -395,7 +396,8 @@ async function loadCourseDataFresh(){
   await reconcileMyInfinity();
   const enrollments=await Promise.all(keys.map(k=>getEnrollment(k)));
   enrollmentState={};
-  keys.forEach((k,i)=>{enrollmentState[k]=normalize(enrollments[i],k);});
+  enrollmentRows={};
+  keys.forEach((k,i)=>{enrollmentRows[k]=enrollments[i]||null;enrollmentState[k]=normalize(enrollments[i],k);});
 
   await loadCourseClasses();
 }
@@ -418,7 +420,11 @@ async function loadEnrollmentStatesOnly(courseKey){
   const displayKey=displayKeyForEnrollment(courseKey);const keys=displayKey&&courseData[displayKey]?[displayKey]:Object.keys(courseData);
   await reconcileMyInfinity();
   const rows=await Promise.all(keys.map(key=>getEnrollment(key)));
-  keys.forEach((key,index)=>{enrollmentState[key]=normalize(rows[index],key);});
+  keys.forEach((key,index)=>{enrollmentRows[key]=rows[index]||null;enrollmentState[key]=normalize(rows[index],key);});
+}
+function paymentReasonForCourse(key){
+  const row=enrollmentRows[key]||{};
+  return String(row.provider_rejection_reason||row.provider_last_error||row.rejection_reason||'').trim();
 }
 function statusLabel(key){
   const s=enrollmentState[key];
@@ -444,13 +450,13 @@ function tileMarkup(c){
       <div class="psp-course-tile-top"><h3>${esc(c.title)}${c.batchLabel?` <span class="psp-course-batch-badge">${esc(c.batchLabel)}</span>`:''}</h3><div class="psp-course-price">${c.price?('$'+c.price):'Free'}</div></div>
       <p>${esc(c.short)}</p>
       <div class="psp-course-meta"><span>${esc(courseCardLearningMeta(c))}</span><span>${esc(c.level)}</span><span>Mentor Support</span></div>
-      <div class="psp-course-tile-footer"><span class="psp-course-status-pill ${st.cls}">${esc(st.text)}</span><button class="psp-course-open-btn" type="button">View Course →</button></div>
+      <div class="psp-course-tile-footer"><div class="psp-course-status-stack"><span class="psp-course-status-pill ${st.cls}">${esc(st.text)}</span>${enrollmentState[c.key]==='rejected'&&paymentReasonForCourse(c.key)?`<small class="psp-course-reject-reason">Reason: ${esc(paymentReasonForCourse(c.key))}</small>`:''}</div><button class="psp-course-open-btn" type="button">View Course →</button></div>
     </div>
   </article>`;
 }
 function ensureShell(){
   const page=document.getElementById('page-mycourses');if(!page)return null;
-  if(!document.getElementById('pspCourseV188Style')){const s=document.createElement('style');s.id='pspCourseV188Style';s.textContent='.psp-course-batch-badge{display:inline-flex;vertical-align:middle;margin-left:6px;padding:4px 8px;border:1px solid rgba(251,146,1,.42);border-radius:999px;background:rgba(251,146,1,.10);color:#d97706;font-size:10px;font-weight:900;white-space:nowrap}.psp-course-detail-title .psp-course-batch-badge{font-size:12px;transform:translateY(-3px)}';document.head.appendChild(s);}
+  if(!document.getElementById('pspCourseV188Style')){const s=document.createElement('style');s.id='pspCourseV188Style';s.textContent='.psp-course-batch-badge{display:inline-flex;vertical-align:middle;margin-left:6px;padding:4px 8px;border:1px solid rgba(251,146,1,.42);border-radius:999px;background:rgba(251,146,1,.10);color:#d97706;font-size:10px;font-weight:900;white-space:nowrap}.psp-course-detail-title .psp-course-batch-badge{font-size:12px;transform:translateY(-3px)}.psp-course-status-stack{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}.psp-course-reject-reason{display:block;max-width:280px;color:#c2410c;font-size:10px;font-weight:800;line-height:1.25;white-space:normal;overflow-wrap:anywhere}';document.head.appendChild(s);}
   if(!page.querySelector('.psp-course-marketplace-v3')){
     page.innerHTML=`<div class="psp-course-marketplace-v3"><section class="psp-course-marketplace"><div class="psp-course-market-head"><div><h2>Explore Forex Courses</h2><p>Choose a course, review the complete details and enroll from one professional page.</p></div><span class="psp-course-market-count" id="pspCourseActiveCount">4 Active Courses</span></div><div class="psp-course-card-grid" id="pspCourseCardGrid"></div></section><section class="psp-course-detail" id="pspCourseDetail"></section></div>`;
   }
@@ -490,7 +496,7 @@ function buyPanel(c,state){
     button='Waiting for Verification';
     disabled='disabled';
   }else if(rejected||revoked){
-    status=`<div class="psp-course-buy-status rejected">${revoked?'Access was revoked by the admin.':'Payment was rejected.'} Submit your details again.</div>`;
+    status=`<div class="psp-course-buy-status rejected"><b>${revoked?'Access Revoked':'Payment Rejected'}</b><span>${revoked?'Access was revoked.':(paymentReasonForCourse(c.key)?`Reason: ${esc(paymentReasonForCourse(c.key))}`:'The payment provider could not verify the payment.')}</span></div>`;
     button='Resubmit Payment — $'+c.price;
   }else{
     status='<div class="psp-course-buy-status">Choose Local Bank for automatic Infinity verification, or USDT for manual proof review.</div>';
@@ -547,8 +553,8 @@ function stickyAccessPanel(c,state){
     steps='<div class="psp-access-steps"><span class="done">1</span><b>Enroll</b><i></i><span class="done">2</span><b>Pay</b><i></i><span>3</span><b>Unlock</b></div>';
   }else if(rejected||revoked){
     eyebrow='ACTION REQUIRED';
-    helper=revoked?'Your previous access was revoked by the admin. Review the details and submit again.':'Your previous payment could not be verified. Review the details and submit again.';
-    status=`<div class="psp-course-buy-status rejected"><b>${revoked?'Access Revoked':'Payment Rejected'}</b><span>Open the form to resubmit payment proof.</span></div>`;
+    helper=revoked?'Your previous access was revoked. Review the details before continuing.':'Infinity rejected the previous Local Bank payment. You can start a new payment immediately.';
+    status=`<div class="psp-course-buy-status rejected"><b>${revoked?'Access Revoked':'Payment Rejected'}</b><span>${revoked?'Review the access status and contact support if needed.':(paymentReasonForCourse(c.key)?`Reason: ${esc(paymentReasonForCourse(c.key))}`:'The payment provider could not verify the payment.')}</span></div>`;
     button='Resubmit Payment';
     steps='<div class="psp-access-steps"><span class="done">1</span><b>Enroll</b><i></i><span>2</span><b>Repay</b><i></i><span>3</span><b>Unlock</b></div>';
   }else{
@@ -752,10 +758,30 @@ window.openFreeCourseModules=function(){window.openCourseDetail('basic');};
 window.openAdvancedCourseModules=function(){window.openCourseDetail('advanced');};
 window.openFundamentalCourseModules=function(){window.openCourseDetail('fundamental');};
 window.openEnrolledCourse=function(){window.openCourseDetail(currentCourse?.key||'basic');};
+let infinityCoursePollTimer=null,infinityCoursePollBusy=false;
+function stopInfinityCoursePoll(){if(infinityCoursePollTimer){clearInterval(infinityCoursePollTimer);infinityCoursePollTimer=null}}
+async function pollInfinityCourseStates(){
+  if(infinityCoursePollBusy)return;
+  const processing=Object.keys(enrollmentState).filter(k=>enrollmentState[k]==='processing');
+  if(!processing.length){stopInfinityCoursePoll();return}
+  infinityCoursePollBusy=true;
+  try{
+    const before=JSON.stringify(processing.map(k=>[k,enrollmentState[k],paymentReasonForCourse(k)]));
+    await loadEnrollmentStatesOnly();
+    const after=JSON.stringify(processing.map(k=>[k,enrollmentState[k],paymentReasonForCourse(k)]));
+    if(before!==after){renderMarketplace();if(currentCourse)renderCurrentDetail(currentCourse.key)}
+    if(!Object.values(enrollmentState).includes('processing'))stopInfinityCoursePoll();
+  }catch(_){ }finally{infinityCoursePollBusy=false}
+}
+function ensureInfinityCoursePoll(){
+  if(!Object.values(enrollmentState).includes('processing')){stopInfinityCoursePoll();return}
+  if(!infinityCoursePollTimer)infinityCoursePollTimer=setInterval(pollInfinityCourseStates,3000);
+}
+
 window.loadMyCourses=async function(){
   await loadCourseData();
-  if(currentCourse){renderCurrentDetail(currentCourse.key);return;}
-  renderMarketplace();
+  if(currentCourse){renderCurrentDetail(currentCourse.key);ensureInfinityCoursePoll();return;}
+  renderMarketplace();ensureInfinityCoursePoll();
 };
 
 function openPage(item){
