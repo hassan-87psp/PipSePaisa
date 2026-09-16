@@ -2,11 +2,11 @@
 'use strict';
 if(window.PSPCourseAuthFlow)return;
 const STORE='psp_course_auth_intent_v207';
-const VALID=new Set(['basic-b2','fundamental','advanced','advance-fundamental']);
+const VALID=new Set(['basic-b3','fundamental-b2','advanced','advance-fundamental']);
 const SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
 const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 let client=null;
-function cleanKey(v){v=String(v||'').trim().toLowerCase();if(v==='basic')v='basic-b2';return VALID.has(v)?v:'';}
+function cleanKey(v){v=String(v||'').trim().toLowerCase();if(v==='basic'||v==='basic-b2'||v==='basic-batch-2')v='basic-b3';if(v==='fundamental'||v==='fundamental-b1')v='fundamental-b2';return VALID.has(v)?v:'';}
 function safeParse(v){try{return JSON.parse(v||'null')}catch(_){return null}}
 function readStored(){return safeParse(sessionStorage.getItem(STORE))||safeParse(localStorage.getItem(STORE));}
 function rawTracking(){try{const q=new URLSearchParams(location.search),out={};['ref','psp_ref','utm_source','utm_medium','utm_campaign','utm_content'].forEach(k=>{const v=q.get(k);if(v)out[k]=v});return out}catch(_){return {}}}

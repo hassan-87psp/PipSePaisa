@@ -7,11 +7,20 @@
   const COURSE_INFO={
     basic:{key:'basic',name:'Basic Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     'basic-b2':{key:'basic-b2',name:'Basic Forex Course — Batch 2',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
+    'basic-b3':{key:'basic-b3',dbKey:'basic',batchKey:'basic_b3',name:'Basic Forex Course — Batch 3',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     fundamental:{key:'fundamental',name:'Fundamental Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
+    'fundamental-b2':{key:'fundamental-b2',dbKey:'fundamental',batchKey:'fundamental_b2',name:'Fundamental Forex Course — Batch 2',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     advanced:{key:'advanced',name:'ADVANCE COURSE',type:'paid',price:150,oldPrice:250,currency:'USD',localBankPricePkr:0},
     'advance-fundamental':{key:'advance-fundamental',name:'Advance Fundamental',type:'paid',price:150,oldPrice:250,currency:'USD',localBankPricePkr:0}
   };
   const courseConfigCache=new Map();
+
+  function normalizeCurrentFreeCourseKey(value){
+    const key=String(value||'').trim().toLowerCase();
+    if(key==='basic'||key==='basic-b2'||key==='basic-batch-2')return 'basic-b3';
+    if(key==='fundamental'||key==='fundamental-b1')return 'fundamental-b2';
+    return key;
+  }
 
   let client=null;
   let selectedCourse=null;
@@ -60,7 +69,7 @@
   }
 
   async function loadCourseConfig(courseKey,{refresh=false}={}){
-    const key=String(courseKey||'').trim().toLowerCase();
+    const key=normalizeCurrentFreeCourseKey(courseKey);
     const fallback=COURSE_INFO[key]?{...COURSE_INFO[key]}:null;
     if(!refresh&&courseConfigCache.has(key))return {...courseConfigCache.get(key)};
     const sb=getClient();
@@ -72,9 +81,12 @@
         if(error)throw error;
         const rows=Array.isArray(data)?data:[];
         if(fallback){
-          if(key==='basic'){
+          if(key==='basic'||key==='basic-b3'){
             row=rows.find(r=>String(r.course_key||'').trim().toLowerCase()==='basic')
               ||rows.find(r=>/^basic forex course$/i.test(String(r.title||'').trim()))||null;
+          }else if(key==='fundamental-b2'){
+            row=rows.find(r=>String(r.course_key||'').trim().toLowerCase()==='fundamental')
+              ||rows.find(r=>/^fundamental forex course$/i.test(String(r.title||'').trim()))||null;
           }else if(key==='advanced'){
             row=rows.find(r=>String(r.course_key||'').trim().toLowerCase()==='advanced')
               ||rows.find(r=>/^advance(d)? forex course$/i.test(String(r.title||'').trim()))||null;
@@ -112,10 +124,12 @@
     next.id=row.id||null;
     next.name=String(row.title||next.name);
     next.currency=normalizeCurrency(row.currency||next.currency||'USD',next.currency||'USD');
-    if(['basic','basic-b2','fundamental'].includes(key)){
+    if(['basic','basic-b2','basic-b3','fundamental','fundamental-b2'].includes(key)){
       next.type='free';next.price=0;next.oldPrice=0;next.localBankPricePkr=0;
       if(key==='basic-b2')next.name='Basic Forex Course — Batch 2';
+      if(key==='basic-b3')next.name='Basic Forex Course — Batch 3';
       if(key==='fundamental')next.name='Fundamental Forex Course';
+      if(key==='fundamental-b2')next.name='Fundamental Forex Course — Batch 2';
     }else if(key==='advanced'){
       next.type='paid';next.price=Math.max(0,amountNumber(row.price,150))||150;next.oldPrice=Math.max(0,amountNumber(row.old_price,250));next.localBankPricePkr=Math.max(0,amountNumber(row.local_bank_price_pkr,0));
     }else if(key==='advance-fundamental'){
@@ -815,7 +829,9 @@
 
   async function existingEnrollment(){
     if(!activeUser||!selectedCourse)return null;
-    const {data,error}=await getClient().from('course_enrollments').select('*').eq('user_id',activeUser.id).eq('course_key',selectedCourse.key).maybeSingle();
+    let q=getClient().from('course_enrollments').select('*').eq('user_id',activeUser.id).eq('course_key',selectedCourse.dbKey||selectedCourse.key);
+    if(selectedCourse.batchKey)q=q.eq('psp_batch_key',selectedCourse.batchKey);
+    const {data,error}=await q.maybeSingle();
     if(error && !/0 rows|no rows/i.test(error.message||''))throw error;
     return data||null;
   }
@@ -906,8 +922,9 @@
   function enrollmentPayload(values,receiptUrl){
     const payload={
       user_id:activeUser.id,
-      course_key:selectedCourse.key,
+      course_key:selectedCourse.dbKey||selectedCourse.key,
       course_name:selectedCourse.name,
+      ...(selectedCourse.batchKey?{psp_batch_key:selectedCourse.batchKey}:{}),
       course_type:selectedCourse.type,
       price:selectedCourse.price,
       currency:selectedCourse.currency,
@@ -1251,7 +1268,7 @@
           :'Thank You for Joining! You are logged in and your payment receipt has been submitted for verification. Please follow our WhatsApp Channel for important course updates and announcements. Redirecting you now...');
       showStep('ceStepSuccess');
       try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));}catch(_){ }
-      const isCurrentFreeZoomCourse=selectedCourse.type==='free'&&['basic-b2','fundamental'].includes(selectedCourse.key);
+      const isCurrentFreeZoomCourse=selectedCourse.type==='free'&&['__no_current_free_zoom_schedule__'].includes(selectedCourse.key);
       try{
         if(!result.already || (selectedCourse.type==='free'&&result.updated)){
           const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';
@@ -1304,7 +1321,7 @@
         const emailResult=await sendCourseEmail('free_course_enrolled',values,{enrollment_id:result.row?.id||undefined});
         if(!emailResult.ok)console.warn('Free enrollment saved but email delivery failed.',emailResult.error||emailResult);
       }
-      if(['basic-b2','fundamental'].includes(selectedCourse.key)){
+      if(['__no_current_free_zoom_schedule__'].includes(selectedCourse.key)){
         const zoomResult=await registerZoomCourse(values);
         try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:zoomResult.data||{}}));}catch(_){ }
         if(!zoomResult.ok)console.warn('Free course enrolled but Zoom auto-registration needs attention.',zoomResult.error||zoomResult);
@@ -1440,7 +1457,7 @@
         return;
       }
 
-      const isCurrentFreeZoomCourse=selectedCourse.type==='free'&&['basic-b2','fundamental'].includes(selectedCourse.key);
+      const isCurrentFreeZoomCourse=selectedCourse.type==='free'&&['__no_current_free_zoom_schedule__'].includes(selectedCourse.key);
       let emailResult={ok:true};
       if(!result.already || (selectedCourse.type==='free'&&result.updated)){
         const mailType=selectedCourse.type==='free'?'free_course_enrolled':'payment_receipt_received';

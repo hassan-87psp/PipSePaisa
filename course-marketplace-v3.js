@@ -3,11 +3,11 @@
 
 const defaults={
   basic:{
-    key:'basic',displayOrder:3,enrollmentKey:'basic-b2',batchLabel:'Batch 2',zoomEnabled:true,title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
+    key:'basic',displayOrder:3,enrollmentKey:'basic-b3',enrollmentDbKey:'basic',batchKey:'basic_b3',batchLabel:'Batch 3',zoomEnabled:false,title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
     thumbnail:'basic-course-thumbnail.webp',
     short:'Build a strong foundation in Forex trading, technical analysis, candlestick behaviour, indicators and high-probability trading strategies.',
     description:'A structured 5-module beginner program designed to help new traders understand financial markets, read price behaviour, use technical tools correctly and build a practical trading edge.',
-    descriptionExtra:'Each module follows a clear learning path with practical market examples, defined objectives and expected outcomes. Batch 2 runs across five focused sessions from 3 to 7 September 2026.',
+    descriptionExtra:'Each module follows a clear learning path with practical market examples, defined objectives and expected outcomes. Batch 3 starts fresh with new enrollments.',
     included:['5 structured modules','Beginner-friendly practical learning','Mobile and desktop access','Progress saved in your account'],
     contentNote:'One module opens at a time',
     secureNote:'Direct account-linked enrollment',
@@ -15,17 +15,17 @@ const defaults={
     requirements:['This course is suitable even if you are completely new to forex.','A mobile phone or computer with internet access.','A willingness to practise on a demo account and follow risk-management rules.'],
     audience:['Complete beginners starting their Forex journey.','Traders who want to rebuild their foundation correctly.','Students who prefer structured, practical learning.'],
     modules:[
-      {title:"FINANCIAL MARKETS BLUEPRINT",duration:'90 min',summary:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:'2026-09-03T22:00:00+05:00',points:["Global financial markets", "Forex ecosystem", "Market participants"]},
-      {title:"THE LANGUAGE OF PRICE INTELLIGENCE",duration:'90 min',summary:"Mastering Technical Analysis",scheduled_at:'2026-09-04T22:00:00+05:00',points:["Support & resistance", "Trend lines and structure", "Technical analysis foundations"]},
-      {title:"DECODING AND DISSECTING CANDLESTICKS",duration:'90 min',summary:"Cracking the Hidden Price Behaviors",scheduled_at:'2026-09-05T22:00:00+05:00',points:["Candlestick structure", "Price behaviour", "Rejection and momentum"]},
-      {title:"EXPLORING TRADER'S TOOLKIT",duration:'90 min',summary:"Mastering Technical Indicators",scheduled_at:'2026-09-06T22:00:00+05:00',points:["Technical indicators", "Confirmation tools", "Indicator interpretation"]},
-      {title:"BUILDING YOUR TRADING EDGE",duration:'90 min',summary:"Developing High-Probability Trading Strategies",scheduled_at:'2026-09-07T22:00:00+05:00',points:["Strategy development", "High-probability setups", "Entry and exit rules"]}
+      {title:"FINANCIAL MARKETS BLUEPRINT",duration:'90 min',summary:"Understanding the Ecosystem of Global Financial Markets",scheduled_at:null,points:["Global financial markets", "Forex ecosystem", "Market participants"]},
+      {title:"THE LANGUAGE OF PRICE INTELLIGENCE",duration:'90 min',summary:"Mastering Technical Analysis",scheduled_at:null,points:["Support & resistance", "Trend lines and structure", "Technical analysis foundations"]},
+      {title:"DECODING AND DISSECTING CANDLESTICKS",duration:'90 min',summary:"Cracking the Hidden Price Behaviors",scheduled_at:null,points:["Candlestick structure", "Price behaviour", "Rejection and momentum"]},
+      {title:"EXPLORING TRADER'S TOOLKIT",duration:'90 min',summary:"Mastering Technical Indicators",scheduled_at:null,points:["Technical indicators", "Confirmation tools", "Indicator interpretation"]},
+      {title:"BUILDING YOUR TRADING EDGE",duration:'90 min',summary:"Developing High-Probability Trading Strategies",scheduled_at:null,points:["Strategy development", "High-probability setups", "Entry and exit rules"]}
     ],
     learn:['Understand the ecosystem of global financial markets.','Build a strong technical-analysis foundation.','Read candlestick behaviour and hidden price clues.','Use technical indicators as confirmation tools.','Develop a high-probability trading strategy with clear rules.'],
     achievement:['Understand how financial markets and Forex connect.','Read price action and candlestick behaviour with more clarity.','Use technical-analysis tools in a practical way.','Combine indicators with price behaviour instead of depending on them.','Build a structured trading edge for continued learning.']
   },
   fundamental:{
-    key:'fundamental',displayOrder:4,enrollmentKey:'fundamental',zoomEnabled:true,title:'Fundamental Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'100% FREE COURSE',
+    key:'fundamental',displayOrder:4,enrollmentKey:'fundamental-b2',enrollmentDbKey:'fundamental',batchKey:'fundamental_b2',batchLabel:'Batch 2',zoomEnabled:false,title:'Fundamental Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'100% FREE COURSE',
     thumbnail:'fundamental-course-thumbnail.png',mentorImage:'ghulam-abbas.png',mentorName:'Sir Malik Ghulam Abbas',mentorTitle:'Fundamental Expert & Trainer',
     short:'Learn how economic events, central banks and FOMC decisions influence Forex markets and create trading opportunities.',
     description:'Build a strong foundation in Forex fundamentals by understanding economic events, central bank decisions and major market-moving factors. This course helps beginners learn how fundamental analysis supports smarter trading decisions.',
@@ -36,9 +36,9 @@ const defaults={
     requirements:['No previous fundamental-analysis experience is required.','A mobile phone or computer with internet access.','Basic interest in understanding what moves Forex markets.'],
     audience:['Beginner traders who want to understand fundamental analysis.','Technical traders who want stronger market context.','Students who want to understand economic events and central-bank decisions.'],
     modules:[
-      {title:'TRADING WITH THE ECONOMIC CALENDAR',duration:'90 min',summary:'Identify Potential Trade Setups Using Key Economic Events',scheduled_at:'2026-09-08T22:00:00+05:00',points:['Read high-impact economic events','Understand event timing and expectations','Identify potential trade opportunities']},
-      {title:'CENTRAL BANKS & MARKET IMPACT',duration:'90 min',summary:'Understand How Central Bank Policies Influence Forex Markets',scheduled_at:'2026-09-09T22:00:00+05:00',points:['Understand central-bank policy','Learn the role of interest-rate decisions','Recognize policy impact on currencies']},
-      {title:'DECODING THE FOMC',duration:'90 min',summary:'Understand FOMC Decisions and Their Impact on Forex Trading',scheduled_at:'2026-09-10T22:00:00+05:00',points:['Understand what the FOMC is','Read key policy decisions','Connect FOMC outcomes with Forex movement']}
+      {title:'TRADING WITH THE ECONOMIC CALENDAR',duration:'90 min',summary:'Identify Potential Trade Setups Using Key Economic Events',scheduled_at:null,points:['Read high-impact economic events','Understand event timing and expectations','Identify potential trade opportunities']},
+      {title:'CENTRAL BANKS & MARKET IMPACT',duration:'90 min',summary:'Understand How Central Bank Policies Influence Forex Markets',scheduled_at:null,points:['Understand central-bank policy','Learn the role of interest-rate decisions','Recognize policy impact on currencies']},
+      {title:'DECODING THE FOMC',duration:'90 min',summary:'Understand FOMC Decisions and Their Impact on Forex Trading',scheduled_at:null,points:['Understand what the FOMC is','Read key policy decisions','Connect FOMC outcomes with Forex movement']}
     ],
     learn:['Use the Economic Calendar to spot important market events.','Understand how Central Banks influence Forex markets.','Learn the impact of FOMC and major policy decisions.','Build a basic understanding of fundamental market drivers.'],
     achievement:['Understand the core concepts of Forex fundamental analysis.','Read important economic events with better clarity.','Recognize how news and policy decisions affect price movement.','Improve overall market understanding for better trading decisions.']
@@ -72,20 +72,7 @@ const defaults={
 };
 
 
-const FREE_WEBINAR_SCHEDULES={
-  basic:[
-    {course_key:'basic-b2',class_number:1,title:'FINANCIAL MARKETS BLUEPRINT',subtitle:'Understanding the Ecosystem of Global Financial Markets',scheduled_at:'2026-09-03T22:00:00+05:00',webinar_id:'965 3055 0551',join_url:'https://zoom.us/webinar/register/WN_vMmkxtOSSK6xZbbMveGfww',is_active:true},
-    {course_key:'basic-b2',class_number:2,title:'THE LANGUAGE OF PRICE INTELLIGENCE',subtitle:'Mastering Technical Analysis',scheduled_at:'2026-09-04T22:00:00+05:00',webinar_id:'959 6399 6559',join_url:'https://zoom.us/webinar/register/WN_T4TUovX7TnGAejmG9AqAyw',is_active:true},
-    {course_key:'basic-b2',class_number:3,title:'DECODING AND DISSECTING CANDLESTICKS',subtitle:'Cracking the Hidden Price Behaviors',scheduled_at:'2026-09-05T22:00:00+05:00',webinar_id:'964 9312 3401',join_url:'https://zoom.us/webinar/register/WN_hmhtzkQbTxy-aQgXn3l61A',is_active:true},
-    {course_key:'basic-b2',class_number:4,title:"EXPLORING TRADER'S TOOLKIT",subtitle:'Mastering Technical Indicators',scheduled_at:'2026-09-06T22:00:00+05:00',webinar_id:'912 8968 2755',join_url:'https://zoom.us/webinar/register/WN_snyuRGWfT86BqhKFsVw-WQ',is_active:true},
-    {course_key:'basic-b2',class_number:5,title:'BUILDING YOUR TRADING EDGE',subtitle:'Developing High-Probability Trading Strategies',scheduled_at:'2026-09-07T22:00:00+05:00',webinar_id:'943 3022 2793',join_url:'https://zoom.us/webinar/register/WN_o4wPJSxrSROBjp1QeBLZOQ',is_active:true}
-  ],
-  fundamental:[
-    {course_key:'fundamental',class_number:1,title:'TRADING WITH THE ECONOMIC CALENDAR',subtitle:'Identify Potential Trade Setups Using Key Economic Events',scheduled_at:'2026-09-08T22:00:00+05:00',webinar_id:'967 5307 4646',join_url:'https://zoom.us/webinar/register/WN_NHAPVGUHS326dPecYlfCtA',is_active:true},
-    {course_key:'fundamental',class_number:2,title:'CENTRAL BANKS & MARKET IMPACT',subtitle:'Understand How Central Bank Policies Influence Forex Markets',scheduled_at:'2026-09-09T22:00:00+05:00',webinar_id:'934 1812 1824',join_url:'https://zoom.us/webinar/register/WN_NVp6_5pfTj6zZ91Ixp1A4Q',is_active:true},
-    {course_key:'fundamental',class_number:3,title:'DECODING THE FOMC',subtitle:'Understand FOMC Decisions and Their Impact on Forex Trading',scheduled_at:'2026-09-10T22:00:00+05:00',webinar_id:'931 1316 6876',join_url:'https://zoom.us/webinar/register/WN_l9z72561SpSqA5xgneongA',is_active:true}
-  ]
-};
+const FREE_WEBINAR_SCHEDULES={basic:[],fundamental:[]};
 const FREE_SCHEDULE_BY_NUMBER={
   basic:new Map(FREE_WEBINAR_SCHEDULES.basic.map(x=>[x.class_number,x])),
   fundamental:new Map(FREE_WEBINAR_SCHEDULES.fundamental.map(x=>[x.class_number,x]))
@@ -109,7 +96,9 @@ let detailRenderToken=0;
 function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 function client(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(_){return null}}
 function enrollmentKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.enrollmentKey||key||'').trim();}
-function displayKeyForEnrollment(key){key=String(key||'').trim().toLowerCase();if(key==='basic-b2')return'basic';return key;}
+function enrollmentDbKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.enrollmentDbKey||c&&c.enrollmentKey||key||'').trim();}
+function enrollmentBatchKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.batchKey||'').trim();}
+function displayKeyForEnrollment(key){key=String(key||'').trim().toLowerCase();if(key==='basic-b3'||key==='basic-b2')return'basic';if(key==='fundamental-b2')return'fundamental';return key;}
 function systemThumbnail(key){if(key==='advanced')return'advanced-course-thumbnail.webp?v=20260911-v222';if(key==='fundamental')return'fundamental-course-thumbnail.png?v=20260911-v222';if(key==='advance-fundamental'||key==='advanced-fundamental')return'assets/courses/advance-fundamental-thumbnail.png?v=20260911-v222';return'basic-course-thumbnail.webp?v=20260911-v222';}
 function resolveThumbnail(key,value){
   const raw=String(value||'').trim();
@@ -125,7 +114,7 @@ function canonicalModules(key,items){
   if(!Array.isArray(items)||!items.length)return base;
   const norm=x=>String(x||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   const map=new Map(items.map(x=>[norm(x&&x.title),x]));
-  return base.map(b=>({...b,...(map.get(norm(b.title))||{})}));
+  return base.map(b=>{const row={...b,...(map.get(norm(b.title))||{})};if(key==='basic'||key==='fundamental')row.scheduled_at=null;return row;});
 }
 
 function normalize(row,key){
@@ -152,7 +141,7 @@ async function getEnrollment(key){
   const db=client();if(!db)return null;
   try{
     const s=await db.auth.getSession();const user=s?.data?.session?.user;if(!user)return null;
-    const enrollmentKey=enrollmentKeyFor(key);const r=await db.from('course_enrollments').select('*').eq('user_id',user.id).eq('course_key',enrollmentKey).maybeSingle();
+    const enrollmentKey=enrollmentDbKeyFor(key);let q=db.from('course_enrollments').select('*').eq('user_id',user.id).eq('course_key',enrollmentKey);const batchKey=enrollmentBatchKeyFor(key);if(batchKey)q=q.eq('psp_batch_key',batchKey);const r=await q.maybeSingle();
     if(r.error&&!/0 rows|no rows/i.test(r.error.message||''))throw r.error;
     return r.data||null;
   }catch(e){console.warn('Course enrollment state unavailable',e);return null;}
@@ -276,7 +265,7 @@ async function loadCourseDataFresh(){
 
   courseData={
     basic:{...defaults.basic,...(basic?{
-      dbId:basic.id||'',title:'Basic Forex Course',enrollmentKey:'basic-b2',batchLabel:'Batch 2',zoomEnabled:true,mentorImage:'sajid-ghori.webp',
+      dbId:basic.id||'',title:'Basic Forex Course',enrollmentKey:'basic-b3',enrollmentDbKey:'basic',batchKey:'basic_b3',batchLabel:'Batch 3',zoomEnabled:false,mentorImage:'sajid-ghori.webp',
       short:defaults.basic.short,
       description:defaults.basic.description,
       descriptionExtra:defaults.basic.descriptionExtra,
@@ -298,7 +287,7 @@ async function loadCourseDataFresh(){
     }:{...defaults.basic,published:true,videoUrl:'',thumbnail:systemThumbnail('basic'),modules:canonicalModules('basic',defaults.basic.modules)})},
 
     fundamental:{...defaults.fundamental,...(fundamental?{
-      dbId:fundamental.id||'',title:'Fundamental Forex Course',enrollmentKey:'fundamental',zoomEnabled:true,
+      dbId:fundamental.id||'',title:'Fundamental Forex Course',enrollmentKey:'fundamental-b2',enrollmentDbKey:'fundamental',batchKey:'fundamental_b2',batchLabel:'Batch 2',zoomEnabled:false,
       short:fundamental.short_description||fundamental.description||defaults.fundamental.short,
       description:fundamental.description||defaults.fundamental.description,
       descriptionExtra:fundamental.description_extra||defaults.fundamental.descriptionExtra,
@@ -581,7 +570,7 @@ function stickyAccessPanel(c,state){
   </div>`;
 }
 function classAccessPanel(c,state){
-  if(state!=='approved'||!FREE_WEBINAR_SCHEDULES[c.key]||c.zoomEnabled===false)return '';
+  if(state!=='approved'||!FREE_WEBINAR_SCHEDULES[c.key]||!FREE_WEBINAR_SCHEDULES[c.key].length||c.zoomEnabled===false)return '';
   const rows=FREE_WEBINAR_SCHEDULES[c.key];
   const upcoming=rows.filter(row=>!classIsCompleted(row)).length;
   const completed=rows.length-upcoming;

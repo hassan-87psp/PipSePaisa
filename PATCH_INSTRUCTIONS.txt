@@ -1,0 +1,29 @@
+PipSePaisa V248 — CURRENT FREE BATCHES + FRESH LEADS
+=====================================================
+
+DEPLOYMENT ORDER
+1) Supabase SQL Editor: run 110_V248_CURRENT_BATCHES_FRESH_LEADS.sql once.
+2) Upload/replace the remaining files from this patch, preserving folders.
+3) Hard refresh / clear CDN cache if your host caches JS.
+
+CURRENT FREE BATCHES
+- Sir Sajid Basic Forex Course = Batch 3 (fresh current batch, starts at 0)
+- Sir Ghulam Abbas Fundamental Forex Course = Batch 2 (fresh current batch, starts at 0)
+- No batch dates are shown in the new/current course UI.
+- Old course enrollments remain available under their historical batch tabs.
+
+HISTORICAL ADMIN VIEW
+- Sir Sajid: Batch 1 / Batch 2 / Batch 3 are separate.
+- Fundamental: Batch 1 / Batch 2 are separate.
+- Paid course payment controls remain unchanged.
+
+TEAM LEADS
+- Exactly two shared links are shown in Team Panel Access.
+- New current-batch enrollments enter a fresh V248 round-robin pool only.
+- Old Team Performance / Link Manager history is not mixed into this fresh pool.
+- Existing Team WhatsApp numbers are backfilled from previously assigned tracked links when the team member has no valid number already.
+- Existing Leads ON/OFF choices are preserved; a fetched number does not force a member ON.
+
+IMPORTANT
+- This patch expects the FIXED V247 SQL to already be installed.
+- Do NOT delete old enrollment rows. V248 keeps them as history and starts the current batches with new rows.

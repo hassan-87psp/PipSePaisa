@@ -126,18 +126,18 @@ Please mujhe next process ke liye guide kar dein.`;
   function referralCourseName(referral,context){
     const explicit=String(context?.courseName||'').trim();
     if(explicit){
-      if(String(context?.courseKey||'').toLowerCase()==='fundamental')return 'Free Fundamental Forex Course';
+      if(['fundamental','fundamental-b2'].includes(String(context?.courseKey||'').toLowerCase()))return 'Fundamental Forex Course — Batch 2';
       return explicit;
     }
     const key=String(context?.courseKey||'').toLowerCase();
-    if(key==='basic-b2')return 'Basic Forex Course — Batch 2';
-    if(key==='fundamental')return 'Free Fundamental Forex Course';
+    if(['basic','basic-b2','basic-b3'].includes(key))return 'Basic Forex Course — Batch 3';
+    if(['fundamental','fundamental-b2'].includes(key))return 'Fundamental Forex Course — Batch 2';
     try{
       const path=String(referral?.destination_path||'');
       const u=new URL(path,'https://pipsepaisa.com');
       const fromLink=String(u.searchParams.get('psp_enroll')||'').toLowerCase();
-      if(fromLink==='basic-b2')return 'Basic Forex Course — Batch 2';
-      if(fromLink==='fundamental')return 'Free Fundamental Forex Course';
+      if(['basic','basic-b2','basic-b3'].includes(fromLink))return 'Basic Forex Course — Batch 3';
+      if(['fundamental','fundamental-b2'].includes(fromLink))return 'Fundamental Forex Course — Batch 2';
     }catch(_){}
     return 'Free Forex Course';
   }
