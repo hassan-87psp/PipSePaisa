@@ -23,6 +23,51 @@
   function firstRow(data){return Array.isArray(data)?(data[0]||null):(data||null);}
   function cleanWaNumber(value){return String(value||'').replace(/\D/g,'');}
 
+
+  async function resolveRoundRobinLead(client,userId,context={}){
+    const enrollmentId=String(context?.enrollmentId||context?.enrollment_id||'').trim();
+    if(!client||!userId||!enrollmentId)return null;
+    try{
+      const {data,error}=await client.rpc('psp_assign_enrollment_lead_v245',{p_enrollment_id:enrollmentId});
+      if(error){
+        // V245 is additive. If SQL has not been installed yet, keep the old
+        // referral/channel redirect working instead of blocking enrollment.
+        console.warn('V245 lead assignment fallback:',error.message||error);
+        return null;
+      }
+      const row=firstRow(data);
+      const digits=cleanWaNumber(row?.whatsapp_number);
+      if(!row||digits.length<8)return null;
+      const memberName=String(row.team_member_name||'PipSePaisa Team').trim();
+      const clientName=String(row.client_name||context?.clientName||'PipSePaisa Student').trim();
+      const clientEmail=String(row.client_email||context?.clientEmail||'').trim();
+      const courseName=String(row.course_name||context?.courseName||'PipSePaisa Course').trim();
+      const message=`Hello ${memberName},
+
+Maine PipSePaisa par apni enrollment complete kar li hai.
+
+Name: ${clientName}
+Email: ${clientEmail||'—'}
+Course: ${courseName}
+
+Please mujhe next process ke liye guide kar dein.`;
+      return {
+        mode:'round_robin',
+        url:`https://wa.me/${digits}?text=${encodeURIComponent(message)}`,
+        clientId:await resolveClientId(client,userId),
+        linkName:'',
+        whatsapp:String(row.whatsapp_number||''),
+        courseName,
+        teamMemberName:memberName,
+        assignmentId:String(row.assignment_id||''),
+        message
+      };
+    }catch(error){
+      console.warn('V245 lead assignment fallback:',error?.message||error);
+      return null;
+    }
+  }
+
   async function resolveClientId(client,userId){
     if(!client||!userId)return '';
     for(let attempt=0;attempt<5;attempt++){
@@ -100,6 +145,8 @@
   window.PSPPostSignup={
     channelUrl:PSP_WHATSAPP_CHANNEL,
     async resolve(client,userId,context={}){
+      const roundRobin=await resolveRoundRobinLead(client,userId,context);
+      if(roundRobin)return roundRobin;
       const clientId=await resolveClientId(client,userId);
       const referral=await resolveReferralTarget(client,userId);
       if(!referral){
@@ -111,6 +158,13 @@
       return {mode:'referral',url,clientId,linkName:String(referral.link_name||''),whatsapp:String(referral.whatsapp_number||''),courseName,message};
     },
     successCopy(result){
+      if(result?.mode==='round_robin'){
+        return {
+          detail:`Aapki Client ID: ${result.clientId||'Pending'}`,
+          note:`Aapko ${result.teamMemberName||'PipSePaisa Team'} ke WhatsApp par redirect kiya ja raha hai.`,
+          redirect:'WhatsApp open ho raha hai...'
+        };
+      }
       if(result?.mode==='referral'){
         return {
           detail:`Aapki Client ID: ${result.clientId||'Pending'}`,

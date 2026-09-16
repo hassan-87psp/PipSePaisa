@@ -1054,18 +1054,34 @@
   }
 
 
+  async function redirectPaidEnrollmentToAssignedWhatsapp(result,values){
+    if(!activeUser||!result?.row?.id||!selectedCourse)return;
+    try{
+      const target=await window.PSPPostSignup?.resolve?.(getClient(),activeUser.id,{courseKey:selectedCourse.key,courseName:selectedCourse.name,enrollmentId:result.row.id,clientName:values?.name||result.row.full_name||'',clientEmail:values?.email||result.row.email||activeUser.email||''});
+      // Paid/manual flows previously stayed on the success screen. V245 only
+      // redirects them when an actual round-robin team member was assigned.
+      if(!target?.url||target.mode!=='round_robin')return;
+      const copy=window.PSPPostSignup?.successCopy?.(target);
+      const text=document.getElementById('ceSuccessText');
+      if(text)text.innerHTML=`${text.innerHTML}<br><br>${copy?.note||'Opening your assigned WhatsApp chat...'}<br><small>${copy?.redirect||'Redirecting to WhatsApp...'}</small>`;
+      setTimeout(()=>{window.location.assign(String(target.url));},1200);
+    }catch(error){
+      console.warn('V245 assigned WhatsApp redirect could not be prepared.',error?.message||error);
+    }
+  }
+
   async function showFreeSuccessAndRedirect(result){
     showSuccess(result);
     if(!selectedCourse||selectedCourse.type!=='free'||!activeUser)return;
     try{
       const client=getClient();
-      const target=await window.PSPPostSignup?.resolve?.(client,activeUser.id,{courseKey:selectedCourse.key,courseName:selectedCourse.name});
+      const target=await window.PSPPostSignup?.resolve?.(client,activeUser.id,{courseKey:selectedCourse.key,courseName:selectedCourse.name,enrollmentId:result?.row?.id||null,clientName:result?.row?.full_name||'',clientEmail:result?.row?.email||activeUser.email||''});
       if(!target?.url)return;
       const copy=window.PSPPostSignup?.successCopy?.(target);
       const text=document.getElementById('ceSuccessText');
       if(text){
-        const extra=target.mode==='referral'
-          ?`${copy?.detail||''}${copy?.detail?'<br>':''}${copy?.note||'Opening your referral WhatsApp chat...'}<br><small>${copy?.redirect||'Redirecting to WhatsApp...'}</small>`
+        const extra=['round_robin','referral'].includes(target.mode)
+          ?`${copy?.detail||''}${copy?.detail?'<br>':''}${copy?.note||'Opening your assigned WhatsApp chat...'}<br><small>${copy?.redirect||'Redirecting to WhatsApp...'}</small>`
           :'Please follow our WhatsApp Channel for important course updates.<br><small>Redirecting you now...</small>';
         text.innerHTML=`${text.innerHTML}<br><br>${extra}`;
       }
@@ -1223,12 +1239,12 @@
         return;
       }
 
-      const postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id,{courseKey:selectedCourse.key,courseName:selectedCourse.name})||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+      const postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id,{courseKey:selectedCourse.key,courseName:selectedCourse.name,enrollmentId:result.row?.id||null,clientName:values.name,clientEmail:values.email})||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
       const postCopy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
       const title=document.getElementById('ceSuccessTitle');
       const text=document.getElementById('ceSuccessText');
       if(title)title.textContent='Account Created';
-      if(text)text.innerHTML=postSignup.mode==='referral'
+      if(text)text.innerHTML=['round_robin','referral'].includes(postSignup.mode)
         ?`Thank You for Joining! You are registered for the course.<br><strong>${postCopy.detail}</strong><br>${postCopy.note}<br><small>${postCopy.redirect}</small>`
         :(selectedCourse.type==='free'
           ?`Thank You for Joining! You are logged in and enrolled in the ${selectedCourse.name}. Please follow our WhatsApp Channel for important course updates, market insights, and announcements. Redirecting you now...`
@@ -1356,6 +1372,7 @@
         if(!emailResult.ok)console.warn('Payment saved but receipt email delivery failed.',emailResult.error);
       }
       showSuccess(result);
+      await redirectPaidEnrollmentToAssignedWhatsapp(result,values);
     }catch(error){
       const msg=/course_enrollments/i.test(error?.message||'')
         ?'Course payment setup is temporarily unavailable. Please try again later.'
@@ -1444,6 +1461,7 @@
         }
       }
       showSuccess(result);
+      if(selectedCourse.type==='paid'&&values.paymentFlow!=='infinity')await redirectPaidEnrollmentToAssignedWhatsapp(result,values);
     }catch(error){
       let msg;
       if(values.paymentFlow==='infinity'){
