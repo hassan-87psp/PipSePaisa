@@ -82,7 +82,7 @@ function statusLabel(v){v=low(v)||'pending';if(SUCCESS.includes(v))return v==='e
 function pill(v,label){return `<span class="v172-pill ${statusKind(v)}">${esc(label||statusLabel(v))}</span>`}
 function isInfinity(r){if(manualAdminV234(r))return false;return low(r.payment_provider)==='infinity'||/local bank/i.test(String(r.payment_method||''))}
 function courseRejected(r){return ['rejected','revoked'].includes(low(r.payment_status))||['rejected','cancelled','canceled'].includes(low(r.enrollment_status))||BAD.includes(providerRaw(r))}
-function courseApproved(r){return low(r.payment_status)==='approved'||low(r.enrollment_status)==='enrolled'||SUCCESS.includes(providerRaw(r))}
+function courseApproved(r){if(courseRejected(r))return false;return low(r.payment_status)==='approved'||low(r.enrollment_status)==='enrolled'||SUCCESS.includes(providerRaw(r))}
 function courseUnresolved(r){
   if(!paidCourse(r)||courseApproved(r)||courseRejected(r))return false;
   const ps=low(r.payment_status),es=low(r.enrollment_status),pr=providerRaw(r);
@@ -338,7 +338,7 @@ function payExpired(i){if(i.kind==='course')return low(providerRaw(i.raw))==='ex
 function payRejectedOnly(i){return payRejected(i)&&!payExpired(i)}
 function payFree(i){return i.kind==='course'&&!paidCourse(i.raw)}
 function payOverdue(i){return i.kind==='course'?courseOverdue(i.raw):false}
-function paymentTabItems(tab){const all=paymentItems();if(tab==='needs')return all.filter(payNeeds);if(tab==='processing')return all.filter(payProcessing);if(tab==='approved')return all.filter(i=>payApproved(i)&&!payFree(i));if(tab==='rejected')return all.filter(payRejectedOnly);if(tab==='expired')return all.filter(payExpired);if(tab==='free')return all.filter(payFree);return all}
+function paymentTabItems(tab){const all=paymentItems();if(tab==='needs')return all.filter(payNeeds);if(tab==='processing')return all.filter(payProcessing);if(tab==='approved')return all.filter(i=>payApproved(i)&&!payRejected(i)&&!payFree(i));if(tab==='rejected')return all.filter(payRejectedOnly);if(tab==='expired')return all.filter(payExpired);if(tab==='free')return all.filter(payFree);return all}
 function paymentScopeMatchV232(i,scope){
   if(!scope)return true;
   const courseLike=i.kind==='course'||i.kind==='provider';
@@ -348,7 +348,7 @@ function paymentScopeMatchV232(i,scope){
   return true;
 }
 function paymentFiltered(){let data=paymentTabItems(S.paymentTab);if(S.paymentCourseFilter)data=data.filter(i=>paymentScopeMatchV232(i,S.paymentCourseFilter));const f=S.paymentFilters,q=low(f.search);if(q)data=data.filter(i=>{const ref=registrationLinkInfo(i.raw);return [i.student,i.email,i.phone,i.item,i.method,i.status,i.txn,ref.name,ref.detail,courseSegmentV205(i.raw)].join(' ').toLowerCase().includes(q)});if(f.type)data=data.filter(i=>f.type==='course'?(i.kind==='course'||i.kind==='provider'):i.kind===f.type);if(f.method)data=data.filter(i=>i.method===f.method);if(f.status)data=data.filter(i=>low(i.status)===low(f.status));if(f.from){const d=new Date(f.from+'T00:00:00');data=data.filter(i=>new Date(i.created_at)>=d)}if(f.to){const d=new Date(f.to+'T23:59:59.999');data=data.filter(i=>new Date(i.created_at)<=d)}if(f.sort==='oldest')data.sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));else if(f.sort==='oldest-pending')data.sort((a,b)=>(payNeeds(a)?0:1)-(payNeeds(b)?0:1)||new Date(a.created_at)-new Date(b.created_at));else if(f.sort==='amount-high')data.sort((a,b)=>b.amount-a.amount);else data.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));return data}
-function paymentStats(){const all=paymentItems(),needs=all.filter(payNeeds),processing=all.filter(payProcessing),approvedToday=all.filter(i=>payApproved(i)&&sameDay(i.raw.reviewed_at||i.raw.updated_at||i.raw.created_at)),rejected=all.filter(payRejectedOnly),expired=all.filter(payExpired),overdue=processing.filter(payOverdue),amount=needs.reduce((a,i)=>a+i.amount,0);return {needs:needs.length,processing:processing.length,approvedToday:approvedToday.length,rejected:rejected.length,expired:expired.length,overdue:overdue.length,amount}}
+function paymentStats(){const all=paymentItems(),needs=all.filter(payNeeds),processing=all.filter(payProcessing),approvedToday=all.filter(i=>payApproved(i)&&!payRejected(i)&&sameDay(i.raw.reviewed_at||i.raw.updated_at||i.raw.created_at)),rejected=all.filter(payRejectedOnly),expired=all.filter(payExpired),overdue=processing.filter(payOverdue),amount=needs.reduce((a,i)=>a+i.amount,0);return {needs:needs.length,processing:processing.length,approvedToday:approvedToday.length,rejected:rejected.length,expired:expired.length,overdue:overdue.length,amount}}
 function paymentCounts(){return {needs:paymentTabItems('needs').length,processing:paymentTabItems('processing').length,approved:paymentTabItems('approved').length,rejected:paymentTabItems('rejected').length,expired:paymentTabItems('expired').length,free:paymentTabItems('free').length,all:paymentItems().length}}
 function courseUserKeyV222(i){return String(i?.raw?.user_id||i?.raw?.email||i?.id||'').trim().toLowerCase()}
 function uniqueCourseRowsV222(rows){const seen=new Set();return rows.filter(i=>{const seg=courseSegmentV205(i.raw),u=courseUserKeyV222(i),k=seg+'|'+u;if(!u||seen.has(k))return false;seen.add(k);return true})}
