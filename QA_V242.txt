@@ -1,0 +1,34 @@
+PipSePaisa V242 LIVE DESK — FINAL QA CHECKLIST
+===============================================
+
+Static checks completed before packaging
+----------------------------------------
+[PASS] Public visitor JavaScript syntax
+[PASS] Team Live Desk JavaScript syntax
+[PASS] Modified HTML files parse successfully
+[PASS] Public chat assets included on landing/courses/broker/partner/tools routes
+[PASS] Team Live Desk assets included on both Team Panel entry files
+[PASS] SQL dollar-quoted function blocks balanced
+[PASS] Visitor token stored only client-side; DB stores SHA-256 hash
+[PASS] Direct table access revoked from anon/authenticated
+[PASS] Team actor username checked against authenticated Team session
+[PASS] Internal notes excluded from visitor message RPC
+[PASS] Auto assignment only selects recently-online managers under active-chat limit
+[PASS] Quick replies seeded idempotently
+[PASS] Existing auth/payments/courses/signals/EA/finance code not replaced by this feature
+
+Post-deploy smoke test
+----------------------
+1. Incognito -> pipsepaisa.com -> Live Chat bubble visible.
+2. Enter WhatsApp + email -> Start Live Chat -> send message.
+3. Team manager -> /team -> Live Chat -> new conversation visible.
+4. Open conversation -> visitor gets delivered/seen ticks.
+5. Manager replies -> visitor receives message.
+6. Test typing indicator both directions.
+7. Test Assign to Me / transfer / Unassigned.
+8. Test Waiting -> Resume, Close -> Reopen.
+9. Test internal note (must never appear to visitor).
+10. Test tags, priority, CRM stage, follow-up, conversion, rating.
+11. Refresh visitor page -> same conversation persists.
+12. Mobile visitor -> full-screen chat; mobile Team -> inbox -> full-screen conversation.
+13. Open ad URL with utm_source/utm_campaign/ref -> verify Source/Campaign on lead profile.
