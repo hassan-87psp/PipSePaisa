@@ -68,8 +68,8 @@ function installSignupFix(){
       try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
       try{await window.PSPTrack?.enrollment?.('basic',data.user.id,{source:'home-signup'});}catch(_){}
 
-      const postSignup=await window.PSPPostSignup?.resolve?.(client,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
-      const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
+      const postSignup=await window.PSPPostSignup?.resolve?.(client,data.user.id)||{mode:'no_team',url:'',clientId:''};
+      const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'',redirect:''};
       stopSignupScreenKeeper(true);
       const form=document.getElementById('authForm-signup');
       if(form){
@@ -78,7 +78,7 @@ function installSignupFix(){
       const title=document.getElementById('authTitle'),sub=document.getElementById('authSubtitle');
       if(title)title.textContent='Account Created';
       if(sub)sub.textContent=postSignup.mode==='referral'?'Client ID created — opening WhatsApp verification':'You are logged in to PipSePaisa';
-      setTimeout(()=>{window.location.href=postSignup.url;},1000);
+      if(postSignup?.url)setTimeout(()=>{window.location.href=postSignup.url;},1000);
     }catch(error){
       let msg=error?.message||'Signup failed. Please try again.';
       if(/already|registered|exists/i.test(msg))msg='An account already exists with this email. Please sign in.';

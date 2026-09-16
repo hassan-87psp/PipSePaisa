@@ -7,8 +7,8 @@ const SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
 const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const TEAM_URL='https://pipsepaisa.com/team';
 const BASE_DOMAIN='https://pipsepaisa.com';
-const BASIC_SHARED=BASE_DOMAIN+'/courses.html?psp_enroll=basic-b3';
-const FUND_SHARED=BASE_DOMAIN+'/courses.html?psp_enroll=fundamental-b2';
+const BASIC_SHARED=BASE_DOMAIN+'/technical';
+const FUND_SHARED=BASE_DOMAIN+'/fundamental';
 let fallbackClient=null,teamRows=[],summary=null,realtimeChannel=null,lastCreatedCredentials=null;
 
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -97,7 +97,7 @@ async function loadAll(){
  const [r,s]=await Promise.all([client.rpc('psp_admin_team_lead_directory_v248'),client.rpc('psp_admin_lead_pool_summary_v248')]);if(r.error||s.error){tbody.innerHTML='<tr><td colspan="6"><b style="color:var(--red)">V248 Team Lead update is not installed.</b><br>'+esc(r.error?.message||s.error?.message||'Run 110_V248 SQL.')+'</td></tr>';return;}teamRows=r.data||[];summary=Array.isArray(s.data)?(s.data[0]||{}):(s.data||{});renderTeam();
 }
 window.loadTeamAccessV248=loadAll;window.loadTeamAccessV247=loadAll;
-window.copySharedLeadLinkV248=async function(type){const path=type==='basic'?(summary?.basic_shared_path||'/courses.html?psp_enroll=basic-b3'):(summary?.fundamental_shared_path||'/courses.html?psp_enroll=fundamental-b2');await copyText(BASE_DOMAIN+path);toast(type==='basic'?'Sir Sajid Batch 3 link copied.':'Fundamental Batch 2 link copied.','ok');};window.copySharedLeadLinkV247=window.copySharedLeadLinkV248;
+window.copySharedLeadLinkV248=async function(type){const path=type==='basic'?(summary?.basic_shared_path||'/technical'):(summary?.fundamental_shared_path||'/fundamental');await copyText(BASE_DOMAIN+path);toast(type==='basic'?'Sir Sajid Batch 3 link copied.':'Fundamental Batch 2 link copied.','ok');};window.copySharedLeadLinkV247=window.copySharedLeadLinkV248;
 window.toggleTeamLeadsV245=async function(id,state){const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;let wa=cleanWhatsapp(row.whatsapp_number||'');if(state&&wa.length<8){const entered=prompt('Enter WhatsApp number with country code for '+(row.display_name||'this member')+':',wa||'');wa=cleanWhatsapp(entered||'');if(wa.length<8){toast('Valid WhatsApp number is required before Leads can be ON.','err');loadAll();return;}}const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_lead_settings_v245',{p_team_member_id:String(id),p_whatsapp_number:wa,p_lead_distribution_enabled:state});if(error){toast(error.message||'Lead setting could not be updated.','err');loadAll();return;}toast(state?'Automatic leads ON.':'Automatic leads OFF.','ok');loadAll();};
 window.editTeamWhatsappV245=async function(id){const row=teamRows.find(r=>String(r.team_member_id)===String(id));if(!row)return;const entered=prompt('WhatsApp number with country code:',cleanWhatsapp(row.whatsapp_number||''));if(entered===null)return;const wa=cleanWhatsapp(entered);if(wa.length<8)return toast('Enter a valid WhatsApp number with country code.','err');const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_lead_settings_v245',{p_team_member_id:String(id),p_whatsapp_number:wa,p_lead_distribution_enabled:row.lead_distribution_enabled!==false});if(error)return toast(error.message||'WhatsApp number could not be updated.','err');toast('WhatsApp number updated.','ok');loadAll();};
 window.toggleTeamAccessV56=async function(id,state){const client=await waitForSb();const {error}=await client.rpc('psp_admin_set_team_member_status',{p_team_member_id:id,p_is_active:state});if(error)return toast(error.message,'err');toast(state?'Team access enabled.':'Team access disabled.','ok');loadAll();};

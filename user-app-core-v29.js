@@ -5175,11 +5175,11 @@
       enterApp();
       try{localStorage.setItem('pipsepaisa_last_login_email',email);}catch(_){}
 
-      let postSignup={mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+      let postSignup={mode:'no_team',url:'',clientId:''};
       try{
         postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id,payload?.context||{})||postSignup;
       }catch(_){}
-      let copy={detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important updates.',redirect:'Redirecting you now...'};
+      let copy={detail:'You are logged in and your account is ready.',note:'',redirect:''};
       try{ copy=window.PSPPostSignup?.successCopy?.(postSignup)||copy; }catch(_){}
 
       setTimeout(function(){

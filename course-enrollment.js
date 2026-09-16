@@ -1096,10 +1096,8 @@
       if(!target?.url)return;
       const copy=window.PSPPostSignup?.successCopy?.(target);
       const text=document.getElementById('ceSuccessText');
-      if(text){
-        const extra=['round_robin','referral'].includes(target.mode)
-          ?`${copy?.detail||''}${copy?.detail?'<br>':''}${copy?.note||'Opening your assigned WhatsApp chat...'}<br><small>${copy?.redirect||'Redirecting to WhatsApp...'}</small>`
-          :'Please follow our WhatsApp Channel for important course updates.<br><small>Redirecting you now...</small>';
+      if(text&&['round_robin','referral'].includes(target.mode)){
+        const extra=`${copy?.detail||''}${copy?.detail?'<br>':''}${copy?.note||'Opening your assigned WhatsApp chat...'}${copy?.redirect?`<br><small>${copy.redirect}</small>`:''}`;
         text.innerHTML=`${text.innerHTML}<br><br>${extra}`;
       }
       setTimeout(()=>{window.location.assign(String(target.url));},1100);
@@ -1256,16 +1254,16 @@
         return;
       }
 
-      const postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id,{courseKey:selectedCourse.key,courseName:selectedCourse.name,enrollmentId:result.row?.id||null,clientName:values.name,clientEmail:values.email})||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
-      const postCopy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
+      const postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id,{courseKey:selectedCourse.key,courseName:selectedCourse.name,enrollmentId:result.row?.id||null,clientName:values.name,clientEmail:values.email})||{mode:'no_team',url:'',clientId:''};
+      const postCopy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'Enrollment completed successfully.',note:'',redirect:''};
       const title=document.getElementById('ceSuccessTitle');
       const text=document.getElementById('ceSuccessText');
       if(title)title.textContent='Account Created';
       if(text)text.innerHTML=['round_robin','referral'].includes(postSignup.mode)
-        ?`Thank You for Joining! You are registered for the course.<br><strong>${postCopy.detail}</strong><br>${postCopy.note}<br><small>${postCopy.redirect}</small>`
+        ?`Thank You for Joining! You are registered for the course.<br><strong>${postCopy.detail}</strong><br>${postCopy.note}${postCopy.redirect?`<br><small>${postCopy.redirect}</small>`:''}`
         :(selectedCourse.type==='free'
-          ?`Thank You for Joining! You are logged in and enrolled in the ${selectedCourse.name}. Please follow our WhatsApp Channel for important course updates, market insights, and announcements. Redirecting you now...`
-          :'Thank You for Joining! You are logged in and your payment receipt has been submitted for verification. Please follow our WhatsApp Channel for important course updates and announcements. Redirecting you now...');
+          ?`Thank You for Joining! You are logged in and enrolled in the ${selectedCourse.name}.`
+          :'Thank You for Joining! You are logged in and your payment receipt has been submitted for verification.');
       showStep('ceStepSuccess');
       try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));}catch(_){ }
       const isCurrentFreeZoomCourse=selectedCourse.type==='free'&&['__no_current_free_zoom_schedule__'].includes(selectedCourse.key);
@@ -1283,7 +1281,7 @@
       }catch(postError){
         console.warn('Post-enrollment task failed.',postError);
       }
-      setTimeout(()=>{window.location.href=postSignup.url;},1200);
+      if(postSignup?.url)setTimeout(()=>{window.location.href=postSignup.url;},1200);
     }catch(error){
       let msg=values.paymentFlow==='infinity'?localBankUserMessage(error):(error?.message||'Account creation failed.');
       if(values.paymentFlow!=='infinity'&&/already|registered|exists/i.test(msg))msg='This email is already registered. Please use the “Already a User” button.';
@@ -1477,8 +1475,11 @@
           if(window.pipToast)window.pipToast(`Course enrolled. Zoom registration needs attention: ${zoomResult.detail||zoomResult.error?.message||'Please retry from the course page.'}`,'err');
         }
       }
-      showSuccess(result);
-      if(selectedCourse.type==='paid'&&values.paymentFlow!=='infinity')await redirectPaidEnrollmentToAssignedWhatsapp(result,values);
+      if(selectedCourse.type==='free')await showFreeSuccessAndRedirect(result);
+      else{
+        showSuccess(result);
+        if(values.paymentFlow!=='infinity')await redirectPaidEnrollmentToAssignedWhatsapp(result,values);
+      }
     }catch(error){
       let msg;
       if(values.paymentFlow==='infinity'){
