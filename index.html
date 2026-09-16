@@ -1050,20 +1050,21 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 #sidebar .menu-item[data-tabkey="addtrade"]{order:4}
 #sidebar .menu-item[data-page="performance"]{order:5}
 #sidebar .menu-item[data-page="signals"]{order:6}
-#sidebar .menu-item[data-page="charts"]{order:7}
-#sidebar .menu-item[data-page="articles"]{order:8}
-#sidebar .menu-item[data-page="newshub"]{order:9}
-#sidebar .menu-item[data-page="strength"]{order:10}
-#sidebar .menu-item[data-page="trades"]{order:11}
-#sidebar .menu-item[data-page="analysis"]{order:12}
-#sidebar .menu-item[data-page="tools"]{order:13}
-#sidebar .menu-item[data-page="aireport"]{order:14}
-#sidebar .menu-item[data-page="news"]{order:15}
-#sidebar .menu-item[data-page="chats"]{order:16}
-#sidebar .menu-item[data-page="vipplans"]{order:17}
-#sidebar .menu-item[data-page="aitools"]{order:18}
-#sidebar .menu-item[data-tabkey="vipindicators"]{order:19}
-#sidebar .menu-item[data-tabkey="vipea"]{order:20}
+#sidebar .menu-item[data-page="eaindicator"]{order:7}
+#sidebar .menu-item[data-page="charts"]{order:8}
+#sidebar .menu-item[data-page="articles"]{order:9}
+#sidebar .menu-item[data-page="newshub"]{order:10}
+#sidebar .menu-item[data-page="strength"]{order:11}
+#sidebar .menu-item[data-page="trades"]{order:12}
+#sidebar .menu-item[data-page="analysis"]{order:13}
+#sidebar .menu-item[data-page="tools"]{order:14}
+#sidebar .menu-item[data-page="aireport"]{order:15}
+#sidebar .menu-item[data-page="news"]{order:16}
+#sidebar .menu-item[data-page="chats"]{order:17}
+#sidebar .menu-item[data-page="vipplans"]{order:18}
+#sidebar .menu-item[data-page="aitools"]{order:19}
+#sidebar .menu-item[data-tabkey="vipindicators"]{order:20}
+#sidebar .menu-item[data-tabkey="vipea"]{order:21}
 </style>
 
 <style id="pspCoursePageIsolationCss">#page-mycourses:not(.active){display:none!important}#page-mycourses.active{display:block!important}.brand-logo-img{width:42px;height:42px;object-fit:contain;display:block;flex:0 0 42px;border-radius:10px}</style>
@@ -1174,6 +1175,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item" data-tabkey="addtrade" onclick="openAddTradeModal()" style="background: linear-gradient(135deg, var(--gold-bg), transparent); border: 1px solid rgba(245,158,11,0.3);"><span class="menu-icon">➕</span><strong>Add Trade</strong></div>
       <div class="menu-item" data-page="performance" onclick="showPage('performance', this)"><span class="menu-icon">🏆</span>Performance</div>
       <div class="menu-item" data-page="signals" onclick="showPage('signals', this)"><span class="menu-icon">📶</span>Signals<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
+      <div class="menu-item" data-page="eaindicator" onclick="showPage('eaindicator', this);window.PSPEAIndicator?.load?.()"><span class="menu-icon">🧩</span><strong>EA &amp; Indicator</strong></div>
       <div class="menu-item" data-page="charts" onclick="showPage('charts', this)"><span class="menu-icon">📊</span>Live Charts</div>
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts &amp; Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;animation:pulse 2s infinite;">LIVE</span></div>
@@ -3080,7 +3082,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20260916-v240-route-sidebar"></script>
+<script src="user-app-core-v29.js?v=20260916-v241-sessions-sidebar-final"></script>
 
 <script id="mentorPortalAiJs">
 (function(){
