@@ -318,7 +318,7 @@
       dashboard: 'Dashboard', journal: 'Journal', performance: 'Performance', trades: 'My Trades',
       analysis: 'Trades Analysis', aireport: 'AI Report', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex', mycourses: 'My Courses',
-      signals: 'Signals', articles: 'Charts & Articles', vipplans: 'VIP Plans',
+      signals: 'Signals', eaindicator: 'EA & Indicator', articles: 'Charts & Articles', vipplans: 'VIP Plans',
       support: 'Support', announce: 'Announcements', aitools: 'AI Tools',
       settings: 'Profile', about: 'About'
     };
@@ -358,6 +358,7 @@
       if (page === 'aitools') initMentorAiTools();
       if (page === 'announce') loadAnnouncements();
       if (page === 'signals') loadSignalsFromDB();
+      if (page === 'eaindicator' && window.PSPEAIndicator?.load) window.PSPEAIndicator.load();
       if (page === 'performance') {
         loadPerformance();
         setTimeout(ensurePerformanceGraphVisible, 80);
@@ -5770,7 +5771,7 @@
   if(window.__PSP_EAI_LOADER_V215__)return;window.__PSP_EAI_LOADER_V215__=true;
   function load(){
     if(document.querySelector('script[data-psp-eai-v215]'))return;
-    var sc=document.createElement('script');sc.src='/ea-indicator-user-v215.js?v=20260916-v239-client-modal';sc.defer=true;sc.dataset.pspEaiV215='1';document.head.appendChild(sc);
+    var sc=document.createElement('script');sc.src='/ea-indicator-user-v215.js?v=20260916-v240-route-sidebar';sc.defer=true;sc.dataset.pspEaiV215='1';document.head.appendChild(sc);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();
 })();
