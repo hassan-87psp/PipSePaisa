@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.confirm-account-verification]
 verify_jwt = false
+
+[functions.ad-enroll]
+verify_jwt = false
