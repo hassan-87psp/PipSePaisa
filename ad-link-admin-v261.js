@@ -1,8 +1,8 @@
 (function(){
 'use strict';
-if(window.__PSP_AD_LINK_V261__)return;window.__PSP_AD_LINK_V261__=true;
-const TECH='https://www.pipsepaisa.com/sirsajidkhanghori';
-const FUND='https://www.pipsepaisa.com/sirmalikghulamabbas';
+if(window.__PSP_AD_LINK_V262__)return;window.__PSP_AD_LINK_V262__=true;
+const TECH='https://www.pipsepaisa.com/sajid-khan-ghori';
+const FUND='https://www.pipsepaisa.com/ghulam-abbas';
 const TEAM_URL='https://pipsepaisa.com/team';
 const SB_URL='https://etfolhinohgmskbfjoyh.supabase.co',SB_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 let fallback=null,teamRows=[],leadRows=[],summary={},lastCreatedCredentials=null,realtimeChannel=null;

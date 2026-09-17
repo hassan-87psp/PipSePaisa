@@ -5,7 +5,7 @@ const SB_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const body=document.body,course=String(body.dataset.course||'').toLowerCase();
 const openedAt=Date.now();
 const $=id=>document.getElementById(id);
-const VISITOR_KEY='psp-ad-visitor-v261';
+const VISITOR_KEY='psp-ad-visitor-v262';
 function info(){return course==='fundamental'?{title:'Sir Malik Ghulam Abbas Free Course',batch:'Batch 2'}:{title:'Sir Sajid Khan Ghori Free Course',batch:'Batch 3'};}
 function setError(message){const el=$('adError');if(!el)return;el.textContent=message||'';el.classList.toggle('show',!!message);}
 function cleanPhone(v){return String(v||'').replace(/[^0-9+]/g,'');}
@@ -31,7 +31,7 @@ async function submit(e){
    if($('adSuccessText'))$('adSuccessText').textContent=`Your enrollment is complete.${who}`;
    if($('adEmailText'))$('adEmailText').textContent=(data.credentials_email_sent||data.credentials_email_queued)?`Your PipSePaisa login details are being sent to ${email}.`:`Your account is ready. If the email is delayed, use Change Password on the Sign In page.`;
    const link=$('adWhatsappLink');
-   if(link&&data.whatsapp_url){link.href=data.whatsapp_url;link.style.display='inline-flex';setTimeout(()=>{location.href=data.whatsapp_url;},650);}else if(link){link.style.display='none';}
+   if(link&&data.whatsapp_url){link.href=data.whatsapp_url;link.style.display='inline-flex';setTimeout(()=>{location.href=data.whatsapp_url;},450);}else if(link){link.style.display='none';}
  }catch(err){setError(err.message||'Enrollment could not be completed.');btn.disabled=false;btn.textContent='Complete Free Enrollment';}
 }
 function init(){
