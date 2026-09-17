@@ -20,6 +20,13 @@
 
   function firstRow(data){return Array.isArray(data)?(data[0]||null):(data||null);}
   function cleanWaNumber(value){return String(value||'').replace(/\D/g,'');}
+  function cleanTeamDisplayName(value){
+    const raw=String(value||'').trim();
+    const key=raw.toLowerCase().replace(/[^a-z0-9]/g,'');
+    if(['amal','amalfx','missamal'].includes(key))return 'Miss Amal';
+    if(['samiya','samiyafx','misssamiya'].includes(key))return 'Miss Samiya';
+    return raw||'PipSePaisa Team';
+  }
 
 
   async function resolveRoundRobinLead(client,userId,context={}){
@@ -39,7 +46,7 @@
       }
       const digits=cleanWaNumber(row?.whatsapp_number);
       if(!row||digits.length<8)return null;
-      const memberName=String(row.team_member_name||'PipSePaisa Team').trim();
+      const memberName=cleanTeamDisplayName(row.team_member_name);
       const clientName=String(row.client_name||context?.clientName||'PipSePaisa Student').trim();
       const clientEmail=String(row.client_email||context?.clientEmail||'').trim();
       const courseName=String(row.course_name||context?.courseName||'PipSePaisa Course').trim();
@@ -64,7 +71,7 @@ Please mujhe next process ke liye guide kar dein.`;
         message
       };
     }catch(error){
-      console.warn('V250 team lead assignment fallback:',error?.message||error);
+      console.warn('V251 team lead assignment fallback:',error?.message||error);
       return null;
     }
   }

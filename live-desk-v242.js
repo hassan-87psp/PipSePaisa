@@ -1,4 +1,4 @@
-/* PipSePaisa V244 Live Desk — guaranteed AI auto reply + mobile viewport stability */
+/* PipSePaisa V251 Live Desk — manual-open only + AI auto reply + mobile viewport stability */
 (function(){
 'use strict';
 if(window.__PSP_LIVE_DESK_V244__)return;window.__PSP_LIVE_DESK_V244__=true;
@@ -11,7 +11,7 @@ const PHONE_KEY='psp-live-desk-phone-v242';
 const TOUCH_KEY='psp-live-desk-first-touch-v242';
 const PROMPT_KEY='psp-live-desk-auto-prompt-v243';
 let db=null;
-const st={token:localStorage.getItem(TOKEN_KEY)||'',open:localStorage.getItem(OPEN_KEY)==='1',status:null,messages:[],poll:null,busy:false,typingTimer:null,lastTypingAt:0,lastMessageSig:'',mounted:false,aiBusy:false,viewportBound:false,keyboardOpen:false,lastAiAttemptAt:0,lastAiVisitorId:null,noticeTimer:null};
+const st={token:localStorage.getItem(TOKEN_KEY)||'',open:false,status:null,messages:[],poll:null,busy:false,typingTimer:null,lastTypingAt:0,lastMessageSig:'',mounted:false,aiBusy:false,viewportBound:false,keyboardOpen:false,lastAiAttemptAt:0,lastAiVisitorId:null,noticeTimer:null};
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const qs=(s,r=document)=>r.querySelector(s);
 function uuid(){try{return crypto.randomUUID()}catch(_){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)}}
@@ -44,10 +44,10 @@ function mount(){if(st.mounted||document.getElementById('pspLiveDeskRoot'))retur
   qs('#pspLdMin').onclick=()=>setOpen(false);
   qs('#pspLdEnd').onclick=endChat;
   bindViewport();
-  if(st.open)setOpen(true);else render();
-  scheduleFirstPrompt();
+  // V251: Live Chat never auto-opens. It opens only after the visitor clicks the launcher.
+  try{localStorage.setItem(OPEN_KEY,'0');localStorage.removeItem(PROMPT_KEY)}catch(_){}
+  render();
 }
-function scheduleFirstPrompt(){if(st.token||st.open)return;let seen=false;try{seen=localStorage.getItem(PROMPT_KEY)==='1'}catch(_){}if(seen)return;setTimeout(()=>{if(st.open||st.token)return;try{localStorage.setItem(PROMPT_KEY,'1')}catch(_){}setOpen(true)},1100)}
 function bindViewport(){if(st.viewportBound)return;st.viewportBound=true;const apply=()=>{const p=qs('#pspLdPanel');if(!p)return;const mobile=matchMedia('(max-width:620px)').matches;if(!mobile){document.documentElement.style.removeProperty('--psp-ld-vh');p.classList.remove('keyboard-open');return}const vv=window.visualViewport;const h=Math.max(280,Math.round(vv?.height||window.innerHeight||document.documentElement.clientHeight));document.documentElement.style.setProperty('--psp-ld-vh',h+'px');st.keyboardOpen=!!(vv&&window.innerHeight-vv.height>120);p.classList.toggle('keyboard-open',st.keyboardOpen);p.style.top='0px';p.style.height=h+'px';requestAnimationFrame(()=>scrollBottom(false))};window.addEventListener('resize',apply,{passive:true});window.addEventListener('orientationchange',apply,{passive:true});if(window.visualViewport){visualViewport.addEventListener('resize',apply,{passive:true});visualViewport.addEventListener('scroll',apply,{passive:true})}document.addEventListener('focusin',e=>{if(e.target?.id==='pspLdInput'){setTimeout(()=>{apply();scrollBottom(true)},80)}});apply()}
 function setOpen(v){st.open=!!v;try{localStorage.setItem(OPEN_KEY,st.open?'1':'0')}catch(_){}const p=qs('#pspLdPanel');if(p)p.classList.toggle('open',st.open);lockPage(st.open);if(st.open){render();refresh(true).catch(()=>{});setTimeout(()=>scrollBottom(true),100)}updateBadge()}
 function setError(msg){const e=qs('#pspLdError');if(!e)return;e.textContent=msg||'';e.classList.toggle('show',!!msg)}

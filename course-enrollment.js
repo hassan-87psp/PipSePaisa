@@ -32,6 +32,7 @@
   let paymentMethods=[];
   let paymentSelections={ceNew:null,ceExisting:null};
   let paymentStartInFlight=false;
+  let freeAutoEnrollmentInFlight=false;
   let infinityWarmStarted=false;
 
   function getClient(){
@@ -1122,6 +1123,8 @@
     overlay.setAttribute('aria-hidden','true');
     showStep('');
     accountWasCreated=false;paidProfileConfirmed=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
+    let autoSubmitCurrentFree=false;
+    const freeDirectBtn=document.getElementById('ceFreeSubmitBtn');if(freeDirectBtn)freeDirectBtn.style.display='';
     setCourseText();resetQuestionFields('ceNew');resetQuestionFields('ceDetails');
     ['ceLoginMessage','ceNewMessage','ceDetailsMessage','ceManualMessage'].forEach(id=>setMessage(id,'',''));
     // Detect the current session before choosing the enrollment path.
@@ -1133,15 +1136,17 @@
       renderInitialPaymentChoice();
       showStep('ceStepPaymentChoice');
     }else if(activeUser){
-      // V209: Free Batch 2 / Fundamental never use the old questionnaire/payment UI.
-      setMessage('ceFreeMessage','','');
+      // V251: current free batches enroll immediately after Login / Sign Up.
+      setMessage('ceFreeMessage','info','Completing your free enrollment…');
       showStep('ceStepFreeDirect');
+      autoSubmitCurrentFree=['basic-b3','fundamental-b2'].includes(selectedCourse.key);
+      if(autoSubmitCurrentFree&&freeDirectBtn)freeDirectBtn.style.display='none';
     }else{
       // Free courses always authenticate first and preserve the selected course/referral intent.
       try{
         window.PSPCourseAuthFlow?.remember?.(selectedCourse.key);
         const target=window.PSPCourseAuthFlow?.authUrl?.(selectedCourse.key,'login');
-        if(target){location.assign(target);return;}
+        if(target){freeAutoEnrollmentInFlight=false;location.assign(target);return;}
       }catch(_){ }
       const q=new URLSearchParams();q.set('psp_course',selectedCourse.key);q.set('psp_auth','login');
       try{const now=new URLSearchParams(location.search);['ref','psp_ref','utm_source','utm_medium','utm_campaign','utm_content'].forEach(k=>{const v=now.get(k);if(v)q.set(k,v);});}catch(_){ }
@@ -1150,6 +1155,9 @@
     overlay.classList.add('is-open');
     overlay.setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';
+    if(autoSubmitCurrentFree){
+      setTimeout(()=>{window.courseEnrollmentSubmitFreeDirect?.();},60);
+    }
   };
 
   window.closeCourseEnrollment=function(){
@@ -1291,14 +1299,16 @@
   };
 
   window.courseEnrollmentSubmitFreeDirect=async function(){
-    if(!selectedCourse||selectedCourse.type!=='free')return;
+    if(!selectedCourse||selectedCourse.type!=='free'||freeAutoEnrollmentInFlight)return;
+    freeAutoEnrollmentInFlight=true;
     if(!activeUser)await currentSession();
     if(!activeUser){
       try{
         window.PSPCourseAuthFlow?.remember?.(selectedCourse.key);
         const target=window.PSPCourseAuthFlow?.authUrl?.(selectedCourse.key,'login');
-        if(target){location.assign(target);return;}
+        if(target){freeAutoEnrollmentInFlight=false;location.assign(target);return;}
       }catch(_){ }
+      freeAutoEnrollmentInFlight=false;
       location.assign('/sign-in?psp_course='+encodeURIComponent(selectedCourse.key)+'&psp_auth=login');
       return;
     }
@@ -1338,9 +1348,11 @@
       else if(/enrollment.*closed/i.test(raw))msg='Enrollment for this free course is currently closed.';
       else if(/not currently published/i.test(raw))msg='This free course is not currently available.';
       // Never show any paid/payment setup message for a free course.
+      const retryBtn=document.getElementById('ceFreeSubmitBtn');if(retryBtn)retryBtn.style.display='';
       setMessage('ceFreeMessage','error',msg);
       if(window.pipToast)window.pipToast(msg,'err');
     }finally{
+      freeAutoEnrollmentInFlight=false;
       setBusy('ceFreeSubmitBtn',false,'Enrolling…','Confirm Free Enrollment');
     }
   };
