@@ -1,4 +1,4 @@
-/* PipSePaisa V228 — paid-course enrollment with automatic-only Infinity Local Bank flow. */
+/* PipSePaisa V252 — faster direct free-course auto enrollment + success-only modal. */
 (function(){
   'use strict';
 
@@ -1045,6 +1045,14 @@
     }catch(_){ }
   }
 
+  function revealEnrollmentOverlay(){
+    const overlay=document.getElementById('courseEnrollmentOverlay');
+    if(!overlay)return;
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';
+  }
+
   function showSuccess(result,notify=true){
     let title='Congratulations!';
     let text='';
@@ -1066,6 +1074,7 @@
     document.getElementById('ceSuccessTitle').textContent=title;
     document.getElementById('ceSuccessText').textContent=text;
     showStep('ceStepSuccess');
+    revealEnrollmentOverlay();
     if(notify){
       try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey:selectedCourse?.key||''}}));}catch(_){ }
     }
@@ -1089,19 +1098,23 @@
   }
 
   async function showFreeSuccessAndRedirect(result){
+    // V252: show the success screen immediately. Team WhatsApp resolution happens
+    // after the user can already see that enrollment completed successfully.
     showSuccess(result);
     if(!selectedCourse||selectedCourse.type!=='free'||!activeUser)return;
+    const text=document.getElementById('ceSuccessText');
+    const baseText=text?.textContent||'';
+    if(text)text.innerHTML=`${escapeHtml(baseText)}<br><br><small>Assigned Team WhatsApp prepare ho raha hai...</small>`;
     try{
       const client=getClient();
       const target=await window.PSPPostSignup?.resolve?.(client,activeUser.id,{courseKey:selectedCourse.key,courseName:selectedCourse.name,enrollmentId:result?.row?.id||null,clientName:result?.row?.full_name||'',clientEmail:result?.row?.email||activeUser.email||''});
       if(!target?.url)return;
       const copy=window.PSPPostSignup?.successCopy?.(target);
-      const text=document.getElementById('ceSuccessText');
       if(text&&['round_robin','referral'].includes(target.mode)){
         const extra=`${copy?.detail||''}${copy?.detail?'<br>':''}${copy?.note||'Opening your assigned WhatsApp chat...'}${copy?.redirect?`<br><small>${copy.redirect}</small>`:''}`;
-        text.innerHTML=`${text.innerHTML}<br><br>${extra}`;
+        text.innerHTML=`${escapeHtml(baseText)}<br><br>${extra}`;
       }
-      setTimeout(()=>{window.location.assign(String(target.url));},1100);
+      setTimeout(()=>{window.location.assign(String(target.url));},650);
     }catch(error){
       console.warn('Post-enrollment WhatsApp redirect could not be prepared.',error?.message||error);
     }
@@ -1116,31 +1129,45 @@
       if(typeof window.closeAllCourseModulePopups==='function')window.closeAllCourseModulePopups();
     }catch(_){ }
     injectModal();
-    selectedCourse=await loadCourseConfig(courseKey,{refresh:true});
+    // V252: restore auth and load course config in parallel instead of serially.
+    // This removes one full network round-trip from the current free-course path.
+    accountWasCreated=false;paidProfileConfirmed=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
+    const sessionPromise=currentSession();
+    const normalizedKey=normalizeCurrentFreeCourseKey(courseKey);
+    const isCurrentFree=['basic-b3','fundamental-b2'].includes(normalizedKey);
+    // Current free batches have fixed public pricing/config. Use the local config
+    // immediately and let the database enrollment rules remain the authority.
+    // This avoids an unnecessary course-catalog request before enrollment.
+    const coursePromise=isCurrentFree
+      ?Promise.resolve({...COURSE_INFO[normalizedKey]})
+      :loadCourseConfig(courseKey,{refresh:true});
+    selectedCourse=await coursePromise;
+    await sessionPromise;
     if(!selectedCourse)return;
     const overlay=document.getElementById('courseEnrollmentOverlay');
     overlay.classList.remove('is-open');
     overlay.setAttribute('aria-hidden','true');
     showStep('');
-    accountWasCreated=false;paidProfileConfirmed=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
     let autoSubmitCurrentFree=false;
     const freeDirectBtn=document.getElementById('ceFreeSubmitBtn');if(freeDirectBtn)freeDirectBtn.style.display='';
     setCourseText();resetQuestionFields('ceNew');resetQuestionFields('ceDetails');
     ['ceLoginMessage','ceNewMessage','ceDetailsMessage','ceManualMessage'].forEach(id=>setMessage(id,'',''));
-    // Detect the current session before choosing the enrollment path.
-    // Signed-in users skip all "already a user / create account" questions.
-    await currentSession();
     if(selectedCourse.type==='paid'){
       await loadPaymentMethods();
       renderPaymentSections();
       renderInitialPaymentChoice();
       showStep('ceStepPaymentChoice');
     }else if(activeUser){
-      // V251: current free batches enroll immediately after Login / Sign Up.
-      setMessage('ceFreeMessage','info','Completing your free enrollment…');
-      showStep('ceStepFreeDirect');
+      // V252: current free batches enroll silently. Do not show the intermediate
+      // "Confirm Free Enrollment" screen; open the modal only on success/error.
       autoSubmitCurrentFree=['basic-b3','fundamental-b2'].includes(selectedCourse.key);
-      if(autoSubmitCurrentFree&&freeDirectBtn)freeDirectBtn.style.display='none';
+      if(autoSubmitCurrentFree){
+        if(freeDirectBtn)freeDirectBtn.style.display='none';
+        showStep('');
+      }else{
+        setMessage('ceFreeMessage','info','Completing your free enrollment…');
+        showStep('ceStepFreeDirect');
+      }
     }else{
       // Free courses always authenticate first and preserve the selected course/referral intent.
       try{
@@ -1152,12 +1179,14 @@
       try{const now=new URLSearchParams(location.search);['ref','psp_ref','utm_source','utm_medium','utm_campaign','utm_content'].forEach(k=>{const v=now.get(k);if(v)q.set(k,v);});}catch(_){ }
       location.assign('/sign-in?'+q.toString());return;
     }
-    overlay.classList.add('is-open');
-    overlay.setAttribute('aria-hidden','false');
-    document.body.style.overflow='hidden';
     if(autoSubmitCurrentFree){
-      setTimeout(()=>{window.courseEnrollmentSubmitFreeDirect?.();},60);
+      // Keep the existing course page visible while the enrollment writes.
+      // The user sees only the final success modal, never the processing form.
+      document.body.style.overflow='';
+      Promise.resolve().then(()=>window.courseEnrollmentSubmitFreeDirect?.({silentStart:true}));
+      return;
     }
+    revealEnrollmentOverlay();
   };
 
   window.closeCourseEnrollment=function(){
@@ -1298,8 +1327,9 @@
     }finally{setBusy('ceNewSubmitBtn',false,'Creating account...',normalLabel);updatePaymentSubmitLabel('ceNew');}
   };
 
-  window.courseEnrollmentSubmitFreeDirect=async function(){
+  window.courseEnrollmentSubmitFreeDirect=async function(options={}){
     if(!selectedCourse||selectedCourse.type!=='free'||freeAutoEnrollmentInFlight)return;
+    const silentStart=!!options?.silentStart;
     freeAutoEnrollmentInFlight=true;
     if(!activeUser)await currentSession();
     if(!activeUser){
@@ -1320,19 +1350,25 @@
       email:activeUser.email||'',
       password:'',experience:null,goal:null,paymentFlow:null,paymentMethod:null,transactionId:null,directFree:true
     };
-    setBusy('ceFreeSubmitBtn',true,'Enrolling…','Confirm Free Enrollment');
-    setMessage('ceFreeMessage','info','Confirming your free course enrollment…');
+    if(!silentStart){
+      setBusy('ceFreeSubmitBtn',true,'Enrolling…','Confirm Free Enrollment');
+      setMessage('ceFreeMessage','info','Confirming your free course enrollment…');
+    }
     try{
       const result=await saveEnrollment(values,null);
-      try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser.id,{enrollment_id:result.row?.id||null,course_type:'free'});}catch(_){ }
+
+      // V252 performance: tracking + confirmation email are non-critical. Run them
+      // in the background so they never hold up the success screen / WhatsApp.
+      Promise.resolve().then(async()=>{
+        try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser.id,{enrollment_id:result.row?.id||null,course_type:'free'});}catch(_){ }
+      });
       if(!result.already||result.updated){
-        const emailResult=await sendCourseEmail('free_course_enrolled',values,{enrollment_id:result.row?.id||undefined});
-        if(!emailResult.ok)console.warn('Free enrollment saved but email delivery failed.',emailResult.error||emailResult);
-      }
-      if(['__no_current_free_zoom_schedule__'].includes(selectedCourse.key)){
-        const zoomResult=await registerZoomCourse(values);
-        try{window.dispatchEvent(new CustomEvent('zoom-registration-updated',{detail:zoomResult.data||{}}));}catch(_){ }
-        if(!zoomResult.ok)console.warn('Free course enrolled but Zoom auto-registration needs attention.',zoomResult.error||zoomResult);
+        Promise.resolve().then(async()=>{
+          try{
+            const emailResult=await sendCourseEmail('free_course_enrolled',values,{enrollment_id:result.row?.id||undefined});
+            if(!emailResult.ok)console.warn('Free enrollment saved but email delivery failed.',emailResult.error||emailResult);
+          }catch(error){console.warn('Free enrollment email delivery failed.',error?.message||error);}
+        });
       }
       setMessage('ceFreeMessage','','');
       await showFreeSuccessAndRedirect(result);
@@ -1350,10 +1386,14 @@
       // Never show any paid/payment setup message for a free course.
       const retryBtn=document.getElementById('ceFreeSubmitBtn');if(retryBtn)retryBtn.style.display='';
       setMessage('ceFreeMessage','error',msg);
+      if(silentStart){
+        showStep('ceStepFreeDirect');
+        revealEnrollmentOverlay();
+      }
       if(window.pipToast)window.pipToast(msg,'err');
     }finally{
       freeAutoEnrollmentInFlight=false;
-      setBusy('ceFreeSubmitBtn',false,'Enrolling…','Confirm Free Enrollment');
+      if(!silentStart)setBusy('ceFreeSubmitBtn',false,'Enrolling…','Confirm Free Enrollment');
     }
   };
 
