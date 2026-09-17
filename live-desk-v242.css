@@ -98,3 +98,101 @@ html.psp-live-desk-open,body.psp-live-desk-open{overflow:hidden!important;oversc
   .psp-ld-notice{bottom:82px!important}
 }
 @media(max-width:380px){.psp-ld-launcher{width:198px!important}.psp-ld-launch-copy b{font-size:12.5px!important}.psp-ld-launch-copy span{font-size:9px!important}}
+
+/* ===== V256 launcher readability hardening (desktop + mobile) ===== */
+#pspLiveDeskRoot .psp-ld-launcher{
+  width:310px!important;
+  min-width:310px!important;
+  max-width:calc(100vw - 32px)!important;
+  min-height:84px!important;
+  display:grid!important;
+  grid-template-columns:56px minmax(0,1fr)!important;
+  align-items:center!important;
+  column-gap:13px!important;
+  padding:12px 17px 12px 12px!important;
+  overflow:visible!important;
+  white-space:normal!important;
+  text-align:left!important;
+}
+#pspLiveDeskRoot .psp-ld-launch-icon{
+  width:56px!important;height:56px!important;min-width:56px!important;max-width:56px!important;
+  flex:none!important;grid-column:1!important;align-self:center!important;
+}
+#pspLiveDeskRoot .psp-ld-launch-copy{
+  grid-column:2!important;
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  white-space:normal!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  writing-mode:horizontal-tb!important;
+  text-orientation:mixed!important;
+  direction:ltr!important;
+  line-height:1.2!important;
+}
+#pspLiveDeskRoot .psp-ld-launch-copy b,
+#pspLiveDeskRoot .psp-ld-launch-copy span{
+  display:block!important;
+  position:static!important;
+  float:none!important;
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  transform:none!important;
+  writing-mode:horizontal-tb!important;
+  text-orientation:mixed!important;
+  direction:ltr!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  text-transform:none!important;
+  letter-spacing:normal!important;
+}
+#pspLiveDeskRoot .psp-ld-launch-copy b{
+  font-size:16px!important;
+  line-height:1.2!important;
+  font-weight:850!important;
+  color:#fff!important;
+  white-space:nowrap!important;
+}
+#pspLiveDeskRoot .psp-ld-launch-copy span{
+  margin-top:6px!important;
+  font-size:12px!important;
+  line-height:1.25!important;
+  font-weight:600!important;
+  color:#d5dbe5!important;
+  white-space:nowrap!important;
+}
+@media(max-width:620px){
+  #pspLiveDeskRoot .psp-ld-launcher{
+    width:min(292px,calc(100vw - 24px))!important;
+    min-width:0!important;
+    max-width:calc(100vw - 24px)!important;
+    min-height:78px!important;
+    grid-template-columns:50px minmax(0,1fr)!important;
+    column-gap:12px!important;
+    padding:11px 14px 11px 11px!important;
+    border-radius:22px!important;
+  }
+  #pspLiveDeskRoot .psp-ld-launch-icon{
+    width:50px!important;height:50px!important;min-width:50px!important;max-width:50px!important;
+  }
+  #pspLiveDeskRoot .psp-ld-launch-copy b{font-size:15px!important;white-space:nowrap!important}
+  #pspLiveDeskRoot .psp-ld-launch-copy span{font-size:11px!important;white-space:nowrap!important}
+}
+@media(max-width:340px){
+  #pspLiveDeskRoot .psp-ld-launcher{
+    width:calc(100vw - 20px)!important;max-width:calc(100vw - 20px)!important;
+    grid-template-columns:46px minmax(0,1fr)!important;padding:10px 12px!important;column-gap:10px!important;
+  }
+  #pspLiveDeskRoot .psp-ld-launch-icon{width:46px!important;height:46px!important;min-width:46px!important;max-width:46px!important}
+  #pspLiveDeskRoot .psp-ld-launch-copy b{font-size:14px!important}
+  #pspLiveDeskRoot .psp-ld-launch-copy span{font-size:10px!important}
+}
