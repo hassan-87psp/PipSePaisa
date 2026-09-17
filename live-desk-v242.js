@@ -1,4 +1,4 @@
-/* PipSePaisa V255 Live Desk — manual open, fast AI, dynamic suggestions, viewport-safe continuity */
+/* PipSePaisa V258 Live Desk — icon-only launcher, manual open, fast AI, dynamic suggestions, viewport-safe continuity */
 (function(){
 'use strict';
 if(window.__PSP_LIVE_DESK_V255__)return;window.__PSP_LIVE_DESK_V255__=true;window.__PSP_LIVE_DESK_V244__=true;
@@ -28,8 +28,7 @@ function firstTouch(){let x={};try{x=JSON.parse(localStorage.getItem(TOUCH_KEY)|
 function normalizeLinks(text){let x=String(text||'');x=x.replace(/https?:\/\/(?:www\.)?pipsepaisa\.com\/(?:sign-in|courses(?:\.html)?|free-course)\?[^\s<]*(?:psp_course|psp_enroll)=(?:basic(?:-b[123])?|basic-batch-[123])[^\s<]*/gi,'https://pipsepaisa.com/technical');x=x.replace(/https?:\/\/(?:www\.)?pipsepaisa\.com\/(?:sign-in|courses(?:\.html)?)\?[^\s<]*(?:psp_course|psp_enroll)=(?:fundamental|fundamental-b[12])[^\s<]*/gi,'https://pipsepaisa.com/fundamental');return x}function linkify(text){const safe=esc(normalizeLinks(text)).replace(/\n/g,'<br>');return safe.replace(/(https?:\/\/[^\s<]+)/g,(m)=>{const clean=m.replace(/[.,;!?)]$/,'');const tail=m.slice(clean.length);let internal=false;try{internal=new URL(clean,location.origin).origin===location.origin}catch(_){}return internal?`<a class="psp-ld-link" data-psp-ld-internal="1" href="${clean}">${clean}</a>${tail}`:`<a class="psp-ld-link" href="${clean}" target="_blank" rel="noopener noreferrer">${clean}</a>${tail}`})}
 function mount(){if(st.mounted||document.getElementById('pspLiveDeskRoot'))return;st.mounted=true;const root=document.createElement('div');root.id='pspLiveDeskRoot';root.innerHTML=`
   <button class="psp-ld-launcher" id="pspLdLauncher" type="button" aria-label="Open PipSePaisa Live Chat">
-    <span class="psp-ld-launch-icon">💬<span class="psp-ld-badge" id="pspLdBadge" style="display:none">0</span></span>
-    <div class="psp-ld-launch-text"><div class="psp-ld-launch-title">Want to Live Chat?</div><div class="psp-ld-launch-sub">AI + PipSePaisa team is here</div></div>
+    <span class="psp-ld-launch-icon" aria-hidden="true">💬<span class="psp-ld-badge" id="pspLdBadge" style="display:none">0</span></span>
   </button>
   <section class="psp-ld-panel" id="pspLdPanel" aria-label="PipSePaisa Live Desk">
     <header class="psp-ld-head">
