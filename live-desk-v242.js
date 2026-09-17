@@ -29,7 +29,7 @@ function normalizeLinks(text){let x=String(text||'');x=x.replace(/https?:\/\/(?:
 function mount(){if(st.mounted||document.getElementById('pspLiveDeskRoot'))return;st.mounted=true;const root=document.createElement('div');root.id='pspLiveDeskRoot';root.innerHTML=`
   <button class="psp-ld-launcher" id="pspLdLauncher" type="button" aria-label="Open PipSePaisa Live Chat">
     <span class="psp-ld-launch-icon">💬<span class="psp-ld-badge" id="pspLdBadge" style="display:none">0</span></span>
-    <span class="psp-ld-launch-copy"><b>Want to Live Chat?</b><span>AI + PipSePaisa team is here</span></span>
+    <div class="psp-ld-launch-text"><div class="psp-ld-launch-title">Want to Live Chat?</div><div class="psp-ld-launch-sub">AI + PipSePaisa team is here</div></div>
   </button>
   <section class="psp-ld-panel" id="pspLdPanel" aria-label="PipSePaisa Live Desk">
     <header class="psp-ld-head">

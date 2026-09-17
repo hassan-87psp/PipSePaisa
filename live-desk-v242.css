@@ -99,100 +99,131 @@ html.psp-live-desk-open,body.psp-live-desk-open{overflow:hidden!important;oversc
 }
 @media(max-width:380px){.psp-ld-launcher{width:198px!important}.psp-ld-launch-copy b{font-size:12.5px!important}.psp-ld-launch-copy span{font-size:9px!important}}
 
-/* ===== V256 launcher readability hardening (desktop + mobile) ===== */
+
+/* ===== V257 FINAL compact isolated launcher — immune to page CSS ===== */
 #pspLiveDeskRoot .psp-ld-launcher{
-  width:310px!important;
-  min-width:310px!important;
+  width:258px!important;
+  min-width:258px!important;
   max-width:calc(100vw - 32px)!important;
-  min-height:84px!important;
+  min-height:68px!important;
+  height:auto!important;
   display:grid!important;
-  grid-template-columns:56px minmax(0,1fr)!important;
+  grid-template-columns:44px minmax(0,1fr)!important;
   align-items:center!important;
-  column-gap:13px!important;
-  padding:12px 17px 12px 12px!important;
-  overflow:visible!important;
+  gap:10px!important;
+  padding:10px 13px!important;
+  margin:0!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  border-radius:20px!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
   white-space:normal!important;
   text-align:left!important;
+  line-height:normal!important;
 }
 #pspLiveDeskRoot .psp-ld-launch-icon{
-  width:56px!important;height:56px!important;min-width:56px!important;max-width:56px!important;
-  flex:none!important;grid-column:1!important;align-self:center!important;
+  width:44px!important;
+  height:44px!important;
+  min-width:44px!important;
+  max-width:44px!important;
+  min-height:44px!important;
+  max-height:44px!important;
+  display:grid!important;
+  place-items:center!important;
+  align-self:center!important;
+  justify-self:start!important;
+  margin:0!important;
+  padding:0!important;
+  font-size:20px!important;
+  line-height:1!important;
 }
-#pspLiveDeskRoot .psp-ld-launch-copy{
-  grid-column:2!important;
+#pspLiveDeskRoot .psp-ld-launch-text{
+  all:unset!important;
+  box-sizing:border-box!important;
   display:block!important;
   width:100%!important;
   min-width:0!important;
-  max-width:none!important;
-  margin:0!important;
-  padding:0!important;
-  overflow:visible!important;
-  white-space:normal!important;
-  word-break:normal!important;
-  overflow-wrap:normal!important;
-  writing-mode:horizontal-tb!important;
-  text-orientation:mixed!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  text-align:left!important;
   direction:ltr!important;
-  line-height:1.2!important;
+  writing-mode:horizontal-tb!important;
 }
-#pspLiveDeskRoot .psp-ld-launch-copy b,
-#pspLiveDeskRoot .psp-ld-launch-copy span{
+#pspLiveDeskRoot .psp-ld-launch-title,
+#pspLiveDeskRoot .psp-ld-launch-sub{
+  all:unset!important;
+  box-sizing:border-box!important;
   display:block!important;
   position:static!important;
   float:none!important;
-  width:auto!important;
+  width:max-content!important;
   min-width:0!important;
-  max-width:none!important;
+  max-width:100%!important;
   height:auto!important;
   margin:0!important;
   padding:0!important;
   transform:none!important;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  font-style:normal!important;
+  text-transform:none!important;
+  letter-spacing:0!important;
+  word-spacing:0!important;
+  word-break:keep-all!important;
+  overflow-wrap:normal!important;
+  white-space:nowrap!important;
   writing-mode:horizontal-tb!important;
   text-orientation:mixed!important;
   direction:ltr!important;
-  word-break:normal!important;
-  overflow-wrap:normal!important;
-  text-transform:none!important;
-  letter-spacing:normal!important;
+  text-align:left!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
 }
-#pspLiveDeskRoot .psp-ld-launch-copy b{
-  font-size:16px!important;
-  line-height:1.2!important;
-  font-weight:850!important;
+#pspLiveDeskRoot .psp-ld-launch-title{
   color:#fff!important;
-  white-space:nowrap!important;
+  font-size:14px!important;
+  font-weight:850!important;
+  line-height:1.18!important;
 }
-#pspLiveDeskRoot .psp-ld-launch-copy span{
-  margin-top:6px!important;
-  font-size:12px!important;
-  line-height:1.25!important;
+#pspLiveDeskRoot .psp-ld-launch-sub{
+  color:#d6dde8!important;
+  font-size:10.5px!important;
   font-weight:600!important;
-  color:#d5dbe5!important;
-  white-space:nowrap!important;
+  line-height:1.2!important;
+  margin-top:5px!important;
 }
+/* neutralize old span launcher rules if an old DOM survives a hot cache swap */
+#pspLiveDeskRoot .psp-ld-launch-copy{display:none!important}
+
 @media(max-width:620px){
+  #pspLiveDeskRoot{right:12px!important;bottom:12px!important}
   #pspLiveDeskRoot .psp-ld-launcher{
-    width:min(292px,calc(100vw - 24px))!important;
-    min-width:0!important;
+    width:232px!important;
+    min-width:232px!important;
     max-width:calc(100vw - 24px)!important;
-    min-height:78px!important;
-    grid-template-columns:50px minmax(0,1fr)!important;
-    column-gap:12px!important;
-    padding:11px 14px 11px 11px!important;
-    border-radius:22px!important;
+    min-height:64px!important;
+    grid-template-columns:42px minmax(0,1fr)!important;
+    gap:9px!important;
+    padding:9px 11px!important;
+    border-radius:19px!important;
   }
   #pspLiveDeskRoot .psp-ld-launch-icon{
-    width:50px!important;height:50px!important;min-width:50px!important;max-width:50px!important;
+    width:42px!important;height:42px!important;min-width:42px!important;max-width:42px!important;
+    min-height:42px!important;max-height:42px!important;font-size:19px!important;
   }
-  #pspLiveDeskRoot .psp-ld-launch-copy b{font-size:15px!important;white-space:nowrap!important}
-  #pspLiveDeskRoot .psp-ld-launch-copy span{font-size:11px!important;white-space:nowrap!important}
+  #pspLiveDeskRoot .psp-ld-launch-title{font-size:13.5px!important;line-height:1.15!important}
+  #pspLiveDeskRoot .psp-ld-launch-sub{font-size:9.5px!important;line-height:1.18!important;margin-top:4px!important}
 }
-@media(max-width:340px){
+@media(max-width:350px){
   #pspLiveDeskRoot .psp-ld-launcher{
-    width:calc(100vw - 20px)!important;max-width:calc(100vw - 20px)!important;
-    grid-template-columns:46px minmax(0,1fr)!important;padding:10px 12px!important;column-gap:10px!important;
+    width:218px!important;
+    min-width:0!important;
+    max-width:calc(100vw - 20px)!important;
+    grid-template-columns:40px minmax(0,1fr)!important;
+    gap:8px!important;
+    padding:8px 10px!important;
   }
-  #pspLiveDeskRoot .psp-ld-launch-icon{width:46px!important;height:46px!important;min-width:46px!important;max-width:46px!important}
-  #pspLiveDeskRoot .psp-ld-launch-copy b{font-size:14px!important}
-  #pspLiveDeskRoot .psp-ld-launch-copy span{font-size:10px!important}
+  #pspLiveDeskRoot .psp-ld-launch-icon{width:40px!important;height:40px!important;min-width:40px!important;max-width:40px!important;min-height:40px!important;max-height:40px!important}
+  #pspLiveDeskRoot .psp-ld-launch-title{font-size:13px!important}
+  #pspLiveDeskRoot .psp-ld-launch-sub{font-size:9px!important}
 }
