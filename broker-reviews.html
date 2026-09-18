@@ -1699,8 +1699,8 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <link href="psp-public-v40.css?v=20260805-v44" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v45"></script>
 <link rel="canonical" href="https://pipsepaisa.com/broker-reviews">
 <link href="/psp-nav-v44.css?v=20260805-v44" rel="stylesheet"/><link href="/psp-mobile-reference-v46.css?v=20260805-v48" rel="stylesheet"/>
-<script src="/psp-direct-signup-v1.js?v=20260917-v251-team-auto"></script>
-<link rel="stylesheet" href="/live-desk-v242.css?v=20260917-v258-icon-only">
+<script src="/psp-direct-signup-v1.js?v=20260813-v76-referral-fix"></script>
+<link rel="stylesheet" href="/live-desk-v242.css?v=20260917-v244-stability">
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -2168,7 +2168,7 @@ async function landingForgotPassword(){
   const btn=document.getElementById('landingForgotBtn');
   btn.disabled=true;btn.textContent='⏳ Sending...';
   try{
-    const redirectTo='https://www.pipsepaisa.com/reset-password.html';
+    const redirectTo='https://pipsepaisa.com/reset-password.html';
     const {error}=await landingSb.auth.resetPasswordForEmail(email,{redirectTo});
     if(error)throw error;
     showLandingAuthMessage('success','Reset link sent. Check your inbox and spam folder.','landingForgotMessage');
@@ -2199,10 +2199,10 @@ async function landingSignupUser(){
     if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
     try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
 
-    const postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'no_team',url:'',clientId:''};
-    const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'Account created.',redirect:''};
-    showLandingAuthMessage('success',postSignup?.url?`${copy.detail} ${copy.redirect||''}`:'Account created successfully.','landingSignupMessage');
-    if(postSignup?.url)setTimeout(()=>{window.location.href=postSignup.url;},1000);
+    const postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+    const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'Account created.',redirect:'Redirecting you to our WhatsApp Channel...'};
+    showLandingAuthMessage('success',postSignup.mode==='referral'?`${copy.detail} ${copy.redirect}`:'Account created. Redirecting you to our WhatsApp Channel...','landingSignupMessage');
+    setTimeout(()=>{window.location.href=postSignup.url;},1000);
   }catch(error){
     let msg=error?.message||'Signup failed. Please try again.';
     if(/already|registered|exists/i.test(msg))msg='This email is already registered. Please log in.';
@@ -2315,6 +2315,6 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
-<script defer src="/live-desk-v242.js?v=20260917-v258-icon-only"></script>
+<script defer src="/live-desk-v242.js?v=20260917-v244-stability"></script>
 </body>
 </html>

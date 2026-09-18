@@ -1697,7 +1697,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 </style>
 <link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><link href="psp-mobile-reference-v46.css?v=20260814-v79-cross-browser-mobile-lock" media="(max-width: 768px)" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
 <link rel="canonical" href="https://pipsepaisa.com/">
-<script src="psp-direct-signup-v1.js?v=20260917-v251-team-auto"></script>
+<script src="psp-direct-signup-v1.js?v=20260910-v217-auth-stability"></script>
 
 <style id="pspV81HomeFooterExactTools">
 body.page-home footer.psp-footer{background:#07111f!important;color:#fff!important;padding:0!important;border-top:4px solid transparent!important;border-image:linear-gradient(90deg,#f88702,#f5a623,#f88702) 1!important}
@@ -1733,7 +1733,7 @@ body.page-home footer.psp-footer .footer-bottom .container{display:flex!importan
 }
 </style>
 <script defer src="/psp-performance-v220.js?v=20260910-v220-deep"></script>
-<link rel="stylesheet" href="/live-desk-v242.css?v=20260917-v258-icon-only">
+<link rel="stylesheet" href="/live-desk-v242.css?v=20260917-v244-stability">
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -2220,7 +2220,7 @@ async function landingForgotPassword(){
   const btn=document.getElementById('landingForgotBtn');
   btn.disabled=true;btn.textContent='⏳ Sending...';
   try{
-    const redirectTo='https://www.pipsepaisa.com/reset-password.html';
+    const redirectTo='https://pipsepaisa.com/reset-password.html';
     const {error}=await landingSb.auth.resetPasswordForEmail(email,{redirectTo});
     if(error)throw error;
     showLandingAuthMessage('success','Reset link sent. Check your inbox and spam folder.','landingForgotMessage');
@@ -2261,22 +2261,22 @@ async function landingSignupUser(){
       const result=await window.parent.pspSignupFromLanding({fullName,email,phone,password,metadata});
       if(!result?.ok)throw new Error('Account could not be created.');
       data={user:{id:result.userId},session:true};
-      postSignup=result.postSignup||{mode:'no_team',url:'',clientId:''};
-      copy=result.copy||{detail:'You are logged in and your account is ready.',note:'',redirect:''};
+      postSignup=result.postSignup||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+      copy=result.copy||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
     }else{
       const directData=await window.PSPDirectSignup(landingSb,{email,password,metadata,skipAutoEnrollment:true});
       if(!directData?.user||!directData?.session)throw new Error('Account was created, but the login session could not be started.');
       data=directData;
       try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
-      postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'no_team',url:'',clientId:''};
-      copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'',redirect:''};
+      postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+      copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
     }
     const panel=document.getElementById('landingSignupPanel');
     if(panel)panel.innerHTML=`<div style="text-align:center;padding:14px 4px"><div style="font-size:42px;margin-bottom:10px">✅</div><h3 style="margin:0 0 7px">Account Created</h3><h4 style="margin:0 0 9px;color:#16a34a;font-size:16px">Thank You for Joining!</h4><p style="color:var(--muted);line-height:1.6;margin:0 0 8px;font-weight:${postSignup.mode==='referral'?'800':'400'}">${copy.detail}</p><p style="color:var(--muted);line-height:1.6;margin:0 0 8px">${copy.note}</p><p style="font-size:12px;color:var(--muted);margin-top:10px">${copy.redirect}</p></div>`;
     const title=document.getElementById('landingAuthTitle'),sub=document.getElementById('landingAuthSubtitle');
     if(title)title.textContent='Account Created';
     if(sub)sub.textContent=postSignup.mode==='referral'?'Client ID created — opening WhatsApp verification':'You are logged in to PipSePaisa';
-    if(postSignup?.url)setTimeout(()=>{window.location.href=postSignup.url;},1000);
+    setTimeout(()=>{window.location.href=postSignup.url;},1000);
   }catch(error){
     let msg=error?.message||'Signup failed. Please try again.';
     if(/already|registered|exists/i.test(msg))msg='This email is already registered. Please log in.';
@@ -2388,6 +2388,6 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
-<script defer src="/live-desk-v242.js?v=20260917-v258-icon-only"></script>
+<script defer src="/live-desk-v242.js?v=20260917-v244-stability"></script>
 </body>
 </html>

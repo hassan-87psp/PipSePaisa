@@ -1679,8 +1679,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 </style>
 <link href="psp-public-v40.css?v=20260804-v40" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
 <link rel="canonical" href="https://pipsepaisa.com/sign-in">
-<script src="/psp-direct-signup-v1.js?v=20260917-v251-team-auto"></script>
-<link rel="stylesheet" href="/live-desk-v242.css?v=20260917-v258-icon-only">
+<script src="/psp-direct-signup-v1.js?v=20260813-v76-referral-fix"></script>
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -2022,25 +2021,6 @@ function showLandingAuthMessage(type,message,id){
 function clearLandingAuthMessages(){
   ['landingLoginMessage','landingSignupMessage','landingForgotMessage'].forEach(id=>{const el=document.getElementById(id);if(el){el.className='landing-auth-message';el.textContent='';}});
 }
-function pspCurrentCourseIntentV251(){
-  try{
-    const q=new URLSearchParams(location.search);
-    let key=String(q.get('psp_course')||q.get('psp_enroll')||'').trim().toLowerCase();
-    if(key==='basic'||key==='basic-b2'||key==='basic-batch-2')key='basic-b3';
-    if(key==='fundamental'||key==='fundamental-b1')key='fundamental-b2';
-    return ['basic-b3','fundamental-b2'].includes(key)?key:'';
-  }catch(_){return '';}
-}
-function pspCourseReturnUrlV251(){
-  const key=pspCurrentCourseIntentV251();if(!key)return '';
-  const q=new URLSearchParams();
-  q.set('open','mycourses');q.set('psp_enroll',key);q.set('psp_course_from_auth','1');
-  try{
-    const now=new URLSearchParams(location.search);
-    ['ref','psp_ref','utm_source','utm_medium','utm_campaign','utm_content'].forEach(k=>{const v=now.get(k);if(v)q.set(k,v);});
-  }catch(_){ }
-  return '/?'+q.toString();
-}
 function openLandingAuth(mode='login'){
   clearLandingAuthMessages();
   switchLandingAuth(mode==='signup'?'signup':'login');
@@ -2136,8 +2116,6 @@ async function landingLoginUser(){
 
       loginResult={ok:true,userId:result.data.user.id};
       localStorage.setItem('pipsepaisa_last_login_email',email);
-      const courseReturn=pspCourseReturnUrlV251();
-      if(courseReturn){location.replace(courseReturn);return;}
       location.replace('/?logged_in=1&page=dashboard');
     }
 
@@ -2146,12 +2124,6 @@ async function landingLoginUser(){
     }
 
     localStorage.setItem('pipsepaisa_last_login_email',email);
-    const courseReturn=pspCourseReturnUrlV251();
-    if(courseReturn){
-      showLandingAuthMessage('success','Login successful. Completing your course enrollment...','landingLoginMessage');
-      setTimeout(()=>{window.top.location.assign(courseReturn);},120);
-      return;
-    }
     showLandingAuthMessage(
       'success',
       'Login successful. Opening your dashboard...',
@@ -2175,7 +2147,7 @@ async function landingForgotPassword(){
   const btn=document.getElementById('landingForgotBtn');
   btn.disabled=true;btn.textContent='⏳ Sending...';
   try{
-    const redirectTo='https://www.pipsepaisa.com/reset-password.html';
+    const redirectTo='https://pipsepaisa.com/reset-password.html';
     const {error}=await landingSb.auth.resetPasswordForEmail(email,{redirectTo});
     if(error)throw error;
     showLandingAuthMessage('success','Reset link sent. Check your inbox and spam folder.','landingForgotMessage');
@@ -2201,30 +2173,19 @@ async function landingSignupUser(){
   if(btn){btn.disabled=true;btn.textContent='⏳ Creating account...';}
   try{
     const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
-    const courseIntent=pspCurrentCourseIntentV251();
-    const metadata={full_name:fullName,username,phone,whatsapp:phone,role:'user',...(courseIntent?{psp_course_interest:courseIntent}:{}),...(window.PSPTrack?.authMetadata?.()||{})};
+    const metadata={full_name:fullName,username,phone,whatsapp:phone,role:'user',psp_auto_enroll_course:'basic',...(window.PSPTrack?.authMetadata?.()||{})};
     const data=await window.PSPDirectSignup(landingSb,{email,password,metadata});
     if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
     try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
-    if(courseIntent){
-      const panel=document.getElementById('landingSignupPanel');
-      if(panel)panel.innerHTML='<div style="text-align:center;padding:14px 4px"><div style="font-size:42px;margin-bottom:10px">✅</div><h3 style="margin:0 0 7px">Account Created</h3><h4 style="margin:0 0 9px;color:#16a34a;font-size:16px">Thank You for Joining!</h4><p style="color:var(--muted);line-height:1.6;margin:0">Completing your course enrollment...</p></div>';
-      const title=document.getElementById('landingAuthTitle'),sub=document.getElementById('landingAuthSubtitle');
-      if(title)title.textContent='Account Created';
-      if(sub)sub.textContent='Your enrollment is being completed automatically';
-      const target=pspCourseReturnUrlV251();
-      setTimeout(()=>{window.location.assign(target);},180);
-      return;
-    }
     try{await window.PSPTrack?.enrollment?.('basic',data.user.id,{source:'website-signup'});}catch(_){}
-    const postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'no_team',url:'',clientId:''};
-    const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'',redirect:''};
+    const postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
+    const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
     const panel=document.getElementById('landingSignupPanel');
     if(panel)panel.innerHTML=`<div style="text-align:center;padding:14px 4px"><div style="font-size:42px;margin-bottom:10px">✅</div><h3 style="margin:0 0 7px">Account Created</h3><h4 style="margin:0 0 9px;color:#16a34a;font-size:16px">Thank You for Joining!</h4><p style="color:var(--muted);line-height:1.6;margin:0 0 8px;font-weight:${postSignup.mode==='referral'?'800':'400'}">${copy.detail}</p><p style="color:var(--muted);line-height:1.6;margin:0 0 8px">${copy.note}</p><p style="font-size:12px;color:var(--muted);margin-top:10px">${copy.redirect}</p></div>`;
     const title=document.getElementById('landingAuthTitle'),sub=document.getElementById('landingAuthSubtitle');
     if(title)title.textContent='Account Created';
     if(sub)sub.textContent=postSignup.mode==='referral'?'Client ID created — opening WhatsApp verification':'You are logged in to PipSePaisa';
-    if(postSignup?.url)setTimeout(()=>{window.location.href=postSignup.url;},1000);
+    setTimeout(()=>{window.location.href=postSignup.url;},1000);
   }catch(error){
     let msg=error?.message||'Signup failed. Please try again.';
     if(/already|registered|exists/i.test(msg))msg='This email is already registered. Please log in.';
@@ -2322,7 +2283,5 @@ document.addEventListener('DOMContentLoaded',function(){
 </style>
 <script defer="" src="psp-public-performance-v40.js?v=20260804-v40"></script>
 <script>document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){if(typeof openLandingAuth==='function')openLandingAuth('login');},120);},{once:true});</script>
-
-<script defer src="/live-desk-v242.js?v=20260917-v258-icon-only"></script>
 </body>
 </html>

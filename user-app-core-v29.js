@@ -3634,7 +3634,7 @@
     
     try {
       const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://www.pipsepaisa.com/reset-password.html'
+        redirectTo: 'https://pipsepaisa.com/reset-password.html'
       });
       
       if (error) throw error;
@@ -5175,11 +5175,11 @@
       enterApp();
       try{localStorage.setItem('pipsepaisa_last_login_email',email);}catch(_){}
 
-      let postSignup={mode:'no_team',url:'',clientId:''};
+      let postSignup={mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
       try{
         postSignup=await window.PSPPostSignup?.resolve?.(sb,data.user.id,payload?.context||{})||postSignup;
       }catch(_){}
-      let copy={detail:'You are logged in and your account is ready.',note:'',redirect:''};
+      let copy={detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important updates.',redirect:'Redirecting you now...'};
       try{ copy=window.PSPPostSignup?.successCopy?.(postSignup)||copy; }catch(_){}
 
       setTimeout(function(){
