@@ -2140,6 +2140,22 @@ async function landingLoginUser(){
     btn.textContent='🔐 Login to Account';
   }
 }
+function createPasswordResetClientV268(){
+  try{
+    if(!window.supabase?.createClient)return null;
+    return window.supabase.createClient(
+      LANDING_SUPABASE_URL,
+      LANDING_SUPABASE_KEY,
+      {auth:{
+        storageKey:'pipsepaisa-reset-request-v268',
+        persistSession:false,
+        autoRefreshToken:false,
+        detectSessionInUrl:false,
+        flowType:'implicit'
+      }}
+    );
+  }catch(_){return null;}
+}
 async function landingForgotPassword(){
   const email=document.getElementById('landingForgotEmail')?.value.trim();
   if(!email){showLandingAuthMessage('error','Please enter your email address.','landingForgotMessage');return;}
@@ -2148,7 +2164,9 @@ async function landingForgotPassword(){
   btn.disabled=true;btn.textContent='⏳ Sending...';
   try{
     const redirectTo='https://pipsepaisa.com/reset-password.html';
-    const {error}=await landingSb.auth.resetPasswordForEmail(email,{redirectTo});
+    const resetSb=createPasswordResetClientV268();
+    if(!resetSb)throw new Error('Password reset service is not available. Please reload and try again.');
+    const {error}=await resetSb.auth.resetPasswordForEmail(email,{redirectTo});
     if(error)throw error;
     showLandingAuthMessage('success','Reset link sent. Check your inbox and spam folder.','landingForgotMessage');
   }catch(error){

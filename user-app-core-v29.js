@@ -3615,6 +3615,21 @@
   }
 
   // ============ FORGOT PASSWORD ============
+  function createPasswordResetClientV268(){
+    try{
+      if(!window.supabase?.createClient)return null;
+      return window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+        auth:{
+          storageKey:'pipsepaisa-reset-request-v268',
+          persistSession:false,
+          autoRefreshToken:false,
+          detectSessionInUrl:false,
+          flowType:'implicit'
+        }
+      });
+    }catch(_){return null;}
+  }
+
   async function forgotPassword() {
     const email = document.getElementById('forgotEmail').value.trim();
     
@@ -3633,7 +3648,9 @@
     btn.textContent = '⏳ Sending...';
     
     try {
-      const { error } = await sb.auth.resetPasswordForEmail(email, {
+      const resetSb = createPasswordResetClientV268();
+      if (!resetSb) throw new Error('Password reset service is not available. Please reload and try again.');
+      const { error } = await resetSb.auth.resetPasswordForEmail(email, {
         redirectTo: 'https://pipsepaisa.com/reset-password.html'
       });
       
