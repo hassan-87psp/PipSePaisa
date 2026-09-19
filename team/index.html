@@ -376,7 +376,7 @@ async function loadClients(){
     const assigned=(assignedR&&assignedR.error?[]:((assignedR&&assignedR.data)||[])).filter(x=>!adAssignmentIds.has(String(x.assignment_id||''))&&allowed(x)).map(x=>Object.assign({is_auto_assigned:true,source_kind:'ad'},x));
     const represented=new Set([...ad,...assigned,...legacy].map(clientKeyV273).filter(Boolean));
     const owned=(ownedR&&ownedR.error?[]:((ownedR&&ownedR.data)||[])).filter(x=>allowed(x)&&!represented.has(clientKeyV273(x))).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.conversion_status||'new'},x));
-    const seen=new Set(),merged=[],keyOf=x=>String(x.ad_submission_id?('ad:'+x.ad_submission_id):x.assignment_id?('as:'+x.assignment_id):x.reference_code?('ref:'+x.reference_code):((clientKeyV273(x)||'')+'|'+(x.course_enrollment||'')+'|'+(x.registration_at||'')));
+    const seen=new Set(),merged=[],keyOf=x=>{if(x.ad_submission_id)return 'ad:'+String(x.ad_submission_id);if(x.assignment_id)return 'as:'+String(x.assignment_id);const clientKey=clientKeyV273(x);if(clientKey)return 'client:'+clientKey;return 'legacy:'+String(x.reference_code||'')+'|'+String(x.email||'')+'|'+String(x.whatsapp||'')+'|'+String(x.client_id||'')+'|'+String(x.course_enrollment||'')+'|'+String(x.registration_at||'')};
     [...ad,...assigned,...legacy,...owned].forEach(x=>{const k=keyOf(x);if(!k||seen.has(k))return;seen.add(k);merged.push(x)});
     S.clients=merged;S.loaded.clients=true;
     const expected=repair?Math.max(num(repair.ad_source_count),num(repair.assignment_source_count),num(repair.owner_count)):0;
