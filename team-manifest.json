@@ -1,13 +1,13 @@
 {
   "name": "PSP TEAM",
   "short_name": "PSP TEAM",
-  "description": "PipSePaisa Team Panel",
+  "description": "PipSePaisa Team Command Center",
   "id": "/team/",
   "start_url": "/team/",
-  "scope": "/",
+  "scope": "/team/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
-  "background_color": "#fffaf2",
+  "background_color": "#080b12",
   "theme_color": "#F39522",
   "orientation": "portrait-primary",
   "icons": [
