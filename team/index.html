@@ -90,6 +90,14 @@ html[data-theme="light"] .live-pill,html[data-theme="light"] .auto-badge{color:#
 @media(max-width:900px){.ops-grid{grid-template-columns:1fr}.batch-breakdown-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:680px){.client-summary-bar{align-items:flex-start;flex-direction:column}.batch-breakdown-grid{grid-template-columns:1fr 1fr}.course-stack{max-width:210px}}
 
+
+/* V272 Team Panel clarity pass */
+.team-flow-guide{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0 18px}
+.team-flow-step{border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:13px 14px;box-shadow:0 10px 24px rgba(0,0,0,.06)}
+.team-flow-step b{display:block;font-size:12px;color:var(--text);margin-bottom:4px}.team-flow-step span{font-size:10px;color:var(--muted);line-height:1.45}.team-flow-num{display:inline-grid!important;place-items:center;width:22px;height:22px;border-radius:50%;background:#fff1d6;color:#b76a00;margin-bottom:8px;font-size:10px!important}
+.client-summary-bar b{color:#d77a00}
+@media(max-width:900px){.team-flow-guide{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.team-flow-guide{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="/team-live-desk-v242.css?v=20260917-v256-launcher-fix">
 </head>
@@ -138,6 +146,12 @@ html[data-theme="light"] .live-pill,html[data-theme="light"] .auto-badge{color:#
       <div class="premium-card hero-card sweep">
         <div><div class="eyebrow">Selected Month</div><h2 id="heroTitle">Your team activity</h2><p id="heroSub">New Ad leads and older tracked clients stay together. Financials remain system calculated.</p></div>
         <div class="earn-hero"><small>Total Earnings</small><strong id="heroEarnings">$0.00</strong><div class="tier-chips"><span class="tier-chip">Course <b id="heroCourseTier">—</b></span><span class="tier-chip">VIP <b id="heroVipTier">—</b></span><span class="tier-chip">Lots <b id="heroLotTier">—</b></span></div></div>
+      </div>
+      <div class="team-flow-guide" aria-label="How Team Panel works">
+        <div class="team-flow-step"><b class="team-flow-num">1</b><b>My Clients</b><span>All old tracking clients + new Ad/Auto leads assigned to you.</span></div>
+        <div class="team-flow-step"><b class="team-flow-num">2</b><b>Contact & Follow Up</b><span>Use WhatsApp from My Clients and keep your daily calls/messages/follow-ups updated.</span></div>
+        <div class="team-flow-step"><b class="team-flow-num">3</b><b>Daily Report</b><span>Enter manual activity only. Course registrations and enrollments are automatic.</span></div>
+        <div class="team-flow-step"><b class="team-flow-num">4</b><b>Earnings & Performance</b><span>Commission, lots and monthly performance are calculated from approved system data.</span></div>
       </div>
       <div class="kpi-grid" id="kpiGrid"></div>
       <div class="ops-grid">
@@ -352,18 +366,22 @@ function clientDateKey(v){try{const p=Object.fromEntries(new Intl.DateTimeFormat
 function clientRegistrationDateKey(v){return clientDateKey(v)}
 function clientSourceInfo(c){if(c?.is_auto_assigned)return{key:'auto',label:'Ad / Auto'};const src=String(c?.source||'').trim();if(!src||/other/i.test(src)||/direct/i.test(src))return{key:'legacy',label:'Old Tracking'};return{key:'other',label:src}}
 function clientCourseInfo(c){
-  const raw=[c?.course_enrollment,c?.course_name,c?.psp_batch_key,c?.batch_key].filter(Boolean).join(', '),parts=raw?raw.split(',').map(x=>x.trim()).filter(Boolean):[],labels=[],keys=new Set();
+  const raw=[c?.course_enrollment,c?.course_name,c?.psp_batch_key,c?.batch_key,c?.course_key].filter(Boolean).join(', '),parts=raw?raw.split(',').map(x=>x.trim()).filter(Boolean):[],labels=[],keys=new Set();
   const add=(key,label)=>{if(!keys.has(key)){keys.add(key);labels.push(label)}};
   for(const p of parts){const x=p.toLowerCase();
-    if(/basic_b3|batch\s*3/.test(x)&&/(basic|sajid|forex)/.test(x)) add('sajid_b3','Sir Sajid — B3');
-    else if(/basic_b2|batch\s*2/.test(x)&&/(basic|sajid|forex)/.test(x)) add('sajid_b2','Sir Sajid — B2');
-    else if(/basic_b1|batch\s*1/.test(x)&&/(basic|sajid|forex)/.test(x)) add('sajid_b1','Sir Sajid — B1');
-    else if(/fundamental_b2|batch\s*2/.test(x)&&/fundamental/.test(x)) add('fund_b2','Fundamental — B2');
-    else if(/fundamental_b1|batch\s*1/.test(x)&&/fundamental/.test(x)) add('fund_b1','Fundamental — B1');
-    else if(/advance.*fundamental|fundamental.*advance/.test(x)) add('advance_fund','Advance Fundamental');
-    else if(/advanced?\s+forex|advance course/.test(x)) add('advance','Advance Forex');
+    // Most specific paid / fundamental rules first so "Fundamental Forex ... Batch 2" never becomes Sajid B2.
+    if(/advance.*fundamental|advanced.*fundamental|fundamental.*advance/.test(x)) add('advance_fund','Advance Fundamental');
+    else if(/fundamental_b2|fundamental[-_ ]?b2/.test(x)||(/fundamental/.test(x)&&/batch\s*2|\bb2\b/.test(x))) add('fund_b2','Fundamental — B2');
+    else if(/fundamental_b1|fundamental[-_ ]?b1/.test(x)||(/fundamental/.test(x)&&/batch\s*1|\bb1\b/.test(x))) add('fund_b1','Fundamental — B1');
+    else if(/basic_b3|basic[-_ ]?b3/.test(x)||(/(?:basic|sajid)/.test(x)&&/batch\s*3|\bb3\b/.test(x))) add('sajid_b3','Sir Sajid — B3');
+    else if(/basic_b2|basic[-_ ]?b2/.test(x)||(/(?:basic|sajid)/.test(x)&&/batch\s*2|\bb2\b/.test(x))) add('sajid_b2','Sir Sajid — B2');
+    else if(/basic_b1|basic[-_ ]?b1/.test(x)||(/(?:basic|sajid)/.test(x)&&/batch\s*1|\bb1\b/.test(x))) add('sajid_b1','Sir Sajid — B1');
+    else if(/advanced?\s+forex|advance course|course_key.?advanced/.test(x)) add('advance','Advance Forex');
     else if(/fundamental/.test(x)) add(c?.is_auto_assigned?'fund_b2':'fund_b1',c?.is_auto_assigned?'Fundamental — B2':'Fundamental — B1');
-    else if(/basic\s+forex|sajid/.test(x)){if(c?.is_auto_assigned)add('sajid_b3','Sir Sajid — B3');else add(clientDateKey(c?.registration_at)>='2026-09-01'?'sajid_b2':'sajid_b1',clientDateKey(c?.registration_at)>='2026-09-01'?'Sir Sajid — B2':'Sir Sajid — B1')}
+    else if(/basic\s+forex|sajid|course_key.?basic/.test(x)){
+      if(c?.is_auto_assigned)add('sajid_b3','Sir Sajid — B3');
+      else {const d=clientDateKey(c?.registration_at);add(d>='2026-09-01'?'sajid_b2':'sajid_b1',d>='2026-09-01'?'Sir Sajid — B2':'Sir Sajid — B1')}
+    }
   }
   if(!labels.length&&raw)add('other',raw);
   return{text:labels.join(', ')||'No course yet',labels,keys};
