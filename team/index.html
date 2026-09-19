@@ -491,7 +491,7 @@ function mergeClientCourseV280(a,b){
   const vals=[];for(const v of [a&&a.course_enrollment,b&&b.course_enrollment])String(v||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>{if(!vals.some(x=>x.toLowerCase()===s.toLowerCase()))vals.push(s)});return vals.join(', ');
 }
 function mergeClientRowsV280(rows){
-  const rank={manager:4,ad:3,assigned:2,old:1},map=new Map();
+  const rank={assigned:5,manager:4,ad:3,old:1},map=new Map();
   for(const src of rows||[]){if(!src)continue;const k=clientMergeKeyV280(src);if(!k)continue;const cur=map.get(k);if(!cur){map.set(k,Object.assign({},src));continue}
     const srcRank=rank[src.source_kind]||0,curRank=rank[cur.source_kind]||0,primary=srcRank>curRank?src:cur,secondary=srcRank>curRank?cur:src;
     const merged=Object.assign({},secondary,primary);
@@ -508,18 +508,19 @@ async function loadClients(){
   let repair=null;
   try{const rr=await db.rpc('psp_team_repair_my_clients_v275',{p_session_token:S.token});if(!rr.error)repair=rpcObj(rr.data);else console.warn('V275 client self-repair unavailable:',rr.error)}catch(e){console.warn('V275 client self-repair failed:',e)}
   const fetchSources=async()=>{
-    const [legacyR,assignedR,adR,ownedR,excludedR]=await Promise.all([
+    const [legacyR,assignedR,adR,ownedR,excludedR,assignmentExR]=await Promise.all([
       db.rpc('psp_team_clients_v206',{p_session_token:S.token,p_limit:2000}),
       db.rpc('psp_team_assigned_leads_v245',{p_session_token:S.token,p_limit:2000}),
       db.rpc('psp_team_ad_leads_v273',{p_session_token:S.token,p_limit:2000}),
       db.rpc('psp_team_owned_clients_v273',{p_session_token:S.token,p_limit:2000}),
-      db.rpc('psp_team_excluded_client_keys_v273',{p_session_token:S.token})
+      db.rpc('psp_team_excluded_client_keys_v273',{p_session_token:S.token}),
+      db.rpc('psp_team_assignment_exclusions_v281',{p_session_token:S.token})
     ]);
-    return {legacyR,assignedR,adR,ownedR,excludedR};
+    return {legacyR,assignedR,adR,ownedR,excludedR,assignmentExR};
   };
   try{
     let pack=await fetchSources();
-    let {legacyR,assignedR,adR,ownedR,excludedR}=pack;
+    let {legacyR,assignedR,adR,ownedR,excludedR,assignmentExR}=pack;
     const sourceRs=[legacyR,assignedR,adR,ownedR],errs=sourceRs.filter(r=>r&&r.error).map(r=>r.error);
     if(errs.length)console.warn('Some client sources were unavailable; using remaining sources.',errs);
     if(sourceRs.every(r=>!r||r.error)){const e=errs[0]||new Error('All client sources are unavailable.');S.errors.clients=e;if(errs.some(authLikeErrorV278))S.errors.session=errs.find(authLikeErrorV278);throw e}
@@ -530,15 +531,23 @@ async function loadClients(){
       excludedWa=new Set(exRows.map(x=>String(x.whatsapp||'').replace(/\D/g,'')).filter(x=>x.length>=7)),
       excludedIds=new Set(exRows.map(x=>String(x.client_id||'').trim().toUpperCase()).filter(Boolean));
     const legacyAllowed=x=>{const k=clientKeyV273(x),e=String(x&&x.email||'').trim().toLowerCase(),w=String(x&&x.whatsapp||'').replace(/\D/g,''),id=String(x&&x.client_id||'').trim().toUpperCase();return !excludedKeys.has(k)&&(!e||!excludedEmails.has(e))&&(w.length<7||!excludedWa.has(w))&&(!id||!excludedIds.has(id))};
+    // V281: psp_lead_assignments is the current owner for enrollment-based clients.
+    // Hide stale V273/ad/history rows that belong to another Team Member.
+    const axRows=assignmentExR&&assignmentExR.error?[]:rpcRowsV280(assignmentExR&&assignmentExR.data),
+      axUsers=new Set(axRows.map(x=>String(x.user_id||'')).filter(Boolean)),
+      axEmails=new Set(axRows.map(x=>String(x.email||'').trim().toLowerCase()).filter(Boolean)),
+      axWa=new Set(axRows.map(x=>String(x.whatsapp||'').replace(/\D/g,'')).filter(x=>x.length>=7)),
+      axIds=new Set(axRows.map(x=>String(x.client_id||'').trim().toUpperCase()).filter(Boolean));
+    const currentOwnerAllowed=x=>{const u=String(x&&x.user_id||''),e=String(x&&x.email||'').trim().toLowerCase(),w=String(x&&x.whatsapp||'').replace(/\D/g,''),id=String(x&&x.client_id||'').trim().toUpperCase();return (!u||!axUsers.has(u))&&(!e||!axEmails.has(e))&&(w.length<7||!axWa.has(w))&&(!id||!axIds.has(id))};
 
     // V280: current ownership/ad RPCs are already session-scoped.  Exclusion rows are
     // applied only to historical sources so a stale exclusion cannot wipe current clients.
-    const legacy=rpcRowsV280(legacyR&&legacyR.error?null:legacyR&&legacyR.data).filter(legacyAllowed).map(x=>Object.assign({source_kind:'old'},x));
+    const legacy=rpcRowsV280(legacyR&&legacyR.error?null:legacyR&&legacyR.data).filter(legacyAllowed).filter(currentOwnerAllowed).map(x=>Object.assign({source_kind:'old'},x));
     const assignedRaw=rpcRowsV280(assignedR&&assignedR.error?null:assignedR&&assignedR.data);
-    const ad=rpcRowsV280(adR&&adR.error?null:adR&&adR.data).map(x=>Object.assign({is_auto_assigned:true,is_ad_lead:true,source_kind:'ad',conversion_status:x.work_status||x.conversion_status||'new'},x));
+    const ad=rpcRowsV280(adR&&adR.error?null:adR&&adR.data).filter(currentOwnerAllowed).map(x=>Object.assign({is_auto_assigned:true,is_ad_lead:true,source_kind:'ad',conversion_status:x.work_status||x.conversion_status||'new'},x));
     const adAssignmentIds=new Set(ad.map(x=>String(x.assignment_id||'')).filter(Boolean));
-    const assigned=assignedRaw.filter(x=>!adAssignmentIds.has(String(x.assignment_id||''))&&legacyAllowed(x)).map(x=>Object.assign({is_auto_assigned:true,source_kind:'assigned'},x));
-    const owned=rpcRowsV280(ownedR&&ownedR.error?null:ownedR&&ownedR.data).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.work_status||x.conversion_status||'new'},x));
+    const assigned=assignedRaw.filter(x=>!adAssignmentIds.has(String(x.assignment_id||''))).map(x=>Object.assign({is_auto_assigned:true,source_kind:'assigned'},x));
+    const owned=rpcRowsV280(ownedR&&ownedR.error?null:ownedR&&ownedR.data).filter(currentOwnerAllowed).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.work_status||x.conversion_status||'new'},x));
 
     let merged=mergeClientRowsV280([...owned,...ad,...assigned,...legacy]);
     const rawCount=owned.length+ad.length+assigned.length+legacy.length;
@@ -548,12 +557,14 @@ async function loadClients(){
     // Retry once when backend says clients exist, without blocking the rest of the Team app.
     if(!merged.length&&(expected>0||rawCount===0)){
       await new Promise(r=>setTimeout(r,450));
-      pack=await fetchSources();({legacyR,assignedR,adR,ownedR,excludedR}=pack);
-      const legacy2=rpcRowsV280(legacyR&&legacyR.error?null:legacyR&&legacyR.data).filter(legacyAllowed).map(x=>Object.assign({source_kind:'old'},x));
-      const ad2=rpcRowsV280(adR&&adR.error?null:adR&&adR.data).map(x=>Object.assign({is_auto_assigned:true,is_ad_lead:true,source_kind:'ad',conversion_status:x.work_status||x.conversion_status||'new'},x));
+      pack=await fetchSources();({legacyR,assignedR,adR,ownedR,excludedR,assignmentExR}=pack);
+      const axRows2=assignmentExR&&assignmentExR.error?[]:rpcRowsV280(assignmentExR&&assignmentExR.data),axUsers2=new Set(axRows2.map(x=>String(x.user_id||'')).filter(Boolean)),axEmails2=new Set(axRows2.map(x=>String(x.email||'').trim().toLowerCase()).filter(Boolean)),axWa2=new Set(axRows2.map(x=>String(x.whatsapp||'').replace(/\D/g,'')).filter(x=>x.length>=7)),axIds2=new Set(axRows2.map(x=>String(x.client_id||'').trim().toUpperCase()).filter(Boolean));
+      const currentOwnerAllowed2=x=>{const u=String(x&&x.user_id||''),e=String(x&&x.email||'').trim().toLowerCase(),w=String(x&&x.whatsapp||'').replace(/\D/g,''),id=String(x&&x.client_id||'').trim().toUpperCase();return (!u||!axUsers2.has(u))&&(!e||!axEmails2.has(e))&&(w.length<7||!axWa2.has(w))&&(!id||!axIds2.has(id))};
+      const legacy2=rpcRowsV280(legacyR&&legacyR.error?null:legacyR&&legacyR.data).filter(legacyAllowed).filter(currentOwnerAllowed2).map(x=>Object.assign({source_kind:'old'},x));
+      const ad2=rpcRowsV280(adR&&adR.error?null:adR&&adR.data).filter(currentOwnerAllowed2).map(x=>Object.assign({is_auto_assigned:true,is_ad_lead:true,source_kind:'ad',conversion_status:x.work_status||x.conversion_status||'new'},x));
       const adIds2=new Set(ad2.map(x=>String(x.assignment_id||'')).filter(Boolean));
-      const assigned2=rpcRowsV280(assignedR&&assignedR.error?null:assignedR&&assignedR.data).filter(x=>!adIds2.has(String(x.assignment_id||''))&&legacyAllowed(x)).map(x=>Object.assign({is_auto_assigned:true,source_kind:'assigned'},x));
-      const owned2=rpcRowsV280(ownedR&&ownedR.error?null:ownedR&&ownedR.data).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.work_status||x.conversion_status||'new'},x));
+      const assigned2=rpcRowsV280(assignedR&&assignedR.error?null:assignedR&&assignedR.data).filter(x=>!adIds2.has(String(x.assignment_id||''))).map(x=>Object.assign({is_auto_assigned:true,source_kind:'assigned'},x));
+      const owned2=rpcRowsV280(ownedR&&ownedR.error?null:ownedR&&ownedR.data).filter(currentOwnerAllowed2).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.work_status||x.conversion_status||'new'},x));
       merged=mergeClientRowsV280([...owned2,...ad2,...assigned2,...legacy2]);
     }
 

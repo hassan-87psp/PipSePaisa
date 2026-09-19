@@ -47,22 +47,17 @@
       const digits=cleanWaNumber(row?.whatsapp_number);
       if(!row||digits.length<8)return null;
       const memberName=cleanTeamDisplayName(row.team_member_name);
-      const clientName=String(row.client_name||context?.clientName||'PipSePaisa Student').trim();
-      const clientEmail=String(row.client_email||context?.clientEmail||'').trim();
       const courseName=String(row.course_name||context?.courseName||'PipSePaisa Course').trim();
-      const message=`Hello ${memberName},
-
-Maine PipSePaisa par apni enrollment complete kar li hai.
-
-Name: ${clientName}
-Email: ${clientEmail||'—'}
-Course: ${courseName}
-
-Please mujhe next process ke liye guide kar dein.`;
+      const clientId=await resolveClientId(client,userId);
+      const courseKey=String(context?.courseKey||row.course_key||'').toLowerCase();
+      let shortCourse=courseName;
+      if(['basic','basic-b2','basic-b3'].includes(courseKey)||/basic forex|sajid/i.test(courseName))shortCourse="Sir Sajid's Batch 3";
+      else if(['fundamental','fundamental-b2'].includes(courseKey)||/fundamental/i.test(courseName))shortCourse="Sir Ghulam Abbas's Batch 2";
+      const message=`Hello ${memberName}, I have enrolled in ${shortCourse} (Client ID ${clientId||'Pending'}). Kindly verify and share next steps.`;
       return {
         mode:'round_robin',
         url:`https://wa.me/${digits}?text=${encodeURIComponent(message)}`,
-        clientId:await resolveClientId(client,userId),
+        clientId,
         linkName:'',
         whatsapp:String(row.whatsapp_number||''),
         courseName,
@@ -155,15 +150,16 @@ Please mujhe next process ke liye guide kar dein.`;
       const roundRobin=await resolveRoundRobinLead(client,userId,context);
       if(roundRobin)return roundRobin;
       const clientId=await resolveClientId(client,userId);
-      // Current free-course enrollments must go ONLY to the round-robin Team
-      // Member WhatsApp. Never fall back to an old referral/channel route.
+      // Current free-course enrollments must use the single owner returned by V281/V245
+      // (Admin transfer > assigned tracked link > existing owner > round robin).
+      // Never fall back to a different old referral/channel route for an enrollment.
       if(String(context?.enrollmentId||context?.enrollment_id||'').trim()){
         return {mode:'no_team',url:'',clientId,linkName:''};
       }
       const referral=await resolveReferralTarget(client,userId);
       if(referral){
         const courseName=referralCourseName(referral,context);
-        const message=`Hello, ye meri Client ID hai: ${clientId||'Pending'}. Maine PipSePaisa ${courseName} ke liye registration complete kar li hai. Kindly meri registration verify kar dein.`;
+        const message=`Hello, I have enrolled in ${courseName} (Client ID ${clientId||'Pending'}). Kindly verify and share next steps.`;
         const url=`https://wa.me/${referral.whatsapp_digits}?text=${encodeURIComponent(message)}`;
         return {mode:'referral',url,clientId,linkName:String(referral.link_name||''),whatsapp:String(referral.whatsapp_number||''),courseName,message};
       }

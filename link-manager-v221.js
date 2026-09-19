@@ -83,7 +83,7 @@
           <div><label>Link Name *</label><input id="lmName" placeholder="Free Course WhatsApp August"></div>
           <div><label>Destination Page *</label><select id="lmDestination"><option value="/">Home</option><option value="/courses">Courses</option><option value="/become-partner">Become Partner</option><option value="/broker-reviews">Broker Reviews</option><option value="/trading-tools">Trading Tools & Services</option><option value="/sign-in">Sign In</option><option value="/sign-up">Sign Up</option><option value="/courses.html?psp_enroll=basic-b3">Basic Forex Course — Batch 3 (Signup + Enrollment)</option><option value="/courses.html?psp_enroll=fundamental-b2">Free Fundamental Forex Course — Batch 2 (Signup + Enrollment)</option><option value="/courses.html?psp_enroll=advanced">ADVANCE COURSE — Paid (Login + Payment)</option><option value="/courses.html?psp_enroll=advance-fundamental">Advance Fundamental — Paid (Login + Payment)</option><option value="custom">Custom Path</option></select></div>
           <div><label>Source</label><select id="lmSource"><option>WhatsApp</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>Email</option><option>Google</option><option>Other</option></select></div>
-          <div><label>Referral WhatsApp Number</label><input id="lmWhatsapp" placeholder="+60 11-5655 1989"></div><div><label>Assign Team Member</label><select id="lmTeamMember"><option value="">No team member</option></select></div>
+          <div><label>Referral WhatsApp Number</label><input id="lmWhatsapp" placeholder="Auto from selected Team Member"><div id="lmWhatsappHint" style="font-size:9px;color:var(--text-muted);margin-top:5px">Select a Team Member to auto-use their active WhatsApp.</div></div><div><label>Assign Team Member</label><select id="lmTeamMember"><option value="">No team member</option></select></div>
           <div class="wide" id="lmCustomWrap" style="display:none"><label>Custom Destination</label><input id="lmCustomDestination" placeholder="/courses#courses"></div>
           <div><label>Campaign</label><input id="lmCampaign" placeholder="august-free-course"></div>
           <div class="wide"><label>Team Member / Reference Code *</label><input id="lmSlug" placeholder="person-1"></div>
@@ -137,6 +137,12 @@
   }
 
 
+  function syncTeamWhatsappV281(){
+    const sel=document.getElementById('lmTeamMember'),wa=document.getElementById('lmWhatsapp'),hint=document.getElementById('lmWhatsappHint');if(!sel||!wa)return;
+    const opt=sel.selectedOptions?.[0],teamId=String(sel.value||'').trim(),teamWa=String(opt?.dataset?.whatsapp||'').trim();
+    if(teamId){wa.value=teamWa;wa.readOnly=true;if(hint)hint.textContent=teamWa?'Auto-synced from selected Team Member.':'Selected Team Member has no valid WhatsApp — update it in Ad Link / Team settings first.';}
+    else{wa.readOnly=false;if(hint)hint.textContent='No Team Member selected. You may enter a referral WhatsApp manually.';}
+  }
   async function loadTeamMembersV203(){
     const sel=document.getElementById('lmTeamMember');if(!sel)return;
     const previous=String(sel.value||'').trim();
@@ -145,17 +151,14 @@
     const client=await waitForSb();
     if(!client){sel.disabled=false;sel.innerHTML='<option value="">No team member</option>';return;}
     try{
-      const {data,error}=await client.rpc('psp_admin_team_directory');
-      if(error)throw error;
-      const rows=(data||[]).filter(x=>x.is_active!==false&&x.team_member_id);
-      sel.innerHTML='<option value="">No team member</option>'+rows.map(x=>`<option value="${esc(x.team_member_id)}" data-name="${esc(x.display_name||'')}" data-username="${esc(x.username||'')}">${esc(x.display_name||x.username||'Team Member')} — @${esc(x.username||'')}</option>`).join('');
-      if(previous&&rows.some(x=>String(x.team_member_id)===previous)){
-        sel.value=previous;
-      }else{
-        const samiya=rows.find(x=>/samiya/i.test(String(x.display_name||'')+' '+String(x.username||'')));
-        if(samiya)sel.value=String(samiya.team_member_id);
-      }
+      let result=await client.rpc('psp_admin_ad_team_directory_v261');
+      if(result.error)result=await client.rpc('psp_admin_team_directory');
+      if(result.error)throw result.error;
+      const rows=(result.data||[]).filter(x=>x.is_active!==false&&x.team_member_id);
+      sel.innerHTML='<option value="">No team member</option>'+rows.map(x=>`<option value="${esc(x.team_member_id)}" data-name="${esc(x.display_name||'')}" data-username="${esc(x.username||'')}" data-whatsapp="${esc(x.whatsapp_number||'')}">${esc(x.display_name||x.username||'Team Member')} — @${esc(x.username||'')}</option>`).join('');
+      if(previous&&rows.some(x=>String(x.team_member_id)===previous))sel.value=previous;else sel.value='';
       if(!rows.length)sel.innerHTML='<option value="">No active team members found</option>';
+      sel.onchange=syncTeamWhatsappV281;syncTeamWhatsappV281();
     }catch(e){
       console.warn('Team members could not load in Link Manager.',e);
       sel.innerHTML='<option value="">No team member</option>';
@@ -185,10 +188,12 @@
       const teamId=String(teamSel?.value||'').trim();
       const teamName=teamId?String(teamOpt?.dataset?.name||'').trim():'';
       const teamUsername=teamId?String(teamOpt?.dataset?.username||'').trim():'';
+      const teamWhatsapp=teamId?normalizeWhatsapp(teamOpt?.dataset?.whatsapp||''):whatsapp;
+      if(teamId&&(!teamWhatsapp||!validWhatsapp(teamWhatsapp)))throw new Error('Selected Team Member has no valid WhatsApp. Update Team WhatsApp first.');
       const {data:created,error}=await client.from('tracked_links').insert({
         name,slug,destination_path:destination,
         destination_label:document.getElementById('lmDestination').selectedOptions[0]?.text||destination,
-        source,campaign:campaign||null,whatsapp_number:whatsapp||null,notes:notes||null,created_by:userId,
+        source,campaign:campaign||null,whatsapp_number:teamWhatsapp||null,notes:notes||null,created_by:userId,
         assigned_team_member_id:teamId||null,
         assigned_team_username:teamUsername||null,
         assigned_team_name:teamName||null
@@ -252,14 +257,27 @@
   async function saveWhatsappModal(){
     if(!editingWhatsappLinkId)return closeWhatsappModal();
     const input=document.getElementById('lmWhatsappEditInput');
-    const whatsapp=normalizeWhatsapp(input?.value||'');
+    let whatsapp=normalizeWhatsapp(input?.value||'');
     if(!validWhatsapp(whatsapp))return toast('WhatsApp number looks invalid. Please use a full number with country code.','err');
     const btn=document.getElementById('lmWhatsappSave');if(btn){btn.disabled=true;btn.textContent='Saving…';}
     try{
-      const client=getSb();const {error}=await client.from('tracked_links').update({whatsapp_number:whatsapp||null}).eq('id',editingWhatsappLinkId);
+      const client=getSb();
+      const linkRes=await client.from('tracked_links').select('assigned_team_member_id,assigned_team_name').eq('id',editingWhatsappLinkId).maybeSingle();
+      if(linkRes.error)throw linkRes.error;
+      const teamId=String(linkRes.data?.assigned_team_member_id||'').trim();
+      if(teamId){
+        let d=await client.rpc('psp_admin_ad_team_directory_v261');
+        if(d.error)d=await client.rpc('psp_admin_team_directory');
+        if(d.error)throw d.error;
+        const tm=(d.data||[]).find(x=>String(x.team_member_id)===teamId);
+        const teamWa=normalizeWhatsapp(tm?.whatsapp_number||'');
+        if(!teamWa||!validWhatsapp(teamWa))throw new Error('Assigned Team Member has no valid WhatsApp. Update Team WhatsApp first.');
+        whatsapp=teamWa;
+      }
+      const {error}=await client.from('tracked_links').update({whatsapp_number:whatsapp||null}).eq('id',editingWhatsappLinkId);
       if(error)throw error;
       closeWhatsappModal();
-      toast(whatsapp?'Referral WhatsApp saved.':'WhatsApp removed. This link will use the channel fallback.','ok');
+      toast(teamId?'WhatsApp synced from the assigned Team Member.':(whatsapp?'Referral WhatsApp saved.':'WhatsApp removed. This link will use the channel fallback.'),'ok');
       await loadLinks();
     }catch(error){toast(error.message||'Could not save WhatsApp number.','err');}
     finally{if(btn){btn.disabled=false;btn.textContent='Save WhatsApp';}}
