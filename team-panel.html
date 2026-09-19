@@ -346,7 +346,50 @@ async function signIn(){
 }
 async function logout(){const t=S.token;S.token='';localStorage.removeItem(SESSION_KEY);setView(false);if(t)try{await db.rpc('psp_team_logout_v56',{p_session_token:t})}catch(_){}}
 async function loadLinks(){const my=selectedMY();try{let r=await db.rpc('psp_team_links_v208',{p_session_token:S.token,p_month:my.month,p_year:my.year});if(r.error){console.warn('V208 link metrics fallback:',r.error);r=await db.rpc('psp_team_links_v206',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error){console.warn('V206 link metrics fallback:',r.error);r=await db.rpc('psp_team_my_links_v201',{p_session_token:S.token});}if(r.error)throw r.error;S.links=r.data||[]}catch(e){console.warn(e);S.links=[]}}
-async function loadClients(){if(S.loaded.clients)return;try{const [legacyR,assignedR,adR,ownedR,excludedR]=await Promise.all([db.rpc('psp_team_clients_v206',{p_session_token:S.token,p_limit:1500}),db.rpc('psp_team_assigned_leads_v245',{p_session_token:S.token,p_limit:1500}),db.rpc('psp_team_ad_leads_v273',{p_session_token:S.token,p_limit:2000}),db.rpc('psp_team_owned_clients_v273',{p_session_token:S.token,p_limit:1500}),db.rpc('psp_team_excluded_client_keys_v273',{p_session_token:S.token})]);if(legacyR.error)throw legacyR.error;const exRows=excludedR.error?[]:(excludedR.data||[]),excludedKeys=new Set(exRows.map(x=>String(x.client_key||'')).filter(Boolean)),excludedEmails=new Set(exRows.map(x=>String(x.email||'').trim().toLowerCase()).filter(Boolean)),excludedWa=new Set(exRows.map(x=>String(x.whatsapp||'').replace(/\D/g,'')).filter(x=>x.length>=7)),excludedIds=new Set(exRows.map(x=>String(x.client_id||'').trim().toUpperCase()).filter(Boolean));const allowed=x=>{const k=clientKeyV273(x),e=String(x&&x.email||'').trim().toLowerCase(),w=String(x&&x.whatsapp||'').replace(/\D/g,''),id=String(x&&x.client_id||'').trim().toUpperCase();return !excludedKeys.has(k)&&(!e||!excludedEmails.has(e))&&(w.length<7||!excludedWa.has(w))&&(!id||!excludedIds.has(id))};const legacy=(legacyR.data||[]).filter(allowed).map(x=>Object.assign({source_kind:'old'},x));const ad=(adR.error?[]:(adR.data||[])).filter(allowed).map(x=>Object.assign({is_auto_assigned:true,is_ad_lead:true,source_kind:'ad',conversion_status:x.work_status||x.conversion_status||'new'},x));const adAssignmentIds=new Set(ad.map(x=>String(x.assignment_id||'')).filter(Boolean));const assigned=(assignedR.error?[]:(assignedR.data||[])).filter(x=>!adAssignmentIds.has(String(x.assignment_id||''))&&allowed(x)).map(x=>Object.assign({is_auto_assigned:true,source_kind:'ad'},x));const represented=new Set([...ad,...assigned,...legacy].map(clientKeyV273).filter(Boolean));const owned=(ownedR.error?[]:(ownedR.data||[])).filter(x=>!represented.has(clientKeyV273(x))).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.conversion_status||'new'},x));const seen=new Set(),merged=[],keyOf=x=>String(x.ad_submission_id?('ad:'+x.ad_submission_id):x.assignment_id?('as:'+x.assignment_id):x.reference_code?('ref:'+x.reference_code):((x.client_key||'')+'|'+(x.course_enrollment||'')+'|'+(x.registration_at||'')));[...ad,...assigned,...legacy,...owned].forEach(x=>{const k=keyOf(x);if(seen.has(k))return;seen.add(k);merged.push(x)});S.clients=merged;S.loaded.clients=true}catch(e){console.warn(e);S.clients=[];if(S.view==='clients')toast('Client data could not load. Run V273 SQL and retry.','bad')}}
+async function loadClients(){
+  if(S.loaded.clients)return;
+  let repair=null;
+  try{
+    const rr=await db.rpc('psp_team_repair_my_clients_v275',{p_session_token:S.token});
+    if(!rr.error)repair=rpcObj(rr.data);
+    else console.warn('V275 client self-repair unavailable:',rr.error);
+  }catch(e){console.warn('V275 client self-repair failed:',e)}
+  try{
+    const [legacyR,assignedR,adR,ownedR,excludedR]=await Promise.all([
+      db.rpc('psp_team_clients_v206',{p_session_token:S.token,p_limit:1500}),
+      db.rpc('psp_team_assigned_leads_v245',{p_session_token:S.token,p_limit:1500}),
+      db.rpc('psp_team_ad_leads_v273',{p_session_token:S.token,p_limit:2000}),
+      db.rpc('psp_team_owned_clients_v273',{p_session_token:S.token,p_limit:2000}),
+      db.rpc('psp_team_excluded_client_keys_v273',{p_session_token:S.token})
+    ]);
+    const errs=[legacyR,assignedR,adR,ownedR].filter(r=>r&&r.error).map(r=>r.error);
+    if(errs.length)console.warn('Some client sources were unavailable; using remaining sources.',errs);
+    const exRows=excludedR&&excludedR.error?[]:((excludedR&&excludedR.data)||[]),
+      excludedKeys=new Set(exRows.map(x=>String(x.client_key||'')).filter(Boolean)),
+      excludedEmails=new Set(exRows.map(x=>String(x.email||'').trim().toLowerCase()).filter(Boolean)),
+      excludedWa=new Set(exRows.map(x=>String(x.whatsapp||'').replace(/\D/g,'')).filter(x=>x.length>=7)),
+      excludedIds=new Set(exRows.map(x=>String(x.client_id||'').trim().toUpperCase()).filter(Boolean));
+    const allowed=x=>{const k=clientKeyV273(x),e=String(x&&x.email||'').trim().toLowerCase(),w=String(x&&x.whatsapp||'').replace(/\D/g,''),id=String(x&&x.client_id||'').trim().toUpperCase();return !excludedKeys.has(k)&&(!e||!excludedEmails.has(e))&&(w.length<7||!excludedWa.has(w))&&(!id||!excludedIds.has(id))};
+    const legacy=(legacyR&&legacyR.error?[]:((legacyR&&legacyR.data)||[])).filter(allowed).map(x=>Object.assign({source_kind:'old'},x));
+    const ad=(adR&&adR.error?[]:((adR&&adR.data)||[])).filter(allowed).map(x=>Object.assign({is_auto_assigned:true,is_ad_lead:true,source_kind:'ad',conversion_status:x.work_status||x.conversion_status||'new'},x));
+    const adAssignmentIds=new Set(ad.map(x=>String(x.assignment_id||'')).filter(Boolean));
+    const assigned=(assignedR&&assignedR.error?[]:((assignedR&&assignedR.data)||[])).filter(x=>!adAssignmentIds.has(String(x.assignment_id||''))&&allowed(x)).map(x=>Object.assign({is_auto_assigned:true,source_kind:'ad'},x));
+    const represented=new Set([...ad,...assigned,...legacy].map(clientKeyV273).filter(Boolean));
+    const owned=(ownedR&&ownedR.error?[]:((ownedR&&ownedR.data)||[])).filter(x=>allowed(x)&&!represented.has(clientKeyV273(x))).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.conversion_status||'new'},x));
+    const seen=new Set(),merged=[],keyOf=x=>String(x.ad_submission_id?('ad:'+x.ad_submission_id):x.assignment_id?('as:'+x.assignment_id):x.reference_code?('ref:'+x.reference_code):((clientKeyV273(x)||'')+'|'+(x.course_enrollment||'')+'|'+(x.registration_at||'')));
+    [...ad,...assigned,...legacy,...owned].forEach(x=>{const k=keyOf(x);if(!k||seen.has(k))return;seen.add(k);merged.push(x)});
+    S.clients=merged;S.loaded.clients=true;
+    const expected=repair?Math.max(num(repair.ad_source_count),num(repair.assignment_source_count),num(repair.owner_count)):0;
+    if(expected>0&&merged.length===0){
+      console.warn('Client sync mismatch after repair',repair);
+      toast('Client sync needs the V275 SQL update. Please ask Admin to run it.','bad');
+    }
+  }catch(e){
+    console.warn('Client load failed:',e);
+    S.clients=[];S.loaded.clients=false;
+    if(S.view==='clients')toast('Client data could not load. Run V275 SQL, then tap Refresh.','bad');
+  }
+}
 async function loadDaily(){const my=selectedMY();try{let [t,h]=await Promise.all([db.rpc('psp_team_daily_report_v207',{p_session_token:S.token,p_report_date:null}),db.rpc('psp_team_daily_history_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year})]);if(t.error||h.error){console.warn('V207 daily fallback:',t.error||h.error);[t,h]=await Promise.all([db.rpc('psp_team_daily_report_v206',{p_session_token:S.token,p_report_date:null}),db.rpc('psp_team_daily_history_v206',{p_session_token:S.token,p_month:my.month,p_year:my.year})]);}if(t.error)throw t.error;S.daily=rpcObj(t.data);S.dailyHistory=rpcObj(h.data);if(!Array.isArray(S.dailyHistory))S.dailyHistory=Array.isArray(h.data)?h.data:[];S.loaded.daily=true}catch(e){console.warn(e);S.daily={manual:{},auto:{}};S.dailyHistory=[]}}
 async function loadMetrics(force=false){const my=selectedMY(),key=my.year+'-'+my.month;if(!force&&S.cache.overviewKey===key&&Date.now()-S.cache.overviewAt<30000&&S.metrics)return;let r=await db.rpc('psp_team_overview_v208',{p_session_token:S.token,p_month:my.month,p_year:my.year});if(r.error){console.warn('V208 overview fallback:',r.error);r=await db.rpc('psp_team_command_center_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error){console.warn('V207 metrics fallback:',r.error);r=await db.rpc('psp_team_command_center_v206',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error)throw r.error;S.metrics=applyTeamEarningsCutoffV274(normalizeMetrics(rpcObj(r.data)),my);S.cache.overviewKey=key;S.cache.overviewAt=Date.now()}
 async function loadHistory(force=false){if(S.loaded.history&&!force)return;const my=selectedMY();try{let r=await db.rpc('psp_team_history_v208',{p_session_token:S.token,p_months:6,p_month:my.month,p_year:my.year});if(r.error){console.warn('V208 history fallback:',r.error);r=await db.rpc('psp_team_command_center_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error)throw r.error;const raw=rpcObj(r.data),data=Array.isArray(raw?.history)?raw.history:raw;S.history=Array.isArray(data)?data:(Array.isArray(r.data)?r.data:[]);S.loaded.history=true;renderTrend('overviewTrend');renderTrend('performanceTrend');renderHistory()}catch(e){console.warn('History unavailable:',e)}}
