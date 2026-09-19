@@ -398,6 +398,7 @@ const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const SESSION_KEY='pipsepaisa-team-session-v56';
 const THEME_KEY='pipsepaisa-team-theme-v206';
 const IDENTITY_KEY='pipsepaisa-team-identity-v278';
+const TEAM_CLIENT_DATA_VERSION='v280';
 const PWA_INSTALLED_KEY='pipsepaisa-psp-team-installed-v278';
 const BASE='https://pipsepaisa.com';
 const TEAM_EARNINGS_CUTOFF_YM=202609; // Previous team earnings were manually settled before Sep 2026.
@@ -470,38 +471,93 @@ async function signIn(){
 async function logout(){const t=S.token;S.token='';S.identity={};S.metrics=null;S.metricsAvailable=false;S.clients=[];S.loaded.clients=false;localStorage.removeItem(SESSION_KEY);localStorage.removeItem(IDENTITY_KEY);setView(false);if(t)try{await db.rpc('psp_team_logout_v56',{p_session_token:t})}catch(_){}}
 async function loadLinks(){const my=selectedMY();try{let r=await db.rpc('psp_team_links_v208',{p_session_token:S.token,p_month:my.month,p_year:my.year});if(r.error){console.warn('V208 link metrics fallback:',r.error);r=await db.rpc('psp_team_links_v206',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error){console.warn('V206 link metrics fallback:',r.error);r=await db.rpc('psp_team_my_links_v201',{p_session_token:S.token});}if(r.error)throw r.error;S.links=r.data||[];delete S.errors.links;return true}catch(e){console.warn('Team links unavailable:',e);S.links=[];S.errors.links=e;if(authLikeErrorV278(e))S.errors.session=e;return false}}
 function renderClientLoadingV278(){S.clientsLoading=true;if($('clientVisibleCount'))$('clientVisibleCount').innerHTML='<b>…</b> loading';if($('clientPageInfo'))$('clientPageInfo').textContent='Loading assigned clients…';if($('clientRows'))$('clientRows').innerHTML='<tr class="client-loading-v278"><td colspan="8" class="client-state-v278"><div class="client-state-spinner"></div><b>Loading your clients</b>Old + current assigned clients are being synced.</td></tr>';const p=document.querySelector('.client-pager-v273');if(p)p.classList.add('hidden')}
+function rpcRowsV280(data){
+  if(Array.isArray(data))return data;
+  if(data==null)return [];
+  if(typeof data==='string'){try{return rpcRowsV280(JSON.parse(data))}catch(_){return []}}
+  if(typeof data==='object'){
+    for(const k of ['clients','rows','data','items','results','leads'])if(Array.isArray(data[k]))return data[k];
+    const vals=Object.values(data);for(const v of vals)if(Array.isArray(v))return v;
+  }
+  return [];
+}
+function clientMergeKeyV280(x){
+  const ck=clientKeyV273(x);if(ck)return 'client:'+ck;
+  if(x&&x.ad_submission_id)return 'ad:'+String(x.ad_submission_id);
+  if(x&&x.assignment_id)return 'as:'+String(x.assignment_id);
+  return 'row:'+String(x&&x.email||'').trim().toLowerCase()+'|'+String(x&&x.whatsapp||'').replace(/\D/g,'')+'|'+String(x&&x.client_id||'').trim().toUpperCase()+'|'+String(x&&x.registration_at||'');
+}
+function mergeClientCourseV280(a,b){
+  const vals=[];for(const v of [a&&a.course_enrollment,b&&b.course_enrollment])String(v||'').split(',').map(s=>s.trim()).filter(Boolean).forEach(s=>{if(!vals.some(x=>x.toLowerCase()===s.toLowerCase()))vals.push(s)});return vals.join(', ');
+}
+function mergeClientRowsV280(rows){
+  const rank={manager:4,ad:3,assigned:2,old:1},map=new Map();
+  for(const src of rows||[]){if(!src)continue;const k=clientMergeKeyV280(src);if(!k)continue;const cur=map.get(k);if(!cur){map.set(k,Object.assign({},src));continue}
+    const srcRank=rank[src.source_kind]||0,curRank=rank[cur.source_kind]||0,primary=srcRank>curRank?src:cur,secondary=srcRank>curRank?cur:src;
+    const merged=Object.assign({},secondary,primary);
+    for(const f of ['full_name','email','whatsapp','client_id','user_id','campaign','reference_code','broker','broker_status','account_mode','follow_up_at','work_status','conversion_status'])if(!merged[f])merged[f]=secondary[f]||primary[f]||null;
+    merged.course_enrollment=mergeClientCourseV280(cur,src)||primary.course_enrollment||secondary.course_enrollment||'';
+    const da=new Date(cur.registration_at||0).getTime()||0,db=new Date(src.registration_at||0).getTime()||0;merged.registration_at=da&&db?(da<=db?cur.registration_at:src.registration_at):(cur.registration_at||src.registration_at);
+    map.set(k,merged);
+  }
+  return [...map.values()];
+}
 async function loadClients(){
   if(S.loaded.clients)return true;
   S.clientsLoading=true;delete S.errors.clients;if(S.view==='clients')renderClientLoadingV278();
   let repair=null;
   try{const rr=await db.rpc('psp_team_repair_my_clients_v275',{p_session_token:S.token});if(!rr.error)repair=rpcObj(rr.data);else console.warn('V275 client self-repair unavailable:',rr.error)}catch(e){console.warn('V275 client self-repair failed:',e)}
-  try{
+  const fetchSources=async()=>{
     const [legacyR,assignedR,adR,ownedR,excludedR]=await Promise.all([
-      db.rpc('psp_team_clients_v206',{p_session_token:S.token,p_limit:1500}),
-      db.rpc('psp_team_assigned_leads_v245',{p_session_token:S.token,p_limit:1500}),
+      db.rpc('psp_team_clients_v206',{p_session_token:S.token,p_limit:2000}),
+      db.rpc('psp_team_assigned_leads_v245',{p_session_token:S.token,p_limit:2000}),
       db.rpc('psp_team_ad_leads_v273',{p_session_token:S.token,p_limit:2000}),
       db.rpc('psp_team_owned_clients_v273',{p_session_token:S.token,p_limit:2000}),
       db.rpc('psp_team_excluded_client_keys_v273',{p_session_token:S.token})
     ]);
-    const sourceRs=[legacyR,assignedR,adR,ownedR],okSources=sourceRs.filter(r=>r&&!r.error),errs=sourceRs.filter(r=>r&&r.error).map(r=>r.error);
+    return {legacyR,assignedR,adR,ownedR,excludedR};
+  };
+  try{
+    let pack=await fetchSources();
+    let {legacyR,assignedR,adR,ownedR,excludedR}=pack;
+    const sourceRs=[legacyR,assignedR,adR,ownedR],errs=sourceRs.filter(r=>r&&r.error).map(r=>r.error);
     if(errs.length)console.warn('Some client sources were unavailable; using remaining sources.',errs);
-    if(!okSources.length){const e=errs[0]||new Error('All client sources are unavailable.');S.errors.clients=e;if(errs.some(authLikeErrorV278))S.errors.session=errs.find(authLikeErrorV278);throw e}
-    const exRows=excludedR&&excludedR.error?[]:((excludedR&&excludedR.data)||[]),
+    if(sourceRs.every(r=>!r||r.error)){const e=errs[0]||new Error('All client sources are unavailable.');S.errors.clients=e;if(errs.some(authLikeErrorV278))S.errors.session=errs.find(authLikeErrorV278);throw e}
+
+    const exRows=excludedR&&excludedR.error?[]:rpcRowsV280(excludedR&&excludedR.data),
       excludedKeys=new Set(exRows.map(x=>String(x.client_key||'')).filter(Boolean)),
       excludedEmails=new Set(exRows.map(x=>String(x.email||'').trim().toLowerCase()).filter(Boolean)),
       excludedWa=new Set(exRows.map(x=>String(x.whatsapp||'').replace(/\D/g,'')).filter(x=>x.length>=7)),
       excludedIds=new Set(exRows.map(x=>String(x.client_id||'').trim().toUpperCase()).filter(Boolean));
-    const allowed=x=>{const k=clientKeyV273(x),e=String(x&&x.email||'').trim().toLowerCase(),w=String(x&&x.whatsapp||'').replace(/\D/g,''),id=String(x&&x.client_id||'').trim().toUpperCase();return !excludedKeys.has(k)&&(!e||!excludedEmails.has(e))&&(w.length<7||!excludedWa.has(w))&&(!id||!excludedIds.has(id))};
-    const legacy=(legacyR&&legacyR.error?[]:((legacyR&&legacyR.data)||[])).filter(allowed).map(x=>Object.assign({source_kind:'old'},x));
-    const ad=(adR&&adR.error?[]:((adR&&adR.data)||[])).filter(allowed).map(x=>Object.assign({is_auto_assigned:true,is_ad_lead:true,source_kind:'ad',conversion_status:x.work_status||x.conversion_status||'new'},x));
+    const legacyAllowed=x=>{const k=clientKeyV273(x),e=String(x&&x.email||'').trim().toLowerCase(),w=String(x&&x.whatsapp||'').replace(/\D/g,''),id=String(x&&x.client_id||'').trim().toUpperCase();return !excludedKeys.has(k)&&(!e||!excludedEmails.has(e))&&(w.length<7||!excludedWa.has(w))&&(!id||!excludedIds.has(id))};
+
+    // V280: current ownership/ad RPCs are already session-scoped.  Exclusion rows are
+    // applied only to historical sources so a stale exclusion cannot wipe current clients.
+    const legacy=rpcRowsV280(legacyR&&legacyR.error?null:legacyR&&legacyR.data).filter(legacyAllowed).map(x=>Object.assign({source_kind:'old'},x));
+    const assignedRaw=rpcRowsV280(assignedR&&assignedR.error?null:assignedR&&assignedR.data);
+    const ad=rpcRowsV280(adR&&adR.error?null:adR&&adR.data).map(x=>Object.assign({is_auto_assigned:true,is_ad_lead:true,source_kind:'ad',conversion_status:x.work_status||x.conversion_status||'new'},x));
     const adAssignmentIds=new Set(ad.map(x=>String(x.assignment_id||'')).filter(Boolean));
-    const assigned=(assignedR&&assignedR.error?[]:((assignedR&&assignedR.data)||[])).filter(x=>!adAssignmentIds.has(String(x.assignment_id||''))&&allowed(x)).map(x=>Object.assign({is_auto_assigned:true,source_kind:'ad'},x));
-    const represented=new Set([...ad,...assigned,...legacy].map(clientKeyV273).filter(Boolean));
-    const owned=(ownedR&&ownedR.error?[]:((ownedR&&ownedR.data)||[])).filter(x=>allowed(x)&&!represented.has(clientKeyV273(x))).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.conversion_status||'new'},x));
-    const seen=new Set(),merged=[],keyOf=x=>{if(x.ad_submission_id)return 'ad:'+String(x.ad_submission_id);if(x.assignment_id)return 'as:'+String(x.assignment_id);const clientKey=clientKeyV273(x);if(clientKey)return 'client:'+clientKey;return 'legacy:'+String(x.email||'')+'|'+String(x.whatsapp||'')+'|'+String(x.client_id||'')+'|'+String(x.course_enrollment||'')+'|'+String(x.registration_at||'')};
-    [...ad,...assigned,...legacy,...owned].forEach(x=>{const k=keyOf(x);if(!k||seen.has(k))return;seen.add(k);merged.push(x)});
+    const assigned=assignedRaw.filter(x=>!adAssignmentIds.has(String(x.assignment_id||''))&&legacyAllowed(x)).map(x=>Object.assign({is_auto_assigned:true,source_kind:'assigned'},x));
+    const owned=rpcRowsV280(ownedR&&ownedR.error?null:ownedR&&ownedR.data).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.work_status||x.conversion_status||'new'},x));
+
+    let merged=mergeClientRowsV280([...owned,...ad,...assigned,...legacy]);
+    const rawCount=owned.length+ad.length+assigned.length+legacy.length;
+    const expected=repair?Math.max(num(repair.ad_source_count),num(repair.assignment_source_count),num(repair.owner_count),num(repair.total_count)):0;
+
+    // Some phones were landing on a temporary empty response immediately after session restore.
+    // Retry once when backend says clients exist, without blocking the rest of the Team app.
+    if(!merged.length&&(expected>0||rawCount===0)){
+      await new Promise(r=>setTimeout(r,450));
+      pack=await fetchSources();({legacyR,assignedR,adR,ownedR,excludedR}=pack);
+      const legacy2=rpcRowsV280(legacyR&&legacyR.error?null:legacyR&&legacyR.data).filter(legacyAllowed).map(x=>Object.assign({source_kind:'old'},x));
+      const ad2=rpcRowsV280(adR&&adR.error?null:adR&&adR.data).map(x=>Object.assign({is_auto_assigned:true,is_ad_lead:true,source_kind:'ad',conversion_status:x.work_status||x.conversion_status||'new'},x));
+      const adIds2=new Set(ad2.map(x=>String(x.assignment_id||'')).filter(Boolean));
+      const assigned2=rpcRowsV280(assignedR&&assignedR.error?null:assignedR&&assignedR.data).filter(x=>!adIds2.has(String(x.assignment_id||''))&&legacyAllowed(x)).map(x=>Object.assign({is_auto_assigned:true,source_kind:'assigned'},x));
+      const owned2=rpcRowsV280(ownedR&&ownedR.error?null:ownedR&&ownedR.data).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.work_status||x.conversion_status||'new'},x));
+      merged=mergeClientRowsV280([...owned2,...ad2,...assigned2,...legacy2]);
+    }
+
     S.clients=merged;S.loaded.clients=true;S.clientsLoading=false;delete S.errors.clients;
-    const expected=repair?Math.max(num(repair.ad_source_count),num(repair.assignment_source_count),num(repair.owner_count)):0;
     if(expected>0&&merged.length===0)console.warn('Client sync mismatch after repair',repair);
     return true;
   }catch(e){
