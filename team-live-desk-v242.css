@@ -114,3 +114,19 @@
   #view-livechat .psp-tld-input{min-height:44px!important;font-size:16px!important;max-width:calc(100vw - 64px)!important}
   #view-livechat .psp-tld-send{width:44px!important;height:44px!important;flex:0 0 44px!important;border-radius:50%!important}
 }
+
+/* ===== V273 simplified Team Live Desk ===== */
+#view-livechat .psp-tld-top{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;overflow:visible!important}
+#view-livechat .psp-tld-stat{min-width:0!important}
+#view-livechat .psp-tld-workspace{grid-template-columns:320px minmax(600px,1fr) 300px!important}
+#view-livechat .psp-tld-inbox{min-width:0!important}
+#view-livechat .psp-tld-profile{min-width:0!important}
+#view-livechat .psp-tld-composewrap{position:sticky!important;bottom:0!important;z-index:5!important;background:var(--panel)!important}
+#view-livechat .psp-tld-aibar:before{content:'AI Tools';font-size:8px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:inline-flex;align-items:center;margin-right:2px}
+#view-livechat .psp-tld-cardtitle{letter-spacing:.07em!important}
+@media(max-width:1320px){#view-livechat .psp-tld-workspace{grid-template-columns:300px minmax(520px,1fr) 285px!important}}
+@media(max-width:1180px){#view-livechat .psp-tld-workspace{grid-template-columns:300px minmax(500px,1fr)!important}#view-livechat .psp-tld-profile{display:none!important}}
+@media(max-width:760px){#view-livechat .psp-tld-top{display:none!important}#view-livechat .psp-tld-workspace{display:block!important}}
+#view-livechat .psp-tld-shell.profile-collapsed .psp-tld-workspace{grid-template-columns:320px minmax(640px,1fr)!important}
+#view-livechat .psp-tld-shell.profile-collapsed .psp-tld-profile{display:none!important}
+@media(max-width:1180px){#view-livechat #pspTldDetails{display:none!important}}
