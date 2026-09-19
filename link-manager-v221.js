@@ -81,7 +81,7 @@
         <div class="card-header"><div><div class="card-title">🔗 Generate Tracked Link</div><div class="card-meta">Create a link and see how many visitors, signups and enrollments came from it.</div></div></div>
         <div class="lm-form-grid">
           <div><label>Link Name *</label><input id="lmName" placeholder="Free Course WhatsApp August"></div>
-          <div><label>Destination Page *</label><select id="lmDestination"><option value="/">Home</option><option value="/courses">Courses</option><option value="/become-partner">Become Partner</option><option value="/broker-reviews">Broker Reviews</option><option value="/trading-tools">Trading Tools & Services</option><option value="/sign-in">Sign In</option><option value="/sign-up">Sign Up</option><option value="/courses.html?psp_enroll=basic-b2">Basic Forex Course — Batch 2 (Signup + Enrollment)</option><option value="/courses.html?psp_enroll=fundamental">Free Fundamental Forex Course (Signup + Enrollment)</option><option value="/courses.html?psp_enroll=advanced">ADVANCE COURSE — Paid (Login + Payment)</option><option value="/courses.html?psp_enroll=advance-fundamental">Advance Fundamental — Paid (Login + Payment)</option><option value="custom">Custom Path</option></select></div>
+          <div><label>Destination Page *</label><select id="lmDestination"><option value="/">Home</option><option value="/courses">Courses</option><option value="/become-partner">Become Partner</option><option value="/broker-reviews">Broker Reviews</option><option value="/trading-tools">Trading Tools & Services</option><option value="/sign-in">Sign In</option><option value="/sign-up">Sign Up</option><option value="/courses.html?psp_enroll=basic-b3">Basic Forex Course — Batch 3 (Signup + Enrollment)</option><option value="/courses.html?psp_enroll=fundamental-b2">Free Fundamental Forex Course — Batch 2 (Signup + Enrollment)</option><option value="/courses.html?psp_enroll=advanced">ADVANCE COURSE — Paid (Login + Payment)</option><option value="/courses.html?psp_enroll=advance-fundamental">Advance Fundamental — Paid (Login + Payment)</option><option value="custom">Custom Path</option></select></div>
           <div><label>Source</label><select id="lmSource"><option>WhatsApp</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>Email</option><option>Google</option><option>Other</option></select></div>
           <div><label>Referral WhatsApp Number</label><input id="lmWhatsapp" placeholder="+60 11-5655 1989"></div><div><label>Assign Team Member</label><select id="lmTeamMember"><option value="">No team member</option></select></div>
           <div class="wide" id="lmCustomWrap" style="display:none"><label>Custom Destination</label><input id="lmCustomDestination" placeholder="/courses#courses"></div>
@@ -89,7 +89,7 @@
           <div class="wide"><label>Team Member / Reference Code *</label><input id="lmSlug" placeholder="person-1"></div>
           <div><label>Notes</label><input id="lmNotes" placeholder="Optional internal note"></div>
         </div>
-        <div class="lm-preview" style="margin-top:14px"><span>🔗</span><span class="lm-link" id="lmPreview">${BASE_DOMAIN}/courses.html?psp_enroll=basic-b2&ref=person-1</span><button class="lm-btn" style="margin-left:auto" type="button" id="lmCreateBtn">Create Link</button></div>
+        <div class="lm-preview" style="margin-top:14px"><span>🔗</span><span class="lm-link" id="lmPreview">${BASE_DOMAIN}/courses.html?psp_enroll=basic-b3&ref=person-1</span><button class="lm-btn" style="margin-left:auto" type="button" id="lmCreateBtn">Create Link</button></div>
       </div>
       <div class="card" style="margin-bottom:18px">
         <div class="card-header"><div><div class="card-title">Clean Page URLs</div><div class="card-meta">Normal page links without campaign tracking.</div></div></div>
@@ -131,7 +131,7 @@
   }
   function updatePreview(){
     const slug=slugify(document.getElementById('lmSlug')?.value||'person-1')||'person-1';
-    let destination=document.getElementById('lmDestination')?.value||'/courses.html?psp_enroll=basic-b2';
+    let destination=document.getElementById('lmDestination')?.value||'/courses.html?psp_enroll=basic-b3';
     if(destination==='custom')destination=document.getElementById('lmCustomDestination')?.value.trim()||'/';
     const p=document.getElementById('lmPreview');if(p)p.textContent=trackedUrl(destination,slug);
   }
