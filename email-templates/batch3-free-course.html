@@ -6,44 +6,243 @@
 <meta name="x-apple-disable-message-reformatting">
 <title>PipSePaisa — Batch 3</title>
 <style>
-body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}table,td{mso-table-lspace:0pt;mso-table-rspace:0pt}table{border-collapse:collapse!important}img{border:0;outline:none;text-decoration:none;display:block;-ms-interpolation-mode:bicubic}body{margin:0!important;padding:0!important;width:100%!important;background:#f3eee4}.wrap{width:600px;max-width:600px}.mobile-photo{display:none;max-height:0;overflow:hidden;mso-hide:all}.desktop-photo{display:table-cell}
-@media screen and (max-width:620px){body{background:#f3eee4!important}.outer{padding:8px!important}.wrap{width:100%!important;max-width:100%!important;border-radius:18px!important}.pad{padding-left:15px!important;padding-right:15px!important}.header-pad{padding:12px 14px!important}.brand-name{font-size:17px!important}.batch-badge{font-size:8px!important;padding:7px 9px!important}.desktop-photo{display:none!important}.mobile-photo{display:table-row!important;max-height:none!important;overflow:visible!important;mso-hide:all!important}.mobile-photo td{display:table-cell!important;width:100%!important;padding:4px 0 0!important;background:#fff2dc!important;text-align:center!important}.mobile-photo img{display:block!important;width:300px!important;max-width:86%!important;height:auto!important;margin:0 auto!important}.hero-copy{display:block!important;width:100%!important;padding:15px 18px 18px!important;text-align:center!important}.headline{font-size:29px!important;line-height:1.02!important;letter-spacing:-.8px!important}.headline-line{display:block!important;white-space:normal!important}.course-line{font-size:16px!important;line-height:1.25!important;margin-top:10px!important}.meta{font-size:10px!important;line-height:1.4!important;margin-top:9px!important}.benefit{display:inline-block!important;width:50%!important;box-sizing:border-box!important;border-right:0!important;padding:12px 5px!important}.benefit.b1,.benefit.b2{border-bottom:1px solid #ead7ba!important}.cta{display:block!important;width:100%!important;box-sizing:border-box!important;padding:15px 18px!important;font-size:14px!important}.footer-left,.footer-right{display:block!important;width:100%!important;text-align:center!important}.footer-right{padding-top:10px!important}}
-@media screen and (max-width:360px){.headline{font-size:27px!important}.mobile-photo img{width:275px!important;max-width:88%!important}.batch-badge{font-size:7px!important}.brand-name{font-size:16px!important}}
+body,table,td,a{-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%}
+table,td{mso-table-lspace:0pt;mso-table-rspace:0pt}
+table{border-collapse:collapse!important}
+img{border:0;outline:none;text-decoration:none;display:block;-ms-interpolation-mode:bicubic}
+body{margin:0!important;padding:0!important;width:100%!important;background:#f3eee4}
+.desktop-only{display:table-row}
+.mobile-only{display:none;max-height:0;overflow:hidden;mso-hide:all}
+@media screen and (max-width:620px){
+  body{background:#f3eee4!important}
+  .outer{padding:8px!important}
+  .wrap{width:100%!important;max-width:100%!important;border-radius:22px!important}
+  .desktop-only{display:none!important;max-height:0!important;overflow:hidden!important;mso-hide:all!important}
+  .mobile-only{display:table-row!important;max-height:none!important;overflow:visible!important;mso-hide:all!important}
+  .mobile-block{display:block!important;max-height:none!important;overflow:visible!important}
+  .header-pad{padding:13px 15px!important}
+  .brand-logo{width:50px!important;height:50px!important}
+  .brand-name{font-size:18px!important}
+  .batch-badge{font-size:8px!important;padding:7px 9px!important}
+  .mob-hero{padding:0!important;background:#fff6e8!important}
+  .mob-hero-inner{width:100%!important}
+  .mob-copy{width:54%!important;padding:18px 5px 18px 17px!important;vertical-align:middle!important}
+  .mob-photo{width:46%!important;padding:8px 4px 0!important;vertical-align:bottom!important;background:#fff0d4!important}
+  .mob-photo img{width:170px!important;max-width:100%!important;height:auto!important;margin:0 auto!important}
+  .mob-eyebrow{font-size:8px!important;padding:6px 8px!important}
+  .mob-headline{font-size:25px!important;line-height:.98!important;letter-spacing:-.9px!important}
+  .mob-course{font-size:13px!important;line-height:1.25!important}
+  .mob-meta{font-size:8.5px!important;line-height:1.35!important}
+  .benefit-row{padding:12px 10px 4px!important}
+  .benefit{width:25%!important;padding:10px 3px!important;border-right:1px solid #ead7ba!important}
+  .benefit.last{border-right:0!important}
+  .benefit-big{font-size:16px!important}
+  .benefit-small{font-size:7px!important}
+  .cta-wrap{padding:13px 12px 10px!important}
+  .cta{display:block!important;width:100%!important;box-sizing:border-box!important;padding:16px 12px!important;font-size:14px!important;border-radius:14px!important}
+  .wa-note{margin:0 12px 12px!important;padding:10px 12px!important;font-size:9px!important}
+  .learn-row{padding:0 12px 12px!important}
+  .learn-card{width:25%!important;padding:11px 4px!important}
+  .learn-title{font-size:8px!important}
+  .learn-text{display:none!important}
+  .footer-pad{padding:17px 14px!important}
+  .footer-left,.footer-right{display:block!important;width:100%!important;text-align:center!important}
+  .footer-right{padding-top:10px!important}
+}
+@media screen and (max-width:380px){
+  .mob-copy{width:55%!important;padding-left:14px!important}
+  .mob-photo{width:45%!important}
+  .mob-photo img{width:156px!important}
+  .mob-headline{font-size:23px!important}
+  .brand-name{font-size:17px!important}
+}
 </style>
 </head>
 <body>
-<div style="display:none;font-size:1px;color:#f3eee4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">Kya aap hamara pichla batch miss kar gaye? Sir Sajid Khan Ghori ka Free Technical Course — Batch 3 ab open hai.</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3eee4;"><tr><td class="outer" align="center" style="padding:20px 10px;">
-<table class="wrap" role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#fffdf8;border:1px solid #e7d7bf;border-radius:22px;overflow:hidden;box-shadow:0 16px 42px rgba(22,28,35,.09);">
+<div style="display:none;font-size:1px;color:#f3eee4;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
+Kya aap hamara pichla batch miss kar gaye? Sir Sajid Khan Ghori ka Free Technical Course — Batch 3 ab open hai.
+</div>
 
-<tr><td class="header-pad" style="padding:15px 22px;background:#fffdf8;border-bottom:1px solid #eadfce;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-<td valign="middle"><table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="padding-right:9px;"><img src="https://www.pipsepaisa.com/icon-192.png" width="42" height="42" alt="PipSePaisa" style="width:42px;height:42px;border-radius:10px;"></td><td><div class="brand-name" style="font-family:Arial,Helvetica,sans-serif;font-size:20px;font-weight:900;color:#0f172a;line-height:1;">PipSePaisa</div><div style="font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:900;letter-spacing:2px;color:#F39522;margin-top:4px;">GROW WITH US</div></td></tr></table></td>
-<td align="right"><span class="batch-badge" style="display:inline-block;padding:8px 11px;border:1px solid #f3c77f;background:#fff1d7;border-radius:999px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;letter-spacing:.5px;color:#8a5208;">FREE COURSE • BATCH 3</span></td>
-</tr></table></td></tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3eee4;">
+<tr><td class="outer" align="center" style="padding:20px 10px;">
+<table class="wrap" role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:600px;background:#fffdf8;border:1px solid #e7d7bf;border-radius:24px;overflow:hidden;box-shadow:0 16px 42px rgba(22,28,35,.09);">
 
-<tr class="mobile-photo" style="display:none;max-height:0;overflow:hidden;mso-hide:all;"><td align="center" style="background:#fff2dc;padding:9px 15px 0;"><img src="https://www.pipsepaisa.com/sajid-email-batch3.png" width="300" alt="Sir Sajid Khan Ghori" style="width:300px;max-width:86%;height:auto;margin:0 auto;"></td></tr>
-
-<tr><td style="background:#fff4e4;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
-<td class="hero-copy" width="55%" valign="middle" style="padding:31px 12px 30px 28px;">
-<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:900;letter-spacing:2px;color:#9a5b09;margin-bottom:11px;">FREE TECHNICAL COURSE</div>
-<div class="headline" style="font-family:Arial,Helvetica,sans-serif;font-size:42px;line-height:1.00;font-weight:900;letter-spacing:-1.6px;color:#0f172a;"><span class="headline-line">Kya Aap Hamara</span><span class="headline-line">Pichla Batch</span><span class="headline-line" style="color:#F39522;">Miss Kar Gaye?</span></div>
-<div class="course-line" style="font-family:Arial,Helvetica,sans-serif;font-size:18px;line-height:1.28;font-weight:800;color:#182230;margin-top:15px;">Sir Sajid Khan Ghori<br><span style="font-weight:600;">Free Technical Course — Batch 3</span></div>
-<div class="meta" style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#657182;margin-top:12px;">4 Live Sessions &nbsp;•&nbsp; Practical Learning &nbsp;•&nbsp; Live Q&amp;A</div>
+<!-- HEADER -->
+<tr>
+<td class="header-pad" style="padding:16px 22px;background:#fffdf8;border-bottom:1px solid #eadfce;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td valign="middle">
+  <table role="presentation" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="padding-right:10px;">
+      <img class="brand-logo" src="https://www.pipsepaisa.com/icon-192.png" width="46" height="46" alt="PipSePaisa" style="width:46px;height:46px;border-radius:11px;">
+    </td>
+    <td>
+      <div class="brand-name" style="font-family:Arial,Helvetica,sans-serif;font-size:20px;font-weight:900;color:#0f172a;line-height:1;">PipSePaisa</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:900;letter-spacing:2px;color:#F39522;margin-top:4px;">GROW WITH US</div>
+    </td>
+  </tr>
+  </table>
 </td>
-<td class="desktop-photo" width="45%" valign="bottom" align="center" style="padding:6px 6px 0;background:#fff0d6;"><img src="https://www.pipsepaisa.com/sajid-email-batch3.png" width="270" alt="Sir Sajid Khan Ghori" style="width:270px;max-width:100%;height:auto;margin:0 auto;"></td>
-</tr></table></td></tr>
+<td align="right">
+  <span class="batch-badge" style="display:inline-block;padding:8px 11px;border:1px solid #f3c77f;background:#fff1d7;border-radius:999px;font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;letter-spacing:.5px;color:#8a5208;">FREE COURSE • BATCH 3</span>
+</td>
+</tr>
+</table>
+</td>
+</tr>
 
-<tr><td class="pad" style="padding:16px 22px 3px;background:#fffdf8;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #ead7ba;border-radius:15px;overflow:hidden;background:#fffaf3;"><tr>
-<td class="benefit b1" width="25%" align="center" style="padding:14px 6px;border-right:1px solid #ead7ba;"><div style="font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:900;color:#F39522;">04</div><div style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#101827;margin-top:3px;">LIVE SESSIONS</div></td>
-<td class="benefit b2" width="25%" align="center" style="padding:14px 6px;border-right:1px solid #ead7ba;"><div style="font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:900;color:#F39522;">LIVE</div><div style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#101827;margin-top:3px;">PRACTICAL</div></td>
-<td class="benefit" width="25%" align="center" style="padding:14px 6px;border-right:1px solid #ead7ba;"><div style="font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:900;color:#F39522;">Q&amp;A</div><div style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#101827;margin-top:3px;">WITH SIR SAJID</div></td>
-<td class="benefit" width="25%" align="center" style="padding:14px 6px;"><div style="font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:900;color:#F39522;">FREE</div><div style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#101827;margin-top:3px;">RESERVE SEAT</div></td>
-</tr></table></td></tr>
+<!-- DESKTOP HERO -->
+<tr class="desktop-only">
+<td style="background:#fff4e4;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td width="55%" valign="middle" style="padding:31px 12px 30px 28px;">
+  <div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:900;letter-spacing:2px;color:#9a5b09;margin-bottom:11px;">FREE TECHNICAL COURSE</div>
+  <div style="font-family:Arial,Helvetica,sans-serif;font-size:42px;line-height:1.00;font-weight:900;letter-spacing:-1.6px;color:#0f172a;">
+    Kya Aap Hamara<br>Pichla Batch<br><span style="color:#F39522;">Miss Kar Gaye?</span>
+  </div>
+  <div style="font-family:Arial,Helvetica,sans-serif;font-size:18px;line-height:1.28;font-weight:800;color:#182230;margin-top:15px;">
+    Sir Sajid Khan Ghori<br><span style="font-weight:600;">Free Technical Course — Batch 3</span>
+  </div>
+  <div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.5;color:#657182;margin-top:12px;">4 Live Sessions • Practical Learning • Live Q&amp;A</div>
+</td>
+<td width="45%" valign="bottom" align="center" style="padding:6px 6px 0;background:#fff0d6;">
+  <img src="https://www.pipsepaisa.com/sajid-email-batch3.png" width="270" alt="Sir Sajid Khan Ghori" style="width:270px;max-width:100%;height:auto;margin:0 auto;">
+</td>
+</tr>
+</table>
+</td>
+</tr>
 
-<tr><td class="pad" align="center" style="padding:16px 22px 22px;background:#fffdf8;"><a class="cta" href="https://www.pipsepaisa.com/sajid-live" target="_blank" style="display:inline-block;padding:16px 34px;border-radius:12px;background:#F39522;color:#111111;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:900;">RESERVE MY FREE SEAT →</a><div style="font-family:Arial,Helvetica,sans-serif;font-size:9.5px;line-height:1.5;color:#7b8694;margin-top:11px;">Zoom link aur class updates registration ke baad aapke WhatsApp par share ki jayengi.</div></td></tr>
+<!-- MOBILE PREMIUM HERO -->
+<tr class="mobile-only">
+<td class="mob-hero" style="background:#fff6e8;padding:0;">
+<table class="mob-hero-inner" role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td class="mob-copy" width="54%" valign="middle" style="padding:18px 5px 18px 17px;">
+  <span class="mob-eyebrow" style="display:inline-block;background:#F39522;color:#fff;padding:6px 8px;border-radius:8px;font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:900;letter-spacing:1.3px;">FREE TECHNICAL COURSE</span>
+  <div class="mob-headline" style="font-family:Arial,Helvetica,sans-serif;font-size:25px;line-height:.98;font-weight:900;letter-spacing:-.9px;color:#0f172a;margin-top:11px;">
+    Kya Aap Hamara<br>
+    Pichla Batch<br>
+    <span style="color:#F39522;">Miss Kar Gaye?</span>
+  </div>
+  <div class="mob-course" style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.25;font-weight:800;color:#182230;margin-top:11px;">
+    Sir Sajid Khan Ghori<br>
+    <span style="font-weight:600;">Free Technical Course — Batch 3</span>
+  </div>
+  <div class="mob-meta" style="font-family:Arial,Helvetica,sans-serif;font-size:8.5px;line-height:1.35;color:#657182;margin-top:9px;">
+    4 Live Sessions • Practical • Live Q&amp;A
+  </div>
+</td>
+<td class="mob-photo" width="46%" valign="bottom" align="center" style="padding:8px 4px 0;background:#fff0d4;">
+  <img src="https://www.pipsepaisa.com/sajid-email-batch3.png" width="170" alt="Sir Sajid Khan Ghori" style="width:170px;max-width:100%;height:auto;margin:0 auto;">
+</td>
+</tr>
+</table>
+</td>
+</tr>
 
-<tr><td class="pad" style="padding:16px 22px;background:#0d1518;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td class="footer-left" width="60%"><div style="font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:900;color:#fff;">PipSePaisa</div><div style="font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:900;letter-spacing:1.8px;color:#F39522;margin-top:4px;">GROW WITH US</div></td><td class="footer-right" width="40%" align="right" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.8;color:#d3d9dd;"><a href="https://www.pipsepaisa.com/" style="color:#fff;text-decoration:underline;">pipsepaisa.com</a><br><a href="{{unsubscribe_url}}" style="color:#d3d9dd;text-decoration:underline;">Unsubscribe</a></td></tr></table><div style="font-family:Arial,Helvetica,sans-serif;font-size:8.5px;line-height:1.5;text-align:center;color:#7f8a91;margin-top:13px;">You are receiving this email because you registered with PipSePaisa.<br>© 2026 PipSePaisa • contant@pipsepaisa.com</div></td></tr>
+<!-- BENEFITS -->
+<tr>
+<td class="benefit-row" style="padding:16px 22px 3px;background:#fffdf8;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #ead7ba;border-radius:16px;overflow:hidden;background:#fffaf3;">
+<tr>
+<td class="benefit" width="25%" align="center" style="padding:14px 6px;border-right:1px solid #ead7ba;">
+  <div class="benefit-big" style="font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:900;color:#F39522;">04</div>
+  <div class="benefit-small" style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#101827;margin-top:3px;">LIVE SESSIONS</div>
+</td>
+<td class="benefit" width="25%" align="center" style="padding:14px 6px;border-right:1px solid #ead7ba;">
+  <div class="benefit-big" style="font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:900;color:#F39522;">LIVE</div>
+  <div class="benefit-small" style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#101827;margin-top:3px;">PRACTICAL</div>
+</td>
+<td class="benefit" width="25%" align="center" style="padding:14px 6px;border-right:1px solid #ead7ba;">
+  <div class="benefit-big" style="font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:900;color:#F39522;">Q&amp;A</div>
+  <div class="benefit-small" style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#101827;margin-top:3px;">WITH SIR SAJID</div>
+</td>
+<td class="benefit last" width="25%" align="center" style="padding:14px 6px;">
+  <div class="benefit-big" style="font-family:Arial,Helvetica,sans-serif;font-size:19px;font-weight:900;color:#F39522;">FREE</div>
+  <div class="benefit-small" style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#101827;margin-top:3px;">RESERVE SEAT</div>
+</td>
+</tr>
+</table>
+</td>
+</tr>
 
-</table></td></tr></table>
-</body></html>
+<!-- CTA -->
+<tr>
+<td class="cta-wrap" align="center" style="padding:16px 22px 10px;background:#fffdf8;">
+<a class="cta" href="https://www.pipsepaisa.com/sajid-live" target="_blank" style="display:inline-block;padding:16px 34px;border-radius:13px;background:#F39522;color:#111111;text-decoration:none;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:900;">RESERVE MY FREE SEAT →</a>
+</td>
+</tr>
+
+<tr>
+<td>
+<div class="wa-note" style="margin:0 22px 14px;padding:10px 12px;border-radius:12px;background:#fff5e6;border:1px solid #f3d9ad;font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.4;color:#626d79;text-align:center;">
+  Zoom link aur class updates registration ke baad aapke WhatsApp par share ki jayengi.
+</div>
+</td>
+</tr>
+
+<!-- SMALL FEATURE STRIP -->
+<tr>
+<td class="learn-row" style="padding:0 22px 16px;background:#fffdf8;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff8ec;border:1px solid #ead7ba;border-radius:16px;overflow:hidden;">
+<tr>
+<td class="learn-card" width="25%" align="center" style="padding:12px 5px;border-right:1px solid #ead7ba;">
+  <div class="learn-title" style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#111827;">MARKET READING</div>
+  <div class="learn-text" style="font-family:Arial,Helvetica,sans-serif;font-size:8px;color:#7b8694;margin-top:4px;">Structure &amp; direction</div>
+</td>
+<td class="learn-card" width="25%" align="center" style="padding:12px 5px;border-right:1px solid #ead7ba;">
+  <div class="learn-title" style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#111827;">CANDLESTICKS</div>
+  <div class="learn-text" style="font-family:Arial,Helvetica,sans-serif;font-size:8px;color:#7b8694;margin-top:4px;">Confirmation context</div>
+</td>
+<td class="learn-card" width="25%" align="center" style="padding:12px 5px;border-right:1px solid #ead7ba;">
+  <div class="learn-title" style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#111827;">TRADING TOOLS</div>
+  <div class="learn-text" style="font-family:Arial,Helvetica,sans-serif;font-size:8px;color:#7b8694;margin-top:4px;">Practical process</div>
+</td>
+<td class="learn-card" width="25%" align="center" style="padding:12px 5px;">
+  <div class="learn-title" style="font-family:Arial,Helvetica,sans-serif;font-size:9px;font-weight:900;color:#111827;">LIVE Q&amp;A</div>
+  <div class="learn-text" style="font-family:Arial,Helvetica,sans-serif;font-size:8px;color:#7b8694;margin-top:4px;">Ask Sir Sajid</div>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+
+<!-- FOOTER -->
+<tr>
+<td class="footer-pad" style="padding:18px 22px;background:#0d1518;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td class="footer-left" width="60%">
+  <table role="presentation" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="padding-right:9px;">
+      <img src="https://www.pipsepaisa.com/icon-192.png" width="38" height="38" alt="PipSePaisa" style="width:38px;height:38px;border-radius:9px;">
+    </td>
+    <td>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:900;color:#fff;">PipSePaisa</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:8px;font-weight:900;letter-spacing:1.8px;color:#F39522;margin-top:4px;">GROW WITH US</div>
+    </td>
+  </tr>
+  </table>
+</td>
+<td class="footer-right" width="40%" align="right" style="font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.8;color:#d3d9dd;">
+  <a href="https://www.pipsepaisa.com/" style="color:#fff;text-decoration:underline;">pipsepaisa.com</a><br>
+  <a href="{{unsubscribe_url}}" style="color:#d3d9dd;text-decoration:underline;">Unsubscribe</a>
+</td>
+</tr>
+</table>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:8.5px;line-height:1.5;text-align:center;color:#7f8a91;margin-top:13px;">
+You are receiving this email because you registered with PipSePaisa.<br>© 2026 PipSePaisa • contant@pipsepaisa.com
+</div>
+</td>
+</tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>
