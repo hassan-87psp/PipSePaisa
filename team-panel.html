@@ -267,7 +267,7 @@ html[data-theme="light"] .page-head h1,html[data-theme="light"] .hero-card h2,ht
 <style id="teamMobileVerifiedV300Css">
 .mobile-quick-actions-v300,.mobile-top-install-v300{display:none}
 @media(max-width:760px){
-html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-width:100%!important;overflow-x:hidden!important}body{background:var(--bg)!important;background-image:none!important;overscroll-behavior-y:contain!important}body:before{display:none!important}#appView.app{min-height:100dvh!important;padding-bottom:calc(104px + env(safe-area-inset-bottom))!important}
+html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-width:100%!important;overflow-x:hidden!important}body{background:var(--bg)!important;background-image:none!important;overscroll-behavior-y:auto!important}body:before{display:none!important}#appView.app{min-height:100dvh!important;padding-bottom:calc(104px + env(safe-area-inset-bottom))!important}
 .topbar{position:sticky!important;top:0!important;z-index:2147482000!important;height:58px!important;min-height:58px!important;padding:7px 10px!important;background:var(--panel)!important;border-bottom:1px solid var(--line)!important;box-shadow:0 4px 18px rgba(16,24,40,.08)!important;backdrop-filter:none!important}.brand-mini{gap:8px!important;min-width:0!important}.brand-mini img{width:37px!important;height:37px!important;border-radius:10px!important}.brand-mini>div{display:none!important}.mobile-brand-name{display:flex!important;flex-direction:column!important}.mobile-brand-name b{font-size:14px!important}.mobile-brand-name small{font-size:6.5px!important;letter-spacing:.10em!important;margin-top:3px!important}.top-actions{gap:5px!important}.top-actions>select,#themeBtn,#logoutBtn{display:none!important}.icon-btn,.member-chip{height:38px!important;min-height:38px!important;border-radius:12px!important;background:var(--panel2)!important;border:1px solid var(--line)!important}.icon-btn{width:38px!important;min-width:38px!important}.member-chip{width:38px!important;min-width:38px!important;padding:4px!important}.member-chip>div{display:none!important}.member-avatar{width:28px!important;height:28px!important;flex:0 0 28px!important}.mobile-top-install-v300{display:grid!important;color:var(--gold)!important;font-size:18px!important;font-weight:950!important}.mobile-top-install-v300.is-installed{display:none!important}
 .mobile-period-bar{display:flex!important;position:sticky!important;top:58px!important;z-index:2147481900!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;padding:7px 10px!important;min-height:49px!important;background:var(--bg)!important;border-bottom:1px solid var(--line)!important;backdrop-filter:none!important}.mobile-period-copy{display:block!important;min-width:0!important;flex:1 1 auto!important;margin:0!important}.mobile-period-copy span{display:block!important;color:var(--gold)!important;font-size:8px!important;font-weight:950!important;text-transform:none!important;letter-spacing:.01em!important;white-space:nowrap!important}.mobile-period-copy b{display:block!important;color:var(--text)!important;font-size:10px!important;line-height:1.1!important;margin-top:3px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}.mobile-period-selects{display:flex!important;gap:5px!important;flex:0 0 auto!important}.mobile-period-bar select{height:34px!important;border:1px solid var(--line)!important;border-radius:11px!important;background:var(--panel)!important;color:var(--text)!important;font-size:8.5px!important;font-weight:850!important;padding:0 22px 0 8px!important}.mobile-period-bar select:first-child{width:92px!important}.mobile-period-bar select:last-child{width:68px!important}
 .layout{display:block!important;min-height:0!important}.sidebar{display:none!important}.main{min-width:0!important;padding:10px 10px calc(102px + env(safe-area-inset-bottom))!important}.content{max-width:none!important}.page-head{align-items:flex-start!important;margin:3px 2px 10px!important;gap:8px!important}.page-head h1{font-size:23px!important;line-height:1.05!important;letter-spacing:-.035em!important}.page-head p{display:none!important}.page-head>.live-pill,.page-head>.auto-badge,.page-head>.manual-badge{font-size:7px!important;padding:5px 7px!important;max-width:44%!important}
@@ -281,6 +281,48 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
 @media(max-width:390px){.mobile-period-copy{display:block!important}.mobile-period-bar{justify-content:space-between!important}.mobile-period-copy span{font-size:7.5px!important}.mobile-period-copy b{font-size:9px!important}.mobile-period-bar select:first-child{width:82px!important}.mobile-period-bar select:last-child{width:64px!important}.mobile-quick-actions-v300{gap:5px!important}.form-grid,.manual-3grid{grid-template-columns:1fr!important}#view-clients .client-table-v273 td:nth-child(n+3)::before{flex-basis:66px!important}}
 @media(display-mode:standalone) and (max-width:760px){.topbar{padding-top:calc(7px + env(safe-area-inset-top))!important;height:calc(58px + env(safe-area-inset-top))!important;min-height:calc(58px + env(safe-area-inset-top))!important}.mobile-period-bar{top:calc(58px + env(safe-area-inset-top))!important}}
 </style>
+
+<style id="teamMobileTouchV301Css">
+@media(max-width:760px){
+  html,body{
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    height:auto!important;
+    min-height:100%!important;
+    touch-action:pan-y pinch-zoom!important;
+    overscroll-behavior-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  body{position:static!important}
+  #appView,.app,.layout,.main,.content,.view{
+    height:auto!important;
+    min-height:0!important;
+    overflow-y:visible!important;
+    touch-action:pan-y pinch-zoom!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  .main,.content,.view,.premium-card,.client-card,.hero-card{
+    touch-action:pan-y pinch-zoom!important;
+  }
+  button,a,input,select,textarea{touch-action:manipulation!important}
+  #clientCourseFilters,.client-filterbar,.psp-tld-filters,.psp-tld-aibar,.psp-tld-quickbar{
+    touch-action:pan-x pinch-zoom!important;
+  }
+  .mobile-more-overlay:not(.open),.mobile-filter-overlay:not(.open){
+    display:none!important;
+    visibility:hidden!important;
+    pointer-events:none!important;
+  }
+  .mobile-more-overlay.open,.mobile-filter-overlay.open{
+    display:block!important;
+    visibility:visible!important;
+    pointer-events:auto!important;
+  }
+  .mobile-more-sheet,.mobile-filter-sheet{touch-action:pan-y pinch-zoom!important}
+  #mobileExportClientsBtn{display:none!important}
+}
+</style>
+
 </head>
 <body>
 <div id="boot"><div class="bootmark"><div class="spinner"></div><span>TEAM COMMAND CENTER</span></div></div>
@@ -327,7 +369,7 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
   <main class="main"><div class="content">
 
     <section id="view-overview" class="view active">
-      <div class="page-head"><div><h1>Team Overview</h1><p>Your clients, follow-ups and earnings at a glance.</p></div><span class="live-pill">● AUTO UPDATED</span></div><button id="installPwaHomeBtn" class="mobile-install-home" type="button"><span class="mobile-install-home-icon">⇩</span><span><b>Download PSP TEAM</b><small>Install Team Panel as an app on this phone</small></span><i>Install</i></button>
+      <div class="page-head"><div><h1>Team Overview</h1><p>Your clients, follow-ups and earnings at a glance.</p></div><span class="live-pill">● AUTO UPDATED</span></div><button id="installPwaHomeBtn" class="mobile-install-home" type="button"><span class="mobile-install-home-icon">⇩</span><span><b>Install PSP TEAM App</b><small>Add PSP TEAM to this phone</small></span><i>Install</i></button>
       <div class="mobile-quick-actions-v300" aria-label="Quick actions">
         <button type="button" data-mobile-view="clients"><span>👥</span><b>My Clients</b><small>Work list</small></button>
         <button type="button" data-mobile-view="daily"><span>✓</span><b>Daily Report</b><small>Update work</small></button>
@@ -452,7 +494,7 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
   <button class="mobile-more-item" type="button" data-mobile-view="performance"><b>↗</b>Performance</button>
   <button class="mobile-more-item" type="button" data-mobile-view="history"><b>◷</b>History</button>
   <button id="mobileThemeBtn" class="mobile-more-item" type="button"><b>◐</b>Switch Theme</button>
-  <button id="installPwaBtnMobile" class="mobile-more-item install" type="button"><b>⇩</b><span>Download PSP TEAM<small>Install this Team Panel as an app</small></span></button><button id="mobileExportClientsBtn" class="mobile-more-item" type="button"><b>⇩</b><span>Export Clients<small>Download all assigned clients as CSV</small></span></button>
+  <button id="installPwaBtnMobile" class="mobile-more-item install" type="button"><b>⇩</b><span>Install PSP TEAM App<small>Add PSP TEAM to your Home Screen</small></span></button>
   <button id="mobileLogoutBtn" class="mobile-more-item danger" type="button"><b>↪</b>Logout</button>
 </div></div></div>
 </section>
@@ -776,10 +818,10 @@ function ensureMobileChromeV300(){if(!(window.matchMedia&&window.matchMedia('(ma
 function bindMobileQuickActionsV300(){document.querySelectorAll('[data-v300-live-chat]').forEach(b=>b.onclick=()=>{const x=$('mobileLiveChatBtn');if(x)x.click();else toast('Live Chat is loading. Please try again.')})}
 function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>changeView(b.dataset.view));document.querySelectorAll('.mobile-tab[data-view]').forEach(b=>b.onclick=()=>{const d=document.querySelector('.sidebar .nav-btn[data-view=\"'+b.dataset.view+'\"]');if(d)d.click();else changeView(b.dataset.view)});document.querySelectorAll('[data-mobile-view]').forEach(b=>b.onclick=()=>{const d=document.querySelector('.sidebar .nav-btn[data-view=\"'+b.dataset.mobileView+'\"]');if(d)d.click();else changeView(b.dataset.mobileView)});$('loginBtn').onclick=signIn;$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});$('logoutBtn').onclick=logout;$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');$('monthSelect').onchange=refreshSelectedMonth;$('yearSelect').onchange=refreshSelectedMonth;$('dailySaveBtn').onclick=saveDaily;['clientSearch','clientStatusFilter','clientPeriodFilter','clientSourceFilter','clientSort','clientPageSize'].forEach(id=>{const el=$(id);if(el)el.addEventListener(id==='clientSearch'?'input':'change',()=>{S.clientPage=1;renderClients()})});$('clientCourseFilters').onclick=e=>{const b=e.target.closest('[data-course]');if(!b)return;S.clientCourseFilter=b.dataset.course||'all';S.clientPage=1;renderClients()};$('clientPrev').onclick=()=>{S.clientPage=Math.max(1,S.clientPage-1);renderClients()};$('clientNext').onclick=()=>{S.clientPage++;renderClients()};$('clientRefreshBtn').onclick=async()=>{const b=$('clientRefreshBtn');b.disabled=true;b.textContent='Refreshing…';S.loaded.clients=false;S.clientsLoading=false;await loadClients();S.clientPage=1;renderClients();renderKpis();renderOverviewOps();b.disabled=false;b.textContent='↻ Refresh'};$('ownershipSearchBtn').onclick=searchOwnershipV273;$('ownershipSearch').addEventListener('keydown',e=>{if(e.key==='Enter')searchOwnershipV273()});$('notifyBtn').onclick=()=>toast('No new Team notifications.');$('performanceRangeTools').onclick=e=>{const b=e.target.closest('[data-range]');if(b)setPerformanceRange(b.dataset.range)};$('applyCustomRange').onclick=applyCustomPerformanceRange;if($('historySearch'))$('historySearch').oninput=renderHistory;if($('legacyLinkSearch'))$('legacyLinkSearch').oninput=renderLinks;
   if($('clientMobileFilterBtn'))$('clientMobileFilterBtn').onclick=openMobileClientFiltersV278;if($('clientMobileFilterClose'))$('clientMobileFilterClose').onclick=closeMobileClientFiltersV278;if($('clientMobileFilterOverlay'))$('clientMobileFilterOverlay').onclick=e=>{if(e.target===$('clientMobileFilterOverlay'))closeMobileClientFiltersV278()};if($('clientMobileFilterApply'))$('clientMobileFilterApply').onclick=applyMobileClientFiltersV278;if($('clientMobileFilterReset'))$('clientMobileFilterReset').onclick=()=>{resetMobileClientFiltersV278();applyMobileClientFiltersV278()};
-  if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileLiveChatBtn'))$('mobileLiveChatBtn').onclick=()=>{const n=$('pspLdNavBtn');if(n){n.click();document.querySelectorAll('.mobile-tab[data-view]').forEach(x=>x.classList.remove('active'));closeMobileMoreV277();$('mobileMoreBtn').classList.add('active')}else toast('Live Chat is loading. Please try again.')};if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;if($('mobileExportClientsBtn'))$('mobileExportClientsBtn').onclick=()=>{exportAssignedClientsV299();closeMobileMoreV277()};bindMobileQuickActionsV300();
+  if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileLiveChatBtn'))$('mobileLiveChatBtn').onclick=()=>{const n=$('pspLdNavBtn');if(n){n.click();document.querySelectorAll('.mobile-tab[data-view]').forEach(x=>x.classList.remove('active'));closeMobileMoreV277();$('mobileMoreBtn').classList.add('active')}else toast('Live Chat is loading. Please try again.')};if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;localStorage.setItem(PWA_INSTALLED_KEY,'1');setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=300',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=301',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
@@ -792,5 +834,37 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
 </script>
 <script defer src="/team-live-desk-v242.js?v=20260919-v278-mobile-app"></script>
 <script src="/audit-agent-v174.js?v=20260902-v206-4-user-friendly"></script>
+
+<script id="teamMobileTouchV301Js">
+(function(){
+  function unlockTeamScrollV301(){
+    if(!(window.matchMedia&&window.matchMedia('(max-width:760px)').matches)) return;
+    document.documentElement.style.setProperty('overflow-y','auto','important');
+    document.documentElement.style.setProperty('touch-action','pan-y pinch-zoom','important');
+    document.body.style.setProperty('overflow-y','auto','important');
+    document.body.style.setProperty('touch-action','pan-y pinch-zoom','important');
+    document.body.style.removeProperty('position');
+  }
+  function cleanClosedOverlaysV301(){
+    ['mobileMoreOverlay','clientMobileFilterOverlay'].forEach(function(id){
+      var el=document.getElementById(id); if(!el)return;
+      if(!el.classList.contains('open')){el.setAttribute('aria-hidden','true');}
+    });
+  }
+  function relabelInstallV301(){
+    var home=document.getElementById('installPwaHomeBtn');
+    if(home){var b=home.querySelector('b');var s=home.querySelector('small');var i=home.querySelector('i');if(b)b.textContent='Install PSP TEAM App';if(s)s.textContent='Add PSP TEAM to this phone';if(i)i.textContent='Install';}
+    var mob=document.getElementById('installPwaBtnMobile');
+    if(mob){var sp=mob.querySelector('span');if(sp){sp.childNodes[0].nodeValue='Install PSP TEAM App';var sm=sp.querySelector('small');if(sm)sm.textContent='Add PSP TEAM to your Home Screen';}}
+    var exp=document.getElementById('mobileExportClientsBtn');if(exp)exp.remove();
+  }
+  function run(){unlockTeamScrollV301();cleanClosedOverlaysV301();relabelInstallV301();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+  window.addEventListener('pageshow',run);
+  window.addEventListener('resize',run);
+  document.addEventListener('visibilitychange',function(){if(!document.hidden)run()});
+})();
+</script>
+
 </body>
 </html>
