@@ -561,7 +561,6 @@ select option{background:#0f1729;color:#e8eaf0}
       <div class="menu-item" data-page="messages" onclick="showPage('messages', this)"><span class="menu-icon">💬</span>Messages</div>
       <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">✉️</span>Member Chats</div>
       <div class="menu-item" data-page="notifications" onclick="showPage('notifications', this)"><span class="menu-icon">🔔</span>Notifications</div>
-      <div class="menu-item" data-page="freecourse2chat" onclick="showPage('freecourse2chat', this)"><span class="menu-icon">🤖</span>AI Chat <span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green-bg);color:var(--green);border-radius:10px;font-weight:800;">LIVE</span></div>
       <div class="menu-item" data-page="emails" onclick="showPage('emails', this)"><span class="menu-icon">📧</span>Email Campaigns</div>
       
       <div class="menu-label">System</div>
@@ -1410,11 +1409,6 @@ select option{background:#0f1729;color:#e8eaf0}
         </div>
       </div>
       
-      <!-- ========== FREECOURSE2 AI CHAT — V305 ========== -->
-      <div class="page" id="page-freecourse2chat">
-        <div id="fc2AdminRoot"><div class="card" style="text-align:center;padding:40px;color:var(--text-muted)">Loading AI Chat Monitor…</div></div>
-      </div>
-
       <!-- ========== EMAIL CAMPAIGNS ========== -->
       <div class="page" id="page-emails">
         <div class="stats-grid">
@@ -2810,7 +2804,6 @@ function showPage(page, el) {
     adbanners: ['Banners', 'Upload social media banners for users to download'],
     messages: ['Messages / Support', 'User support tickets and inbox'],
     notifications: ['Push Notifications', 'Send notifications to users'],
-    freecourse2chat: ['AI Chat — FreeCourse2', 'Monitor /freecourse2 AI conversations, takeover replies and conversion clicks'],
     emails: ['Email Campaigns', 'Send mass emails and newsletters'],
     settings: ['Platform Settings', 'Configure your platform'],
     sitetabs: ['Site Tabs', 'Turn user-website tabs ON / OFF for everyone'],
@@ -2842,7 +2835,6 @@ function showPage(page, el) {
   if (page === 'chats') renderAdminChats();
   if (page === 'messages') loadAdminMessages();
   if (page === 'notifications') loadRecentNotifs();
-  if (page === 'freecourse2chat' && typeof window.pspFc2AdminLoad === 'function') window.pspFc2AdminLoad();
   if (page === 'payments') loadAdminPayments();
   if (page === 'paymentreqs') loadAdminPaymentReqs();
   if (page === 'subscriptions') loadAdminSubs();
@@ -4259,9 +4251,9 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 <script src="realtime-complete.js?v=20260728-v2"></script>
 <script src="admin-v28-fixes.js?v=20260801-v28-final"></script>
 <script src="admin-v29-final.js?v=20260802-v29-final"></script>
-<script src="freecourse2-admin-v305.js?v=20260924-v305"></script>
 <script src="email-campaign-admin-v296.js?v=20260923-v296"></script>
 <script src="admin-users-v56-clean.js?v=20260820-v116-unlimited-users"></script>
+<script src="admin-users-export-v299.js?v=20260924-v299"></script>
 <script src="link-manager-v221.js?v=20260919-v281-single-manager"></script>
 <script src="team-performance-admin-v56.js?v=20260917-v249-team-whatsapp"></script>
 <script src="ad-link-admin-v287.js?v=20260922-v287-ad-data"></script>
