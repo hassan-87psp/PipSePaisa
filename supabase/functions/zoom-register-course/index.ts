@@ -1,502 +1,66 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const ZOOM_ACCOUNT_ID = Deno.env.get("ZOOM_ACCOUNT_ID") ?? "";
-const ZOOM_CLIENT_ID = Deno.env.get("ZOOM_CLIENT_ID") ?? "";
-const ZOOM_CLIENT_SECRET = Deno.env.get("ZOOM_CLIENT_SECRET") ?? "";
+const ZOOM_ACCOUNT_ID=Deno.env.get("ZOOM_ACCOUNT_ID")??"";
+const ZOOM_CLIENT_ID=Deno.env.get("ZOOM_CLIENT_ID")??"";
+const ZOOM_CLIENT_SECRET=Deno.env.get("ZOOM_CLIENT_SECRET")??"";
+const SUPABASE_URL=Deno.env.get("SUPABASE_URL")??"";
+const SUPABASE_SERVER_KEY=Deno.env.get("SUPABASE_SECRET_KEY")??Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")??"";
+const corsHeaders={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type","Access-Control-Allow-Methods":"POST, OPTIONS"};
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
-const SUPABASE_SERVER_KEY =
-  Deno.env.get("SUPABASE_SECRET_KEY") ??
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
-  "";
-
-const COURSE_KEY = "basic";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+type Webinar={course_key:string;class_number:number;title:string;webinar_id:string;scheduled_at:string};
+const WEBINARS:Record<string,Webinar[]>={
+  "basic-b2":[
+    {course_key:"basic-b2",class_number:1,title:"FINANCIAL MARKETS BLUEPRINT",webinar_id:"96530550551",scheduled_at:"2026-09-03T22:00:00+05:00"},
+    {course_key:"basic-b2",class_number:2,title:"THE LANGUAGE OF PRICE INTELLIGENCE",webinar_id:"95963996559",scheduled_at:"2026-09-04T22:00:00+05:00"},
+    {course_key:"basic-b2",class_number:3,title:"DECODING AND DISSECTING CANDLESTICKS",webinar_id:"96493123401",scheduled_at:"2026-09-05T22:00:00+05:00"},
+    {course_key:"basic-b2",class_number:4,title:"EXPLORING TRADER'S TOOLKIT",webinar_id:"91289682755",scheduled_at:"2026-09-06T22:00:00+05:00"},
+    {course_key:"basic-b2",class_number:5,title:"BUILDING YOUR TRADING EDGE",webinar_id:"94330222793",scheduled_at:"2026-09-07T22:00:00+05:00"}
+  ],
+  "fundamental":[
+    {course_key:"fundamental",class_number:1,title:"TRADING WITH THE ECONOMIC CALENDAR",webinar_id:"96753074646",scheduled_at:"2026-09-08T22:00:00+05:00"},
+    {course_key:"fundamental",class_number:2,title:"CENTRAL BANKS & MARKET IMPACT",webinar_id:"93418121824",scheduled_at:"2026-09-09T22:00:00+05:00"},
+    {course_key:"fundamental",class_number:3,title:"DECODING THE FOMC",webinar_id:"93113166876",scheduled_at:"2026-09-10T22:00:00+05:00"}
+  ]
 };
+function json(data:unknown,status=200){return new Response(JSON.stringify(data),{status,headers:{...corsHeaders,"Content-Type":"application/json"}})}
+function splitName(full:string){const p=full.trim().replace(/\s+/g," ").split(" ").filter(Boolean);return{firstName:p[0]||"PipSePaisa",lastName:p.slice(1).join(" ")||"Student"}}
+async function readJson(r:Response){try{return await r.json()}catch{return{}}}
+async function token(){const u=new URL("https://zoom.us/oauth/token");u.searchParams.set("grant_type","account_credentials");u.searchParams.set("account_id",ZOOM_ACCOUNT_ID);const r=await fetch(u,{method:"POST",headers:{Authorization:`Basic ${btoa(`${ZOOM_CLIENT_ID}:${ZOOM_CLIENT_SECRET}`)}`,"Content-Type":"application/x-www-form-urlencoded"}});const d=await readJson(r);if(!r.ok||!d.access_token)throw new Error(String(d.reason??d.error_description??d.error??"Could not get Zoom access token."));return String(d.access_token)}
+async function register(accessToken:string,webinarId:string,email:string,firstName:string,lastName:string){const r=await fetch(`https://api.zoom.us/v2/webinars/${encodeURIComponent(webinarId)}/registrants`,{method:"POST",headers:{Authorization:`Bearer ${accessToken}`,"Content-Type":"application/json"},body:JSON.stringify({email,first_name:firstName,last_name:lastName})});return{ok:r.ok,status:r.status,data:await readJson(r)}}
+async function findExisting(accessToken:string,webinarId:string,email:string){for(const status of ["approved","pending"]){const u=new URL(`https://api.zoom.us/v2/webinars/${encodeURIComponent(webinarId)}/registrants`);u.searchParams.set("status",status);u.searchParams.set("page_size","300");const r=await fetch(u,{headers:{Authorization:`Bearer ${accessToken}`}});const d=await readJson(r);if(!r.ok)continue;const arr=Array.isArray(d.registrants)?d.registrants:[];const hit=arr.find((x:any)=>String(x.email??"").toLowerCase()===email.toLowerCase());if(hit)return hit}return null}
 
-type Webinar = {
-  course_key: string;
-  class_number: number;
-  title: string;
-  webinar_id: string;
-  scheduled_at: string | null;
-};
-
-type ZoomResponse = Record<string, unknown>;
-
-const FALLBACK_WEBINARS: Webinar[] = [
-  { course_key: COURSE_KEY, class_number: 1, title: "FINANCIAL MARKETS BLUEPRINT", webinar_id: "95218229808", scheduled_at: "2026-08-10T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 2, title: "THE LANGUAGE OF PRICE INTELLIGENCE", webinar_id: "99634407954", scheduled_at: "2026-08-13T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 3, title: "DECODING AND DISSECTING CANDLESTICKS", webinar_id: "95989125870", scheduled_at: "2026-08-15T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 4, title: "EXPLORING TRADER'S TOOLKIT", webinar_id: "91008283331", scheduled_at: "2026-08-17T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 5, title: "TRADING WITH MARKET PULSE", webinar_id: "95576754571", scheduled_at: "2026-08-18T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 6, title: "UNDERSTANDING REAL MARKET DRIVERS", webinar_id: "92765710480", scheduled_at: "2026-08-20T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 7, title: "ULTIMATE SUCCESS CODE — THE MINDSET", webinar_id: "94186031860", scheduled_at: "2026-08-24T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 8, title: "BUILDING YOUR TRADING EDGE", webinar_id: "92146765977", scheduled_at: "2026-08-25T21:00:00+05:00" },
-  { course_key: COURSE_KEY, class_number: 9, title: "MASTER THE ART OF TRADING", webinar_id: "97711722838", scheduled_at: "2026-08-27T18:00:00+05:00" }
-];
-
-function jsonResponse(data: unknown, status = 200): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
-
-function requireConfig(): void {
-  const missing: string[] = [];
-  if (!ZOOM_ACCOUNT_ID) missing.push("ZOOM_ACCOUNT_ID");
-  if (!ZOOM_CLIENT_ID) missing.push("ZOOM_CLIENT_ID");
-  if (!ZOOM_CLIENT_SECRET) missing.push("ZOOM_CLIENT_SECRET");
-  if (!SUPABASE_URL) missing.push("SUPABASE_URL");
-  if (!SUPABASE_SERVER_KEY) missing.push("SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY");
-
-  if (missing.length) {
-    throw new Error(`Missing secrets: ${missing.join(", ")}`);
-  }
-}
-
-function splitName(fullName: string): { firstName: string; lastName: string } {
-  const clean = fullName.trim().replace(/\s+/g, " ");
-  if (!clean) return { firstName: "PipSePaisa", lastName: "Student" };
-
-  const parts = clean.split(" ");
-  return {
-    firstName: parts[0],
-    lastName: parts.slice(1).join(" ") || "Student",
-  };
-}
-
-async function readJson(response: Response): Promise<ZoomResponse> {
-  try {
-    return await response.json();
-  } catch {
-    return {};
-  }
-}
-
-async function getZoomAccessToken(): Promise<string> {
-  const tokenUrl = new URL("https://zoom.us/oauth/token");
-  tokenUrl.searchParams.set("grant_type", "account_credentials");
-  tokenUrl.searchParams.set("account_id", ZOOM_ACCOUNT_ID);
-
-  const response = await fetch(tokenUrl.toString(), {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${btoa(`${ZOOM_CLIENT_ID}:${ZOOM_CLIENT_SECRET}`)}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-  });
-
-  const data = await readJson(response);
-  const token = typeof data.access_token === "string" ? data.access_token : "";
-
-  if (!response.ok || !token) {
-    console.error("Zoom OAuth token error", {
-      status: response.status,
-      data,
-    });
-
-    const rawMessage = String(
-      data.reason ??
-        data.error_description ??
-        data.error ??
-        "Could not get Zoom access token.",
-    );
-
-    if (response.status === 400 || /bad request/i.test(rawMessage)) {
-      throw new Error(
-        'Zoom OAuth credentials were rejected. ZOOM_ACCOUNT_ID must be the Server-to-Server OAuth App "Account ID / Acc ID" (the alphanumeric value shown with Client ID and Client Secret), not the numeric Zoom Account ID.',
-      );
+Deno.serve(async(req)=>{
+  if(req.method==="OPTIONS")return new Response("ok",{headers:corsHeaders});
+  if(req.method!=="POST")return json({success:false,error:"Only POST requests are allowed."},405);
+  try{
+    if(!ZOOM_ACCOUNT_ID||!ZOOM_CLIENT_ID||!ZOOM_CLIENT_SECRET||!SUPABASE_URL||!SUPABASE_SERVER_KEY)throw new Error("Zoom/Supabase server secrets are not configured.");
+    const auth=req.headers.get("Authorization")||"";if(!auth.startsWith("Bearer "))return json({success:false,error:"Please sign in first."},401);
+    const admin=createClient(SUPABASE_URL,SUPABASE_SERVER_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+    const {data:{user},error:userError}=await admin.auth.getUser(auth.slice(7));if(userError||!user?.email)return json({success:false,error:"Your login session is invalid or expired."},401);
+    let body:any={};try{body=await req.json()}catch{}
+    const courseKey=String(body.course_key||"").trim().toLowerCase();
+    const webinars=WEBINARS[courseKey];if(!webinars)return json({success:false,error:"Automatic Zoom registration is available only for current free courses."},400);
+    const {data:enrollment,error:enrollErr}=await admin.from("course_enrollments").select("id,enrollment_status,payment_status").eq("user_id",user.id).eq("course_key",courseKey).maybeSingle();
+    if(enrollErr)throw new Error(`Course enrollment check failed: ${enrollErr.message}`);
+    const blocked=["rejected","cancelled","revoked"].includes(String(enrollment?.enrollment_status??enrollment?.payment_status??"").toLowerCase());
+    if(!enrollment||blocked)return json({success:false,error:"Free course enrollment is required before Zoom registration."},403);
+    const fullName=body.full_name||user.user_metadata?.full_name||user.user_metadata?.name||"PipSePaisa Student";const {firstName,lastName}=splitName(fullName);
+    const grace=3*60*60*1000;const eligible=webinars.filter(w=>Date.now()<=new Date(w.scheduled_at).getTime()+grace);
+    const {data:existing,error:existingErr}=await admin.from("zoom_course_registrations").select("*").eq("user_id",user.id).eq("course_key",courseKey);if(existingErr)throw new Error(`Zoom registration table unavailable: ${existingErr.message}`);
+    const byClass=new Map((existing||[]).map((r:any)=>[Number(r.class_number),r]));
+    const accessToken=eligible.length?await token():"";const results:any[]=[];
+    for(const w of webinars){
+      if(!eligible.some(x=>x.class_number===w.class_number)){results.push({class_no:w.class_number,status:"completed",success:true,join_url:null});continue}
+      const cached:any=byClass.get(w.class_number);if(cached?.registration_status==="registered"&&String(cached?.join_url||"").startsWith("http")){results.push({class_no:w.class_number,status:"registered",success:true,cached:true,join_url:cached.join_url});continue}
+      await admin.from("zoom_course_registrations").upsert({user_id:user.id,course_key:courseKey,class_number:w.class_number,title:w.title,webinar_id:w.webinar_id,scheduled_at:w.scheduled_at,registration_status:"pending",last_attempt_at:new Date().toISOString()},{onConflict:"user_id,course_key,class_number"});
+      const r=await register(accessToken,w.webinar_id,user.email,firstName,lastName);let d:any=r.data;let recovered=false;
+      if(!r.ok&&/already|exist|registered/i.test(String(d.message??d.error??""))){const found=await findExisting(accessToken,w.webinar_id,user.email);if(found){d=found;recovered=true}}
+      const joinUrl=d?.join_url?String(d.join_url):null;const registrantId=d?.registrant_id??d?.id??null;const approved=!!joinUrl;const apiSucceeded=r.ok||recovered;const status=approved?"registered":apiSucceeded?"pending":"failed";const err=apiSucceeded?null:String(d?.message??d?.error??"Zoom registration failed.");
+      const saved=await admin.from("zoom_course_registrations").upsert({user_id:user.id,course_key:courseKey,class_number:w.class_number,title:w.title,webinar_id:w.webinar_id,scheduled_at:w.scheduled_at,registrant_id:registrantId,join_url:joinUrl,registration_status:status,zoom_http_status:r.status,zoom_error_message:err,registered_at:approved?new Date().toISOString():null,last_attempt_at:new Date().toISOString()},{onConflict:"user_id,course_key,class_number"});if(saved.error)throw new Error(`Could not save Session ${w.class_number} Zoom link: ${saved.error.message}`);
+      results.push({class_no:w.class_number,status,success:approved,join_url:joinUrl,message:err});
     }
-
-    throw new Error(rawMessage);
-  }
-
-  return token;
-}
-
-async function addWebinarRegistrant(args: {
-  accessToken: string;
-  webinarId: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-}): Promise<{ ok: boolean; status: number; data: ZoomResponse }> {
-  const response = await fetch(
-    `https://api.zoom.us/v2/webinars/${encodeURIComponent(args.webinarId)}/registrants`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${args.accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: args.email,
-        first_name: args.firstName,
-        last_name: args.lastName,
-      }),
-    },
-  );
-
-  return {
-    ok: response.ok,
-    status: response.status,
-    data: await readJson(response),
-  };
-}
-
-async function findExistingRegistrant(args: {
-  accessToken: string;
-  webinarId: string;
-  email: string;
-}): Promise<ZoomResponse | null> {
-  for (const status of ["approved", "pending"] as const) {
-    const url = new URL(
-      `https://api.zoom.us/v2/webinars/${encodeURIComponent(args.webinarId)}/registrants`,
-    );
-    url.searchParams.set("status", status);
-    url.searchParams.set("page_size", "300");
-
-    const response = await fetch(url.toString(), {
-      headers: { Authorization: `Bearer ${args.accessToken}` },
-    });
-
-    const data = await readJson(response);
-    if (!response.ok) continue;
-
-    const registrants = Array.isArray(data.registrants)
-      ? data.registrants as ZoomResponse[]
-      : [];
-
-    const found = registrants.find(
-      (item) => String(item.email ?? "").toLowerCase() === args.email.toLowerCase(),
-    );
-
-    if (found) return found;
-  }
-
-  return null;
-}
-
-function zoomValue(data: ZoomResponse, key: string): string | null {
-  const value = data[key];
-  return value === null || value === undefined || value === ""
-    ? null
-    : String(value);
-}
-
-Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  if (req.method !== "POST") {
-    return jsonResponse(
-      { success: false, error: "Only POST requests are allowed." },
-      405,
-    );
-  }
-
-  try {
-    requireConfig();
-
-    const authorization = req.headers.get("Authorization");
-    if (!authorization?.startsWith("Bearer ")) {
-      return jsonResponse({ success: false, error: "Please sign in first." }, 401);
-    }
-
-    const userAccessToken = authorization.replace("Bearer ", "").trim();
-
-    const supabaseAdmin = createClient(
-      SUPABASE_URL,
-      SUPABASE_SERVER_KEY,
-      { auth: { persistSession: false, autoRefreshToken: false } },
-    );
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseAdmin.auth.getUser(userAccessToken);
-
-    if (userError || !user?.email) {
-      return jsonResponse(
-        { success: false, error: "Your login session is invalid or expired." },
-        401,
-      );
-    }
-
-    // Only an enrolled Basic Forex Course student may create webinar links.
-    const enrollmentResult = await supabaseAdmin
-      .from("course_enrollments")
-      .select("id,enrollment_status,payment_status")
-      .eq("user_id", user.id)
-      .eq("course_key", COURSE_KEY)
-      .maybeSingle();
-
-    if (enrollmentResult.error) {
-      throw new Error(`Course enrollment check failed: ${enrollmentResult.error.message}`);
-    }
-
-    const enrollment = enrollmentResult.data;
-    const blocked = ["rejected", "cancelled", "revoked"].includes(
-      String(enrollment?.enrollment_status ?? enrollment?.payment_status ?? "").toLowerCase(),
-    );
-
-    if (!enrollment || blocked) {
-      return jsonResponse(
-        { success: false, error: "Basic Forex Course enrollment is required." },
-        403,
-      );
-    }
-
-    let body: { full_name?: string } = {};
-    try {
-      body = await req.json();
-    } catch {
-      body = {};
-    }
-
-    const fullName =
-      body.full_name ||
-      user.user_metadata?.full_name ||
-      user.user_metadata?.name ||
-      "PipSePaisa Student";
-    const { firstName, lastName } = splitName(fullName);
-
-    const catalogResult = await supabaseAdmin
-      .from("zoom_webinar_catalog")
-      .select("course_key,class_number,title,webinar_id,scheduled_at")
-      .eq("course_key", COURSE_KEY)
-      .eq("is_active", true)
-      .order("class_number", { ascending: true });
-
-    const catalogByClass = new Map<number, Webinar>(
-      (!catalogResult.error && Array.isArray(catalogResult.data) ? catalogResult.data : []).map((row: Webinar) => [Number(row.class_number), row]),
-    );
-    const webinars: Webinar[] = FALLBACK_WEBINARS.map((base) => {
-      const catalog = catalogByClass.get(Number(base.class_number));
-      return {
-        ...base,
-        webinar_id: String(catalog?.webinar_id || base.webinar_id),
-        title: base.title,
-        scheduled_at: base.scheduled_at,
-      };
-    });
-    const completionGraceMs = 3 * 60 * 60 * 1000;
-    const isCompleted = (webinar: Webinar) => {
-      if (!webinar.scheduled_at) return false;
-      const scheduled = new Date(webinar.scheduled_at).getTime();
-      return Number.isFinite(scheduled) && Date.now() > scheduled + completionGraceMs;
-    };
-    const completedWebinars = webinars.filter(isCompleted);
-    const eligibleWebinars = webinars.filter((webinar) => !isCompleted(webinar));
-
-    const existingResult = await supabaseAdmin
-      .from("zoom_course_registrations")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("course_key", COURSE_KEY);
-
-    if (existingResult.error) {
-      throw new Error(
-        `Zoom registration table unavailable: ${existingResult.error.message}. Run SQL 63 first.`,
-      );
-    }
-
-    const existingByClass = new Map<number, ZoomResponse>(
-      (existingResult.data ?? []).map((row: ZoomResponse) => [
-        Number(row.class_number),
-        row,
-      ]),
-    );
-
-    const zoomAccessToken = eligibleWebinars.length ? await getZoomAccessToken() : "";
-    const results: ZoomResponse[] = completedWebinars.map((webinar) => ({
-      class_no: webinar.class_number,
-      title: webinar.title,
-      webinar_id: webinar.webinar_id,
-      scheduled_at: webinar.scheduled_at,
-      success: true,
-      skipped: true,
-      status: "completed",
-      join_url: null,
-      message: "Completed class skipped. No new Zoom link generated.",
-    }));
-
-    for (const webinar of eligibleWebinars) {
-      const cached = existingByClass.get(Number(webinar.class_number));
-      if (
-        cached &&
-        String(cached.registration_status ?? "") === "registered" &&
-        String(cached.join_url ?? "").startsWith("http")
-      ) {
-        results.push({
-          class_no: webinar.class_number,
-          title: webinar.title,
-          webinar_id: webinar.webinar_id,
-          scheduled_at: webinar.scheduled_at,
-          success: true,
-          cached: true,
-          status: "registered",
-          registrant_id: cached.registrant_id ?? null,
-          join_url: cached.join_url,
-        });
-        continue;
-      }
-
-      await supabaseAdmin.from("zoom_course_registrations").upsert(
-        {
-          user_id: user.id,
-          course_key: COURSE_KEY,
-          class_number: webinar.class_number,
-          title: webinar.title,
-          webinar_id: webinar.webinar_id,
-          scheduled_at: webinar.scheduled_at,
-          registration_status: "pending",
-          zoom_http_status: null,
-          zoom_error_code: null,
-          zoom_error_message: null,
-          last_attempt_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id,course_key,class_number" },
-      );
-
-      const registration = await addWebinarRegistrant({
-        accessToken: zoomAccessToken,
-        webinarId: webinar.webinar_id,
-        email: user.email,
-        firstName,
-        lastName,
-      });
-
-      let zoomData = registration.data;
-      let recoveredExisting = false;
-
-      if (!registration.ok) {
-        const message = String(zoomData.message ?? zoomData.error ?? "");
-        if (/already|exist|registered/i.test(message)) {
-          const found = await findExistingRegistrant({
-            accessToken: zoomAccessToken,
-            webinarId: webinar.webinar_id,
-            email: user.email,
-          });
-          if (found) {
-            zoomData = found;
-            recoveredExisting = true;
-          }
-        }
-      }
-
-      const joinUrl = zoomValue(zoomData, "join_url");
-      const registrantId =
-        zoomValue(zoomData, "registrant_id") ?? zoomValue(zoomData, "id");
-      const approved = Boolean(joinUrl);
-      const apiSucceeded = registration.ok || recoveredExisting;
-      const registrationStatus = approved
-        ? "registered"
-        : apiSucceeded
-        ? "pending"
-        : "failed";
-      const errorCode = apiSucceeded ? null : zoomValue(zoomData, "code");
-      const errorMessage = apiSucceeded
-        ? null
-        : zoomValue(zoomData, "message") ??
-          zoomValue(zoomData, "error") ??
-          "Zoom registration failed.";
-
-      const saved = await supabaseAdmin
-        .from("zoom_course_registrations")
-        .upsert(
-          {
-            user_id: user.id,
-            course_key: COURSE_KEY,
-            class_number: webinar.class_number,
-            title: webinar.title,
-            webinar_id: webinar.webinar_id,
-            scheduled_at: webinar.scheduled_at,
-            registrant_id: registrantId,
-            join_url: joinUrl,
-            registration_status: registrationStatus,
-            zoom_http_status: registration.status,
-            zoom_error_code: errorCode,
-            zoom_error_message: errorMessage,
-            registered_at: approved ? new Date().toISOString() : null,
-            last_attempt_at: new Date().toISOString(),
-          },
-          { onConflict: "user_id,course_key,class_number" },
-        )
-        .select("class_number,registration_status,join_url")
-        .single();
-
-      if (saved.error) {
-        throw new Error(`Could not save Class ${webinar.class_number} Zoom link: ${saved.error.message}`);
-      }
-
-      results.push({
-        class_no: webinar.class_number,
-        title: webinar.title,
-        webinar_id: webinar.webinar_id,
-        scheduled_at: webinar.scheduled_at,
-        success: approved,
-        status: registrationStatus,
-        recovered_existing: recoveredExisting,
-        http_status: registration.status,
-        zoom_code: errorCode,
-        message: errorMessage,
-        registrant_id: registrantId,
-        join_url: joinUrl,
-      });
-    }
-
-    const registered = results.filter((item) => item.status === "registered").length;
-    const pending = results.filter((item) => item.status === "pending").length;
-    const failed = results.filter((item) => item.status === "failed").length;
-    const completed = completedWebinars.length;
-    const eligibleCount = eligibleWebinars.length;
-
-    console.log("Zoom registration summary", {
-      user_id: user.id,
-      registered,
-      pending,
-      failed,
-    });
-
-    return jsonResponse(
-      {
-        success: failed === 0 && registered === eligibleCount,
-        complete: registered === eligibleCount,
-        message:
-          registered === eligibleCount
-            ? `All ${eligibleCount} upcoming unique Zoom links are ready.${completed ? ` ${completed} completed class${completed === 1 ? " was" : "es were"} skipped.` : ""}`
-            : failed
-            ? "Some upcoming Zoom registrations failed. Check the returned class errors."
-            : "Zoom accepted the upcoming registrations, but some links are pending approval.",
-        enrollment_id: enrollment.id,
-        registered,
-        pending,
-        failed,
-        completed_count: completed,
-        eligible_count: eligibleCount,
-        total_classes: webinars.length,
-        results,
-      },
-      failed === 0 && registered === eligibleCount ? 200 : 207,
-    );
-  } catch (error) {
-    console.error("zoom-register-course error", error);
-    return jsonResponse(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Unexpected Zoom registration error.",
-      },
-      500,
-    );
-  }
+    const registered=results.filter(x=>x.status==="registered").length,pending=results.filter(x=>x.status==="pending").length,failed=results.filter(x=>x.status==="failed").length,completed=results.filter(x=>x.status==="completed").length;
+    return json({success:failed===0,complete:registered===eligible.length,course_key:courseKey,enrollment_id:enrollment.id,registered,pending,failed,completed_count:completed,eligible_count:eligible.length,total_classes:webinars.length,results},failed?207:200);
+  }catch(e){console.error("zoom-register-course",e);return json({success:false,error:e instanceof Error?e.message:"Unexpected Zoom registration error."},500)}
 });
