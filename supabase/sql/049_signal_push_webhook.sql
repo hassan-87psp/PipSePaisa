@@ -30,7 +30,7 @@ declare
   request_id bigint;
 begin
   select net.http_post(
-    url := 'https://vjqvoinsspgsrcyhwspy.supabase.co/functions/v1/notify-signal',
+    url := 'https://etfolhinohgmskbfjoyh.supabase.co/functions/v1/notify-signal',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
       'x-hook-secret', current_setting('app.settings.psp_hook_secret', true)
