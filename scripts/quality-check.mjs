@@ -39,7 +39,14 @@ const exactDuplicateCopies = [
   'mentor-panel - Copy.html','mobile-reference-layout - Copy.css','partner-hero - Copy.webp',
   'partner-hero-curved-dark - Copy.webp','partner-hero-curved-light - Copy.webp','sajid-ghori - Copy.webp',
   'team-training-dark - Copy.webp','team-training-light - Copy.webp',
-  'vantage-logo-official-2026 - Copy.svg','xm-logo-official-2026 - Copy.svg'
+  'vantage-logo-official-2026 - Copy.svg','xm-logo-official-2026 - Copy.svg',
+  'admin-panel - Copy.html','course-enrollment - Copy.js','course-enrollments-admin - Copy.js',
+  'course-enrollments-user - Copy.js','courses - Copy.html','dprime-logo-clean - Copy.png',
+  'exness-logo-clean - Copy.png','index - Copy.html','landing - Copy.html','manifest - Copy.json',
+  'mentor - Copy.html','mentor-website - Copy.html','partner - Copy.html','psp-final-fixes - Copy.css',
+  'psp-mentor - Copy.html','public-pages - Copy.css','public-upgrades - Copy.css','public-upgrades - Copy.js',
+  'push-subscribe-prompt - Copy.css','push-subscribe-prompt - Copy.js','tools-services - Copy.html',
+  'user-website - Copy.html'
 ];
 
 function walk(dir = '') {
