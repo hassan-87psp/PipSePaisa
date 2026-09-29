@@ -213,15 +213,10 @@
     const client=await waitForSb(),tbody=document.getElementById('lmTable');if(!tbody)return;
     if(!client){tbody.innerHTML='<tr><td colspan="10">Database connection is still loading. Refresh the Admin Panel once.</td></tr>';return;}
     tbody.innerHTML='<tr><td colspan="10">Loading tracked links…</td></tr>';
-    let result=await client.from('tracked_link_stats_v211').select('*').order('created_at',{ascending:false});
-    // Backward-compatible fallback: the V211 SQL gives deduped enrolled users,
-    // but the page still loads if the SQL has not been deployed yet.
-    if(result.error){
-      result=await client.from('tracked_link_stats').select('*').order('created_at',{ascending:false});
-    }
+    const result=await client.rpc('psp_admin_tracked_link_stats_v314');
     const {data,error}=result;
     if(error){
-      tbody.innerHTML='<tr><td colspan="10"><strong style="color:var(--red)">Link tracking is not installed.</strong><br>Run the V211 Link Analytics SQL in Supabase SQL Editor.</td></tr>';
+      tbody.innerHTML='<tr><td colspan="10"><strong style="color:var(--red)">Could not load link analytics.</strong><br>Please refresh the Admin Panel and try again.</td></tr>';
       return;
     }
     statsRows=data||[];
