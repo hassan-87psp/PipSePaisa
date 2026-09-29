@@ -629,7 +629,7 @@ function detailMarkup(c){
             <div class="psp-course-detail-badges">${badgeMarkup}</div>
             <div class="psp-course-hero-value-grid">${valueMarkup}</div>
           </div>
-          <div class="psp-course-mentor-visual"><div class="psp-course-mentor-glow"></div><img src="${esc(c.mentorImage||'sajid-ghori.webp')}" alt="${esc((c.mentorName||'Sajid Khan Ghori')+' — '+(c.mentorTitle||'Instructor'))}"><div class="psp-course-mentor-badge"><span>LEARN WITH</span><strong>${esc(c.mentorName||'Sajid Khan Ghori')}</strong><small>${esc(c.mentorTitle||'Asia Top Instructor')}</small></div>${firstMentorChip}<div class="psp-course-floating-chip chip-two"><b>✓</b><span>Practical<br>Learning</span></div></div>
+          <div class="psp-course-mentor-visual"><div class="psp-course-mentor-glow"></div><img src="${esc(c.mentorImage||'sajid-ghori.webp')}" alt="${esc((c.mentorName||'Sajid Khan Ghori')+' — '+(c.mentorTitle||'Instructor'))}" loading="lazy" decoding="async"><div class="psp-course-mentor-badge"><span>LEARN WITH</span><strong>${esc(c.mentorName||'Sajid Khan Ghori')}</strong><small>${esc(c.mentorTitle||'Asia Top Instructor')}</small></div>${firstMentorChip}<div class="psp-course-floating-chip chip-two"><b>✓</b><span>Practical<br>Learning</span></div></div>
         </div>
       </div></div>
       <main class="psp-course-main-column psp-course-detail-body">
