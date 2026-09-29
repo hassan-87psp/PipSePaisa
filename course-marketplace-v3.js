@@ -107,7 +107,7 @@ function resolveThumbnail(key,value){
 }
 function thumbAttrs(c,label){
   const fallback=systemThumbnail(c.key);
-  return `src="${esc(resolveThumbnail(c.key,c.thumbnail))}" alt="${esc(label)}" onerror="this.onerror=null;this.src='${fallback}'"`;
+  return `src="${esc(resolveThumbnail(c.key,c.thumbnail))}" alt="${esc(label)}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${fallback}'"`;
 }
 function canonicalModules(key,items){
   const base=defaults[key].modules;
