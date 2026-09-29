@@ -1,12 +1,24 @@
 project_id = "etfolhinohgmskbfjoyh"
 
+[functions.notify-signal]
+verify_jwt = false
+
 [functions.send-course-email]
 verify_jwt = false
 
 [functions.zoom-register-course]
 verify_jwt = false
 
-[functions.send-campaign-email]
+[functions.auth-send-email]
+verify_jwt = false
+
+[functions.direct-signup]
+verify_jwt = false
+
+[functions.request-account-verification]
+verify_jwt = false
+
+[functions.confirm-account-verification]
 verify_jwt = false
 
 [functions.create-infinity-payment]
@@ -14,6 +26,21 @@ verify_jwt = true
 
 [functions.infinity-payment-callback]
 verify_jwt = false
+
 [functions.monitor-signals]
 verify_jwt = false
 
+[functions.audit-log]
+verify_jwt = false
+
+[functions.live-desk-ai]
+verify_jwt = true
+
+[functions.ad-enroll]
+verify_jwt = false
+
+[functions.send-campaign-email]
+verify_jwt = false
+
+[functions.freecourse2-ai]
+verify_jwt = false
