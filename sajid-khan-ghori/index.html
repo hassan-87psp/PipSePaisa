@@ -50,28 +50,11 @@ function storeSuccess(x){try{sessionStorage.setItem(STATE,JSON.stringify({...x,a
 function getSuccess(){try{const x=JSON.parse(sessionStorage.getItem(STATE)||'null');if(!x||Date.now()-Number(x.at||0)>2*60*60*1000)return null;return x}catch(_){return null}}
 function showSuccess(x){const f=$('adFormWrap'),s=$('adSuccess');if(f)f.style.display='none';if(s)s.classList.add('show');$('adClientId').textContent='Client ID: '+(x.client_id||'Pending');const manager=x.team_member_name||'PipSePaisa Team';$('adSuccessText').textContent='Your enrollment is complete. You are being connected to '+manager+' on WhatsApp.';$('adEmailText').textContent='Your PipSePaisa login details are being sent to your email.';const a=$('adWhatsappLink');if(a&&x.whatsapp_url){a.href=x.whatsapp_url;a.classList.add('show')}else if(a)a.classList.remove('show')}
 function ensureVisible(){const f=$('adFormWrap'),s=$('adSuccess'),saved=getSuccess();if(saved){showSuccess(saved);return}if(f)f.style.display='block';if(s)s.classList.remove('show')}
-async function submit(e){e.preventDefault();err('');const name=$('adName').value.trim(),email=$('adEmail').value.trim().toLowerCase(),whatsapp=cleanPhone($('adWhatsapp').value),company=$('adCompany').value;if(name.length<2)return err('Please enter your full name.');if(!/^\S+@\S+\.\S+$/.test(email))return err('Please enter a valid email address.');if(whatsapp.replace(/\D/g,'').length<8)return err('Please enter your active WhatsApp number with country code.');const b=$('adSubmit');b.disabled=true;b.textContent='CREATING YOUR FREE ACCESS…';try{const {r,d}=await post({name,email,whatsapp,course,company,opened_at:openedAt,visitor_id:visitor(),source_path:location.pathname,...q()});if(!r.ok||!d.ok)throw new Error(d.error||'Enrollment could not be completed. Please try again.');const shortUrl=shortWa(d.whatsapp_url||'',d.team_member_name||'',d.client_id||'Pending');const state={client_id:d.client_id||'Pending',team_member_name:d.team_member_name||'',whatsapp_url:shortUrl,email};storeSuccess(state);showSuccess(state);fc2Track('enrollment',{client_id:d.client_id||null,target_path:location.pathname,meta:{team_member_name:d.team_member_name||''}});try{if(fc2Ctx())localStorage.removeItem(FC2_PENDING)}catch(_){}if(shortUrl)setTimeout(()=>location.assign(shortUrl),180)}catch(ex){err(ex?.message||'Enrollment could not be completed.');b.disabled=false;b.textContent='GET MY FREE ZOOM LINK →'}}
-function init(){ensureVisible();$('adForm')?.addEventListener('submit',submit);if(!getSuccess()){track('click');setTimeout(()=>track('form_open'),250);setTimeout(()=>fc2Track('form_open',{target_path:location.pathname}),80)}}
+async function submit(e){e.preventDefault();err('');const name=$('adName').value.trim(),email=$('adEmail').value.trim().toLowerCase(),whatsapp=cleanPhone($('adWhatsapp').value),company=$('adCompany').value;if(name.length<2)return err('Please enter your full name.');if(!/^\S+@\S+\.\S+$/.test(email))return err('Please enter a valid email address.');if(whatsapp.replace(/\D/g,'').length<8)return err('Please enter your active WhatsApp number with country code.');const b=$('adSubmit');b.disabled=true;b.textContent='CREATING YOUR FREE ACCESS…';try{const {r,d}=await post({name,email,whatsapp,course,company,opened_at:openedAt,visitor_id:visitor(),source_path:location.pathname,...q()});if(!r.ok||!d.ok)throw new Error(d.error||'Enrollment could not be completed. Please try again.');const shortUrl=shortWa(d.whatsapp_url||'',d.team_member_name||'',d.client_id||'Pending');const state={client_id:d.client_id||'Pending',team_member_name:d.team_member_name||'',whatsapp_url:shortUrl,email};storeSuccess(state);showSuccess(state);if(shortUrl)setTimeout(()=>location.assign(shortUrl),180)}catch(ex){err(ex?.message||'Enrollment could not be completed.');b.disabled=false;b.textContent='GET MY FREE ZOOM LINK →'}}
+function init(){ensureVisible();$('adForm')?.addEventListener('submit',submit);if(!getSuccess()){track('click');setTimeout(()=>track('form_open'),250)}}
 window.addEventListener('pageshow',()=>setTimeout(ensureVisible,0));document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureVisible()});setTimeout(ensureVisible,1200);if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
-}
-
-const FC2_VIS='psp-fc2-visitor-v300',FC2_SID='psp-fc2-session-v300',FC2_PENDING='psp-fc2-pending-v300';
-function fc2Pending(){try{const x=JSON.parse(localStorage.getItem(FC2_PENDING)||'null');if(!x||Date.now()-Number(x.at||0)>30*60*1000)return null;return x}catch(_){return null}}
-function fc2Ctx(){
-  const u=new URLSearchParams(location.search),pending=fc2Pending(),fromRef=String(document.referrer||'').includes('/freecourse2/');
-  const active=String(u.get('utm_source')||'').toLowerCase()==='freecourse2'||fromRef||!!pending;
-  if(!active)return null;
-  let vid=u.get('fc2_vid')||pending?.visitor_id||'';let sid=u.get('fc2_sid')||pending?.session_id||'';
-  try{if(!vid)vid=localStorage.getItem(FC2_VIS)||'';if(!sid)sid=sessionStorage.getItem(FC2_SID)||''}catch(_){}
-  return{visitor_id:vid||visitor(),session_id:sid||'',utm_source:'freecourse2',utm_medium:u.get('utm_medium')||'ai-chat',utm_campaign:u.get('utm_campaign')||'freecourse2'};
-}
-function fc2Track(type,extra){
-  const c=fc2Ctx();if(!c)return Promise.resolve(null);const x=extra||{};
-  return fetch(SB_URL+'/rest/v1/rpc/psp_track_freecourse2_event_v300',{method:'POST',keepalive:true,cache:'no-store',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify({
-    p_event_type:type,p_visitor_id:c.visitor_id,p_session_id:c.session_id||null,p_source_path:location.pathname,p_target_path:x.target_path||null,p_referrer:document.referrer||null,p_utm_source:c.utm_source,p_utm_medium:c.utm_medium,p_utm_campaign:c.utm_campaign,p_client_id:x.client_id||null,p_meta:x.meta||{}
-  })}).catch(()=>null);
-}
-)();
+})();
 </script>
+<script src="/freecourse2-landing-tracking-v302.js?v=20260929-v302"></script>
 </body>
 </html>

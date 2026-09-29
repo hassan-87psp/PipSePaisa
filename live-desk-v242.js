@@ -76,3 +76,67 @@ function startPolling(){clearInterval(st.poll);st.poll=setInterval(()=>refresh(f
 async function init(){st.open=false;mount();startPolling();if(st.token){try{await refresh(true);render()}catch(_){}}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
+
+
+/* V302 FreeCourse2 funnel tracker — runs ONLY on /freecourse2/ */
+(function(){
+'use strict';
+if(!/^\/freecourse2(?:\/|$)/i.test(location.pathname)||window.__PSP_FC2_PAGE_TRACK_V302__)return;
+window.__PSP_FC2_PAGE_TRACK_V302__=true;
+const SB_URL='https://etfolhinohgmskbfjoyh.supabase.co';
+const SB_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
+const VIS='psp-fc2-visitor-v302',SID='psp-fc2-session-v302',PENDING='psp-fc2-pending-v302';
+
+function uuid(){try{return crypto.randomUUID()}catch(_){return Date.now().toString(36)+Math.random().toString(36).slice(2)}}
+function key(storage,k){try{let v=storage.getItem(k)||'';if(!v){v=uuid();storage.setItem(k,v)}return v}catch(_){return uuid()}}
+const visitor=()=>key(localStorage,VIS),session=()=>key(sessionStorage,SID);
+function qs(){const u=new URLSearchParams(location.search);return{utm_source:u.get('utm_source')||'direct',utm_medium:u.get('utm_medium')||'',utm_campaign:u.get('utm_campaign')||''}}
+function rpc(type,extra){
+  const q=qs(),x=extra||{};
+  return fetch(SB_URL+'/rest/v1/rpc/psp_track_freecourse2_event_v300',{
+    method:'POST',keepalive:true,cache:'no-store',
+    headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},
+    body:JSON.stringify({
+      p_event_type:type,p_visitor_id:visitor(),p_session_id:session(),p_source_path:location.pathname,
+      p_target_path:x.target_path||null,p_referrer:document.referrer||null,
+      p_utm_source:q.utm_source,p_utm_medium:q.utm_medium,p_utm_campaign:q.utm_campaign,
+      p_client_id:null,p_meta:x.meta||{}
+    })
+  }).catch(()=>null);
+}
+function isFormCta(el){
+  if(!el)return false;
+  const txt=((el.textContent||'')+' '+(el.getAttribute?.('aria-label')||'')+' '+(el.getAttribute?.('title')||'')).replace(/\s+/g,' ').toLowerCase();
+  const href=String(el.href||el.getAttribute?.('href')||'').toLowerCase();
+  return /get\s*(my\s*)?free\s*zoom|zoom\s*link|reserve\s*(my\s*)?(free\s*)?seat|save\s*(my\s*)?(free\s*)?seat|enroll/.test(txt)
+      || /sajid-khan-ghori|sajid-live|\/ad\/technical/.test(href);
+}
+function prepare(el){
+  const v=visitor(),s=session(),q=qs();
+  try{
+    localStorage.setItem(PENDING,JSON.stringify({visitor_id:v,session_id:s,utm_source:'freecourse2',utm_medium:'ai-chat',utm_campaign:q.utm_campaign||'freecourse2',at:Date.now()}));
+  }catch(_){}
+  if(el?.href){
+    try{
+      const u=new URL(el.href,location.href);
+      if(u.origin===location.origin){
+        u.searchParams.set('utm_source','freecourse2');
+        u.searchParams.set('utm_medium','ai-chat');
+        if(!u.searchParams.get('utm_campaign'))u.searchParams.set('utm_campaign','freecourse2');
+        u.searchParams.set('fc2_vid',v);u.searchParams.set('fc2_sid',s);
+        el.href=u.toString();
+      }
+    }catch(_){}
+  }
+}
+function init(){
+  rpc('page_open',{meta:{tracker:'live-desk-v302'}});
+  document.addEventListener('click',function(e){
+    const el=e.target?.closest?.('a,button,[role="button"],.chip,.suggestion,.suggested-reply,[data-action]');
+    if(!isFormCta(el))return;
+    prepare(el);
+    rpc('form_click',{target_path:String(el?.href||el?.textContent||'form').slice(0,700),meta:{label:String(el?.textContent||'').trim().slice(0,160)}});
+  },true);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();
