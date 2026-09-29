@@ -73,7 +73,7 @@ for (const file of activeJs) {
 
 function resolveLocal(page, baseHref, ref) {
   ref = String(ref || '').split('?')[0].split('#')[0];
-  if (!ref || /^(https?:|mailto:|tel:|data:|javascript:|\/\/|\$\{)/i.test(ref)) return null;
+  if (!ref || /^(https?:|mailto:|tel:|data:|javascript:|\/\/|\$\{)/i.test(ref) || /\{\{[\s\S]*\}\}/.test(ref)) return null;
   let baseDir = page.includes('/') ? page.slice(0, page.lastIndexOf('/') + 1) : '';
   if (baseHref) {
     if (baseHref.startsWith('/')) baseDir = baseHref.slice(1);
