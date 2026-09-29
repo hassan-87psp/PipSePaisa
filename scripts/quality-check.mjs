@@ -3,6 +3,9 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 const root = process.cwd();
+const failures = [];
+const exists = p => fs.existsSync(path.join(root, p));
+
 const activeJs = [
   'psp-link-tracking-v42.js','psp-direct-signup-v1.js','psp-performance-v218.js','user-news-hub-v29.js',
   'user-app-core-v29.js','user-signals-core-v29.js','course-auth-path-v207.js','course-enrollment.js',
@@ -18,14 +21,43 @@ const activeJs = [
   'psp-public-performance-v40.js','live-desk-v242.js','psp-clean-routes-v44.js','freecourse2-attribution-v304.js'
 ];
 
-const criticalPages = [
+const criticalPages = new Set([
   'index.html','admin/index.html','admin-panel.html','team/index.html','freecourse2/index.html','courses/index.html',
   'sign-in/index.html','sign-up/index.html','sajid-khan-ghori/index.html','ghulam-abbas/index.html',
   'ad/technical/index.html','ad/fundamental/index.html'
+]);
+
+const exactDuplicateCopies = [
+  'CNAME - Copy',
+  'OneSignalSDKUpdaterWorker - Copy.js','OneSignalSDKWorker - Copy.js',
+  'ad-link-admin-v307 (3).js','ad2-admin-v307 (2).js','admin-live-desk-v307 (4).js',
+  'ai-tools-dark - Copy.webp','ai-tools-light - Copy.webp',
+  'dprime-logo-official-2026 - Copy.png','exness-logo-official-2026 - Copy.svg','favicon - Copy.png',
+  'freecourse2-tracking-admin-v307 (1).js','hero-bg-dark-face-matched - Copy.webp',
+  'hero-bg-light - Copy.png','hero-bg-light - Copy.webp','hfm-logo-official-2026 - Copy.png',
+  'ib-growth-dark - Copy.webp','ib-growth-light - Copy.webp','icon-192 - Copy.png','icon-512 - Copy.png',
+  'mentor-panel - Copy.html','mobile-reference-layout - Copy.css','partner-hero - Copy.webp',
+  'partner-hero-curved-dark - Copy.webp','partner-hero-curved-light - Copy.webp','sajid-ghori - Copy.webp',
+  'team-training-dark - Copy.webp','team-training-light - Copy.webp',
+  'vantage-logo-official-2026 - Copy.svg','xm-logo-official-2026 - Copy.svg'
 ];
 
-const failures = [];
-const exists = p => fs.existsSync(path.join(root, p));
+function walk(dir = '') {
+  const absolute = path.join(root, dir);
+  const out = [];
+  for (const entry of fs.readdirSync(absolute, { withFileTypes: true })) {
+    if (['.git','node_modules'].includes(entry.name)) continue;
+    const rel = path.posix.join(dir.replaceAll('\\','/'), entry.name);
+    if (entry.isDirectory()) out.push(...walk(rel));
+    else out.push(rel);
+  }
+  return out;
+}
+
+const allFiles = walk('');
+const productionHtml = allFiles.filter(f => f.endsWith('.html') && !/ - Copy|\(\d+\)/i.test(f));
+const productionCss = allFiles.filter(f => f.endsWith('.css') && !/ - Copy|\(\d+\)/i.test(f));
+const runtimeText = allFiles.filter(f => /\.(?:html|js|css|json|toml)$/i.test(f) && !/ - Copy|\(\d+\)/i.test(f));
 
 for (const file of activeJs) {
   if (!exists(file)) {
@@ -56,11 +88,7 @@ function resolveLocal(page, baseHref, ref) {
   return candidate;
 }
 
-for (const page of criticalPages) {
-  if (!exists(page)) {
-    failures.push('Missing critical page: ' + page);
-    continue;
-  }
+for (const page of productionHtml) {
   const html = fs.readFileSync(path.join(root, page), 'utf8');
   const baseMatch = html.match(/<base[^>]*href=["']([^"']+)["']/i);
   const baseHref = baseMatch?.[1] || null;
@@ -73,8 +101,28 @@ for (const page of criticalPages) {
     .map(m => m[1]).filter(s => s.trim());
   inline.forEach((code, index) => {
     try { new Function(code); }
-    catch (error) { failures.push('Inline JS syntax error in ' + page + ' block ' + (index + 1) + ': ' + error.message); }
+    catch (error) {
+      if (criticalPages.has(page)) failures.push('Inline JS syntax error in ' + page + ' block ' + (index + 1) + ': ' + error.message);
+    }
   });
+}
+
+for (const cssFile of productionCss) {
+  const css = fs.readFileSync(path.join(root, cssFile), 'utf8');
+  const refs = [...css.matchAll(/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi)].map(m => m[2]);
+  for (const ref of refs) {
+    const resolved = resolveLocal(cssFile, null, ref);
+    if (resolved && !exists(resolved)) failures.push('Missing local CSS asset in ' + cssFile + ': ' + ref + ' -> ' + resolved);
+  }
+}
+
+for (const copyPath of exactDuplicateCopies) {
+  if (!exists(copyPath)) continue;
+  for (const file of runtimeText) {
+    if (file === copyPath) continue;
+    const content = fs.readFileSync(path.join(root, file), 'utf8');
+    if (content.includes(copyPath)) failures.push('Duplicate copy is still referenced by ' + file + ': ' + copyPath);
+  }
 }
 
 for (const adminPage of ['admin/index.html','admin-panel.html']) {
@@ -87,8 +135,7 @@ const sql49 = fs.readFileSync(path.join(root, 'supabase/sql/049_signal_push_webh
 if (/vjqvoinsspgsrcyhwspy\.supabase\.co/.test(sql49)) failures.push('Old Supabase project URL remains in SQL 049');
 if (!/etfolhinohgmskbfjoyh\.supabase\.co/.test(sql49)) failures.push('Current PipSePaisa Supabase project URL missing from SQL 049');
 
-const frontendFiles = [...activeJs, ...criticalPages];
-for (const file of frontendFiles) {
+for (const file of [...new Set([...activeJs, ...criticalPages])]) {
   const content = fs.readFileSync(path.join(root, file), 'utf8');
   if (/sb_secret_[A-Za-z0-9_-]+|service_role\s*[:=]\s*["'][^"']+/i.test(content)) {
     failures.push('Possible privileged Supabase secret in frontend file: ' + file);
@@ -105,4 +152,4 @@ if (failures.length) {
 }
 
 console.log('PipSePaisa quality check passed.');
-console.log('Checked ' + activeJs.length + ' active JS files and ' + criticalPages.length + ' critical pages.');
+console.log('Checked ' + activeJs.length + ' active JS files, ' + productionHtml.length + ' HTML pages, and ' + productionCss.length + ' CSS files.');
