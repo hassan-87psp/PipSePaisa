@@ -46,8 +46,10 @@ async function sha256(value: string) {
 }
 
 function credentialsEmailHtml(name: string, email: string, course: string, clientId: string, password: string, recoveryLink: string) {
-  const passwordHelp = "Use these details to sign in to your PipSePaisa account. If you want, you can change your password after login.";
-  return `<!doctype html><html><body style="margin:0;background:#f5f2eb;font-family:Arial,Helvetica,sans-serif;color:#171717"><table width="100%" cellpadding="0" cellspacing="0" style="padding:28px 12px"><tr><td align="center"><table width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#fff;border:1px solid #e8e1d6;border-radius:18px;overflow:hidden"><tr><td style="background:#111827;padding:25px;text-align:center"><div style="font-size:28px;font-weight:900;color:#fff">Pip<span style="color:#f39522">Se</span>Paisa</div><div style="font-size:12px;color:#cbd5e1;margin-top:5px;letter-spacing:.12em">GROW WITH US</div></td></tr><tr><td style="padding:30px 28px"><h1 style="font-size:23px;margin:0 0 10px">Welcome to PipSePaisa</h1><p style="font-size:15px;line-height:1.7;margin:0 0 18px">Hello <strong>${esc(name || "Trader")}</strong>, your account and free-course enrollment are ready.</p><table width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0;background:#fff9ef;border:1px solid #f7d7aa;border-radius:12px;overflow:hidden"><tr><td style="padding:12px 15px;color:#6b7280">Name</td><td style="padding:12px 15px;font-weight:700">${esc(name)}</td></tr><tr><td style="padding:12px 15px;color:#6b7280;border-top:1px solid #f4e6d4">Email</td><td style="padding:12px 15px;font-weight:700;border-top:1px solid #f4e6d4">${esc(email)}</td></tr><tr><td style="padding:12px 15px;color:#6b7280;border-top:1px solid #f4e6d4">Password</td><td style="padding:12px 15px;font-weight:800;border-top:1px solid #f4e6d4">${esc(password)}</td></tr><tr><td style="padding:12px 15px;color:#6b7280;border-top:1px solid #f4e6d4">Client ID</td><td style="padding:12px 15px;font-weight:800;border-top:1px solid #f4e6d4">${esc(clientId || "Pending")}</td></tr><tr><td style="padding:12px 15px;color:#6b7280;border-top:1px solid #f4e6d4">Course</td><td style="padding:12px 15px;font-weight:700;border-top:1px solid #f4e6d4">${esc(course)}</td></tr></table><p style="font-size:14px;line-height:1.65;color:#4b5563">${esc(passwordHelp)}</p><p style="margin:24px 0 8px"><a href="${SITE_URL}/sign-in" style="display:inline-block;background:#f39522;color:#151515;text-decoration:none;padding:14px 22px;border-radius:11px;font-weight:900;margin-right:8px">Sign In</a><a href="${esc(recoveryLink)}" style="display:inline-block;background:#111827;color:#fff;text-decoration:none;padding:14px 22px;border-radius:11px;font-weight:900">Change Password</a></p><p style="font-size:12px;color:#6b7280;line-height:1.6">Keep your login details private. PipSePaisa Team will never ask you to share your password in chat or WhatsApp.</p></td></tr><tr><td style="padding:18px 28px;background:#faf9f7;border-top:1px solid #eee7de;color:#6b7280;font-size:12px">This is an automated account email from PipSePaisa.</td></tr></table></td></tr></table></body></html>`;
+  const passwordHelp = password
+    ? "Use these details to sign in to your PipSePaisa account. If you want, you can change your password after login."
+    : "Your existing PipSePaisa password has not been changed. Sign in with your current password, or use the Change Password link if needed.";
+  return `<!doctype html><html><body style="margin:0;background:#f5f2eb;font-family:Arial,Helvetica,sans-serif;color:#171717"><table width="100%" cellpadding="0" cellspacing="0" style="padding:28px 12px"><tr><td align="center"><table width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:#fff;border:1px solid #e8e1d6;border-radius:18px;overflow:hidden"><tr><td style="background:#111827;padding:25px;text-align:center"><div style="font-size:28px;font-weight:900;color:#fff">Pip<span style="color:#f39522">Se</span>Paisa</div><div style="font-size:12px;color:#cbd5e1;margin-top:5px;letter-spacing:.12em">GROW WITH US</div></td></tr><tr><td style="padding:30px 28px"><h1 style="font-size:23px;margin:0 0 10px">Welcome to PipSePaisa</h1><p style="font-size:15px;line-height:1.7;margin:0 0 18px">Hello <strong>${esc(name || "Trader")}</strong>, your account and free-course enrollment are ready.</p><table width="100%" cellpadding="0" cellspacing="0" style="margin:18px 0;background:#fff9ef;border:1px solid #f7d7aa;border-radius:12px;overflow:hidden"><tr><td style="padding:12px 15px;color:#6b7280">Name</td><td style="padding:12px 15px;font-weight:700">${esc(name)}</td></tr><tr><td style="padding:12px 15px;color:#6b7280;border-top:1px solid #f4e6d4">Email</td><td style="padding:12px 15px;font-weight:700;border-top:1px solid #f4e6d4">${esc(email)}</td></tr><tr><td style="padding:12px 15px;color:#6b7280;border-top:1px solid #f4e6d4">Password</td><td style="padding:12px 15px;font-weight:800;border-top:1px solid #f4e6d4">${password ? esc(password) : "Existing password unchanged"}</td></tr><tr><td style="padding:12px 15px;color:#6b7280;border-top:1px solid #f4e6d4">Client ID</td><td style="padding:12px 15px;font-weight:800;border-top:1px solid #f4e6d4">${esc(clientId || "Pending")}</td></tr><tr><td style="padding:12px 15px;color:#6b7280;border-top:1px solid #f4e6d4">Course</td><td style="padding:12px 15px;font-weight:700;border-top:1px solid #f4e6d4">${esc(course)}</td></tr></table><p style="font-size:14px;line-height:1.65;color:#4b5563">${esc(passwordHelp)}</p><p style="margin:24px 0 8px"><a href="${SITE_URL}/sign-in" style="display:inline-block;background:#f39522;color:#151515;text-decoration:none;padding:14px 22px;border-radius:11px;font-weight:900;margin-right:8px">Sign In</a><a href="${esc(recoveryLink)}" style="display:inline-block;background:#111827;color:#fff;text-decoration:none;padding:14px 22px;border-radius:11px;font-weight:900">Change Password</a></p><p style="font-size:12px;color:#6b7280;line-height:1.6">Keep your login details private. PipSePaisa Team will never ask you to share your password in chat or WhatsApp.</p></td></tr><tr><td style="padding:18px 28px;background:#faf9f7;border-top:1px solid #eee7de;color:#6b7280;font-size:12px">This is an automated account email from PipSePaisa.</td></tr></table></td></tr></table></body></html>`;
 }
 
 function teamDisplayName(value: unknown) {
@@ -62,27 +64,19 @@ function teamDisplayName(value: unknown) {
 async function findUserId(admin: ReturnType<typeof createClient>, email: string): Promise<string> {
   const profile = await admin.from("profiles").select("id").ilike("email", email).maybeSingle();
   if (!profile.error && profile.data?.id) return String(profile.data.id);
-  for (let page = 1; page <= 5; page++) {
-    const list = await admin.auth.admin.listUsers({ page, perPage: 1000 });
-    if (list.error) break;
-    const found = list.data.users.find((u) => String(u.email ?? "").toLowerCase() === email);
-    if (found?.id) return found.id;
-    if (list.data.users.length < 1000) break;
-  }
+
+  const lookup = await admin.rpc("psp_service_auth_user_id_by_email_v320", { p_email: email });
+  if (!lookup.error && lookup.data) return String(lookup.data);
   return "";
 }
 
-async function ensureProfile(admin: ReturnType<typeof createClient>, userId: string, name: string, email: string, whatsapp: string) {
-  for (let attempt = 0; attempt < 7; attempt++) {
-    const row = await admin.from("profiles").select("id").eq("id", userId).maybeSingle();
-    if (!row.error && row.data?.id) {
-      await admin.from("profiles").update({ full_name: name, email, whatsapp }).eq("id", userId);
-      return;
-    }
-    if (attempt < 6) await new Promise((r) => setTimeout(r, 130 + attempt * 70));
-  }
-  const inserted = await admin.from("profiles").insert({ id: userId, full_name: name, email, whatsapp });
-  if (inserted.error) throw new Error(`Profile could not be prepared: ${inserted.error.message}`);
+async function ensureProfile(admin: ReturnType<typeof createClient>, userId: string, name: string, email: string, whatsapp: string): Promise<string> {
+  const prepared = await admin.from("profiles")
+    .upsert({ id: userId, full_name: name, email, whatsapp }, { onConflict: "id" })
+    .select("client_id")
+    .single();
+  if (prepared.error) throw new Error(`Profile could not be prepared: ${prepared.error.message}`);
+  return clean(prepared.data?.client_id, 80);
 }
 
 async function sendCredentialsEmail(admin: ReturnType<typeof createClient>, name: string, email: string, course: string, clientId: string, password: string) {
@@ -129,6 +123,7 @@ Deno.serve(async (req) => {
     const action = clean(body.action, 24).toLowerCase();
     const course = clean(body.course, 32).toLowerCase();
     const admin = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+    const runtimeWait = (globalThis as any).EdgeRuntime;
     const forwarded = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("cf-connecting-ip") || "";
     const ipHash = forwarded ? await sha256(`${forwarded}|pipsepaisa-ad-v263`) : "";
 
@@ -158,32 +153,33 @@ Deno.serve(async (req) => {
     const rate = await admin.from("psp_ad_submissions_v259").select("id", { count: "exact", head: true }).ilike("email", email).gte("created_at", since);
     if (!rate.error && (rate.count ?? 0) >= 4) return json({ ok: false, error: "Too many requests. Please wait a few minutes and try again." }, 429);
 
-    await admin.from("psp_ad_events_v261").insert({
+    const formEventTask = admin.from("psp_ad_events_v261").insert({
       course_code: course, event_type: "form_submit", visitor_id: clean(body.visitor_id,120) || null,
       utm_source: clean(body.utm_source,160) || null, utm_medium: clean(body.utm_medium,160) || null,
       utm_campaign: clean(body.utm_campaign,240) || null, utm_content: clean(body.utm_content,240) || null,
       fbclid: clean(body.fbclid,260) || null, ip_hash: ipHash || null
-    });
+    }).then(({ error }) => { if (error) console.error("ad-enroll form event", error); });
+    if (runtimeWait?.waitUntil) runtimeWait.waitUntil(formEventTask);
+    else await formEventTask;
 
     let userId = await findUserId(admin, email);
     let created = false;
-    const accountPassword = tempPassword();
+    let accountPassword = "";
     if (!userId) {
+      accountPassword = tempPassword();
       const createdUser = await admin.auth.admin.createUser({ email, password: accountPassword, email_confirm: true, user_metadata: { full_name: name, whatsapp, phone: whatsapp, source: "ad_link", ad_course: course } });
       if (createdUser.error || !createdUser.data.user?.id) throw new Error(createdUser.error?.message || "Account could not be created.");
-      userId = createdUser.data.user.id; created = true;
-    } else {
-      const resetUser = await admin.auth.admin.updateUserById(userId, { password: accountPassword });
-      if (resetUser.error) throw new Error(resetUser.error.message || "Account password could not be prepared.");
+      userId = createdUser.data.user.id;
+      created = true;
     }
 
-    await ensureProfile(admin, userId, name, email, whatsapp);
-
-    // One Ad Link lead per user + current course. Re-submitting the same form
-    // keeps the original Team assignment instead of inflating routing counts.
-    const existingAd = await admin.from("psp_ad_submissions_v259")
+    const existingAdTask = admin.from("psp_ad_submissions_v259")
       .select("id,enrollment_id,course_name,client_id,team_member_id,team_member_name,team_member_whatsapp")
       .eq("user_id", userId).eq("course_code", course).order("created_at", { ascending: true }).limit(1).maybeSingle();
+    const [profileClientId, existingAd] = await Promise.all([
+      ensureProfile(admin, userId, name, email, whatsapp),
+      existingAdTask,
+    ]);
     let result: any = existingAd.data ? {
       submission_id: existingAd.data.id, enrollment_id: existingAd.data.enrollment_id, course_name: existingAd.data.course_name, client_id: existingAd.data.client_id,
       team_member_id: existingAd.data.team_member_id, team_member_name: existingAd.data.team_member_name, team_member_whatsapp: existingAd.data.team_member_whatsapp,
@@ -211,30 +207,24 @@ Deno.serve(async (req) => {
     });
     if (ensured.error) throw new Error(ensured.error.message);
     const ensuredEnrollmentId = Array.isArray(ensured.data) ? ensured.data[0] : ensured.data;
-    if (ensuredEnrollmentId) {
-      result.enrollment_id = ensuredEnrollmentId;
-      const sid = clean(result.submission_id || existingAd.data?.id, 80);
-      if (sid) await admin.from("psp_ad_submissions_v259").update({ enrollment_id: ensuredEnrollmentId }).eq("id", sid);
-    }
+    if (ensuredEnrollmentId) result.enrollment_id = ensuredEnrollmentId;
+
     const teamName = teamDisplayName(result.team_member_name);
     const teamWhatsapp = digits(result.team_member_whatsapp);
-    let clientId = clean(result.client_id, 80);
-    if (!clientId) {
-      for (let attempt = 0; attempt < 5 && !clientId; attempt++) {
-        const profileId = await admin.from("profiles").select("client_id").eq("id", userId).maybeSingle();
-        if (!profileId.error && profileId.data?.client_id) clientId = clean(profileId.data.client_id, 80);
-        if (!clientId && attempt < 4) await new Promise((r) => setTimeout(r, 110 + attempt * 70));
-      }
-    }
-    clientId = clientId || "Pending";
+    const clientId = clean(result.client_id, 80) || profileClientId || "Pending";
     const courseName = course === "technical" ? "Sir Sajid Khan Ghori Free Course — Batch 3" : "Sir Malik Ghulam Abbas Free Course — Batch 2";
 
     const submissionId = clean(result.submission_id, 80);
     const whatsappRouted = teamWhatsapp.length >= 8;
     if (submissionId) {
-      await admin.from("psp_ad_submissions_v259").update({
-        account_created: created, whatsapp_routed: whatsappRouted, source_path: clean(body.source_path,260) || null, course_name: courseName
-      }).eq("id", submissionId);
+      const submissionPatch: Record<string, unknown> = {
+        account_created: created,
+        whatsapp_routed: whatsappRouted,
+        source_path: clean(body.source_path,260) || null,
+        course_name: courseName,
+      };
+      if (ensuredEnrollmentId) submissionPatch.enrollment_id = ensuredEnrollmentId;
+      await admin.from("psp_ad_submissions_v259").update(submissionPatch).eq("id", submissionId);
     }
 
     let credentialsEmailSent = false;
@@ -256,7 +246,7 @@ Deno.serve(async (req) => {
       : `Hello PipSePaisa Team, maine ${courseMessage} mein apni enrollment complete kar li hai. Ye meri Client ID: ${clientId} hai. Kindly verify karke mujhe next process bata dein.`;
     const whatsappUrl = whatsappRouted ? `https://wa.me/${teamWhatsapp}?text=${encodeURIComponent(message)}` : "";
 
-    return json({ ok: true, account_created: created, enrollment_id: result.enrollment_id ?? null, course_name: courseName, client_id: clientId, team_member_name: teamName, team_whatsapp: teamWhatsapp, whatsapp_url: whatsappUrl, whatsapp_message: message, credentials_email_sent: credentialsEmailSent, credentials_email_queued: credentialsEmailQueued, login_password: accountPassword });
+    return json({ ok: true, account_created: created, enrollment_id: result.enrollment_id ?? null, course_name: courseName, client_id: clientId, team_member_name: teamName, team_whatsapp: teamWhatsapp, whatsapp_url: whatsappUrl, whatsapp_message: message, credentials_email_sent: credentialsEmailSent, credentials_email_queued: credentialsEmailQueued });
   } catch (error) {
     console.error("ad-enroll", error);
     const message = error instanceof Error ? error.message : String(error);
