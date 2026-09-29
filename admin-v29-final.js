@@ -5,7 +5,7 @@ const BASIC_MODULES=[
   ['FINANCIAL MARKETS BLUEPRINT','Understand the Forex market, currency pairs, brokers, spreads and leverage.'],
   ['THE LANGUAGE OF PRICE INTELLIGENCE','Read buyer and seller pressure through candles, rejection and momentum.'],
   ['DECODING AND DISSECTING CANDLESTICKS','Build a market bias by understanding bullish, bearish and crowd behaviour.'],
-  ['EXPLORING TRADER'S TOOLKIT','Develop discipline and protect capital with practical risk rules.'],
+  ['EXPLORING TRADER\'S TOOLKIT','Develop discipline and protect capital with practical risk rules.'],
   ['TRADING WITH MARKET PULSE','Learn trends, levels, structure and the foundations of chart analysis.'],
   ['UNDERSTANDING REAL MARKET DRIVERS','Use indicators as confirmation tools without depending on them blindly.'],
   ['ULTIMATE SUCCESS CODE — THE MINDSET','Understand economic events and policy decisions that move currencies and gold.'],
