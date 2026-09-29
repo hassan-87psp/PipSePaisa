@@ -2212,7 +2212,8 @@ function renderAdminChats(){
   var w=document.getElementById('adChatsWrap');if(!w)return;
   w.innerHTML='<div style="display:flex;gap:8px;margin-bottom:14px">'+
     '<button id="actab-chats" onclick="aCommSwitch(\'chats\')" style="padding:9px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">💬 Direct Chats</button>'+
-    '<button id="actab-comm" onclick="aCommSwitch(\'comm\')" style="padding:9px 18px;border:1px solid var(--border,#1f2937);border-radius:10px;background:transparent;color:var(--text-primary,#e8eaf0);font-weight:700;cursor:pointer">👥 Community</button></div>'+
+    '<button id="actab-comm" onclick="aCommSwitch(\'comm\')" style="padding:9px 18px;border:1px solid var(--border,#1f2937);border-radius:10px;background:transparent;color:var(--text-primary,#e8eaf0);font-weight:700;cursor:pointer">👥 Community</button>'+
+    '<button id="actab-live" onclick="aCommSwitch(\'live\')" style="padding:9px 18px;border:1px solid var(--border,#1f2937);border-radius:10px;background:transparent;color:var(--text-primary,#e8eaf0);font-weight:700;cursor:pointer">🤖 Live Desk / AI Chats</button></div>'+
     '<div id="aTabChats"><div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start;height:calc(100vh - 250px);min-height:460px">'+
     '<div class="card" style="display:flex;flex-direction:column;height:100%;box-sizing:border-box"><h3 style="margin:0 0 10px">✉️ Member Chats</h3>'+
       '<input id="aDmNew" oninput="aDmSearchUsers()" placeholder="🔍 Search members..." style="'+APMS+';margin-bottom:6px"><div id="aDmSearchRes"></div>'+
@@ -2232,17 +2233,90 @@ function renderAdminChats(){
         '<h3 id="aCommGName" style="margin:0 0 10px">Select a group</h3>'+
         '<div id="aCommComposer" style="display:none;margin-bottom:12px"><textarea id="aCommText" rows="2" placeholder="Share something..." style="'+APMS+';width:100%;box-sizing:border-box"></textarea><div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><label style="font-size:12px;color:#10b981;cursor:pointer">🖼️ Photo<input id="aCommImg" type="file" accept="image/*" style="display:none"></label><button onclick="aCommPost()" style="padding:8px 18px;border:none;border-radius:8px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a;font-weight:800;cursor:pointer">Post</button></div></div>'+
         '<div id="aCommFeed" style="flex:1;overflow-y:auto"><div style="margin:auto;color:#94a0b8">Pick a group to see posts.</div></div>'+
-      '</div></div></div>';
+      '</div></div></div>'+
+    '<div id="aTabLive" style="display:none;height:calc(100vh - 250px);min-height:500px">'+
+      '<div style="display:grid;grid-template-columns:330px 1fr;gap:16px;height:100%">'+
+        '<div class="card" style="height:100%;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden">'+
+          '<h3 style="margin:0 0 4px">🤖 Live Desk / AI Chats</h3>'+
+          '<div style="font-size:10px;color:#94a0b8;margin-bottom:9px">All website visitor chats including FreeCourse2</div>'+
+          '<input id="aLiveSearch" oninput="aLiveSearchDebounce()" placeholder="🔍 Search name, email, WhatsApp, source..." style="'+APMS+';margin-bottom:8px">'+
+          '<div id="aLiveList" style="flex:1;overflow-y:auto"><div style="color:#94a0b8;font-size:12px">Open this tab to load chats.</div></div>'+
+        '</div>'+
+        '<div class="card" style="height:100%;box-sizing:border-box;display:flex;flex-direction:column;overflow:hidden">'+
+          '<div id="aLiveHead" style="border-bottom:1px solid var(--border,#1f2937);padding-bottom:10px;margin-bottom:10px"><h3 style="margin:0">Select a visitor chat</h3></div>'+
+          '<div id="aLiveBody" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding:4px"><div style="margin:auto;color:#94a0b8">Select a chat to view the full conversation.</div></div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
   aHeartbeat();aLoadDMList();aLoadGroups();
 }
 function aCommSwitch(tab){
   document.getElementById('aTabChats').style.display=tab==='chats'?'block':'none';
   document.getElementById('aTabComm').style.display=tab==='comm'?'block':'none';
-  var a=document.getElementById('actab-chats'),b=document.getElementById('actab-comm');
+  var live=document.getElementById('aTabLive');if(live)live.style.display=tab==='live'?'block':'none';
+  var a=document.getElementById('actab-chats'),b=document.getElementById('actab-comm'),c=document.getElementById('actab-live');
   a.style.background=tab==='chats'?'linear-gradient(135deg,#f59e0b,#d97706)':'transparent';a.style.color=tab==='chats'?'#0a0e1a':'var(--text-primary,#e8eaf0)';a.style.border=tab==='chats'?'none':'1px solid var(--border,#1f2937)';
   b.style.background=tab==='comm'?'linear-gradient(135deg,#f59e0b,#d97706)':'transparent';b.style.color=tab==='comm'?'#0a0e1a':'var(--text-primary,#e8eaf0)';b.style.border=tab==='comm'?'none':'1px solid var(--border,#1f2937)';
+  if(c){c.style.background=tab==='live'?'linear-gradient(135deg,#f59e0b,#d97706)':'transparent';c.style.color=tab==='live'?'#0a0e1a':'var(--text-primary,#e8eaf0)';c.style.border=tab==='live'?'none':'1px solid var(--border,#1f2937)';}
   if(tab==='comm'&&!_acLoaded)aCommInit();
+  if(tab==='live')aLiveLoad();
 }
+
+var _aLiveRows=[],_aLiveActive=null,_aLiveTimer=null,_aLiveLoading=false;
+function aLiveSearchDebounce(){clearTimeout(_aLiveTimer);_aLiveTimer=setTimeout(function(){aLiveLoad(true)},250);}
+async function aLiveLoad(force){
+  if(_aLiveLoading)return;
+  var box=document.getElementById('aLiveList');if(!box)return;
+  _aLiveLoading=true;
+  box.innerHTML='<div style="padding:12px;color:#94a0b8;font-size:12px">Loading chats...</div>';
+  try{
+    var q=(document.getElementById('aLiveSearch')?.value||'').trim()||null;
+    var r=await sb.rpc('psp_admin_live_chat_inbox_v308',{p_search:q,p_limit:1000});
+    if(r.error)throw r.error;
+    _aLiveRows=Array.isArray(r.data)?r.data:[];
+    aLiveRenderList();
+  }catch(e){
+    box.innerHTML='<div style="padding:12px;color:#ef4444;font-size:11px">'+aEsc(e&&e.message||String(e))+'</div>';
+  }finally{_aLiveLoading=false;}
+}
+function aLiveRenderList(){
+  var box=document.getElementById('aLiveList');if(!box)return;
+  if(!_aLiveRows.length){box.innerHTML='<div style="padding:16px;color:#94a0b8;font-size:12px">No Live Desk chats found.</div>';return;}
+  box.innerHTML=_aLiveRows.map(function(x){
+    var on=_aLiveActive&&String(_aLiveActive.id)===String(x.id);
+    var nm=x.visitor_name||x.email||x.whatsapp||'Visitor';
+    var source=[x.source,x.campaign].filter(Boolean).join(' / ')||'Direct';
+    return `<div data-live-id="${aEsc(String(x.id))}" style="padding:10px;border-radius:10px;margin-bottom:5px;cursor:pointer;border:1px solid ${on?'#f59e0b':'transparent'};background:${on?'rgba(245,158,11,.08)':'transparent'}">
+      <div style="display:flex;justify-content:space-between;gap:8px"><strong style="font-size:12px">${aEsc(nm)}</strong><span style="font-size:9px;color:#94a0b8">${aEsc(aLiveAgo(x.last_message_at||x.updated_at||x.created_at))}</span></div>
+      <div style="font-size:10px;color:#94a0b8;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${aEsc(source)} · ${aEsc(x.current_page||x.first_page||'/')}</div>
+    </div>`;
+  }).join('');
+  box.onclick=function(e){var row=e.target.closest('[data-live-id]');if(row)aLiveOpen(row.getAttribute('data-live-id'));};
+}
+function aLiveAgo(v){if(!v)return'';var s=Math.max(0,(Date.now()-new Date(v).getTime())/1000);if(s<60)return Math.floor(s)+'s';if(s<3600)return Math.floor(s/60)+'m';if(s<86400)return Math.floor(s/3600)+'h';return Math.floor(s/86400)+'d';}
+async function aLiveOpen(id){
+  _aLiveActive=_aLiveRows.find(function(x){return String(x.id)===String(id)})||{id:id};aLiveRenderList();
+  var head=document.getElementById('aLiveHead'),body=document.getElementById('aLiveBody');
+  var c=_aLiveActive,nm=c.visitor_name||c.email||c.whatsapp||'Visitor',source=[c.source,c.campaign,c.medium].filter(Boolean).join(' / ')||'Direct';
+  head.innerHTML='<h3 style="margin:0">'+aEsc(nm)+'</h3><div style="display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:#94a0b8;margin-top:5px">'+
+    '<span>Email: <b style="color:var(--text-primary)">'+aEsc(c.email||'—')+'</b></span>'+
+    '<span>WhatsApp: <b style="color:var(--text-primary)">'+aEsc(c.whatsapp||'—')+'</b></span>'+
+    '<span>Source: <b style="color:#10b981">'+aEsc(source)+'</b></span>'+
+    '<span>Page: <b style="color:var(--text-primary)">'+aEsc(c.first_page||c.current_page||'—')+'</b></span></div>';
+  body.innerHTML='<div style="margin:auto;color:#94a0b8">Loading conversation...</div>';
+  try{
+    var r=await sb.rpc('psp_admin_live_chat_messages_v308',{p_conversation_id:String(id),p_limit:2000});
+    if(r.error)throw r.error;var rows=Array.isArray(r.data)?r.data:[];
+    body.innerHTML=rows.length?rows.map(function(m){
+      var t=String(m.sender_type||'visitor').toLowerCase(),right=t!=='visitor';
+      return '<div style="max-width:78%;align-self:'+(right?'flex-end':'flex-start')+';padding:8px 11px;border-radius:12px;background:'+(right?'rgba(245,158,11,.12)':'var(--bg-elevated,#162033)')+';border:1px solid '+(right?'rgba(245,158,11,.22)':'var(--border,#1f2937)')+'">'+
+        '<div style="font-size:8.5px;color:#94a0b8;margin-bottom:3px">'+aEsc(m.sender_name||t)+' · '+aEsc(m.created_at?new Date(m.created_at).toLocaleString():'')+'</div>'+
+        '<div style="font-size:11px;line-height:1.45;white-space:pre-wrap">'+aEsc(m.body||'')+'</div></div>';
+    }).join(''):'<div style="margin:auto;color:#94a0b8">No messages in this conversation.</div>';
+    body.scrollTop=body.scrollHeight;
+  }catch(e){body.innerHTML='<div style="margin:auto;color:#ef4444">'+aEsc(e&&e.message||String(e))+'</div>';}
+}
+
 var _acLoaded=false,_acGid=null,_acGroups=[],_acOpenC={};
 async function aCommInit(){
   _acLoaded=true;var r=await sb.from('groups').select('*').order('is_official',{ascending:false}).order('created_at',{ascending:true});
@@ -2775,7 +2849,39 @@ async function loadCompanyRevenue(){
 function crCsvCell(v){var s=String(v==null?'':v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
 function crDownloadBlob(name,text,type){var blob=new Blob([text],{type:type||'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);}
 function crExportCsv(){var calc=crCalc(),lines=[['PipSePaisa Company Finance Report',crPeriodLabel()],['Total Income',calc.income],['Total Expenses',calc.expenses],['Net Profit',calc.net],['Partner Allocation',calc.allocation],['Company Retained',calc.retained],[],['TRANSACTIONS'],['Date','Type','Category','Subcategory','Details','Amount USD','Status','Method','Payment Date','Reference']];crEntries.forEach(function(r){lines.push([r.entry_date,r.entry_type,r.category,r.subcategory||'',r.note||'',r.amount,r.payment_status||'paid',r.payment_method||'',r.payment_date||'',r.payment_reference||'']);});lines.push([],['PARTNER PAYOUTS'],['Partner','Share %','Due','Paid','Balance','Status']);crPartners.forEach(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);lines.push([p.partner_name,p.share_percent,due,paid,Math.max(0,due-paid),crPayoutStatus(due,paid)]);});crDownloadBlob('PipSePaisa-Company-Revenue-'+crMonthValue()+'.csv',lines.map(function(r){return r.map(crCsvCell).join(',');}).join('\n'),'text/csv;charset=utf-8');}
-function crExportPdf(){var calc=crCalc(),w=window.open('','_blank');if(!w){alert('Please allow pop-ups to export the PDF report.');return;}var tx=crEntries.map(function(r){return '<tr><td>'+crEsc(r.entry_date)+'</td><td>'+crEsc(r.entry_type)+'</td><td>'+crEsc(r.category)+(r.subcategory?' — '+crEsc(r.subcategory):'')+'</td><td>'+crEsc(r.note||'')+'</td><td>$'+crMoney(r.amount)+'</td><td>'+crEsc(r.payment_status||'paid')+'</td></tr>';}).join(''),pp=crPartners.map(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);return '<tr><td>'+crEsc(p.partner_name)+'</td><td>'+crMoney(p.share_percent)+'%</td><td>$'+crMoney(due)+'</td><td>$'+crMoney(paid)+'</td><td>$'+crMoney(Math.max(0,due-paid))+'</td></tr>';}).join('');w.document.write('<!doctype html><html><head><title>PipSePaisa Company Revenue '+crEsc(crPeriodLabel())+'</title><style>body{font:12px Arial;color:#0f172a;padding:28px}h1{margin:0 0 4px}.sub{color:#64748b;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.box{border:1px solid #e2e8f0;border-radius:8px;padding:10px}.box span{display:block;color:#64748b;font-size:9px;text-transform:uppercase}.box strong{font-size:16px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border-bottom:1px solid #e2e8f0;padding:7px;text-align:left}th{background:#0b1730;color:#fff;font-size:9px}h2{margin-top:24px}@media print{button{display:none}}</style></head><body><h1>PipSePaisa — Company Revenue</h1><div class="sub">'+crEsc(crPeriodLabel())+' · Generated '+new Date().toLocaleString()+'</div><div class="grid"><div class="box"><span>Income</span><strong>$'+crMoney(calc.income)+'</strong></div><div class="box"><span>Expenses</span><strong>$'+crMoney(calc.expenses)+'</strong></div><div class="box"><span>Net Profit</span><strong>$'+crMoney(calc.net)+'</strong></div><div class="box"><span>Allocation</span><strong>$'+crMoney(calc.allocation)+'</strong></div><div class="box"><span>Retained</span><strong>$'+crMoney(calc.retained)+'</strong></div></div><h2>Transactions</h2><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Details</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+tx+'</tbody></table><h2>Partner Payouts</h2><table><thead><tr><th>Partner</th><th>Share</th><th>Due</th><th>Paid</th><th>Balance</th></tr></thead><tbody>'+pp+'</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>');w.document.close();}
+function crExportPdf(){var calc=crCalc(),w=window.open('','_blank');if(!w){alert('Please allow pop-ups to export the PDF report.');return;}var tx=crEntries.map(function(r){return '<tr><td>'+crEsc(r.entry_date)+'</td><td>'+crEsc(r.entry_type)+'</td><td>'+crEsc(r.category)+(r.subcategory?' — '+crEsc(r.subcategory):'')+'</td><td>'+crEsc(r.note||'')+'</td><td>$'+crMoney(r.amount)+'</td><td>'+crEsc(r.payment_status||'paid')+'</td></tr>';}).join(''),pp=crPartners.map(function(p){var row=crPartnerPayoutFor(p.id),due=crPartnerDue(p,calc),paid=crNum(row&&row.amount_paid);return '<tr><td>'+crEsc(p.partner_name)+'</td><td>'+crMoney(p.share_percent)+'%</td><td>$'+crMoney(due)+'</td><td>$'+crMoney(paid)+'</td><td>$'+crMoney(Math.max(0,due-paid))+'</td></tr>';}).join('');w.document.write('<!doctype html><html><head><title>PipSePaisa Company Revenue '+crEsc(crPeriodLabel())+'</title><style>body{font:12px Arial;color:#0f172a;padding:28px}h1{margin:0 0 4px}.sub{color:#64748b;margin-bottom:20px}.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0}.box{border:1px solid #e2e8f0;border-radius:8px;padding:10px}.box span{display:block;color:#64748b;font-size:9px;text-transform:uppercase}.box strong{font-size:16px}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border-bottom:1px solid #e2e8f0;padding:7px;text-align:left}th{background:#0b1730;color:#fff;font-size:9px}h2{margin-top:24px}@media print{button{display:none}}</style></head><body><h1>PipSePaisa — Company Revenue</h1><div class="sub">'+crEsc(crPeriodLabel())+' · Generated '+new Date().toLocaleString()+'</div><div class="grid"><div class="box"><span>Income</span><strong>$'+crMoney(calc.income)+'</strong></div><div class="box"><span>Expenses</span><strong>$'+crMoney(calc.expenses)+'</strong></div><div class="box"><span>Net Profit</span><strong>$'+crMoney(calc.net)+'</strong></div><div class="box"><span>Allocation</span><strong>$'+crMoney(calc.allocation)+'</strong></div><div class="box"><span>Retained</span><strong>$'+crMoney(calc.retained)+'</strong></div></div><h2>Transactions</h2><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Details</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+tx+'</tbody></table><h2>Partner Payouts</h2><table><thead><tr><th>Partner</th><th>Share</th><th>Due</th><th>Paid</th><th>Balance</th></tr></thead><tbody>'+pp+'</tbody></table><script>window.onload=function(){window.print()}<\/script><script id="pspFc2InlineV308">
+
+(function(){
+'use strict';
+if(window.__PSP_FC2_ADMIN_V308__)return;window.__PSP_FC2_ADMIN_V308__=true;
+var PAGE='freecourse2tracking',fc8Preset='all',fc8Busy=false;
+function fc8Esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function fc8Num(v){return Number(v||0).toLocaleString()}
+function fc8Pct(a,b){return Number(b)>0?(Number(a||0)*100/Number(b)).toFixed(1)+'%':'0.0%'}
+function fc8Date(v){if(!v)return'—';try{return new Date(v).toLocaleString()}catch(_){return'—'}}
+function fc8Styles(){if(document.getElementById('fc8css'))return;var s=document.createElement('style');s.id='fc8css';s.textContent=`
+#page-${PAGE} .fc8hero{display:flex;justify-content:space-between;align-items:center;gap:14px;border:1px solid rgba(243,149,34,.28);border-radius:18px;padding:17px 19px;background:linear-gradient(135deg,rgba(243,149,34,.12),rgba(255,255,255,.03));margin-bottom:12px}
+#page-${PAGE} .fc8hero h2{margin:0;font-size:20px}.fc8muted{font-size:9px;color:var(--text-muted);line-height:1.45}.fc8k{font-size:8px;color:#c96f07;font-weight:950;letter-spacing:.07em;margin-bottom:4px}
+.fc8btn,.fc8sel,.fc8date{height:32px;border:1px solid var(--border);border-radius:9px;background:var(--bg-card);color:var(--text-primary);font-size:8.5px;font-weight:850;padding:0 10px}.fc8btn{cursor:pointer}.fc8btn.on{background:var(--gold);border-color:var(--gold);color:#17110a}
+.fc8filters{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border);border-radius:13px;padding:11px;margin-bottom:12px}.fc8chips{display:flex;gap:6px;flex-wrap:wrap}.fc8custom{display:none;gap:5px;align-items:center}.fc8custom.show{display:flex}
+.fc8stats{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:12px}.fc8stat{background:var(--bg-card);border:1px solid var(--border);border-radius:13px;padding:12px}.fc8stat span{display:block;font-size:7px;color:var(--text-muted);font-weight:900;letter-spacing:.05em;margin-bottom:5px}.fc8stat strong{font-size:22px}.fc8stat small{display:block;font-size:8px;color:var(--text-muted);margin-top:4px}
+.fc8card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px}.fc8head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:9px}.fc8head h3{margin:0;font-size:14px}.fc8wrap{overflow:auto}.fc8table{width:100%;min-width:1180px;border-collapse:collapse}.fc8table th{font-size:7.5px;text-transform:uppercase;color:var(--text-muted);text-align:left;background:var(--bg-elevated);padding:9px;border-bottom:1px solid var(--border)}.fc8table td{font-size:9.5px;padding:10px 9px;border-bottom:1px solid var(--border)}.fc8pill{display:inline-flex;padding:4px 7px;border-radius:999px;background:rgba(243,149,34,.12);color:#b86205;font-size:8px;font-weight:900}.fc8src{background:rgba(16,185,129,.1);color:#047857}
+@media(max-width:1100px){.fc8stats{grid-template-columns:repeat(3,1fr)}}@media(max-width:760px){#page-${PAGE} .fc8hero{flex-direction:column;align-items:flex-start}.fc8stats{grid-template-columns:repeat(2,1fr)}}
+`;document.head.appendChild(s)}
+function fc8Html(){return `<div class="fc8hero"><div><div class="fc8k">FREECOURSE2 CHAT ATTRIBUTION · FAST CACHE</div><h2>FreeCourse2 Tracking</h2><div class="fc8muted">Only FreeCourse2 Chat enrollments. Direct Ad 2 / Ad Link traffic stays separate.</div></div><div><button class="fc8btn" id="fc8Open">Open Page</button> <button class="fc8btn on" id="fc8Refresh">↻ Refresh</button></div></div>
+<div class="fc8filters"><div class="fc8chips"><button class="fc8btn on" data-fc8="all">All</button><button class="fc8btn" data-fc8="today">Today</button><button class="fc8btn" data-fc8="yesterday">Yesterday</button><button class="fc8btn" data-fc8="week">Last Week</button><button class="fc8btn" data-fc8="month">Last Month</button><button class="fc8btn" data-fc8="custom">Custom Date</button></div><div style="display:flex;gap:7px;align-items:center"><div class="fc8custom" id="fc8Custom"><input class="fc8date" type="date" id="fc8From"><span class="fc8muted">to</span><input class="fc8date" type="date" id="fc8To"><button class="fc8btn on" id="fc8Apply">Apply</button></div><select class="fc8sel" id="fc8Course"><option value="all">All Courses</option><option value="technical_b3">Sajid Khan Ghori — Batch 3</option><option value="fundamental_b2">Ghulam Abbas — Batch 2</option></select></div></div>
+<div class="fc8stats"><div class="fc8stat"><span>ENROLLMENT LINK CLICKS</span><strong id="fc8Clicks">—</strong><small>FreeCourse2 Chat</small></div><div class="fc8stat"><span>FORM OPENS</span><strong id="fc8Forms">—</strong><small>Reached form</small></div><div class="fc8stat"><span>SUCCESSFUL ENROLLMENTS</span><strong id="fc8Enroll">—</strong><small>Saved users</small></div><div class="fc8stat"><span>CLICK → ENROLLMENT</span><strong id="fc8Conv">—</strong><small>Conversion</small></div><div class="fc8stat"><span>UNIQUE VISITORS</span><strong id="fc8Unique">—</strong><small>Tracked visitors</small></div></div>
+<section class="fc8card"><div class="fc8head"><div><h3>FreeCourse2 Chat Enrollments</h3><div class="fc8muted">Name, email, WhatsApp, course and manager.</div></div><div class="fc8muted" id="fc8Meta">—</div></div><div class="fc8wrap"><table class="fc8table"><thead><tr><th>Date / Time</th><th>Name</th><th>Email</th><th>WhatsApp</th><th>Client ID</th><th>Course</th><th>Batch</th><th>Assigned Manager</th><th>Source</th></tr></thead><tbody id="fc8Rows"><tr><td colspan="9">Loading…</td></tr></tbody></table></div></section>`}
+function fc8Range(){var n=new Date(),s=null,e=null,m=function(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate())};if(fc8Preset==='today'){s=m(n);e=new Date(s);e.setDate(e.getDate()+1)}else if(fc8Preset==='yesterday'){e=m(n);s=new Date(e);s.setDate(s.getDate()-1)}else if(fc8Preset==='week'){e=new Date();s=new Date(e);s.setDate(s.getDate()-7)}else if(fc8Preset==='month'){e=new Date();s=new Date(e);s.setDate(s.getDate()-30)}else if(fc8Preset==='custom'){var f=document.getElementById('fc8From')?.value,t=document.getElementById('fc8To')?.value;if(f)s=new Date(f+'T00:00:00');if(t){e=new Date(t+'T00:00:00');e.setDate(e.getDate()+1)}}return{p_start:s?s.toISOString():null,p_end:e?e.toISOString():null}}
+function fc8Set(id,v){var x=document.getElementById(id);if(x)x.textContent=String(v==null?'—':v)}
+async function fc8Load(){if(fc8Busy)return;fc8Busy=true;var body=document.getElementById('fc8Rows');if(body)body.innerHTML='<tr><td colspan="9" style="padding:14px">Loading…</td></tr>';try{var r=fc8Range(),course=document.getElementById('fc8Course')?.value||'all';var q=await sb.rpc('psp_admin_fc2_dashboard_v308',{p_start:r.p_start,p_end:r.p_end,p_course:course,p_limit:5000});if(q.error)throw q.error;var d=q.data||{},m=d.metrics||{},rows=Array.isArray(d.rows)?d.rows:[];fc8Set('fc8Clicks',fc8Num(m.link_clicks));fc8Set('fc8Forms',fc8Num(m.form_opens));fc8Set('fc8Enroll',fc8Num(rows.length));fc8Set('fc8Conv',fc8Pct(rows.length,m.link_clicks));fc8Set('fc8Unique',fc8Num(m.unique_visitors));fc8Set('fc8Meta',fc8Num(rows.length)+' records · '+fc8Num(m.recovered_records||0)+' recovered');if(!rows.length){body.innerHTML='<tr><td colspan="9" style="padding:25px;text-align:center;color:var(--text-muted)">No FreeCourse2 Chat enrollments for this filter.</td></tr>';return}body.innerHTML=rows.map(function(x){return `<tr><td>${fc8Esc(fc8Date(x.created_at))}</td><td><b>${fc8Esc(x.full_name||'—')}</b></td><td>${fc8Esc(x.email||'—')}</td><td>${fc8Esc(x.whatsapp||'—')}</td><td><b>${fc8Esc(x.client_id||'—')}</b></td><td><span class="fc8pill">${fc8Esc(x.course_label||'—')}</span></td><td>${fc8Esc(x.batch_label||'—')}</td><td>${fc8Esc(x.team_member_name||'Unassigned')}</td><td><span class="fc8pill fc8src">FreeCourse2 Chat</span></td></tr>`}).join('')}catch(e){body.innerHTML='<tr><td colspan="9" style="padding:20px;color:#ef4444">'+fc8Esc(e&&e.message||String(e))+'</td></tr>'}finally{fc8Busy=false}}
+function fc8Bind(){document.querySelectorAll('[data-fc8]').forEach(function(b){b.onclick=function(){fc8Preset=b.dataset.fc8;document.querySelectorAll('[data-fc8]').forEach(function(z){z.classList.toggle('on',z===b)});document.getElementById('fc8Custom').classList.toggle('show',fc8Preset==='custom');if(fc8Preset!=='custom')fc8Load()}});document.getElementById('fc8Apply').onclick=fc8Load;document.getElementById('fc8Course').onchange=fc8Load;document.getElementById('fc8Refresh').onclick=fc8Load;document.getElementById('fc8Open').onclick=function(){window.open('https://www.pipsepaisa.com/freecourse2/','_blank')}}
+function fc8Install(){fc8Styles();var oldPage=document.getElementById('page-'+PAGE);if(oldPage)oldPage.remove();var oldMenu=document.querySelector('.menu-item[data-page="'+PAGE+'"]');if(oldMenu)oldMenu.remove();var anchor=document.querySelector('.menu-item[data-page="ad2"]')||document.querySelector('.menu-item[data-page="adlink"]'),content=document.getElementById('content');if(!anchor||!content){setTimeout(fc8Install,250);return}var item=document.createElement('div');item.className='menu-item';item.dataset.page=PAGE;item.innerHTML='<span class="menu-icon">🔎</span>FreeCourse2 Tracking';item.onclick=function(){showPage(PAGE,item)};anchor.insertAdjacentElement('afterend',item);var p=document.createElement('div');p.className='page';p.id='page-'+PAGE;p.innerHTML=fc8Html();content.appendChild(p);fc8Bind();if(!window.__FC8SHOW){window.__FC8SHOW=1;var old=window.showPage;window.showPage=function(page,el){var z=old.apply(this,arguments);if(page===PAGE){var t=document.getElementById('pageTitle'),s=document.getElementById('pageSubtitle');if(t)t.textContent='FreeCourse2 Tracking';if(s)s.textContent='Fast chat-source attribution and enrollment records';fc8Load()}return z}}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fc8Install,{once:true});else fc8Install();
+})();
+
+</script>
+</body></html>');w.document.close();}
 
 
 function showPage(page, el) {
@@ -4252,14 +4358,12 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 <script src="admin-v28-fixes.js?v=20260801-v28-final"></script>
 <script src="admin-v29-final.js?v=20260802-v29-final"></script>
 <script src="email-campaign-admin-v296.js?v=20260923-v296"></script>
-<script src="freecourse2-tracking-admin-v307.js?v=20260929-v307"></script>
-<script src="admin-live-desk-v307.js?v=20260929-v307"></script>
 <script src="admin-users-v56-clean.js?v=20260820-v116-unlimited-users"></script>
 <script src="admin-users-export-v299.js?v=20260924-v299"></script>
 <script src="link-manager-v221.js?v=20260919-v281-single-manager"></script>
 <script src="team-performance-admin-v56.js?v=20260917-v249-team-whatsapp"></script>
-<script src="ad-link-admin-v307.js?v=20260929-v307"></script>
-<script src="ad2-admin-v307.js?v=20260929-v307"></script>
+<script src="ad-link-admin-v305.js?v=20260929-v305"></script>
+<script src="ad2-admin-v305.js?v=20260929-v305"></script>
 <script src="admin-team-performance-v206.js?v=20260902-v2066-manual-daily"></script>
 <script src="admin-account-verification-v49.js?v=20260829-v186-compact-access"></script>
 <script src="admin-dashboard-v181.js?v=20260916-v238-ea-pending"></script>
