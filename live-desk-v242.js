@@ -78,99 +78,30 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 
 
-/* V303 FreeCourse2 exact source attribution — /freecourse2/ only */
+/* V304 FreeCourse2 attribution — future exact click tracking */
 (function(){
 'use strict';
-if(!/^\/freecourse2(?:\/|$)/i.test(location.pathname)||window.__PSP_FC2_ATTR_V303__)return;
-window.__PSP_FC2_ATTR_V303__=true;
-
-const SB_URL='https://etfolhinohgmskbfjoyh.supabase.co';
-const SB_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
-const VIS='psp-fc2-v303-visitor', SID='psp-fc2-v303-session', PENDING='psp-fc2-v303-pending';
-
+if(!/^\/freecourse2(?:\/|$)/i.test(location.pathname)||window.__PSP_FC2_ATTR_V304__)return;
+window.__PSP_FC2_ATTR_V304__=true;
+const SB_URL='https://etfolhinohgmskbfjoyh.supabase.co',SB_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
+const VIS='psp-fc2-v304-visitor',SID='psp-fc2-v304-session';
 function uuid(){try{return crypto.randomUUID()}catch(_){return Date.now().toString(36)+Math.random().toString(36).slice(2)}}
-function stored(store,key){
-  try{let v=store.getItem(key)||'';if(!v){v=uuid();store.setItem(key,v)}return v}catch(_){return uuid()}
+function stored(store,key){try{let v=store.getItem(key)||'';if(!v){v=uuid();store.setItem(key,v)}return v}catch(_){return uuid()}}
+const visitor=()=>stored(localStorage,VIS),session=()=>stored(sessionStorage,SID);
+function rpc(name,p){return fetch(SB_URL+'/rest/v1/rpc/'+name,{method:'POST',keepalive:true,cache:'no-store',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify(p||{})}).catch(()=>null)}
+function details(el){
+ let href=String(el?.href||el?.getAttribute?.('href')||'');let txt=((el?.textContent||'')+' '+href).toLowerCase();
+ let course=/ghulam|fundamental/.test(txt)?'fundamental_b2':'technical_b3';
+ let match=/get\s*(my\s*)?free\s*zoom|zoom\s*link|reserve\s*(my\s*)?(free\s*)?seat|enroll/.test(txt)||/\/technical\/?|\/fundamental\/?|\/sajid-khan-ghori\/?|\/ghulam-abbas\/?/.test(href.toLowerCase());
+ return {match,course,href};
 }
-const visitor=()=>stored(localStorage,VIS), session=()=>stored(sessionStorage,SID);
-
-function rpc(name,payload){
-  return fetch(SB_URL+'/rest/v1/rpc/'+name,{
-    method:'POST',keepalive:true,cache:'no-store',
-    headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},
-    body:JSON.stringify(payload||{})
-  }).then(async r=>{if(!r.ok)throw new Error(await r.text().catch(()=>''));return r}).catch(()=>null);
-}
-
-function isEnrollmentCta(el){
-  if(!el)return false;
-  const txt=((el.textContent||'')+' '+(el.getAttribute?.('aria-label')||'')+' '+(el.getAttribute?.('title')||''))
-    .replace(/\s+/g,' ').trim().toLowerCase();
-  let href=String(el.href||el.getAttribute?.('href')||'').toLowerCase();
-  return /get\s*(my\s*)?free\s*zoom|zoom\s*link|reserve\s*(my\s*)?(free\s*)?seat|save\s*(my\s*)?(free\s*)?seat|free\s*course\s*enroll|enroll\s*now/.test(txt)
-    || /\/sajid-khan-ghori\/?|\/sajid-live\/?|\/technical\/?/.test(href)
-    || (/\/sign-in/.test(href) && /(?:psp_course|psp_enroll)=(?:basic|basic-b3|technical)/.test(href));
-}
-
-function remember(clickId){
-  const data={click_id:clickId,visitor_id:visitor(),session_id:session(),at:Date.now(),source:'freecourse2_chat'};
-  try{localStorage.setItem(PENDING,JSON.stringify(data))}catch(_){}
-  return data;
-}
-
-function decorateAnchor(el,data){
-  if(!el?.href)return;
-  try{
-    let u=new URL(el.href,location.href);
-    if(u.origin!==location.origin)return;
-
-    // On FreeCourse2 the enrollment CTA should open the current canonical free-course form.
-    if(/^\/technical\/?$/i.test(u.pathname) || (/^\/sign-in/i.test(u.pathname) && /(?:basic|technical)/i.test(u.search))){
-      u=new URL('/sajid-khan-ghori/',location.origin);
-    }
-
-    u.searchParams.set('utm_source','freecourse2_chat');
-    u.searchParams.set('utm_medium','ai_chat');
-    u.searchParams.set('utm_campaign','batch3');
-    u.searchParams.set('utm_content','chat_to_form');
-    u.searchParams.set('psp_origin','freecourse2_chat');
-    u.searchParams.set('fc2_click_id',data.click_id);
-    u.searchParams.set('fc2_vid',data.visitor_id);
-    u.searchParams.set('fc2_sid',data.session_id);
-    el.href=u.toString();
-  }catch(_){}
-}
-
-function recordPage(){
-  rpc('psp_fc2_page_open_v303',{
-    p_visitor_id:visitor(),
-    p_session_id:session(),
-    p_path:location.pathname+location.search,
-    p_referrer:document.referrer||null
-  });
-}
-
-function recordClick(el){
-  const data=remember(uuid());
-  decorateAnchor(el,data);
-  const label=String(el?.textContent||'').replace(/\s+/g,' ').trim().slice(0,180);
-  const target=String(el?.href||el?.getAttribute?.('href')||'form').slice(0,900);
-  rpc('psp_fc2_chat_click_v303',{
-    p_click_id:data.click_id,
-    p_visitor_id:data.visitor_id,
-    p_session_id:data.session_id,
-    p_target_path:target,
-    p_label:label||null
-  });
-}
-
 function init(){
-  recordPage();
-  document.addEventListener('click',function(e){
-    const el=e.target?.closest?.('a,button,[role="button"],[data-action],.chip,.psp-ld-suggestion,.suggestion,.suggested-reply');
-    if(!isEnrollmentCta(el))return;
-    recordClick(el);
-  },true);
+ document.addEventListener('click',function(e){
+  const el=e.target?.closest?.('a,button,[role="button"],[data-action],.chip,.suggestion,.suggested-reply,.psp-ld-suggestion');const d=details(el);if(!d.match)return;
+  const clickId=uuid();let target=d.href;
+  if(el?.href){try{let u=new URL(el.href,location.href);if(u.origin===location.origin){if(/^\/technical\/?$/i.test(u.pathname))u=new URL('/sajid-khan-ghori/',location.origin);if(/^\/fundamental\/?$/i.test(u.pathname))u=new URL('/ghulam-abbas/',location.origin);u.searchParams.set('utm_source','freecourse2_chat');u.searchParams.set('utm_medium','ai_chat');u.searchParams.set('utm_campaign',d.course==='fundamental_b2'?'fundamental-b2':'batch3');u.searchParams.set('utm_content','chat_to_form');u.searchParams.set('fc2_click_id',clickId);u.searchParams.set('fc2_course',d.course);el.href=u.toString();target=el.href}}catch(_){}}
+  rpc('psp_fc2_chat_click_v304',{p_click_id:clickId,p_visitor_id:visitor(),p_session_id:session(),p_course_key:d.course,p_target_path:String(target||'form').slice(0,900),p_label:String(el?.textContent||'').trim().slice(0,180)});
+ },true);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
