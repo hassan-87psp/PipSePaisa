@@ -42,7 +42,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));function uuid(){try{return cryp
 function visitor(){let v='';try{v=localStorage.getItem(VIS)||'';if(!v){v=uuid();localStorage.setItem(VIS,v)}}catch(_){v=uuid()}return v}
 function cleanPhone(v){return String(v||'').replace(/[^0-9+]/g,'')}
 function shortWa(raw,manager,clientId){const m=String(raw||'').match(/wa\.me\/(\d+)/i);if(!m)return raw;const who=String(manager||'PipSePaisa Team').trim();const msg=`Hello ${who}, I have enrolled in Sir Sajid's Batch 3 (Client ID ${clientId||'Pending'}). Kindly verify and share next steps.`;return `https://wa.me/${m[1]}?text=${encodeURIComponent(msg)}`}
-function q(){const x=new URLSearchParams(location.search),raw=String(x.get('utm_campaign')||'sajid-live-b3').replace(/^ad2-/i,'');return{ref:x.get('ref')||x.get('psp_ref')||'',utm_source:x.get('utm_source')||'ad2',utm_medium:x.get('utm_medium')||'landing',utm_campaign:'ad2-'+raw,utm_content:'ad2',fbclid:x.get('fbclid')||''}}
+function q(){const x=new URLSearchParams(location.search),explicit=String(x.get('utm_source')||'').toLowerCase();let pending=null;try{pending=JSON.parse(localStorage.getItem('psp-fc2-v303-pending')||'null');if(pending&&Date.now()-Number(pending.at||0)>20*60*1000)pending=null}catch(_){pending=null}const fromChat=explicit==='freecourse2_chat'||explicit==='freecourse2'||(!explicit&&!!pending);if(fromChat)return{ref:x.get('ref')||x.get('psp_ref')||'',utm_source:'freecourse2_chat',utm_medium:x.get('utm_medium')||'ai_chat',utm_campaign:x.get('utm_campaign')||'batch3',utm_content:'chat_to_form',fbclid:x.get('fbclid')||''};const raw=String(x.get('utm_campaign')||'sajid-live-b3').replace(/^ad2-/i,'');return{ref:x.get('ref')||x.get('psp_ref')||'',utm_source:x.get('utm_source')||'ad2',utm_medium:x.get('utm_medium')||'landing',utm_campaign:'ad2-'+raw,utm_content:x.get('utm_content')||'ad2',fbclid:x.get('fbclid')||''}}
 async function post(payload,keepalive=false){const r=await fetch(SB_URL+'/functions/v1/ad-enroll',{method:'POST',headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},body:JSON.stringify(payload),cache:'no-store',keepalive});return{r,d:await r.json().catch(()=>({}))}}
 function track(type){post({action:'track',event_type:type,course,visitor_id:visitor(),source_path:location.pathname,...q()},true).catch(()=>{})}
 function err(m){const e=$('adError');if(!e)return;e.textContent=m||'';e.classList.toggle('show',!!m)}
@@ -55,6 +55,6 @@ function init(){ensureVisible();$('adForm')?.addEventListener('submit',submit);i
 window.addEventListener('pageshow',()=>setTimeout(ensureVisible,0));document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureVisible()});setTimeout(ensureVisible,1200);if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
-<script src="/freecourse2-landing-tracking-v302.js?v=20260929-v302"></script>
+<script src="/freecourse2-attribution-v303.js?v=20260929-v303"></script>
 </body>
 </html>

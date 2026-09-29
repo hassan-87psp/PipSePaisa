@@ -78,64 +78,98 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 
 
-/* V302 FreeCourse2 funnel tracker — runs ONLY on /freecourse2/ */
+/* V303 FreeCourse2 exact source attribution — /freecourse2/ only */
 (function(){
 'use strict';
-if(!/^\/freecourse2(?:\/|$)/i.test(location.pathname)||window.__PSP_FC2_PAGE_TRACK_V302__)return;
-window.__PSP_FC2_PAGE_TRACK_V302__=true;
+if(!/^\/freecourse2(?:\/|$)/i.test(location.pathname)||window.__PSP_FC2_ATTR_V303__)return;
+window.__PSP_FC2_ATTR_V303__=true;
+
 const SB_URL='https://etfolhinohgmskbfjoyh.supabase.co';
 const SB_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
-const VIS='psp-fc2-visitor-v302',SID='psp-fc2-session-v302',PENDING='psp-fc2-pending-v302';
+const VIS='psp-fc2-v303-visitor', SID='psp-fc2-v303-session', PENDING='psp-fc2-v303-pending';
 
 function uuid(){try{return crypto.randomUUID()}catch(_){return Date.now().toString(36)+Math.random().toString(36).slice(2)}}
-function key(storage,k){try{let v=storage.getItem(k)||'';if(!v){v=uuid();storage.setItem(k,v)}return v}catch(_){return uuid()}}
-const visitor=()=>key(localStorage,VIS),session=()=>key(sessionStorage,SID);
-function qs(){const u=new URLSearchParams(location.search);return{utm_source:u.get('utm_source')||'direct',utm_medium:u.get('utm_medium')||'',utm_campaign:u.get('utm_campaign')||''}}
-function rpc(type,extra){
-  const q=qs(),x=extra||{};
-  return fetch(SB_URL+'/rest/v1/rpc/psp_track_freecourse2_event_v300',{
+function stored(store,key){
+  try{let v=store.getItem(key)||'';if(!v){v=uuid();store.setItem(key,v)}return v}catch(_){return uuid()}
+}
+const visitor=()=>stored(localStorage,VIS), session=()=>stored(sessionStorage,SID);
+
+function rpc(name,payload){
+  return fetch(SB_URL+'/rest/v1/rpc/'+name,{
     method:'POST',keepalive:true,cache:'no-store',
     headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},
-    body:JSON.stringify({
-      p_event_type:type,p_visitor_id:visitor(),p_session_id:session(),p_source_path:location.pathname,
-      p_target_path:x.target_path||null,p_referrer:document.referrer||null,
-      p_utm_source:q.utm_source,p_utm_medium:q.utm_medium,p_utm_campaign:q.utm_campaign,
-      p_client_id:null,p_meta:x.meta||{}
-    })
-  }).catch(()=>null);
+    body:JSON.stringify(payload||{})
+  }).then(async r=>{if(!r.ok)throw new Error(await r.text().catch(()=>''));return r}).catch(()=>null);
 }
-function isFormCta(el){
+
+function isEnrollmentCta(el){
   if(!el)return false;
-  const txt=((el.textContent||'')+' '+(el.getAttribute?.('aria-label')||'')+' '+(el.getAttribute?.('title')||'')).replace(/\s+/g,' ').toLowerCase();
-  const href=String(el.href||el.getAttribute?.('href')||'').toLowerCase();
-  return /get\s*(my\s*)?free\s*zoom|zoom\s*link|reserve\s*(my\s*)?(free\s*)?seat|save\s*(my\s*)?(free\s*)?seat|enroll/.test(txt)
-      || /sajid-khan-ghori|sajid-live|\/ad\/technical/.test(href);
+  const txt=((el.textContent||'')+' '+(el.getAttribute?.('aria-label')||'')+' '+(el.getAttribute?.('title')||''))
+    .replace(/\s+/g,' ').trim().toLowerCase();
+  let href=String(el.href||el.getAttribute?.('href')||'').toLowerCase();
+  return /get\s*(my\s*)?free\s*zoom|zoom\s*link|reserve\s*(my\s*)?(free\s*)?seat|save\s*(my\s*)?(free\s*)?seat|free\s*course\s*enroll|enroll\s*now/.test(txt)
+    || /\/sajid-khan-ghori\/?|\/sajid-live\/?|\/technical\/?/.test(href)
+    || (/\/sign-in/.test(href) && /(?:psp_course|psp_enroll)=(?:basic|basic-b3|technical)/.test(href));
 }
-function prepare(el){
-  const v=visitor(),s=session(),q=qs();
+
+function remember(clickId){
+  const data={click_id:clickId,visitor_id:visitor(),session_id:session(),at:Date.now(),source:'freecourse2_chat'};
+  try{localStorage.setItem(PENDING,JSON.stringify(data))}catch(_){}
+  return data;
+}
+
+function decorateAnchor(el,data){
+  if(!el?.href)return;
   try{
-    localStorage.setItem(PENDING,JSON.stringify({visitor_id:v,session_id:s,utm_source:'freecourse2',utm_medium:'ai-chat',utm_campaign:q.utm_campaign||'freecourse2',at:Date.now()}));
+    let u=new URL(el.href,location.href);
+    if(u.origin!==location.origin)return;
+
+    // On FreeCourse2 the enrollment CTA should open the current canonical free-course form.
+    if(/^\/technical\/?$/i.test(u.pathname) || (/^\/sign-in/i.test(u.pathname) && /(?:basic|technical)/i.test(u.search))){
+      u=new URL('/sajid-khan-ghori/',location.origin);
+    }
+
+    u.searchParams.set('utm_source','freecourse2_chat');
+    u.searchParams.set('utm_medium','ai_chat');
+    u.searchParams.set('utm_campaign','batch3');
+    u.searchParams.set('utm_content','chat_to_form');
+    u.searchParams.set('psp_origin','freecourse2_chat');
+    u.searchParams.set('fc2_click_id',data.click_id);
+    u.searchParams.set('fc2_vid',data.visitor_id);
+    u.searchParams.set('fc2_sid',data.session_id);
+    el.href=u.toString();
   }catch(_){}
-  if(el?.href){
-    try{
-      const u=new URL(el.href,location.href);
-      if(u.origin===location.origin){
-        u.searchParams.set('utm_source','freecourse2');
-        u.searchParams.set('utm_medium','ai-chat');
-        if(!u.searchParams.get('utm_campaign'))u.searchParams.set('utm_campaign','freecourse2');
-        u.searchParams.set('fc2_vid',v);u.searchParams.set('fc2_sid',s);
-        el.href=u.toString();
-      }
-    }catch(_){}
-  }
 }
+
+function recordPage(){
+  rpc('psp_fc2_page_open_v303',{
+    p_visitor_id:visitor(),
+    p_session_id:session(),
+    p_path:location.pathname+location.search,
+    p_referrer:document.referrer||null
+  });
+}
+
+function recordClick(el){
+  const data=remember(uuid());
+  decorateAnchor(el,data);
+  const label=String(el?.textContent||'').replace(/\s+/g,' ').trim().slice(0,180);
+  const target=String(el?.href||el?.getAttribute?.('href')||'form').slice(0,900);
+  rpc('psp_fc2_chat_click_v303',{
+    p_click_id:data.click_id,
+    p_visitor_id:data.visitor_id,
+    p_session_id:data.session_id,
+    p_target_path:target,
+    p_label:label||null
+  });
+}
+
 function init(){
-  rpc('page_open',{meta:{tracker:'live-desk-v302'}});
+  recordPage();
   document.addEventListener('click',function(e){
-    const el=e.target?.closest?.('a,button,[role="button"],.chip,.suggestion,.suggested-reply,[data-action]');
-    if(!isFormCta(el))return;
-    prepare(el);
-    rpc('form_click',{target_path:String(el?.href||el?.textContent||'form').slice(0,700),meta:{label:String(el?.textContent||'').trim().slice(0,160)}});
+    const el=e.target?.closest?.('a,button,[role="button"],[data-action],.chip,.psp-ld-suggestion,.suggestion,.suggested-reply');
+    if(!isEnrollmentCta(el))return;
+    recordClick(el);
   },true);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
