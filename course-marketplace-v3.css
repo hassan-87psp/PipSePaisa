@@ -1971,3 +1971,17 @@ body.dark #page-mycourses .psp-course-tile:not(.paid) h3,
     gap:18px!important;
   }
 }
+
+
+/* ===== My Courses Thumbnail Fill V359 =====
+   Override the old high-specificity "contain" rule that was leaving
+   visible side/background strips inside desktop course thumbnails. */
+@media (min-width:1180px){
+  #page-mycourses .psp-course-thumb img.psp-course-thumb-main{
+    width:100%!important;
+    height:100%!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+    background:transparent!important;
+  }
+}
