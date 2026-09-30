@@ -1021,6 +1021,15 @@
     if(!response.ok||data?.success===false||!data?.redirect_url){
       try{window.PSP_LAST_LOCAL_BANK_ERROR={...data,http_status:response.status,at:new Date().toISOString()};}catch(_){ }
       console.warn('Local Bank Transfer start failed',{status:response.status,code:data?.code||null,phase:data?.phase||null,provider_http_status:data?.provider_http_status||null,request_id:data?.request_id||null,version:data?.version||null});
+
+      // If the server confirms genuine paid access, immediately refresh My Courses
+      // so the page cannot keep showing a stale Locked state.
+      if(data?.code==='COURSE_ALREADY_ACTIVE'||data?.already_approved===true){
+        const courseKey=selectedCourse?.key||'';
+        try{window.dispatchEvent(new CustomEvent('course-enrollment-updated',{detail:{courseKey}}));}catch(_){ }
+        try{window.pspRefreshCourseAccess?.(courseKey);}catch(_){ }
+      }
+
       const error=new Error(localBankUserMessage(data?.error||`Local Bank Transfer could not start (${response.status}).`));
       error.status=response.status;
       error.code=data?.code||null;
