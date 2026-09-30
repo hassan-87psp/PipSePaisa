@@ -1682,6 +1682,8 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <link rel="canonical" href="https://pipsepaisa.com/sign-up">
 <link href="/psp-nav-v44.css?v=20260805-v44" rel="stylesheet"/><link href="/psp-mobile-reference-v46.css?v=20260805-v48" rel="stylesheet"/>
 <script src="/psp-direct-signup-v1.js?v=20260919-v281-single-manager-short-wa"></script>
+<script src="/course-auth-path-v207.js?v=20260930-v342-auth-intent"></script>
+<script>try{window.PSPCourseAuthFlow?.read?.();}catch(_){}</script>
 </head>
 <body class="page-home">
 <header class="topbar">
@@ -2118,7 +2120,7 @@ async function landingLoginUser(){
 
       loginResult={ok:true,userId:result.data.user.id};
       localStorage.setItem('pipsepaisa_last_login_email',email);
-      location.replace('./?logged_in=1');
+      const courseNext=window.PSPCourseAuthFlow?.afterAuth?.()||''; location.replace(courseNext||'/?logged_in=1&page=dashboard');
     }
 
     if(!loginResult?.ok){
@@ -2197,6 +2199,12 @@ async function landingSignupUser(){
     const data=await window.PSPDirectSignup(landingSb,{email,password,metadata});
     if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
     try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
+    const courseNext=window.PSPCourseAuthFlow?.afterAuth?.()||'';
+    if(courseNext){
+      showLandingAuthMessage('success','Account created. Opening your selected course...','landingSignupMessage');
+      setTimeout(()=>{window.location.href=courseNext;},450);
+      return;
+    }
     const postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
     const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
     const panel=document.getElementById('landingSignupPanel');
