@@ -122,6 +122,6 @@ async function load(force){if(!install())return;var c=db();if(!c)return;var p=do
  ]);cache.profiles=rs[0];cache.enrollments=rs[1];cache.courses=rs[2];cache.signals=rs[3];cache.verifications=rs[4];cache.paymentRequests=rs[5];cache.eaRequests=rs[6];cache.logs=rs[7];populatePeriods();renderAll()}catch(e){console.error('[V181 dashboard]',e);if(err){err.style.display='block';err.textContent='Dashboard loaded with limited data: '+(e.message||e)}}finally{if(p)p.classList.remove('ad181-loading');if(btn){btn.disabled=false;btn.textContent='↻ Refresh'}}}
 window.loadDashboardStats=load;window.PSPExecutiveDashboard181={load:load,cache:cache,render:renderAll,setPeriod:window.pspDashboardSetPeriod,getPeriod:function(){return selectedPeriod}};
 function watchTheme(){try{new MutationObserver(function(ms){if(ms.some(function(m){return m.attributeName==='data-theme'}))setTimeout(function(){renderGrowth();renderEnrollment(calc());renderPayments(calc());renderRevenue()},80)}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']})}catch(_){}}
-function init(){install();watchTheme();setTimeout(function(){if(db())load()},220)}
+function init(){install();watchTheme()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
