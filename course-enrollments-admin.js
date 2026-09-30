@@ -4,6 +4,21 @@
 let rows=[];
 
 function db(){try{return typeof sb!=='undefined'?sb:(window.sb||null)}catch(_){return window.sb||null}}
+async function fetchAllCourseEnrollmentsV344(client){
+  const size=1000;
+  const first=await client.from('course_enrollments').select('*',{count:'exact'}).order('created_at',{ascending:false}).range(0,size-1);
+  if(first.error)return first;
+  const total=Number.isFinite(Number(first.count))?Number(first.count):(first.data||[]).length;
+  if(total<=size)return {data:first.data||[],error:null,count:total};
+  const jobs=[];
+  for(let start=size;start<total;start+=size){
+    jobs.push(client.from('course_enrollments').select('*').range(start,Math.min(start+size-1,total-1)).order('created_at',{ascending:false}));
+  }
+  const rest=await Promise.all(jobs);
+  const failed=rest.find(x=>x.error);
+  if(failed)return {data:first.data||[],error:failed.error,count:total};
+  return {data:[...(first.data||[]),...rest.flatMap(x=>x.data||[])],error:null,count:total};
+}
 function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function dt(v){if(!v)return '—';try{return new Date(v).toLocaleString()}catch(_){return '—'}}
 function result(ok,title,message,extraButton){
@@ -124,7 +139,7 @@ function render(filter='all'){
     }).join('')+
     '</tbody></table></div>';
 }
-window.loadAdminCourseEnrollments=async function(){inject();const client=db();if(!client)return;const box=document.getElementById('aceStandalone');if(box)box.textContent='Loading…';const r=await client.from('course_enrollments').select('*').order('created_at',{ascending:false});if(r.error){if(box)box.innerHTML=`<div style="color:var(--red)">${esc(r.error.message)}</div>`;return}rows=r.data||[];const f=document.querySelector('#page-course-enrollments [data-filter].active')?.dataset.filter||'all';render(f)};
+window.loadAdminCourseEnrollments=async function(){inject();const client=db();if(!client)return;const box=document.getElementById('aceStandalone');if(box)box.textContent='Loading…';const r=await fetchAllCourseEnrollmentsV344(client);if(r.error){if(box)box.innerHTML=`<div style="color:var(--red)">${esc(r.error.message)}</div>`;return}rows=r.data||[];const f=document.querySelector('#page-course-enrollments [data-filter].active')?.dataset.filter||'all';render(f)};
 async function rowById(id){const {data,error}=await db().from('course_enrollments').select('*').eq('id',id).single();if(error){result(false,'Enrollment Not Found',error.message);return null}return data}
 async function getAdminEmailSession(client,forceRefresh=false){
   let session=null;
