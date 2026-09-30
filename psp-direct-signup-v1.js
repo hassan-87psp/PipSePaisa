@@ -23,8 +23,9 @@
   function cleanTeamDisplayName(value){
     const raw=String(value||'').trim();
     const key=raw.toLowerCase().replace(/[^a-z0-9]/g,'');
-    if(['amal','amalfx','missamal'].includes(key))return 'Miss Amal';
-    if(['samiya','samiyafx','misssamiya'].includes(key))return 'Miss Samiya';
+    if(key.includes('amal'))return 'Ms Amal FX';
+    if(key.includes('samiya')||key.includes('samia'))return 'Ms Samiya FX';
+    if(key.includes('memoona')||key.includes('memona')||key.includes('mamoona'))return 'Ms Memoona';
     return raw||'PipSePaisa Team';
   }
 
@@ -52,7 +53,7 @@
       const courseKey=String(context?.courseKey||row.course_key||'').toLowerCase();
       let shortCourse=courseName;
       if(['basic','basic-b2','basic-b3'].includes(courseKey)||/basic forex|sajid/i.test(courseName))shortCourse="Sir Sajid's Batch 3";
-      else if(['fundamental','fundamental-b2'].includes(courseKey)||/fundamental/i.test(courseName))shortCourse="Sir Ghulam Abbas's Batch 2";
+      else if(['fundamental','fundamental-b2'].includes(courseKey)||/fundamental/i.test(courseName))shortCourse="Sir Malik Ghulam Abbas's Batch 2";
       const message=`Hello ${memberName}, I have enrolled in ${shortCourse} (Client ID ${clientId||'Pending'}). Kindly verify and share next steps.`;
       return {
         mode:'round_robin',
