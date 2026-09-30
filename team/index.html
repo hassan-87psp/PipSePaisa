@@ -1227,7 +1227,7 @@ function renderKpis(){
         today=malaysiaToday(),monthStatuses=monthClients.map(clientWorkStatus),
         todayLeads=allClients.filter(c=>clientDateKey(c.registration_at)===today).length,
         follow=allClients.filter(clientNeedsFollowupV355).length,
-        converted=monthStatuses.filter(x=>x==='converted').length,earnOpen=teamEarningsVisibleV274(),
+        converted=S.metricsAvailable?num(m.clients):monthStatuses.filter(x=>x==='converted').length,earnOpen=teamEarningsVisibleV274(),
         earnType=!S.metricsAvailable?'unavailable':(earnOpen?'money':'settled'),
         items=[
           ['Total Clients',allClients.length,'num','Assigned','kpi-total'],
