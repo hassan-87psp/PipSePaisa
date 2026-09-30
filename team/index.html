@@ -738,9 +738,9 @@ function clientCourseInfo(c){
     else if(/basic_b2|basic[-_ ]?b2/.test(x)||(/(?:basic|sajid)/.test(x)&&/batch\s*2|\bb2\b/.test(x))) add('sajid_b2','Sir Sajid — B2');
     else if(/basic_b1|basic[-_ ]?b1/.test(x)||(/(?:basic|sajid)/.test(x)&&/batch\s*1|\bb1\b/.test(x))) add('sajid_b1','Sir Sajid — B1');
     else if(/advanced?\s+forex|advance course|course_key.?advanced/.test(x)) add('advance','Advance Forex');
-    else if(/fundamental|malik|ghulam\s+abbas/.test(x)){const d=clientDateKey(c?.registration_at),k=d?(d>='2026-09-16'?'fund_b2':'fund_b1'):(c?.is_auto_assigned?'fund_b2':'fund_b1');add(k,k==='fund_b2'?'Fundamental — B2':'Fundamental — B1')}
+    else if(/fundamental|malik|ghulam\s+abbas/.test(x)){const d=clientDateKey(c?.registration_at),k=d?(d>='2026-10-03'?'fund_b2':'fund_b1'):(c?.is_auto_assigned?'fund_b2':'fund_b1');add(k,k==='fund_b2'?'Fundamental — B2':'Fundamental — B1')}
     else if(/basic\s+forex|sajid|course_key.?basic/.test(x)){
-      const d=clientDateKey(c?.registration_at),k=d?(d>='2026-09-16'?'sajid_b3':d>='2026-09-01'?'sajid_b2':'sajid_b1'):(c?.is_auto_assigned?'sajid_b3':'sajid_b1');
+      const d=clientDateKey(c?.registration_at),k=d?(d>='2026-09-28'?'sajid_b3':d>='2026-09-01'?'sajid_b2':'sajid_b1'):(c?.is_auto_assigned?'sajid_b3':'sajid_b1');
       add(k,k==='sajid_b3'?'Sir Sajid — B3':k==='sajid_b2'?'Sir Sajid — B2':'Sir Sajid — B1')
     }
   }
