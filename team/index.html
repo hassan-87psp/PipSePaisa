@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>PSP TEAM — PipSePaisa</title>
-<!-- V300 PSP TEAM verified mobile-app rebuild; V281 routing + V274 earnings cutoff preserved -->
+<!-- V344 PSP TEAM canonical ownership + complete batch counts; V300 mobile-app rebuild preserved -->
 <link rel="icon" href="/favicon.png">
-<link rel="manifest" href="./team-manifest.json?v=302">
+<link rel="manifest" href="./team-manifest.json?v=344">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="theme-color" content="#F39522">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -629,7 +629,7 @@ async function loadClients(){
       db.rpc('psp_team_ad_leads_v273',{p_session_token:S.token,p_limit:2000}),
       db.rpc('psp_team_owned_clients_v273',{p_session_token:S.token,p_limit:2000}),
       db.rpc('psp_team_excluded_client_keys_v273',{p_session_token:S.token}),
-      db.rpc('psp_team_assignment_exclusions_v281',{p_session_token:S.token})
+      db.rpc('psp_team_canonical_exclusions_v344',{p_session_token:S.token})
     ]);
     return {legacyR,assignedR,adR,ownedR,excludedR,assignmentExR};
   };
@@ -661,7 +661,7 @@ async function loadClients(){
     const assignedRaw=rpcRowsV280(assignedR&&assignedR.error?null:assignedR&&assignedR.data);
     const ad=rpcRowsV280(adR&&adR.error?null:adR&&adR.data).filter(currentOwnerAllowed).map(x=>Object.assign({is_auto_assigned:true,is_ad_lead:true,source_kind:'ad',conversion_status:x.work_status||x.conversion_status||'new'},x));
     const adAssignmentIds=new Set(ad.map(x=>String(x.assignment_id||'')).filter(Boolean));
-    const assigned=assignedRaw.filter(x=>!adAssignmentIds.has(String(x.assignment_id||''))).map(x=>Object.assign({is_auto_assigned:true,source_kind:'assigned'},x));
+    const assigned=assignedRaw.filter(currentOwnerAllowed).filter(x=>!adAssignmentIds.has(String(x.assignment_id||''))).map(x=>Object.assign({is_auto_assigned:true,source_kind:'assigned'},x));
     const owned=rpcRowsV280(ownedR&&ownedR.error?null:ownedR&&ownedR.data).filter(currentOwnerAllowed).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.work_status||x.conversion_status||'new'},x));
 
     let merged=mergeClientRowsV280([...owned,...ad,...assigned,...legacy]);
@@ -678,7 +678,7 @@ async function loadClients(){
       const legacy2=rpcRowsV280(legacyR&&legacyR.error?null:legacyR&&legacyR.data).filter(legacyAllowed).filter(currentOwnerAllowed2).map(x=>Object.assign({source_kind:'old'},x));
       const ad2=rpcRowsV280(adR&&adR.error?null:adR&&adR.data).filter(currentOwnerAllowed2).map(x=>Object.assign({is_auto_assigned:true,is_ad_lead:true,source_kind:'ad',conversion_status:x.work_status||x.conversion_status||'new'},x));
       const adIds2=new Set(ad2.map(x=>String(x.assignment_id||'')).filter(Boolean));
-      const assigned2=rpcRowsV280(assignedR&&assignedR.error?null:assignedR&&assignedR.data).filter(x=>!adIds2.has(String(x.assignment_id||''))).map(x=>Object.assign({is_auto_assigned:true,source_kind:'assigned'},x));
+      const assigned2=rpcRowsV280(assignedR&&assignedR.error?null:assignedR&&assignedR.data).filter(currentOwnerAllowed2).filter(x=>!adIds2.has(String(x.assignment_id||''))).map(x=>Object.assign({is_auto_assigned:true,source_kind:'assigned'},x));
       const owned2=rpcRowsV280(ownedR&&ownedR.error?null:ownedR&&ownedR.data).filter(currentOwnerAllowed2).map(x=>Object.assign({is_manager_owned:true,source_kind:'manager',conversion_status:x.work_status||x.conversion_status||'new'},x));
       merged=mergeClientRowsV280([...owned2,...ad2,...assigned2,...legacy2]);
     }
@@ -745,16 +745,8 @@ function clientCourseInfo(c){
     }
   }
   if(!labels.length&&raw)add('other',raw);
-  // V290: current/ad assignments should show one canonical batch per course family.
-  // Historical/old tracking clients keep their genuine multi-batch history.
-  if(c?.is_ad_lead||c?.source_kind==='ad'||c?.is_auto_assigned){
-    const keep=new Set(keys);
-    const tech=['sajid_b3','sajid_b2','sajid_b1'].find(k=>keep.has(k));
-    if(tech){['sajid_b1','sajid_b2','sajid_b3'].forEach(k=>{if(k!==tech)keep.delete(k)})}
-    const fund=['fund_b2','fund_b1'].find(k=>keep.has(k));
-    if(fund){['fund_b1','fund_b2'].forEach(k=>{if(k!==fund)keep.delete(k)})}
-    if(keep.size!==keys.size){const mapLabel={sajid_b1:'Sir Sajid — B1',sajid_b2:'Sir Sajid — B2',sajid_b3:'Sir Sajid — B3',fund_b1:'Fundamental — B1',fund_b2:'Fundamental — B2',advance:'Advance Forex',advance_fund:'Advance Fundamental'};keys.clear();labels.length=0;for(const k of ['sajid_b3','sajid_b2','sajid_b1','fund_b2','fund_b1','advance','advance_fund','other'])if(keep.has(k)){keys.add(k);labels.push(mapLabel[k]||raw)}}
-  }
+  // V344: keep every genuine enrolled batch. Ownership is canonicalized in the backend,
+  // so real historical enrollments remain visible in every matching batch filter.
   return{text:labels.join(', ')||'No course yet',labels,keys};
 }
 function courseBatchCounts(rows){const out={sajid_b1:0,sajid_b2:0,sajid_b3:0,fund_b1:0,fund_b2:0,advance:0,advance_fund:0};for(const c of rows||[]){for(const k of clientCourseInfo(c).keys)if(k in out)out[k]++}return out}
@@ -861,7 +853,7 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=305',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=344',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
