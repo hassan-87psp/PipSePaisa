@@ -322,7 +322,7 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
 }
 </style>
 
-<meta name="psp-team-build" content="V365-session-recovery">
+<meta name="psp-team-build" content="V366-overview-actions">
 
 <style id="pspTeamMoreDownloadV304Css">
 @media(max-width:760px){
@@ -1326,6 +1326,7 @@ function openOverviewWorkV353(target){
     if(typeof syncMobileClientFiltersV278==='function')syncMobileClientFiltersV278();
   });
 }
+window.openOverviewWorkV353=openOverviewWorkV353;
 function renderOverviewOps(){
   const all=[...(S.clients||[])].sort((a,b)=>new Date(b.registration_at||0)-new Date(a.registration_at||0)),
         recent=all.slice(0,(window.matchMedia&&window.matchMedia('(max-width:760px)').matches)?3:5),today=malaysiaToday(),recentEl=$('overviewRecentClients'),workEl=$('overviewTodayWork');
@@ -1618,7 +1619,7 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=365',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=366',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
