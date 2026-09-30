@@ -347,6 +347,77 @@
     });
   }
 
+  function setupSmoothWheelScroll(){
+    if(window.__pspSmoothWheelInstalled)return;
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    if(window.matchMedia&&window.matchMedia('(hover: none), (pointer: coarse)').matches)return;
+
+    const root=document.scrollingElement||document.documentElement;
+    if(!root)return;
+
+    window.__pspSmoothWheelInstalled=true;
+    let current=window.scrollY||root.scrollTop||0;
+    let target=current;
+    let raf=0;
+    const ease=.14;
+    const multiplier=1.0;
+
+    const maxScroll=()=>Math.max(0,root.scrollHeight-window.innerHeight);
+    const clamp=v=>Math.max(0,Math.min(maxScroll(),v));
+
+    const canInnerScroll=(start,delta)=>{
+      let el=start instanceof Element?start:start?.parentElement;
+      while(el&&el!==document.body&&el!==document.documentElement){
+        const style=getComputedStyle(el);
+        const overflowY=style.overflowY;
+        const scrollable=(overflowY==='auto'||overflowY==='scroll'||overflowY==='overlay')&&el.scrollHeight>el.clientHeight+1;
+        if(scrollable){
+          if(delta<0&&el.scrollTop>0)return true;
+          if(delta>0&&el.scrollTop+el.clientHeight<el.scrollHeight-1)return true;
+        }
+        el=el.parentElement;
+      }
+      return false;
+    };
+
+    const tick=()=>{
+      const diff=target-current;
+      if(Math.abs(diff)<.5){
+        current=target;
+        root.scrollTop=target;
+        raf=0;
+        return;
+      }
+      current+=diff*ease;
+      root.scrollTop=current;
+      raf=requestAnimationFrame(tick);
+    };
+
+    const onWheel=e=>{
+      if(e.defaultPrevented||e.ctrlKey||e.metaKey||e.shiftKey)return;
+      if(!Number.isFinite(e.deltaY)||Math.abs(e.deltaY)<.1)return;
+      if(canInnerScroll(e.target,e.deltaY))return;
+
+      const unit=e.deltaMode===1?16:e.deltaMode===2?window.innerHeight:1;
+      e.preventDefault();
+      if(!raf)current=window.scrollY||root.scrollTop||0;
+      target=clamp(target+(e.deltaY*unit*multiplier));
+      if(!raf)raf=requestAnimationFrame(tick);
+    };
+
+    window.addEventListener('wheel',onWheel,{passive:false});
+    window.addEventListener('scroll',()=>{
+      if(!raf){
+        current=window.scrollY||root.scrollTop||0;
+        target=current;
+      }
+    },{passive:true});
+    window.addEventListener('resize',()=>{
+      target=clamp(target);
+      current=Math.min(current,target||maxScroll());
+    },{passive:true});
+  }
+
   document.addEventListener('DOMContentLoaded',()=>{
     setupTheme();
     setupNavigation();
@@ -363,5 +434,6 @@
     upgradeToolsHero();
     brandifyVisibleText();
     cleanupIds();
+    setupSmoothWheelScroll();
   });
 })();
