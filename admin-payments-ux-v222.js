@@ -143,6 +143,27 @@ function infinityCountdownHtml(r){
 }
 function courseLegacyRejectAllowed(r){return false}
 function courseReceipt(r){return String(r.receipt_url||r.provider_receipt_url||'').trim()}
+function courseReceiptStoragePathV363(value){
+  const raw=String(value||'').trim();if(!raw)return '';
+  if(!/^https?:\/\//i.test(raw))return raw.replace(/^\/+/, '');
+  try{
+    const u=new URL(raw),pub='/storage/v1/object/public/course-receipts/',sig='/storage/v1/object/sign/course-receipts/';
+    const i=u.pathname.indexOf(pub),j=u.pathname.indexOf(sig);
+    if(i>=0)return decodeURIComponent(u.pathname.slice(i+pub.length));
+    if(j>=0)return decodeURIComponent(u.pathname.slice(j+sig.length));
+  }catch(_){}
+  return '';
+}
+async function signedCourseReceiptUrlV363(value){
+  const raw=String(value||'').trim();if(!raw)return '';
+  if(/^data:/i.test(raw))return raw;
+  const path=courseReceiptStoragePathV363(raw);
+  if(!path)return raw;
+  const client=db();if(!client)throw new Error('Database is not connected.');
+  const r=await client.storage.from('course-receipts').createSignedUrl(path,600);
+  if(r.error)throw r.error;
+  return r.data?.signedUrl||'';
+}
 function courseReason(r){return String(r.provider_rejection_reason||r.provider_last_error||r.rejection_reason||r.revocation_reason||'').trim()}
 function notesOf(r){const h=Array.isArray(r.payment_history)?r.payment_history:[];return h.filter(x=>low(x?.action)==='admin_note'||low(x?.action)==='note').slice().reverse()}
 function ageLabel(r){const m=minutesOld(r);if(m<1)return'Just now';if(m<60)return`${Math.floor(m)}m`;if(m<1440)return`${Math.floor(m/60)}h ${Math.floor(m%60)}m`;return`${Math.floor(m/1440)}d`}
@@ -522,7 +543,44 @@ window.pspV174LegacyReject=async function(id){return toast('Infinity Local Bank 
 window.pspV174ExportPayments=function(){const rows=paymentFiltered();const csv=[['#','Date','Student','Email','WhatsApp Number','Registration Link','Registration Link Detail','Type','Item','Amount','Currency','Method','Status','Transaction / Reference']].concat(rows.map((i,idx)=>{const ref=registrationLinkInfo(i.raw);return [idx+1,(i.kind==='course'&&i.payment_date?i.payment_date:dt(i.created_at)),i.student,i.email,i.phone||'',ref.name,ref.detail,i.kind,i.item,i.amount,i.currency,i.method,statusLabel(i.status),i.txn]}));const cell=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';const blob=new Blob([csv.map(r=>r.map(cell).join(',')).join('\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='PipSePaisa-Payments-Enrollments-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
 
 // ---------- Receipt drawer ----------
-window.pspV172OpenReceipt=function(kind,id){ensureOverlays();let row,title,email,url;if(kind==='course'){row=S.courseRows.find(r=>String(r.id)===String(id))||S.paymentCourse.find(r=>String(r.id)===String(id));title=row?.full_name||'Course Payment';email=row?.email||'';url=row?courseReceipt(row):''}else{row=S.paymentGeneral.find(r=>String(r.id)===String(id));const p=row?S.profiles[row.user_id]||{}:{};title=p.full_name||row?.full_name||'Payment Request';email=p.email||row?.email||'';url=String(row?.receipt_url||'').trim()}const o=document.getElementById('v172ReceiptOverlay'),body=document.getElementById('v172ReceiptBody'),actions=document.getElementById('v172ReceiptActions');document.getElementById('v172ReceiptTitle').textContent=title;document.getElementById('v172ReceiptMeta').textContent=email;if(!url)body.innerHTML='<div class="v172-empty">No receipt is attached.</div>';else if(/^data:image\//i.test(url)||/\.(png|jpe?g|webp|gif)(\?|#|$)/i.test(url))body.innerHTML=`<img src="${esc(url)}" alt="Payment receipt">`;else body.innerHTML=`<iframe src="${esc(url)}" title="Payment receipt"></iframe>`;let btn='';if(url)btn+=`<button class="v172-btn" onclick="pspV172ReceiptZoom(.2)">Zoom +</button><button class="v172-btn" onclick="pspV172ReceiptZoom(-.2)">Zoom −</button><button class="v172-btn" onclick="pspV172ReceiptReset()">Reset</button><a class="v172-btn" href="${esc(url)}" target="_blank" rel="noopener">Open / Download</a>`;if(kind==='course'){const i={kind:'course',id:String(id),raw:row};if(isInfinity(row))btn+=`<button class="v172-btn" disabled>Infinity automatic result</button>`;else if(payRejected(i))btn+=`<button class="v172-btn ok" onclick="pspV172CloseReceipt();approveCourseEnrollment('${esc(id)}')">Approve / Restore</button>`;else if(payProcessing(i))btn+=`<button class="v172-btn" disabled>Automatic verification in progress</button>`;else if(!payApproved(i))btn+=`<button class="v172-btn ok" onclick="pspV172CloseReceipt();approveCourseEnrollment('${esc(id)}')">Approve</button><button class="v172-btn bad" onclick="pspV172CloseReceipt();rejectCourseEnrollment('${esc(id)}')">Reject</button>`}else{const i={kind:'general',id:String(id),raw:row};if(!payApproved(i))btn+=`<button class="v172-btn ok" onclick="pspV172CloseReceipt();aprApprove('${esc(id)}')">Approve</button><button class="v172-btn bad" onclick="pspV172CloseReceipt();aprReject('${esc(id)}')">Reject</button>`}actions.innerHTML=btn||'<button class="v172-btn" onclick="pspV172CloseReceipt()">Close</button>';o.classList.add('open')};
+window.pspV172OpenReceipt=async function(kind,id){
+  ensureOverlays();
+  let row,title,email,url;
+  if(kind==='course'){
+    row=S.courseRows.find(r=>String(r.id)===String(id))||S.paymentCourse.find(r=>String(r.id)===String(id));
+    title=row?.full_name||'Course Payment';email=row?.email||'';url=row?courseReceipt(row):'';
+  }else{
+    row=S.paymentGeneral.find(r=>String(r.id)===String(id));
+    const p=row?S.profiles[row.user_id]||{}:{};
+    title=p.full_name||row?.full_name||'Payment Request';email=p.email||'';url=String(row?.receipt_url||'').trim();
+  }
+  const o=document.getElementById('v172ReceiptOverlay'),body=document.getElementById('v172ReceiptBody'),actions=document.getElementById('v172ReceiptActions');
+  document.getElementById('v172ReceiptTitle').textContent=title;
+  document.getElementById('v172ReceiptMeta').textContent=email;
+  o.classList.add('open');
+  let viewUrl=url;
+  if(kind==='course'&&url){
+    body.innerHTML='<div class="v172-empty">Opening secure receipt…</div>';
+    try{viewUrl=await signedCourseReceiptUrlV363(url)}
+    catch(error){viewUrl='';body.innerHTML=`<div class="v172-empty">Could not open receipt: ${esc(error?.message||error)}</div>`}
+  }
+  if(!url)body.innerHTML='<div class="v172-empty">No receipt is attached.</div>';
+  else if(viewUrl&&(/^data:image\//i.test(viewUrl)||/\.(png|jpe?g|webp|gif)(\?|#|$)/i.test(viewUrl)))body.innerHTML=`<img src="${esc(viewUrl)}" alt="Payment receipt">`;
+  else if(viewUrl)body.innerHTML=`<iframe src="${esc(viewUrl)}" title="Payment receipt"></iframe>`;
+  let btn='';
+  if(viewUrl)btn+=`<button class="v172-btn" onclick="pspV172ReceiptZoom(.2)">Zoom +</button><button class="v172-btn" onclick="pspV172ReceiptZoom(-.2)">Zoom −</button><button class="v172-btn" onclick="pspV172ReceiptReset()">Reset</button><a class="v172-btn" href="${esc(viewUrl)}" target="_blank" rel="noopener">Open / Download</a>`;
+  if(kind==='course'){
+    const i={kind:'course',id:String(id),raw:row};
+    if(isInfinity(row))btn+=`<button class="v172-btn" disabled>Infinity automatic result</button>`;
+    else if(payRejected(i))btn+=`<button class="v172-btn ok" onclick="pspV172CloseReceipt();approveCourseEnrollment('${esc(id)}')">Approve / Restore</button>`;
+    else if(payProcessing(i))btn+=`<button class="v172-btn" disabled>Automatic verification in progress</button>`;
+    else if(!payApproved(i))btn+=`<button class="v172-btn ok" onclick="pspV172CloseReceipt();approveCourseEnrollment('${esc(id)}')">Approve</button><button class="v172-btn bad" onclick="pspV172CloseReceipt();rejectCourseEnrollment('${esc(id)}')">Reject</button>`;
+  }else{
+    const i={kind:'general',id:String(id),raw:row};
+    if(!payApproved(i))btn+=`<button class="v172-btn ok" onclick="pspV172CloseReceipt();aprApprove('${esc(id)}')">Approve</button><button class="v172-btn bad" onclick="pspV172CloseReceipt();aprReject('${esc(id)}')">Reject</button>`;
+  }
+  actions.innerHTML=btn||'<button class="v172-btn" onclick="pspV172CloseReceipt()">Close</button>';
+};
 let receiptZoom=1;window.pspV172ReceiptZoom=function(delta){receiptZoom=Math.min(3,Math.max(.6,receiptZoom+delta));const img=document.querySelector('#v172ReceiptBody img');if(img)img.style.transform=`scale(${receiptZoom})`};window.pspV172ReceiptReset=function(){receiptZoom=1;const img=document.querySelector('#v172ReceiptBody img');if(img)img.style.transform='scale(1)'};window.pspV172CloseReceipt=()=>{document.getElementById('v172ReceiptOverlay')?.classList.remove('open');receiptZoom=1};
 
 // ---------- Admin internal notes ----------
