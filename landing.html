@@ -2407,5 +2407,115 @@ document.addEventListener('DOMContentLoaded',function(){
 </script>
 
 <script defer src="/live-desk-v242.js?v=20260917-v244-stability"></script>
+
+<script id="pspSmoothWheelV1">
+/* Desktop wheel easing for the public landing page.
+   CSS scroll-behavior only smooths scripted/anchor jumps; this smooths real mouse-wheel scrolling. */
+(function(){
+  try{
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (navigator.maxTouchPoints > 0 || 'ontouchstart' in window) return;
+
+    var targetY = window.scrollY || window.pageYOffset || 0;
+    var rafId = 0;
+    var running = false;
+
+    function maxScroll(){
+      var d = document.documentElement;
+      var b = document.body;
+      return Math.max(
+        0,
+        Math.max(d ? d.scrollHeight : 0, b ? b.scrollHeight : 0) - window.innerHeight
+      );
+    }
+
+    function clamp(v, min, max){
+      return Math.min(max, Math.max(min, v));
+    }
+
+    function canNestedScroll(start, deltaY){
+      var el = start && start.nodeType === 1 ? start : null;
+      while(el && el !== document.body && el !== document.documentElement){
+        var s = window.getComputedStyle(el);
+        var oy = s.overflowY;
+        if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 2){
+          var top = el.scrollTop;
+          var bottom = top + el.clientHeight;
+          if ((deltaY < 0 && top > 1) || (deltaY > 0 && bottom < el.scrollHeight - 1)){
+            return true;
+          }
+        }
+        el = el.parentElement;
+      }
+      return false;
+    }
+
+    function step(){
+      var y = window.scrollY || window.pageYOffset || 0;
+      var diff = targetY - y;
+
+      if (Math.abs(diff) < 0.45){
+        window.scrollTo({top: targetY, left: 0, behavior: 'instant'});
+        running = false;
+        rafId = 0;
+        return;
+      }
+
+      window.scrollTo({
+        top: y + diff * 0.14,
+        left: 0,
+        behavior: 'instant'
+      });
+      rafId = window.requestAnimationFrame(step);
+    }
+
+    function cancelAndSync(){
+      if (rafId) window.cancelAnimationFrame(rafId);
+      rafId = 0;
+      running = false;
+      targetY = window.scrollY || window.pageYOffset || 0;
+    }
+
+    window.addEventListener('wheel', function(e){
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || Math.abs(e.deltaY) < 0.01) return;
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      if (e.target && e.target.closest && e.target.closest('select,textarea,input,[contenteditable="true"]')) return;
+      if (canNestedScroll(e.target, e.deltaY)) return;
+
+      var delta = e.deltaY;
+      if (e.deltaMode === 1) delta *= 16;
+      else if (e.deltaMode === 2) delta *= window.innerHeight;
+
+      var limit = Math.max(220, window.innerHeight * 0.78);
+      delta = clamp(delta, -limit, limit);
+
+      if (!running) targetY = window.scrollY || window.pageYOffset || 0;
+      targetY = clamp(targetY + delta, 0, maxScroll());
+
+      e.preventDefault();
+
+      if (!running){
+        running = true;
+        rafId = window.requestAnimationFrame(step);
+      }
+    }, {passive:false});
+
+    window.addEventListener('scroll', function(){
+      if (!running) targetY = window.scrollY || window.pageYOffset || 0;
+    }, {passive:true});
+
+    window.addEventListener('resize', function(){
+      targetY = clamp(targetY, 0, maxScroll());
+    }, {passive:true});
+
+    window.addEventListener('mousedown', cancelAndSync, {passive:true});
+    window.addEventListener('keydown', function(e){
+      if (['PageDown','PageUp','Home','End','ArrowDown','ArrowUp',' '].indexOf(e.key) !== -1){
+        cancelAndSync();
+      }
+    }, {passive:true});
+  }catch(_e){}
+})();
+</script>
 </body>
 </html>
