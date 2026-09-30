@@ -2017,3 +2017,24 @@ body.dark #page-mycourses .psp-course-tile:not(.paid) h3,
     transform:none!important;
   }
 }
+
+
+/* ===== Free Course Hover Zoom Fix V361 =====
+   V357 had a more-specific default scale(1.105) on the two free course
+   thumbnails. V360 removed zoom on hover, which made the image look correct
+   only while hovered. Lock both default + hover states to the same 1:1 scale. */
+@media (min-width:1180px){
+  #page-mycourses .psp-course-tile[data-course="basic"] .psp-course-thumb img,
+  #page-mycourses .psp-course-tile[data-course="fundamental"] .psp-course-thumb img,
+  #page-mycourses .psp-course-tile[data-course="basic"] .psp-course-thumb img.psp-course-thumb-main,
+  #page-mycourses .psp-course-tile[data-course="fundamental"] .psp-course-thumb img.psp-course-thumb-main{
+    transform:none!important;
+  }
+
+  #page-mycourses .psp-course-tile[data-course="basic"]:hover .psp-course-thumb img,
+  #page-mycourses .psp-course-tile[data-course="fundamental"]:hover .psp-course-thumb img,
+  #page-mycourses .psp-course-tile[data-course="basic"]:hover .psp-course-thumb img.psp-course-thumb-main,
+  #page-mycourses .psp-course-tile[data-course="fundamental"]:hover .psp-course-thumb img.psp-course-thumb-main{
+    transform:none!important;
+  }
+}
