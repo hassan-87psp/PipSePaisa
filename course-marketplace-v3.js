@@ -92,6 +92,9 @@ let enrollmentRows={};
 let courseClasses={basic:[],fundamental:[],advanced:[]};
 let currentCourse=null;
 let detailRenderToken=0;
+let marketplaceFilter='all';
+let marketplaceSearch='';
+let marketplaceSort='recommended';
 
 function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 function client(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(_){return null}}
@@ -431,29 +434,55 @@ function paymentReasonForCourse(key){
 }
 function statusLabel(key){
   const s=enrollmentState[key];
-  if(s==='approved')return {text:(key==='basic'||key==='fundamental')?'Enrolled':'Course Unlocked',cls:''};
+  if(s==='approved')return {text:(key==='basic'||key==='fundamental')?'Enrolled':'Course Unlocked',cls:'approved'};
   if(s==='processing')return {text:'Bank Payment Processing',cls:'pending'};
-  if(s==='expired')return {text:'Payment Expired — Retry',cls:'rejected'};
+  if(s==='expired')return {text:'Payment Expired',cls:'rejected'};
   if(s==='pending')return {text:'Payment Pending',cls:'pending'};
   if(s==='rejected')return {text:'Payment Rejected',cls:'rejected'};
   if(s==='revoked')return {text:'Access Revoked',cls:'rejected'};
-  return {text:(key==='basic'||key==='fundamental')?'Free Enrollment':'Payment Required',cls:'pending'};
+  return {text:(key==='basic'||key==='fundamental')?'Free Enrollment':'Payment Required',cls:'locked'};
 }
 function courseCardLearningMeta(c){
   if(c.hideModuleCounts)return 'Live Classes';
   return c.modules.length?`${c.modules.length} Modules`:'Structured Learning';
 }
+function courseCardActionLabel(c,state){
+  if(state==='approved')return 'Continue Learning →';
+  if(state==='processing')return 'Continue Payment →';
+  if(state==='expired'||state==='rejected')return 'Retry Payment →';
+  if(state==='pending')return 'View Payment Status →';
+  if(state==='revoked')return 'Review Access →';
+  return c.type==='free'?'Join Free →':'Enroll Now →';
+}
+function courseCardTypeLabel(c){
+  return c.type==='free'?'FREE COURSE':'PAID COURSE';
+}
 function tileMarkup(c){
+  const state=enrollmentState[c.key]||'not_enrolled';
   const st=statusLabel(c.key);
-  return `<article class="psp-course-tile ${c.type==='paid'?'paid':''}" data-course="${c.key}" tabindex="0" role="button" aria-label="Open ${esc(c.title)} details">
+  const action=courseCardActionLabel(c,state);
+  return `<article class="psp-course-tile ${c.type==='paid'?'paid':''} state-${esc(state)}" data-course="${esc(c.key)}" tabindex="0" role="button" aria-label="Open ${esc(c.title)} details">
     <div class="psp-course-thumb">
       <img class="psp-course-thumb-main" ${thumbAttrs(c,`${c.title} thumbnail`)}>
+      <div class="psp-course-thumb-overlay">
+        <span class="psp-course-type-badge ${c.type}">${courseCardTypeLabel(c)}</span>
+        <span class="psp-course-thumb-status ${st.cls}">${esc(st.text)}</span>
+      </div>
     </div>
     <div class="psp-course-tile-body">
-      <div class="psp-course-tile-top"><h3>${esc(c.title)}${c.batchLabel?` <span class="psp-course-batch-badge">${esc(c.batchLabel)}</span>`:''}</h3><div class="psp-course-price">${c.price?('$'+c.price):'Free'}</div></div>
+      <div class="psp-course-tile-top">
+        <div class="psp-course-card-title-wrap">
+          <h3>${esc(c.title)}${c.batchLabel?` <span class="psp-course-batch-badge">${esc(c.batchLabel)}</span>`:''}</h3>
+          <div class="psp-course-mentor-mini">With <strong>${esc(c.mentorName||'PipSePaisa Mentor')}</strong></div>
+        </div>
+        <div class="psp-course-price">${c.price?('$'+c.price):'Free'}</div>
+      </div>
       <p>${esc(c.short)}</p>
-      <div class="psp-course-meta"><span>${esc(courseCardLearningMeta(c))}</span><span>${esc(c.level)}</span><span>Mentor Support</span></div>
-      <div class="psp-course-tile-footer"><div class="psp-course-status-stack"><span class="psp-course-status-pill ${st.cls}">${esc(st.text)}</span>${enrollmentState[c.key]==='rejected'&&paymentReasonForCourse(c.key)?`<small class="psp-course-reject-reason">Reason: ${esc(paymentReasonForCourse(c.key))}</small>`:''}</div><button class="psp-course-open-btn" type="button">View Course →</button></div>
+      <div class="psp-course-meta"><span>${esc(courseCardLearningMeta(c))}</span><span>${esc(c.level)}</span><span>${c.type==='free'?'Free Access':'Premium Access'}</span></div>
+      <div class="psp-course-tile-footer">
+        <button class="psp-course-open-btn" type="button">${esc(action)}</button>
+        <span class="psp-course-details-link">View details <b>↗</b></span>
+      </div>
     </div>
   </article>`;
 }
@@ -461,23 +490,147 @@ function ensureShell(){
   const page=document.getElementById('page-mycourses');if(!page)return null;
   if(!document.getElementById('pspCourseV188Style')){const s=document.createElement('style');s.id='pspCourseV188Style';s.textContent='.psp-course-batch-badge{display:inline-flex;vertical-align:middle;margin-left:6px;padding:4px 8px;border:1px solid rgba(251,146,1,.42);border-radius:999px;background:rgba(251,146,1,.10);color:#d97706;font-size:10px;font-weight:900;white-space:nowrap}.psp-course-detail-title .psp-course-batch-badge{font-size:12px;transform:translateY(-3px)}.psp-course-status-stack{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0}.psp-course-reject-reason{display:block;max-width:280px;color:#c2410c;font-size:10px;font-weight:800;line-height:1.25;white-space:normal;overflow-wrap:anywhere}';document.head.appendChild(s);}
   if(!page.querySelector('.psp-course-marketplace-v3')){
-    page.innerHTML=`<div class="psp-course-marketplace-v3"><section class="psp-course-marketplace"><div class="psp-course-market-head"><div><h2>Explore Forex Courses</h2><p>Choose a course, review the complete details and enroll from one professional page.</p></div><span class="psp-course-market-count" id="pspCourseActiveCount">4 Active Courses</span></div><div class="psp-course-card-grid" id="pspCourseCardGrid"></div></section><section class="psp-course-detail" id="pspCourseDetail"></section></div>`;
+    page.innerHTML=`<div class="psp-course-marketplace-v3">
+      <section class="psp-course-marketplace">
+        <div class="psp-course-market-head">
+          <div><span class="psp-course-page-kicker">YOUR LEARNING HUB</span><h2>My Courses</h2><p>Continue learning, manage payments and explore PipSePaisa courses from one place.</p></div>
+          <span class="psp-course-market-count" id="pspCourseActiveCount">0 Courses</span>
+        </div>
+
+        <div class="psp-course-summary-grid" aria-label="Course summary">
+          <button class="psp-course-summary-card is-active" type="button" data-summary-filter="all"><span class="psp-summary-icon">▦</span><span><small>Total Courses</small><strong id="pspCourseTotalCount">0</strong></span></button>
+          <button class="psp-course-summary-card" type="button" data-summary-filter="learning"><span class="psp-summary-icon">▶</span><span><small>My Learning</small><strong id="pspCourseLearningCount">0</strong></span></button>
+          <button class="psp-course-summary-card" type="button" data-summary-filter="free"><span class="psp-summary-icon">✓</span><span><small>Free Courses</small><strong id="pspCourseFreeCount">0</strong></span></button>
+          <button class="psp-course-summary-card" type="button" data-summary-filter="paid"><span class="psp-summary-icon">◆</span><span><small>Paid Courses</small><strong id="pspCoursePaidCount">0</strong></span></button>
+        </div>
+
+        <div class="psp-course-controlbar">
+          <div class="psp-course-filters" role="tablist" aria-label="Course filters">
+            <button class="active" type="button" data-course-filter="all">All</button>
+            <button type="button" data-course-filter="learning">My Learning</button>
+            <button type="button" data-course-filter="free">Free</button>
+            <button type="button" data-course-filter="paid">Paid</button>
+            <button type="button" data-course-filter="pending">Payment Pending</button>
+          </div>
+          <div class="psp-course-tools">
+            <label class="psp-course-search"><span>⌕</span><input id="pspCourseSearch" type="search" placeholder="Search courses..." autocomplete="off"></label>
+            <select id="pspCourseSort" aria-label="Sort courses">
+              <option value="recommended">Recommended</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="psp-course-section-group" id="pspCourseLearningSection">
+          <div class="psp-course-section-title"><div><span>CONTINUE YOUR JOURNEY</span><h3>Continue Learning</h3></div><small id="pspCourseLearningLabel"></small></div>
+          <div class="psp-course-card-grid" id="pspCourseLearningGrid"></div>
+        </div>
+
+        <div class="psp-course-section-group" id="pspCourseExploreSection">
+          <div class="psp-course-section-title"><div><span>DISCOVER MORE</span><h3>Explore More Courses</h3></div><small id="pspCourseExploreLabel"></small></div>
+          <div class="psp-course-card-grid" id="pspCourseCardGrid"></div>
+        </div>
+
+        <div class="psp-course-empty-state" id="pspCourseEmptyState" hidden>
+          <span>⌕</span><strong>No courses found</strong><p>Try another search or filter.</p>
+        </div>
+      </section>
+      <section class="psp-course-detail" id="pspCourseDetail"></section>
+    </div>`;
   }
   return page;
 }
-function renderMarketplace(){
-  const page=ensureShell();if(!page)return;
-  const grid=page.querySelector('#pspCourseCardGrid');if(!grid)return;
-  const visible=Object.values(courseData).filter(c=>c.published!==false).sort((a,b)=>Number(a.displayOrder||99)-Number(b.displayOrder||99));
-  const count=page.querySelector('#pspCourseActiveCount');
-  if(count)count.textContent=`${visible.length} Active Course${visible.length===1?'':'s'}`;
-  grid.innerHTML=visible.map(tileMarkup).join('');
-  grid.querySelectorAll('.psp-course-tile').forEach(card=>{
+function marketplaceFilterMatch(c){
+  const state=enrollmentState[c.key]||'not_enrolled';
+  if(marketplaceFilter==='learning')return state==='approved';
+  if(marketplaceFilter==='free')return c.type==='free';
+  if(marketplaceFilter==='paid')return c.type==='paid';
+  if(marketplaceFilter==='pending')return ['processing','pending','expired','rejected'].includes(state);
+  return true;
+}
+function marketplaceSearchMatch(c){
+  const q=String(marketplaceSearch||'').trim().toLowerCase();
+  if(!q)return true;
+  return [c.title,c.short,c.mentorName,c.level,c.batchLabel].some(v=>String(v||'').toLowerCase().includes(q));
+}
+function marketplaceSortRows(rows){
+  const list=[...rows];
+  if(marketplaceSort==='price-low')return list.sort((a,b)=>Number(a.price||0)-Number(b.price||0)||Number(a.displayOrder||99)-Number(b.displayOrder||99));
+  if(marketplaceSort==='price-high')return list.sort((a,b)=>Number(b.price||0)-Number(a.price||0)||Number(a.displayOrder||99)-Number(b.displayOrder||99));
+  return list.sort((a,b)=>{
+    const sa=enrollmentState[a.key]==='approved'?0:1,sb=enrollmentState[b.key]==='approved'?0:1;
+    return sa-sb||Number(a.displayOrder||99)-Number(b.displayOrder||99);
+  });
+}
+function syncMarketplaceControls(page){
+  page.querySelectorAll('[data-course-filter]').forEach(btn=>btn.classList.toggle('active',btn.dataset.courseFilter===marketplaceFilter));
+  page.querySelectorAll('[data-summary-filter]').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.summaryFilter===marketplaceFilter));
+}
+function bindMarketplaceCards(container){
+  container?.querySelectorAll('.psp-course-tile').forEach(card=>{
     const open=()=>window.openCourseDetail(card.dataset.course);
     card.addEventListener('click',open);
     card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
-    const btn=card.querySelector('button');if(btn)btn.addEventListener('click',e=>{e.stopPropagation();open();});
+    card.querySelectorAll('button,.psp-course-details-link').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();open();}));
   });
+}
+function renderMarketplace(){
+  const page=ensureShell();if(!page)return;
+  const learningGrid=page.querySelector('#pspCourseLearningGrid');
+  const exploreGrid=page.querySelector('#pspCourseCardGrid');
+  if(!learningGrid||!exploreGrid)return;
+
+  const all=Object.values(courseData).filter(c=>c.published!==false);
+  const learningAll=all.filter(c=>enrollmentState[c.key]==='approved');
+  const freeCount=all.filter(c=>c.type==='free').length;
+  const paidCount=all.filter(c=>c.type==='paid').length;
+
+  const count=page.querySelector('#pspCourseActiveCount');
+  if(count)count.textContent=`${all.length} Active Course${all.length===1?'':'s'}`;
+  const totalEl=page.querySelector('#pspCourseTotalCount');if(totalEl)totalEl.textContent=String(all.length);
+  const learningEl=page.querySelector('#pspCourseLearningCount');if(learningEl)learningEl.textContent=String(learningAll.length);
+  const freeEl=page.querySelector('#pspCourseFreeCount');if(freeEl)freeEl.textContent=String(freeCount);
+  const paidEl=page.querySelector('#pspCoursePaidCount');if(paidEl)paidEl.textContent=String(paidCount);
+
+  const filtered=marketplaceSortRows(all.filter(marketplaceFilterMatch).filter(marketplaceSearchMatch));
+  const learning=filtered.filter(c=>enrollmentState[c.key]==='approved');
+  const explore=filtered.filter(c=>enrollmentState[c.key]!=='approved');
+
+  learningGrid.innerHTML=learning.map(tileMarkup).join('');
+  exploreGrid.innerHTML=explore.map(tileMarkup).join('');
+  bindMarketplaceCards(learningGrid);
+  bindMarketplaceCards(exploreGrid);
+
+  const learningSection=page.querySelector('#pspCourseLearningSection');
+  const exploreSection=page.querySelector('#pspCourseExploreSection');
+  if(learningSection)learningSection.hidden=!learning.length;
+  if(exploreSection)exploreSection.hidden=!explore.length;
+  const learningLabel=page.querySelector('#pspCourseLearningLabel');if(learningLabel)learningLabel.textContent=learning.length?`${learning.length} active`:'';
+  const exploreLabel=page.querySelector('#pspCourseExploreLabel');if(exploreLabel)exploreLabel.textContent=explore.length?`${explore.length} available`:'';
+
+  const empty=page.querySelector('#pspCourseEmptyState');
+  if(empty)empty.hidden=filtered.length>0;
+  syncMarketplaceControls(page);
+
+  page.querySelectorAll('[data-course-filter]').forEach(btn=>{
+    if(btn.dataset.bound==='1')return;btn.dataset.bound='1';
+    btn.addEventListener('click',()=>{marketplaceFilter=btn.dataset.courseFilter||'all';renderMarketplace();});
+  });
+  page.querySelectorAll('[data-summary-filter]').forEach(btn=>{
+    if(btn.dataset.bound==='1')return;btn.dataset.bound='1';
+    btn.addEventListener('click',()=>{marketplaceFilter=btn.dataset.summaryFilter||'all';renderMarketplace();});
+  });
+  const search=page.querySelector('#pspCourseSearch');
+  if(search&&search.dataset.bound!=='1'){
+    search.dataset.bound='1';search.value=marketplaceSearch;
+    search.addEventListener('input',()=>{marketplaceSearch=search.value||'';renderMarketplace();});
+  }else if(search&&search.value!==marketplaceSearch){search.value=marketplaceSearch;}
+  const sort=page.querySelector('#pspCourseSort');
+  if(sort&&sort.dataset.bound!=='1'){
+    sort.dataset.bound='1';sort.value=marketplaceSort;
+    sort.addEventListener('change',()=>{marketplaceSort=sort.value||'recommended';renderMarketplace();});
+  }else if(sort&&sort.value!==marketplaceSort){sort.value=marketplaceSort;}
 }
 function buyPanel(c,state){
   const approved=state==='approved',processing=state==='processing',expired=state==='expired',pending=state==='pending',rejected=state==='rejected',revoked=state==='revoked';
