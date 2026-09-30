@@ -195,19 +195,21 @@ Deno.serve(async (req) => {
       result = Array.isArray(rpc.data) ? (rpc.data[0] ?? {}) : (rpc.data ?? {});
     }
 
-    // V265: every submission, including a re-submit of an older Ad lead, is
-    // guaranteed to have the real current-batch course_enrollments row used by
-    // the normal website / My Courses UI.
-    const ensured = await admin.rpc("psp_ad_ensure_enrollment_v265", {
-      p_user_id: userId,
-      p_full_name: name,
-      p_email: email,
-      p_whatsapp: whatsapp,
-      p_course_code: course,
-    });
-    if (ensured.error) throw new Error(ensured.error.message);
-    const ensuredEnrollmentId = Array.isArray(ensured.data) ? ensured.data[0] : ensured.data;
-    if (ensuredEnrollmentId) result.enrollment_id = ensuredEnrollmentId;
+    // Fresh submissions are already enrolled by psp_ad_complete_enrollment_v259.
+    // Only an existing/re-submitted Ad lead needs an explicit current-batch repair.
+    let ensuredEnrollmentId = result.enrollment_id ?? null;
+    if (existingAd.data) {
+      const ensured = await admin.rpc("psp_ad_ensure_enrollment_v268", {
+        p_user_id: userId,
+        p_full_name: name,
+        p_email: email,
+        p_whatsapp: whatsapp,
+        p_course_code: course,
+      });
+      if (ensured.error) throw new Error(ensured.error.message);
+      ensuredEnrollmentId = Array.isArray(ensured.data) ? ensured.data[0] : ensured.data;
+      if (ensuredEnrollmentId) result.enrollment_id = ensuredEnrollmentId;
+    }
 
     const teamName = teamDisplayName(result.team_member_name);
     const teamWhatsapp = digits(result.team_member_whatsapp);
