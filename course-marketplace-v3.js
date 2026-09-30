@@ -522,13 +522,8 @@ function ensureShell(){
           </div>
         </div>
 
-        <div class="psp-course-section-group" id="pspCourseLearningSection">
-          <div class="psp-course-section-title"><div><span>CONTINUE YOUR JOURNEY</span><h3>Continue Learning</h3></div><small id="pspCourseLearningLabel"></small></div>
-          <div class="psp-course-card-grid" id="pspCourseLearningGrid"></div>
-        </div>
-
-        <div class="psp-course-section-group" id="pspCourseExploreSection">
-          <div class="psp-course-section-title"><div><span>DISCOVER MORE</span><h3>Explore More Courses</h3></div><small id="pspCourseExploreLabel"></small></div>
+        <div class="psp-course-section-group" id="pspCourseAllSection">
+          <div class="psp-course-section-title"><div><span>COURSE LIBRARY</span><h3 id="pspCourseSectionHeading">All Courses</h3></div><small id="pspCourseSectionLabel"></small></div>
           <div class="psp-course-card-grid" id="pspCourseCardGrid"></div>
         </div>
 
@@ -577,9 +572,8 @@ function bindMarketplaceCards(container){
 }
 function renderMarketplace(){
   const page=ensureShell();if(!page)return;
-  const learningGrid=page.querySelector('#pspCourseLearningGrid');
-  const exploreGrid=page.querySelector('#pspCourseCardGrid');
-  if(!learningGrid||!exploreGrid)return;
+  const grid=page.querySelector('#pspCourseCardGrid');
+  if(!grid)return;
 
   const all=Object.values(courseData).filter(c=>c.published!==false);
   const learningAll=all.filter(c=>enrollmentState[c.key]==='approved');
@@ -594,20 +588,20 @@ function renderMarketplace(){
   const paidEl=page.querySelector('#pspCoursePaidCount');if(paidEl)paidEl.textContent=String(paidCount);
 
   const filtered=marketplaceSortRows(all.filter(marketplaceFilterMatch).filter(marketplaceSearchMatch));
-  const learning=filtered.filter(c=>enrollmentState[c.key]==='approved');
-  const explore=filtered.filter(c=>enrollmentState[c.key]!=='approved');
+  grid.innerHTML=filtered.map(tileMarkup).join('');
+  bindMarketplaceCards(grid);
 
-  learningGrid.innerHTML=learning.map(tileMarkup).join('');
-  exploreGrid.innerHTML=explore.map(tileMarkup).join('');
-  bindMarketplaceCards(learningGrid);
-  bindMarketplaceCards(exploreGrid);
-
-  const learningSection=page.querySelector('#pspCourseLearningSection');
-  const exploreSection=page.querySelector('#pspCourseExploreSection');
-  if(learningSection)learningSection.hidden=!learning.length;
-  if(exploreSection)exploreSection.hidden=!explore.length;
-  const learningLabel=page.querySelector('#pspCourseLearningLabel');if(learningLabel)learningLabel.textContent=learning.length?`${learning.length} active`:'';
-  const exploreLabel=page.querySelector('#pspCourseExploreLabel');if(exploreLabel)exploreLabel.textContent=explore.length?`${explore.length} available`:'';
+  const heading=page.querySelector('#pspCourseSectionHeading');
+  const label=page.querySelector('#pspCourseSectionLabel');
+  const titleMap={
+    all:'All Courses',
+    learning:'My Learning',
+    free:'Free Courses',
+    paid:'Paid Courses',
+    pending:'Payment Pending'
+  };
+  if(heading)heading.textContent=titleMap[marketplaceFilter]||'All Courses';
+  if(label)label.textContent=filtered.length?`${filtered.length} course${filtered.length===1?'':'s'}`:'';
 
   const empty=page.querySelector('#pspCourseEmptyState');
   if(empty)empty.hidden=filtered.length>0;
