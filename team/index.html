@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>PSP TEAM — PipSePaisa</title>
-<!-- V350 PSP TEAM luxury Home polish + V346 session handling; V300 mobile-app rebuild preserved -->
+<!-- V351 PSP TEAM trading-grade Home UI + V346 session handling; V300 mobile-app rebuild preserved -->
 <link rel="icon" href="/favicon.png">
-<link rel="manifest" href="./team-manifest.json?v=350">
+<link rel="manifest" href="./team-manifest.json?v=351">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="theme-color" content="#F39522">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -462,6 +462,86 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
   .mobile-tab.active{box-shadow:inset 0 0 0 1px rgba(243,149,34,.04)!important}
 }
 </style>
+
+<style id="teamOverviewTradingV351Css">
+@media(max-width:760px){
+  #view-overview{--trade-bg:#171717;--trade-bg2:#202020;--trade-line:rgba(255,255,255,.09)}
+  #view-overview .page-head{margin-bottom:8px!important}
+  #view-overview .page-head h1{font-size:23px!important}
+  #view-overview .live-pill{font-size:6.5px!important;letter-spacing:.09em!important;border:0!important;background:rgba(34,165,101,.08)!important;color:#169254!important;padding:5px 8px!important}
+
+  #view-overview .mobile-quick-actions-v300{gap:6px!important;margin-bottom:8px!important}
+  #view-overview .mobile-quick-actions-v300 button{min-height:62px!important;border:0!important;border-radius:14px!important;background:color-mix(in srgb,var(--panel2) 72%,var(--panel))!important;box-shadow:none!important;padding:7px 4px!important}
+  #view-overview .mobile-quick-actions-v300 span{width:29px!important;height:29px!important;border-radius:10px!important;margin-bottom:5px!important}
+  #view-overview .mobile-quick-actions-v300 b{font-size:7.6px!important}
+
+  #view-overview .hero-card{background:linear-gradient(145deg,#181818 0%,#222 100%)!important;border:0!important;box-shadow:0 16px 34px rgba(0,0,0,.18)!important;padding:14px!important}
+  #view-overview .hero-card:after{right:-14px!important;top:-36px!important;width:130px!important;height:130px!important;background:radial-gradient(circle,rgba(243,149,34,.17),rgba(243,149,34,0) 70%)!important}
+  #view-overview .hero-avatar-v350{background:#F39522!important;color:#1c1207!important;box-shadow:none!important}
+  #view-overview .hero-card .eyebrow{color:#F39522!important}
+  #view-overview .hero-card h2{color:#fff!important;font-size:17px!important}
+  #view-overview .hero-quick-v273{border-top-color:var(--trade-line)!important}
+  #view-overview .hero-quick-v273 span,#view-overview .hero-quick-v273 small{color:#9c9c9c!important}
+  #view-overview .hero-quick-v273 b{color:#fff!important;font-size:17px!important}
+
+  #view-overview .overview-command-v351{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;margin:0 0 9px;padding:11px 12px;border-radius:16px;background:linear-gradient(135deg,rgba(243,149,34,.13),rgba(243,149,34,.045));border:1px solid rgba(243,149,34,.18)}
+  #view-overview .overview-command-copy-v351{min-width:0}
+  #view-overview .overview-command-copy-v351 span{display:block;font-size:6.5px;font-weight:950;letter-spacing:.11em;text-transform:uppercase;color:#b96b0f}
+  #view-overview .overview-command-copy-v351 b{display:block;margin-top:4px;font-size:12.5px;line-height:1.15;color:var(--text)}
+  #view-overview .overview-command-copy-v351 small{display:block;margin-top:3px;font-size:7.2px;color:var(--muted)}
+  #view-overview .overview-command-v351 button{height:34px;padding:0 10px;border:0;border-radius:10px;background:#F39522;color:#1a1208;font-size:7.5px;font-weight:950;white-space:nowrap}
+  #view-overview .overview-command-v351 button span{font-size:11px;margin-left:2px}
+
+  #view-overview .kpi-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+  #view-overview .kpi{min-height:78px!important;border:0!important;border-radius:14px!important;background:color-mix(in srgb,var(--panel2) 70%,var(--panel))!important;box-shadow:none!important;padding:10px!important}
+  #view-overview .kpi:after{display:none!important}
+  #view-overview .kpi .label{padding:0!important;font-size:6.3px!important;line-height:1.2!important;letter-spacing:.045em!important;white-space:normal!important}
+  #view-overview .kpi .value{font-size:20px!important;margin-top:8px!important}
+  #view-overview .kpi .sub{font-size:6.5px!important;margin-top:5px!important;line-height:1.2!important}
+  #view-overview .kpi-follow{grid-column:1/-1!important;min-height:68px!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;grid-template-areas:"label action" "value action" "sub action"!important;align-items:center!important;background:#1b1b1b!important;color:#fff!important;padding:10px 12px!important}
+  #view-overview .kpi-follow .label{grid-area:label!important;color:#A4A4A4!important}
+  #view-overview .kpi-follow .value{grid-area:value!important;color:#F39522!important;font-size:23px!important;margin-top:3px!important}
+  #view-overview .kpi-follow .sub{grid-area:sub!important;color:#8f8f8f!important;margin-top:2px!important}
+  #view-overview .kpi-action-v351{grid-area:action!important;height:34px;padding:0 10px;border:1px solid rgba(243,149,34,.35);border-radius:10px;background:rgba(243,149,34,.08);color:#F39522;font-size:7.2px;font-weight:950}
+  #view-overview .kpi-earn{grid-column:1/-1!important;min-height:54px!important;border-radius:14px!important;background:transparent!important;border-top:1px solid var(--line)!important;border-bottom:1px solid var(--line)!important;padding:9px 1px!important}
+
+  #view-overview .ops-card,#view-overview .overview-course-v273{border:0!important;border-radius:16px!important;background:color-mix(in srgb,var(--panel2) 58%,var(--panel))!important;box-shadow:none!important}
+  #view-overview .section-title{padding:11px 12px 0!important}
+  #view-overview .section-title h3{font-size:12px!important}
+  #view-overview .section-title p{font-size:7.5px!important}
+  #view-overview .ops-body{padding:8px 10px 10px!important}
+
+  #view-overview .recent-list{gap:0!important}
+  #view-overview .recent-row{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:10px 2px!important;border-bottom:1px solid color-mix(in srgb,var(--line) 68%,transparent)!important}
+  #view-overview .recent-row:last-child{border-bottom:0!important}
+  #view-overview .recent-avatar-v349{width:32px;height:32px;border-radius:50%!important;background:rgba(243,149,34,.10)!important;border:0!important;font-size:8.5px!important}
+  #view-overview .recent-main b{font-size:9.8px!important}
+  #view-overview .recent-main span{font-size:7.2px!important}
+  #view-overview .recent-main small{font-size:6.4px!important}
+  #view-overview .recent-status-v349{border:0!important;background:transparent!important;padding:0!important;color:var(--muted)!important;font-size:6.3px!important}
+  #view-overview .recent-wa-btn{height:26px!important;min-height:26px!important;padding:0 8px!important;border:0!important;background:#1F9D62!important;color:#fff!important;border-radius:9px!important}
+
+  #view-overview .work-list{gap:0!important;border-top:1px solid var(--line)!important;border-left:1px solid var(--line)!important;border-radius:12px!important;overflow:hidden}
+  #view-overview .work-item{min-height:58px!important;border-radius:0!important;border:0!important;border-right:1px solid var(--line)!important;border-bottom:1px solid var(--line)!important;background:transparent!important;padding:9px 10px!important}
+  #view-overview .work-item:before{display:none!important}
+  #view-overview .work-item span{font-size:6.8px!important}
+  #view-overview .work-item b{font-size:17px!important}
+  #view-overview .work-report-v349{min-height:43px!important}
+  #view-overview .work-report-v349 b{background:transparent!important;padding:0!important;font-size:9px!important;color:#b96a09!important}
+
+  #view-overview .overview-course-grid-v273 .quick-item{flex-basis:132px!important;min-height:73px!important;border:0!important;border-radius:13px!important;background:color-mix(in srgb,var(--panel) 70%,var(--panel2))!important;box-shadow:none!important}
+  #view-overview .overview-course-grid-v273 .quick-item:nth-child(-n+3){background:rgba(243,149,34,.055)!important;border:0!important}
+  #view-overview .overview-course-grid-v273 .quick-item span{font-size:6.8px!important}
+  #view-overview .overview-course-grid-v273 .quick-item b{font-size:18px!important;margin-top:6px!important}
+  #view-overview .course-meter-v351{height:3px;margin-top:10px;border-radius:999px;background:color-mix(in srgb,var(--line) 70%,transparent);overflow:hidden}
+  #view-overview .course-meter-v351 i{display:block;height:100%;border-radius:999px;background:#F39522}
+
+  .mobile-period-bar{box-shadow:none!important}
+  .mobile-bottom-nav{left:10px!important;right:10px!important;height:66px!important;border:0!important;background:color-mix(in srgb,var(--panel) 98%,transparent)!important;box-shadow:0 12px 34px rgba(0,0,0,.15)!important}
+  .mobile-tab.active{background:rgba(243,149,34,.09)!important}
+  .mobile-tab.active:before{width:14px!important;height:2px!important;top:3px!important}
+}
+</style>
 </head>
 <body>
 <div id="boot"><div class="bootmark"><div class="spinner"></div><span>TEAM COMMAND CENTER</span></div></div>
@@ -518,6 +598,10 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
         <div class="hero-identity-v350"><div id="heroAvatarV350" class="hero-avatar-v350">T</div><div class="hero-copy-v350"><div class="eyebrow">Selected Month</div><h2 id="heroTitle">Your team activity</h2><p id="heroSub">Focus on new leads, follow-ups and conversions. Old tracking clients and new Ad/Auto leads stay together.</p></div></div>
         <div class="hero-quick-v273"><span>Today</span><b id="heroTodayAction">0 leads need attention</b><small id="heroMonthSummary">Your monthly totals update automatically.</small></div>
         <div class="hidden" aria-hidden="true"><strong id="heroEarnings">$0.00</strong><b id="heroCourseTier">—</b><b id="heroVipTier">—</b><b id="heroLotTier">—</b></div>
+      </div>
+      <div id="overviewCommandV351" class="overview-command-v351" aria-live="polite">
+        <div class="overview-command-copy-v351"><span>Priority Queue</span><b id="overviewPriorityTextV351">Loading work queue…</b><small id="overviewPrioritySubV351">Your highest-priority client work appears here.</small></div>
+        <button type="button" onclick="document.querySelector('[data-view=clients]').click()">Open Queue <span>→</span></button>
       </div>
       <div class="team-flow-guide" aria-label="How Team Panel works">
         <div class="team-flow-step"><b class="team-flow-num">1</b><b>My Clients</b><span>All old tracking clients + new Ad/Auto leads assigned to you.</span></div>
@@ -829,7 +913,33 @@ async function loadPerformanceRange(){const d=performanceDates();S.performanceSt
 function scheduleHistory(){if(S.loaded.history)return;const run=()=>loadHistory().catch(()=>{});if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:1200});else setTimeout(run,180)}
 async function loadAll(force=false){if(!S.token)throw new Error('Please sign in.');if(force){S.loaded.clients=false;S.clients=[];S.clientsLoading=false;S.metrics=null;S.metricsAvailable=false;S.errors={}}if(!S.loaded.clients)renderClientLoadingV278();const [metricsOk,linksOk,clientsOk]=await Promise.all([loadMetrics(force),loadLinks(),loadClients()]);if(S.errors.session&&!metricsOk&&!clientsOk){expireSessionV278('Your Team session expired. Please sign in again.');return false}renderAll();setSectionNoticeV278('earningsDataNotice',S.metricsAvailable?'':'Performance/earnings totals could not refresh right now. Your client list and client work remain available.');scheduleHistory();return clientsOk||metricsOk||linksOk}
 function renderAll(){const m=S.metrics||{},ident=S.identity||{},rawDisplay=m.display_name||ident.display_name||ident.username||'Team Member',display=friendlyManagerNameV290(rawDisplay),username=m.username||ident.username||'team';$('memberName').textContent=display;$('memberUsername').textContent='@'+username;$('memberAvatar').textContent=String(display||username||'T').trim().replace(/^Ms\s+/i,'').charAt(0).toUpperCase()||'T';if($('heroAvatarV350'))$('heroAvatarV350').textContent=String(display||username||'T').trim().replace(/^Ms\s+/i,'').charAt(0).toUpperCase()||'T';$('heroTitle').textContent=display+' — '+monthLabel(selectedMY());$('heroEarnings').textContent=money(m.total_earnings);$('heroCourseTier').textContent=(m.course_level||'—')+' · '+num(m.course_rate)+'%';$('heroVipTier').textContent=(m.vip_level||'—')+' · '+num(m.vip_rate)+'%';$('heroLotTier').textContent=m.lot_level||'—';renderKpis();renderOverviewOps();renderLinks();renderProgress();renderBrokers();renderImpact();renderFunnel('overviewFunnel');renderEarnings();if(S.loaded.history){renderTrend('overviewTrend');renderTrend('performanceTrend');renderHistory()}if(S.loaded.daily)renderDaily();if(S.loaded.clients)renderClients();if(S.loaded.performance)renderPerformanceRange()}
-function renderKpis(){const m=S.metrics||{},allClients=S.clients||[],monthClients=allClients.filter(c=>clientInSelectedMonth(c.registration_at)),today=malaysiaToday(),monthStatuses=monthClients.map(clientWorkStatus),todayLeads=allClients.filter(c=>clientDateKey(c.registration_at)===today).length,follow=allClients.filter(c=>['new','follow_up'].includes(clientWorkStatus(c))||(c.follow_up_at&&new Date(c.follow_up_at)<=new Date()&&!['converted','not_interested'].includes(clientWorkStatus(c)))).length,converted=monthStatuses.filter(x=>x==='converted').length,earnOpen=teamEarningsVisibleV274(),earnType=!S.metricsAvailable?'unavailable':(earnOpen?'money':'settled'),items=[['My Total Clients',allClients.length,'num','All assigned clients','kpi-total'],['New Leads Today',todayLeads,'num','Received today','kpi-new'],['Need Follow-up',follow,'num','Needs your attention','kpi-follow'],['Converted This Month',converted,'num','Completed conversions','kpi-converted'],[!S.metricsAvailable?'Earnings Unavailable':(earnOpen?'Total Earnings':'Earnings Settled'),m.total_earnings,earnType,!S.metricsAvailable?'Performance totals could not refresh':(earnOpen?'Since Sep 2026':'Before Sep 2026'),'kpi-earn']];$('kpiGrid').innerHTML=items.map((x,i)=>`<div class="premium-card kpi ${esc(x[4]||'')}"><div class="label">${esc(x[0])}</div><div class="value" data-kpi="${i}">${x[2]==='settled'||x[2]==='unavailable'?'—':'0'}</div><div class="sub">${esc(x[3])}</div></div>`).join('');items.forEach((x,i)=>{if(!['settled','unavailable'].includes(x[2]))animateNumber(document.querySelector(`[data-kpi="${i}"]`),x[1],{moneyFmt:x[2]==='money'})});const needToday=allClients.filter(c=>clientDateKey(c.registration_at)===today&&!['converted','not_interested'].includes(clientWorkStatus(c))).length;if($('heroTodayAction'))$('heroTodayAction').textContent=`${fmt(needToday)} leads need attention`;if($('heroMonthSummary'))$('heroMonthSummary').textContent=!S.metricsAvailable?`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · performance totals unavailable`:earnOpen?`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · ${money(m.total_earnings)} earnings`:`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · earnings already settled`}
+function renderKpis(){
+  const m=S.metrics||{},allClients=S.clients||[],monthClients=allClients.filter(c=>clientInSelectedMonth(c.registration_at)),
+        today=malaysiaToday(),monthStatuses=monthClients.map(clientWorkStatus),
+        todayLeads=allClients.filter(c=>clientDateKey(c.registration_at)===today).length,
+        follow=allClients.filter(c=>['new','follow_up'].includes(clientWorkStatus(c))||(c.follow_up_at&&new Date(c.follow_up_at)<=new Date()&&!['converted','not_interested'].includes(clientWorkStatus(c)))).length,
+        converted=monthStatuses.filter(x=>x==='converted').length,earnOpen=teamEarningsVisibleV274(),
+        earnType=!S.metricsAvailable?'unavailable':(earnOpen?'money':'settled'),
+        items=[
+          ['My Total Clients',allClients.length,'num','All assigned clients','kpi-total'],
+          ['New Leads Today',todayLeads,'num','Received today','kpi-new'],
+          ['Need Follow-up',follow,'num','Needs your attention','kpi-follow'],
+          ['Converted This Month',converted,'num','Completed conversions','kpi-converted'],
+          [!S.metricsAvailable?'Earnings Unavailable':(earnOpen?'Total Earnings':'Earnings Settled'),m.total_earnings,earnType,!S.metricsAvailable?'Performance totals could not refresh':(earnOpen?'Since Sep 2026':'Before Sep 2026'),'kpi-earn']
+        ];
+  $('kpiGrid').innerHTML=items.map((x,i)=>`<div class="premium-card kpi ${esc(x[4]||'')}">
+    <div class="label">${esc(x[0])}</div>
+    <div class="value" data-kpi="${i}">${x[2]==='settled'||x[2]==='unavailable'?'—':'0'}</div>
+    <div class="sub">${esc(x[3])}</div>
+    ${x[4]==='kpi-follow'?'<button class="kpi-action-v351" type="button" onclick="document.querySelector(\'[data-view=clients]\').click()">Review →</button>':''}
+  </div>`).join('');
+  items.forEach((x,i)=>{if(!['settled','unavailable'].includes(x[2]))animateNumber(document.querySelector(`[data-kpi="${i}"]`),x[1],{moneyFmt:x[2]==='money'})});
+  const needToday=allClients.filter(c=>clientDateKey(c.registration_at)===today&&!['converted','not_interested'].includes(clientWorkStatus(c))).length;
+  if($('heroTodayAction'))$('heroTodayAction').textContent=`${fmt(needToday)} leads need attention`;
+  if($('heroMonthSummary'))$('heroMonthSummary').textContent=!S.metricsAvailable?`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · performance totals unavailable`:earnOpen?`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · ${money(m.total_earnings)} earnings`:`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · earnings already settled`;
+  if($('overviewPriorityTextV351'))$('overviewPriorityTextV351').textContent=follow?`${fmt(follow)} clients need follow-up`:'You are all caught up';
+  if($('overviewPrioritySubV351'))$('overviewPrioritySubV351').textContent=follow?`${fmt(todayLeads)} new today · ${fmt(converted)} converted this month`:`${fmt(todayLeads)} new today · no pending follow-up`;
+}
 function renderOverviewOps(){
   const all=[...(S.clients||[])].sort((a,b)=>new Date(b.registration_at||0)-new Date(a.registration_at||0)),
         recent=all.slice(0,5),today=malaysiaToday(),recentEl=$('overviewRecentClients'),workEl=$('overviewTodayWork');
@@ -856,11 +966,13 @@ function renderOverviewOps(){
       <div class="work-item good"><span>Converted today</span><b>${fmt(converted)}</b></div>
       <div class="work-item work-report-v349"><span>Daily report</span><b>${S.loaded.daily&&((S.daily||{}).manual||{}).submitted_at?'Submitted':'Pending'}</b></div>`;
   }
-  const bc=courseBatchCounts(all);
+
+  const bc=courseBatchCounts(all),
+        max=Math.max(1,...[bc.sajid_b1,bc.sajid_b2,bc.sajid_b3,bc.fund_b1,bc.fund_b2,bc.advance,bc.advance_fund].map(num));
   if($('overviewCourseBreakdown'))$('overviewCourseBreakdown').innerHTML=[
     ['Sajid B3',bc.sajid_b3],['Fundamental B2',bc.fund_b2],['Advance',bc.advance],
     ['Sajid B2',bc.sajid_b2],['Sajid B1',bc.sajid_b1],['Fundamental B1',bc.fund_b1],['Adv Fundamental',bc.advance_fund]
-  ].map(x=>`<div class="quick-item"><span>${x[0]}</span><b>${fmt(x[1])}</b></div>`).join('');
+  ].map(x=>{const p=Math.max(4,Math.min(100,Math.round(num(x[1])*100/max)));return `<div class="quick-item"><span>${x[0]}</span><b>${fmt(x[1])}</b><div class="course-meter-v351"><i style="width:${p}%"></i></div></div>`}).join('');
 }
 function renderLinks(){const all=S.links||[],q=String($('legacyLinkSearch')&&$('legacyLinkSearch').value||'').trim().toLowerCase(),rows=all.map((l,i)=>({l,i})).filter(({l})=>!q||[l.link_name,l.name,l.destination_path,l.source,l.campaign,l.link_slug,l.slug].join(' ').toLowerCase().includes(q));$('activeLinksBadge').textContent=all.filter(x=>x.is_active!==false).length+' Active';$('activeLinksBadge').className='status '+(all.some(x=>x.is_active!==false)?'on':'off');$('linkRows').innerHTML=rows.length?rows.map(({l,i})=>{const signups=num(l.signups??l.registrations),clients=num(l.clients),hasClients=l.clients!=null,conv=hasClients?Math.min(100,conversion(clients,signups)):Math.min(100,conversion(num(l.enrollments),signups));return `<tr><td><div class="link-name">${esc(l.link_name||l.name||'Tracked Link')}</div><div class="muted">${esc(l.destination_path||'/')}</div></td><td>${esc(l.source||'Other')}<div class="muted">${esc(l.campaign||'No campaign')}</div></td><td>${fmt(signups)}</td><td>${fmt(l.enrollments)}</td><td>${fmt(clients)}</td><td>${fmt(conv)}%</td><td><span class="status ${l.is_active===false?'off':'on'}">${l.is_active===false?'Legacy / Inactive':'Active'}</span></td><td>${l.is_active===false?'<span class="muted">History only</span>':`<button class="copy-btn" onclick="pspCopyTeamLinkV206(${i})">Copy Link</button>`}</td></tr>`}).join(''):'<tr><td colspan="8" class="empty">No tracking link matches this search.</td></tr>'}
 function renderProgress(){const m=S.metrics||{},paid=num(m.course_paid_users);$('coursePerformance').textContent=fmt(paid)+' paid users';$('courseLevel').textContent=(m.course_level||'—')+(m.course_override?' · Revenue Override':' · Auto Calculated');$('courseRate').textContent=num(m.course_rate)+'%';setProgress('courseProgress',pct(paid,m.course_next_target));$('courseProgressMsg').innerHTML=m.course_next_target?`Need <b>${fmt(m.course_remaining)}</b> more paid users to unlock ${num(m.course_next_rate)}% commission. <span class="course-basis">Sales value ${money(m.course_performance)}</span>`:`<b>Maximum commission level unlocked.</b> <span class="course-basis">Sales value ${money(m.course_performance)}</span>`;
@@ -1016,7 +1128,7 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=350',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=351',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
