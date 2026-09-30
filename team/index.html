@@ -322,7 +322,7 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
 }
 </style>
 
-<meta name="psp-team-build" content="V358-team-data-consistency">
+<meta name="psp-team-build" content="V359-deduped-team-people">
 
 <style id="pspTeamMoreDownloadV304Css">
 @media(max-width:760px){
@@ -1081,7 +1081,11 @@ async function loadClients(){
   // V355: one backend row per canonical current owner. This removes the old
   // legacy + assigned + ad + owner source duplication that inflated My Clients.
   try{
-    const canonicalR=await db.rpc('psp_team_clients_v355',{p_session_token:S.token,p_limit:5000});
+    let canonicalR=await db.rpc('psp_team_clients_v359',{p_session_token:S.token,p_limit:5000});
+    if(canonicalR.error){
+      console.warn('V359 deduplicated clients fallback:',canonicalR.error);
+      canonicalR=await db.rpc('psp_team_clients_v355',{p_session_token:S.token,p_limit:5000});
+    }
     if(!canonicalR.error){
       const canonical=rpcRowsV280(canonicalR.data).map(x=>{
         const src=String(x&&x.source||'').toLowerCase();
@@ -1097,10 +1101,10 @@ async function loadClients(){
       S.loaded.clients=true;S.clientsLoading=false;delete S.errors.clients;
       return true;
     }
-    console.warn('V355 canonical clients unavailable; using compatibility fallback.',canonicalR.error);
+    console.warn('Canonical clients unavailable; using compatibility fallback.',canonicalR.error);
     if(authLikeErrorV278(canonicalR.error))S.errors.session=canonicalR.error;
   }catch(e){
-    console.warn('V355 canonical clients failed; using compatibility fallback.',e);
+    console.warn('Canonical clients failed; using compatibility fallback.',e);
     if(authLikeErrorV278(e))S.errors.session=e;
   }
 
@@ -1208,7 +1212,7 @@ async function loadEarningDetailV354(){
 }
 
 async function loadHistory(force=false){if(S.loaded.history&&!force)return;const my=selectedMY();try{const currentMetrics=S.historyCurrent&&S.metricsAvailable?S.historyCurrent:null;let historyMonth=my.month,historyYear=my.year,historyMonths=6,prependCurrent=false;if(currentMetrics){const prev=new Date(Date.UTC(my.year,my.month-2,1));historyMonth=prev.getUTCMonth()+1;historyYear=prev.getUTCFullYear();historyMonths=5;prependCurrent=true}let r=await db.rpc('psp_team_history_v208',{p_session_token:S.token,p_months:historyMonths,p_month:historyMonth,p_year:historyYear});if(r.error){console.warn('V208 history fallback:',r.error);prependCurrent=false;r=await db.rpc('psp_team_command_center_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error)throw r.error;const raw=rpcObj(r.data),data=Array.isArray(raw?.history)?raw.history:raw,list=Array.isArray(data)?data:(Array.isArray(r.data)?r.data:[]);S.history=prependCurrent?[currentMetrics,...list].slice(0,6):list;S.loaded.history=true;renderTrend('overviewTrend');renderTrend('performanceTrend');renderHistory()}catch(e){console.warn('History unavailable:',e)}}
-async function loadPerformanceRange(){const d=performanceDates();S.performanceStart=d.start;S.performanceEnd=d.end;try{const r=await db.rpc('psp_team_performance_range_v207',{p_session_token:S.token,p_start_date:d.start,p_end_date:d.end});if(r.error)throw r.error;S.performanceRange=rpcObj(r.data);S.loaded.performance=true;setSectionNoticeV278('performanceDataNotice','')}catch(e){console.warn('Range performance unavailable:',e);S.performanceRange={};S.loaded.performance=false;setSectionNoticeV278('performanceDataNotice','Broker/performance totals are temporarily unavailable; the lead funnel below is calculated from your loaded clients.')}renderPerformanceRange()}
+async function loadPerformanceRange(){const d=performanceDates();S.performanceStart=d.start;S.performanceEnd=d.end;try{let r=await db.rpc('psp_team_performance_range_v359',{p_session_token:S.token,p_start_date:d.start,p_end_date:d.end});if(r.error){console.warn('V359 performance fallback:',r.error);r=await db.rpc('psp_team_performance_range_v207',{p_session_token:S.token,p_start_date:d.start,p_end_date:d.end})}if(r.error)throw r.error;S.performanceRange=rpcObj(r.data);S.loaded.performance=true;setSectionNoticeV278('performanceDataNotice','')}catch(e){console.warn('Range performance unavailable:',e);S.performanceRange={};S.loaded.performance=false;setSectionNoticeV278('performanceDataNotice','Broker/performance totals are temporarily unavailable; the lead funnel below is calculated from your loaded clients.')}renderPerformanceRange()}
 function scheduleHistory(){if(S.loaded.history)return;const run=()=>loadHistory().catch(()=>{});if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:1200});else setTimeout(run,180)}
 async function loadAll(force=false){
   if(!S.token)throw new Error('Please sign in.');
@@ -1227,7 +1231,7 @@ function renderKpis(){
         today=malaysiaToday(),monthStatuses=monthClients.map(clientWorkStatus),
         todayLeads=allClients.filter(c=>clientDateKey(c.registration_at)===today).length,
         follow=allClients.filter(clientNeedsFollowupV355).length,
-        converted=S.metricsAvailable?num(m.clients):monthStatuses.filter(x=>x==='converted').length,earnOpen=teamEarningsVisibleV274(),
+        converted=monthClients.filter(clientAutoConvertedV359).length,earnOpen=teamEarningsVisibleV274(),
         earnType=!S.metricsAvailable?'unavailable':(earnOpen?'money':'settled'),
         items=[
           ['Total Clients',allClients.length,'num','Assigned','kpi-total'],
@@ -1264,7 +1268,8 @@ function openOverviewWorkV353(target){
       if($('clientStatusFilter'))$('clientStatusFilter').value='all';
       if($('clientPeriodFilter'))$('clientPeriodFilter').value='today';
     }else if(target==='converted'){
-      if($('clientStatusFilter'))$('clientStatusFilter').value='converted';
+      S.clientActionFilter='converted_auto';
+      if($('clientStatusFilter'))$('clientStatusFilter').value='all';
       if($('clientPeriodFilter'))$('clientPeriodFilter').value='today';
     }else if(target==='follow'){
       S.clientActionFilter='follow';
@@ -1299,7 +1304,7 @@ function renderOverviewOps(){
     const todayRows=all.filter(c=>clientDateKey(c.registration_at)===today),
           need=all.filter(clientNeedsFollowupV355).length,
           due=all.filter(clientFollowupDueV355).length,
-          converted=todayRows.filter(c=>clientWorkStatus(c)==='converted').length;
+          converted=todayRows.filter(clientAutoConvertedV359).length;
     workEl.innerHTML=`<button type="button" class="work-item work-action-v353 warn" onclick="openOverviewWorkV353('new')"><span>New leads today</span><b>${fmt(todayRows.length)}</b><i>→</i></button>
       <button type="button" class="work-item work-action-v353" onclick="openOverviewWorkV353('follow')"><span>Need follow-up</span><b>${fmt(need)}</b><i>→</i></button>
       <button type="button" class="work-item work-action-v353 warn" onclick="openOverviewWorkV353('due')"><span>Follow-ups due</span><b>${fmt(due)}</b><i>→</i></button>
@@ -1368,12 +1373,13 @@ function courseBatchCounts(rows){const out={sajid_b1:0,sajid_b2:0,sajid_b3:0,fun
 function clientInDateRange(c,start,end){const d=clientDateKey(c?.registration_at);return !!d&&d>=start&&d<=end}
 function clientKeyV273(c){if(c&&c.client_key)return String(c.client_key);if(c&&c.user_id)return 'u:'+String(c.user_id);const e=String(c&&c.email||'').trim().toLowerCase();if(e)return 'e:'+e;const w=String(c&&c.whatsapp||'').replace(/\D/g,'');if(w.length>=7)return 'w:'+w;const id=String(c&&c.client_id||'').trim().toUpperCase();return id?'c:'+id:''}
 function clientWorkStatus(c){let v=String(c&&c.work_status||c&&c.conversion_status||'new').toLowerCase().replace(/\s+/g,'_');if(v==='registered'||v==='open_/_registered'||v==='open')v='new';if(v==='lost')v='not_interested';return ['new','contacted','interested','follow_up','converted','not_interested'].includes(v)?v:'new'}
+function clientAutoConvertedV359(c){return !!(c&&(c.is_converted===true||c.is_converted===1||String(c.is_converted).toLowerCase()==='true'))}
 function clientFollowupDueV355(c){const s=clientWorkStatus(c);if(['converted','not_interested'].includes(s)||!c||!c.follow_up_at)return false;const t=new Date(c.follow_up_at).getTime();return Number.isFinite(t)&&t<=Date.now()}
 function clientNeedsFollowupV355(c){return clientWorkStatus(c)==='follow_up'||clientFollowupDueV355(c)}
 function statusLabelV273(v){return({new:'New',contacted:'Contacted',interested:'Interested',follow_up:'Follow-up',converted:'Converted',not_interested:'Not Interested'})[v]||'New'}
 function clientSourceKeyV273(c){return clientSourceInfo(c).key}
-function duplicateClientSetV273(rows){const seenE=new Map(),seenW=new Map(),dupes=new Set();(rows||[]).forEach(c=>{const e=String(c.email||'').trim().toLowerCase(),w=String(c.whatsapp||'').replace(/\D/g,'');if(e){if(seenE.has(e)){dupes.add(clientKeyV273(c));dupes.add(seenE.get(e))}else seenE.set(e,clientKeyV273(c))}if(w.length>=7){if(seenW.has(w)){dupes.add(clientKeyV273(c));dupes.add(seenW.get(w))}else seenW.set(w,clientKeyV273(c))}});return dupes}
-async function updateClientWorkV273(key,status,follow,sourceEl){if(!key)return;try{const followIso=follow?malaysiaInputToIso(follow):null;const r=await db.rpc('psp_team_update_client_work_v273',{p_session_token:S.token,p_client_key:key,p_status:status,p_follow_up_at:followIso,p_note:null});if(r.error)throw r.error;(S.clients||[]).forEach(c=>{if(clientKeyV273(c)===key){c.work_status=status;c.conversion_status=status;c.follow_up_at=followIso}});renderClients();renderKpis();renderOverviewOps();if(S.loaded.performance)renderPerformanceRange();toast('Client updated.')}catch(e){toast(e.message||'Could not update client.','bad');if(sourceEl)sourceEl.value=clientWorkStatus((S.clients||[]).find(c=>clientKeyV273(c)===key))}}
+function duplicateClientSetV273(rows){const seenE=new Map(),seenPerson=new Map(),dupes=new Set();(rows||[]).forEach(c=>{const key=clientKeyV273(c),e=String(c.email||'').trim().toLowerCase(),w=String(c.whatsapp||'').replace(/\D/g,''),n=String(c.full_name||'').trim().toLowerCase().replace(/\s+/g,' ');if(e){if(seenE.has(e)){dupes.add(key);dupes.add(seenE.get(e))}else seenE.set(e,key)}if(w.length>=7&&n){const pk=w+'|'+n;if(seenPerson.has(pk)){dupes.add(key);dupes.add(seenPerson.get(pk))}else seenPerson.set(pk,key)}});return dupes}
+async function updateClientWorkV273(key,status,follow,sourceEl){if(!key)return;try{const followIso=follow?malaysiaInputToIso(follow):null;let r=await db.rpc('psp_team_update_client_work_v359',{p_session_token:S.token,p_client_key:key,p_status:status,p_follow_up_at:followIso,p_note:null});if(r.error&&String(r.error.message||'').includes('psp_team_update_client_work_v359'))r=await db.rpc('psp_team_update_client_work_v273',{p_session_token:S.token,p_client_key:key,p_status:status,p_follow_up_at:followIso,p_note:null});if(r.error)throw r.error;(S.clients||[]).forEach(c=>{if(clientKeyV273(c)===key){c.work_status=status;c.conversion_status=status;c.follow_up_at=followIso}});renderClients();renderKpis();renderOverviewOps();if(S.loaded.performance)renderPerformanceRange();toast('Client updated.')}catch(e){toast(e.message||'Could not update client.','bad');if(sourceEl)sourceEl.value=clientWorkStatus((S.clients||[]).find(c=>clientKeyV273(c)===key))}}
 async function copyClientNumberV273(v){const n=String(v||'');if(!n)return;try{await navigator.clipboard.writeText(n)}catch(_){const t=document.createElement('textarea');t.value=n;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}toast('WhatsApp number copied.')}
 function courseFilterCountsV273(rows){const counts={all:(rows||[]).length,sajid_b1:0,sajid_b2:0,sajid_b3:0,fund_b1:0,fund_b2:0,advance:0,advance_fund:0};(rows||[]).forEach(c=>{clientCourseInfo(c).keys.forEach(k=>{if(k in counts)counts[k]++})});return counts}
 function syncMobileClientFiltersV278(){const pairs=[['clientSourceFilter','mobileClientSourceFilter'],['clientStatusFilter','mobileClientStatusFilter'],['clientPeriodFilter','mobileClientPeriodFilter'],['clientSort','mobileClientSort']];pairs.forEach(([a,b])=>{if($(a)&&$(b))$(b).value=$(a).value});updateMobileFilterBadgeV278()}
@@ -1394,7 +1400,7 @@ function renderClients(){
   S.clientPeriodFilter=pf;S.clientSourceFilter=sf;S.clientSort=sort;S.clientPageSize=Number($('clientPageSize')&&$('clientPageSize').value||S.clientPageSize||25);
   const all=S.clients||[],counts=courseFilterCountsV273(all);document.querySelectorAll('#clientCourseFilters .client-filter').forEach(b=>{const k=b.dataset.course;b.classList.toggle('active',k===cf);const base=(b.textContent||'').replace(/\s*\([\d,.]+\)\s*$/,'');b.textContent=base+' ('+fmt(counts[k]||0)+')'});
   const activeChip=document.querySelector('#clientCourseFilters .client-filter.active');if(activeChip&&window.innerWidth<=760)setTimeout(()=>activeChip.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'}),0);
-  const today=malaysiaToday();let rows=all.filter(c=>{if(S.clientActionFilter==='follow'&&!clientNeedsFollowupV355(c))return false;if(S.clientActionFilter==='due'&&!clientFollowupDueV355(c))return false;if(pf==='month'&&!clientInSelectedMonth(c.registration_at))return false;if(pf==='today'&&clientDateKey(c.registration_at)!==today)return false;const source=clientSourceKeyV273(c),course=clientCourseInfo(c),status=clientWorkStatus(c),t=[c.client_id,c.full_name,c.whatsapp,course.text,c.campaign,c.reference_code,source,status].join(' ').toLowerCase();return(!q||t.includes(q))&&(f==='all'||status===f)&&(cf==='all'||course.keys.has(cf))&&(sf==='all'||source===sf)}).map(c=>({c,course:clientCourseInfo(c),source:clientSourceKeyV273(c),status:clientWorkStatus(c)}));
+  const today=malaysiaToday();let rows=all.filter(c=>{if(S.clientActionFilter==='follow'&&!clientNeedsFollowupV355(c))return false;if(S.clientActionFilter==='due'&&!clientFollowupDueV355(c))return false;if(S.clientActionFilter==='converted_auto'&&!clientAutoConvertedV359(c))return false;if(pf==='month'&&!clientInSelectedMonth(c.registration_at))return false;if(pf==='today'&&clientDateKey(c.registration_at)!==today)return false;const source=clientSourceKeyV273(c),course=clientCourseInfo(c),status=clientWorkStatus(c),t=[c.client_id,c.full_name,c.whatsapp,course.text,c.campaign,c.reference_code,source,status].join(' ').toLowerCase();return(!q||t.includes(q))&&(f==='all'||status===f)&&(cf==='all'||course.keys.has(cf))&&(sf==='all'||source===sf)}).map(c=>({c,course:clientCourseInfo(c),source:clientSourceKeyV273(c),status:clientWorkStatus(c)}));
   const statusOrder={new:1,contacted:2,interested:3,follow_up:4,converted:5,not_interested:6};rows.sort((a,b)=>{if(sort==='oldest')return new Date(a.c.registration_at||0)-new Date(b.c.registration_at||0);if(sort==='az')return String(a.c.full_name||'').localeCompare(String(b.c.full_name||''));if(sort==='za')return String(b.c.full_name||'').localeCompare(String(a.c.full_name||''));if(sort==='status')return(statusOrder[a.status]||9)-(statusOrder[b.status]||9);if(sort==='course')return a.course.text.localeCompare(b.course.text);return new Date(b.c.registration_at||0)-new Date(a.c.registration_at||0)});
   const total=rows.length,pages=Math.max(1,Math.ceil(total/S.clientPageSize));S.clientPage=Math.min(Math.max(1,S.clientPage||1),pages);const start=(S.clientPage-1)*S.clientPageSize,visible=rows.slice(start,start+S.clientPageSize),dupes=duplicateClientSetV273(all);
   if($('clientVisibleCount'))$('clientVisibleCount').innerHTML='<b>'+fmt(total)+'</b> clients';if($('clientPageInfo'))$('clientPageInfo').textContent=total?`Showing ${start+1}–${Math.min(start+visible.length,total)} of ${total}`:'No matching clients';if($('clientPagerText'))$('clientPagerText').textContent=`Page ${S.clientPage} of ${pages}`;if($('clientPrev'))$('clientPrev').disabled=S.clientPage<=1;if($('clientNext'))$('clientNext').disabled=S.clientPage>=pages;const pager=document.querySelector('.client-pager-v273');if(pager)pager.classList.toggle('hidden',total===0||pages<=1);
@@ -1406,7 +1412,8 @@ async function exportAssignedClientsV299(){
   const btn=$('clientExportBtn'),oldText=btn&&btn.textContent||'⇩ Export';
   if(btn){btn.disabled=true;btn.textContent='Exporting…'}
   try{
-    const r=await db.rpc('psp_team_client_export_v341',{p_session_token:S.token,p_limit:5000});
+    let r=await db.rpc('psp_team_client_export_v359',{p_session_token:S.token,p_limit:5000});
+    if(r.error){console.warn('V359 export fallback:',r.error);r=await db.rpc('psp_team_client_export_v341',{p_session_token:S.token,p_limit:5000})}
     if(r.error)throw r.error;
     const data=Array.isArray(r.data)?r.data:[];
     if(!data.length){toast('No assigned clients to export.','bad');return}
@@ -1431,7 +1438,7 @@ async function exportAssignedClientsV299(){
     if(btn){btn.disabled=false;btn.textContent=oldText}
   }
 }
-async function searchOwnershipV273(){const input=$('ownershipSearch'),msg=$('ownershipSearchMsg'),box=$('ownershipResults'),q=(input&&input.value||'').trim();if(q.length<2){msg.textContent='Enter at least 2 characters.';box.innerHTML='';return}msg.textContent='Searching…';box.innerHTML='';try{const r=await db.rpc('psp_team_search_client_v273',{p_session_token:S.token,p_query:q,p_limit:30});if(r.error)throw r.error;S.searchResults=r.data||[];msg.textContent=S.searchResults.length?`${S.searchResults.length} result(s) found.`:'No client found.';renderOwnershipResultsV273()}catch(e){msg.textContent=e.message||'Search failed.';box.innerHTML=''}}
+async function searchOwnershipV273(){const input=$('ownershipSearch'),msg=$('ownershipSearchMsg'),box=$('ownershipResults'),q=(input&&input.value||'').trim();if(q.length<2){msg.textContent='Enter at least 2 characters.';box.innerHTML='';return}msg.textContent='Searching…';box.innerHTML='';try{let r=await db.rpc('psp_team_search_client_v359',{p_session_token:S.token,p_query:q,p_limit:30});if(r.error){console.warn('V359 search fallback:',r.error);r=await db.rpc('psp_team_search_client_v273',{p_session_token:S.token,p_query:q,p_limit:30})}if(r.error)throw r.error;S.searchResults=r.data||[];msg.textContent=S.searchResults.length?`${S.searchResults.length} result(s) found.`:'No client found.';renderOwnershipResultsV273()}catch(e){msg.textContent=e.message||'Search failed.';box.innerHTML=''}}
 function renderOwnershipResultsV273(){const box=$('ownershipResults');if(!box)return;box.innerHTML=(S.searchResults||[]).map(r=>{const state=r.ownership_state||'unassigned',label=state==='mine'?'Assigned to You':state==='other'?`Assigned to ${r.manager_name||'another Team Member'}`:'Unassigned / Direct',wa=String(r.manager_whatsapp||'').replace(/\D/g,''),clientWa=String(r.whatsapp||'').replace(/\D/g,'');return `<div class="ownership-card-v273 ${state}"><div><span class="owner-state-v273 ${state}">${esc(label)}</span><div class="link-name">${esc(r.full_name||'Client')} · ${esc(r.client_id||'No ID')}</div><div class="muted">${esc(r.course_text||'No course')}</div></div><div><b>${state==='mine'?'Your Client':state==='other'?'Current Manager':'No Manager'}</b><div class="muted">${esc(r.manager_name||'Admin assignment required')}</div></div><div class="owner-actions-v273">${state==='mine'&&clientWa?`<a class="wa-btn" href="https://wa.me/${clientWa}" target="_blank" rel="noopener">Message Client</a>`:''}${state==='other'&&wa?`<a class="wa-btn" href="https://wa.me/${wa}?text=${encodeURIComponent(`Hello ${r.manager_name||'Team Member'}, your client ${r.full_name||'Client'} (${r.client_id||'No ID'}) contacted me. Please follow up with them.`)}" target="_blank" rel="noopener">Message ${esc(r.manager_name||'Manager')}</a>`:''}${state==='unassigned'?'<span class="muted">Ask Admin to assign a manager.</span>':''}</div></div>`}).join('')||'<div class="empty">No client found.</div>'}
 function detailHtml(title,current,earn,rate,level,next,remaining){return `<div class="progress-top"><div><strong>${esc(current)}</strong><div class="muted">${esc(level||'—')}</div></div><span><b>${fmt(rate)}%</b> current rate</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct(parseFloat(String(current).replace(/[^0-9.-]/g,'')),next)}%"></div></div><div class="progress-msg">Current earnings: <b>${money(earn)}</b>${next?` · Remaining target: <b>${fmt(remaining)}</b>`:' · <b>Maximum level unlocked</b>'}</div>`}
 
@@ -1495,9 +1502,49 @@ function renderEarnings(){
   $('earnLotDetail').innerHTML=`<div class="progress-top"><div><strong>${fmt(m.overall_lots)} lots</strong><div class="muted">${esc(m.lot_level||'—')} · Weekly entries aggregated monthly</div></div><span><b>$${fmt(m.xm_dprime_rate)}</b> XM/DP · <b>$${fmt(m.exness_rate)}</b> EX</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct(m.overall_lots,m.lot_next_target)}%"></div></div><div class="progress-msg">Current lot earnings: <b>${money(m.lot_earnings)}</b>${m.lot_next_target?` · Need <b>${fmt(m.lot_remaining)}</b> more lots.`:' · <b>Maximum level unlocked.</b>'}</div>`;
   renderEarningSourcesV354()
 }
-function renderPerformanceRange(){const m=S.performanceRange||{},d=performanceDates();if($('performanceRangeLabel'))$('performanceRangeLabel').textContent=d.label;document.querySelectorAll('#performanceRangeTools .range-chip').forEach(b=>b.classList.toggle('active',b.dataset.range===S.performanceMode));if($('customRangeBox'))$('customRangeBox').classList.toggle('hidden',S.performanceMode!=='custom');const rows=(S.clients||[]).filter(c=>clientInDateRange(c,d.start,d.end)),statuses=rows.map(clientWorkStatus),bc=courseBatchCounts(rows),assigned=rows.length,contacted=statuses.filter(x=>x!=='new').length,interested=statuses.filter(x=>['interested','follow_up','converted'].includes(x)).length,follow=statuses.filter(x=>x==='follow_up').length,converted=statuses.filter(x=>x==='converted').length,conv=assigned?converted/assigned*100:0,items=[['Leads Assigned',assigned],['Contacted',contacted],['Course Enrollments',Object.values(bc).reduce((a,b)=>a+num(b),0)],['Converted',converted],['Conversion',conv.toFixed(1)+'%'],['Follow-ups',follow]];if($('performanceKpis'))$('performanceKpis').innerHTML=items.map(x=>`<div class="premium-card kpi"><div class="label">${esc(x[0])}</div><div class="value" style="font-size:23px">${typeof x[1]==='string'?esc(x[1]):fmt(x[1])}</div></div>`).join('');if($('performanceCourseBreakdown'))$('performanceCourseBreakdown').innerHTML=[['Sajid B1',bc.sajid_b1],['Sajid B2',bc.sajid_b2],['Sajid B3',bc.sajid_b3],['Fundamental B1',bc.fund_b1],['Fundamental B2',bc.fund_b2],['Advance',bc.advance],['Adv Fundamental',bc.advance_fund]].map(x=>`<div class="quick-item"><span>${x[0]}</span><b>${fmt(x[1])}</b></div>`).join('');if($('performanceBrokerBreakdown'))$('performanceBrokerBreakdown').innerHTML=`<div class="quick-item"><span>New Broker Accounts</span><b>${fmt(m.new_broker_accounts)}</b></div><div class="quick-item"><span>IB Shifts</span><b>${fmt(m.ib_shifts)}</b></div><div class="quick-item"><span>XM / DPrime / Exness</span><b>${fmt(m.xm_clients)} / ${fmt(m.dprime_clients)} / ${fmt(m.exness_clients)}</b></div><div class="quick-item"><span>Lots</span><b>${fmt(m.overall_lots)}</b></div>`;if($('performanceAttention'))$('performanceAttention').innerHTML=`<div class="quick-item"><span>New / Untouched</span><b>${fmt(statuses.filter(x=>x==='new').length)}</b></div><div class="quick-item"><span>Follow-up Due</span><b>${fmt(rows.filter(clientFollowupDueV355).length)}</b></div><div class="quick-item"><span>Interested</span><b>${fmt(interested)}</b></div><div class="quick-item"><span>Not Interested</span><b>${fmt(statuses.filter(x=>x==='not_interested').length)}</b></div>`;renderPerformanceFunnel(rows);renderSourceRange(rows)}
+function renderPerformanceRange(){
+  const m=S.performanceRange||{},d=performanceDates();
+  if($('performanceRangeLabel'))$('performanceRangeLabel').textContent=d.label;
+  document.querySelectorAll('#performanceRangeTools .range-chip').forEach(b=>b.classList.toggle('active',b.dataset.range===S.performanceMode));
+  if($('customRangeBox'))$('customRangeBox').classList.toggle('hidden',S.performanceMode!=='custom');
+
+  const rows=(S.clients||[]).filter(c=>clientInDateRange(c,d.start,d.end)),
+        statuses=rows.map(clientWorkStatus),
+        assigned=rows.length,
+        contacted=statuses.filter(x=>x!=='new').length,
+        interested=statuses.filter(x=>['interested','follow_up','converted'].includes(x)).length,
+        follow=statuses.filter(x=>x==='follow_up').length,
+        converted=rows.filter(clientAutoConvertedV359).length,
+        conv=assigned?converted/assigned*100:0,
+        backendCourseReady=Object.prototype.hasOwnProperty.call(m,'course_total'),
+        bc=backendCourseReady?{
+          sajid_b1:num(m.batch1_users),sajid_b2:num(m.batch2_users),sajid_b3:num(m.batch3_users),
+          fund_b1:num(m.fundamental_b1_users),fund_b2:num(m.fundamental_b2_users),
+          advance:num(m.advance_users),advance_fund:num(m.advance_fundamental_users)
+        }:courseBatchCounts(rows),
+        courseTotal=backendCourseReady?num(m.course_total):Object.values(bc).reduce((a,b)=>a+num(b),0),
+        items=[
+          ['Leads Assigned',assigned],
+          ['Contacted',contacted],
+          ['Course Enrollments',courseTotal],
+          ['Converted',converted],
+          ['Conversion',conv.toFixed(1)+'%'],
+          ['Follow-ups',follow]
+        ];
+
+  if($('performanceKpis'))$('performanceKpis').innerHTML=items.map(x=>`<div class="premium-card kpi"><div class="label">${esc(x[0])}</div><div class="value" style="font-size:23px">${typeof x[1]==='string'?esc(x[1]):fmt(x[1])}</div></div>`).join('');
+  if($('performanceCourseBreakdown'))$('performanceCourseBreakdown').innerHTML=[
+    ['Sajid B1',bc.sajid_b1],['Sajid B2',bc.sajid_b2],['Sajid B3',bc.sajid_b3],
+    ['Fundamental B1',bc.fund_b1],['Fundamental B2',bc.fund_b2],
+    ['Advance',bc.advance],['Adv Fundamental',bc.advance_fund]
+  ].map(x=>`<div class="quick-item"><span>${x[0]}</span><b>${fmt(x[1])}</b></div>`).join('');
+  if($('performanceBrokerBreakdown'))$('performanceBrokerBreakdown').innerHTML=`<div class="quick-item"><span>New Broker Accounts</span><b>${fmt(m.new_broker_accounts)}</b></div><div class="quick-item"><span>IB Shifts</span><b>${fmt(m.ib_shifts)}</b></div><div class="quick-item"><span>XM / DPrime / Exness</span><b>${fmt(m.xm_clients)} / ${fmt(m.dprime_clients)} / ${fmt(m.exness_clients)}</b></div><div class="quick-item"><span>Lots</span><b>${fmt(m.overall_lots)}</b></div>`;
+  if($('performanceAttention'))$('performanceAttention').innerHTML=`<div class="quick-item"><span>New / Untouched</span><b>${fmt(statuses.filter(x=>x==='new').length)}</b></div><div class="quick-item"><span>Follow-up Due</span><b>${fmt(rows.filter(clientFollowupDueV355).length)}</b></div><div class="quick-item"><span>Interested</span><b>${fmt(interested)}</b></div><div class="quick-item"><span>Not Interested</span><b>${fmt(statuses.filter(x=>x==='not_interested').length)}</b></div>`;
+  renderPerformanceFunnel(rows);
+  renderSourceRange(rows)
+}
 function renderPerformanceFunnel(rows){if(!$('performanceFunnel'))return;rows=rows||[];const st=rows.map(clientWorkStatus),steps=[['Assigned',rows.length],['Contacted',st.filter(x=>x!=='new').length],['Interested',st.filter(x=>['interested','follow_up','converted'].includes(x)).length],['Follow-up',st.filter(x=>['follow_up','converted'].includes(x)).length],['Converted',st.filter(x=>x==='converted').length]];$('performanceFunnel').innerHTML=steps.map((x,i)=>{const prev=i?num(steps[i-1][1]):0,rate=i?conversion(num(x[1]),prev):100;return `<div class="funnel-step"><span>${x[0]}</span>${i?`<span class="funnel-rate">${rate.toFixed(1)}%</span>`:''}<b>${fmt(x[1])}</b></div>`}).join('')}
-function renderSourceRange(rows){if(!$('sourceRows'))return;const groups={};(rows||[]).forEach(c=>{const k=clientSourceKeyV273(c),label=k==='ad'?'Ad / Auto':k==='manager'?'Manager Transfer':'Old Tracking';groups[label]=groups[label]||[];groups[label].push(c)});const out=Object.entries(groups).map(([label,a])=>{const st=a.map(clientWorkStatus),conv=st.filter(x=>x==='converted').length;return[label,a.length,st.filter(x=>x!=='new').length,st.filter(x=>['interested','follow_up','converted'].includes(x)).length,conv,a.length?conv/a.length*100:0]});$('sourceRows').innerHTML=out.length?out.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${fmt(r[1])}</td><td>${fmt(r[2])}</td><td>${fmt(r[3])}</td><td>${fmt(r[4])}</td><td>${r[5].toFixed(1)}%</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No activity for this date range.</td></tr>'}
+function renderSourceRange(rows){if(!$('sourceRows'))return;const groups={};(rows||[]).forEach(c=>{const k=clientSourceKeyV273(c),label=k==='ad'?'Ad / Auto':k==='manager'?'Manager Transfer':'Old Tracking';groups[label]=groups[label]||[];groups[label].push(c)});const out=Object.entries(groups).map(([label,a])=>{const st=a.map(clientWorkStatus),conv=a.filter(clientAutoConvertedV359).length;return[label,a.length,st.filter(x=>x!=='new').length,st.filter(x=>['interested','follow_up','converted'].includes(x)).length,conv,a.length?conv/a.length*100:0]});$('sourceRows').innerHTML=out.length?out.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${fmt(r[1])}</td><td>${fmt(r[2])}</td><td>${fmt(r[3])}</td><td>${fmt(r[4])}</td><td>${r[5].toFixed(1)}%</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No activity for this date range.</td></tr>'}
 async function setPerformanceRange(mode){S.performanceMode=mode;if(mode==='custom'){const d=performanceDates('today');if(!$('rangeFrom').value)$('rangeFrom').value=d.start;if(!$('rangeTo').value)$('rangeTo').value=d.end;S.performanceStart=$('rangeFrom').value;S.performanceEnd=$('rangeTo').value;renderPerformanceRange();return}await loadPerformanceRange()}
 async function applyCustomPerformanceRange(){const f=$('rangeFrom').value,t=$('rangeTo').value;if(!f||!t)return toast('Choose From and To dates.','bad');if(t<f)return toast('To date cannot be before From date.','bad');S.performanceMode='custom';S.performanceStart=f;S.performanceEnd=t;await loadPerformanceRange()}
 function renderHistory(){const q=($('historySearch')&&$('historySearch').value||'').trim().toLowerCase(),hist=(Array.isArray(S.history)?S.history:[]).filter(h=>!q||shortMonth(h.period_month).toLowerCase().includes(q)),totals=hist.reduce((a,h)=>{a.reg+=num(h.registrations);a.conv+=num(h.clients);a.lots+=num(h.overall_lots);if(historyEarningsVisibleV274(h.period_month))a.earn+=num(h.total_earnings);return a},{reg:0,conv:0,lots:0,earn:0});if($('historySummary'))$('historySummary').innerHTML=`<div class="premium-card"><span>Historical Registrations</span><b>${fmt(totals.reg)}</b></div><div class="premium-card"><span>Converted Clients</span><b>${fmt(totals.conv)}</b></div><div class="premium-card"><span>Broker Lots</span><b>${fmt(totals.lots)}</b></div><div class="premium-card"><span>Earnings Since Sep 2026</span><b>${money(totals.earn)}</b></div>`;$('historyRows').innerHTML=hist.length?hist.map(h=>{const reg=num(h.registrations),conv=num(h.clients),showEarn=historyEarningsVisibleV274(h.period_month);return `<tr><td><b>${shortMonth(h.period_month)}</b></td><td>${fmt(reg)}</td><td>${fmt(conv)}</td><td>${reg?(conv/reg*100).toFixed(1):'0.0'}%</td><td>${money(h.course_performance)}</td><td>${fmt(h.vip_clients)}</td><td>${fmt(h.overall_lots)}</td><td><b>${showEarn?money(h.total_earnings):'<span class="settled-v274">Settled</span>'}</b></td></tr>`}).join(''):'<tr><td colspan="8" class="empty">No monthly history yet.</td></tr>'}
@@ -1530,7 +1577,7 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=358',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=359',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
