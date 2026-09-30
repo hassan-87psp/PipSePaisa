@@ -7,7 +7,7 @@
 <title>PSP TEAM — PipSePaisa</title>
 <!-- V354 PSP TEAM desktop restore + earning source ledger; V353 mobile utility preserved -->
 <link rel="icon" href="/favicon.png">
-<link rel="manifest" href="./team-manifest.json?v=377">
+<link rel="manifest" href="./team-manifest.json?v=378">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="theme-color" content="#F39522">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -322,7 +322,7 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
 }
 </style>
 
-<meta name="psp-team-build" content="V377-monthly-paid-course-tabs">
+<meta name="psp-team-build" content="V378-monthly-commission-tabs">
 
 <style id="pspTeamMoreDownloadV304Css">
 @media(max-width:760px){
@@ -1465,6 +1465,30 @@ function setClientTableModeV377(paid){
   if(th[4])th[4].textContent=paid?'Paid Date':'Assigned Date';
   if(th[5])th[5].textContent='Status';
   if(th[6])th[6].textContent=paid?'Commission':'Next Follow-up';
+  const period=$('clientPeriodFilter'),mobilePeriod=$('mobileClientPeriodFilter');
+  if(period){
+    if(paid){
+      if(period.dataset.v377PrevValue==null)period.dataset.v377PrevValue=period.value||'all';
+      period.value='month';period.disabled=true
+    }else{
+      if(period.dataset.v377PrevValue!=null){period.value=period.dataset.v377PrevValue;delete period.dataset.v377PrevValue}
+      period.disabled=false
+    }
+  }
+  if(mobilePeriod){
+    if(paid){
+      if(mobilePeriod.dataset.v377PrevValue==null)mobilePeriod.dataset.v377PrevValue=mobilePeriod.value||'all';
+      mobilePeriod.value='month';mobilePeriod.disabled=true
+    }else{
+      if(mobilePeriod.dataset.v377PrevValue!=null){mobilePeriod.value=mobilePeriod.dataset.v377PrevValue;delete mobilePeriod.dataset.v377PrevValue}
+      mobilePeriod.disabled=false
+    }
+  }
+  const sort=$('clientSort');
+  if(sort&&sort.options&&sort.options.length>1){
+    sort.options[0].textContent=paid?'Newest Paid':'Newest Assigned';
+    sort.options[1].textContent=paid?'Oldest Paid':'Oldest Assigned'
+  }
   const tip=document.querySelector('#view-clients .client-summary-bar span:first-child');
   if(tip)tip.innerHTML=paid?'<b>Commission view:</b> '+esc(monthLabel(selectedMY()))+' approved paid students. Payment date decides the month.':'<b>Tip:</b> New → Contacted → Interested → Follow-up → Converted.';
 }
@@ -1484,9 +1508,12 @@ function renderClients(){
     if($('clientRows'))$('clientRows').innerHTML='<tr class="client-error-v278"><td colspan="8" class="client-state-v278"><b>Could not load clients</b>Tap Refresh above. Performance data failures no longer block this list.</td></tr>';return
   }
 
+  const preCf=S.clientCourseFilter||'all';
+  setClientTableModeV377(isPaidCourseFilterV377(preCf));
+
   const q=($('clientSearch')&&$('clientSearch').value||'').trim().toLowerCase(),
         f=$('clientStatusFilter')&&$('clientStatusFilter').value||'all',
-        cf=S.clientCourseFilter||'all',
+        cf=preCf,
         pf=$('clientPeriodFilter')&&$('clientPeriodFilter').value||S.clientPeriodFilter||'all',
         sf=$('clientSourceFilter')&&$('clientSourceFilter').value||S.clientSourceFilter||'all',
         sort=$('clientSort')&&$('clientSort').value||S.clientSort||'newest';
@@ -1501,14 +1528,14 @@ function renderClients(){
   document.querySelectorAll('#clientCourseFilters .client-filter').forEach(b=>{
     const k=b.dataset.course;b.classList.toggle('active',k===cf);
     const base=(b.textContent||'').replace(/\s*\([\d,.]+\)\s*$/,'');
-    b.textContent=base+' ('+fmt(counts[k]||0)+')'
+    b.textContent=base+' ('+fmt(counts[k]||0)+')';
+    b.title=isPaidCourseFilterV377(k)?monthLabel(selectedMY())+' paid students credited for commission':''
   });
 
   const activeChip=document.querySelector('#clientCourseFilters .client-filter.active');
   if(activeChip&&window.innerWidth<=760)setTimeout(()=>activeChip.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'}),0);
 
   if(isPaidCourseFilterV377(cf)){
-    setClientTableModeV377(true);
     if(!S.paidCourseMonthLoaded){
       if($('clientVisibleCount'))$('clientVisibleCount').innerHTML='<b>—</b> students';
       if($('clientPageInfo'))$('clientPageInfo').textContent='Paid-course data unavailable';
@@ -1571,7 +1598,6 @@ function renderClients(){
     return
   }
 
-  setClientTableModeV377(false);
   const today=malaysiaToday();
   let rows=all.filter(c=>{
     if(S.clientActionFilter==='follow'&&!clientNeedsFollowupV355(c))return false;
@@ -1789,7 +1815,7 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=377',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=378',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
