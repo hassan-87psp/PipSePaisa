@@ -727,7 +727,7 @@ function clientDateKey(v){try{const p=Object.fromEntries(new Intl.DateTimeFormat
 function clientRegistrationDateKey(v){return clientDateKey(v)}
 function clientSourceInfo(c){const src=String(c?.source||'').trim();if(/direct\s*\/?\s*organic|direct/i.test(src))return{key:'old',label:'Direct / Organic'};if(c?.is_ad_lead||c?.source_kind==='ad'||/ad\s*link|auto\s*lead|round\s*robin|campaign/i.test(src))return{key:'ad',label:'Ad / Auto'};if(c?.is_manager_owned||c?.source_kind==='manager'||/manager\s*assignment|admin\s*transfer|manager\s*transfer/i.test(src))return{key:'manager',label:'Manager Transfer'};if(src&&!/other/i.test(src))return{key:'old',label:src};return{key:'old',label:'Old Tracking'}}
 function clientCourseInfo(c){
-  const raw=[c?.course_enrollment,c?.course_name,c?.course_batch_key,c?.psp_batch_key,c?.batch_key,c?.course_key].filter(Boolean).join(', '),parts=raw?raw.split(',').map(x=>x.trim()).filter(Boolean):[],labels=[],keys=new Set();
+  const raw=[c?.course_enrollment,c?.course_name,c?.course_batch_key,c?.psp_batch_key,c?.batch_key,c?.course_key].filter(Boolean).join(', '),explicitBatch=[c?.course_batch_key,c?.psp_batch_key,c?.batch_key].filter(Boolean).join(', ').toLowerCase(),parts=raw?raw.split(',').map(x=>x.trim()).filter(Boolean):[],labels=[],keys=new Set();
   const add=(key,label)=>{if(!keys.has(key)){keys.add(key);labels.push(label)}};
   for(const p of parts){const x=p.toLowerCase();
     // Most specific paid / fundamental rules first so "Fundamental Forex ... Batch 2" never becomes Sajid B2.
@@ -738,9 +738,9 @@ function clientCourseInfo(c){
     else if(/basic_b2|basic[-_ ]?b2/.test(x)||(/(?:basic|sajid)/.test(x)&&/batch\s*2|\bb2\b/.test(x))) add('sajid_b2','Sir Sajid — B2');
     else if(/basic_b1|basic[-_ ]?b1/.test(x)||(/(?:basic|sajid)/.test(x)&&/batch\s*1|\bb1\b/.test(x))) add('sajid_b1','Sir Sajid — B1');
     else if(/advanced?\s+forex|advance course|course_key.?advanced/.test(x)) add('advance','Advance Forex');
-    else if(/fundamental|malik|ghulam\s+abbas/.test(x)){const d=clientDateKey(c?.registration_at),k=d?(d>='2026-10-03'?'fund_b2':'fund_b1'):(c?.is_auto_assigned?'fund_b2':'fund_b1');add(k,k==='fund_b2'?'Fundamental — B2':'Fundamental — B1')}
+    else if(/fundamental|malik|ghulam\s+abbas/.test(x)){const d=clientDateKey(c?.registration_at),k=/fundamental_b2|fundamental[-_ ]?b2/.test(explicitBatch)?'fund_b2':/fundamental_b1|fundamental[-_ ]?b1/.test(explicitBatch)?'fund_b1':d?(d>='2026-09-16'?'fund_b2':'fund_b1'):(c?.is_auto_assigned?'fund_b2':'fund_b1');add(k,k==='fund_b2'?'Fundamental — B2':'Fundamental — B1')}
     else if(/basic\s+forex|sajid|course_key.?basic/.test(x)){
-      const d=clientDateKey(c?.registration_at),k=d?(d>='2026-09-28'?'sajid_b3':d>='2026-09-01'?'sajid_b2':'sajid_b1'):(c?.is_auto_assigned?'sajid_b3':'sajid_b1');
+      const d=clientDateKey(c?.registration_at),k=/basic_b3|basic[-_ ]?b3/.test(explicitBatch)?'sajid_b3':/basic_b2|basic[-_ ]?b2/.test(explicitBatch)?'sajid_b2':/basic_b1|basic[-_ ]?b1/.test(explicitBatch)?'sajid_b1':d?(d>='2026-09-16'?'sajid_b3':d>='2026-09-01'?'sajid_b2':'sajid_b1'):(c?.is_auto_assigned?'sajid_b3':'sajid_b1');
       add(k,k==='sajid_b3'?'Sir Sajid — B3':k==='sajid_b2'?'Sir Sajid — B2':'Sir Sajid — B1')
     }
   }
