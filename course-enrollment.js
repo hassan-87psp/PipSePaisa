@@ -1276,10 +1276,10 @@
         psp_enrollment_transaction_id:values.transactionId||'',
         ...(window.PSPTrack?.authMetadata?.()||{})
       };
-      const signup=await sb.auth.signUp({email:values.email,password:values.password,options:{data:meta}});
-      if(signup.error)throw signup.error;
-      if(!signup.data?.user||!signup.data?.session)throw new Error('Direct login is not available. Please confirm that Supabase “Confirm Email” is OFF.');
-      const data=signup.data;activeUser=data.user;accountWasCreated=true;
+      if(typeof window.PSPDirectSignup!=='function')throw new Error('Signup system did not load correctly. Please refresh and try again.');
+      const data=await window.PSPDirectSignup(sb,{email:values.email,password:values.password,metadata:meta});
+      if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
+      activeUser=data.user;accountWasCreated=true;
       const result=await saveEnrollment(values,receipt);
 
       try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){ }
