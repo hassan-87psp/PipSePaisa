@@ -1737,3 +1737,140 @@ body.dark #page-mycourses .psp-course-tile:not(.paid) h3,
     aspect-ratio:16/6.2!important;
   }
 }
+
+
+/* ===== My Courses Four Column Grid V356 ===== */
+@media (min-width:1500px){
+  #page-mycourses .psp-course-marketplace{
+    width:100%!important;
+    max-width:none!important;
+    padding-left:28px!important;
+    padding-right:28px!important;
+  }
+  #page-mycourses .psp-course-card-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:14px!important;
+  }
+}
+
+@media (min-width:1180px) and (max-width:1499px){
+  #page-mycourses .psp-course-card-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:14px!important;
+  }
+}
+
+@media (min-width:760px) and (max-width:1179px){
+  #page-mycourses .psp-course-card-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:13px!important;
+  }
+}
+
+@media (max-width:759px){
+  #page-mycourses .psp-course-card-grid{
+    grid-template-columns:1fr!important;
+  }
+}
+
+/* Card proportions for 4-column desktop */
+@media (min-width:1180px){
+  #page-mycourses .psp-course-tile{
+    border-radius:15px!important;
+    min-width:0!important;
+  }
+
+  #page-mycourses .psp-course-thumb{
+    aspect-ratio:16/8.7!important;
+    width:100%!important;
+    overflow:hidden!important;
+    background:#fff!important;
+  }
+
+  #page-mycourses .psp-course-thumb img,
+  #page-mycourses .psp-course-thumb-main{
+    width:100%!important;
+    height:100%!important;
+    display:block!important;
+    object-fit:cover!important;
+    object-position:center center!important;
+    transform:none!important;
+  }
+
+  #page-mycourses .psp-course-tile:hover .psp-course-thumb img{
+    transform:scale(1.025)!important;
+  }
+
+  #page-mycourses .psp-course-tile-body{
+    padding:11px 12px 11px!important;
+  }
+
+  #page-mycourses .psp-course-tile h3{
+    font-size:14px!important;
+    line-height:1.18!important;
+  }
+
+  #page-mycourses .psp-course-mentor-mini{
+    font-size:8px!important;
+    margin-top:3px!important;
+  }
+
+  #page-mycourses .psp-course-price{
+    font-size:15px!important;
+    padding:4px 7px!important;
+  }
+
+  #page-mycourses .psp-course-tile p{
+    font-size:8.8px!important;
+    line-height:1.4!important;
+    margin:6px 0 7px!important;
+    min-height:25px!important;
+    -webkit-line-clamp:2!important;
+  }
+
+  #page-mycourses .psp-course-meta{
+    gap:4px!important;
+    margin-bottom:7px!important;
+  }
+
+  #page-mycourses .psp-course-meta span{
+    font-size:7.3px!important;
+    padding:4px 6px!important;
+  }
+
+  #page-mycourses .psp-course-tile-footer{
+    padding-top:8px!important;
+  }
+
+  #page-mycourses .psp-course-open-btn{
+    min-height:32px!important;
+    padding:0 10px!important;
+    font-size:8.3px!important;
+  }
+
+  #page-mycourses .psp-course-details-link{
+    font-size:7.7px!important;
+  }
+
+  #page-mycourses .psp-course-type-badge,
+  #page-mycourses .psp-course-thumb-status{
+    min-height:22px!important;
+    padding:0 7px!important;
+    font-size:7px!important;
+  }
+
+  #page-mycourses .psp-course-section-title{
+    margin-bottom:7px!important;
+  }
+
+  #page-mycourses .psp-course-section-group{
+    margin-top:13px!important;
+  }
+}
+
+/* Keep cards visually balanced in dark/light versions */
+#page-mycourses .psp-course-tile,
+#page-mycourses .psp-course-thumb,
+#page-mycourses .psp-course-thumb img{
+  box-sizing:border-box!important;
+}
