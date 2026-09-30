@@ -1590,3 +1590,150 @@ body.dark #page-mycourses .psp-course-tile:not(.paid) h3,
   #page-mycourses .psp-course-price{font-size:14px!important}
   #page-mycourses .psp-course-section-title h3{font-size:16px}
 }
+
+
+/* ===== My Courses Compact Balance V355 ===== */
+@media (min-width:721px){
+  #page-mycourses .psp-course-marketplace{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:22px 26px 34px!important;
+  }
+
+  #page-mycourses .psp-course-market-count{
+    display:none!important;
+  }
+
+  #page-mycourses .psp-course-market-head{
+    margin-bottom:14px!important;
+  }
+
+  #page-mycourses .psp-course-summary-grid{
+    gap:10px!important;
+    margin-bottom:12px!important;
+  }
+
+  #page-mycourses .psp-course-summary-card{
+    min-height:64px!important;
+    padding:10px 13px!important;
+  }
+
+  #page-mycourses .psp-summary-icon{
+    width:34px!important;
+    height:34px!important;
+    flex-basis:34px!important;
+  }
+
+  #page-mycourses .psp-course-controlbar{
+    margin-bottom:14px!important;
+    padding:7px!important;
+  }
+
+  #page-mycourses .psp-course-section-group{
+    margin-top:14px!important;
+  }
+
+  #page-mycourses .psp-course-section-title{
+    margin-bottom:8px!important;
+  }
+
+  #page-mycourses .psp-course-card-grid{
+    width:100%!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:14px!important;
+  }
+
+  #page-mycourses .psp-course-tile{
+    border-radius:16px!important;
+  }
+
+  #page-mycourses .psp-course-thumb{
+    aspect-ratio:16/6.85!important;
+  }
+
+  #page-mycourses .psp-course-tile-body{
+    padding:12px 14px 12px!important;
+  }
+
+  #page-mycourses .psp-course-tile h3{
+    font-size:16px!important;
+  }
+
+  #page-mycourses .psp-course-mentor-mini{
+    margin-top:4px!important;
+    font-size:9px!important;
+  }
+
+  #page-mycourses .psp-course-price{
+    font-size:17px!important;
+    padding:5px 8px!important;
+  }
+
+  #page-mycourses .psp-course-tile p{
+    min-height:28px!important;
+    margin:7px 0 8px!important;
+    font-size:10px!important;
+    line-height:1.45!important;
+    -webkit-line-clamp:2!important;
+  }
+
+  #page-mycourses .psp-course-meta{
+    margin-bottom:8px!important;
+  }
+
+  #page-mycourses .psp-course-meta span{
+    padding:5px 7px!important;
+    font-size:8.5px!important;
+  }
+
+  #page-mycourses .psp-course-tile-footer{
+    padding-top:9px!important;
+  }
+
+  #page-mycourses .psp-course-open-btn{
+    min-height:36px!important;
+    padding:0 13px!important;
+    font-size:9.5px!important;
+    border-radius:9px!important;
+  }
+
+  #page-mycourses .psp-course-details-link{
+    font-size:9px!important;
+    color:#66758b!important;
+  }
+
+  #page-mycourses .psp-course-tile.paid .psp-course-details-link{
+    color:#c2ccdb!important;
+  }
+
+  #page-mycourses .psp-course-type-badge,
+  #page-mycourses .psp-course-thumb-status{
+    min-height:24px!important;
+    padding:0 8px!important;
+    font-size:8px!important;
+  }
+}
+
+@media (min-width:1250px){
+  #page-mycourses .psp-course-marketplace{
+    padding-left:34px!important;
+    padding-right:34px!important;
+  }
+  #page-mycourses .psp-course-card-grid{
+    gap:16px!important;
+  }
+  #page-mycourses .psp-course-thumb{
+    aspect-ratio:16/6.5!important;
+  }
+}
+
+@media (min-width:1550px){
+  #page-mycourses .psp-course-marketplace{
+    padding-left:42px!important;
+    padding-right:42px!important;
+  }
+  #page-mycourses .psp-course-thumb{
+    aspect-ratio:16/6.2!important;
+  }
+}
