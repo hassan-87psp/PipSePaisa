@@ -922,8 +922,9 @@
     const path=`${userId}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
     const {error}=await getClient().storage.from('course-receipts').upload(path,file,{upsert:false,contentType:file.type||undefined});
     if(error)throw error;
-    const {data}=getClient().storage.from('course-receipts').getPublicUrl(path);
-    return data?.publicUrl||null;
+    // Store only the object path. The receipt bucket is private and Admin
+    // creates short-lived signed URLs when a receipt needs to be viewed.
+    return path;
   }
 
   function enrollmentPayload(values,receiptUrl){
