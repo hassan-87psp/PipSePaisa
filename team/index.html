@@ -322,7 +322,7 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
 }
 </style>
 
-<meta name="psp-team-build" content="V304-more-download">
+<meta name="psp-team-build" content="V355-canonical-clients">
 
 <style id="pspTeamMoreDownloadV304Css">
 @media(max-width:760px){
@@ -970,12 +970,12 @@ const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const SESSION_KEY='pipsepaisa-team-session-v56';
 const THEME_KEY='pipsepaisa-team-theme-v206';
 const IDENTITY_KEY='pipsepaisa-team-identity-v278';
-const TEAM_CLIENT_DATA_VERSION='v300';
+const TEAM_CLIENT_DATA_VERSION='v355';
 const PWA_INSTALLED_KEY='pipsepaisa-psp-team-installed-v278';
 const BASE='https://pipsepaisa.com';
 const TEAM_EARNINGS_CUTOFF_YM=202609; // Previous team earnings were manually settled before Sep 2026.
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
-const S={token:localStorage.getItem(SESSION_KEY)||'',identity:(()=>{try{return JSON.parse(localStorage.getItem(IDENTITY_KEY)||'{}')}catch(_){return{}}})(),metrics:null,metricsAvailable:false,earnDetail:[],earnDetailAvailable:false,links:[],clients:[],clientsLoading:false,errors:{},daily:null,dailyHistory:[],history:[],performanceRange:null,performanceMode:'today',performanceStart:null,performanceEnd:null,clientCourseFilter:'all',clientPeriodFilter:'all',clientSourceFilter:'all',clientSort:'newest',clientPage:1,clientPageSize:25,searchResults:[],view:'overview',loaded:{clients:false,daily:false,history:false,performance:false},cache:{overviewKey:'',overviewAt:0}};
+const S={token:localStorage.getItem(SESSION_KEY)||'',identity:(()=>{try{return JSON.parse(localStorage.getItem(IDENTITY_KEY)||'{}')}catch(_){return{}}})(),metrics:null,metricsAvailable:false,earnDetail:[],earnDetailAvailable:false,links:[],clients:[],clientsLoading:false,errors:{},daily:null,dailyHistory:[],history:[],performanceRange:null,performanceMode:'today',performanceStart:null,performanceEnd:null,clientCourseFilter:'all',clientPeriodFilter:'all',clientSourceFilter:'all',clientSort:'newest',clientActionFilter:null,clientPage:1,clientPageSize:25,searchResults:[],view:'overview',loaded:{clients:false,daily:false,history:false,performance:false},cache:{overviewKey:'',overviewAt:0}};
 const $=id=>document.getElementById(id);const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>Number(v||0);const money=v=>'$'+num(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});const fmt=v=>num(v).toLocaleString(undefined,{maximumFractionDigits:2});
 function row(data){return Array.isArray(data)?data[0]:data}function rpcObj(data){return row(data)||{}}
@@ -1078,6 +1078,35 @@ function mergeClientRowsV280(rows){
 async function loadClients(){
   if(S.loaded.clients)return true;
   S.clientsLoading=true;delete S.errors.clients;if(S.view==='clients')renderClientLoadingV278();
+  // V355: one backend row per canonical current owner. This removes the old
+  // legacy + assigned + ad + owner source duplication that inflated My Clients.
+  try{
+    const canonicalR=await db.rpc('psp_team_clients_v355',{p_session_token:S.token,p_limit:5000});
+    if(!canonicalR.error){
+      const canonical=rpcRowsV280(canonicalR.data).map(x=>{
+        const src=String(x&&x.source||'').toLowerCase();
+        const kind=(src.includes('ad')||src.includes('auto'))?'ad':((src.includes('manager')||src.includes('transfer')||src.includes('override'))?'manager':'old');
+        return Object.assign({},x,{
+          source_kind:kind,
+          is_ad_lead:kind==='ad',
+          is_manager_owned:kind==='manager',
+          conversion_status:x.work_status||x.conversion_status||'new'
+        });
+      });
+      S.clients=mergeClientRowsV280(canonical);
+      S.loaded.clients=true;S.clientsLoading=false;delete S.errors.clients;
+      return true;
+    }
+    console.warn('V355 canonical clients unavailable; using compatibility fallback.',canonicalR.error);
+    if(authLikeErrorV278(canonicalR.error))S.errors.session=canonicalR.error;
+  }catch(e){
+    console.warn('V355 canonical clients failed; using compatibility fallback.',e);
+    if(authLikeErrorV278(e))S.errors.session=e;
+  }
+
+  // Compatibility fallback for older deployments only. Repair is deliberately
+  // not run on every successful V355 load because that was rewriting hundreds
+  // of owner rows and adding avoidable database work.
   let repair=null;
   try{const rr=await db.rpc('psp_team_repair_my_clients_v275',{p_session_token:S.token});if(!rr.error)repair=rpcObj(rr.data);else console.warn('V275 client self-repair unavailable:',rr.error)}catch(e){console.warn('V275 client self-repair failed:',e)}
   const fetchSources=async()=>{
@@ -1148,7 +1177,17 @@ async function loadClients(){
     console.warn('Client load failed:',e);S.clients=[];S.loaded.clients=false;S.clientsLoading=false;S.errors.clients=e;if(authLikeErrorV278(e))S.errors.session=e;return false;
   }finally{if(S.view==='clients')renderClients()}
 }
-async function loadDaily(){const my=selectedMY();try{let [t,h]=await Promise.all([db.rpc('psp_team_daily_report_v207',{p_session_token:S.token,p_report_date:null}),db.rpc('psp_team_daily_history_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year})]);if(t.error||h.error){console.warn('V207 daily fallback:',t.error||h.error);[t,h]=await Promise.all([db.rpc('psp_team_daily_report_v206',{p_session_token:S.token,p_report_date:null}),db.rpc('psp_team_daily_history_v206',{p_session_token:S.token,p_month:my.month,p_year:my.year})]);}if(t.error)throw t.error;S.daily=rpcObj(t.data);S.dailyHistory=rpcObj(h.data);if(!Array.isArray(S.dailyHistory))S.dailyHistory=Array.isArray(h.data)?h.data:[];S.loaded.daily=true}catch(e){console.warn(e);S.daily={manual:{},auto:{}};S.dailyHistory=[]}}
+async function loadDaily(){const my=selectedMY();try{
+  let t=await db.rpc('psp_team_daily_report_v207',{p_session_token:S.token,p_report_date:null});
+  if(t.error){console.warn('V207 current daily fallback:',t.error);t=await db.rpc('psp_team_daily_report_v206',{p_session_token:S.token,p_report_date:null})}
+  if(t.error)throw t.error;
+  let h=await db.rpc('psp_team_daily_history_v355',{p_session_token:S.token,p_month:my.month,p_year:my.year});
+  if(h.error){console.warn('V355 daily history fallback:',h.error);h=await db.rpc('psp_team_daily_history_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year})}
+  if(h.error){console.warn('V207 daily history fallback:',h.error);h=await db.rpc('psp_team_daily_history_v206',{p_session_token:S.token,p_month:my.month,p_year:my.year})}
+  S.daily=rpcObj(t.data);
+  S.dailyHistory=rpcObj(h.data);if(!Array.isArray(S.dailyHistory))S.dailyHistory=Array.isArray(h.data)?h.data:[];
+  S.loaded.daily=true
+}catch(e){console.warn(e);S.daily={manual:{},auto:{}};S.dailyHistory=[]}}
 async function loadMetrics(force=false){const my=selectedMY(),key=my.year+'-'+my.month;if(!force&&S.cache.overviewKey===key&&Date.now()-S.cache.overviewAt<30000&&S.metrics)return true;try{let r=await db.rpc('psp_team_overview_v208',{p_session_token:S.token,p_month:my.month,p_year:my.year});if(r.error){console.warn('V208 overview fallback:',r.error);r=await db.rpc('psp_team_command_center_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error){console.warn('V207 metrics fallback:',r.error);r=await db.rpc('psp_team_command_center_v206',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error)throw r.error;const rawMetrics=rpcObj(r.data);S.historyCurrent=rawMetrics&&typeof rawMetrics==='object'?Object.assign({},rawMetrics):null;if(S.historyCurrent)delete S.historyCurrent.fast_overview;S.metrics=applyTeamEarningsCutoffV274(normalizeMetrics(rawMetrics),my);S.metricsAvailable=true;delete S.errors.metrics;if(S.metrics&&(S.metrics.username||S.metrics.display_name))rememberIdentityV278(S.metrics,S.metrics.username);S.cache.overviewKey=key;S.cache.overviewAt=Date.now();return true}catch(e){console.warn('Team performance metrics unavailable:',e);S.metricsAvailable=false;S.errors.metrics=e;if(authLikeErrorV278(e))S.errors.session=e;return false}}
 async function loadEarningDetailV354(){
   const my=selectedMY();
@@ -1187,7 +1226,7 @@ function renderKpis(){
   const m=S.metrics||{},allClients=S.clients||[],monthClients=allClients.filter(c=>clientInSelectedMonth(c.registration_at)),
         today=malaysiaToday(),monthStatuses=monthClients.map(clientWorkStatus),
         todayLeads=allClients.filter(c=>clientDateKey(c.registration_at)===today).length,
-        follow=allClients.filter(c=>['new','follow_up'].includes(clientWorkStatus(c))||(c.follow_up_at&&new Date(c.follow_up_at)<=new Date()&&!['converted','not_interested'].includes(clientWorkStatus(c)))).length,
+        follow=allClients.filter(clientNeedsFollowupV355).length,
         converted=monthStatuses.filter(x=>x==='converted').length,earnOpen=teamEarningsVisibleV274(),
         earnType=!S.metricsAvailable?'unavailable':(earnOpen?'money':'settled'),
         items=[
@@ -1220,14 +1259,20 @@ function openOverviewWorkV353(target){
   if(target==='daily'){go('daily');return}
   go('clients');
   requestAnimationFrame(()=>{
+    S.clientActionFilter=null;
     if(target==='new'){
       if($('clientStatusFilter'))$('clientStatusFilter').value='new';
       if($('clientPeriodFilter'))$('clientPeriodFilter').value='today';
     }else if(target==='converted'){
       if($('clientStatusFilter'))$('clientStatusFilter').value='converted';
       if($('clientPeriodFilter'))$('clientPeriodFilter').value='today';
-    }else if(target==='follow'||target==='due'){
-      if($('clientStatusFilter'))$('clientStatusFilter').value='follow_up';
+    }else if(target==='follow'){
+      S.clientActionFilter='follow';
+      if($('clientStatusFilter'))$('clientStatusFilter').value='all';
+      if($('clientPeriodFilter'))$('clientPeriodFilter').value='all';
+    }else if(target==='due'){
+      S.clientActionFilter='due';
+      if($('clientStatusFilter'))$('clientStatusFilter').value='all';
       if($('clientPeriodFilter'))$('clientPeriodFilter').value='all';
     }
     S.clientPage=1;
@@ -1252,8 +1297,8 @@ function renderOverviewOps(){
 
   if(workEl){
     const todayRows=all.filter(c=>clientDateKey(c.registration_at)===today),
-          need=all.filter(c=>['new','follow_up'].includes(clientWorkStatus(c))).length,
-          due=all.filter(c=>c.follow_up_at&&new Date(c.follow_up_at)<=new Date()&&clientWorkStatus(c)!=='converted').length,
+          need=all.filter(clientNeedsFollowupV355).length,
+          due=all.filter(clientFollowupDueV355).length,
           converted=todayRows.filter(c=>clientWorkStatus(c)==='converted').length;
     workEl.innerHTML=`<button type="button" class="work-item work-action-v353 warn" onclick="openOverviewWorkV353('new')"><span>New leads today</span><b>${fmt(todayRows.length)}</b><i>→</i></button>
       <button type="button" class="work-item work-action-v353" onclick="openOverviewWorkV353('follow')"><span>Need follow-up</span><b>${fmt(need)}</b><i>→</i></button>
@@ -1323,6 +1368,8 @@ function courseBatchCounts(rows){const out={sajid_b1:0,sajid_b2:0,sajid_b3:0,fun
 function clientInDateRange(c,start,end){const d=clientDateKey(c?.registration_at);return !!d&&d>=start&&d<=end}
 function clientKeyV273(c){if(c&&c.client_key)return String(c.client_key);if(c&&c.user_id)return 'u:'+String(c.user_id);const e=String(c&&c.email||'').trim().toLowerCase();if(e)return 'e:'+e;const w=String(c&&c.whatsapp||'').replace(/\D/g,'');if(w.length>=7)return 'w:'+w;const id=String(c&&c.client_id||'').trim().toUpperCase();return id?'c:'+id:''}
 function clientWorkStatus(c){let v=String(c&&c.work_status||c&&c.conversion_status||'new').toLowerCase().replace(/\s+/g,'_');if(v==='registered'||v==='open_/_registered'||v==='open')v='new';if(v==='lost')v='not_interested';return ['new','contacted','interested','follow_up','converted','not_interested'].includes(v)?v:'new'}
+function clientFollowupDueV355(c){const s=clientWorkStatus(c);if(['converted','not_interested'].includes(s)||!c||!c.follow_up_at)return false;const t=new Date(c.follow_up_at).getTime();return Number.isFinite(t)&&t<=Date.now()}
+function clientNeedsFollowupV355(c){return clientWorkStatus(c)==='follow_up'||clientFollowupDueV355(c)}
 function statusLabelV273(v){return({new:'New',contacted:'Contacted',interested:'Interested',follow_up:'Follow-up',converted:'Converted',not_interested:'Not Interested'})[v]||'New'}
 function clientSourceKeyV273(c){return clientSourceInfo(c).key}
 function duplicateClientSetV273(rows){const seenE=new Map(),seenW=new Map(),dupes=new Set();(rows||[]).forEach(c=>{const e=String(c.email||'').trim().toLowerCase(),w=String(c.whatsapp||'').replace(/\D/g,'');if(e){if(seenE.has(e)){dupes.add(clientKeyV273(c));dupes.add(seenE.get(e))}else seenE.set(e,clientKeyV273(c))}if(w.length>=7){if(seenW.has(w)){dupes.add(clientKeyV273(c));dupes.add(seenW.get(w))}else seenW.set(w,clientKeyV273(c))}});return dupes}
@@ -1333,7 +1380,7 @@ function syncMobileClientFiltersV278(){const pairs=[['clientSourceFilter','mobil
 function updateMobileFilterBadgeV278(){let n=0;if($('clientSourceFilter')&&$('clientSourceFilter').value!=='all')n++;if($('clientStatusFilter')&&$('clientStatusFilter').value!=='all')n++;if($('clientPeriodFilter')&&$('clientPeriodFilter').value!=='all')n++;if($('clientSort')&&$('clientSort').value!=='newest')n++;const b=$('clientMobileFilterBtn'),c=$('clientMobileFilterCount');if(c)c.textContent=String(n);if(b)b.classList.toggle('active',n>0)}
 function openMobileClientFiltersV278(){syncMobileClientFiltersV278();const o=$('clientMobileFilterOverlay');if(o){o.classList.add('open');o.setAttribute('aria-hidden','false')}}
 function closeMobileClientFiltersV278(){const o=$('clientMobileFilterOverlay');if(o){o.classList.remove('open');o.setAttribute('aria-hidden','true')}}
-function applyMobileClientFiltersV278(){const pairs=[['mobileClientSourceFilter','clientSourceFilter'],['mobileClientStatusFilter','clientStatusFilter'],['mobileClientPeriodFilter','clientPeriodFilter'],['mobileClientSort','clientSort']];pairs.forEach(([a,b])=>{if($(a)&&$(b))$(b).value=$(a).value});S.clientPage=1;closeMobileClientFiltersV278();renderClients()}
+function applyMobileClientFiltersV278(){const pairs=[['mobileClientSourceFilter','clientSourceFilter'],['mobileClientStatusFilter','clientStatusFilter'],['mobileClientPeriodFilter','clientPeriodFilter'],['mobileClientSort','clientSort']];pairs.forEach(([a,b])=>{if($(a)&&$(b))$(b).value=$(a).value});S.clientActionFilter=null;S.clientPage=1;closeMobileClientFiltersV278();renderClients()}
 function resetMobileClientFiltersV278(){if($('mobileClientSourceFilter'))$('mobileClientSourceFilter').value='all';if($('mobileClientStatusFilter'))$('mobileClientStatusFilter').value='all';if($('mobileClientPeriodFilter'))$('mobileClientPeriodFilter').value='all';if($('mobileClientSort'))$('mobileClientSort').value='newest'}
 function renderClients(){
   updateMobileFilterBadgeV278();
@@ -1347,7 +1394,7 @@ function renderClients(){
   S.clientPeriodFilter=pf;S.clientSourceFilter=sf;S.clientSort=sort;S.clientPageSize=Number($('clientPageSize')&&$('clientPageSize').value||S.clientPageSize||25);
   const all=S.clients||[],counts=courseFilterCountsV273(all);document.querySelectorAll('#clientCourseFilters .client-filter').forEach(b=>{const k=b.dataset.course;b.classList.toggle('active',k===cf);const base=(b.textContent||'').replace(/\s*\([\d,.]+\)\s*$/,'');b.textContent=base+' ('+fmt(counts[k]||0)+')'});
   const activeChip=document.querySelector('#clientCourseFilters .client-filter.active');if(activeChip&&window.innerWidth<=760)setTimeout(()=>activeChip.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'}),0);
-  const today=malaysiaToday();let rows=all.filter(c=>{if(pf==='month'&&!clientInSelectedMonth(c.registration_at))return false;if(pf==='today'&&clientDateKey(c.registration_at)!==today)return false;const source=clientSourceKeyV273(c),course=clientCourseInfo(c),status=clientWorkStatus(c),t=[c.client_id,c.full_name,c.whatsapp,course.text,c.campaign,c.reference_code,source,status].join(' ').toLowerCase();return(!q||t.includes(q))&&(f==='all'||status===f)&&(cf==='all'||course.keys.has(cf))&&(sf==='all'||source===sf)}).map(c=>({c,course:clientCourseInfo(c),source:clientSourceKeyV273(c),status:clientWorkStatus(c)}));
+  const today=malaysiaToday();let rows=all.filter(c=>{if(S.clientActionFilter==='follow'&&!clientNeedsFollowupV355(c))return false;if(S.clientActionFilter==='due'&&!clientFollowupDueV355(c))return false;if(pf==='month'&&!clientInSelectedMonth(c.registration_at))return false;if(pf==='today'&&clientDateKey(c.registration_at)!==today)return false;const source=clientSourceKeyV273(c),course=clientCourseInfo(c),status=clientWorkStatus(c),t=[c.client_id,c.full_name,c.whatsapp,course.text,c.campaign,c.reference_code,source,status].join(' ').toLowerCase();return(!q||t.includes(q))&&(f==='all'||status===f)&&(cf==='all'||course.keys.has(cf))&&(sf==='all'||source===sf)}).map(c=>({c,course:clientCourseInfo(c),source:clientSourceKeyV273(c),status:clientWorkStatus(c)}));
   const statusOrder={new:1,contacted:2,interested:3,follow_up:4,converted:5,not_interested:6};rows.sort((a,b)=>{if(sort==='oldest')return new Date(a.c.registration_at||0)-new Date(b.c.registration_at||0);if(sort==='az')return String(a.c.full_name||'').localeCompare(String(b.c.full_name||''));if(sort==='za')return String(b.c.full_name||'').localeCompare(String(a.c.full_name||''));if(sort==='status')return(statusOrder[a.status]||9)-(statusOrder[b.status]||9);if(sort==='course')return a.course.text.localeCompare(b.course.text);return new Date(b.c.registration_at||0)-new Date(a.c.registration_at||0)});
   const total=rows.length,pages=Math.max(1,Math.ceil(total/S.clientPageSize));S.clientPage=Math.min(Math.max(1,S.clientPage||1),pages);const start=(S.clientPage-1)*S.clientPageSize,visible=rows.slice(start,start+S.clientPageSize),dupes=duplicateClientSetV273(all);
   if($('clientVisibleCount'))$('clientVisibleCount').innerHTML='<b>'+fmt(total)+'</b> clients';if($('clientPageInfo'))$('clientPageInfo').textContent=total?`Showing ${start+1}–${Math.min(start+visible.length,total)} of ${total}`:'No matching clients';if($('clientPagerText'))$('clientPagerText').textContent=`Page ${S.clientPage} of ${pages}`;if($('clientPrev'))$('clientPrev').disabled=S.clientPage<=1;if($('clientNext'))$('clientNext').disabled=S.clientPage>=pages;const pager=document.querySelector('.client-pager-v273');if(pager)pager.classList.toggle('hidden',total===0||pages<=1);
@@ -1478,12 +1525,12 @@ function closeMobileMoreV277(){const o=$('mobileMoreOverlay');if(o){o.classList.
 function updateMobileDateV300(){const el=$('mobileTodayDate');if(!el)return;try{el.textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Kuala_Lumpur',weekday:'short',day:'2-digit',month:'short',year:'numeric'}).format(new Date())}catch(_){el.textContent=malaysiaToday()}const label=$('mobilePeriodLabel');if(label)label.textContent='Selected · '+monthLabel(selectedMY())}
 function ensureMobileChromeV300(){if(!(window.matchMedia&&window.matchMedia('(max-width:760px)').matches))return;const nav=document.querySelector('.mobile-bottom-nav');if(nav){nav.style.removeProperty('display');nav.style.removeProperty('visibility');nav.style.removeProperty('opacity')}updateMobileDateV300();setPwaInstallStateV277()}
 function bindMobileQuickActionsV300(){}
-function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>changeView(b.dataset.view));document.querySelectorAll('.mobile-tab[data-view]').forEach(b=>b.onclick=()=>{const d=document.querySelector('.sidebar .nav-btn[data-view=\"'+b.dataset.view+'\"]');if(d)d.click();else changeView(b.dataset.view)});document.querySelectorAll('[data-mobile-view]').forEach(b=>b.onclick=()=>{const d=document.querySelector('.sidebar .nav-btn[data-view=\"'+b.dataset.mobileView+'\"]');if(d)d.click();else changeView(b.dataset.mobileView)});$('loginBtn').onclick=signIn;$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});$('logoutBtn').onclick=logout;$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');$('monthSelect').onchange=refreshSelectedMonth;$('yearSelect').onchange=refreshSelectedMonth;$('dailySaveBtn').onclick=saveDaily;['clientSearch','clientStatusFilter','clientPeriodFilter','clientSourceFilter','clientSort','clientPageSize'].forEach(id=>{const el=$(id);if(el)el.addEventListener(id==='clientSearch'?'input':'change',()=>{S.clientPage=1;renderClients()})});$('clientCourseFilters').onclick=e=>{const b=e.target.closest('[data-course]');if(!b)return;S.clientCourseFilter=b.dataset.course||'all';S.clientPage=1;renderClients()};$('clientPrev').onclick=()=>{S.clientPage=Math.max(1,S.clientPage-1);renderClients()};$('clientNext').onclick=()=>{S.clientPage++;renderClients()};$('clientRefreshBtn').onclick=async()=>{const b=$('clientRefreshBtn');b.disabled=true;b.textContent='Refreshing…';S.loaded.clients=false;S.clientsLoading=false;await loadClients();S.clientPage=1;renderClients();renderKpis();renderOverviewOps();b.disabled=false;b.textContent='↻ Refresh'};$('ownershipSearchBtn').onclick=searchOwnershipV273;$('ownershipSearch').addEventListener('keydown',e=>{if(e.key==='Enter')searchOwnershipV273()});$('notifyBtn').onclick=()=>toast('No new Team notifications.');$('performanceRangeTools').onclick=e=>{const b=e.target.closest('[data-range]');if(b)setPerformanceRange(b.dataset.range)};$('applyCustomRange').onclick=applyCustomPerformanceRange;if($('historySearch'))$('historySearch').oninput=renderHistory;if($('legacyLinkSearch'))$('legacyLinkSearch').oninput=renderLinks;
+function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>changeView(b.dataset.view));document.querySelectorAll('.mobile-tab[data-view]').forEach(b=>b.onclick=()=>{const d=document.querySelector('.sidebar .nav-btn[data-view=\"'+b.dataset.view+'\"]');if(d)d.click();else changeView(b.dataset.view)});document.querySelectorAll('[data-mobile-view]').forEach(b=>b.onclick=()=>{const d=document.querySelector('.sidebar .nav-btn[data-view=\"'+b.dataset.mobileView+'\"]');if(d)d.click();else changeView(b.dataset.mobileView)});$('loginBtn').onclick=signIn;$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});$('logoutBtn').onclick=logout;$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');$('monthSelect').onchange=refreshSelectedMonth;$('yearSelect').onchange=refreshSelectedMonth;$('dailySaveBtn').onclick=saveDaily;['clientSearch','clientStatusFilter','clientPeriodFilter','clientSourceFilter','clientSort','clientPageSize'].forEach(id=>{const el=$(id);if(el)el.addEventListener(id==='clientSearch'?'input':'change',()=>{S.clientActionFilter=null;S.clientPage=1;renderClients()})});$('clientCourseFilters').onclick=e=>{const b=e.target.closest('[data-course]');if(!b)return;S.clientActionFilter=null;S.clientCourseFilter=b.dataset.course||'all';S.clientPage=1;renderClients()};$('clientPrev').onclick=()=>{S.clientPage=Math.max(1,S.clientPage-1);renderClients()};$('clientNext').onclick=()=>{S.clientPage++;renderClients()};$('clientRefreshBtn').onclick=async()=>{const b=$('clientRefreshBtn');b.disabled=true;b.textContent='Refreshing…';S.loaded.clients=false;S.clientsLoading=false;S.clientActionFilter=null;await loadClients();S.clientPage=1;renderClients();renderKpis();renderOverviewOps();b.disabled=false;b.textContent='↻ Refresh'};$('ownershipSearchBtn').onclick=searchOwnershipV273;$('ownershipSearch').addEventListener('keydown',e=>{if(e.key==='Enter')searchOwnershipV273()});$('notifyBtn').onclick=()=>toast('No new Team notifications.');$('performanceRangeTools').onclick=e=>{const b=e.target.closest('[data-range]');if(b)setPerformanceRange(b.dataset.range)};$('applyCustomRange').onclick=applyCustomPerformanceRange;if($('historySearch'))$('historySearch').oninput=renderHistory;if($('legacyLinkSearch'))$('legacyLinkSearch').oninput=renderLinks;
   if($('clientMobileFilterBtn'))$('clientMobileFilterBtn').onclick=openMobileClientFiltersV278;if($('clientMobileFilterClose'))$('clientMobileFilterClose').onclick=closeMobileClientFiltersV278;if($('clientMobileFilterOverlay'))$('clientMobileFilterOverlay').onclick=e=>{if(e.target===$('clientMobileFilterOverlay'))closeMobileClientFiltersV278()};if($('clientMobileFilterApply'))$('clientMobileFilterApply').onclick=applyMobileClientFiltersV278;if($('clientMobileFilterReset'))$('clientMobileFilterReset').onclick=()=>{resetMobileClientFiltersV278();applyMobileClientFiltersV278()};
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=354',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=355',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
