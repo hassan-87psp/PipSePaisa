@@ -208,7 +208,23 @@ Deno.serve(async (req) => {
       });
       if (ensured.error) throw new Error(ensured.error.message);
       ensuredEnrollmentId = Array.isArray(ensured.data) ? ensured.data[0] : ensured.data;
-      if (ensuredEnrollmentId) result.enrollment_id = ensuredEnrollmentId;
+      if (ensuredEnrollmentId) {
+        result.enrollment_id = ensuredEnrollmentId;
+
+        // Re-resolve the CURRENT canonical manager. Existing Ad rows can contain
+        // an older round-robin manager after an Admin transfer / newer assignment.
+        const assignment = await admin.rpc("psp_assign_enrollment_lead_v245", {
+          p_enrollment_id: ensuredEnrollmentId,
+        });
+        if (assignment.error) throw new Error(assignment.error.message);
+        const currentAssignment = Array.isArray(assignment.data) ? assignment.data[0] : assignment.data;
+        if (currentAssignment?.team_member_id) {
+          result.assignment_id = currentAssignment.assignment_id ?? result.assignment_id ?? null;
+          result.team_member_id = currentAssignment.team_member_id;
+          result.team_member_name = currentAssignment.team_member_name;
+          result.team_member_whatsapp = currentAssignment.whatsapp_number;
+        }
+      }
     }
 
     const teamName = teamDisplayName(result.team_member_name);
@@ -226,6 +242,10 @@ Deno.serve(async (req) => {
         course_name: courseName,
       };
       if (ensuredEnrollmentId) submissionPatch.enrollment_id = ensuredEnrollmentId;
+      if (result.assignment_id) submissionPatch.assignment_id = result.assignment_id;
+      if (result.team_member_id) submissionPatch.team_member_id = result.team_member_id;
+      if (result.team_member_name) submissionPatch.team_member_name = result.team_member_name;
+      if (result.team_member_whatsapp) submissionPatch.team_member_whatsapp = result.team_member_whatsapp;
       await admin.from("psp_ad_submissions_v259").update(submissionPatch).eq("id", submissionId);
     }
 
