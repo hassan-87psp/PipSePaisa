@@ -1,0 +1,5 @@
+-- PipSePaisa V368
+-- Production migration applied on 2026-09-30.
+-- Purpose: keep explicit Admin manager transfers aligned across exact duplicate client accounts,
+-- and preserve Admin Transfer / Admin Override source labels during Ad ownership sync.
+-- Current production functions: public.psp_admin_change_client_manager_v273 and public.psp_sync_ad_owner_v273.
