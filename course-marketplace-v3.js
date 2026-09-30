@@ -141,7 +141,7 @@ async function getEnrollment(key){
   const db=client();if(!db)return null;
   try{
     const s=await db.auth.getSession();const user=s?.data?.session?.user;if(!user)return null;
-    const enrollmentKey=enrollmentDbKeyFor(key);let q=db.from('course_enrollments').select('*').eq('user_id',user.id).eq('course_key',enrollmentKey);const batchKey=enrollmentBatchKeyFor(key);if(batchKey)q=q.eq('psp_batch_key',batchKey);const r=await q.maybeSingle();
+    const enrollmentKey=enrollmentDbKeyFor(key);let q=db.from('course_enrollments').select('*').eq('user_id',user.id).eq('course_key',enrollmentKey);const batchKey=enrollmentBatchKeyFor(key);if(batchKey)q=q.eq('psp_batch_key',batchKey);q=q.order('created_at',{ascending:false}).limit(1);const r=await q.maybeSingle();
     if(r.error&&!/0 rows|no rows/i.test(r.error.message||''))throw r.error;
     return r.data||null;
   }catch(e){console.warn('Course enrollment state unavailable',e);return null;}
