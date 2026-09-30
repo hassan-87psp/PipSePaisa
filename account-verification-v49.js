@@ -2,7 +2,7 @@
 (function(){
   'use strict';
   const PROTECTED=new Set(['journal','performance','addtrade','signals','charts','articles','newshub','strength','trades','analysis','tools','aireport','news','chats','vipplans','aitools','vipindicators','vipea']);
-  let state=null,loading=false,channel=null,authSub=null,installed=false,countdownTimer=null;
+  let state=null,loading=false,loadPromise=null,lastLoadedAt=0,channel=null,authSub=null,installed=false,countdownTimer=null;
   const q=(s,r=document)=>r.querySelector(s),qa=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
   function client(){try{return (typeof sb!=='undefined'&&sb)||window.sb||null}catch(_){return window.sb||null}}
@@ -80,88 +80,92 @@
       countdownTimer=setInterval(tick,1000);
     }
   }
-  async function sendEmail(btn){const c=client();if(!c)return alert('Please sign in again.');const old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Sending…'}try{const r=await c.functions.invoke('request-account-verification',{body:{}});if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.error||'Could not send verification email.');if(r.data?.already_verified){await load(true);alert('Your email is already verified.');return}alert(r.data.message||'Verification email sent. Please check your inbox.')}catch(e){alert(e.message||'Could not send verification email.')}finally{if(btn){btn.disabled=false;btn.textContent=old||'Verify Email'}}}
+  async function sendEmail(btn){const c=client();if(!c)return alert('Please sign in again.');const old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Sending…'}try{const r=await c.functions.invoke('request-account-verification',{body:{}});if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.error||'Could not send verification email.');if(r.data?.already_verified){await load(true,true);alert('Your email is already verified.');return}alert(r.data.message||'Verification email sent. Please check your inbox.')}catch(e){alert(e.message||'Could not send verification email.')}finally{if(btn){btn.disabled=false;btn.textContent=old||'Verify Email'}}}
   function openFreeAccess(resubmit=false){if(!state)return goProfile();if(approvedActive())return goProfile();if(approvedExpired())return goProfile();if(!state.email_verified){const m=ensureModal();q('#pspAvLockTitle',m).textContent='Verify Email First';q('#pspAvLockText',m).textContent='Email Verification is required before the broker Full Access step. Use the Verify Email button in Profile, then continue here.';const b=q('#pspAvLockAction',m);b.textContent='Verify Email';b.onclick=()=>{m.classList.remove('open');goProfile();setTimeout(()=>q('.psp-av-email-card .psp-av-primary')?.focus(),250)};m.classList.add('open');return}location.href='/free-access/'+(resubmit?'?resubmit=1':'')}
-  async function load(silent=false){
-    if(loading)return state;
+  async function load(silent=false,force=false){
     const c=client();
     if(!c||!loggedIn()){
-      state=null;renderMini();markLocks();renderCard();return null
+      state=null;lastLoadedAt=0;renderMini();markLocks();renderCard();return null
     }
+    if(!force&&state&&Date.now()-lastLoadedAt<8000)return state;
+    if(loadPromise)return loadPromise;
 
     loading=true;
-    try{
-      const r=await c.rpc('psp_get_access_status');
-      if(r.error)throw r.error;
-      state=Array.isArray(r.data)?(r.data[0]||null):r.data;
-
-      // V116: add authoritative 90-day approval expiry.
+    loadPromise=(async()=>{
+      let expiryResult=null,bridgeResult=null;
       try{
-        const ex=await c.rpc('psp_get_access_expiry_v116');
-        if(!ex.error&&ex.data){
-          const extra=Array.isArray(ex.data)?(ex.data[0]||{}):ex.data;
+        const settled=await Promise.allSettled([
+          c.rpc('psp_get_access_status'),
+          c.rpc('psp_get_access_expiry_v116'),
+          c.rpc('psp_user_access_bridge_v157')
+        ]);
+        const r=settled[0].status==='fulfilled'?settled[0].value:{error:settled[0].reason};
+        expiryResult=settled[1].status==='fulfilled'?settled[1].value:null;
+        bridgeResult=settled[2].status==='fulfilled'?settled[2].value:null;
+        if(r?.error)throw r.error;
+        state=Array.isArray(r?.data)?(r.data[0]||null):r?.data;
+
+        // V116: add authoritative 90-day approval expiry.
+        if(expiryResult&&!expiryResult.error&&expiryResult.data){
+          const extra=Array.isArray(expiryResult.data)?(expiryResult.data[0]||{}):expiryResult.data;
           state={...(state||{}),...(extra||{})};
         }
-      }catch(_){}
 
-      // V157: merge the authoritative Admin-trial row directly. This prevents a
-      // user with an active trial from being locked just because an older access RPC
-      // returned a stale cached state.
-      try{
-        const br=await c.rpc('psp_user_access_bridge_v157');
-        if(!br.error&&br.data){
-          const bx=Array.isArray(br.data)?(br.data[0]||{}):br.data;
+        // V157: merge the authoritative Admin-trial row directly.
+        if(bridgeResult&&!bridgeResult.error&&bridgeResult.data){
+          const bx=Array.isArray(bridgeResult.data)?(bridgeResult.data[0]||{}):bridgeResult.data;
           state={...(state||{}),...(bx||{})};
-          if(bx.admin_trial_active){
-            state.temporary_access=true;
-            state.can_access=true;
-          }
+          if(bx.admin_trial_active){state.temporary_access=true;state.can_access=true}
           if(bx.approved_active)state.can_access=true;
         }
-      }catch(_){}
 
-      if(state){
-        const exp=state.approved_expires_at?new Date(state.approved_expires_at).getTime():0;
-        if(state.submission_status==='approved'&&exp&&exp<=Date.now()){
-          state.submission_status='expired';
-          state.approved_active=false;
-          state.can_access=!!(state.direct_access_active||state.temporary_access||state.admin_trial_active);
-        }else if(approvedActive()||state.direct_access_active||state.temporary_access||state.admin_trial_active){
-          state.can_access=true;
-        }else{
-          state.can_access=false;
+        if(state){
+          const exp=state.approved_expires_at?new Date(state.approved_expires_at).getTime():0;
+          if(state.submission_status==='approved'&&exp&&exp<=Date.now()){
+            state.submission_status='expired';
+            state.approved_active=false;
+            state.can_access=!!(state.direct_access_active||state.temporary_access||state.admin_trial_active);
+          }else if(approvedActive()||state.direct_access_active||state.temporary_access||state.admin_trial_active){
+            state.can_access=true;
+          }else{
+            state.can_access=false;
+          }
         }
-      }
 
-      window.PSP_ACCOUNT_ACCESS_STATE=state;
-      renderMini();markLocks();renderCard();
-      return state;
-    }catch(e){
-      console.warn('Account verification status unavailable:',e?.message||e);
-      // Even if the legacy status RPC fails, do one direct trial/approval bridge check
-      // before locking the user.
-      try{
-        const br=await c.rpc('psp_user_access_bridge_v157');
-        if(!br.error&&br.data){
-          const bx=Array.isArray(br.data)?(br.data[0]||{}):br.data;
-          state={verification_required:true,email_verified:false,submission_status:bx.submission_status||'not_submitted',admin_whatsapp:'601156961157',direct_access_enabled:false,direct_access_active:false,...bx};
-          state.temporary_access=!!bx.admin_trial_active;
-          state.can_access=!!(bx.admin_trial_active||bx.approved_active);
-          window.PSP_ACCOUNT_ACCESS_STATE=state;renderMini();markLocks();renderCard();return state;
+        lastLoadedAt=Date.now();
+        window.PSP_ACCOUNT_ACCESS_STATE=state;
+        renderMini();markLocks();renderCard();
+        return state;
+      }catch(e){
+        console.warn('Account verification status unavailable:',e?.message||e);
+        // If the main status RPC fails, reuse the bridge result from the same
+        // parallel request before making any extra network call.
+        try{
+          const br=bridgeResult&&bridgeResult.data?bridgeResult:await c.rpc('psp_user_access_bridge_v157');
+          if(!br.error&&br.data){
+            const bx=Array.isArray(br.data)?(br.data[0]||{}):br.data;
+            state={verification_required:true,email_verified:false,submission_status:bx.submission_status||'not_submitted',admin_whatsapp:'601156961157',direct_access_enabled:false,direct_access_active:false,...bx};
+            state.temporary_access=!!bx.admin_trial_active;
+            state.can_access=!!(bx.admin_trial_active||bx.approved_active);
+            lastLoadedAt=Date.now();
+            window.PSP_ACCOUNT_ACCESS_STATE=state;renderMini();markLocks();renderCard();return state;
+          }
+        }catch(_){}
+        if(!silent){
+          state={verification_required:true,can_access:false,email_verified:false,submission_status:'not_submitted',admin_whatsapp:'601156961157',direct_access_enabled:false,direct_access_active:false};
+          lastLoadedAt=Date.now();
+          renderMini();markLocks();renderCard()
         }
-      }catch(_){}
-      if(!silent){
-        state={verification_required:true,can_access:false,email_verified:false,submission_status:'not_submitted',admin_whatsapp:'601156961157',direct_access_enabled:false,direct_access_active:false};
-        renderMini();markLocks();renderCard()
-      }
-      return state;
-    }finally{loading=false}
+        return state;
+      }finally{loading=false;loadPromise=null}
+    })();
+    return loadPromise;
   }
   function intercept(e){if(!state||canAccess())return;const el=e.target.closest('[data-page],[data-tabkey="addtrade"],[onclick*="openAddTradeModal"]');if(!el)return;const key=el.dataset.page||el.dataset.tabkey||(el.getAttribute('onclick')?.includes('openAddTradeModal')?'addtrade':'');if(!PROTECTED.has(key))return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showLock()}
   function renameUI(){const nav=q('#sidebar .menu-item[data-page="settings"]');if(nav)nav.innerHTML='<span class="menu-icon">👤</span>Profile';const h=q('#page-settings .settings-tabs');if(h)h.style.display='none';const sec=q('#settings-security');if(sec)sec.style.display='block';const prof=q('#settings-profile .card-title');if(prof)prof.textContent='Profile Details'}
   function wrapShowPage(){if(window._pspAvShowWrapped||typeof window.showPage!=='function')return;window._pspAvShowWrapped=true;const old=window.showPage;window.showPage=function(page,el){if(state&&!canAccess()&&PROTECTED.has(page)){showLock();return}const out=old.apply(this,arguments);if(page==='settings'){const t=q('#pageTitle');if(t)t.textContent='Profile';setTimeout(renderCard,0)}return out}}
-  function subscribeAuth(){const c=client();if(!c||authSub)return;try{const out=c.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){state=null;renderMini();markLocks();renderCard()}else if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED'||event==='USER_UPDATED'){setTimeout(()=>load(true).then(subscribe),80)}});authSub=out?.data?.subscription||true}catch(_){}}
-  function subscribe(){const c=client(),p=profile();if(!c||!p?.id||channel)return;try{channel=c.channel('psp-account-verification-'+p.id).on('postgres_changes',{event:'*',schema:'public',table:'account_verifications',filter:'user_id=eq.'+p.id},()=>load(true)).on('postgres_changes',{event:'*',schema:'public',table:'account_verification_settings'},()=>load(true)).subscribe()}catch(e){console.warn('Verification realtime unavailable',e)}}
+  function subscribeAuth(){const c=client();if(!c||authSub)return;try{const out=c.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT'){state=null;renderMini();markLocks();renderCard()}else if(event==='SIGNED_IN'||event==='TOKEN_REFRESHED'||event==='USER_UPDATED'){setTimeout(()=>load(true,true).then(subscribe),80)}});authSub=out?.data?.subscription||true}catch(_){}}
+  function subscribe(){const c=client(),p=profile();if(!c||!p?.id||channel)return;try{channel=c.channel('psp-account-verification-'+p.id).on('postgres_changes',{event:'*',schema:'public',table:'account_verifications',filter:'user_id=eq.'+p.id},()=>load(true,true)).on('postgres_changes',{event:'*',schema:'public',table:'account_verification_settings'},()=>load(true,true)).subscribe()}catch(e){console.warn('Verification realtime unavailable',e)}}
   function init(){if(installed)return;installed=true;renameUI();ensureMini();ensureModal();wrapShowPage();document.addEventListener('click',intercept,true);const timer=setInterval(()=>{renameUI();wrapShowPage();if(client())subscribeAuth();if(client()&&profile()){clearInterval(timer);load().then(subscribe)}},180);setTimeout(()=>clearInterval(timer),8000);setTimeout(()=>{subscribeAuth();load(true).then(subscribe)},500);const params=new URLSearchParams(location.search);if(params.get('profile')==='1')setTimeout(goProfile,800)}
   window.PSPAccountVerification={load,sendEmail,openFreeAccess,goProfile,getState:()=>state,showLock};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();window.addEventListener('pageshow',()=>setTimeout(()=>load(true),250));
 })();
