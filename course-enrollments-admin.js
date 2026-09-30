@@ -80,7 +80,42 @@ function providerDisplay(r){
 }
 function paymentStatusHtml(r){const p=providerDisplay(r);return `${pill(p.status,p.label)}${p.reason?`<div class="ace-provider-reason">${esc(p.reason)}</div>`:''}`}
 function receiptHtml(r){const url=String(r.receipt_url||r.provider_receipt_url||'').trim();return url?`<button class="ace-receipt-btn" onclick="openCourseReceipt(decodeURIComponent('${encodeURIComponent(url)}'))">View Slip</button>`:'—'}
-window.openCourseReceipt=function(url){const o=document.getElementById('aceReceiptOverlay'),b=document.getElementById('aceReceiptBody');if(!o||!b||!url)return;const safe=String(url);if(/^data:image\//i.test(safe)||/\.(png|jpe?g|webp|gif)(\?|#|$)/i.test(safe)){b.innerHTML=`<img src="${esc(safe)}" alt="Payment slip">`}else{b.innerHTML=`<iframe src="${esc(safe)}" title="Payment slip"></iframe>`}o.classList.add('open')};
+function courseReceiptStoragePath(value){
+  const raw=String(value||'').trim();if(!raw)return '';
+  if(!/^https?:\/\//i.test(raw))return raw.replace(/^\/+/, '');
+  try{
+    const u=new URL(raw);
+    const marker='/storage/v1/object/public/course-receipts/';
+    const signed='/storage/v1/object/sign/course-receipts/';
+    const i=u.pathname.indexOf(marker),j=u.pathname.indexOf(signed);
+    if(i>=0)return decodeURIComponent(u.pathname.slice(i+marker.length));
+    if(j>=0)return decodeURIComponent(u.pathname.slice(j+signed.length));
+  }catch(_){}
+  return '';
+}
+async function resolveCourseReceiptUrl(value){
+  const raw=String(value||'').trim();if(!raw)return '';
+  if(/^data:/i.test(raw))return raw;
+  const path=courseReceiptStoragePath(raw);
+  if(!path)return raw;
+  const client=db();if(!client)throw new Error('Database is not connected.');
+  const signed=await client.storage.from('course-receipts').createSignedUrl(path,600);
+  if(signed.error)throw signed.error;
+  return signed.data?.signedUrl||'';
+}
+window.openCourseReceipt=async function(url){
+  const o=document.getElementById('aceReceiptOverlay'),b=document.getElementById('aceReceiptBody');
+  if(!o||!b||!url)return;
+  o.classList.add('open');b.innerHTML='<div style="padding:24px;text-align:center;color:var(--text-muted)">Opening secure receipt…</div>';
+  try{
+    const safe=await resolveCourseReceiptUrl(url);
+    if(!safe)throw new Error('Receipt is unavailable.');
+    if(/^data:image\//i.test(safe)||/\.(png|jpe?g|webp|gif)(\?|#|$)/i.test(safe)){b.innerHTML=`<img src="${esc(safe)}" alt="Payment slip">`}
+    else{b.innerHTML=`<iframe src="${esc(safe)}" title="Payment slip"></iframe>`}
+  }catch(error){
+    b.innerHTML=`<div style="padding:24px;text-align:center;color:#ef4444">Could not open receipt: ${esc(error?.message||error)}</div>`;
+  }
+};
 window.closeCourseReceipt=function(){document.getElementById('aceReceiptOverlay')?.classList.remove('open');const b=document.getElementById('aceReceiptBody');if(b)b.innerHTML=''};
 function filtered(f){if(f==='free')return rows.filter(r=>{const k=String(r.course_key||'').trim().toLowerCase();return String(r.course_type||'').trim().toLowerCase()==='free'||(!['advanced','advance-fundamental','advance_fundamental','advanced-fundamental','advanced_fundamental'].includes(k)&&Number(r.price||0)<=0)});if(f==='paid-pending')return rows.filter(r=>(r.course_type==='paid'||r.course_key==='advanced')&&r.payment_status==='pending');if(f==='paid-approved')return rows.filter(r=>(r.course_type==='paid'||r.course_key==='advanced')&&r.payment_status==='approved');if(f==='rejected')return rows.filter(r=>['rejected','revoked'].includes(r.payment_status)||['rejected','cancelled'].includes(r.enrollment_status));return rows}
 function counts(){const vals={aceCountAll:rows.length,aceCountFree:filtered('free').length,aceCountPending:filtered('paid-pending').length,aceCountApproved:filtered('paid-approved').length,aceCountRejected:filtered('rejected').length,aceNavCount:rows.length};Object.entries(vals).forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.textContent=v})}
