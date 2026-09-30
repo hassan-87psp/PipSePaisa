@@ -111,5 +111,5 @@ async function load(){
   }
 }
 window.filterAdminUsers=apply;window.loadAdminUsers=load;
-function init(){inject();setTimeout(load,300)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+function init(){inject()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
