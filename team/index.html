@@ -7,7 +7,7 @@
 <title>PSP TEAM — PipSePaisa</title>
 <!-- V354 PSP TEAM desktop restore + earning source ledger; V353 mobile utility preserved -->
 <link rel="icon" href="/favicon.png">
-<link rel="manifest" href="./team-manifest.json?v=370">
+<link rel="manifest" href="./team-manifest.json?v=377">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="theme-color" content="#F39522">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -322,7 +322,7 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
 }
 </style>
 
-<meta name="psp-team-build" content="V370-month-data-sync">
+<meta name="psp-team-build" content="V377-monthly-paid-course-tabs">
 
 <style id="pspTeamMoreDownloadV304Css">
 @media(max-width:760px){
@@ -975,7 +975,7 @@ const PWA_INSTALLED_KEY='pipsepaisa-psp-team-installed-v278';
 const BASE='https://pipsepaisa.com';
 const TEAM_EARNINGS_CUTOFF_YM=202609; // Previous team earnings were manually settled before Sep 2026.
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
-const S={token:localStorage.getItem(SESSION_KEY)||'',identity:(()=>{try{return JSON.parse(localStorage.getItem(IDENTITY_KEY)||'{}')}catch(_){return{}}})(),metrics:null,metricsAvailable:false,earnDetail:[],earnDetailAvailable:false,links:[],clients:[],clientsLoading:false,errors:{},daily:null,dailyCurrentLoaded:false,dailyHistory:[],history:[],performanceRange:null,performanceMode:'today',performanceStart:null,performanceEnd:null,clientCourseFilter:'all',clientPeriodFilter:'all',clientSourceFilter:'all',clientSort:'newest',clientActionFilter:null,clientPage:1,clientPageSize:25,searchResults:[],view:'overview',loaded:{clients:false,daily:false,history:false,performance:false},cache:{overviewKey:'',overviewAt:0}};
+const S={token:localStorage.getItem(SESSION_KEY)||'',identity:(()=>{try{return JSON.parse(localStorage.getItem(IDENTITY_KEY)||'{}')}catch(_){return{}}})(),metrics:null,metricsAvailable:false,earnDetail:[],earnDetailAvailable:false,links:[],clients:[],clientsLoading:false,paidCourseMonth:[],paidCourseMonthLoaded:false,errors:{},daily:null,dailyCurrentLoaded:false,dailyHistory:[],history:[],performanceRange:null,performanceMode:'today',performanceStart:null,performanceEnd:null,clientCourseFilter:'all',clientPeriodFilter:'all',clientSourceFilter:'all',clientSort:'newest',clientActionFilter:null,clientPage:1,clientPageSize:25,searchResults:[],view:'overview',loaded:{clients:false,daily:false,history:false,performance:false},cache:{overviewKey:'',overviewAt:0}};
 const $=id=>document.getElementById(id);const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>Number(v||0);const money=v=>'$'+num(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});const fmt=v=>num(v).toLocaleString(undefined,{maximumFractionDigits:2});
 function row(data){return Array.isArray(data)?data[0]:data}function rpcObj(data){return row(data)||{}}
@@ -989,7 +989,7 @@ function friendlyManagerNameV290(v){const raw=String(v||'').trim(),x=raw.toLower
 function resetTeamScopedDataV361(){
   S.metrics=null;S.metricsAvailable=false;
   S.earnDetail=[];S.earnDetailAvailable=false;
-  S.links=[];S.clients=[];S.clientsLoading=false;
+  S.links=[];S.clients=[];S.clientsLoading=false;S.paidCourseMonth=[];S.paidCourseMonthLoaded=false;
   S.errors={};S.daily=null;S.dailyCurrentLoaded=false;S.dailyHistory=[];
   S.history=[];S.historyCurrent=null;S.performanceRange=null;
   S.performanceMode='today';S.performanceStart=null;S.performanceEnd=null;
@@ -1255,11 +1255,27 @@ async function loadEarningDetailV354(){
 async function loadHistory(force=false){if(S.loaded.history&&!force)return;const my=selectedMY();try{const currentMetrics=S.historyCurrent&&S.metricsAvailable?S.historyCurrent:null;let historyMonth=my.month,historyYear=my.year,historyMonths=6,prependCurrent=false;if(currentMetrics){const prev=new Date(Date.UTC(my.year,my.month-2,1));historyMonth=prev.getUTCMonth()+1;historyYear=prev.getUTCFullYear();historyMonths=5;prependCurrent=true}let r=await db.rpc('psp_team_history_v208',{p_session_token:S.token,p_months:historyMonths,p_month:historyMonth,p_year:historyYear});if(r.error){console.warn('V208 history fallback:',r.error);prependCurrent=false;r=await db.rpc('psp_team_command_center_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error)throw r.error;const raw=rpcObj(r.data),data=Array.isArray(raw?.history)?raw.history:raw,list=Array.isArray(data)?data:(Array.isArray(r.data)?r.data:[]);S.history=prependCurrent?[currentMetrics,...list].slice(0,6):list;S.loaded.history=true;renderTrend('overviewTrend');renderTrend('performanceTrend');renderHistory()}catch(e){console.warn('History unavailable:',e);if(handleTeamAuthFailureV365(e))return}}
 async function loadPerformanceRange(){const d=performanceDates();S.performanceStart=d.start;S.performanceEnd=d.end;try{let r=await db.rpc('psp_team_performance_range_v359',{p_session_token:S.token,p_start_date:d.start,p_end_date:d.end});if(r.error){console.warn('V359 performance fallback:',r.error);r=await db.rpc('psp_team_performance_range_v207',{p_session_token:S.token,p_start_date:d.start,p_end_date:d.end})}if(r.error)throw r.error;S.performanceRange=rpcObj(r.data);S.loaded.performance=true;setSectionNoticeV278('performanceDataNotice','')}catch(e){console.warn('Range performance unavailable:',e);if(handleTeamAuthFailureV365(e))return;S.performanceRange={};S.loaded.performance=false;setSectionNoticeV278('performanceDataNotice','Broker/performance totals are temporarily unavailable; the lead funnel below is calculated from your loaded clients.')}renderPerformanceRange()}
 function scheduleHistory(){if(S.loaded.history)return;const run=()=>loadHistory().catch(()=>{});if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:1200});else setTimeout(run,180)}
+async function loadPaidCourseMonthV377(){
+  const my=selectedMY();
+  try{
+    const r=await db.rpc('psp_team_paid_course_clients_v377',{p_session_token:S.token,p_month:my.month,p_year:my.year});
+    if(r.error)throw r.error;
+    S.paidCourseMonth=rpcRowsV280(r.data);
+    S.paidCourseMonthLoaded=true;
+    return true
+  }catch(e){
+    console.warn('Monthly paid-course clients unavailable:',e);
+    S.paidCourseMonth=[];S.paidCourseMonthLoaded=false;
+    if(authLikeErrorV278(e))S.errors.session=e;
+    return false
+  }
+}
+
 async function loadAll(force=false){
   if(!S.token)throw new Error('Please sign in.');
-  if(force){S.loaded.clients=false;S.clients=[];S.clientsLoading=false;S.metrics=null;S.metricsAvailable=false;S.earnDetail=[];S.earnDetailAvailable=false;S.dailyCurrentLoaded=false;S.errors={}}
+  if(force){S.loaded.clients=false;S.clients=[];S.clientsLoading=false;S.paidCourseMonth=[];S.paidCourseMonthLoaded=false;S.metrics=null;S.metricsAvailable=false;S.earnDetail=[];S.earnDetailAvailable=false;S.dailyCurrentLoaded=false;S.errors={}}
   if(!S.loaded.clients)renderClientLoadingV278();
-  const [metricsOk,linksOk,clientsOk,dailyOk]=await Promise.all([loadMetrics(force),loadLinks(),loadClients(),loadDailyCurrentV360()]);
+  const [metricsOk,linksOk,clientsOk,dailyOk,paidMonthOk]=await Promise.all([loadMetrics(force),loadLinks(),loadClients(),loadDailyCurrentV360(),loadPaidCourseMonthV377()]);
   if(S.errors.session&&!metricsOk&&!clientsOk&&!dailyOk){expireSessionV278('Your Team session expired. Please sign in again.');return false}
   renderAll();
   setSectionNoticeV278('earningsDataNotice',S.metricsAvailable?'':'Performance/earnings totals could not refresh right now. Your client list and client work remain available.');
@@ -1424,6 +1440,35 @@ function duplicateClientSetV273(rows){const seenE=new Map(),seenPerson=new Map()
 async function updateClientWorkV273(key,status,follow,sourceEl){if(!key)return;try{const followIso=follow?malaysiaInputToIso(follow):null;let r=await db.rpc('psp_team_update_client_work_v359',{p_session_token:S.token,p_client_key:key,p_status:status,p_follow_up_at:followIso,p_note:null});if(r.error&&String(r.error.message||'').includes('psp_team_update_client_work_v359'))r=await db.rpc('psp_team_update_client_work_v273',{p_session_token:S.token,p_client_key:key,p_status:status,p_follow_up_at:followIso,p_note:null});if(r.error)throw r.error;(S.clients||[]).forEach(c=>{if(clientKeyV273(c)===key){c.work_status=status;c.conversion_status=status;c.follow_up_at=followIso}});renderClients();renderKpis();renderOverviewOps();if(S.loaded.performance)renderPerformanceRange();toast('Client updated.')}catch(e){if(handleTeamAuthFailureV365(e))return;toast(e.message||'Could not update client.','bad');if(sourceEl)sourceEl.value=clientWorkStatus((S.clients||[]).find(c=>clientKeyV273(c)===key))}}
 async function copyClientNumberV273(v){const n=String(v||'');if(!n)return;try{await navigator.clipboard.writeText(n)}catch(_){const t=document.createElement('textarea');t.value=n;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}toast('WhatsApp number copied.')}
 function courseFilterCountsV273(rows){const counts={all:(rows||[]).length,sajid_b1:0,sajid_b2:0,sajid_b3:0,fund_b1:0,fund_b2:0,advance:0,advance_fund:0};(rows||[]).forEach(c=>{clientCourseInfo(c).keys.forEach(k=>{if(k in counts)counts[k]++})});return counts}
+function isPaidCourseFilterV377(k){return k==='advance'||k==='advance_fund'}
+function paidCourseStudentsV377(family){
+  const map=new Map();
+  for(const r of S.paidCourseMonth||[]){
+    if(String(r.course_family||'')!==family)continue;
+    const key=String(r.user_id||r.client_id||r.whatsapp||r.email||'').trim();if(!key)continue;
+    let x=map.get(key);
+    if(!x){
+      x=Object.assign({},r,{amount_total:0,commission_total:0,course_names:[],paid_events:0});
+      map.set(key,x)
+    }
+    x.amount_total+=num(r.amount);x.commission_total+=num(r.commission);x.paid_events++;
+    const cn=String(r.course_name||'Paid Course').trim();if(cn&&!x.course_names.includes(cn))x.course_names.push(cn);
+    if(!x.paid_at||new Date(r.paid_at)>new Date(x.paid_at))x.paid_at=r.paid_at;
+    if(r.is_current_owner===true||String(r.is_current_owner).toLowerCase()==='true'){
+      x.is_current_owner=true;x.client_key=r.client_key||x.client_key;x.work_status=r.work_status||x.work_status;x.follow_up_at=r.follow_up_at||x.follow_up_at
+    }
+  }
+  return [...map.values()]
+}
+function setClientTableModeV377(paid){
+  const th=[...document.querySelectorAll('#view-clients .client-table-v273 thead th')];
+  if(th[4])th[4].textContent=paid?'Paid Date':'Assigned Date';
+  if(th[5])th[5].textContent='Status';
+  if(th[6])th[6].textContent=paid?'Commission':'Next Follow-up';
+  const tip=document.querySelector('#view-clients .client-summary-bar span:first-child');
+  if(tip)tip.innerHTML=paid?'<b>Commission view:</b> '+esc(monthLabel(selectedMY()))+' approved paid students. Payment date decides the month.':'<b>Tip:</b> New → Contacted → Interested → Follow-up → Converted.';
+}
+
 function syncMobileClientFiltersV278(){const pairs=[['clientSourceFilter','mobileClientSourceFilter'],['clientStatusFilter','mobileClientStatusFilter'],['clientPeriodFilter','mobileClientPeriodFilter'],['clientSort','mobileClientSort']];pairs.forEach(([a,b])=>{if($(a)&&$(b))$(b).value=$(a).value});updateMobileFilterBadgeV278()}
 function updateMobileFilterBadgeV278(){let n=0;if($('clientSourceFilter')&&$('clientSourceFilter').value!=='all')n++;if($('clientStatusFilter')&&$('clientStatusFilter').value!=='all')n++;if($('clientPeriodFilter')&&$('clientPeriodFilter').value!=='all')n++;if($('clientSort')&&$('clientSort').value!=='newest')n++;const b=$('clientMobileFilterBtn'),c=$('clientMobileFilterCount');if(c)c.textContent=String(n);if(b)b.classList.toggle('active',n>0)}
 function openMobileClientFiltersV278(){syncMobileClientFiltersV278();const o=$('clientMobileFilterOverlay');if(o){o.classList.add('open');o.setAttribute('aria-hidden','false')}}
@@ -1438,16 +1483,141 @@ function renderClients(){
     if($('clientVisibleCount'))$('clientVisibleCount').innerHTML='<b>—</b> clients';if($('clientPageInfo'))$('clientPageInfo').textContent='Client data unavailable';
     if($('clientRows'))$('clientRows').innerHTML='<tr class="client-error-v278"><td colspan="8" class="client-state-v278"><b>Could not load clients</b>Tap Refresh above. Performance data failures no longer block this list.</td></tr>';return
   }
-  const q=($('clientSearch')&&$('clientSearch').value||'').trim().toLowerCase(),f=$('clientStatusFilter')&&$('clientStatusFilter').value||'all',cf=S.clientCourseFilter||'all',pf=$('clientPeriodFilter')&&$('clientPeriodFilter').value||S.clientPeriodFilter||'all',sf=$('clientSourceFilter')&&$('clientSourceFilter').value||S.clientSourceFilter||'all',sort=$('clientSort')&&$('clientSort').value||S.clientSort||'newest';
+
+  const q=($('clientSearch')&&$('clientSearch').value||'').trim().toLowerCase(),
+        f=$('clientStatusFilter')&&$('clientStatusFilter').value||'all',
+        cf=S.clientCourseFilter||'all',
+        pf=$('clientPeriodFilter')&&$('clientPeriodFilter').value||S.clientPeriodFilter||'all',
+        sf=$('clientSourceFilter')&&$('clientSourceFilter').value||S.clientSourceFilter||'all',
+        sort=$('clientSort')&&$('clientSort').value||S.clientSort||'newest';
+
   S.clientPeriodFilter=pf;S.clientSourceFilter=sf;S.clientSort=sort;S.clientPageSize=Number($('clientPageSize')&&$('clientPageSize').value||S.clientPageSize||25);
-  const all=S.clients||[],counts=courseFilterCountsV273(all);document.querySelectorAll('#clientCourseFilters .client-filter').forEach(b=>{const k=b.dataset.course;b.classList.toggle('active',k===cf);const base=(b.textContent||'').replace(/\s*\([\d,.]+\)\s*$/,'');b.textContent=base+' ('+fmt(counts[k]||0)+')'});
-  const activeChip=document.querySelector('#clientCourseFilters .client-filter.active');if(activeChip&&window.innerWidth<=760)setTimeout(()=>activeChip.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'}),0);
-  const today=malaysiaToday();let rows=all.filter(c=>{if(S.clientActionFilter==='follow'&&!clientNeedsFollowupV355(c))return false;if(S.clientActionFilter==='due'&&!clientFollowupDueV355(c))return false;if(S.clientActionFilter==='converted_auto'&&!clientAutoConvertedV359(c))return false;if(pf==='month'&&!clientInSelectedMonth(c.registration_at))return false;if(pf==='today'&&clientDateKey(c.registration_at)!==today)return false;const source=clientSourceKeyV273(c),course=clientCourseInfo(c),status=clientWorkStatus(c),t=[c.client_id,c.full_name,c.whatsapp,course.text,c.campaign,c.reference_code,source,status].join(' ').toLowerCase();return(!q||t.includes(q))&&(f==='all'||status===f)&&(cf==='all'||course.keys.has(cf))&&(sf==='all'||source===sf)}).map(c=>({c,course:clientCourseInfo(c),source:clientSourceKeyV273(c),status:clientWorkStatus(c)}));
-  const statusOrder={new:1,contacted:2,interested:3,follow_up:4,converted:5,not_interested:6};rows.sort((a,b)=>{if(sort==='oldest')return new Date(a.c.registration_at||0)-new Date(b.c.registration_at||0);if(sort==='az')return String(a.c.full_name||'').localeCompare(String(b.c.full_name||''));if(sort==='za')return String(b.c.full_name||'').localeCompare(String(a.c.full_name||''));if(sort==='status')return(statusOrder[a.status]||9)-(statusOrder[b.status]||9);if(sort==='course')return a.course.text.localeCompare(b.course.text);return new Date(b.c.registration_at||0)-new Date(a.c.registration_at||0)});
-  const total=rows.length,pages=Math.max(1,Math.ceil(total/S.clientPageSize));S.clientPage=Math.min(Math.max(1,S.clientPage||1),pages);const start=(S.clientPage-1)*S.clientPageSize,visible=rows.slice(start,start+S.clientPageSize),dupes=duplicateClientSetV273(all);
-  if($('clientVisibleCount'))$('clientVisibleCount').innerHTML='<b>'+fmt(total)+'</b> clients';if($('clientPageInfo'))$('clientPageInfo').textContent=total?`Showing ${start+1}–${Math.min(start+visible.length,total)} of ${total}`:'No matching clients';if($('clientPagerText'))$('clientPagerText').textContent=`Page ${S.clientPage} of ${pages}`;if($('clientPrev'))$('clientPrev').disabled=S.clientPage<=1;if($('clientNext'))$('clientNext').disabled=S.clientPage>=pages;const pager=document.querySelector('.client-pager-v273');if(pager)pager.classList.toggle('hidden',total===0||pages<=1);
-  $('clientRows').innerHTML=visible.length?visible.map(({c,course,source,status},i)=>{const wa=String(c.whatsapp||'').replace(/\D/g,''),key=clientKeyV273(c),follow=malaysiaDateTimeInput(c.follow_up_at),srcInfo=clientSourceInfo(c),srcLabel=srcInfo.label,dup=dupes.has(key);return `<tr><td><b>${start+i+1}</b></td><td><div class="link-name">${esc(c.full_name||'Client')}</div><div class="muted">${esc(c.client_id||'—')}</div>${dup?'<span class="duplicate-v273">Possible duplicate</span>':''}</td><td><div class="course-stack">${course.labels.map(x=>`<span class="course-pill">${esc(x)}</span>`).join('')||'<span class="muted">No course</span>'}</div></td><td><span class="source-pill ${srcInfo.key==='ad'?'auto':'legacy'}">${esc(srcLabel)}</span>${c.campaign?`<div class="source-mini-v273">${esc(c.campaign)}</div>`:''}</td><td>${dateLabel(c.registration_at)}</td><td><select class="client-status-select-v273" data-client-status="${esc(key)}">${['new','contacted','interested','follow_up','converted','not_interested'].map(x=>`<option value="${x}" ${status===x?'selected':''}>${statusLabelV273(x)}</option>`).join('')}</select></td><td><input class="follow-input-v273" data-client-follow="${esc(key)}" type="datetime-local" value="${esc(follow)}"></td><td><div class="contact-stack-v273">${wa?`<a class="wa-btn" href="https://wa.me/${wa}" target="_blank" rel="noopener">Open WhatsApp</a>`:'—'}</div></td></tr>`}).join(''):'<tr class="client-empty-v278"><td colspan="8" class="client-state-v278"><b>No clients match these filters</b>Try All batches or reset your filters.</td></tr>';
-  document.querySelectorAll('[data-client-status]').forEach(el=>el.onchange=()=>{const key=el.dataset.clientStatus,follow=document.querySelector('[data-client-follow="'+CSS.escape(key)+'"]')&&document.querySelector('[data-client-follow="'+CSS.escape(key)+'"]').value||null;updateClientWorkV273(key,el.value,follow,el)});document.querySelectorAll('[data-client-follow]').forEach(el=>el.onchange=()=>{const key=el.dataset.clientFollow,stEl=document.querySelector('[data-client-status="'+CSS.escape(key)+'"]'),status=stEl&&stEl.value||'follow_up';updateClientWorkV273(key,status==='new'?'follow_up':status,el.value||null)})
+
+  const all=S.clients||[],counts=courseFilterCountsV273(all);
+  // Paid tabs are monthly commission tabs: counts come only from this selected month's paid events.
+  counts.advance=paidCourseStudentsV377('advance').length;
+  counts.advance_fund=paidCourseStudentsV377('advance_fund').length;
+
+  document.querySelectorAll('#clientCourseFilters .client-filter').forEach(b=>{
+    const k=b.dataset.course;b.classList.toggle('active',k===cf);
+    const base=(b.textContent||'').replace(/\s*\([\d,.]+\)\s*$/,'');
+    b.textContent=base+' ('+fmt(counts[k]||0)+')'
+  });
+
+  const activeChip=document.querySelector('#clientCourseFilters .client-filter.active');
+  if(activeChip&&window.innerWidth<=760)setTimeout(()=>activeChip.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'}),0);
+
+  if(isPaidCourseFilterV377(cf)){
+    setClientTableModeV377(true);
+    if(!S.paidCourseMonthLoaded){
+      if($('clientVisibleCount'))$('clientVisibleCount').innerHTML='<b>—</b> students';
+      if($('clientPageInfo'))$('clientPageInfo').textContent='Paid-course data unavailable';
+      $('clientRows').innerHTML='<tr class="client-error-v278"><td colspan="8" class="client-state-v278"><b>Could not load monthly paid students</b>Refresh the panel and try again.</td></tr>';
+      return
+    }
+
+    let paid=paidCourseStudentsV377(cf).filter(r=>{
+      const src=clientSourceInfo({source:r.assignment_source||'Assigned'}).key,
+            st=(r.is_current_owner===true||String(r.is_current_owner).toLowerCase()==='true')?clientWorkStatus(r):'transferred',
+            t=[r.client_id,r.full_name,r.whatsapp,r.course_names.join(' '),r.assignment_source,r.current_manager_name,st].join(' ').toLowerCase();
+      return (!q||t.includes(q))&&(f==='all'||st===f)&&(sf==='all'||src===sf)
+    });
+
+    paid.sort((a,b)=>{
+      if(sort==='oldest')return new Date(a.paid_at||0)-new Date(b.paid_at||0);
+      if(sort==='az')return String(a.full_name||'').localeCompare(String(b.full_name||''));
+      if(sort==='za')return String(b.full_name||'').localeCompare(String(a.full_name||''));
+      if(sort==='course')return String(a.course_names.join(', ')).localeCompare(String(b.course_names.join(', ')));
+      return new Date(b.paid_at||0)-new Date(a.paid_at||0)
+    });
+
+    const total=paid.length,pages=Math.max(1,Math.ceil(total/S.clientPageSize));
+    S.clientPage=Math.min(Math.max(1,S.clientPage||1),pages);
+    const start=(S.clientPage-1)*S.clientPageSize,visible=paid.slice(start,start+S.clientPageSize);
+
+    if($('clientVisibleCount'))$('clientVisibleCount').innerHTML='<b>'+fmt(total)+'</b> paid students';
+    if($('clientPageInfo'))$('clientPageInfo').textContent=total?`Showing ${start+1}–${Math.min(start+visible.length,total)} of ${total} · ${monthLabel(selectedMY())}`:'No paid students in '+monthLabel(selectedMY());
+    if($('clientPagerText'))$('clientPagerText').textContent=`Page ${S.clientPage} of ${pages}`;
+    if($('clientPrev'))$('clientPrev').disabled=S.clientPage<=1;if($('clientNext'))$('clientNext').disabled=S.clientPage>=pages;
+    const pager=document.querySelector('.client-pager-v273');if(pager)pager.classList.toggle('hidden',total===0||pages<=1);
+
+    $('clientRows').innerHTML=visible.length?visible.map((r,i)=>{
+      const wa=String(r.whatsapp||'').replace(/\D/g,''),
+            current=r.is_current_owner===true||String(r.is_current_owner).toLowerCase()==='true',
+            key=String(r.client_key||''),
+            status=current?clientWorkStatus(r):'transferred',
+            srcInfo=clientSourceInfo({source:r.assignment_source||'Assigned'}),
+            manager=String(r.current_manager_name||'').trim(),
+            courseLabel=(r.course_names&&r.course_names.length?r.course_names:[r.course_name||'Paid Course']).join(', '),
+            statusHtml=current
+              ?`<select class="client-status-select-v273" data-client-status="${esc(key)}">${['new','contacted','interested','follow_up','converted','not_interested'].map(x=>`<option value="${x}" ${status===x?'selected':''}>${statusLabelV273(x)}</option>`).join('')}</select>`
+              :`<span class="source-pill legacy">Transferred</span>${manager?`<div class="source-mini-v273">Now: ${esc(manager)}</div>`:''}`;
+      return `<tr>
+        <td><b>${start+i+1}</b></td>
+        <td><div class="link-name">${esc(r.full_name||'Client')}</div><div class="muted">${esc(r.client_id||'—')}</div></td>
+        <td><div class="course-stack"><span class="course-pill">${esc(courseLabel)}</span><span class="source-mini-v273">Paid sale · ${money(r.amount_total)}</span></div></td>
+        <td><span class="source-pill ${srcInfo.key==='ad'?'auto':'legacy'}">${esc(srcInfo.label)}</span></td>
+        <td><b>${dateLabel(r.paid_at)}</b></td>
+        <td>${statusHtml}</td>
+        <td><div class="link-name">${money(r.commission_total)}</div><div class="muted">${money(r.amount_total)} × ${fmt(r.commission_rate)}%</div></td>
+        <td><div class="contact-stack-v273">${wa?`<a class="wa-btn" href="https://wa.me/${wa}" target="_blank" rel="noopener">Open WhatsApp</a>`:'—'}</div></td>
+      </tr>`
+    }).join(''):'<tr class="client-empty-v278"><td colspan="8" class="client-state-v278"><b>No paid students in '+esc(monthLabel(selectedMY()))+'</b>This tab only shows approved paid-course sales credited for the selected month.</td></tr>';
+
+    document.querySelectorAll('[data-client-status]').forEach(el=>el.onchange=()=>{
+      const key=el.dataset.clientStatus;
+      updateClientWorkV273(key,el.value,null,el)
+    });
+    return
+  }
+
+  setClientTableModeV377(false);
+  const today=malaysiaToday();
+  let rows=all.filter(c=>{
+    if(S.clientActionFilter==='follow'&&!clientNeedsFollowupV355(c))return false;
+    if(S.clientActionFilter==='due'&&!clientFollowupDueV355(c))return false;
+    if(S.clientActionFilter==='converted_auto'&&!clientAutoConvertedV359(c))return false;
+    if(pf==='month'&&!clientInSelectedMonth(c.registration_at))return false;
+    if(pf==='today'&&clientDateKey(c.registration_at)!==today)return false;
+    const source=clientSourceKeyV273(c),course=clientCourseInfo(c),status=clientWorkStatus(c),
+          t=[c.client_id,c.full_name,c.whatsapp,course.text,c.campaign,c.reference_code,source,status].join(' ').toLowerCase();
+    return(!q||t.includes(q))&&(f==='all'||status===f)&&(cf==='all'||course.keys.has(cf))&&(sf==='all'||source===sf)
+  }).map(c=>({c,course:clientCourseInfo(c),source:clientSourceKeyV273(c),status:clientWorkStatus(c)}));
+
+  const statusOrder={new:1,contacted:2,interested:3,follow_up:4,converted:5,not_interested:6};
+  rows.sort((a,b)=>{
+    if(sort==='oldest')return new Date(a.c.registration_at||0)-new Date(b.c.registration_at||0);
+    if(sort==='az')return String(a.c.full_name||'').localeCompare(String(b.c.full_name||''));
+    if(sort==='za')return String(b.c.full_name||'').localeCompare(String(a.c.full_name||''));
+    if(sort==='status')return(statusOrder[a.status]||9)-(statusOrder[b.status]||9);
+    if(sort==='course')return a.course.text.localeCompare(b.course.text);
+    return new Date(b.c.registration_at||0)-new Date(a.c.registration_at||0)
+  });
+
+  const total=rows.length,pages=Math.max(1,Math.ceil(total/S.clientPageSize));
+  S.clientPage=Math.min(Math.max(1,S.clientPage||1),pages);
+  const start=(S.clientPage-1)*S.clientPageSize,visible=rows.slice(start,start+S.clientPageSize),dupes=duplicateClientSetV273(all);
+
+  if($('clientVisibleCount'))$('clientVisibleCount').innerHTML='<b>'+fmt(total)+'</b> clients';
+  if($('clientPageInfo'))$('clientPageInfo').textContent=total?`Showing ${start+1}–${Math.min(start+visible.length,total)} of ${total}`:'No matching clients';
+  if($('clientPagerText'))$('clientPagerText').textContent=`Page ${S.clientPage} of ${pages}`;
+  if($('clientPrev'))$('clientPrev').disabled=S.clientPage<=1;if($('clientNext'))$('clientNext').disabled=S.clientPage>=pages;
+  const pager=document.querySelector('.client-pager-v273');if(pager)pager.classList.toggle('hidden',total===0||pages<=1);
+
+  $('clientRows').innerHTML=visible.length?visible.map(({c,course,source,status},i)=>{
+    const wa=String(c.whatsapp||'').replace(/\D/g,''),key=clientKeyV273(c),follow=malaysiaDateTimeInput(c.follow_up_at),
+          srcInfo=clientSourceInfo(c),srcLabel=srcInfo.label,dup=dupes.has(key);
+    return `<tr><td><b>${start+i+1}</b></td><td><div class="link-name">${esc(c.full_name||'Client')}</div><div class="muted">${esc(c.client_id||'—')}</div>${dup?'<span class="duplicate-v273">Possible duplicate</span>':''}</td><td><div class="course-stack">${course.labels.map(x=>`<span class="course-pill">${esc(x)}</span>`).join('')||'<span class="muted">No course</span>'}</div></td><td><span class="source-pill ${srcInfo.key==='ad'?'auto':'legacy'}">${esc(srcLabel)}</span>${c.campaign?`<div class="source-mini-v273">${esc(c.campaign)}</div>`:''}</td><td>${dateLabel(c.registration_at)}</td><td><select class="client-status-select-v273" data-client-status="${esc(key)}">${['new','contacted','interested','follow_up','converted','not_interested'].map(x=>`<option value="${x}" ${status===x?'selected':''}>${statusLabelV273(x)}</option>`).join('')}</select></td><td><input class="follow-input-v273" data-client-follow="${esc(key)}" type="datetime-local" value="${esc(follow)}"></td><td><div class="contact-stack-v273">${wa?`<a class="wa-btn" href="https://wa.me/${wa}" target="_blank" rel="noopener">Open WhatsApp</a>`:'—'}</div></td></tr>`
+  }).join(''):'<tr class="client-empty-v278"><td colspan="8" class="client-state-v278"><b>No clients match these filters</b>Try All batches or reset your filters.</td></tr>';
+
+  document.querySelectorAll('[data-client-status]').forEach(el=>el.onchange=()=>{
+    const key=el.dataset.clientStatus,follow=document.querySelector('[data-client-follow="'+CSS.escape(key)+'"]')&&document.querySelector('[data-client-follow="'+CSS.escape(key)+'"]').value||null;
+    updateClientWorkV273(key,el.value,follow,el)
+  });
+  document.querySelectorAll('[data-client-follow]').forEach(el=>el.onchange=()=>{
+    const key=el.dataset.clientFollow,stEl=document.querySelector('[data-client-status="'+CSS.escape(key)+'"]'),status=stEl&&stEl.value||'follow_up';
+    updateClientWorkV273(key,status==='new'?'follow_up':status,el.value||null)
+  })
 }
 function csvCellV299(v){const s=String(v==null?'':v).replace(/\r?\n/g,' ').trim();return '"'+s.replace(/"/g,'""')+'"'}
 async function exportAssignedClientsV299(){
@@ -1614,12 +1784,12 @@ function closeMobileMoreV277(){const o=$('mobileMoreOverlay');if(o){o.classList.
 function updateMobileDateV300(){const el=$('mobileTodayDate');if(!el)return;try{el.textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Kuala_Lumpur',weekday:'short',day:'2-digit',month:'short',year:'numeric'}).format(new Date())}catch(_){el.textContent=malaysiaToday()}const label=$('mobilePeriodLabel');if(label)label.textContent='Selected · '+monthLabel(selectedMY())}
 function ensureMobileChromeV300(){if(!(window.matchMedia&&window.matchMedia('(max-width:760px)').matches))return;const nav=document.querySelector('.mobile-bottom-nav');if(nav){nav.style.removeProperty('display');nav.style.removeProperty('visibility');nav.style.removeProperty('opacity')}updateMobileDateV300();setPwaInstallStateV277()}
 function bindMobileQuickActionsV300(){}
-function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>changeView(b.dataset.view));document.querySelectorAll('.mobile-tab[data-view]').forEach(b=>b.onclick=()=>{const d=document.querySelector('.sidebar .nav-btn[data-view=\"'+b.dataset.view+'\"]');if(d)d.click();else changeView(b.dataset.view)});document.querySelectorAll('[data-mobile-view]').forEach(b=>b.onclick=()=>{const d=document.querySelector('.sidebar .nav-btn[data-view=\"'+b.dataset.mobileView+'\"]');if(d)d.click();else changeView(b.dataset.mobileView)});$('loginBtn').onclick=signIn;$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});$('logoutBtn').onclick=logout;$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');$('monthSelect').onchange=refreshSelectedMonth;$('yearSelect').onchange=refreshSelectedMonth;$('dailySaveBtn').onclick=saveDaily;['clientSearch','clientStatusFilter','clientPeriodFilter','clientSourceFilter','clientSort','clientPageSize'].forEach(id=>{const el=$(id);if(el)el.addEventListener(id==='clientSearch'?'input':'change',()=>{S.clientActionFilter=null;S.clientPage=1;renderClients()})});$('clientCourseFilters').onclick=e=>{const b=e.target.closest('[data-course]');if(!b)return;S.clientActionFilter=null;S.clientCourseFilter=b.dataset.course||'all';S.clientPage=1;renderClients()};$('clientPrev').onclick=()=>{S.clientPage=Math.max(1,S.clientPage-1);renderClients()};$('clientNext').onclick=()=>{S.clientPage++;renderClients()};$('clientRefreshBtn').onclick=async()=>{const b=$('clientRefreshBtn');b.disabled=true;b.textContent='Refreshing…';S.loaded.clients=false;S.clientsLoading=false;S.clientActionFilter=null;await loadClients();S.clientPage=1;renderClients();renderKpis();renderOverviewOps();b.disabled=false;b.textContent='↻ Refresh'};$('ownershipSearchBtn').onclick=searchOwnershipV273;$('ownershipSearch').addEventListener('keydown',e=>{if(e.key==='Enter')searchOwnershipV273()});$('notifyBtn').onclick=()=>toast('No new Team notifications.');$('performanceRangeTools').onclick=e=>{const b=e.target.closest('[data-range]');if(b)setPerformanceRange(b.dataset.range)};$('applyCustomRange').onclick=applyCustomPerformanceRange;if($('historySearch'))$('historySearch').oninput=renderHistory;if($('legacyLinkSearch'))$('legacyLinkSearch').oninput=renderLinks;
+function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>changeView(b.dataset.view));document.querySelectorAll('.mobile-tab[data-view]').forEach(b=>b.onclick=()=>{const d=document.querySelector('.sidebar .nav-btn[data-view=\"'+b.dataset.view+'\"]');if(d)d.click();else changeView(b.dataset.view)});document.querySelectorAll('[data-mobile-view]').forEach(b=>b.onclick=()=>{const d=document.querySelector('.sidebar .nav-btn[data-view=\"'+b.dataset.mobileView+'\"]');if(d)d.click();else changeView(b.dataset.mobileView)});$('loginBtn').onclick=signIn;$('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')signIn()});$('logoutBtn').onclick=logout;$('themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');$('monthSelect').onchange=refreshSelectedMonth;$('yearSelect').onchange=refreshSelectedMonth;$('dailySaveBtn').onclick=saveDaily;['clientSearch','clientStatusFilter','clientPeriodFilter','clientSourceFilter','clientSort','clientPageSize'].forEach(id=>{const el=$(id);if(el)el.addEventListener(id==='clientSearch'?'input':'change',()=>{S.clientActionFilter=null;S.clientPage=1;renderClients()})});$('clientCourseFilters').onclick=e=>{const b=e.target.closest('[data-course]');if(!b)return;S.clientActionFilter=null;S.clientCourseFilter=b.dataset.course||'all';S.clientPage=1;renderClients()};$('clientPrev').onclick=()=>{S.clientPage=Math.max(1,S.clientPage-1);renderClients()};$('clientNext').onclick=()=>{S.clientPage++;renderClients()};$('clientRefreshBtn').onclick=async()=>{const b=$('clientRefreshBtn');b.disabled=true;b.textContent='Refreshing…';S.loaded.clients=false;S.clientsLoading=false;S.paidCourseMonthLoaded=false;S.clientActionFilter=null;await Promise.all([loadClients(),loadPaidCourseMonthV377()]);S.clientPage=1;renderClients();renderKpis();renderOverviewOps();b.disabled=false;b.textContent='↻ Refresh'};$('ownershipSearchBtn').onclick=searchOwnershipV273;$('ownershipSearch').addEventListener('keydown',e=>{if(e.key==='Enter')searchOwnershipV273()});$('notifyBtn').onclick=()=>toast('No new Team notifications.');$('performanceRangeTools').onclick=e=>{const b=e.target.closest('[data-range]');if(b)setPerformanceRange(b.dataset.range)};$('applyCustomRange').onclick=applyCustomPerformanceRange;if($('historySearch'))$('historySearch').oninput=renderHistory;if($('legacyLinkSearch'))$('legacyLinkSearch').oninput=renderLinks;
   if($('clientMobileFilterBtn'))$('clientMobileFilterBtn').onclick=openMobileClientFiltersV278;if($('clientMobileFilterClose'))$('clientMobileFilterClose').onclick=closeMobileClientFiltersV278;if($('clientMobileFilterOverlay'))$('clientMobileFilterOverlay').onclick=e=>{if(e.target===$('clientMobileFilterOverlay'))closeMobileClientFiltersV278()};if($('clientMobileFilterApply'))$('clientMobileFilterApply').onclick=applyMobileClientFiltersV278;if($('clientMobileFilterReset'))$('clientMobileFilterReset').onclick=()=>{resetMobileClientFiltersV278();applyMobileClientFiltersV278()};
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=370',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=377',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
