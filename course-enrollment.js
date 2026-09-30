@@ -830,8 +830,13 @@
 
   async function existingEnrollment(){
     if(!activeUser||!selectedCourse)return null;
-    let q=getClient().from('course_enrollments').select('*').eq('user_id',activeUser.id).eq('course_key',selectedCourse.dbKey||selectedCourse.key);
+    let q=getClient().from('course_enrollments').select('*').eq('user_id',activeUser.id);
+    // Current free batches have used more than one historical course_key
+    // (for example basic and basic-b2). psp_batch_key is the canonical batch
+    // identity and must win so an existing Ad/website enrollment is reused
+    // instead of attempting a duplicate row.
     if(selectedCourse.batchKey)q=q.eq('psp_batch_key',selectedCourse.batchKey);
+    else q=q.eq('course_key',selectedCourse.dbKey||selectedCourse.key);
     q=q.order('created_at',{ascending:false}).limit(1);
     const {data,error}=await q.maybeSingle();
     if(error && !/0 rows|no rows/i.test(error.message||''))throw error;
