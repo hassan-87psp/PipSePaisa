@@ -1175,8 +1175,7 @@ async function loadAll(force=false){
   if(!S.token)throw new Error('Please sign in.');
   if(force){S.loaded.clients=false;S.clients=[];S.clientsLoading=false;S.metrics=null;S.metricsAvailable=false;S.earnDetail=[];S.earnDetailAvailable=false;S.errors={}}
   if(!S.loaded.clients)renderClientLoadingV278();
-  const [metricsOk,linksOk,clientsOk]=await Promise.all([loadMetrics(force),loadLinks(),loadClients()]);
-  const earningsOk=await loadEarningDetailV354();
+  const [metricsOk,linksOk,clientsOk,earningsOk]=await Promise.all([loadMetrics(force),loadLinks(),loadClients(),loadEarningDetailV354()]);
   if(S.errors.session&&!metricsOk&&!clientsOk&&!earningsOk){expireSessionV278('Your Team session expired. Please sign in again.');return false}
   renderAll();
   setSectionNoticeV278('earningsDataNotice',S.metricsAvailable?'':'Performance/earnings totals could not refresh right now. Your client list and client work remain available.');
@@ -1418,9 +1417,10 @@ function renderEarningSourcesV354(){
           rate=r.rate_kind==='percent'?`${fmt(r.rate)}%`:r.rate_kind==='usd_per_lot'?`$${fmt(r.rate)}/lot`:'—',
           client=r.client_name?`<b>${esc(r.client_name)}</b><small>${esc(r.client_id||'—')}</small>`:'<b>System / Broker Entry</b><small>No client-level lot allocation</small>',
           when=r.event_at?dateLabel(r.event_at):'Monthly adjustment',
-          typeLabel=type==='course'?'Course':type==='vip'?'VIP':type==='broker'?'Broker Lots':'Adjustment';
+          typeLabel=type==='course'?'Course':type==='vip'?'VIP':type==='broker'?'Broker Lots':'Adjustment',
+          sourceDetail=type==='course'?'Approved paid-course sale':type==='vip'?'Approved VIP conversion':(r.detail||when);
     return `<div class="earning-ledger-row-v354">
-      <div class="ledger-source-v354"><span class="ledger-type-v354 ${esc(type)}">${typeLabel}</span><b>${esc(r.source_name||'Earning source')}</b><small>${esc(r.detail||when)}</small></div>
+      <div class="ledger-source-v354"><span class="ledger-type-v354 ${esc(type)}">${typeLabel}</span><b>${esc(r.source_name||'Earning source')}</b><small>${esc(sourceDetail)}</small></div>
       <div class="ledger-client-v354">${client}</div>
       <div class="ledger-cell-v354 ledger-basis-v354"><span>Basis</span><b>${esc(basis)}</b></div>
       <div class="ledger-cell-v354 ledger-rate-v354"><span>Rate</span><b>${esc(rate)}</b></div>
