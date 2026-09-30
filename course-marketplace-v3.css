@@ -1958,3 +1958,16 @@ body.dark #page-mycourses .psp-course-tile:not(.paid) h3,
     grid-template-columns:repeat(2,minmax(0,1fr))!important;
   }
 }
+
+
+/* ===== My Courses Full Width Cards V358 =====
+   Remove the old 1120px catalog cap so four desktop cards use the full
+   available learning-hub width, matching the Admin Courses proportions. */
+@media (min-width:1180px){
+  #page-mycourses .psp-course-card-grid{
+    width:100%!important;
+    max-width:none!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:18px!important;
+  }
+}
