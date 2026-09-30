@@ -25,8 +25,8 @@ function syncWhatsapp(){
     window.sb.auth.getSession().then(({data})=>{
       const user=data?.session?.user;if(!user)return;
       const meta=user.user_metadata||{};const phone=String(meta.whatsapp||meta.phone||meta.whatsapp_number||'').trim();if(!phone)return;
-      window.sb.from('profiles').select('id,whatsapp,whatsapp_number,phone').eq('id',user.id).maybeSingle().then(({data:profile})=>{
-        if(profile&&(profile.whatsapp||profile.whatsapp_number||profile.phone))return;
+      window.sb.from('profiles').select('id,whatsapp,phone').eq('id',user.id).maybeSingle().then(({data:profile})=>{
+        if(profile&&(profile.whatsapp||profile.phone))return;
         window.sb.from('profiles').upsert({id:user.id,email:user.email,full_name:meta.full_name||user.email?.split('@')[0],whatsapp:phone},{onConflict:'id'}).then(()=>{});
       });
     });
