@@ -832,6 +832,7 @@
     if(!activeUser||!selectedCourse)return null;
     let q=getClient().from('course_enrollments').select('*').eq('user_id',activeUser.id).eq('course_key',selectedCourse.dbKey||selectedCourse.key);
     if(selectedCourse.batchKey)q=q.eq('psp_batch_key',selectedCourse.batchKey);
+    q=q.order('created_at',{ascending:false}).limit(1);
     const {data,error}=await q.maybeSingle();
     if(error && !/0 rows|no rows/i.test(error.message||''))throw error;
     return data||null;
