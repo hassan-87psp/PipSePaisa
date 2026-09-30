@@ -122,14 +122,28 @@ function normalize(row,key){
   const provider=String(row.payment_provider||'').trim().toLowerCase();
   const method=String(row.payment_method||'').trim().toLowerCase();
   const ps=String(row.provider_status||'').trim().toLowerCase();
+  const payStatus=String(row.payment_status||'').trim().toLowerCase();
+  const enrollStatus=String(row.enrollment_status||'').trim().toLowerCase();
   const infinity=provider==='infinity'||method.includes('local bank');
-  if(row.enrollment_status==='enrolled'||row.payment_status==='approved'||row.payment_status==='paid'||['accepted','success','successful','completed','paid','confirmed','verified','settled'].includes(ps))return 'approved';
+  const paid=(courseData&&courseData[key]?.type==='paid')||String(row.course_type||'').trim().toLowerCase()==='paid'||Number(row.price||0)>0;
+  const providerSuccess=['accepted','approved','success','successful','completed','complete','paid','captured','confirmed','verified','settled'].includes(ps);
+  const providerRejected=['failed','failure','rejected','declined','cancelled','canceled','void','reversed'].includes(ps);
+
+  if(payStatus==='revoked'||enrollStatus==='cancelled')return 'revoked';
+  if(enrollStatus==='rejected'||payStatus==='rejected'||(infinity&&providerRejected))return 'rejected';
   if(infinity&&ps==='expired')return 'expired';
-  if(infinity&&['failed','failure','rejected','declined','cancelled','canceled','void','reversed'].includes(ps))return 'rejected';
-  if(row.payment_status==='revoked'||row.enrollment_status==='cancelled')return 'revoked';
-  if(row.enrollment_status==='rejected'||row.payment_status==='rejected')return 'rejected';
-  if(infinity&&(row.payment_status==='pending'||row.enrollment_status==='pending'||['initiated','created','submitted','pending','processing','waiting','awaiting','in_process','queued'].includes(ps)))return 'processing';
-  if(row.payment_status==='pending'||row.enrollment_status==='pending')return 'pending';
+
+  // Paid access is payment-authoritative. enrollment_status='enrolled' alone must
+  // never unlock a paid course because legacy/free-course triggers can leave stale flags.
+  if(paid){
+    if(payStatus==='approved'||payStatus==='paid'||providerSuccess)return 'approved';
+    if(infinity&&(payStatus==='pending'||enrollStatus==='pending'||['initiated','created','submitted','pending','processing','waiting','awaiting','in_process','queued'].includes(ps)))return 'processing';
+    if(payStatus==='pending'||enrollStatus==='pending'||row.id)return 'pending';
+    return 'not_enrolled';
+  }
+
+  if(enrollStatus==='enrolled'||payStatus==='approved'||payStatus==='paid'||providerSuccess)return 'approved';
+  if(payStatus==='pending'||enrollStatus==='pending')return 'pending';
   if(key==='basic'&&row.id)return 'approved';
   return 'not_enrolled';
 }
@@ -730,7 +744,9 @@ window.openCourseDetail=async function(key){
   const c=courseData[key];if(!c)return;
   const token=++detailRenderToken;
   currentCourse=c;
-  await loadCourseData();
+  // Always refresh enrollment state before rendering paid-course access.
+  // This prevents a stale 15-second cache from showing Locked after payment/access changed.
+  await loadCourseData(true);
   if(token!==detailRenderToken||!currentCourse||currentCourse.key!==key)return;
   renderCurrentDetail(key);
   try{history.replaceState(null,'',location.pathname.replace(/index\.html$/,'')+'?open='+encodeURIComponent(key));}catch(_){}
