@@ -322,7 +322,7 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
 }
 </style>
 
-<meta name="psp-team-build" content="V360-fast-team-startup">
+<meta name="psp-team-build" content="V361-session-isolation">
 
 <style id="pspTeamMoreDownloadV304Css">
 @media(max-width:760px){
@@ -985,7 +985,20 @@ function authMsg(msg,bad=false){$('authMsg').textContent=msg||'';$('authMsg').cl
 function authLikeErrorV278(e){const m=String(e&&e.message||e||'').toLowerCase();return /team\s+session\s+is\s+(?:invalid|expired)|session.*(?:invalid|expired|not found)|(?:invalid|expired).*(?:session|token)|unauthori[sz]ed|not authenticated|invalid login/.test(m)}
 function rememberIdentityV278(x,fallback){const id={username:String(x&&x.username||fallback||'').trim(),display_name:String(x&&x.display_name||x&&x.name||x&&x.username||fallback||'').trim()};S.identity=id;try{localStorage.setItem(IDENTITY_KEY,JSON.stringify(id))}catch(_){}return id}
 function friendlyManagerNameV290(v){const raw=String(v||'').trim(),x=raw.toLowerCase().replace(/[^a-z]/g,'');if(x.includes('memoona')||x.includes('memona'))return 'Ms Memoona';if(x.includes('samiya')||x.includes('samia'))return 'Ms Samiya';if(x.includes('amal'))return 'Ms Amal';return raw.replace(/fx$/i,'').replace(/[_-]+/g,' ').replace(/\s+/g,' ').trim()||'Team Member'}
-function expireSessionV278(msg){S.token='';localStorage.removeItem(SESSION_KEY);S.clients=[];S.loaded.clients=false;S.clientsLoading=false;setView(false);authMsg(msg||'Your Team session expired. Please sign in again.',true)}
+function resetTeamScopedDataV361(){
+  S.metrics=null;S.metricsAvailable=false;
+  S.earnDetail=[];S.earnDetailAvailable=false;
+  S.links=[];S.clients=[];S.clientsLoading=false;
+  S.errors={};S.daily=null;S.dailyCurrentLoaded=false;S.dailyHistory=[];
+  S.history=[];S.historyCurrent=null;S.performanceRange=null;
+  S.performanceMode='today';S.performanceStart=null;S.performanceEnd=null;
+  S.clientCourseFilter='all';S.clientPeriodFilter='all';S.clientSourceFilter='all';S.clientSort='newest';S.clientActionFilter=null;
+  S.clientPage=1;S.searchResults=[];S.view='overview';
+  S.loaded={clients:false,daily:false,history:false,performance:false};
+  S.cache={overviewKey:'',overviewAt:0};
+}
+
+function expireSessionV278(msg){S.token='';resetTeamScopedDataV361();S.identity={};localStorage.removeItem(SESSION_KEY);localStorage.removeItem(IDENTITY_KEY);setView(false);authMsg(msg||'Your Team session expired. Please sign in again.',true)}
 function setSectionNoticeV278(id,msg){const el=$(id);if(!el)return;el.innerHTML=msg?'<b>Live client data is still available.</b> '+esc(msg):'';el.classList.toggle('show',!!msg)}
 function malaysiaToday(){try{const p=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const o=Object.fromEntries(p.map(x=>[x.type,x.value]));return `${o.year}-${o.month}-${o.day}`}catch(_){return new Date().toISOString().slice(0,10)}}
 function currentMY(){const d=new Date(malaysiaToday()+'T12:00:00+08:00');return {month:d.getMonth()+1,year:d.getFullYear()}}
@@ -1030,6 +1043,7 @@ async function signIn(){
     if(!x?.session_token)throw new Error('Username or password is incorrect.');
     S.token=x.session_token;
     localStorage.setItem(SESSION_KEY,S.token);
+    resetTeamScopedDataV361();
     rememberIdentityV278(x,u);
     setView(true);
     renderClientLoadingV278();
@@ -1041,7 +1055,7 @@ async function signIn(){
     btn.disabled=false;btn.textContent='Sign In';
   }
 }
-async function logout(){const t=S.token;S.token='';S.identity={};S.metrics=null;S.metricsAvailable=false;S.clients=[];S.loaded.clients=false;localStorage.removeItem(SESSION_KEY);localStorage.removeItem(IDENTITY_KEY);setView(false);if(t)try{await db.rpc('psp_team_logout_v56',{p_session_token:t})}catch(_){}}
+async function logout(){const t=S.token;S.token='';resetTeamScopedDataV361();S.identity={};localStorage.removeItem(SESSION_KEY);localStorage.removeItem(IDENTITY_KEY);setView(false);if(t)try{await db.rpc('psp_team_logout_v56',{p_session_token:t})}catch(_){}}
 async function loadLinks(){const my=selectedMY();try{let r=await db.rpc('psp_team_links_v208',{p_session_token:S.token,p_month:my.month,p_year:my.year});if(r.error){console.warn('V208 link metrics fallback:',r.error);r=await db.rpc('psp_team_links_v206',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error){console.warn('V206 link metrics fallback:',r.error);r=await db.rpc('psp_team_my_links_v201',{p_session_token:S.token});}if(r.error)throw r.error;S.links=r.data||[];delete S.errors.links;return true}catch(e){console.warn('Team links unavailable:',e);S.links=[];S.errors.links=e;if(authLikeErrorV278(e))S.errors.session=e;return false}}
 function renderClientLoadingV278(){S.clientsLoading=true;if($('clientVisibleCount'))$('clientVisibleCount').innerHTML='<b>…</b> loading';if($('clientPageInfo'))$('clientPageInfo').textContent='Loading assigned clients…';if($('clientRows'))$('clientRows').innerHTML='<tr class="client-loading-v278"><td colspan="8" class="client-state-v278"><div class="client-state-spinner"></div><b>Loading your clients</b>Old + current assigned clients are being synced.</td></tr>';const p=document.querySelector('.client-pager-v273');if(p)p.classList.add('hidden')}
 function rpcRowsV280(data){
@@ -1601,7 +1615,7 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=360',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=361',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
