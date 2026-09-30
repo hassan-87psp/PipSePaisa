@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>PSP TEAM — PipSePaisa</title>
-<!-- V353 PSP TEAM clickable Today Work + compact bottom spacing; V346 session handling preserved -->
+<!-- V354 PSP TEAM desktop restore + earning source ledger; V353 mobile utility preserved -->
 <link rel="icon" href="/favicon.png">
-<link rel="manifest" href="./team-manifest.json?v=353">
+<link rel="manifest" href="./team-manifest.json?v=354">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="theme-color" content="#F39522">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -720,6 +720,58 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
   }
 }
 </style>
+
+<style id="teamDesktopRestoreV354Css">
+@media(min-width:761px){
+  #view-overview .hero-command-v352{display:grid!important;grid-template-columns:minmax(0,1.45fr) minmax(310px,.72fr)!important;grid-template-areas:"top priority" "stats priority"!important;gap:18px 26px!important;align-items:stretch!important;padding:22px 24px!important;background:linear-gradient(135deg,#171717 0%,#212121 100%)!important;border:0!important;color:#fff!important;min-height:176px!important;box-shadow:0 18px 42px rgba(17,17,17,.16)!important}
+  #view-overview .hero-command-v352:before{opacity:.38!important}
+  #view-overview .hero-top-v352{grid-area:top;display:flex;align-items:flex-start;justify-content:space-between;gap:15px;position:relative;z-index:2}
+  #view-overview .hero-identity-v350{display:grid;grid-template-columns:48px minmax(0,1fr);gap:13px;align-items:center}
+  #view-overview .hero-avatar-v350{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:#F39522;color:#1c1207;font-size:16px;font-weight:950}
+  #view-overview .hero-copy-v350 .eyebrow{color:#F39522;font-size:8px}
+  #view-overview .hero-copy-v350 h2{color:#fff;font-size:25px;margin:5px 0 0;letter-spacing:-.035em}
+  #view-overview .hero-live-v352{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid rgba(255,255,255,.10);border-radius:999px;color:#b3b3b3;font-size:8px;font-weight:900;text-transform:uppercase}
+  #view-overview .hero-live-v352 i{width:6px;height:6px;border-radius:50%;background:#2bc279}
+  #view-overview .hero-priority-v352{grid-area:priority;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;padding:18px;border:1px solid rgba(255,255,255,.08);border-radius:16px;background:rgba(255,255,255,.035);position:relative;z-index:2}
+  #view-overview .hero-priority-v352>div>span{display:block;color:#929292;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}
+  #view-overview .hero-priority-v352 b{display:block;color:#F39522;font-size:28px;line-height:1.05;margin-top:7px;letter-spacing:-.035em}
+  #view-overview .hero-priority-v352 small{display:block;color:#919191;font-size:9px;margin-top:7px;line-height:1.4}
+  #view-overview .hero-priority-v352 button{height:40px;padding:0 14px;border:0;border-radius:11px;background:#F39522;color:#1b1207;font-size:9px;font-weight:950}
+  #view-overview .hero-priority-v352 button span{display:inline}
+  #view-overview .hero-stats-v352{grid-area:stats;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;align-self:end;position:relative;z-index:2}
+  #view-overview .hero-stats-v352>div{padding:0 20px;border-right:1px solid rgba(255,255,255,.09)}
+  #view-overview .hero-stats-v352>div:first-child{padding-left:0}#view-overview .hero-stats-v352>div:last-child{border-right:0}
+  #view-overview .hero-stats-v352 span{display:block;color:#858585;font-size:8px;font-weight:850;text-transform:uppercase;letter-spacing:.07em}
+  #view-overview .hero-stats-v352 b{display:block;color:#fff;font-size:19px;margin-top:5px}
+  #view-overview .hero-stats-v352>div:first-child b{color:#F39522}#view-overview .hero-stats-v352>div:nth-child(2) b{color:#42c98c}
+  #view-overview .team-flow-guide{display:none!important}
+  #view-overview .kpi-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;margin:14px 0!important}
+  #view-overview .kpi{min-height:96px!important;padding:15px 16px!important}#view-overview .kpi .value{font-size:25px!important}
+  #view-overview .kpi-earn{grid-column:auto!important;display:block!important}#view-overview .kpi-earn .value{margin-top:8px!important}
+  #view-overview .ops-grid{grid-template-columns:minmax(0,1.35fr) minmax(350px,.65fr)!important;gap:14px!important;margin-top:0!important}
+  #view-overview .recent-row{padding:11px 12px!important}
+  #view-overview .work-action-v353{width:100%;text-align:left;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:11px;padding:10px 11px;display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px}
+  #view-overview .work-action-v353 span{font-size:9px;color:var(--muted)}#view-overview .work-action-v353 b{font-size:16px}#view-overview .work-action-v353 i{font-style:normal;color:#F39522;font-weight:950}
+  #view-overview .work-action-v353:hover{border-color:rgba(243,149,34,.34);background:rgba(243,149,34,.045)}
+  #view-overview .work-report-v349{grid-template-columns:minmax(0,1fr) auto auto!important}
+}
+.earning-ledger-v354{margin-top:15px;padding-bottom:14px;overflow:hidden}
+.earning-source-summary-v354{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:13px 17px 10px}
+.earning-source-summary-v354 span{display:inline-flex;align-items:center;gap:5px;padding:6px 9px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);font-size:8px;color:var(--muted)}
+.earning-source-summary-v354 b{color:var(--text);font-size:9px}.earning-source-summary-v354 .ledger-total-v354{margin-left:auto;border-color:rgba(243,149,34,.26);background:rgba(243,149,34,.07)}.earning-source-summary-v354 .ledger-total-v354 b{color:#F39522}
+.earning-ledger-list-v354{padding:0 17px 3px;display:grid;gap:7px}
+.earning-ledger-row-v354{display:grid;grid-template-columns:minmax(230px,1.5fr) minmax(180px,1fr) 115px 95px 125px;gap:12px;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.ledger-source-v354,.ledger-client-v354,.ledger-cell-v354{min-width:0}.ledger-source-v354>b,.ledger-client-v354>b,.ledger-cell-v354>b{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ledger-source-v354>small,.ledger-client-v354>small,.ledger-cell-v354>small{display:block;margin-top:3px;color:var(--muted2);font-size:7.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ledger-cell-v354>span{display:block;color:var(--muted);font-size:7px;text-transform:uppercase;font-weight:850;letter-spacing:.05em;margin-bottom:3px}
+.ledger-type-v354{display:inline-flex;padding:3px 6px;margin-bottom:5px;border-radius:999px;font-size:6.8px;font-weight:950;text-transform:uppercase;letter-spacing:.05em;background:rgba(243,149,34,.09);color:#c26d07}.ledger-type-v354.vip{background:rgba(52,211,153,.10);color:#15965b}.ledger-type-v354.broker{background:rgba(96,165,250,.10);color:#397fc7}.ledger-type-v354.adjustment{background:rgba(148,163,184,.12);color:var(--muted)}
+.ledger-commission-v354 b{font-size:14px;color:#F39522}.earning-ledger-empty-v354{margin:0 17px;padding:18px;border:1px dashed var(--line);border-radius:12px;text-align:center}.earning-ledger-empty-v354 b{display:block;font-size:11px}.earning-ledger-empty-v354 span{display:block;color:var(--muted);font-size:8.5px;margin-top:5px}
+@media(max-width:760px){
+  .earning-ledger-v354{margin-top:8px!important;border-radius:15px!important}.earning-source-summary-v354{padding:9px 10px 7px;gap:5px}.earning-source-summary-v354 span{font-size:6.2px;padding:4px 6px}.earning-source-summary-v354 b{font-size:7px}.earning-source-summary-v354 .ledger-total-v354{margin-left:0}
+  .earning-ledger-list-v354{padding:0 9px 3px;gap:6px}
+  .earning-ledger-row-v354{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"source commission" "client client" "basis rate";gap:7px 10px;padding:9px;border-radius:11px}
+  .ledger-source-v354{grid-area:source}.ledger-client-v354{grid-area:client;padding-top:6px;border-top:1px solid color-mix(in srgb,var(--line) 70%,transparent)}.ledger-basis-v354{grid-area:basis}.ledger-rate-v354{grid-area:rate}.ledger-commission-v354{grid-area:commission;text-align:right}
+  .ledger-source-v354>b,.ledger-client-v354>b,.ledger-cell-v354>b{font-size:8px}.ledger-source-v354>small,.ledger-client-v354>small,.ledger-cell-v354>small{font-size:6.2px}.ledger-cell-v354>span{font-size:5.8px}.ledger-commission-v354 b{font-size:12px}
+}
+</style>
 </head>
 <body>
 <div id="boot"><div class="bootmark"><div class="spinner"></div><span>TEAM COMMAND CENTER</span></div></div>
@@ -864,6 +916,11 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
         <div class="premium-card progress-card"><div class="section-title"><div><h3>Broker Lot Earnings</h3><p>Combined-lots tier</p></div></div><div class="progress-body" id="earnLotDetail"></div></div>
       </div>
       <div class="broker-grid" id="earnBrokerCards"></div>
+      <div class="premium-card earning-ledger-v354">
+        <div class="section-title"><div><h3>Earning Sources</h3><p>Exactly where this month’s commission came from — client, course/VIP payment or broker-lot entry.</p></div><span class="auto-badge">SOURCE LEDGER</span></div>
+        <div id="earnSourceSummaryV354" class="earning-source-summary-v354"></div>
+        <div id="earnSourceRowsV354" class="earning-ledger-list-v354"><div class="empty">Loading earning sources…</div></div>
+      </div>
       <div class="notice"><b>Automatic recalculation:</b> Approved course sales, VIP conversions or Admin broker-lot corrections immediately recalculate rates, levels, earnings, remaining targets and monthly analytics.</div>
     </section>
 
@@ -918,7 +975,7 @@ const PWA_INSTALLED_KEY='pipsepaisa-psp-team-installed-v278';
 const BASE='https://pipsepaisa.com';
 const TEAM_EARNINGS_CUTOFF_YM=202609; // Previous team earnings were manually settled before Sep 2026.
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
-const S={token:localStorage.getItem(SESSION_KEY)||'',identity:(()=>{try{return JSON.parse(localStorage.getItem(IDENTITY_KEY)||'{}')}catch(_){return{}}})(),metrics:null,metricsAvailable:false,links:[],clients:[],clientsLoading:false,errors:{},daily:null,dailyHistory:[],history:[],performanceRange:null,performanceMode:'today',performanceStart:null,performanceEnd:null,clientCourseFilter:'all',clientPeriodFilter:'all',clientSourceFilter:'all',clientSort:'newest',clientPage:1,clientPageSize:25,searchResults:[],view:'overview',loaded:{clients:false,daily:false,history:false,performance:false},cache:{overviewKey:'',overviewAt:0}};
+const S={token:localStorage.getItem(SESSION_KEY)||'',identity:(()=>{try{return JSON.parse(localStorage.getItem(IDENTITY_KEY)||'{}')}catch(_){return{}}})(),metrics:null,metricsAvailable:false,earnDetail:[],earnDetailAvailable:false,links:[],clients:[],clientsLoading:false,errors:{},daily:null,dailyHistory:[],history:[],performanceRange:null,performanceMode:'today',performanceStart:null,performanceEnd:null,clientCourseFilter:'all',clientPeriodFilter:'all',clientSourceFilter:'all',clientSort:'newest',clientPage:1,clientPageSize:25,searchResults:[],view:'overview',loaded:{clients:false,daily:false,history:false,performance:false},cache:{overviewKey:'',overviewAt:0}};
 const $=id=>document.getElementById(id);const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const num=v=>Number(v||0);const money=v=>'$'+num(v).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});const fmt=v=>num(v).toLocaleString(undefined,{maximumFractionDigits:2});
 function row(data){return Array.isArray(data)?data[0]:data}function rpcObj(data){return row(data)||{}}
@@ -1093,10 +1150,39 @@ async function loadClients(){
 }
 async function loadDaily(){const my=selectedMY();try{let [t,h]=await Promise.all([db.rpc('psp_team_daily_report_v207',{p_session_token:S.token,p_report_date:null}),db.rpc('psp_team_daily_history_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year})]);if(t.error||h.error){console.warn('V207 daily fallback:',t.error||h.error);[t,h]=await Promise.all([db.rpc('psp_team_daily_report_v206',{p_session_token:S.token,p_report_date:null}),db.rpc('psp_team_daily_history_v206',{p_session_token:S.token,p_month:my.month,p_year:my.year})]);}if(t.error)throw t.error;S.daily=rpcObj(t.data);S.dailyHistory=rpcObj(h.data);if(!Array.isArray(S.dailyHistory))S.dailyHistory=Array.isArray(h.data)?h.data:[];S.loaded.daily=true}catch(e){console.warn(e);S.daily={manual:{},auto:{}};S.dailyHistory=[]}}
 async function loadMetrics(force=false){const my=selectedMY(),key=my.year+'-'+my.month;if(!force&&S.cache.overviewKey===key&&Date.now()-S.cache.overviewAt<30000&&S.metrics)return true;try{let r=await db.rpc('psp_team_overview_v208',{p_session_token:S.token,p_month:my.month,p_year:my.year});if(r.error){console.warn('V208 overview fallback:',r.error);r=await db.rpc('psp_team_command_center_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error){console.warn('V207 metrics fallback:',r.error);r=await db.rpc('psp_team_command_center_v206',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error)throw r.error;const rawMetrics=rpcObj(r.data);S.historyCurrent=rawMetrics&&typeof rawMetrics==='object'?Object.assign({},rawMetrics):null;if(S.historyCurrent)delete S.historyCurrent.fast_overview;S.metrics=applyTeamEarningsCutoffV274(normalizeMetrics(rawMetrics),my);S.metricsAvailable=true;delete S.errors.metrics;if(S.metrics&&(S.metrics.username||S.metrics.display_name))rememberIdentityV278(S.metrics,S.metrics.username);S.cache.overviewKey=key;S.cache.overviewAt=Date.now();return true}catch(e){console.warn('Team performance metrics unavailable:',e);S.metricsAvailable=false;S.errors.metrics=e;if(authLikeErrorV278(e))S.errors.session=e;return false}}
+async function loadEarningDetailV354(){
+  const my=selectedMY();
+  if(!teamEarningsVisibleV274()){S.earnDetail=[];S.earnDetailAvailable=true;delete S.errors.earnDetail;return true}
+  try{
+    const r=await db.rpc('psp_team_earnings_detail_v354',{p_session_token:S.token,p_month:my.month,p_year:my.year});
+    if(r.error)throw r.error;
+    S.earnDetail=Array.isArray(r.data)?r.data:[];
+    S.earnDetailAvailable=true;
+    delete S.errors.earnDetail;
+    return true
+  }catch(e){
+    console.warn('Team earning source ledger unavailable:',e);
+    S.earnDetail=[];S.earnDetailAvailable=false;S.errors.earnDetail=e;
+    if(authLikeErrorV278(e))S.errors.session=e;
+    return false
+  }
+}
+
 async function loadHistory(force=false){if(S.loaded.history&&!force)return;const my=selectedMY();try{const currentMetrics=S.historyCurrent&&S.metricsAvailable?S.historyCurrent:null;let historyMonth=my.month,historyYear=my.year,historyMonths=6,prependCurrent=false;if(currentMetrics){const prev=new Date(Date.UTC(my.year,my.month-2,1));historyMonth=prev.getUTCMonth()+1;historyYear=prev.getUTCFullYear();historyMonths=5;prependCurrent=true}let r=await db.rpc('psp_team_history_v208',{p_session_token:S.token,p_months:historyMonths,p_month:historyMonth,p_year:historyYear});if(r.error){console.warn('V208 history fallback:',r.error);prependCurrent=false;r=await db.rpc('psp_team_command_center_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error)throw r.error;const raw=rpcObj(r.data),data=Array.isArray(raw?.history)?raw.history:raw,list=Array.isArray(data)?data:(Array.isArray(r.data)?r.data:[]);S.history=prependCurrent?[currentMetrics,...list].slice(0,6):list;S.loaded.history=true;renderTrend('overviewTrend');renderTrend('performanceTrend');renderHistory()}catch(e){console.warn('History unavailable:',e)}}
 async function loadPerformanceRange(){const d=performanceDates();S.performanceStart=d.start;S.performanceEnd=d.end;try{const r=await db.rpc('psp_team_performance_range_v207',{p_session_token:S.token,p_start_date:d.start,p_end_date:d.end});if(r.error)throw r.error;S.performanceRange=rpcObj(r.data);S.loaded.performance=true;setSectionNoticeV278('performanceDataNotice','')}catch(e){console.warn('Range performance unavailable:',e);S.performanceRange={};S.loaded.performance=false;setSectionNoticeV278('performanceDataNotice','Broker/performance totals are temporarily unavailable; the lead funnel below is calculated from your loaded clients.')}renderPerformanceRange()}
 function scheduleHistory(){if(S.loaded.history)return;const run=()=>loadHistory().catch(()=>{});if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:1200});else setTimeout(run,180)}
-async function loadAll(force=false){if(!S.token)throw new Error('Please sign in.');if(force){S.loaded.clients=false;S.clients=[];S.clientsLoading=false;S.metrics=null;S.metricsAvailable=false;S.errors={}}if(!S.loaded.clients)renderClientLoadingV278();const [metricsOk,linksOk,clientsOk]=await Promise.all([loadMetrics(force),loadLinks(),loadClients()]);if(S.errors.session&&!metricsOk&&!clientsOk){expireSessionV278('Your Team session expired. Please sign in again.');return false}renderAll();setSectionNoticeV278('earningsDataNotice',S.metricsAvailable?'':'Performance/earnings totals could not refresh right now. Your client list and client work remain available.');scheduleHistory();return clientsOk||metricsOk||linksOk}
+async function loadAll(force=false){
+  if(!S.token)throw new Error('Please sign in.');
+  if(force){S.loaded.clients=false;S.clients=[];S.clientsLoading=false;S.metrics=null;S.metricsAvailable=false;S.earnDetail=[];S.earnDetailAvailable=false;S.errors={}}
+  if(!S.loaded.clients)renderClientLoadingV278();
+  const [metricsOk,linksOk,clientsOk]=await Promise.all([loadMetrics(force),loadLinks(),loadClients()]);
+  const earningsOk=await loadEarningDetailV354();
+  if(S.errors.session&&!metricsOk&&!clientsOk&&!earningsOk){expireSessionV278('Your Team session expired. Please sign in again.');return false}
+  renderAll();
+  setSectionNoticeV278('earningsDataNotice',S.metricsAvailable?'':'Performance/earnings totals could not refresh right now. Your client list and client work remain available.');
+  scheduleHistory();
+  return clientsOk||metricsOk||linksOk||earningsOk
+}
 function renderAll(){const m=S.metrics||{},ident=S.identity||{},rawDisplay=m.display_name||ident.display_name||ident.username||'Team Member',display=friendlyManagerNameV290(rawDisplay),username=m.username||ident.username||'team';$('memberName').textContent=display;$('memberUsername').textContent='@'+username;$('memberAvatar').textContent=String(display||username||'T').trim().replace(/^Ms\s+/i,'').charAt(0).toUpperCase()||'T';if($('heroAvatarV350'))$('heroAvatarV350').textContent=String(display||username||'T').trim().replace(/^Ms\s+/i,'').charAt(0).toUpperCase()||'T';$('heroTitle').textContent=display+' — '+monthLabel(selectedMY());$('heroEarnings').textContent=money(m.total_earnings);$('heroCourseTier').textContent=(m.course_level||'—')+' · '+num(m.course_rate)+'%';$('heroVipTier').textContent=(m.vip_level||'—')+' · '+num(m.vip_rate)+'%';$('heroLotTier').textContent=m.lot_level||'—';renderKpis();renderOverviewOps();renderLinks();renderProgress();renderBrokers();renderImpact();renderFunnel('overviewFunnel');renderEarnings();if(S.loaded.history){renderTrend('overviewTrend');renderTrend('performanceTrend');renderHistory()}if(S.loaded.daily)renderDaily();if(S.loaded.clients)renderClients();if(S.loaded.performance)renderPerformanceRange()}
 function renderKpis(){
   const m=S.metrics||{},allClients=S.clients||[],monthClients=allClients.filter(c=>clientInSelectedMonth(c.registration_at)),
@@ -1302,7 +1388,66 @@ async function exportAssignedClientsV299(){
 async function searchOwnershipV273(){const input=$('ownershipSearch'),msg=$('ownershipSearchMsg'),box=$('ownershipResults'),q=(input&&input.value||'').trim();if(q.length<2){msg.textContent='Enter at least 2 characters.';box.innerHTML='';return}msg.textContent='Searching…';box.innerHTML='';try{const r=await db.rpc('psp_team_search_client_v273',{p_session_token:S.token,p_query:q,p_limit:30});if(r.error)throw r.error;S.searchResults=r.data||[];msg.textContent=S.searchResults.length?`${S.searchResults.length} result(s) found.`:'No client found.';renderOwnershipResultsV273()}catch(e){msg.textContent=e.message||'Search failed.';box.innerHTML=''}}
 function renderOwnershipResultsV273(){const box=$('ownershipResults');if(!box)return;box.innerHTML=(S.searchResults||[]).map(r=>{const state=r.ownership_state||'unassigned',label=state==='mine'?'Assigned to You':state==='other'?`Assigned to ${r.manager_name||'another Team Member'}`:'Unassigned / Direct',wa=String(r.manager_whatsapp||'').replace(/\D/g,''),clientWa=String(r.whatsapp||'').replace(/\D/g,'');return `<div class="ownership-card-v273 ${state}"><div><span class="owner-state-v273 ${state}">${esc(label)}</span><div class="link-name">${esc(r.full_name||'Client')} · ${esc(r.client_id||'No ID')}</div><div class="muted">${esc(r.course_text||'No course')}</div></div><div><b>${state==='mine'?'Your Client':state==='other'?'Current Manager':'No Manager'}</b><div class="muted">${esc(r.manager_name||'Admin assignment required')}</div></div><div class="owner-actions-v273">${state==='mine'&&clientWa?`<a class="wa-btn" href="https://wa.me/${clientWa}" target="_blank" rel="noopener">Message Client</a>`:''}${state==='other'&&wa?`<a class="wa-btn" href="https://wa.me/${wa}?text=${encodeURIComponent(`Hello ${r.manager_name||'Team Member'}, your client ${r.full_name||'Client'} (${r.client_id||'No ID'}) contacted me. Please follow up with them.`)}" target="_blank" rel="noopener">Message ${esc(r.manager_name||'Manager')}</a>`:''}${state==='unassigned'?'<span class="muted">Ask Admin to assign a manager.</span>':''}</div></div>`}).join('')||'<div class="empty">No client found.</div>'}
 function detailHtml(title,current,earn,rate,level,next,remaining){return `<div class="progress-top"><div><strong>${esc(current)}</strong><div class="muted">${esc(level||'—')}</div></div><span><b>${fmt(rate)}%</b> current rate</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct(parseFloat(String(current).replace(/[^0-9.-]/g,'')),next)}%"></div></div><div class="progress-msg">Current earnings: <b>${money(earn)}</b>${next?` · Remaining target: <b>${fmt(remaining)}</b>`:' · <b>Maximum level unlocked</b>'}</div>`}
-function renderEarnings(){if(!$('earnCards')||!$('earnCourseDetail')||!$('earnVipDetail')||!$('earnLotDetail'))return;if(!S.metricsAvailable){const cards=['Total Earnings','Course Earnings','VIP Earnings','Lot Earnings'];$('earnCards').innerHTML=cards.map(x=>`<div class="premium-card earn-card"><div class="cap">${esc(x)}</div><div class="big">—</div><div class="split"><span>Temporarily unavailable</span><b>Retry</b></div></div>`).join('');const u='<div class="progress-msg"><b>Performance totals could not refresh.</b> Your clients and client work are still available.</div>';$('earnCourseDetail').innerHTML=u;$('earnVipDetail').innerHTML=u;$('earnLotDetail').innerHTML=u;return}const m=S.metrics||{},paid=num(m.course_paid_users),earnOpen=teamEarningsVisibleV274();const cards=[['Total Earnings',m.total_earnings,'All commission streams'],['Course Earnings',m.course_earnings,fmt(paid)+' approved paid users'],['VIP Earnings',m.vip_earnings,fmt(m.vip_clients)+' VIP clients'],['Lot Earnings',m.lot_earnings,fmt(m.overall_lots)+' monthly lots']];$('earnCards').innerHTML=cards.map((x,i)=>`<div class="premium-card earn-card"><div class="cap">${esc(x[0])}</div><div class="big">${earnOpen?money(x[1]):'<span class="settled-v274">Settled</span>'}</div><div class="split"><span>${esc(x[2])}</span><b>${earnOpen?(i===1?fmt(m.course_rate)+'%':i===2?fmt(m.vip_rate)+'%':i===3?'Weekly → Monthly':'Monthly'):'Pre-Sep 2026'}</b></div></div>`).join('');if(!earnOpen){const settled='<div class="progress-msg"><b>Manually settled before September 2026.</b> Client, course and activity history remains available.</div>';$('earnCourseDetail').innerHTML=settled;$('earnVipDetail').innerHTML=settled;$('earnLotDetail').innerHTML=settled;return}$('earnCourseDetail').innerHTML=`<div class="progress-top"><div><strong>${fmt(paid)} paid users</strong><div class="muted">${esc(m.course_level||'—')} · Approved sales ${money(m.course_performance)}</div></div><span><b>${fmt(m.course_rate)}%</b> current rate</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct(paid,m.course_next_target)}%"></div></div><div class="progress-msg">Current earnings: <b>${money(m.course_earnings)}</b>${m.course_next_target?` · Need <b>${fmt(m.course_remaining)}</b> more paid users for ${fmt(m.course_next_rate)}%.`:' · <b>Maximum level unlocked.</b>'}</div>`;$('earnVipDetail').innerHTML=detailHtml('VIP',fmt(m.vip_clients)+' clients',m.vip_earnings,m.vip_rate,m.vip_level,m.vip_next_target,m.vip_remaining);$('earnLotDetail').innerHTML=`<div class="progress-top"><div><strong>${fmt(m.overall_lots)} lots</strong><div class="muted">${esc(m.lot_level||'—')} · Weekly entries aggregated monthly</div></div><span><b>$${fmt(m.xm_dprime_rate)}</b> XM/DP · <b>$${fmt(m.exness_rate)}</b> EX</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct(m.overall_lots,m.lot_next_target)}%"></div></div><div class="progress-msg">Current lot earnings: <b>${money(m.lot_earnings)}</b>${m.lot_next_target?` · Need <b>${fmt(m.lot_remaining)}</b> more lots.`:' · <b>Maximum level unlocked.</b>'}</div>`}
+
+function renderEarningSourcesV354(){
+  const box=$('earnSourceRowsV354'),sum=$('earnSourceSummaryV354');
+  if(!box||!sum)return;
+  if(!teamEarningsVisibleV274()){
+    sum.innerHTML='';
+    box.innerHTML='<div class="earning-ledger-empty-v354"><b>Settled period</b><span>Pre-September 2026 team earnings were settled manually.</span></div>';
+    return
+  }
+  if(!S.earnDetailAvailable){
+    sum.innerHTML='';
+    box.innerHTML='<div class="earning-ledger-empty-v354"><b>Source details unavailable</b><span>Totals are still shown above. Refresh to load the commission source ledger.</span></div>';
+    return
+  }
+  const rows=Array.isArray(S.earnDetail)?S.earnDetail:[],
+        total=rows.reduce((a,r)=>a+num(r.commission),0),
+        course=rows.filter(r=>r.row_type==='course').length,
+        vip=rows.filter(r=>r.row_type==='vip').length,
+        broker=rows.filter(r=>r.row_type==='broker').length;
+  sum.innerHTML=`<span><b>${fmt(rows.length)}</b> source rows</span><span><b>${fmt(course)}</b> course</span><span><b>${fmt(vip)}</b> VIP</span><span><b>${fmt(broker)}</b> broker</span><span class="ledger-total-v354"><b>${money(total)}</b> reconciled total</span>`;
+  if(!rows.length){
+    box.innerHTML='<div class="earning-ledger-empty-v354"><b>No commission generated in this month</b><span>Approved earning sources will appear here automatically.</span></div>';
+    return
+  }
+  box.innerHTML=rows.map(r=>{
+    const type=String(r.row_type||'source'),
+          basis=r.basis_kind==='lots'?`${fmt(r.basis)} lots`:money(r.basis),
+          rate=r.rate_kind==='percent'?`${fmt(r.rate)}%`:r.rate_kind==='usd_per_lot'?`$${fmt(r.rate)}/lot`:'—',
+          client=r.client_name?`<b>${esc(r.client_name)}</b><small>${esc(r.client_id||'—')}</small>`:'<b>System / Broker Entry</b><small>No client-level lot allocation</small>',
+          when=r.event_at?dateLabel(r.event_at):'Monthly adjustment',
+          typeLabel=type==='course'?'Course':type==='vip'?'VIP':type==='broker'?'Broker Lots':'Adjustment';
+    return `<div class="earning-ledger-row-v354">
+      <div class="ledger-source-v354"><span class="ledger-type-v354 ${esc(type)}">${typeLabel}</span><b>${esc(r.source_name||'Earning source')}</b><small>${esc(r.detail||when)}</small></div>
+      <div class="ledger-client-v354">${client}</div>
+      <div class="ledger-cell-v354 ledger-basis-v354"><span>Basis</span><b>${esc(basis)}</b></div>
+      <div class="ledger-cell-v354 ledger-rate-v354"><span>Rate</span><b>${esc(rate)}</b></div>
+      <div class="ledger-cell-v354 ledger-commission-v354"><span>Commission</span><b>${money(r.commission)}</b><small>${esc(when)}</small></div>
+    </div>`
+  }).join('')
+}
+function renderEarnings(){
+  if(!$('earnCards')||!$('earnCourseDetail')||!$('earnVipDetail')||!$('earnLotDetail'))return;
+  if(!S.metricsAvailable){
+    const cards=['Total Earnings','Course Earnings','VIP Earnings','Lot Earnings'];
+    $('earnCards').innerHTML=cards.map(x=>`<div class="premium-card earn-card"><div class="cap">${esc(x)}</div><div class="big">—</div><div class="split"><span>Temporarily unavailable</span><b>Retry</b></div></div>`).join('');
+    const u='<div class="progress-msg"><b>Performance totals could not refresh.</b> Your clients and client work are still available.</div>';
+    $('earnCourseDetail').innerHTML=u;$('earnVipDetail').innerHTML=u;$('earnLotDetail').innerHTML=u;renderEarningSourcesV354();return
+  }
+  const m=S.metrics||{},paid=num(m.course_paid_users),earnOpen=teamEarningsVisibleV274();
+  const cards=[['Total Earnings',m.total_earnings,'All commission streams'],['Course Earnings',m.course_earnings,fmt(paid)+' approved paid users'],['VIP Earnings',m.vip_earnings,fmt(m.vip_clients)+' VIP clients'],['Lot Earnings',m.lot_earnings,fmt(m.overall_lots)+' monthly lots']];
+  $('earnCards').innerHTML=cards.map((x,i)=>`<div class="premium-card earn-card"><div class="cap">${esc(x[0])}</div><div class="big">${earnOpen?money(x[1]):'<span class="settled-v274">Settled</span>'}</div><div class="split"><span>${esc(x[2])}</span><b>${earnOpen?(i===1?fmt(m.course_rate)+'%':i===2?fmt(m.vip_rate)+'%':i===3?'Weekly → Monthly':'Monthly'):'Pre-Sep 2026'}</b></div></div>`).join('');
+  if(!earnOpen){
+    const settled='<div class="progress-msg"><b>Manually settled before September 2026.</b> Client, course and activity history remains available.</div>';
+    $('earnCourseDetail').innerHTML=settled;$('earnVipDetail').innerHTML=settled;$('earnLotDetail').innerHTML=settled;renderEarningSourcesV354();return
+  }
+  $('earnCourseDetail').innerHTML=`<div class="progress-top"><div><strong>${fmt(paid)} paid users</strong><div class="muted">${esc(m.course_level||'—')} · Approved sales ${money(m.course_performance)}</div></div><span><b>${fmt(m.course_rate)}%</b> current rate</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct(paid,m.course_next_target)}%"></div></div><div class="progress-msg">Current earnings: <b>${money(m.course_earnings)}</b>${m.course_next_target?` · Need <b>${fmt(m.course_remaining)}</b> more paid users for ${fmt(m.course_next_rate)}%.`:' · <b>Maximum level unlocked.</b>'}</div>`;
+  $('earnVipDetail').innerHTML=detailHtml('VIP',fmt(m.vip_clients)+' clients',m.vip_earnings,m.vip_rate,m.vip_level,m.vip_next_target,m.vip_remaining);
+  $('earnLotDetail').innerHTML=`<div class="progress-top"><div><strong>${fmt(m.overall_lots)} lots</strong><div class="muted">${esc(m.lot_level||'—')} · Weekly entries aggregated monthly</div></div><span><b>$${fmt(m.xm_dprime_rate)}</b> XM/DP · <b>$${fmt(m.exness_rate)}</b> EX</span></div><div class="progress-track"><div class="progress-fill" style="width:${pct(m.overall_lots,m.lot_next_target)}%"></div></div><div class="progress-msg">Current lot earnings: <b>${money(m.lot_earnings)}</b>${m.lot_next_target?` · Need <b>${fmt(m.lot_remaining)}</b> more lots.`:' · <b>Maximum level unlocked.</b>'}</div>`;
+  renderEarningSourcesV354()
+}
 function renderPerformanceRange(){const m=S.performanceRange||{},d=performanceDates();if($('performanceRangeLabel'))$('performanceRangeLabel').textContent=d.label;document.querySelectorAll('#performanceRangeTools .range-chip').forEach(b=>b.classList.toggle('active',b.dataset.range===S.performanceMode));if($('customRangeBox'))$('customRangeBox').classList.toggle('hidden',S.performanceMode!=='custom');const rows=(S.clients||[]).filter(c=>clientInDateRange(c,d.start,d.end)),statuses=rows.map(clientWorkStatus),bc=courseBatchCounts(rows),assigned=rows.length,contacted=statuses.filter(x=>x!=='new').length,interested=statuses.filter(x=>['interested','follow_up','converted'].includes(x)).length,follow=statuses.filter(x=>x==='follow_up').length,converted=statuses.filter(x=>x==='converted').length,conv=assigned?converted/assigned*100:0,items=[['Leads Assigned',assigned],['Contacted',contacted],['Course Enrollments',Object.values(bc).reduce((a,b)=>a+num(b),0)],['Converted',converted],['Conversion',conv.toFixed(1)+'%'],['Follow-ups',follow]];if($('performanceKpis'))$('performanceKpis').innerHTML=items.map(x=>`<div class="premium-card kpi"><div class="label">${esc(x[0])}</div><div class="value" style="font-size:23px">${typeof x[1]==='string'?esc(x[1]):fmt(x[1])}</div></div>`).join('');if($('performanceCourseBreakdown'))$('performanceCourseBreakdown').innerHTML=[['Sajid B1',bc.sajid_b1],['Sajid B2',bc.sajid_b2],['Sajid B3',bc.sajid_b3],['Fundamental B1',bc.fund_b1],['Fundamental B2',bc.fund_b2],['Advance',bc.advance],['Adv Fundamental',bc.advance_fund]].map(x=>`<div class="quick-item"><span>${x[0]}</span><b>${fmt(x[1])}</b></div>`).join('');if($('performanceBrokerBreakdown'))$('performanceBrokerBreakdown').innerHTML=`<div class="quick-item"><span>New Broker Accounts</span><b>${fmt(m.new_broker_accounts)}</b></div><div class="quick-item"><span>IB Shifts</span><b>${fmt(m.ib_shifts)}</b></div><div class="quick-item"><span>XM / DPrime / Exness</span><b>${fmt(m.xm_clients)} / ${fmt(m.dprime_clients)} / ${fmt(m.exness_clients)}</b></div><div class="quick-item"><span>Lots</span><b>${fmt(m.overall_lots)}</b></div>`;if($('performanceAttention'))$('performanceAttention').innerHTML=`<div class="quick-item"><span>New / Untouched</span><b>${fmt(statuses.filter(x=>x==='new').length)}</b></div><div class="quick-item"><span>Follow-up Due</span><b>${fmt(rows.filter(c=>c.follow_up_at&&new Date(c.follow_up_at)<=new Date()&&clientWorkStatus(c)!=='converted').length)}</b></div><div class="quick-item"><span>Interested</span><b>${fmt(interested)}</b></div><div class="quick-item"><span>Not Interested</span><b>${fmt(statuses.filter(x=>x==='not_interested').length)}</b></div>`;renderPerformanceFunnel(rows);renderSourceRange(rows)}
 function renderPerformanceFunnel(rows){if(!$('performanceFunnel'))return;rows=rows||[];const st=rows.map(clientWorkStatus),steps=[['Assigned',rows.length],['Contacted',st.filter(x=>x!=='new').length],['Interested',st.filter(x=>['interested','follow_up','converted'].includes(x)).length],['Follow-up',st.filter(x=>['follow_up','converted'].includes(x)).length],['Converted',st.filter(x=>x==='converted').length]];$('performanceFunnel').innerHTML=steps.map((x,i)=>{const prev=i?num(steps[i-1][1]):0,rate=i?conversion(num(x[1]),prev):100;return `<div class="funnel-step"><span>${x[0]}</span>${i?`<span class="funnel-rate">${rate.toFixed(1)}%</span>`:''}<b>${fmt(x[1])}</b></div>`}).join('')}
 function renderSourceRange(rows){if(!$('sourceRows'))return;const groups={};(rows||[]).forEach(c=>{const k=clientSourceKeyV273(c),label=k==='ad'?'Ad / Auto':k==='manager'?'Manager Transfer':'Old Tracking';groups[label]=groups[label]||[];groups[label].push(c)});const out=Object.entries(groups).map(([label,a])=>{const st=a.map(clientWorkStatus),conv=st.filter(x=>x==='converted').length;return[label,a.length,st.filter(x=>x!=='new').length,st.filter(x=>['interested','follow_up','converted'].includes(x)).length,conv,a.length?conv/a.length*100:0]});$('sourceRows').innerHTML=out.length?out.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${fmt(r[1])}</td><td>${fmt(r[2])}</td><td>${fmt(r[3])}</td><td>${fmt(r[4])}</td><td>${r[5].toFixed(1)}%</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No activity for this date range.</td></tr>'}
@@ -1338,7 +1483,7 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=353',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=354',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
