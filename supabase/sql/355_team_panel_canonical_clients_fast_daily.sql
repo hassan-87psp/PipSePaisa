@@ -1,5 +1,5 @@
--- PipSePaisa V355 — canonical Team Panel clients + fast set-based Daily History.
--- Applied to production on 2026-09-30.
+-- PipSePaisa V355/V356 — canonical Team Panel clients + fast set-based Daily History.
+-- Production source of truth for /team client loading and Daily Report history.
 
 CREATE OR REPLACE FUNCTION public.psp_team_clients_v355(p_session_token text, p_limit integer DEFAULT 3000)
  RETURNS TABLE(user_id uuid, client_key text, client_id text, full_name text, email text, whatsapp text, registration_at timestamp with time zone, source text, campaign text, reference_code text, course_enrollment text, vip_status text, broker text, broker_status text, account_mode text, conversion_status text, follow_up_at timestamp with time zone, work_note text, work_status text)
@@ -39,26 +39,10 @@ begin
     coalesce(b.broker,'—')::text,
     coalesce(b.broker_status,'—')::text,
     coalesce(b.account_mode,'—')::text,
-    coalesce(w.status,
-      case
-        when v.is_vip
-          or coalesce(c.has_active_course,false)
-          or coalesce(b.is_approved,false)
-        then 'converted'
-        else 'new'
-      end
-    )::text,
+    coalesce(w.status,'new')::text,
     w.follow_up_at,
     w.note,
-    coalesce(w.status,
-      case
-        when v.is_vip
-          or coalesce(c.has_active_course,false)
-          or coalesce(b.is_approved,false)
-        then 'converted'
-        else 'new'
-      end
-    )::text
+    coalesce(w.status,'new')::text
   from public.psp_client_owner_v273 o
   left join public.profiles p on p.id=o.user_id
   left join public.psp_client_work_v273 w on w.client_key=o.client_key
