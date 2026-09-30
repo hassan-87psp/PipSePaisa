@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>PSP TEAM — PipSePaisa</title>
-<!-- V351 PSP TEAM trading-grade Home UI + V346 session handling; V300 mobile-app rebuild preserved -->
+<!-- V352 PSP TEAM ultra-premium command Home + V346 session handling; V300 mobile-app rebuild preserved -->
 <link rel="icon" href="/favicon.png">
-<link rel="manifest" href="./team-manifest.json?v=351">
+<link rel="manifest" href="./team-manifest.json?v=352">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="theme-color" content="#F39522">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -542,6 +542,124 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
   .mobile-tab.active:before{width:14px!important;height:2px!important;top:3px!important}
 }
 </style>
+
+<style id="teamOverviewUltraV352Css">
+@media(max-width:760px){
+  /* App chrome: tighter, calmer, more professional */
+  .topbar{height:54px!important;min-height:54px!important;padding:6px 10px!important;box-shadow:0 2px 12px rgba(22,18,12,.055)!important}
+  .brand-mini{gap:8px!important}.brand-mini img{width:34px!important;height:34px!important;border-radius:9px!important}
+  .mobile-brand-name b{font-size:13px!important}.mobile-brand-name small{font-size:6.2px!important;margin-top:2px!important}
+  .icon-btn,.member-chip{height:34px!important;min-height:34px!important;border-radius:10px!important}
+  .icon-btn{width:34px!important;min-width:34px!important}.member-chip{width:34px!important;min-width:34px!important;padding:3px!important}.member-avatar{width:26px!important;height:26px!important;flex-basis:26px!important}
+  .mobile-period-bar{top:54px!important;min-height:42px!important;padding:5px 10px!important;background:color-mix(in srgb,var(--bg) 97%,transparent)!important}
+  .mobile-period-copy span{font-size:7px!important}.mobile-period-copy b{font-size:9px!important;margin-top:2px!important}
+  .mobile-period-bar select{height:30px!important;border:0!important;background:color-mix(in srgb,var(--panel2) 70%,var(--panel))!important;border-radius:9px!important;font-size:8px!important}
+  .mobile-period-bar select:first-child{width:84px!important}.mobile-period-bar select:last-child{width:62px!important}
+
+  .main{padding:9px 10px calc(92px + env(safe-area-inset-bottom))!important}
+  #view-overview .page-head{margin:2px 1px 8px!important}
+  #view-overview .page-head h1{font-size:22px!important;letter-spacing:-.045em!important}
+  #view-overview .live-pill{font-size:6px!important;padding:4px 7px!important}
+
+  /* Quick action rail: utility buttons, not cards */
+  #view-overview .mobile-quick-actions-v300{gap:5px!important;margin-bottom:7px!important}
+  #view-overview .mobile-quick-actions-v300 button{min-height:48px!important;border-radius:12px!important;padding:5px 4px!important;background:transparent!important;border:1px solid color-mix(in srgb,var(--line) 68%,transparent)!important}
+  #view-overview .mobile-quick-actions-v300 span{width:24px!important;height:24px!important;border-radius:8px!important;margin-bottom:3px!important;background:rgba(243,149,34,.08)!important}
+  #view-overview .mobile-quick-actions-v300 svg{width:14px!important;height:14px!important}
+  #view-overview .mobile-quick-actions-v300 b{font-size:7px!important}
+
+  /* One master command card */
+  #view-overview .hero-command-v352{padding:13px!important;border-radius:19px!important;margin-bottom:8px!important;background:linear-gradient(145deg,#151515 0%,#1d1d1d 62%,#222 100%)!important;box-shadow:0 14px 32px rgba(0,0,0,.17)!important}
+  #view-overview .hero-command-v352:after{right:-22px!important;top:-38px!important;width:128px!important;height:128px!important;background:radial-gradient(circle,rgba(243,149,34,.18),rgba(243,149,34,0) 70%)!important}
+  #view-overview .hero-top-v352{display:flex;align-items:center;justify-content:space-between;gap:8px;position:relative;z-index:1}
+  #view-overview .hero-identity-v350{grid-template-columns:34px minmax(0,1fr)!important;gap:9px!important}
+  #view-overview .hero-avatar-v350{width:34px!important;height:34px!important;border-radius:11px!important;font-size:12px!important}
+  #view-overview .hero-card .eyebrow{font-size:6.3px!important;letter-spacing:.11em!important}
+  #view-overview .hero-card h2{font-size:14.5px!important;margin-top:3px!important;color:#fff!important}
+  #view-overview .hero-live-v352{display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid rgba(255,255,255,.07);border-radius:999px;color:#a8a8a8;font-size:6.2px;font-weight:850;text-transform:uppercase;letter-spacing:.08em}
+  #view-overview .hero-live-v352 i{width:5px;height:5px;border-radius:50%;background:#2bc279;box-shadow:0 0 0 3px rgba(43,194,121,.08)}
+
+  #view-overview .hero-priority-v352{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:center;margin-top:12px;padding:11px 0 10px;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);position:relative;z-index:1}
+  #view-overview .hero-priority-v352 span{display:block;color:#999;font-size:6.3px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}
+  #view-overview .hero-priority-v352 b{display:block;color:#fff;font-size:18px;line-height:1.05;margin-top:4px;letter-spacing:-.025em}
+  #view-overview .hero-priority-v352 small{display:block;color:#858585;font-size:6.8px;margin-top:4px}
+  #view-overview .hero-priority-v352 button{height:34px;padding:0 11px;border:0;border-radius:10px;background:#F39522;color:#1a1208;font-size:7.2px;font-weight:950;white-space:nowrap}
+  #view-overview .hero-priority-v352 button span{display:inline;color:inherit;font-size:10px;margin-left:2px}
+
+  #view-overview .hero-stats-v352{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:9px;position:relative;z-index:1}
+  #view-overview .hero-stats-v352>div{padding:2px 9px 1px;border-right:1px solid rgba(255,255,255,.08)}
+  #view-overview .hero-stats-v352>div:first-child{padding-left:0}
+  #view-overview .hero-stats-v352>div:last-child{border-right:0;padding-right:0}
+  #view-overview .hero-stats-v352 span{display:block;color:#888;font-size:5.8px;font-weight:850;text-transform:uppercase;letter-spacing:.07em}
+  #view-overview .hero-stats-v352 b{display:block;color:#fff;font-size:12.5px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #view-overview .hero-stats-v352>div:first-child b{color:#F39522}
+  #view-overview .hero-stats-v352>div:nth-child(2) b{color:#43c98b}
+
+  /* Remove duplicate standalone command */
+  #view-overview .overview-command-v351{display:none!important}
+
+  /* Four compact KPI tiles */
+  #view-overview .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;margin-bottom:8px!important}
+  #view-overview .kpi{min-height:62px!important;padding:9px 10px!important;border-radius:13px!important;background:color-mix(in srgb,var(--panel2) 62%,var(--panel))!important}
+  #view-overview .kpi .label{font-size:6px!important}
+  #view-overview .kpi .value{font-size:18px!important;margin-top:5px!important}
+  #view-overview .kpi .sub{font-size:6.2px!important;margin-top:4px!important}
+  #view-overview .kpi-earn{grid-column:auto!important;display:block!important;border:0!important;padding:9px 10px!important;background:color-mix(in srgb,var(--panel2) 62%,var(--panel))!important;min-height:62px!important}
+  #view-overview .kpi-earn .label,#view-overview .kpi-earn .value,#view-overview .kpi-earn .sub{display:block!important}
+  #view-overview .kpi-earn .value{font-size:18px!important;margin-top:5px!important}
+  #view-overview .kpi-follow{display:none!important}
+
+  /* Sections: almost borderless surfaces */
+  #view-overview .ops-grid{gap:7px!important}
+  #view-overview .ops-card,#view-overview .overview-course-v273{border-radius:15px!important;margin-bottom:7px!important;background:color-mix(in srgb,var(--panel2) 48%,var(--panel))!important}
+  #view-overview .section-title{padding:10px 11px 0!important}
+  #view-overview .section-title h3{font-size:11.5px!important}
+  #view-overview .section-title p{font-size:7px!important;margin-top:2px!important}
+  #view-overview .section-title .copy-btn{font-size:6.7px!important;min-height:24px!important}
+  #view-overview .ops-body{padding:7px 9px 9px!important}
+
+  /* CRM list: 3 rows only on mobile */
+  #view-overview .recent-row{grid-template-columns:30px minmax(0,1fr) auto!important;gap:8px!important;padding:9px 1px!important}
+  #view-overview .recent-avatar-v349{width:30px!important;height:30px!important;font-size:8px!important}
+  #view-overview .recent-main b{font-size:9.3px!important}
+  #view-overview .recent-main span{font-size:6.8px!important;margin-top:2px!important}
+  #view-overview .recent-main small{font-size:6.1px!important;margin-top:2px!important}
+  #view-overview .recent-meta{gap:3px!important}
+  #view-overview .recent-status-v349{font-size:5.8px!important}
+  #view-overview .recent-wa-btn{height:24px!important;min-height:24px!important;border-radius:8px!important;font-size:6.2px!important;padding:0 7px!important}
+
+  /* Today's work = dense terminal-style stats */
+  #view-overview .work-list{grid-template-columns:repeat(4,minmax(0,1fr))!important;border:0!important;border-radius:0!important;overflow:visible!important;gap:0!important}
+  #view-overview .work-item{min-height:52px!important;border:0!important;border-right:1px solid var(--line)!important;border-bottom:0!important;padding:8px 7px!important}
+  #view-overview .work-item:nth-child(4){border-right:0!important}
+  #view-overview .work-item span{font-size:5.9px!important;line-height:1.25!important}
+  #view-overview .work-item b{font-size:15px!important;margin-top:2px!important}
+  #view-overview .work-report-v349{grid-column:1/-1!important;min-height:34px!important;border-top:1px solid var(--line)!important;border-right:0!important;padding:7px 8px!important}
+  #view-overview .work-report-v349 span{font-size:6.3px!important}
+  #view-overview .work-report-v349 b{font-size:7.5px!important;padding:4px 6px!important;border-radius:999px!important;background:rgba(243,149,34,.07)!important}
+
+  /* Batch exposure */
+  #view-overview .overview-course-v273{padding-bottom:8px!important}
+  #view-overview .overview-course-grid-v273{padding:7px 10px 2px!important;gap:6px!important}
+  #view-overview .overview-course-grid-v273 .quick-item{flex-basis:116px!important;min-height:62px!important;padding:9px!important;border-radius:12px!important}
+  #view-overview .overview-course-grid-v273 .quick-item span{font-size:6.2px!important}
+  #view-overview .overview-course-grid-v273 .quick-item b{font-size:15px!important;margin-top:5px!important}
+  #view-overview .course-meter-v351{height:2px!important;margin-top:8px!important}
+
+  /* Micro interactions */
+  #view-overview .mobile-quick-actions-v300 button,#view-overview .hero-priority-v352 button,#view-overview .recent-row,#view-overview .section-title .copy-btn,.mobile-tab{transition:transform .14s ease,background .14s ease,opacity .14s ease!important}
+  #view-overview .mobile-quick-actions-v300 button:active,#view-overview .hero-priority-v352 button:active,.mobile-tab:active{transform:scale(.97)!important}
+  #view-overview .recent-row:active{transform:scale(.995)!important}
+
+  /* Slimmer navigation */
+  .mobile-bottom-nav{left:14px!important;right:14px!important;bottom:calc(9px + env(safe-area-inset-bottom))!important;height:62px!important;padding:4px!important;border-radius:20px!important;box-shadow:0 10px 28px rgba(0,0,0,.13)!important}
+  .mobile-tab{min-height:52px!important;border-radius:15px!important}
+  .mobile-tab svg{width:18px!important;height:18px!important}
+  .mobile-tab span{font-size:6.8px!important}
+  .mobile-tab.active{background:rgba(243,149,34,.075)!important}
+  .mobile-tab.active:before{top:3px!important;width:12px!important}
+}
+</style>
 </head>
 <body>
 <div id="boot"><div class="bootmark"><div class="spinner"></div><span>TEAM COMMAND CENTER</span></div></div>
@@ -594,14 +712,21 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
         <button type="button" data-mobile-view="daily"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><b>Daily Report</b><small>Update work</small></button>
         <button type="button" data-mobile-view="performance"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 4 3 5-7"/></svg></span><b>Performance</b><small>Progress</small></button>
       </div>
-      <div class="premium-card hero-card sweep team-hero-v273">
-        <div class="hero-identity-v350"><div id="heroAvatarV350" class="hero-avatar-v350">T</div><div class="hero-copy-v350"><div class="eyebrow">Selected Month</div><h2 id="heroTitle">Your team activity</h2><p id="heroSub">Focus on new leads, follow-ups and conversions. Old tracking clients and new Ad/Auto leads stay together.</p></div></div>
-        <div class="hero-quick-v273"><span>Today</span><b id="heroTodayAction">0 leads need attention</b><small id="heroMonthSummary">Your monthly totals update automatically.</small></div>
-        <div class="hidden" aria-hidden="true"><strong id="heroEarnings">$0.00</strong><b id="heroCourseTier">—</b><b id="heroVipTier">—</b><b id="heroLotTier">—</b></div>
-      </div>
-      <div id="overviewCommandV351" class="overview-command-v351" aria-live="polite">
-        <div class="overview-command-copy-v351"><span>Priority Queue</span><b id="overviewPriorityTextV351">Loading work queue…</b><small id="overviewPrioritySubV351">Your highest-priority client work appears here.</small></div>
-        <button type="button" onclick="document.querySelector('[data-view=clients]').click()">Open Queue <span>→</span></button>
+      <div class="premium-card hero-card sweep team-hero-v273 hero-command-v352">
+        <div class="hero-top-v352">
+          <div class="hero-identity-v350"><div id="heroAvatarV350" class="hero-avatar-v350">T</div><div class="hero-copy-v350"><div class="eyebrow">Command Center</div><h2 id="heroTitle">Your team activity</h2></div></div>
+          <span class="hero-live-v352"><i></i>Live</span>
+        </div>
+        <div class="hero-priority-v352">
+          <div><span>Priority Queue</span><b id="heroFollowupV352">0 need follow-up</b><small id="heroPrioritySubV352">No urgent work right now.</small></div>
+          <button type="button" onclick="document.querySelector('[data-view=clients]').click()">Review <span>→</span></button>
+        </div>
+        <div class="hero-stats-v352">
+          <div><span>New Today</span><b id="heroNewV352">0</b></div>
+          <div><span>Converted</span><b id="heroConvertedV352">0</b></div>
+          <div><span>Earnings</span><b id="heroEarningsV352">$0.00</b></div>
+        </div>
+        <div class="hidden" aria-hidden="true"><b id="heroTodayAction">0 leads need attention</b><small id="heroMonthSummary">Your monthly totals update automatically.</small><strong id="heroEarnings">$0.00</strong><b id="heroCourseTier">—</b><b id="heroVipTier">—</b><b id="heroLotTier">—</b><p id="heroSub"></p><b id="overviewPriorityTextV351"></b><small id="overviewPrioritySubV351"></small></div>
       </div>
       <div class="team-flow-guide" aria-label="How Team Panel works">
         <div class="team-flow-step"><b class="team-flow-num">1</b><b>My Clients</b><span>All old tracking clients + new Ad/Auto leads assigned to you.</span></div>
@@ -921,28 +1046,33 @@ function renderKpis(){
         converted=monthStatuses.filter(x=>x==='converted').length,earnOpen=teamEarningsVisibleV274(),
         earnType=!S.metricsAvailable?'unavailable':(earnOpen?'money':'settled'),
         items=[
-          ['My Total Clients',allClients.length,'num','All assigned clients','kpi-total'],
-          ['New Leads Today',todayLeads,'num','Received today','kpi-new'],
-          ['Need Follow-up',follow,'num','Needs your attention','kpi-follow'],
-          ['Converted This Month',converted,'num','Completed conversions','kpi-converted'],
-          [!S.metricsAvailable?'Earnings Unavailable':(earnOpen?'Total Earnings':'Earnings Settled'),m.total_earnings,earnType,!S.metricsAvailable?'Performance totals could not refresh':(earnOpen?'Since Sep 2026':'Before Sep 2026'),'kpi-earn']
+          ['Total Clients',allClients.length,'num','Assigned','kpi-total'],
+          ['New Today',todayLeads,'num','Received','kpi-new'],
+          ['Converted',converted,'num','This month','kpi-converted'],
+          [!S.metricsAvailable?'Earnings':(earnOpen?'Earnings':'Settled'),m.total_earnings,earnType,!S.metricsAvailable?'Unavailable':(earnOpen?'Since Sep 2026':'Before Sep 2026'),'kpi-earn']
         ];
   $('kpiGrid').innerHTML=items.map((x,i)=>`<div class="premium-card kpi ${esc(x[4]||'')}">
     <div class="label">${esc(x[0])}</div>
     <div class="value" data-kpi="${i}">${x[2]==='settled'||x[2]==='unavailable'?'—':'0'}</div>
     <div class="sub">${esc(x[3])}</div>
-    ${x[4]==='kpi-follow'?'<button class="kpi-action-v351" type="button" onclick="document.querySelector(\'[data-view=clients]\').click()">Review →</button>':''}
   </div>`).join('');
   items.forEach((x,i)=>{if(!['settled','unavailable'].includes(x[2]))animateNumber(document.querySelector(`[data-kpi="${i}"]`),x[1],{moneyFmt:x[2]==='money'})});
+
   const needToday=allClients.filter(c=>clientDateKey(c.registration_at)===today&&!['converted','not_interested'].includes(clientWorkStatus(c))).length;
   if($('heroTodayAction'))$('heroTodayAction').textContent=`${fmt(needToday)} leads need attention`;
   if($('heroMonthSummary'))$('heroMonthSummary').textContent=!S.metricsAvailable?`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · performance totals unavailable`:earnOpen?`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · ${money(m.total_earnings)} earnings`:`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · earnings already settled`;
   if($('overviewPriorityTextV351'))$('overviewPriorityTextV351').textContent=follow?`${fmt(follow)} clients need follow-up`:'You are all caught up';
   if($('overviewPrioritySubV351'))$('overviewPrioritySubV351').textContent=follow?`${fmt(todayLeads)} new today · ${fmt(converted)} converted this month`:`${fmt(todayLeads)} new today · no pending follow-up`;
+
+  if($('heroFollowupV352'))$('heroFollowupV352').textContent=follow?`${fmt(follow)} need follow-up`:'All caught up';
+  if($('heroPrioritySubV352'))$('heroPrioritySubV352').textContent=follow?`${fmt(needToday)} new leads still need attention today`:'No pending follow-up right now';
+  if($('heroNewV352'))$('heroNewV352').textContent=fmt(todayLeads);
+  if($('heroConvertedV352'))$('heroConvertedV352').textContent=fmt(converted);
+  if($('heroEarningsV352'))$('heroEarningsV352').textContent=!S.metricsAvailable?'—':(earnOpen?money(m.total_earnings):'Settled');
 }
 function renderOverviewOps(){
   const all=[...(S.clients||[])].sort((a,b)=>new Date(b.registration_at||0)-new Date(a.registration_at||0)),
-        recent=all.slice(0,5),today=malaysiaToday(),recentEl=$('overviewRecentClients'),workEl=$('overviewTodayWork');
+        recent=all.slice(0,(window.matchMedia&&window.matchMedia('(max-width:760px)').matches)?3:5),today=malaysiaToday(),recentEl=$('overviewRecentClients'),workEl=$('overviewTodayWork');
   if(recentEl)recentEl.innerHTML=recent.length?recent.map((c,i)=>{
     const ci=clientCourseInfo(c),src=clientSourceKeyV273(c),wa=String(c.whatsapp||'').replace(/\D/g,''),
           name=String(c.full_name||'Client').trim(),
@@ -1128,7 +1258,7 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=351',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=352',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
