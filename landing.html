@@ -2408,17 +2408,19 @@ document.addEventListener('DOMContentLoaded',function(){
 
 <script defer src="/live-desk-v242.js?v=20260917-v244-stability"></script>
 
-<script id="pspSmoothWheelV1">
-/* Desktop wheel easing for the public landing page.
-   CSS scroll-behavior only smooths scripted/anchor jumps; this smooths real mouse-wheel scrolling. */
+<script id="pspSmoothWheelV2">
+/* Smooth real mouse-wheel scrolling for the public landing page.
+   Works on desktop even when the Windows device also has a touchscreen. */
 (function(){
   try{
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (navigator.maxTouchPoints > 0 || 'ontouchstart' in window) return;
-
     var targetY = window.scrollY || window.pageYOffset || 0;
     var rafId = 0;
     var running = false;
+    var root = document.documentElement;
+
+    var guardStyle = document.createElement('style');
+    guardStyle.textContent = 'html.psp-wheel-active{scroll-behavior:auto!important}';
+    document.head.appendChild(guardStyle);
 
     function maxScroll(){
       var d = document.documentElement;
@@ -2450,22 +2452,23 @@ document.addEventListener('DOMContentLoaded',function(){
       return false;
     }
 
+    function finish(){
+      window.scrollTo(0, targetY);
+      running = false;
+      rafId = 0;
+      root.classList.remove('psp-wheel-active');
+    }
+
     function step(){
       var y = window.scrollY || window.pageYOffset || 0;
       var diff = targetY - y;
 
-      if (Math.abs(diff) < 0.45){
-        window.scrollTo({top: targetY, left: 0, behavior: 'instant'});
-        running = false;
-        rafId = 0;
+      if (Math.abs(diff) < 0.6){
+        finish();
         return;
       }
 
-      window.scrollTo({
-        top: y + diff * 0.14,
-        left: 0,
-        behavior: 'instant'
-      });
+      window.scrollTo(0, y + diff * 0.105);
       rafId = window.requestAnimationFrame(step);
     }
 
@@ -2473,6 +2476,7 @@ document.addEventListener('DOMContentLoaded',function(){
       if (rafId) window.cancelAnimationFrame(rafId);
       rafId = 0;
       running = false;
+      root.classList.remove('psp-wheel-active');
       targetY = window.scrollY || window.pageYOffset || 0;
     }
 
@@ -2486,13 +2490,14 @@ document.addEventListener('DOMContentLoaded',function(){
       if (e.deltaMode === 1) delta *= 16;
       else if (e.deltaMode === 2) delta *= window.innerHeight;
 
-      var limit = Math.max(220, window.innerHeight * 0.78);
-      delta = clamp(delta, -limit, limit);
+      /* Keep each wheel impulse controlled so it glides instead of jumping a section. */
+      delta = clamp(delta, -360, 360);
 
       if (!running) targetY = window.scrollY || window.pageYOffset || 0;
       targetY = clamp(targetY + delta, 0, maxScroll());
 
       e.preventDefault();
+      root.classList.add('psp-wheel-active');
 
       if (!running){
         running = true;
