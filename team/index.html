@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow">
 <title>PSP TEAM — PipSePaisa</title>
-<!-- V352 PSP TEAM ultra-premium command Home + V346 session handling; V300 mobile-app rebuild preserved -->
+<!-- V353 PSP TEAM clickable Today Work + compact bottom spacing; V346 session handling preserved -->
 <link rel="icon" href="/favicon.png">
-<link rel="manifest" href="./team-manifest.json?v=352">
+<link rel="manifest" href="./team-manifest.json?v=353">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="theme-color" content="#F39522">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -660,6 +660,66 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
   .mobile-tab.active:before{top:3px!important;width:12px!important}
 }
 </style>
+
+<style id="teamOverviewUtilityV353Css">
+@media(max-width:760px){
+  /* Remove duplicated bottom space from the old mobile shell. Keep only nav-safe room. */
+  #appView.app{padding-bottom:0!important;min-height:0!important}
+  .layout,.content,#view-overview{min-height:0!important}
+  .main{padding-bottom:calc(74px + env(safe-area-inset-bottom))!important}
+  #view-overview{padding-bottom:0!important;margin-bottom:0!important}
+  #view-overview .overview-course-v273{margin-bottom:0!important}
+
+  /* Today's Work is navigation now, not static data. */
+  #view-overview .work-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;border:0!important}
+  #view-overview .work-action-v353{
+    position:relative!important;
+    min-height:66px!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:"label arrow" "value arrow"!important;
+    align-items:center!important;
+    gap:4px 8px!important;
+    padding:10px 11px!important;
+    border:1px solid color-mix(in srgb,var(--line) 74%,transparent)!important;
+    border-radius:13px!important;
+    background:color-mix(in srgb,var(--panel2) 62%,var(--panel))!important;
+    color:var(--text)!important;
+    text-align:left!important;
+    box-shadow:none!important;
+  }
+  #view-overview .work-action-v353 span{grid-area:label!important;font-size:6.7px!important;color:var(--muted)!important;line-height:1.2!important}
+  #view-overview .work-action-v353 b{grid-area:value!important;font-size:18px!important;line-height:1!important;margin:0!important}
+  #view-overview .work-action-v353 i{
+    grid-area:arrow!important;
+    width:25px;height:25px;
+    display:grid;place-items:center;
+    border-radius:8px;
+    background:rgba(243,149,34,.08);
+    color:#F39522;
+    font-size:11px;
+    font-style:normal;
+    font-weight:900;
+  }
+  #view-overview .work-action-v353.warn b{color:#F39522!important}
+  #view-overview .work-action-v353.good b{color:#32bd83!important}
+  #view-overview .work-action-v353:active{transform:scale(.985)!important;background:rgba(243,149,34,.055)!important}
+
+  #view-overview .work-report-v349{
+    grid-column:1/-1!important;
+    min-height:48px!important;
+    grid-template-columns:minmax(0,1fr) auto auto!important;
+    grid-template-areas:"label value arrow"!important;
+  }
+  #view-overview .work-report-v349 b{
+    font-size:8px!important;
+    padding:5px 8px!important;
+    border-radius:999px!important;
+    background:rgba(243,149,34,.08)!important;
+    color:#b96a09!important;
+  }
+}
+</style>
 </head>
 <body>
 <div id="boot"><div class="bootmark"><div class="spinner"></div><span>TEAM COMMAND CENTER</span></div></div>
@@ -1070,6 +1130,26 @@ function renderKpis(){
   if($('heroConvertedV352'))$('heroConvertedV352').textContent=fmt(converted);
   if($('heroEarningsV352'))$('heroEarningsV352').textContent=!S.metricsAvailable?'—':(earnOpen?money(m.total_earnings):'Settled');
 }
+function openOverviewWorkV353(target){
+  const go=(view)=>{const btn=document.querySelector('[data-view="'+view+'"]');if(btn)btn.click()};
+  if(target==='daily'){go('daily');return}
+  go('clients');
+  requestAnimationFrame(()=>{
+    if(target==='new'){
+      if($('clientStatusFilter'))$('clientStatusFilter').value='new';
+      if($('clientPeriodFilter'))$('clientPeriodFilter').value='today';
+    }else if(target==='converted'){
+      if($('clientStatusFilter'))$('clientStatusFilter').value='converted';
+      if($('clientPeriodFilter'))$('clientPeriodFilter').value='today';
+    }else if(target==='follow'||target==='due'){
+      if($('clientStatusFilter'))$('clientStatusFilter').value='follow_up';
+      if($('clientPeriodFilter'))$('clientPeriodFilter').value='all';
+    }
+    S.clientPage=1;
+    if(typeof renderClients==='function')renderClients();
+    if(typeof syncMobileClientFiltersV278==='function')syncMobileClientFiltersV278();
+  });
+}
 function renderOverviewOps(){
   const all=[...(S.clients||[])].sort((a,b)=>new Date(b.registration_at||0)-new Date(a.registration_at||0)),
         recent=all.slice(0,(window.matchMedia&&window.matchMedia('(max-width:760px)').matches)?3:5),today=malaysiaToday(),recentEl=$('overviewRecentClients'),workEl=$('overviewTodayWork');
@@ -1090,11 +1170,11 @@ function renderOverviewOps(){
           need=all.filter(c=>['new','follow_up'].includes(clientWorkStatus(c))).length,
           due=all.filter(c=>c.follow_up_at&&new Date(c.follow_up_at)<=new Date()&&clientWorkStatus(c)!=='converted').length,
           converted=todayRows.filter(c=>clientWorkStatus(c)==='converted').length;
-    workEl.innerHTML=`<div class="work-item warn"><span>New leads today</span><b>${fmt(todayRows.length)}</b></div>
-      <div class="work-item"><span>Need follow-up</span><b>${fmt(need)}</b></div>
-      <div class="work-item warn"><span>Follow-ups due</span><b>${fmt(due)}</b></div>
-      <div class="work-item good"><span>Converted today</span><b>${fmt(converted)}</b></div>
-      <div class="work-item work-report-v349"><span>Daily report</span><b>${S.loaded.daily&&((S.daily||{}).manual||{}).submitted_at?'Submitted':'Pending'}</b></div>`;
+    workEl.innerHTML=`<button type="button" class="work-item work-action-v353 warn" onclick="openOverviewWorkV353('new')"><span>New leads today</span><b>${fmt(todayRows.length)}</b><i>→</i></button>
+      <button type="button" class="work-item work-action-v353" onclick="openOverviewWorkV353('follow')"><span>Need follow-up</span><b>${fmt(need)}</b><i>→</i></button>
+      <button type="button" class="work-item work-action-v353 warn" onclick="openOverviewWorkV353('due')"><span>Follow-ups due</span><b>${fmt(due)}</b><i>→</i></button>
+      <button type="button" class="work-item work-action-v353 good" onclick="openOverviewWorkV353('converted')"><span>Converted today</span><b>${fmt(converted)}</b><i>→</i></button>
+      <button type="button" class="work-item work-action-v353 work-report-v349" onclick="openOverviewWorkV353('daily')"><span>Daily report</span><b>${S.loaded.daily&&((S.daily||{}).manual||{}).submitted_at?'Submitted':'Pending'}</b><i>→</i></button>`;
   }
 
   const bc=courseBatchCounts(all),
@@ -1258,7 +1338,7 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=352',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=353',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
