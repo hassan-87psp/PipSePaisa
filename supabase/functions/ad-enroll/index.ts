@@ -55,9 +55,9 @@ function credentialsEmailHtml(name: string, email: string, course: string, clien
 function teamDisplayName(value: unknown) {
   const raw = clean(value, 120);
   const key = raw.toLowerCase().replace(/[^a-z]/g, "");
-  if (key.includes("samiya")) return "Miss Samiya";
-  if (key.includes("amal")) return "Miss Amal";
-  if (key.includes("memona") || key.includes("mamoona")) return "Miss Memona";
+  if (key.includes("samiya")) return "Ms Samiya FX";
+  if (key.includes("amal")) return "Ms Amal FX";
+  if (key.includes("memona") || key.includes("mamoona") || key.includes("memoona")) return "Ms Memoona";
   return raw;
 }
 
@@ -240,12 +240,12 @@ Deno.serve(async (req) => {
     if (edgeRuntime?.waitUntil) { edgeRuntime.waitUntil(emailTask); credentialsEmailQueued = true; }
     else { credentialsEmailSent = await Promise.race([emailTask, new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 1800))]); credentialsEmailQueued = !credentialsEmailSent; }
 
-    const courseMessage = course === "technical"
-      ? "Sir Sajid Khan Ghori Free Course — Batch 3"
-      : "Sir Malik Ghulam Abbas Free Course — Batch 2";
+    const enrollmentMessage = course === "technical"
+      ? `I have enrolled in Sir Sajid’s Batch 3 (Client ID ${clientId}). Kindly verify and share next steps.`
+      : `I have enrolled in Sir Malik Ghulam Abbas’s Batch 2 (Client ID ${clientId}). Kindly verify and share next steps.`;
     const message = teamName
-      ? `Hello ${teamName}, maine ${courseMessage} mein apni enrollment complete kar li hai. Ye meri Client ID: ${clientId} hai. Kindly verify karke mujhe next process bata dein.`
-      : `Hello PipSePaisa Team, maine ${courseMessage} mein apni enrollment complete kar li hai. Ye meri Client ID: ${clientId} hai. Kindly verify karke mujhe next process bata dein.`;
+      ? `Hello ${teamName}, ${enrollmentMessage}`
+      : `Hello PipSePaisa Team, ${enrollmentMessage}`;
     const whatsappUrl = whatsappRouted ? `https://wa.me/${teamWhatsapp}?text=${encodeURIComponent(message)}` : "";
 
     return json({ ok: true, account_created: created, enrollment_id: result.enrollment_id ?? null, course_name: courseName, client_id: clientId, team_member_name: teamName, team_whatsapp: teamWhatsapp, whatsapp_url: whatsappUrl, whatsapp_message: message, credentials_email_sent: credentialsEmailSent, credentials_email_queued: credentialsEmailQueued });
