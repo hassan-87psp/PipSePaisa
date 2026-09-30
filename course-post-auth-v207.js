@@ -24,6 +24,7 @@ async function open(){
     try{history.replaceState(history.state,'','/my-courses');}catch(_){}
   }
 }
+window.pspApplyIntendedRoute=function(){ return open(); };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(open,220),{once:true});else setTimeout(open,220);
 window.addEventListener('psp-authenticated',()=>setTimeout(open,120));
 })();
