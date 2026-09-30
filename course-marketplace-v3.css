@@ -1085,3 +1085,508 @@ body.dark .psp-live-class-card,[data-theme="dark"] .psp-live-class-card{
   #page-mycourses .psp-course-advance-fundamental .psp-course-mentor-badge strong,
   #page-mycourses .psp-course-advanced-fundamental .psp-course-mentor-badge strong{font-size:14px!important}
 }
+
+
+/* ===== My Courses Learning Hub V353 ===== */
+#page-mycourses .psp-course-marketplace{
+  width:min(100%,1320px)!important;
+  margin:0 auto!important;
+  padding:24px 26px 42px!important;
+}
+#page-mycourses .psp-course-market-head{
+  align-items:center!important;
+  margin-bottom:16px!important;
+}
+#page-mycourses .psp-course-page-kicker{
+  display:block;
+  margin-bottom:5px;
+  color:#F39522;
+  font-size:9px;
+  line-height:1;
+  font-weight:950;
+  letter-spacing:.13em;
+}
+#page-mycourses .psp-course-market-head h2{
+  font-size:27px!important;
+  line-height:1.08!important;
+  letter-spacing:-.025em;
+}
+#page-mycourses .psp-course-market-head p{
+  margin-top:6px!important;
+  font-size:11px!important;
+  line-height:1.45;
+}
+#page-mycourses .psp-course-market-count{
+  min-height:34px;
+  display:inline-flex;
+  align-items:center;
+  padding:0 13px!important;
+  background:rgba(243,149,34,.09)!important;
+  border-color:rgba(243,149,34,.32)!important;
+  color:#b86600!important;
+}
+
+#page-mycourses .psp-course-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:11px;
+  margin:0 0 15px;
+}
+#page-mycourses .psp-course-summary-card{
+  min-width:0;
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:12px 14px;
+  border:1px solid rgba(148,163,184,.18);
+  border-radius:15px;
+  background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(255,251,244,.82));
+  box-shadow:0 8px 24px rgba(15,23,42,.045);
+  color:var(--text-primary,#111827);
+  text-align:left;
+  cursor:pointer;
+  transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease,background .2s ease;
+}
+#page-mycourses .psp-course-summary-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(243,149,34,.42);
+  box-shadow:0 12px 26px rgba(15,23,42,.075);
+}
+#page-mycourses .psp-course-summary-card.is-active{
+  border-color:rgba(243,149,34,.58);
+  background:linear-gradient(145deg,rgba(243,149,34,.13),rgba(255,255,255,.96));
+  box-shadow:0 10px 28px rgba(243,149,34,.10);
+}
+#page-mycourses .psp-summary-icon{
+  flex:0 0 38px;
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:rgba(243,149,34,.12);
+  color:#cf7100;
+  font-size:15px;
+  font-weight:950;
+}
+#page-mycourses .psp-course-summary-card span:last-child{min-width:0}
+#page-mycourses .psp-course-summary-card small{
+  display:block;
+  margin-bottom:2px;
+  color:var(--text-muted,#7b8aa5);
+  font-size:9px;
+  font-weight:800;
+  white-space:nowrap;
+}
+#page-mycourses .psp-course-summary-card strong{
+  display:block;
+  color:var(--text-primary,#111827);
+  font-size:21px;
+  line-height:1;
+  font-weight:950;
+}
+
+#page-mycourses .psp-course-controlbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:20px;
+  padding:8px;
+  border:1px solid rgba(148,163,184,.17);
+  border-radius:15px;
+  background:rgba(255,255,255,.65);
+  box-shadow:0 8px 22px rgba(15,23,42,.035);
+  backdrop-filter:blur(10px);
+}
+#page-mycourses .psp-course-filters{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  min-width:0;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+#page-mycourses .psp-course-filters::-webkit-scrollbar{display:none}
+#page-mycourses .psp-course-filters button{
+  flex:0 0 auto;
+  min-height:34px;
+  padding:0 11px;
+  border:1px solid transparent;
+  border-radius:10px;
+  background:transparent;
+  color:var(--text-secondary,#526075);
+  font-size:9px;
+  font-weight:900;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:all .18s ease;
+}
+#page-mycourses .psp-course-filters button:hover{
+  background:rgba(243,149,34,.08);
+  color:#b76000;
+}
+#page-mycourses .psp-course-filters button.active{
+  background:#0b1729;
+  border-color:#0b1729;
+  color:#fff;
+  box-shadow:0 7px 16px rgba(11,23,41,.15);
+}
+#page-mycourses .psp-course-tools{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  flex:0 0 auto;
+}
+#page-mycourses .psp-course-search{
+  height:36px;
+  width:220px;
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:0 10px;
+  border:1px solid rgba(148,163,184,.22);
+  border-radius:10px;
+  background:var(--bg-card,#fff);
+}
+#page-mycourses .psp-course-search span{
+  color:#8491a6;
+  font-size:15px;
+  line-height:1;
+}
+#page-mycourses .psp-course-search input{
+  width:100%;
+  min-width:0;
+  border:0!important;
+  outline:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  color:var(--text-primary,#111827)!important;
+  font-size:10px!important;
+  padding:0!important;
+}
+#page-mycourses #pspCourseSort{
+  height:36px;
+  max-width:150px;
+  padding:0 28px 0 10px;
+  border:1px solid rgba(148,163,184,.22);
+  border-radius:10px;
+  background:var(--bg-card,#fff);
+  color:var(--text-secondary,#475569);
+  font-size:9px;
+  font-weight:800;
+  outline:0;
+}
+
+#page-mycourses .psp-course-section-group{
+  margin-top:21px;
+}
+#page-mycourses .psp-course-section-group[hidden]{display:none!important}
+#page-mycourses .psp-course-section-title{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+  margin:0 1px 11px;
+}
+#page-mycourses .psp-course-section-title span{
+  display:block;
+  margin-bottom:3px;
+  color:#F39522;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.12em;
+}
+#page-mycourses .psp-course-section-title h3{
+  margin:0;
+  color:var(--text-primary,#111827);
+  font-size:17px;
+  line-height:1.2;
+  letter-spacing:-.015em;
+}
+#page-mycourses .psp-course-section-title small{
+  color:var(--text-muted,#7b8aa5);
+  font-size:9px;
+  font-weight:800;
+}
+
+#page-mycourses .psp-course-card-grid{
+  width:100%!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:16px!important;
+  justify-content:stretch!important;
+  align-items:stretch!important;
+}
+#page-mycourses .psp-course-tile{
+  height:auto!important;
+  min-height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  grid-template-columns:none!important;
+  overflow:hidden!important;
+  border-radius:18px!important;
+  background:var(--bg-card,#fff)!important;
+  border:1px solid rgba(148,163,184,.18)!important;
+  box-shadow:0 10px 30px rgba(15,23,42,.065)!important;
+  cursor:pointer;
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,border-color .22s ease!important;
+}
+#page-mycourses .psp-course-tile:hover{
+  transform:translateY(-4px)!important;
+  border-color:rgba(243,149,34,.44)!important;
+  box-shadow:0 18px 42px rgba(15,23,42,.11)!important;
+}
+#page-mycourses .psp-course-tile.paid{
+  background:linear-gradient(145deg,#0b1729,#10233e)!important;
+  border-color:rgba(243,149,34,.34)!important;
+}
+#page-mycourses .psp-course-thumb{
+  position:relative;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:16/8.25!important;
+  overflow:hidden;
+  background:#0b1426;
+}
+#page-mycourses .psp-course-thumb img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  transition:transform .4s cubic-bezier(.2,.8,.2,1)!important;
+}
+#page-mycourses .psp-course-tile:hover .psp-course-thumb img{transform:scale(1.022)!important}
+#page-mycourses .psp-course-thumb-overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+  padding:10px;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(5,13,25,.18),transparent 38%,rgba(5,13,25,.05));
+}
+#page-mycourses .psp-course-type-badge,
+#page-mycourses .psp-course-thumb-status{
+  display:inline-flex;
+  align-items:center;
+  min-height:25px;
+  padding:0 8px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(7,18,36,.88);
+  color:#fff;
+  backdrop-filter:blur(9px);
+  box-shadow:0 6px 18px rgba(0,0,0,.14);
+  font-size:7.5px;
+  font-weight:950;
+  letter-spacing:.035em;
+  white-space:nowrap;
+}
+#page-mycourses .psp-course-type-badge.free{
+  background:rgba(255,255,255,.94);
+  color:#b86500;
+  border-color:rgba(243,149,34,.35);
+}
+#page-mycourses .psp-course-thumb-status.approved{
+  background:rgba(5,130,87,.92);
+  color:#fff;
+}
+#page-mycourses .psp-course-thumb-status.pending{
+  background:rgba(184,103,0,.93);
+  color:#fff;
+}
+#page-mycourses .psp-course-thumb-status.rejected{
+  background:rgba(190,38,38,.92);
+  color:#fff;
+}
+#page-mycourses .psp-course-thumb-status.locked{
+  background:rgba(15,23,42,.88);
+  color:#fff;
+}
+
+#page-mycourses .psp-course-tile-body{
+  flex:1;
+  min-width:0;
+  padding:14px 15px 14px!important;
+  display:flex!important;
+  flex-direction:column!important;
+}
+#page-mycourses .psp-course-tile-top{
+  display:flex!important;
+  align-items:flex-start!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+}
+#page-mycourses .psp-course-card-title-wrap{min-width:0}
+#page-mycourses .psp-course-tile h3{
+  margin:0!important;
+  padding:0!important;
+  color:var(--text-primary,#111827)!important;
+  font-size:15px!important;
+  line-height:1.22!important;
+  letter-spacing:-.012em;
+}
+#page-mycourses .psp-course-tile.paid h3{color:#fff!important}
+#page-mycourses .psp-course-mentor-mini{
+  margin-top:4px;
+  color:var(--text-muted,#8390a4);
+  font-size:8px;
+  line-height:1.3;
+}
+#page-mycourses .psp-course-tile.paid .psp-course-mentor-mini{color:#aebbd0}
+#page-mycourses .psp-course-mentor-mini strong{font-weight:900}
+#page-mycourses .psp-course-price{
+  flex:0 0 auto;
+  margin:0!important;
+  padding:5px 7px;
+  border-radius:9px;
+  background:rgba(243,149,34,.10);
+  color:#e07b00!important;
+  font-size:16px!important;
+  line-height:1!important;
+  font-weight:950;
+}
+#page-mycourses .psp-course-tile.paid .psp-course-price{
+  background:rgba(243,149,34,.12);
+  color:#ffad28!important;
+}
+#page-mycourses .psp-course-tile p{
+  min-height:31px!important;
+  margin:9px 0 10px!important;
+  color:var(--text-muted,#6f7f96)!important;
+  font-size:9.5px!important;
+  line-height:1.52!important;
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  overflow:hidden;
+}
+#page-mycourses .psp-course-tile.paid p{color:#c8d3e4!important}
+#page-mycourses .psp-course-meta{
+  gap:5px!important;
+  margin:0 0 11px!important;
+}
+#page-mycourses .psp-course-meta span{
+  padding:5px 7px!important;
+  border-radius:8px!important;
+  font-size:7.5px!important;
+  line-height:1!important;
+  font-weight:850!important;
+}
+#page-mycourses .psp-course-tile-footer{
+  margin-top:auto!important;
+  padding-top:11px!important;
+  border-top:1px solid rgba(148,163,184,.13)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:9px!important;
+}
+#page-mycourses .psp-course-tile.paid .psp-course-tile-footer{border-color:rgba(255,255,255,.09)!important}
+#page-mycourses .psp-course-open-btn{
+  min-height:34px;
+  padding:0 11px!important;
+  border-radius:9px!important;
+  background:#F39522!important;
+  color:#111827!important;
+  box-shadow:0 8px 18px rgba(243,149,34,.16)!important;
+  font-size:8.5px!important;
+  font-weight:950!important;
+  white-space:nowrap;
+}
+#page-mycourses .psp-course-details-link{
+  color:var(--text-muted,#738198);
+  font-size:8px;
+  font-weight:850;
+  white-space:nowrap;
+  cursor:pointer;
+}
+#page-mycourses .psp-course-tile.paid .psp-course-details-link{color:#aebbd0}
+#page-mycourses .psp-course-details-link b{color:#F39522}
+
+#page-mycourses .psp-course-empty-state{
+  margin-top:22px;
+  padding:34px 20px;
+  border:1px dashed rgba(148,163,184,.28);
+  border-radius:17px;
+  background:rgba(255,255,255,.46);
+  text-align:center;
+  color:var(--text-muted,#75849a);
+}
+#page-mycourses .psp-course-empty-state[hidden]{display:none!important}
+#page-mycourses .psp-course-empty-state>span{
+  width:40px;height:40px;margin:0 auto 8px;display:grid;place-items:center;border-radius:12px;background:rgba(243,149,34,.10);color:#d97706;font-size:20px
+}
+#page-mycourses .psp-course-empty-state strong{display:block;color:var(--text-primary,#111827);font-size:13px}
+#page-mycourses .psp-course-empty-state p{margin:4px 0 0;font-size:9px}
+
+body.dark #page-mycourses .psp-course-summary-card,
+[data-theme="dark"] #page-mycourses .psp-course-summary-card,
+body.dark #page-mycourses .psp-course-controlbar,
+[data-theme="dark"] #page-mycourses .psp-course-controlbar,
+body.dark #page-mycourses .psp-course-empty-state,
+[data-theme="dark"] #page-mycourses .psp-course-empty-state{
+  background:linear-gradient(145deg,#101a2b,#0d1727)!important;
+  border-color:rgba(255,255,255,.08)!important;
+}
+body.dark #page-mycourses .psp-course-summary-card.is-active,
+[data-theme="dark"] #page-mycourses .psp-course-summary-card.is-active{
+  border-color:rgba(243,149,34,.45)!important;
+  background:linear-gradient(145deg,rgba(243,149,34,.13),#101a2b)!important;
+}
+body.dark #page-mycourses .psp-course-search,
+[data-theme="dark"] #page-mycourses .psp-course-search,
+body.dark #page-mycourses #pspCourseSort,
+[data-theme="dark"] #page-mycourses #pspCourseSort{
+  background:#0e192a!important;
+  border-color:rgba(255,255,255,.09)!important;
+  color:#dbe5f3!important;
+}
+body.dark #page-mycourses .psp-course-tile:not(.paid),
+[data-theme="dark"] #page-mycourses .psp-course-tile:not(.paid){
+  background:linear-gradient(145deg,#111b2c,#0f192a)!important;
+  border-color:rgba(255,255,255,.09)!important;
+}
+body.dark #page-mycourses .psp-course-tile:not(.paid) h3,
+[data-theme="dark"] #page-mycourses .psp-course-tile:not(.paid) h3{color:#fff!important}
+
+@media(max-width:1050px){
+  #page-mycourses .psp-course-marketplace{padding:20px 18px 34px!important}
+  #page-mycourses .psp-course-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #page-mycourses .psp-course-controlbar{align-items:stretch;flex-direction:column}
+  #page-mycourses .psp-course-tools{justify-content:space-between}
+  #page-mycourses .psp-course-search{width:min(100%,360px)}
+}
+@media(max-width:720px){
+  #page-mycourses .psp-course-marketplace{padding:14px 11px 28px!important}
+  #page-mycourses .psp-course-market-head{align-items:flex-start!important}
+  #page-mycourses .psp-course-market-head h2{font-size:23px!important}
+  #page-mycourses .psp-course-market-head p{font-size:10px!important;max-width:92%}
+  #page-mycourses .psp-course-market-count{display:none!important}
+  #page-mycourses .psp-course-summary-grid{gap:8px}
+  #page-mycourses .psp-course-summary-card{min-height:62px;padding:10px}
+  #page-mycourses .psp-summary-icon{width:32px;height:32px;flex-basis:32px;border-radius:10px;font-size:13px}
+  #page-mycourses .psp-course-summary-card small{font-size:8px}
+  #page-mycourses .psp-course-summary-card strong{font-size:18px}
+  #page-mycourses .psp-course-controlbar{padding:7px;margin-bottom:17px}
+  #page-mycourses .psp-course-tools{display:grid;grid-template-columns:minmax(0,1fr) 132px}
+  #page-mycourses .psp-course-search{width:100%}
+  #page-mycourses #pspCourseSort{width:100%;max-width:none}
+  #page-mycourses .psp-course-section-group{margin-top:18px}
+  #page-mycourses .psp-course-card-grid{grid-template-columns:1fr!important;gap:12px!important}
+  #page-mycourses .psp-course-thumb{aspect-ratio:16/8.5!important}
+  #page-mycourses .psp-course-tile-body{padding:13px!important}
+}
+@media(max-width:430px){
+  #page-mycourses .psp-course-summary-grid{grid-template-columns:1fr 1fr}
+  #page-mycourses .psp-course-summary-card{gap:8px}
+  #page-mycourses .psp-course-filters button{min-height:32px;padding:0 9px;font-size:8px}
+  #page-mycourses .psp-course-tools{grid-template-columns:1fr}
+  #page-mycourses .psp-course-tile-top{gap:8px!important}
+  #page-mycourses .psp-course-price{font-size:14px!important}
+  #page-mycourses .psp-course-section-title h3{font-size:16px}
+}
