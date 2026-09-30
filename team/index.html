@@ -793,12 +793,34 @@ function renderClients(){
   document.querySelectorAll('[data-client-status]').forEach(el=>el.onchange=()=>{const key=el.dataset.clientStatus,follow=document.querySelector('[data-client-follow="'+CSS.escape(key)+'"]')&&document.querySelector('[data-client-follow="'+CSS.escape(key)+'"]').value||null;updateClientWorkV273(key,el.value,follow,el)});document.querySelectorAll('[data-client-follow]').forEach(el=>el.onchange=()=>{const key=el.dataset.clientFollow,stEl=document.querySelector('[data-client-status="'+CSS.escape(key)+'"]'),status=stEl&&stEl.value||'follow_up';updateClientWorkV273(key,status==='new'?'follow_up':status,el.value||null)})
 }
 function csvCellV299(v){const s=String(v==null?'':v).replace(/\r?\n/g,' ').trim();return '"'+s.replace(/"/g,'""')+'"'}
-function exportAssignedClientsV299(){
-  const rows=(S.clients||[]).map(c=>{const ci=clientCourseInfo(c),src=clientSourceInfo(c);return [c.client_id||'',c.full_name||'',c.whatsapp||'',ci.text||ci.labels&&ci.labels.join(' / ')||'',src.label||'',dateLabel(c.registration_at),statusLabelV273(clientWorkStatus(c)),c.follow_up_at?dateLabel(c.follow_up_at):'']});
-  if(!rows.length){toast('No assigned clients to export.','bad');return}
-  const head=['Client ID','Name','WhatsApp','Course / Batch','Source','Assigned Date','Status','Next Follow-up'];
-  const csv='\ufeff'+[head,...rows].map(r=>r.map(csvCellV299).join(',')).join('\r\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='PSP-TEAM-Clients-'+malaysiaToday()+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),800);toast('Complete assigned client list exported.','ok')
+async function exportAssignedClientsV299(){
+  const btn=$('clientExportBtn'),oldText=btn&&btn.textContent||'⇩ Export';
+  if(btn){btn.disabled=true;btn.textContent='Exporting…'}
+  try{
+    const r=await db.rpc('psp_team_client_export_v341',{p_session_token:S.token,p_limit:5000});
+    if(r.error)throw r.error;
+    const data=Array.isArray(r.data)?r.data:[];
+    if(!data.length){toast('No assigned clients to export.','bad');return}
+    const head=['Name','WhatsApp','Assigned Manager','Registration Link','Client ID','Course / Batch','Assigned Date'];
+    const rows=data.map(x=>[
+      x.full_name||'',
+      x.whatsapp||'',
+      x.assigned_manager||'',
+      x.registration_link||'',
+      x.client_id||'',
+      x.course_batches||'',
+      dateLabel(x.assigned_at)
+    ]);
+    const csv='\ufeff'+[head,...rows].map(r=>r.map(csvCellV299).join(',')).join('\r\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='PSP-TEAM-Clients-'+malaysiaToday()+'.csv';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),800);
+    toast('Complete assigned client list exported.','ok');
+  }catch(e){
+    toast(e?.message||'Could not export assigned clients.','bad');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent=oldText}
+  }
 }
 async function searchOwnershipV273(){const input=$('ownershipSearch'),msg=$('ownershipSearchMsg'),box=$('ownershipResults'),q=(input&&input.value||'').trim();if(q.length<2){msg.textContent='Enter at least 2 characters.';box.innerHTML='';return}msg.textContent='Searching…';box.innerHTML='';try{const r=await db.rpc('psp_team_search_client_v273',{p_session_token:S.token,p_query:q,p_limit:30});if(r.error)throw r.error;S.searchResults=r.data||[];msg.textContent=S.searchResults.length?`${S.searchResults.length} result(s) found.`:'No client found.';renderOwnershipResultsV273()}catch(e){msg.textContent=e.message||'Search failed.';box.innerHTML=''}}
 function renderOwnershipResultsV273(){const box=$('ownershipResults');if(!box)return;box.innerHTML=(S.searchResults||[]).map(r=>{const state=r.ownership_state||'unassigned',label=state==='mine'?'Assigned to You':state==='other'?`Assigned to ${r.manager_name||'another Team Member'}`:'Unassigned / Direct',wa=String(r.manager_whatsapp||'').replace(/\D/g,''),clientWa=String(r.whatsapp||'').replace(/\D/g,'');return `<div class="ownership-card-v273 ${state}"><div><span class="owner-state-v273 ${state}">${esc(label)}</span><div class="link-name">${esc(r.full_name||'Client')} · ${esc(r.client_id||'No ID')}</div><div class="muted">${esc(r.course_text||'No course')}</div></div><div><b>${state==='mine'?'Your Client':state==='other'?'Current Manager':'No Manager'}</b><div class="muted">${esc(r.manager_name||'Admin assignment required')}</div></div><div class="owner-actions-v273">${state==='mine'&&clientWa?`<a class="wa-btn" href="https://wa.me/${clientWa}" target="_blank" rel="noopener">Message Client</a>`:''}${state==='other'&&wa?`<a class="wa-btn" href="https://wa.me/${wa}?text=${encodeURIComponent(`Hello ${r.manager_name||'Team Member'}, your client ${r.full_name||'Client'} (${r.client_id||'No ID'}) contacted me. Please follow up with them.`)}" target="_blank" rel="noopener">Message ${esc(r.manager_name||'Manager')}</a>`:''}${state==='unassigned'?'<span class="muted">Ask Admin to assign a manager.</span>':''}</div></div>`}).join('')||'<div class="empty">No client found.</div>'}
