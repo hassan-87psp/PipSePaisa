@@ -2438,6 +2438,255 @@ html[data-theme="light"] #view-overview .recent-row{
 }
 </style>
 
+
+<style id="teamClientsMobileRowsV387Css">
+/* V387 — My Clients mobile compact signal-style rows. Desktop remains locked. */
+@media(max-width:760px){
+  #view-clients .client-table-v273 tbody{
+    gap:7px!important;
+  }
+  #view-clients .client-table-v273 tbody>tr:not(:has(td.empty)):not(.client-empty-v278):not(.client-error-v278){
+    position:relative!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1.45fr) minmax(105px,.85fr) 24px!important;
+    grid-template-rows:auto auto auto!important;
+    column-gap:8px!important;
+    row-gap:2px!important;
+    min-height:67px!important;
+    padding:10px 10px 9px 13px!important;
+    border-radius:14px!important;
+    overflow:hidden!important;
+    cursor:pointer!important;
+    transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease!important;
+  }
+  #view-clients .client-table-v273 tbody>tr:not(:has(td.empty)):not(.client-empty-v278):not(.client-error-v278):active{
+    transform:scale(.995)!important;
+  }
+  #view-clients .client-table-v273 tbody>tr:not(:has(td.empty)):not(.client-empty-v278):not(.client-error-v278)::before{
+    top:10px!important;
+    bottom:10px!important;
+    width:3px!important;
+  }
+  #view-clients .client-table-v273 tbody>tr:not(:has(td.empty)):not(.client-empty-v278):not(.client-error-v278)::after{
+    content:"›"!important;
+    position:absolute!important;
+    right:10px!important;
+    top:50%!important;
+    transform:translateY(-50%) rotate(90deg)!important;
+    width:22px!important;
+    height:22px!important;
+    display:grid!important;
+    place-items:center!important;
+    border-radius:8px!important;
+    background:rgba(243,149,34,.075)!important;
+    color:#c9720b!important;
+    font-size:19px!important;
+    font-weight:800!important;
+    line-height:1!important;
+    transition:transform .18s ease,background .18s ease!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387::after{
+    top:18px!important;
+    transform:translateY(0) rotate(-90deg)!important;
+    background:rgba(243,149,34,.13)!important;
+  }
+
+  /* Client identity = left side of compact row */
+  #view-clients .client-table-v273 td:nth-child(2){
+    grid-column:1!important;
+    grid-row:1 / span 3!important;
+    align-self:center!important;
+    min-height:0!important;
+    padding:0 2px 0 6px!important;
+    border:0!important;
+  }
+  #view-clients .client-table-v273 td:nth-child(2) .link-name{
+    max-width:100%!important;
+    margin:0 0 4px!important;
+    font-size:11.6px!important;
+    line-height:1.12!important;
+    letter-spacing:-.012em!important;
+  }
+  #view-clients .client-table-v273 td:nth-child(2) .muted{
+    min-height:17px!important;
+    padding:0 6px!important;
+    font-size:6.8px!important;
+  }
+
+  /* Right-side snapshot: course, source, date */
+  #view-clients .client-table-v273 td:nth-child(3),
+  #view-clients .client-table-v273 td:nth-child(4),
+  #view-clients .client-table-v273 td:nth-child(5){
+    grid-column:2!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    min-height:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    text-align:left!important;
+    overflow:hidden!important;
+  }
+  #view-clients .client-table-v273 td:nth-child(3){grid-row:1!important}
+  #view-clients .client-table-v273 td:nth-child(4){grid-row:2!important}
+  #view-clients .client-table-v273 td:nth-child(5){
+    grid-row:3!important;
+    color:var(--muted)!important;
+    font-size:6.8px!important;
+    line-height:1!important;
+    font-weight:750!important;
+  }
+  #view-clients .client-table-v273 td:nth-child(3)::before,
+  #view-clients .client-table-v273 td:nth-child(4)::before,
+  #view-clients .client-table-v273 td:nth-child(5)::before{
+    display:none!important;
+  }
+  #view-clients .course-stack{
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+  }
+  #view-clients .course-pill{
+    display:inline-flex!important;
+    max-width:100%!important;
+    min-height:19px!important;
+    align-items:center!important;
+    padding:0 6px!important;
+    font-size:6.3px!important;
+  }
+  #view-clients .source-pill{
+    min-height:18px!important;
+    padding:0 6px!important;
+    font-size:6.1px!important;
+  }
+  #view-clients .source-mini-v273{
+    display:none!important;
+  }
+
+  /* Operational controls stay hidden until the row is opened */
+  #view-clients .client-table-v273 td:nth-child(6),
+  #view-clients .client-table-v273 td:nth-child(7),
+  #view-clients .client-table-v273 td:nth-child(8){
+    display:none!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-template-rows:auto!important;
+    row-gap:8px!important;
+    padding:12px!important;
+    border-color:rgba(243,149,34,.30)!important;
+    box-shadow:0 10px 26px rgba(45,33,18,.075),inset 0 1px 0 rgba(255,255,255,.48)!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(2){
+    grid-column:1 / -1!important;
+    grid-row:auto!important;
+    padding:0 30px 9px 7px!important;
+    border-bottom:1px solid var(--crm-line)!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(3),
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(4),
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(5){
+    grid-column:auto!important;
+    grid-row:auto!important;
+    min-height:44px!important;
+    padding:7px 8px!important;
+    border:1px solid var(--crm-line)!important;
+    border-radius:10px!important;
+    background:color-mix(in srgb,var(--panel) 72%,var(--panel2))!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(3){
+    grid-column:1!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(4){
+    grid-column:2!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(5){
+    grid-column:1 / -1!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(3)::before,
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(4)::before,
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(5)::before{
+    display:block!important;
+    flex:0 0 auto!important;
+    margin:0 7px 0 0!important;
+    color:var(--muted2)!important;
+    font-size:6px!important;
+    line-height:1!important;
+    font-weight:950!important;
+    letter-spacing:.07em!important;
+    text-transform:uppercase!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(3)::before{content:"Course"!important}
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(4)::before{content:"Source"!important}
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(5)::before{content:"Assigned"!important}
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 .source-mini-v273{
+    display:block!important;
+    margin-left:5px!important;
+    margin-top:0!important;
+  }
+
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(6),
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(7){
+    display:block!important;
+    grid-column:span 1!important;
+    min-height:64px!important;
+    padding:8px!important;
+    border:1px solid var(--crm-line)!important;
+    border-radius:11px!important;
+    background:color-mix(in srgb,var(--panel) 74%,var(--panel2))!important;
+    text-align:left!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(6)::before,
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(7)::before{
+    display:block!important;
+    margin:0 0 6px!important;
+    color:var(--muted2)!important;
+    font-size:6px!important;
+    line-height:1!important;
+    font-weight:950!important;
+    letter-spacing:.07em!important;
+    text-transform:uppercase!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(8){
+    display:block!important;
+    grid-column:1 / -1!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 .client-status-select-v273,
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 .follow-input-v273{
+    height:35px!important;
+    min-height:35px!important;
+    font-size:7.2px!important;
+  }
+  #view-clients .client-table-v273 tbody>tr.mobile-open-v387 .wa-btn{
+    height:38px!important;
+    min-height:38px!important;
+    border-radius:10px!important;
+  }
+
+  html[data-theme="light"] #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(3),
+  html[data-theme="light"] #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(4),
+  html[data-theme="light"] #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(5),
+  html[data-theme="light"] #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(6),
+  html[data-theme="light"] #view-clients .client-table-v273 tbody>tr.mobile-open-v387 td:nth-child(7){
+    background:#fffaf2!important;
+  }
+}
+@media(max-width:390px){
+  #view-clients .client-table-v273 tbody>tr:not(:has(td.empty)):not(.client-empty-v278):not(.client-error-v278){
+    grid-template-columns:minmax(0,1.35fr) minmax(94px,.75fr) 22px!important;
+    padding-left:11px!important;
+  }
+  #view-clients .client-table-v273 td:nth-child(2) .link-name{font-size:10.8px!important}
+  #view-clients .course-pill{font-size:5.9px!important}
+}
+</style>
+
 </head>
 <body>
 <div id="boot"><div class="bootmark"><div class="spinner"></div><span>TEAM COMMAND CENTER</span></div></div>
@@ -3214,6 +3463,34 @@ function setClientTableModeV377(paid){
   if(tip)tip.innerHTML=paid?'<b>Commission view:</b> '+esc(monthLabel(selectedMY()))+' approved paid students. Payment date decides the month.':'<b>Tip:</b> New → Contacted → Interested → Follow-up → Converted.';
 }
 
+function bindMobileClientRowTogglesV387(){
+  if(window.innerWidth>760)return;
+  document.querySelectorAll('#clientRows tr').forEach(row=>{
+    if(row.matches('.client-empty-v278,.client-error-v278')||row.querySelector('td.empty'))return;
+    row.setAttribute('tabindex','0');
+    row.setAttribute('role','button');
+    row.setAttribute('aria-expanded',row.classList.contains('mobile-open-v387')?'true':'false');
+    if(row.dataset.v387Bound==='1')return;
+    row.dataset.v387Bound='1';
+    const toggle=()=>{
+      const willOpen=!row.classList.contains('mobile-open-v387');
+      document.querySelectorAll('#clientRows tr.mobile-open-v387').forEach(other=>{
+        if(other!==row){other.classList.remove('mobile-open-v387');other.setAttribute('aria-expanded','false')}
+      });
+      row.classList.toggle('mobile-open-v387',willOpen);
+      row.setAttribute('aria-expanded',willOpen?'true':'false');
+    };
+    row.addEventListener('click',e=>{
+      if(e.target.closest('a,button,input,select,textarea,label'))return;
+      toggle();
+    });
+    row.addEventListener('keydown',e=>{
+      if((e.key==='Enter'||e.key===' ')&&!e.target.closest('a,button,input,select,textarea')){
+        e.preventDefault();toggle();
+      }
+    });
+  });
+}
 function syncMobileClientFiltersV278(){const pairs=[['clientSourceFilter','mobileClientSourceFilter'],['clientStatusFilter','mobileClientStatusFilter'],['clientPeriodFilter','mobileClientPeriodFilter'],['clientSort','mobileClientSort']];pairs.forEach(([a,b])=>{if($(a)&&$(b))$(b).value=$(a).value});updateMobileFilterBadgeV278()}
 function updateMobileFilterBadgeV278(){let n=0;if($('clientSourceFilter')&&$('clientSourceFilter').value!=='all')n++;if($('clientStatusFilter')&&$('clientStatusFilter').value!=='all')n++;if($('clientPeriodFilter')&&$('clientPeriodFilter').value!=='all')n++;if($('clientSort')&&$('clientSort').value!=='newest')n++;const b=$('clientMobileFilterBtn'),c=$('clientMobileFilterCount');if(c)c.textContent=String(n);if(b)b.classList.toggle('active',n>0)}
 function openMobileClientFiltersV278(){syncMobileClientFiltersV278();const o=$('clientMobileFilterOverlay');if(o){o.classList.add('open');o.setAttribute('aria-hidden','false')}}
@@ -3316,6 +3593,7 @@ function renderClients(){
       const key=el.dataset.clientStatus;
       updateClientWorkV273(key,el.value,null,el)
     });
+    bindMobileClientRowTogglesV387();
     return
   }
 
@@ -3364,7 +3642,8 @@ function renderClients(){
   document.querySelectorAll('[data-client-follow]').forEach(el=>el.onchange=()=>{
     const key=el.dataset.clientFollow,stEl=document.querySelector('[data-client-status="'+CSS.escape(key)+'"]'),status=stEl&&stEl.value||'follow_up';
     updateClientWorkV273(key,status==='new'?'follow_up':status,el.value||null)
-  })
+  });
+  bindMobileClientRowTogglesV387();
 }
 function csvCellV299(v){const s=String(v==null?'':v).replace(/\r?\n/g,' ').trim();return '"'+s.replace(/"/g,'""')+'"'}
 async function exportAssignedClientsV299(){
