@@ -254,11 +254,10 @@ function installCourseEditor(){
 }
 
 function init(){
-  injectStyles();ensureModal();installCourseEditor();setTimeout(()=>window.loadAdminUsers?.(),400);
-  if(window.MutationObserver&&!window.__pspV20AdminObserver){
-    window.__pspV20AdminObserver=new MutationObserver(()=>{installCourseEditor();});
-    window.__pspV20AdminObserver.observe(document.body,{childList:true,subtree:true});
-  }
+  // V414: never load the full Users directory while another Admin tab is open.
+  injectStyles();ensureModal();installCourseEditor();
+  setTimeout(installCourseEditor,600);
+  setTimeout(installCourseEditor,1800);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
