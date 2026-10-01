@@ -7,7 +7,7 @@
 <title>PSP TEAM — PipSePaisa</title>
 <!-- V354 PSP TEAM desktop restore + earning source ledger; V353 mobile utility preserved -->
 <link rel="icon" href="/favicon.png">
-<link rel="manifest" href="./team-manifest.json?v=382">
+<link rel="manifest" href="./team-manifest.json?v=383">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="theme-color" content="#F39522">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -322,7 +322,7 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
 }
 </style>
 
-<meta name="psp-team-build" content="V382-premium-search-client">
+<meta name="psp-team-build" content="V383-team-typography-standard">
 
 <style id="pspTeamMoreDownloadV304Css">
 @media(max-width:760px){
@@ -1558,6 +1558,190 @@ html[data-theme="light"] #view-overview .recent-row{
 }
 </style>
 
+
+<style id="teamTypographyStandardV383Css">
+/* V383 — final desktop typography standard.
+   Loaded last so legacy 6–8px desktop rules cannot shrink readable UI text again. */
+@media(min-width:761px){
+  html{font-size:16px!important}
+  body{font-size:13px!important;line-height:1.45!important}
+
+  /* Global text scale */
+  .page-head h1{font-size:29px!important;line-height:1.08!important;letter-spacing:-.045em!important}
+  .page-head p{font-size:11.5px!important;line-height:1.5!important}
+  .section-title h3,.chart-head h3,.quick-card h3{font-size:15px!important;line-height:1.25!important}
+  .section-title p,.chart-head p,.quick-card p{font-size:10.5px!important;line-height:1.45!important}
+  .muted{font-size:9.5px!important;line-height:1.45!important}
+  .notice,.section-data-notice{font-size:10px!important;line-height:1.5!important}
+  .copy-btn,.mini-btn,.primary,.secondary{font-size:10px!important}
+  .live-pill,.auto-badge,.manual-badge,.status,.settled-v274{font-size:8.5px!important}
+  .source-pill,.course-pill,.course-tag,.owner-state-v273{font-size:8px!important}
+  .field label{font-size:9px!important}
+  .field input,.field select,.field textarea{font-size:10.5px!important}
+  .data-table th{font-size:8.8px!important;line-height:1.3!important}
+  .data-table td{font-size:10.5px!important;line-height:1.4!important}
+
+  /* Top bar / navigation */
+  .brand-mini strong{font-size:15.5px!important}
+  .brand-mini small{font-size:8px!important}
+  .top-actions select{font-size:10.5px!important}
+  .member-chip b{font-size:10.5px!important}
+  .member-chip span,.member-chip small{font-size:8px!important}
+  .side-label{font-size:8.8px!important;letter-spacing:.14em!important}
+  .nav-btn{font-size:11.5px!important}
+  .pwa-install-btn{font-size:10.5px!important}
+  .pwa-install-btn span:last-child small{font-size:8px!important}
+  .side-foot b{font-size:10px!important}
+  .side-foot p,.side-foot span,.side-foot small{font-size:8.8px!important;line-height:1.45!important}
+
+  /* Overview */
+  #view-overview .hero-copy-v350 .eyebrow{font-size:8.5px!important}
+  #view-overview .hero-copy-v350 h2{font-size:25px!important}
+  #view-overview .hero-live-v352{font-size:8px!important}
+  #view-overview .hero-priority-v352>div>span{font-size:8px!important}
+  #view-overview .hero-priority-v352 b{font-size:28px!important}
+  #view-overview .hero-priority-v352 small{font-size:9px!important;line-height:1.4!important}
+  #view-overview .hero-priority-v352 button{font-size:9.5px!important}
+  #view-overview .hero-stats-v352 span{font-size:8px!important}
+  #view-overview .hero-stats-v352 b{font-size:20px!important}
+  #view-overview .kpi .label{font-size:8.5px!important}
+  #view-overview .kpi .value{font-size:26px!important}
+  #view-overview .kpi .sub{font-size:8.5px!important}
+  #view-overview .section-title h3{font-size:14px!important}
+  #view-overview .section-title p{font-size:9.5px!important}
+  #view-overview .section-title .copy-btn{font-size:8.5px!important}
+  #view-overview .recent-main b{font-size:11.5px!important}
+  #view-overview .recent-course-v380{font-size:8.5px!important}
+  #view-overview .recent-id-v380{font-size:8px!important}
+  #view-overview .recent-status-v349{font-size:7.5px!important}
+  #view-overview .recent-wa-btn{font-size:8px!important}
+  #view-overview .work-action-v353 span{font-size:9px!important}
+  #view-overview .work-action-v353 b{font-size:16px!important}
+  #view-overview .work-report-v349 b{font-size:9px!important}
+  #view-overview .overview-course-grid-v273 .quick-item span{font-size:8px!important;line-height:1.25!important}
+  #view-overview .overview-course-grid-v273 .quick-item b{font-size:19px!important}
+
+  /* My Clients */
+  #view-clients .client-control-grid-v273 .field label{font-size:9px!important}
+  #view-clients .client-control-grid-v273 input,
+  #view-clients .client-control-grid-v273 select{font-size:10.5px!important}
+  #view-clients .client-search-v273 input{font-size:11px!important}
+  #view-clients .client-filter{font-size:8.8px!important}
+  #view-clients .client-summary-bar,
+  #view-clients .client-summary-bar span{font-size:9.5px!important}
+  #view-clients .client-summary-bar b{font-size:10px!important}
+  #view-clients .client-table-v273 thead th{font-size:8.5px!important}
+  #view-clients .client-table-v273 td{font-size:10px!important}
+  #view-clients .link-name{font-size:10.8px!important}
+  #view-clients .client-table-v273 .muted{font-size:8.8px!important}
+  #view-clients .course-pill,#view-clients .source-pill{font-size:7.8px!important}
+  #view-clients .source-mini-v273{font-size:7.8px!important}
+  #view-clients .duplicate-v273{font-size:7.8px!important}
+  #view-clients .client-status-select-v273,
+  #view-clients .follow-input-v273{font-size:9.5px!important}
+  #view-clients .wa-btn{font-size:8.5px!important}
+  #view-clients .client-pager-v273,
+  #view-clients .client-pager-v273 button{font-size:9px!important}
+
+  /* Search Client */
+  #view-searchclient .search-eyebrow-v382{font-size:8.5px!important}
+  #view-searchclient .search-client-head-v273 h3{font-size:23px!important}
+  #view-searchclient .search-client-head-v273 p{font-size:10.5px!important}
+  #view-searchclient .search-trust-v382 span{font-size:9px!important}
+  #view-searchclient .search-trust-v382 small{font-size:8.3px!important}
+  #view-searchclient .search-input-wrap-v382 input{font-size:11.5px!important}
+  #view-searchclient .search-client-form-v273 .primary{font-size:10px!important}
+  #view-searchclient .search-methods-v382 b{font-size:9px!important}
+  #view-searchclient .search-methods-v382 small{font-size:8px!important}
+  #view-searchclient .search-msg-v273{font-size:9.3px!important}
+  #view-searchclient .search-rule-v382 b{font-size:9.8px!important}
+  #view-searchclient .search-rule-v382 span{font-size:8.8px!important}
+  #view-searchclient .owner-state-v273{font-size:7.8px!important}
+  #view-searchclient .ownership-client-copy-v382 .link-name{font-size:11.5px!important}
+  #view-searchclient .ownership-id-v382{font-size:8.6px!important}
+  #view-searchclient .ownership-manager-v382 span{font-size:7.3px!important}
+  #view-searchclient .ownership-manager-v382 b{font-size:10.8px!important}
+  #view-searchclient .ownership-manager-v382 small{font-size:8.2px!important}
+  #view-searchclient .owner-actions-v273 .wa-btn,
+  #view-searchclient .ownership-admin-v382{font-size:8.5px!important}
+  #view-searchclient .ownership-empty-v382 b{font-size:11px!important}
+  #view-searchclient .ownership-empty-v382 span{font-size:8.8px!important}
+
+  /* Daily Report */
+  #view-daily .daily-chip span{font-size:8px!important}
+  #view-daily .daily-chip b{font-size:20px!important}
+  #view-daily .auto-stat span{font-size:8px!important}
+  #view-daily .auto-stat b{font-size:14px!important}
+  #view-daily .auto-breakdown small{font-size:8px!important}
+  #view-daily .auto-breakdown b{font-size:12px!important}
+  #view-daily .auto-inline{font-size:8.8px!important}
+  #view-daily .auto-inline b{font-size:9.5px!important}
+  #view-daily .manual-subhead{font-size:9.5px!important}
+  #view-daily .manual-subhead span{font-size:8.5px!important}
+  #view-daily .manual-hint{font-size:8.8px!important}
+  #view-daily .manual-value-badge,.course-basis{font-size:7.8px!important}
+  #view-daily .daily-group-head span{font-size:8.3px!important}
+  #view-daily .daily-group b{font-size:10px!important}
+  #view-daily .daily-group span,#view-daily .daily-group small{font-size:8.5px!important}
+  #view-daily .batch-mini span{font-size:8.2px!important}
+  #view-daily .batch-mini b{font-size:14px!important}
+  #view-daily .weekly-note{font-size:8.8px!important}
+  #view-daily .form-status{font-size:9px!important}
+
+  /* Earnings */
+  #view-earnings .earnings-policy-v274{font-size:10px!important}
+  #view-earnings .earn-explainer span{font-size:9px!important}
+  #view-earnings .earn-card .cap{font-size:8.5px!important}
+  #view-earnings .earn-card .big{font-size:29px!important}
+  #view-earnings .earn-card .split span{font-size:8.5px!important}
+  #view-earnings .earn-card .split b{font-size:11px!important}
+  #view-earnings .progress-top strong{font-size:19px!important}
+  #view-earnings .progress-top span{font-size:9px!important}
+  #view-earnings .progress-msg{font-size:9px!important;line-height:1.45!important}
+  #view-earnings .broker-head strong{font-size:12px!important}
+  #view-earnings .metric-box span{font-size:8px!important}
+  #view-earnings .metric-box b{font-size:13px!important}
+  #view-earnings .impact-gain span{font-size:8px!important}
+  #view-earnings .earning-source-summary-v354 span{font-size:8.5px!important}
+  #view-earnings .earning-source-summary-v354 b{font-size:9.5px!important}
+  #view-earnings .ledger-type-v354{font-size:7.5px!important}
+  #view-earnings .ledger-source-v354>b,
+  #view-earnings .ledger-client-v354>b,
+  #view-earnings .ledger-cell-v354>b{font-size:10.5px!important}
+  #view-earnings .ledger-source-v354>small,
+  #view-earnings .ledger-client-v354>small,
+  #view-earnings .ledger-cell-v354>small{font-size:8px!important}
+  #view-earnings .ledger-cell-v354>span{font-size:7.8px!important}
+  #view-earnings .earning-ledger-empty-v354 b{font-size:10.5px!important}
+  #view-earnings .earning-ledger-empty-v354 span{font-size:8.8px!important}
+
+  /* Performance */
+  #view-performance .range-chip{font-size:8.8px!important}
+  #view-performance .range-caption{font-size:9.5px!important}
+  #view-performance .perf-kpis-v273 .kpi .label{font-size:8px!important}
+  #view-performance .perf-kpis-v273 .kpi .value{font-size:22px!important}
+  #view-performance .perf-kpis-v273 .kpi .sub{font-size:8.5px!important}
+  #view-performance .funnel-step span{font-size:9px!important}
+  #view-performance .funnel-step b{font-size:15px!important}
+  #view-performance .funnel-rate{font-size:8px!important}
+  #view-performance .quick-item span{font-size:8.3px!important}
+  #view-performance .quick-item b{font-size:16px!important}
+  #view-performance .source-card .data-table th{font-size:8.5px!important}
+  #view-performance .source-card .data-table td{font-size:10px!important}
+  #view-performance .chart-label{font-size:9px!important}
+
+  /* History */
+  #view-history .history-summary-v273 span{font-size:8.5px!important}
+  #view-history .history-summary-v273 b{font-size:23px!important}
+  #view-history .history-filter-v273 input{font-size:10px!important}
+  #view-history .history-legacy-v273>summary b{font-size:11.5px!important}
+  #view-history .history-legacy-v273>summary span{font-size:9px!important}
+  #view-history .legacy-link-search-v273{font-size:9.5px!important}
+  #view-history .data-table th{font-size:8.5px!important}
+  #view-history .data-table td{font-size:10px!important}
+}
+</style>
+
 </head>
 <body>
 <div id="boot"><div class="bootmark"><div class="spinner"></div><span>TEAM COMMAND CENTER</span></div></div>
@@ -2626,7 +2810,7 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=382',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=383',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
