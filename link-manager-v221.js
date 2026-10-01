@@ -303,7 +303,7 @@
       if(page==='linkmanager'){
         const title=document.getElementById('pageTitle'),sub=document.getElementById('pageSubtitle');
         if(title)title.textContent='Link Manager';if(sub)sub.textContent='Generate tracked links and measure clicks, signups and same-cohort enrolled users';
-        setTimeout(()=>{loadTeamMembersV203();loadLinks();},0);
+        setTimeout(()=>{loadTeamMembersV203();loadLinks();setupRealtime();},0);
       }
       return result;
     };
@@ -313,6 +313,6 @@
     try{realtimeChannel=client.channel('admin-link-manager-v42').on('postgres_changes',{event:'*',schema:'public',table:'tracked_links'},()=>{if(document.getElementById('page-linkmanager')?.classList.contains('active'))loadLinks();}).on('postgres_changes',{event:'*',schema:'public',table:'tracked_link_events'},()=>{if(document.getElementById('page-linkmanager')?.classList.contains('active'))loadLinks();}).subscribe();}catch(_){ }
   }
 
-  function init(){addStyles();addMenuAndPage();installShowPageHook();setTimeout(()=>{loadTeamMembersV203();if(document.getElementById('page-linkmanager')?.classList.contains('active'))loadLinks();},150);setTimeout(setupRealtime,1000);}
+  function init(){addStyles();addMenuAndPage();installShowPageHook();if(document.getElementById('page-linkmanager')?.classList.contains('active'))setTimeout(()=>{loadTeamMembersV203();loadLinks();setupRealtime();},100);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
