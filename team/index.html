@@ -5870,10 +5870,14 @@ function mergeClientRowsV280(rows){
 async function loadClients(){
   if(S.loaded.clients)return true;
   S.clientsLoading=true;delete S.errors.clients;if(S.view==='clients')renderClientLoadingV278();
-  // V355: one backend row per canonical current owner. This removes the old
-  // legacy + assigned + ad + owner source duplication that inflated My Clients.
+  // V397: one row per real user_id across this manager's full historical client relationship.
+  // Keeps old + current clients without restoring the legacy duplicate inflation.
   try{
-    let canonicalR=await db.rpc('psp_team_clients_v359',{p_session_token:S.token,p_limit:5000});
+    let canonicalR=await db.rpc('psp_team_clients_v397',{p_session_token:S.token,p_limit:5000});
+    if(canonicalR.error){
+      console.warn('V397 historical unique clients fallback:',canonicalR.error);
+      canonicalR=await db.rpc('psp_team_clients_v359',{p_session_token:S.token,p_limit:5000});
+    }
     if(canonicalR.error){
       console.warn('V359 deduplicated clients fallback:',canonicalR.error);
       canonicalR=await db.rpc('psp_team_clients_v355',{p_session_token:S.token,p_limit:5000});
@@ -6096,14 +6100,14 @@ async function loadAll(force=false){
 }
 function renderAll(){const m=S.metrics||{},ident=S.identity||{},rawDisplay=m.display_name||ident.display_name||ident.username||'Team Member',display=friendlyManagerNameV290(rawDisplay),username=m.username||ident.username||'team';$('memberName').textContent=display;$('memberUsername').textContent='@'+username;$('memberAvatar').textContent=String(display||username||'T').trim().replace(/^Ms\s+/i,'').charAt(0).toUpperCase()||'T';if($('heroAvatarV350'))$('heroAvatarV350').textContent=String(display||username||'T').trim().replace(/^Ms\s+/i,'').charAt(0).toUpperCase()||'T';$('heroTitle').textContent=display+' — '+monthLabel(selectedMY());$('heroEarnings').textContent=S.metricsAvailable?money(m.total_earnings):'—';$('heroCourseTier').textContent=(m.course_level||'—')+' · '+num(m.course_rate)+'%';$('heroVipTier').textContent=(m.vip_level||'—')+' · '+num(m.vip_rate)+'%';$('heroLotTier').textContent=m.lot_level||'—';renderKpis();renderOverviewOps();renderLinks();renderProgress();renderBrokers();renderImpact();renderFunnel('overviewFunnel');renderEarnings();if(S.loaded.history){renderTrend('overviewTrend');renderTrend('performanceTrend');renderHistory()}if(S.loaded.daily)renderDaily();if(S.loaded.clients)renderClients();if(S.loaded.performance)renderPerformanceRange()}
 function renderKpis(){
-  const m=S.metrics||{},allClients=S.clients||[],monthClients=allClients.filter(c=>clientInSelectedMonth(c.registration_at)),
+  const m=S.metrics||{},allClients=S.clients||[],currentClients=allClients.filter(clientCurrentlyMineV397),monthClients=currentClients.filter(c=>clientInSelectedMonth(c.registration_at)),
         today=malaysiaToday(),monthStatuses=monthClients.map(clientWorkStatus),
-        todayLeads=allClients.filter(c=>clientDateKey(c.registration_at)===today).length,
-        follow=allClients.filter(clientNeedsFollowupV355).length,
+        todayLeads=currentClients.filter(c=>clientDateKey(c.registration_at)===today).length,
+        follow=currentClients.filter(clientNeedsFollowupV355).length,
         converted=S.metricsAvailable?num(m.clients):monthClients.filter(clientAutoConvertedV359).length,earnOpen=teamEarningsVisibleV274(),
         earnType=!S.metricsAvailable?'unavailable':(earnOpen?'money':'settled'),
         items=[
-          ['Total Clients',allClients.length,'num','Assigned','kpi-total'],
+          ['Total Clients',allClients.length,'num','All time · unique','kpi-total'],
           ['New Today',todayLeads,'num','Received','kpi-new'],
           ['Converted',converted,'num','This month','kpi-converted'],
           [!S.metricsAvailable?'Earnings':(earnOpen?'Earnings':'Settled'),m.total_earnings,earnType,!S.metricsAvailable?'Unavailable':(earnOpen?'Since Sep 2026':'Before Sep 2026'),'kpi-earn']
@@ -6115,9 +6119,9 @@ function renderKpis(){
   </div>`).join('');
   items.forEach((x,i)=>{if(!['settled','unavailable'].includes(x[2]))animateNumber(document.querySelector(`[data-kpi="${i}"]`),x[1],{moneyFmt:x[2]==='money'})});
 
-  const needToday=allClients.filter(c=>clientDateKey(c.registration_at)===today&&!clientAutoConvertedV359(c)&&!['converted','not_interested'].includes(clientWorkStatus(c))).length;
+  const needToday=currentClients.filter(c=>clientDateKey(c.registration_at)===today&&!clientAutoConvertedV359(c)&&!['converted','not_interested'].includes(clientWorkStatus(c))).length;
   if($('heroTodayAction'))$('heroTodayAction').textContent=`${fmt(needToday)} leads need attention`;
-  if($('heroMonthSummary'))$('heroMonthSummary').textContent=!S.metricsAvailable?`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · performance totals unavailable`:earnOpen?`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · ${money(m.total_earnings)} earnings`:`${fmt(allClients.length)} total clients · ${fmt(converted)} converted this month · earnings already settled`;
+  if($('heroMonthSummary'))$('heroMonthSummary').textContent=!S.metricsAvailable?`${fmt(allClients.length)} total unique clients · ${fmt(converted)} converted this month · performance totals unavailable`:earnOpen?`${fmt(allClients.length)} total unique clients · ${fmt(converted)} converted this month · ${money(m.total_earnings)} earnings`:`${fmt(allClients.length)} total unique clients · ${fmt(converted)} converted this month · earnings already settled`;
   if($('overviewPriorityTextV351'))$('overviewPriorityTextV351').textContent=follow?`${fmt(follow)} clients need follow-up`:'You are all caught up';
   if($('overviewPrioritySubV351'))$('overviewPrioritySubV351').textContent=follow?`${fmt(todayLeads)} new today · ${fmt(converted)} converted this month`:`${fmt(todayLeads)} new today · no pending follow-up`;
 
@@ -6156,7 +6160,7 @@ function openOverviewWorkV353(target){
 }
 window.openOverviewWorkV353=openOverviewWorkV353;
 function renderOverviewOps(){
-  const all=[...(S.clients||[])].sort((a,b)=>new Date(b.registration_at||0)-new Date(a.registration_at||0)),
+  const all=(S.clients||[]).filter(clientCurrentlyMineV397).slice().sort((a,b)=>new Date(b.registration_at||0)-new Date(a.registration_at||0)),
         recent=all.slice(0,(window.matchMedia&&window.matchMedia('(max-width:760px)').matches)?3:5),today=malaysiaToday(),recentEl=$('overviewRecentClients'),workEl=$('overviewTodayWork');
   if(recentEl)recentEl.innerHTML=recent.length?recent.map((c,i)=>{
     const ci=clientCourseInfo(c),src=clientSourceKeyV273(c),wa=String(c.whatsapp||'').replace(/\D/g,''),
@@ -6213,6 +6217,7 @@ function renderDaily(){
 }
 async function saveDaily(){const btn=$('dailySaveBtn');btn.disabled=true;btn.textContent='Saving…';try{const r=await db.rpc('psp_team_save_daily_activity_v209',{p_session_token:S.token,p_leads:Math.max(0,parseInt($('dailyLeads').value)||0),p_messages_sent:Math.max(0,parseInt($('dailyMessages').value)||0),p_calls_made:Math.max(0,parseInt($('dailyCalls').value)||0),p_follow_ups:Math.max(0,parseInt($('dailyFollowups').value)||0),p_vip_converted:Math.max(0,parseInt($('dailyVipConverted').value)||0),p_broker_new_accounts:Math.max(0,parseInt($('dailyBrokerNew').value)||0),p_ib_shifts:Math.max(0,parseInt($('dailyIbShift').value)||0),p_xm_weekly_lots:Math.max(0,parseFloat($('dailyXmLots').value)||0),p_dprime_weekly_lots:Math.max(0,parseFloat($('dailyDprimeLots').value)||0),p_exness_weekly_lots:Math.max(0,parseFloat($('dailyExnessLots').value)||0),p_note:$('dailyNote').value.trim()||null});if(r.error)throw r.error;await loadDaily();renderDaily();toast('Daily report saved.')}catch(e){if(!handleTeamAuthFailureV365(e))toast((e.message||'Could not save report.')+(String(e.message||'').includes('psp_team_save_daily_activity_v209')?' Run the latest Team Daily Report SQL first.':''),'bad')}finally{btn.disabled=false;btn.textContent='Submit Daily Report'}}
 function clientInSelectedMonth(v){if(!v)return false;try{const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit'}).formatToParts(new Date(v)).map(x=>[x.type,x.value]));const my=selectedMY();return Number(p.year)===my.year&&Number(p.month)===my.month}catch(_){return true}}
+function clientCurrentlyMineV397(c){const v=c&&c.is_current_owner;return v==null||v===true||String(v).toLowerCase()==='true'}
 function clientDateKey(v){try{const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(v)).map(x=>[x.type,x.value]));return `${p.year}-${p.month}-${p.day}`}catch(_){return ''}}
 function clientRegistrationDateKey(v){return clientDateKey(v)}
 function clientSourceInfo(c){const src=String(c?.source||'').trim();if(/direct\s*\/?\s*organic|direct/i.test(src))return{key:'old',label:'Direct / Organic'};if(c?.is_ad_lead||c?.source_kind==='ad'||/ad\s*link|auto\s*lead|round\s*robin|campaign/i.test(src))return{key:'ad',label:'Ad / Auto'};if(c?.is_manager_owned||c?.source_kind==='manager'||/manager\s*assignment|admin\s*transfer|manager\s*transfer/i.test(src))return{key:'manager',label:'Manager Transfer'};if(src&&!/other/i.test(src))return{key:'old',label:src};return{key:'old',label:'Old Tracking'}}
@@ -6441,6 +6446,7 @@ function renderClients(){
 
   const today=malaysiaToday();
   let rows=all.filter(c=>{
+    if(S.clientActionFilter&&!clientCurrentlyMineV397(c))return false;
     if(S.clientActionFilter==='follow'&&!clientNeedsFollowupV355(c))return false;
     if(S.clientActionFilter==='due'&&!clientFollowupDueV355(c))return false;
     if(S.clientActionFilter==='converted_auto'&&!clientAutoConvertedV359(c))return false;
@@ -6473,8 +6479,15 @@ function renderClients(){
 
   $('clientRows').innerHTML=visible.length?visible.map(({c,course,source,status},i)=>{
     const wa=String(c.whatsapp||'').replace(/\D/g,''),key=clientKeyV273(c),follow=malaysiaDateTimeInput(c.follow_up_at),
-          srcInfo=clientSourceInfo(c),srcLabel=srcInfo.label,dup=dupes.has(key);
-    return `<tr><td><b>${start+i+1}</b></td><td><div class="link-name">${esc(c.full_name||'Client')}</div><div class="muted">${esc(c.client_id||'—')}</div>${dup?'<span class="duplicate-v273">Possible duplicate</span>':''}</td><td><div class="course-stack">${course.labels.map(x=>`<span class="course-pill">${esc(x)}</span>`).join('')||'<span class="muted">No course</span>'}</div></td><td><span class="source-pill ${srcInfo.key==='ad'?'auto':'legacy'}">${esc(srcLabel)}</span>${c.campaign?`<div class="source-mini-v273">${esc(c.campaign)}</div>`:''}</td><td>${dateLabel(c.registration_at)}</td><td><select class="client-status-select-v273" data-client-status="${esc(key)}">${['new','contacted','interested','follow_up','converted','not_interested'].map(x=>`<option value="${x}" ${status===x?'selected':''}>${statusLabelV273(x)}</option>`).join('')}</select></td><td><input class="follow-input-v273" data-client-follow="${esc(key)}" type="datetime-local" value="${esc(follow)}"></td><td><div class="contact-stack-v273">${wa?`<a class="wa-btn" href="https://wa.me/${wa}" target="_blank" rel="noopener">Open WhatsApp</a>`:'—'}</div></td></tr>`
+          srcInfo=clientSourceInfo(c),srcLabel=srcInfo.label,dup=dupes.has(key),current=clientCurrentlyMineV397(c),
+          manager=String(c.current_manager_name||'').trim(),
+          statusCell=current
+            ?`<select class="client-status-select-v273" data-client-status="${esc(key)}">${['new','contacted','interested','follow_up','converted','not_interested'].map(x=>`<option value="${x}" ${status===x?'selected':''}>${statusLabelV273(x)}</option>`).join('')}</select>`
+            :`<span class="source-pill legacy">Historical</span>${manager?`<div class="source-mini-v273">Now: ${esc(manager)}</div>`:''}`,
+          followCell=current
+            ?`<input class="follow-input-v273" data-client-follow="${esc(key)}" type="datetime-local" value="${esc(follow)}">`
+            :'<span class="muted">Read-only</span>';
+    return `<tr><td><b>${start+i+1}</b></td><td><div class="link-name">${esc(c.full_name||'Client')}</div><div class="muted">${esc(c.client_id||'—')}</div>${dup?'<span class="duplicate-v273">Possible duplicate</span>':''}</td><td><div class="course-stack">${course.labels.map(x=>`<span class="course-pill">${esc(x)}</span>`).join('')||'<span class="muted">No course</span>'}</div></td><td><span class="source-pill ${srcInfo.key==='ad'?'auto':'legacy'}">${esc(srcLabel)}</span>${c.campaign?`<div class="source-mini-v273">${esc(c.campaign)}</div>`:''}</td><td>${dateLabel(c.registration_at)}</td><td>${statusCell}</td><td>${followCell}</td><td><div class="contact-stack-v273">${wa?`<a class="wa-btn" href="https://wa.me/${wa}" target="_blank" rel="noopener">Open WhatsApp</a>`:'—'}</div></td></tr>`
   }).join(''):'<tr class="client-empty-v278"><td colspan="8" class="client-state-v278"><b>No clients match these filters</b>Try All batches or reset your filters.</td></tr>';
 
   document.querySelectorAll('[data-client-status]').forEach(el=>el.onchange=()=>{
@@ -6599,7 +6612,7 @@ function renderPerformanceRange(){
   document.querySelectorAll('#performanceRangeTools .range-chip').forEach(b=>b.classList.toggle('active',b.dataset.range===S.performanceMode));
   if($('customRangeBox'))$('customRangeBox').classList.toggle('hidden',S.performanceMode!=='custom');
 
-  const rows=(S.clients||[]).filter(c=>clientInDateRange(c,d.start,d.end)),
+  const rows=(S.clients||[]).filter(clientCurrentlyMineV397).filter(c=>clientInDateRange(c,d.start,d.end)),
         statuses=rows.map(clientWorkStatus),
         assigned=rows.length,
         contacted=rows.filter(c=>clientWorkStatus(c)!=='new'||clientAutoConvertedV359(c)).length,
