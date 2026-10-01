@@ -3,6 +3,26 @@
 let started=false;
 function getClient(){try{return typeof sb!=='undefined'?sb:null}catch(_){return null}}
 function visible(id){const p=document.getElementById(id);return !!(p&&p.classList.contains('active'))}
+function adminShell(){return !!(document.getElementById('page-dashboard')&&document.getElementById('loginOverlay'))}
+function adminTableActive(table){
+  const map={
+    signals:['page-adsignals'],
+    charts:['page-adcharts'],
+    articles:['page-articles'],
+    courses:['page-courses'],
+    course_enrollments:['page-paymentreqs'],
+    payment_methods:['page-payments','page-paymentreqs'],
+    payment_requests:['page-paymentreqs'],
+    site_settings:['page-settings','page-sitetabs','page-mentoraccess'],
+    mentor_access_settings:['page-mentoraccess'],
+    subscription_plans:['page-subscriptions'],
+    notifications:['page-notifications'],
+    news_posts:['page-news','page-newshub'],
+    banners:['page-adbanners'],
+    youtube_videos:['page-community']
+  };
+  return (map[table]||[]).some(visible);
+}
 function call(name,...args){try{if(typeof window[name]==='function')return window[name](...args)}catch(e){console.warn(name,e)}}
 function refresh(table){
   const userMap={
@@ -30,8 +50,12 @@ function refresh(table){
     mentor_access_settings:()=>call('loadMentorAccessSettings'),
     subscription_plans:()=>call('loadPlans')
   };
+  if(adminShell()){
+    if(!adminTableActive(table))return;
+    (adminMap[table]||(()=>{}))();
+    return;
+  }
   (userMap[table]||(()=>{}))();
-  (adminMap[table]||(()=>{}))();
 }
 function start(){
   if(started)return;
@@ -53,9 +77,13 @@ function start(){
     }
   });
   document.addEventListener('visibilitychange',()=>{
-    if(!document.hidden){
-      ['signals','charts','articles','courses','course_enrollments','site_settings'].forEach(refresh);
+    if(document.hidden)return;
+    if(adminShell()){
+      tables.forEach(refresh);
+      if(visible('page-dashboard'))call('loadDashboardStats',false);
+      return;
     }
+    ['signals','charts','articles','courses','course_enrollments','site_settings'].forEach(refresh);
   });
 }
 document.addEventListener('DOMContentLoaded',start,{once:true});
