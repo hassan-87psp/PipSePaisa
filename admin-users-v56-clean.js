@@ -61,43 +61,39 @@ async function load(){
   inject();
   const c=client();if(!c)return;
 
-  let totalCount=0;
-  try{
-    const countRes=await c.from('profiles').select('id',{count:'exact',head:true});
-    totalCount=Number(countRes.count)||0;
-  }catch(_){}
-
   let base=[];
   try{
-    base=await pagedRpc(c,'psp_admin_user_directory',{});
+    base=await pagedRpc(c,'psp_admin_user_directory_v413',{});
   }catch(e){
-    console.warn('Admin user directory RPC fallback',e);
-    base=await fallback(c);
+    console.warn('Fast Admin user directory fallback',e);
+    try{base=await pagedRpc(c,'psp_admin_user_directory',{})}
+    catch(inner){console.warn('Admin user directory RPC fallback',inner);base=await fallback(c)}
   }
 
   rows=Array.isArray(base)?base:[];
   verificationMap.clear();
   identityMap.clear();
 
-  try{
-    const vr=await pagedTable(c,'account_verifications','user_id,email_verified_at,submission_status,rejection_reason,admin_trial_expires_at,approved_expires_at','updated_at');
-    (vr||[]).forEach(x=>verificationMap.set(x.user_id,x))
-  }catch(_){}
-
-  try{
-    const ids=await pagedRpc(c,'psp_admin_client_identity_v76',{});
-    (ids||[]).forEach(x=>identityMap.set(x.user_id,x));
-  }catch(_){
-    try{
-      const pr=await pagedTable(c,'profiles','id,client_id','created_at');
-      (pr||[]).forEach(x=>identityMap.set(x.id,{user_id:x.id,client_id:x.client_id}))
-    }catch(__){}
-  }
+  // V413 already includes access verification + Client ID, so no second/third full-table pass.
+  rows.forEach(x=>{
+    verificationMap.set(x.id,{
+      email_verified_at:x.email_verified_at||null,
+      submission_status:x.submission_status||null,
+      rejection_reason:x.rejection_reason||null,
+      admin_trial_expires_at:x.admin_trial_expires_at||null,
+      approved_expires_at:x.approved_expires_at||null
+    });
+    identityMap.set(x.id,{
+      user_id:x.id,
+      client_id:x.client_id||null,
+      email_verified:x.email_verified===true,
+      email_verified_at:x.email_verified_at||null
+    });
+  });
 
   window.adminUsers=rows.slice();
 
-  // Exact badge count is independent of any returned page size.
-  const realTotal=totalCount||rows.length;
+  const realTotal=rows.length;
   const side=document.getElementById('sidebarUsersCount');
   if(side)side.textContent=realTotal.toLocaleString();
 
