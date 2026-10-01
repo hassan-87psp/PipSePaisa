@@ -41,14 +41,6 @@ function wrapShow(){
   wrapped.__p182premium=true;window.showPage=wrapped;
 }
 
-function init(){
-  decorate();wrapShow();
-  const content=q('#content');
-  if(content&&window.MutationObserver){
-    let t;
-    new MutationObserver(()=>{clearTimeout(t);t=setTimeout(decorate,50)}).observe(content,{childList:true,subtree:true});
-  }
-  setTimeout(()=>{wrapShow();decorate()},900);
-}
+function init(){decorate();wrapShow();setTimeout(()=>{wrapShow();decorate()},900);setTimeout(()=>{wrapShow();decorate()},2500)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
