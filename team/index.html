@@ -7,7 +7,7 @@
 <title>PSP TEAM — PipSePaisa</title>
 <!-- V354 PSP TEAM desktop restore + earning source ledger; V353 mobile utility preserved -->
 <link rel="icon" href="/favicon.png">
-<link rel="manifest" href="./team-manifest.json?v=383">
+<link rel="manifest" href="./team-manifest.json?v=384">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="theme-color" content="#F39522">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -322,7 +322,7 @@ html,body,#appView,.app,.layout,.main,.content,.view{width:100%!important;max-wi
 }
 </style>
 
-<meta name="psp-team-build" content="V383-team-typography-standard">
+<meta name="psp-team-build" content="V384-premium-history-archive">
 
 <style id="pspTeamMoreDownloadV304Css">
 @media(max-width:760px){
@@ -1742,6 +1742,135 @@ html[data-theme="light"] #view-overview .recent-row{
 }
 </style>
 
+
+<style id="teamHistoryPremiumV384Css">
+/* V384 — premium History archive */
+@media(min-width:761px){
+  #view-history{max-width:1460px!important;margin:0 auto!important}
+  #view-history .history-page-head-v384{margin-bottom:14px!important}
+  #view-history .history-eyebrow-v384{
+    display:block;margin-bottom:5px;color:#d6780a;font-size:8.5px!important;font-weight:950;letter-spacing:.14em
+  }
+
+  #view-history .history-summary-v273{
+    display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;margin-bottom:12px!important
+  }
+  #view-history .history-summary-card-v384,
+  #view-history .history-summary-loading-v384{
+    position:relative;min-height:96px!important;padding:15px 16px 13px 18px!important;border-radius:17px!important;
+    background:linear-gradient(145deg,var(--panel),color-mix(in srgb,var(--panel2) 48%,var(--panel)))!important;overflow:hidden
+  }
+  #view-history .history-summary-card-v384:before,
+  #view-history .history-summary-loading-v384:before{
+    content:"";position:absolute;left:0;top:15px;bottom:15px;width:3px;border-radius:0 4px 4px 0;background:#F39522
+  }
+  #view-history .history-summary-card-v384.conv:before{background:#23b878}
+  #view-history .history-summary-card-v384.lots:before{background:#7f8fa6}
+  #view-history .history-summary-card-v384.earn{
+    background:radial-gradient(circle at 94% 10%,rgba(243,149,34,.15),transparent 34%),linear-gradient(145deg,#171717,#252525)!important;
+    border-color:rgba(255,255,255,.06)!important;box-shadow:0 13px 30px rgba(28,22,15,.13)!important
+  }
+  #view-history .history-summary-card-v384.earn span,#view-history .history-summary-card-v384.earn small{color:#9a9a9a!important}
+  #view-history .history-summary-card-v384.earn b{color:#F39522!important}
+  #view-history .history-summary-card-v384 span,
+  #view-history .history-summary-loading-v384 span{display:block;font-size:8.5px!important;font-weight:900;text-transform:uppercase;letter-spacing:.055em;color:var(--muted)}
+  #view-history .history-summary-card-v384 b,
+  #view-history .history-summary-loading-v384 b{display:block;margin-top:7px;font-size:24px!important;line-height:1!important;letter-spacing:-.035em}
+  #view-history .history-summary-card-v384 small,
+  #view-history .history-summary-loading-v384 small{display:block;margin-top:7px;font-size:8.5px!important;color:var(--muted);line-height:1.3}
+
+  #view-history .history-main-card-v384{border-radius:20px!important;overflow:hidden!important;margin-bottom:11px!important}
+  #view-history .history-main-title-v384{padding:17px 18px 13px!important;align-items:flex-end!important;border-bottom:1px solid color-mix(in srgb,var(--line) 72%,transparent)}
+  #view-history .history-section-kicker-v384{display:block;margin-bottom:5px;color:#c77009;font-size:7.5px!important;font-weight:950;letter-spacing:.12em}
+  #view-history .history-title-actions-v384{display:flex;align-items:center;gap:8px}
+  #view-history .history-range-hint-v384{
+    display:inline-flex;align-items:center;min-height:34px;padding:0 10px;border-radius:10px;
+    background:rgba(243,149,34,.065);border:1px solid rgba(243,149,34,.18);color:#ae650e;font-size:8.5px!important;font-weight:850;white-space:nowrap
+  }
+  #view-history .history-filter-v273 input{
+    width:180px!important;height:34px!important;padding:0 11px!important;border-radius:10px!important;background:var(--panel)!important;
+    border:1px solid var(--line)!important;font-size:9.5px!important;outline:none
+  }
+  #view-history .history-filter-v273 input:focus{border-color:rgba(243,149,34,.55)!important;box-shadow:0 0 0 3px rgba(243,149,34,.07)!important}
+  #view-history .history-table-wrap-v384{overflow:auto!important}
+  #view-history .history-table-v384 th{height:39px!important;padding:9px 12px!important;background:color-mix(in srgb,var(--panel2) 72%,var(--panel))!important}
+  #view-history .history-table-v384 td{height:58px!important;padding:10px 12px!important;border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent)!important}
+  #view-history .history-table-v384 tbody tr{transition:background .14s ease}
+  #view-history .history-table-v384 tbody tr:hover{background:rgba(243,149,34,.035)!important}
+  #view-history .history-table-v384 tbody tr.history-current-v384{background:linear-gradient(90deg,rgba(243,149,34,.06),transparent 45%)!important}
+  #view-history .history-month-cell-v384{display:grid;grid-template-columns:38px minmax(0,1fr);gap:9px;align-items:center}
+  #view-history .history-month-cell-v384>span{
+    width:38px;height:34px;display:grid;place-items:center;border-radius:10px;background:rgba(243,149,34,.09);
+    border:1px solid rgba(243,149,34,.18);color:#b9690c;font-size:7.5px!important;font-weight:950;letter-spacing:.05em
+  }
+  #view-history .history-month-cell-v384 b{display:block;font-size:10.5px!important}
+  #view-history .history-month-cell-v384 small{display:block;margin-top:2px;color:var(--muted);font-size:7.5px!important}
+  #view-history .history-conv-v384{min-width:92px}
+  #view-history .history-conv-v384>b{font-size:10px!important}
+  #view-history .history-conv-v384>span{display:block;width:78px;height:4px;margin-top:5px;border-radius:999px;background:rgba(148,163,184,.12);overflow:hidden}
+  #view-history .history-conv-v384 i{display:block;height:100%;border-radius:inherit;background:#F39522}
+  #view-history .history-earn-v384{font-size:10.5px!important}
+
+  #view-history .history-bottom-grid-v384{display:grid;grid-template-columns:minmax(300px,.72fr) minmax(0,1.28fr);gap:10px;align-items:start}
+  #view-history .history-info-card-v384{
+    min-height:78px;padding:14px 15px!important;display:grid;grid-template-columns:38px minmax(0,1fr);gap:11px;align-items:center;
+    border-radius:17px!important;background:linear-gradient(145deg,var(--panel),color-mix(in srgb,var(--panel2) 44%,var(--panel)))!important
+  }
+  #view-history .history-info-icon-v384{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:rgba(243,149,34,.10);color:#bc6c0c;font-size:15px;font-weight:950}
+  #view-history .history-info-card-v384 span{display:block;color:#bf6d0b;font-size:7.2px!important;font-weight:950;letter-spacing:.1em}
+  #view-history .history-info-card-v384 b{display:block;margin-top:3px;font-size:10.5px!important}
+  #view-history .history-info-card-v384 p{margin:4px 0 0;color:var(--muted);font-size:8.5px!important;line-height:1.4!important}
+
+  #view-history .history-legacy-v273{border-radius:17px!important;overflow:hidden!important}
+  #view-history .history-legacy-v273>summary{
+    min-height:78px!important;padding:13px 15px!important;display:grid!important;grid-template-columns:38px minmax(0,1fr) auto!important;gap:11px!important;align-items:center!important;list-style:none!important
+  }
+  #view-history .history-legacy-v273>summary::-webkit-details-marker{display:none}
+  #view-history .history-summary-icon-v384{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:rgba(243,149,34,.10);color:#bc6c0c;font-size:14px;font-weight:950}
+  #view-history .history-legacy-v273>summary b{display:block;font-size:10.8px!important}
+  #view-history .history-legacy-v273>summary>div>span{display:block;margin-top:3px;color:var(--muted);font-size:8.3px!important}
+  #view-history .history-summary-action-v384{display:flex!important;align-items:center!important;gap:7px!important;color:#b9680b!important;font-size:8.5px!important;font-weight:900!important;white-space:nowrap}
+  #view-history .history-summary-action-v384 span{margin:0!important;font-size:11px!important;color:inherit!important;transition:transform .18s ease}
+  #view-history .history-legacy-v273[open] .history-summary-action-v384 span{transform:rotate(180deg)}
+  #view-history .history-legacy-body-v273{border-top:1px solid var(--line)}
+  #view-history .history-legacy-tools-v384{display:flex;gap:8px;align-items:center}
+  #view-history .legacy-link-search-v273{width:170px!important;height:34px!important;font-size:9px!important;border-radius:10px!important}
+
+  #view-history .history-loading-row-v384 td{height:122px!important;text-align:center!important}
+  #view-history .history-loading-v384{display:flex;justify-content:center;gap:6px;margin-bottom:9px}
+  #view-history .history-loading-v384 span{width:7px;height:7px;border-radius:50%;background:#F39522;animation:historyPulseV384 1s infinite ease-in-out}
+  #view-history .history-loading-v384 span:nth-child(2){animation-delay:.14s}
+  #view-history .history-loading-v384 span:nth-child(3){animation-delay:.28s}
+  #view-history .history-loading-row-v384 b{display:block;font-size:10px!important}
+  #view-history .history-loading-row-v384 small{display:block;margin-top:4px;color:var(--muted);font-size:8.3px!important}
+  #view-history .history-error-summary-v384{grid-column:1/-1!important;min-height:90px!important;padding:16px!important}
+  #view-history .history-error-summary-v384 span{display:block;color:#b91c1c;font-size:8px!important;font-weight:900}
+  #view-history .history-error-summary-v384 b{display:block;margin-top:5px;font-size:15px!important}
+  #view-history .history-error-summary-v384 small{display:block;margin-top:5px;color:var(--muted);font-size:8.5px!important}
+  #view-history .history-error-v384,#view-history .history-empty-v384{min-height:105px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+  #view-history .history-error-v384 b,#view-history .history-empty-v384 b{font-size:11px!important}
+  #view-history .history-error-v384 span,#view-history .history-empty-v384 span{margin-top:4px;color:var(--muted);font-size:8.5px!important}
+  #view-history .history-error-v384 .copy-btn{margin-top:10px}
+}
+@keyframes historyPulseV384{0%,80%,100%{opacity:.25;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+@media(max-width:760px){
+  #view-history .history-eyebrow-v384{display:block;margin-bottom:4px;color:#d6780a;font-size:7px;font-weight:950;letter-spacing:.11em}
+  #view-history .history-bottom-grid-v384{display:grid;gap:8px}
+  #view-history .history-info-card-v384{display:grid;grid-template-columns:34px 1fr;gap:9px;align-items:center;padding:11px!important}
+  #view-history .history-info-icon-v384,#view-history .history-summary-icon-v384{width:32px;height:32px;display:grid;place-items:center;border-radius:10px;background:rgba(243,149,34,.10);color:#bc6c0c}
+  #view-history .history-info-card-v384 span{font-size:6.5px;font-weight:950;color:#bc6c0c}
+  #view-history .history-info-card-v384 b{display:block;margin-top:2px;font-size:9px}
+  #view-history .history-info-card-v384 p{margin:3px 0 0;font-size:7.5px;color:var(--muted);line-height:1.4}
+  #view-history .history-legacy-v273>summary{display:grid!important;grid-template-columns:32px 1fr!important;gap:9px!important;align-items:center!important}
+  #view-history .history-summary-action-v384{display:none!important}
+  #view-history .history-title-actions-v384{display:block}
+  #view-history .history-range-hint-v384{display:none}
+  #view-history .history-filter-v273 input{width:100%!important}
+  #view-history .history-legacy-tools-v384{display:grid;grid-template-columns:1fr auto;gap:7px}
+}
+</style>
+
 </head>
 <body>
 <div id="boot"><div class="bootmark"><div class="spinner"></div><span>TEAM COMMAND CENTER</span></div></div>
@@ -1927,10 +2056,33 @@ html[data-theme="light"] #view-overview .recent-row{
     </section>
 
     <section id="view-history" class="view">
-      <div class="page-head"><div><h1>History</h1><p>Previous months and old tracking records. Current work should be done from My Clients.</p></div><span class="auto-badge">READ-ONLY HISTORY</span></div>
-      <div class="history-summary-v273" id="historySummary"></div>
-      <div class="premium-card client-card"><div class="section-title"><div><h3>Monthly Performance</h3><p>Historical activity stays visible. Team earnings before September 2026 are shown as settled.</p></div><div class="history-filter-v273"><input id="historySearch" placeholder="Filter month…"></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Month</th><th>Registrations</th><th>Converted</th><th>Conversion</th><th>Course Sales</th><th>VIP</th><th>Broker Lots</th><th>Total Earnings</th></tr></thead><tbody id="historyRows"><tr><td colspan="8" class="empty">Loading monthly history…</td></tr></tbody></table></div></div>
-      <details class="premium-card history-links history-legacy-v273"><summary><b>Legacy / Assigned Tracking Links</b><span>Old tracking records — click to view</span></summary><div class="history-legacy-body-v273"><div class="section-title"><div><h3>Legacy Tracking Links</h3><p>Preserved read-only for reference. Current work stays in My Clients.</p></div><div style="display:flex;gap:8px;align-items:center"><input id="legacyLinkSearch" class="legacy-link-search-v273" placeholder="Search old link…"><span id="activeLinksBadge" class="status on">0 Active</span></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Link</th><th>Source / Campaign</th><th>Registrations</th><th>Enrollments</th><th>Clients</th><th>Conversion</th><th>Status</th><th>Action</th></tr></thead><tbody id="linkRows"><tr><td colspan="8" class="empty">Loading historical tracking links…</td></tr></tbody></table></div></div></details>
+      <div class="page-head history-page-head-v384"><div><span class="history-eyebrow-v384">TEAM ARCHIVE</span><h1>History</h1><p>Review previous-month performance and preserved tracking records. Current client work stays in My Clients.</p></div><span class="auto-badge">READ-ONLY HISTORY</span></div>
+
+      <div class="history-summary-v273" id="historySummary">
+        <div class="premium-card history-summary-loading-v384"><span>Historical Registrations</span><b>—</b><small>Loading archive…</small></div>
+        <div class="premium-card history-summary-loading-v384"><span>Converted Clients</span><b>—</b><small>Loading archive…</small></div>
+        <div class="premium-card history-summary-loading-v384"><span>Broker Lots</span><b>—</b><small>Loading archive…</small></div>
+        <div class="premium-card history-summary-loading-v384"><span>Earnings Since Sep 2026</span><b>—</b><small>Loading archive…</small></div>
+      </div>
+
+      <div class="premium-card client-card history-main-card-v384">
+        <div class="section-title history-main-title-v384">
+          <div><span class="history-section-kicker-v384">MONTHLY ARCHIVE</span><h3>Monthly Performance</h3><p>One row per month. Earnings before September 2026 remain marked as settled.</p></div>
+          <div class="history-title-actions-v384"><span id="historyRangeHintV384" class="history-range-hint-v384">Last 6 months</span><div class="history-filter-v273"><input id="historySearch" placeholder="Filter month…"></div></div>
+        </div>
+        <div class="table-wrap history-table-wrap-v384"><table class="data-table history-table-v384"><thead><tr><th>Month</th><th>Registrations</th><th>Converted</th><th>Conversion</th><th>Course Sales</th><th>VIP</th><th>Broker Lots</th><th>Total Earnings</th></tr></thead><tbody id="historyRows"><tr class="history-loading-row-v384"><td colspan="8"><div class="history-loading-v384"><span></span><span></span><span></span></div><b>Loading monthly history…</b><small>Preparing the latest archive for this manager.</small></td></tr></tbody></table></div>
+      </div>
+
+      <div class="history-bottom-grid-v384">
+        <div class="premium-card history-info-card-v384">
+          <div class="history-info-icon-v384">◷</div>
+          <div><span>HOW HISTORY WORKS</span><b>Past performance stays frozen for reference</b><p>Use My Clients for current follow-ups and client status updates. History is read-only so old monthly records remain clean.</p></div>
+        </div>
+        <details class="premium-card history-links history-legacy-v273">
+          <summary><div class="history-summary-icon-v384">↗</div><div><b>Legacy / Assigned Tracking Links</b><span>Old tracking records preserved for reference</span></div><div class="history-summary-action-v384">View archive <span>⌄</span></div></summary>
+          <div class="history-legacy-body-v273"><div class="section-title"><div><h3>Legacy Tracking Links</h3><p>Preserved read-only for reference. Current work stays in My Clients.</p></div><div class="history-legacy-tools-v384"><input id="legacyLinkSearch" class="legacy-link-search-v273" placeholder="Search old link…"><span id="activeLinksBadge" class="status on">0 Active</span></div></div><div class="table-wrap"><table class="data-table"><thead><tr><th>Link</th><th>Source / Campaign</th><th>Registrations</th><th>Enrollments</th><th>Clients</th><th>Conversion</th><th>Status</th><th>Action</th></tr></thead><tbody id="linkRows"><tr><td colspan="8" class="empty">Loading historical tracking links…</td></tr></tbody></table></div></div>
+        </details>
+      </div>
     </section>
 
   </div></main>
@@ -2243,7 +2395,18 @@ async function loadEarningDetailV354(){
   }
 }
 
-async function loadHistory(force=false){if(S.loaded.history&&!force)return;const my=selectedMY();try{const currentMetrics=S.historyCurrent&&S.metricsAvailable?S.historyCurrent:null;let historyMonth=my.month,historyYear=my.year,historyMonths=6,prependCurrent=false;if(currentMetrics){const prev=new Date(Date.UTC(my.year,my.month-2,1));historyMonth=prev.getUTCMonth()+1;historyYear=prev.getUTCFullYear();historyMonths=5;prependCurrent=true}let r=await db.rpc('psp_team_history_v208',{p_session_token:S.token,p_months:historyMonths,p_month:historyMonth,p_year:historyYear});if(r.error){console.warn('V208 history fallback:',r.error);prependCurrent=false;r=await db.rpc('psp_team_command_center_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error)throw r.error;const raw=rpcObj(r.data),data=Array.isArray(raw?.history)?raw.history:raw,list=Array.isArray(data)?data:(Array.isArray(r.data)?r.data:[]);S.history=prependCurrent?[currentMetrics,...list].slice(0,6):list;S.loaded.history=true;renderTrend('overviewTrend');renderTrend('performanceTrend');renderHistory()}catch(e){console.warn('History unavailable:',e);if(handleTeamAuthFailureV365(e))return}}
+function renderHistoryLoadingV384(){
+  if($('historySummary'))$('historySummary').innerHTML=[
+    ['Historical Registrations','—'],['Converted Clients','—'],['Broker Lots','—'],['Earnings Since Sep 2026','—']
+  ].map(x=>`<div class="premium-card history-summary-loading-v384"><span>${x[0]}</span><b>${x[1]}</b><small>Loading archive…</small></div>`).join('');
+  if($('historyRows'))$('historyRows').innerHTML='<tr class="history-loading-row-v384"><td colspan="8"><div class="history-loading-v384"><span></span><span></span><span></span></div><b>Loading monthly history…</b><small>Preparing the latest archive for this manager.</small></td></tr>'
+}
+function renderHistoryErrorV384(msg){
+  if($('historySummary'))$('historySummary').innerHTML='<div class="premium-card history-error-summary-v384"><span>History temporarily unavailable</span><b>Archive could not refresh</b><small>'+esc(msg||'Please try again.')+'</small></div>';
+  if($('historyRows'))$('historyRows').innerHTML='<tr><td colspan="8"><div class="history-error-v384"><b>Could not load monthly history</b><span>'+esc(msg||'Please retry this section.')+'</span><button type="button" class="copy-btn" onclick="window.pspRetryHistoryV384&&window.pspRetryHistoryV384()">Retry History</button></div></td></tr>'
+}
+window.pspRetryHistoryV384=async function(){renderHistoryLoadingV384();S.loaded.history=false;await loadHistory(true)};
+async function loadHistory(force=false){if(S.loaded.history&&!force)return;const my=selectedMY();renderHistoryLoadingV384();try{const currentMetrics=S.historyCurrent&&S.metricsAvailable?S.historyCurrent:null;let historyMonth=my.month,historyYear=my.year,historyMonths=6,prependCurrent=false;if(currentMetrics){const prev=new Date(Date.UTC(my.year,my.month-2,1));historyMonth=prev.getUTCMonth()+1;historyYear=prev.getUTCFullYear();historyMonths=5;prependCurrent=true}let r=await db.rpc('psp_team_history_v208',{p_session_token:S.token,p_months:historyMonths,p_month:historyMonth,p_year:historyYear});if(r.error){console.warn('V208 history fallback:',r.error);prependCurrent=false;r=await db.rpc('psp_team_command_center_v207',{p_session_token:S.token,p_month:my.month,p_year:my.year});}if(r.error)throw r.error;const raw=rpcObj(r.data),data=Array.isArray(raw?.history)?raw.history:raw,list=Array.isArray(data)?data:(Array.isArray(r.data)?r.data:[]);S.history=prependCurrent?[currentMetrics,...list].slice(0,6):list;S.loaded.history=true;renderTrend('overviewTrend');renderTrend('performanceTrend');renderHistory()}catch(e){console.warn('History unavailable:',e);if(handleTeamAuthFailureV365(e))return;S.loaded.history=false;renderHistoryErrorV384(e&&e.message||'Please retry this section.')}}
 async function loadPerformanceRange(){const d=performanceDates();S.performanceStart=d.start;S.performanceEnd=d.end;try{let r=await db.rpc('psp_team_performance_range_v359',{p_session_token:S.token,p_start_date:d.start,p_end_date:d.end});if(r.error){console.warn('V359 performance fallback:',r.error);r=await db.rpc('psp_team_performance_range_v207',{p_session_token:S.token,p_start_date:d.start,p_end_date:d.end})}if(r.error)throw r.error;S.performanceRange=rpcObj(r.data);S.loaded.performance=true;setSectionNoticeV278('performanceDataNotice','')}catch(e){console.warn('Range performance unavailable:',e);if(handleTeamAuthFailureV365(e))return;S.performanceRange={};S.loaded.performance=false;setSectionNoticeV278('performanceDataNotice','Broker/performance totals are temporarily unavailable; the lead funnel below is calculated from your loaded clients.')}renderPerformanceRange()}
 function scheduleHistory(){if(S.loaded.history)return;const run=()=>loadHistory().catch(()=>{});if('requestIdleCallback'in window)requestIdleCallback(run,{timeout:1200});else setTimeout(run,180)}
 async function loadPaidCourseMonthV377(){
@@ -2780,7 +2943,36 @@ function renderPerformanceFunnel(rows){if(!$('performanceFunnel'))return;rows=ro
 function renderSourceRange(rows){if(!$('sourceRows'))return;const groups={};(rows||[]).forEach(c=>{const k=clientSourceKeyV273(c),label=k==='ad'?'Ad / Auto':k==='manager'?'Manager Transfer':'Old Tracking';groups[label]=groups[label]||[];groups[label].push(c)});const out=Object.entries(groups).map(([label,a])=>{const conv=a.filter(clientAutoConvertedV359).length,contacted=a.filter(c=>clientWorkStatus(c)!=='new'||clientAutoConvertedV359(c)).length,interested=a.filter(c=>['interested','follow_up','converted'].includes(clientWorkStatus(c))||clientAutoConvertedV359(c)).length;return[label,a.length,contacted,interested,conv,a.length?conv/a.length*100:0]});$('sourceRows').innerHTML=out.length?out.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${fmt(r[1])}</td><td>${fmt(r[2])}</td><td>${fmt(r[3])}</td><td>${fmt(r[4])}</td><td>${r[5].toFixed(1)}%</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No activity for this date range.</td></tr>'}
 async function setPerformanceRange(mode){S.performanceMode=mode;if(mode==='custom'){const d=performanceDates('today');if(!$('rangeFrom').value)$('rangeFrom').value=d.start;if(!$('rangeTo').value)$('rangeTo').value=d.end;S.performanceStart=$('rangeFrom').value;S.performanceEnd=$('rangeTo').value;renderPerformanceRange();return}await loadPerformanceRange()}
 async function applyCustomPerformanceRange(){const f=$('rangeFrom').value,t=$('rangeTo').value;if(!f||!t)return toast('Choose From and To dates.','bad');if(t<f)return toast('To date cannot be before From date.','bad');S.performanceMode='custom';S.performanceStart=f;S.performanceEnd=t;await loadPerformanceRange()}
-function renderHistory(){const q=($('historySearch')&&$('historySearch').value||'').trim().toLowerCase(),hist=(Array.isArray(S.history)?S.history:[]).filter(h=>!q||shortMonth(h.period_month).toLowerCase().includes(q)),totals=hist.reduce((a,h)=>{a.reg+=num(h.registrations);a.conv+=num(h.clients);a.lots+=num(h.overall_lots);if(historyEarningsVisibleV274(h.period_month))a.earn+=num(h.total_earnings);return a},{reg:0,conv:0,lots:0,earn:0});if($('historySummary'))$('historySummary').innerHTML=`<div class="premium-card"><span>Historical Registrations</span><b>${fmt(totals.reg)}</b></div><div class="premium-card"><span>Converted Clients</span><b>${fmt(totals.conv)}</b></div><div class="premium-card"><span>Broker Lots</span><b>${fmt(totals.lots)}</b></div><div class="premium-card"><span>Earnings Since Sep 2026</span><b>${money(totals.earn)}</b></div>`;$('historyRows').innerHTML=hist.length?hist.map(h=>{const reg=num(h.registrations),conv=num(h.clients),showEarn=historyEarningsVisibleV274(h.period_month);return `<tr><td><b>${shortMonth(h.period_month)}</b></td><td>${fmt(reg)}</td><td>${fmt(conv)}</td><td>${reg?(conv/reg*100).toFixed(1):'0.0'}%</td><td>${money(h.course_performance)}</td><td>${fmt(h.vip_clients)}</td><td>${fmt(h.overall_lots)}</td><td><b>${showEarn?money(h.total_earnings):'<span class="settled-v274">Settled</span>'}</b></td></tr>`}).join(''):'<tr><td colspan="8" class="empty">No monthly history yet.</td></tr>'}
+function renderHistory(){
+  const q=($('historySearch')&&$('historySearch').value||'').trim().toLowerCase(),
+        all=Array.isArray(S.history)?S.history:[],
+        hist=all.filter(h=>!q||shortMonth(h.period_month).toLowerCase().includes(q)),
+        totals=hist.reduce((a,h)=>{a.reg+=num(h.registrations);a.conv+=num(h.clients);a.lots+=num(h.overall_lots);if(historyEarningsVisibleV274(h.period_month))a.earn+=num(h.total_earnings);return a},{reg:0,conv:0,lots:0,earn:0}),
+        selected=selectedMY(),selectedKey=selected.year+'-'+String(selected.month).padStart(2,'0');
+  if($('historyRangeHintV384'))$('historyRangeHintV384').textContent=all.length?all.length+' months loaded':'Archive';
+  if($('historySummary'))$('historySummary').innerHTML=[
+    ['Historical Registrations',fmt(totals.reg),'Across loaded months','reg'],
+    ['Converted Clients',fmt(totals.conv),totals.reg?((totals.conv/totals.reg)*100).toFixed(1)+'% overall conversion':'No conversion yet','conv'],
+    ['Broker Lots',fmt(totals.lots),'Recorded historical volume','lots'],
+    ['Earnings Since Sep 2026',money(totals.earn),'Older earnings remain settled','earn']
+  ].map(x=>`<div class="premium-card history-summary-card-v384 ${x[3]}"><span>${x[0]}</span><b>${x[1]}</b><small>${x[2]}</small></div>`).join('');
+  if(!$('historyRows'))return;
+  $('historyRows').innerHTML=hist.length?hist.map(h=>{
+    const reg=num(h.registrations),conv=num(h.clients),showEarn=historyEarningsVisibleV274(h.period_month),
+          key=String(h.period_month||'').slice(0,7),isSelected=key===selectedKey,
+          rate=reg?(conv/reg*100):0;
+    return `<tr class="${isSelected?'history-current-v384':''}">
+      <td><div class="history-month-cell-v384"><span>${shortMonth(h.period_month).split(' ')[0].slice(0,3).toUpperCase()}</span><div><b>${shortMonth(h.period_month)}</b>${isSelected?'<small>Selected month</small>':'<small>Historical record</small>'}</div></div></td>
+      <td><b>${fmt(reg)}</b></td>
+      <td><b>${fmt(conv)}</b></td>
+      <td><div class="history-conv-v384"><b>${rate.toFixed(1)}%</b><span><i style="width:${Math.min(100,rate)}%"></i></span></div></td>
+      <td><b>${money(h.course_performance)}</b></td>
+      <td>${fmt(h.vip_clients)}</td>
+      <td>${fmt(h.overall_lots)}</td>
+      <td><b class="history-earn-v384">${showEarn?money(h.total_earnings):'<span class="settled-v274">Settled</span>'}</b></td>
+    </tr>`
+  }).join(''):'<tr><td colspan="8"><div class="history-empty-v384"><b>No monthly history found</b><span>Try clearing the month filter.</span></div></td></tr>'
+}
 async function changeView(v){S.view=v;document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));document.querySelectorAll('.mobile-tab[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===v));closeMobileMoreV277();if($('mobileMoreBtn'))$('mobileMoreBtn').classList.toggle('active',['daily','performance','history'].includes(v));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id==='view-'+v));window.scrollTo({top:0,behavior:'smooth'});try{if((v==='clients'||v==='searchclient'||v==='performance')&&!S.loaded.clients)await loadClients();if(v==='daily'&&!S.loaded.daily){await loadDaily();renderDaily()}else if(v==='clients')renderClients();else if(v==='searchclient'){/* Mobile app: do not force the keyboard open. */}else if(v==='earnings'){if(!S.earnDetailAvailable)await loadEarningDetailV354();renderEarnings();renderBrokers()}else if(v==='performance'&&!S.loaded.performance)await loadPerformanceRange();else if(v==='performance')renderPerformanceRange();else if(v==='history'&&!S.loaded.history)await loadHistory();else if(v==='history')renderHistory();if(v==='performance'&&!S.loaded.history)scheduleHistory()}catch(e){console.warn('View load failed:',e);toast('This section could not load. Please retry.','bad')}}
 async function refreshSelectedMonth(){syncMobilePeriodV277();S.loaded.history=false;S.history=[];S.loaded.daily=false;S.daily=null;S.dailyCurrentLoaded=false;S.dailyHistory=[];S.clientActionFilter=null;S.metrics=null;S.metricsAvailable=false;S.cache.overviewKey='';S.clientPage=1;try{await loadAll(true);if(S.view==='daily'){await loadDaily();renderDaily()}if(S.view==='earnings'){await loadEarningDetailV354();renderEarnings()}if(S.view==='history'){await loadHistory(true)}else scheduleHistory()}catch(e){console.warn('Selected month refresh:',e)}}
 let deferredInstallPromptV277=null;
@@ -2810,7 +3002,7 @@ function bind(){document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>c
   if($('mobileMoreBtn'))$('mobileMoreBtn').onclick=openMobileMoreV277;if($('mobileMoreClose'))$('mobileMoreClose').onclick=closeMobileMoreV277;if($('mobileMoreOverlay'))$('mobileMoreOverlay').onclick=e=>{if(e.target===$('mobileMoreOverlay'))closeMobileMoreV277()};if($('mobileThemeBtn'))$('mobileThemeBtn').onclick=()=>{applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');closeMobileMoreV277()};if($('mobileLogoutBtn'))$('mobileLogoutBtn').onclick=logout;if($('installPwaBtn'))$('installPwaBtn').onclick=installPspTeamV277;if($('installPwaBtnMobile'))$('installPwaBtnMobile').onclick=installPspTeamV277;if($('installPwaHomeBtn'))$('installPwaHomeBtn').onclick=installPspTeamV277;if($('installPwaTopBtn'))$('installPwaTopBtn').onclick=installPspTeamV277;if($('mobileDownloadAppBtnV304'))$('mobileDownloadAppBtnV304').onclick=installPspTeamV277;if($('clientExportBtn'))$('clientExportBtn').onclick=exportAssignedClientsV299;bindMobileQuickActionsV300();
   if($('mobileMonthSelect'))$('mobileMonthSelect').onchange=()=>{$('monthSelect').value=$('mobileMonthSelect').value;refreshSelectedMonth()};if($('mobileYearSelect'))$('mobileYearSelect').onchange=()=>{$('yearSelect').value=$('mobileYearSelect').value;refreshSelectedMonth()};
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPromptV277=e;setPwaInstallStateV277()});window.addEventListener('appinstalled',()=>{deferredInstallPromptV277=null;try{localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();toast('PSP TEAM installed successfully.')});try{if(!pwaInstalledV277())localStorage.removeItem(PWA_INSTALLED_KEY)}catch(_){}setPwaInstallStateV277();
-  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=383',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./team-sw.js?v=384',{scope:'./',updateViaCache:'none'}).then(r=>r.update()).catch(e=>console.warn('PSP TEAM service worker:',e)));
 }
 (async()=>{
   initSelectors();syncMobilePeriodV277();updateMobileDateV300();applyTheme(localStorage.getItem(THEME_KEY)||(window.matchMedia&&window.matchMedia('(max-width:760px)').matches?'light':'dark'));bind();ensureMobileChromeV300();setInterval(updateMobileDateV300,60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)ensureMobileChromeV300()});window.addEventListener('resize',ensureMobileChromeV300);
