@@ -220,6 +220,6 @@ function wrapShowPage(){
   window.__pspV29AdminShowPageWrapped=true;
 }
 
-function init(){wrapOpenCourseForm();wrapThumbnailFunctions();wrapShowPage();}
+function init(){wrapOpenCourseForm();wrapThumbnailFunctions();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
