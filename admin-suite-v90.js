@@ -257,6 +257,6 @@ function wrapShowPage(){if(V90.showWrapped||typeof window.showPage!=='function')
 
 function bindRevenueMonth(){var el=q('#crMonth');if(!el||el.dataset.v90Bound==='1')return;el.dataset.v90Bound='1';el.addEventListener('change',function(){setTimeout(function(){reconcileSelectedMonth(true)},250)})}
 function periodicInstall(){organizeSidebar();ensureAllStrips();renderCourseSchedule();installSearch();upgradeQuickAdd();installSajidTab();addRevenueSyncButton();ensureSettingsMap();wrapCourseApproval();bindRevenueMonth();syncSidebarUserCount()}
-function init(){periodicInstall();wrapShowPage();refreshOpsCounts();syncSidebarUserCount();setTimeout(periodicInstall,900);setTimeout(periodicInstall,2200);setTimeout(periodicInstall,7000)}
+function init(){periodicInstall();wrapShowPage();syncSidebarUserCount();setTimeout(refreshOpsCounts,1800);setTimeout(periodicInstall,900);setTimeout(periodicInstall,2200);setTimeout(periodicInstall,7000)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
