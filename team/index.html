@@ -2757,6 +2757,495 @@ html[data-theme="light"] #view-overview .recent-row{
 }
 </style>
 
+
+<style id="teamSearchClientMobilePremiumV389Css">
+/* V389 — Search Client premium mobile workspace. Desktop >= 761px remains untouched. */
+@media(max-width:760px){
+  #view-searchclient{
+    --sc389-line:color-mix(in srgb,var(--line) 84%,transparent);
+    --sc389-soft:color-mix(in srgb,var(--panel2) 58%,var(--panel));
+    --sc389-gold:#F39522;
+    padding-bottom:8px!important;
+  }
+
+  /* Page title */
+  #view-searchclient>.page-head{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:center!important;
+    gap:9px!important;
+    min-height:44px!important;
+    margin:1px 2px 12px!important;
+  }
+  #view-searchclient>.page-head>div:first-child{min-width:0!important}
+  #view-searchclient>.page-head h1{
+    margin:0!important;
+    font-size:25px!important;
+    line-height:1!important;
+    font-weight:950!important;
+    letter-spacing:-.045em!important;
+  }
+  #view-searchclient>.page-head p{display:none!important}
+  #view-searchclient>.page-head .live-pill{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    min-height:32px!important;
+    padding:0 11px!important;
+    border:1px solid rgba(243,149,34,.22)!important;
+    border-radius:999px!important;
+    background:linear-gradient(145deg,rgba(243,149,34,.11),rgba(243,149,34,.045))!important;
+    color:#aa6410!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.50)!important;
+    font-size:7px!important;
+    font-weight:950!important;
+    letter-spacing:.055em!important;
+    white-space:nowrap!important;
+  }
+
+  #view-searchclient .search-client-shell-v382{
+    display:grid!important;
+    gap:10px!important;
+    width:100%!important;
+  }
+
+  /* Main search card */
+  #view-searchclient .search-client-card-v273{
+    position:relative!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:15px!important;
+    overflow:hidden!important;
+    border:1px solid var(--sc389-line)!important;
+    border-radius:21px!important;
+    background:
+      radial-gradient(circle at 100% 0%,rgba(243,149,34,.09),transparent 31%),
+      linear-gradient(155deg,color-mix(in srgb,var(--panel) 98%,white 2%),color-mix(in srgb,var(--panel2) 44%,var(--panel)))!important;
+    box-shadow:0 10px 28px rgba(45,33,18,.060),inset 0 1px 0 rgba(255,255,255,.50)!important;
+  }
+  #view-searchclient .search-client-card-v273::before{
+    content:""!important;
+    position:absolute!important;
+    left:0!important;
+    top:18px!important;
+    width:3px!important;
+    height:46px!important;
+    border-radius:0 6px 6px 0!important;
+    background:linear-gradient(180deg,#F8AA3A,#F39522)!important;
+    box-shadow:0 0 14px rgba(243,149,34,.20)!important;
+  }
+
+  #view-searchclient .search-client-top-v382{
+    display:block!important;
+    margin:0!important;
+  }
+  #view-searchclient .search-client-head-v273{min-width:0!important}
+  #view-searchclient .search-eyebrow-v382{
+    display:inline-flex!important;
+    align-items:center!important;
+    min-height:23px!important;
+    margin:0 0 8px!important;
+    padding:0 8px!important;
+    border:1px solid rgba(243,149,34,.17)!important;
+    border-radius:999px!important;
+    background:rgba(243,149,34,.065)!important;
+    color:#c2710e!important;
+    font-size:6.8px!important;
+    line-height:1!important;
+    font-weight:950!important;
+    letter-spacing:.08em!important;
+  }
+  #view-searchclient .search-client-head-v273 h3{
+    margin:0!important;
+    max-width:94%!important;
+    font-size:20px!important;
+    line-height:1.08!important;
+    font-weight:950!important;
+    letter-spacing:-.035em!important;
+  }
+  #view-searchclient .search-client-head-v273 p{
+    margin:6px 0 0!important;
+    color:var(--muted)!important;
+    font-size:8.8px!important;
+    line-height:1.45!important;
+  }
+
+  /* Read-only notice: fix the run-together text and make it an app-status strip */
+  #view-searchclient .search-trust-v382{
+    position:relative!important;
+    display:grid!important;
+    grid-template-columns:29px minmax(0,1fr)!important;
+    align-items:center!important;
+    gap:9px!important;
+    min-width:0!important;
+    margin:11px 0 0!important;
+    padding:9px 10px!important;
+    border:1px solid var(--sc389-line)!important;
+    border-radius:13px!important;
+    background:var(--sc389-soft)!important;
+    text-align:left!important;
+  }
+  #view-searchclient .search-trust-v382::before{
+    content:"✓"!important;
+    width:29px!important;
+    height:29px!important;
+    display:grid!important;
+    place-items:center!important;
+    border:1px solid rgba(34,197,94,.16)!important;
+    border-radius:9px!important;
+    background:rgba(34,197,94,.08)!important;
+    color:#188657!important;
+    font-size:13px!important;
+    line-height:1!important;
+    font-weight:950!important;
+  }
+  #view-searchclient .search-trust-v382 span{
+    display:block!important;
+    grid-column:2!important;
+    margin:0!important;
+    color:var(--text)!important;
+    font-size:8.5px!important;
+    line-height:1.15!important;
+    font-weight:900!important;
+  }
+  #view-searchclient .search-trust-v382 small{
+    display:block!important;
+    grid-column:2!important;
+    margin:-5px 0 0!important;
+    color:var(--muted)!important;
+    font-size:7.3px!important;
+    line-height:1.35!important;
+  }
+
+  /* Search control */
+  #view-searchclient .search-client-form-v273{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    margin:12px 0 0!important;
+  }
+  #view-searchclient .search-input-wrap-v382{
+    position:relative!important;
+    width:100%!important;
+    min-width:0!important;
+  }
+  #view-searchclient .search-input-wrap-v382 input{
+    width:100%!important;
+    height:50px!important;
+    min-height:50px!important;
+    padding:0 13px 0 42px!important;
+    border:1px solid var(--sc389-line)!important;
+    border-radius:15px!important;
+    background:color-mix(in srgb,var(--panel) 84%,var(--panel2))!important;
+    color:var(--text)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.38)!important;
+    font-size:10.3px!important;
+    font-weight:700!important;
+    outline:none!important;
+  }
+  #view-searchclient .search-input-wrap-v382 input:focus{
+    border-color:rgba(243,149,34,.62)!important;
+    box-shadow:0 0 0 3px rgba(243,149,34,.08),inset 0 1px 0 rgba(255,255,255,.4)!important;
+  }
+  #view-searchclient .search-input-wrap-v382 input::placeholder{
+    color:var(--muted2)!important;
+    opacity:.95!important;
+  }
+  #view-searchclient .search-icon-v382{
+    position:absolute!important;
+    left:14px!important;
+    top:50%!important;
+    transform:translateY(-50%)!important;
+    z-index:2!important;
+    color:#b96c0d!important;
+    font-size:18px!important;
+    line-height:1!important;
+    pointer-events:none!important;
+  }
+  #view-searchclient #ownershipSearchBtn{
+    width:100%!important;
+    height:49px!important;
+    min-height:49px!important;
+    margin:0!important;
+    border:1px solid #F39522!important;
+    border-radius:14px!important;
+    background:linear-gradient(135deg,#F6A735,#F39522)!important;
+    color:#1d140a!important;
+    box-shadow:0 8px 18px rgba(243,149,34,.19),inset 0 1px 0 rgba(255,255,255,.32)!important;
+    font-size:10.8px!important;
+    font-weight:950!important;
+    letter-spacing:-.01em!important;
+  }
+  #view-searchclient #ownershipSearchBtn span{
+    display:inline-block!important;
+    margin-left:6px!important;
+    font-size:14px!important;
+  }
+  #view-searchclient #ownershipSearchBtn:active{transform:translateY(1px)!important}
+
+  /* Three search methods become compact premium tiles */
+  #view-searchclient .search-methods-v382{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:6px!important;
+    margin:9px 0 0!important;
+  }
+  #view-searchclient .search-methods-v382>span{
+    min-width:0!important;
+    min-height:48px!important;
+    padding:8px 8px!important;
+    border:1px solid var(--sc389-line)!important;
+    border-radius:11px!important;
+    background:color-mix(in srgb,var(--panel) 76%,var(--panel2))!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28)!important;
+  }
+  #view-searchclient .search-methods-v382 b{
+    display:block!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    white-space:nowrap!important;
+    color:var(--text)!important;
+    font-size:7.4px!important;
+    line-height:1.1!important;
+    font-weight:900!important;
+  }
+  #view-searchclient .search-methods-v382 small{
+    display:block!important;
+    margin-top:4px!important;
+    color:var(--muted)!important;
+    font-size:6.5px!important;
+    line-height:1.3!important;
+  }
+
+  #view-searchclient .search-msg-v273{
+    min-height:0!important;
+    margin:10px 1px 0!important;
+    padding:9px 2px 0!important;
+    border-top:1px solid var(--sc389-line)!important;
+    color:var(--muted)!important;
+    font-size:7.8px!important;
+    line-height:1.4!important;
+  }
+
+  /* Result cards */
+  #view-searchclient .ownership-results-v273{
+    display:grid!important;
+    gap:8px!important;
+    margin:10px 0 0!important;
+  }
+  #view-searchclient .ownership-card-v273{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    min-height:0!important;
+    padding:11px!important;
+    border:1px solid var(--sc389-line)!important;
+    border-radius:15px!important;
+    background:color-mix(in srgb,var(--panel) 76%,var(--panel2))!important;
+    box-shadow:0 6px 16px rgba(45,33,18,.04)!important;
+  }
+  #view-searchclient .ownership-card-v273.mine{
+    border-color:rgba(34,197,94,.24)!important;
+    background:linear-gradient(145deg,rgba(34,197,94,.035),color-mix(in srgb,var(--panel) 78%,var(--panel2)))!important;
+  }
+  #view-searchclient .ownership-card-v273.other{
+    border-color:rgba(59,130,246,.22)!important;
+    background:linear-gradient(145deg,rgba(59,130,246,.03),color-mix(in srgb,var(--panel) 78%,var(--panel2)))!important;
+  }
+  #view-searchclient .ownership-card-v273.unassigned{
+    border-color:rgba(243,149,34,.26)!important;
+  }
+  #view-searchclient .ownership-client-v382{
+    display:grid!important;
+    grid-template-columns:38px minmax(0,1fr)!important;
+    gap:9px!important;
+    align-items:center!important;
+  }
+  #view-searchclient .ownership-avatar-v382{
+    width:38px!important;
+    height:38px!important;
+    display:grid!important;
+    place-items:center!important;
+    border:1px solid rgba(243,149,34,.20)!important;
+    border-radius:11px!important;
+    background:rgba(243,149,34,.075)!important;
+    color:#b86609!important;
+    font-size:8.5px!important;
+    font-weight:950!important;
+  }
+  #view-searchclient .owner-state-v273{
+    display:inline-flex!important;
+    min-height:20px!important;
+    align-items:center!important;
+    margin:0 0 4px!important;
+    padding:0 7px!important;
+    border-radius:999px!important;
+    font-size:6.7px!important;
+    font-weight:900!important;
+  }
+  #view-searchclient .ownership-client-copy-v382 .link-name{
+    font-size:10.5px!important;
+    line-height:1.15!important;
+    font-weight:950!important;
+  }
+  #view-searchclient .ownership-id-v382{
+    margin-top:3px!important;
+    color:var(--muted)!important;
+    font-size:7.1px!important;
+    line-height:1.35!important;
+  }
+  #view-searchclient .ownership-manager-v382{
+    padding:8px 9px!important;
+    border:1px solid var(--sc389-line)!important;
+    border-radius:10px!important;
+    background:color-mix(in srgb,var(--panel2) 54%,var(--panel))!important;
+  }
+  #view-searchclient .ownership-manager-v382 span{
+    display:block!important;
+    color:var(--muted2)!important;
+    font-size:6px!important;
+    font-weight:950!important;
+    letter-spacing:.075em!important;
+  }
+  #view-searchclient .ownership-manager-v382 b{
+    display:block!important;
+    margin-top:3px!important;
+    font-size:8.6px!important;
+    line-height:1.2!important;
+  }
+  #view-searchclient .ownership-manager-v382 small{
+    display:block!important;
+    margin-top:2px!important;
+    color:var(--muted)!important;
+    font-size:6.8px!important;
+    line-height:1.35!important;
+  }
+  #view-searchclient .owner-actions-v273{
+    display:flex!important;
+    width:100%!important;
+    min-width:0!important;
+    justify-content:flex-start!important;
+    gap:6px!important;
+  }
+  #view-searchclient .owner-actions-v273 .wa-btn{
+    display:flex!important;
+    width:100%!important;
+    min-height:38px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:0 10px!important;
+    border-radius:10px!important;
+    font-size:7.5px!important;
+    font-weight:950!important;
+  }
+  #view-searchclient .ownership-admin-v382{
+    display:flex!important;
+    width:100%!important;
+    min-height:36px!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border:1px solid rgba(243,149,34,.22)!important;
+    border-radius:10px!important;
+    background:rgba(243,149,34,.065)!important;
+    color:#ad640d!important;
+    font-size:7.3px!important;
+    font-weight:900!important;
+  }
+  #view-searchclient .ownership-empty-v382{
+    min-height:76px!important;
+    padding:14px!important;
+    border:1px dashed var(--sc389-line)!important;
+    border-radius:13px!important;
+    background:color-mix(in srgb,var(--panel2) 40%,transparent)!important;
+    text-align:center!important;
+  }
+  #view-searchclient .ownership-empty-v382 b{font-size:9px!important}
+  #view-searchclient .ownership-empty-v382 span{font-size:7.2px!important}
+
+  /* Ownership rule — compact premium info rail */
+  #view-searchclient .search-rule-v382{
+    display:grid!important;
+    grid-template-columns:38px minmax(0,1fr)!important;
+    gap:10px!important;
+    align-items:center!important;
+    margin:0!important;
+    padding:10px 12px!important;
+    border:1px solid rgba(243,149,34,.20)!important;
+    border-radius:16px!important;
+    background:linear-gradient(135deg,rgba(243,149,34,.085),rgba(243,149,34,.025))!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.35)!important;
+  }
+  #view-searchclient .search-rule-icon-v382{
+    width:38px!important;
+    height:38px!important;
+    display:grid!important;
+    place-items:center!important;
+    border-radius:11px!important;
+    background:linear-gradient(145deg,#F7A535,#F39522)!important;
+    color:#201408!important;
+    box-shadow:0 7px 16px rgba(243,149,34,.18)!important;
+    font-size:15px!important;
+    font-weight:950!important;
+  }
+  #view-searchclient .search-rule-v382 b{
+    display:block!important;
+    margin:0!important;
+    color:var(--text)!important;
+    font-size:8.8px!important;
+    line-height:1.15!important;
+    font-weight:950!important;
+  }
+  #view-searchclient .search-rule-v382 span{
+    display:block!important;
+    margin:3px 0 0!important;
+    color:var(--muted)!important;
+    font-size:7.2px!important;
+    line-height:1.4!important;
+  }
+
+  /* Make the year readable in the shared mobile period selector seen on this page. */
+  #mobileYearSelect{
+    width:78px!important;
+    min-width:78px!important;
+    max-width:78px!important;
+  }
+}
+
+@media(max-width:390px){
+  #view-searchclient>.page-head h1{font-size:23px!important}
+  #view-searchclient>.page-head .live-pill{padding:0 9px!important;font-size:6.5px!important}
+  #view-searchclient .search-client-card-v273{padding:13px!important}
+  #view-searchclient .search-client-head-v273 h3{font-size:18.5px!important}
+  #view-searchclient .search-methods-v382{gap:5px!important}
+  #view-searchclient .search-methods-v382>span{padding:7px 6px!important}
+  #view-searchclient .search-methods-v382 b{font-size:7px!important}
+  #view-searchclient .search-methods-v382 small{font-size:6.1px!important}
+}
+
+/* Screenshot/light-theme tuning */
+@media(max-width:760px){
+  html[data-theme="light"] #view-searchclient .search-client-card-v273{
+    border-color:#e7d3b0!important;
+    background:
+      radial-gradient(circle at 100% 0%,rgba(243,149,34,.10),transparent 31%),
+      linear-gradient(155deg,#fffefa,#fcf6eb)!important;
+    box-shadow:0 10px 25px rgba(87,62,28,.055),inset 0 1px 0 #fff!important;
+  }
+  html[data-theme="light"] #view-searchclient .search-trust-v382,
+  html[data-theme="light"] #view-searchclient .search-input-wrap-v382 input,
+  html[data-theme="light"] #view-searchclient .search-methods-v382>span,
+  html[data-theme="light"] #view-searchclient .ownership-manager-v382{
+    background:#fffaf2!important;
+    border-color:#ead8ba!important;
+  }
+  html[data-theme="light"] #view-searchclient .ownership-card-v273{
+    background:#fffdf8!important;
+    border-color:#e9d7b9!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="boot"><div class="bootmark"><div class="spinner"></div><span>TEAM COMMAND CENTER</span></div></div>
@@ -2893,7 +3382,7 @@ html[data-theme="light"] #view-overview .recent-row{
               <h3>Find the right client instantly</h3>
               <p>Search by client name, WhatsApp number or PSP Client ID.</p>
             </div>
-            <div class="search-trust-v382"><span>✓ Read-only ownership check</span><small>Manager ownership cannot be changed here</small></div>
+            <div class="search-trust-v382"><span>Read-only ownership check</span><small>Manager ownership cannot be changed here.</small></div>
           </div>
           <div class="search-client-form-v273">
             <div class="search-input-wrap-v382"><span class="search-icon-v382">⌕</span><input id="ownershipSearch" placeholder="Search name, WhatsApp or PSP-####" autocomplete="off"></div>
