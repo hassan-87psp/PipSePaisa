@@ -4,6 +4,7 @@
 if(window.__PSP_ADMIN_DASH_V181__)return;window.__PSP_ADMIN_DASH_V181__=true;
 var charts={growth:null,enroll:null,payments:null,revenue:null};
 var cache={profiles:[],enrollments:[],courses:[],signals:[],verifications:[],paymentRequests:[],eaRequests:[],logs:[]};
+var dashboardLoadedAt=0;
 var growthMode='monthly',selectedPeriod='all',installed=false;
 function db(){try{return typeof sb!=='undefined'&&sb?sb:(window.sb||window.adminSb||null)}catch(_){return window.sb||window.adminSb||null}}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
@@ -110,7 +111,7 @@ function renderHealth(ca){var b=document.getElementById('ad181Health');if(!b)ret
 function initials(v){var s=String(v||'Admin').trim().split(/\s+/).map(function(x){return x[0]||''}).join('').toUpperCase();return s.slice(0,2)||'A'}
 function renderActivity(){var b=document.getElementById('ad181Activity');if(!b)return;var rows=cache.logs.filter(function(r){return inPeriod(parseDate(r.created_at))}).slice(0,6);if(!rows.length){b.innerHTML='<div class="ad181-health-row"><span>No audit events for '+esc(periodLabel())+'.</span></div>';return}b.innerHTML=rows.map(function(r){var d=parseDate(r.created_at),name=r.actor_name||r.actor_email||'Admin',summary=r.summary||String(r.action||'Activity').replace(/_/g,' '),sub=[String(r.action||'').replace(/_/g,' '),r.section].filter(Boolean).join(' · ');return '<div class="ad181-activity-row"><div class="ad181-avatar">'+esc(initials(name))+'</div><div class="ad181-activity-copy"><strong>'+esc(name)+'</strong><span>'+esc(summary+(sub?' · '+sub:''))+'</span></div><div class="ad181-time">'+esc(fmtTime(d))+'</div></div>'}).join('')}
 function renderAll(){var sel=document.getElementById('ad181Period');if(sel&&sel.value!==selectedPeriod)sel.value=selectedPeriod;var c=calc();renderKpis(c);renderGrowth();renderEnrollment(c);renderPayments(c);renderRevenue();renderRecent();renderMonthly();renderHealth(c);renderActivity()}
-async function load(force){if(!install())return;var c=db();if(!c)return;var p=document.getElementById('page-dashboard'),btn=document.getElementById('ad181Refresh'),err=document.getElementById('ad181Error');if(p)p.classList.add('ad181-loading');if(btn){btn.disabled=true;btn.textContent='↻ Loading…'}if(err){err.style.display='none';err.textContent=''};try{var rs=await Promise.all([
+async function load(force){if(!install())return;if(!force&&dashboardLoadedAt&&Date.now()-dashboardLoadedAt<15000){renderAll();return;}var c=db();if(!c)return;var p=document.getElementById('page-dashboard'),btn=document.getElementById('ad181Refresh'),err=document.getElementById('ad181Error');if(p)p.classList.add('ad181-loading');if(btn){btn.disabled=true;btn.textContent='↻ Loading…'}if(err){err.style.display='none';err.textContent=''};try{var rs=await Promise.all([
  safe('profiles','id,full_name,email,created_at,is_premium,role','created_at',2500),
  safe('course_enrollments','*','created_at',3000),
  safe('courses','id,title,is_published,display_order','display_order',200),
@@ -119,7 +120,7 @@ async function load(force){if(!install())return;var c=db();if(!c)return;var p=do
  safe('payment_requests','*','created_at',600),
  safe('ea_indicator_requests','id,user_id,product_id,trading_account_id,broker,status,admin_note,created_at,updated_at','created_at',600),
  safe('admin_activity_logs','actor_name,actor_email,actor_role,action,section,summary,created_at,device_type,city,country','created_at',80)
- ]);cache.profiles=rs[0];cache.enrollments=rs[1];cache.courses=rs[2];cache.signals=rs[3];cache.verifications=rs[4];cache.paymentRequests=rs[5];cache.eaRequests=rs[6];cache.logs=rs[7];populatePeriods();renderAll()}catch(e){console.error('[V181 dashboard]',e);if(err){err.style.display='block';err.textContent='Dashboard loaded with limited data: '+(e.message||e)}}finally{if(p)p.classList.remove('ad181-loading');if(btn){btn.disabled=false;btn.textContent='↻ Refresh'}}}
+ ]);cache.profiles=rs[0];cache.enrollments=rs[1];cache.courses=rs[2];cache.signals=rs[3];cache.verifications=rs[4];cache.paymentRequests=rs[5];cache.eaRequests=rs[6];cache.logs=rs[7];dashboardLoadedAt=Date.now();populatePeriods();renderAll()}catch(e){console.error('[V181 dashboard]',e);if(err){err.style.display='block';err.textContent='Dashboard loaded with limited data: '+(e.message||e)}}finally{if(p)p.classList.remove('ad181-loading');if(btn){btn.disabled=false;btn.textContent='↻ Refresh'}}}
 window.loadDashboardStats=load;window.PSPExecutiveDashboard181={load:load,cache:cache,render:renderAll,setPeriod:window.pspDashboardSetPeriod,getPeriod:function(){return selectedPeriod}};
 function watchTheme(){try{new MutationObserver(function(ms){if(ms.some(function(m){return m.attributeName==='data-theme'}))setTimeout(function(){renderGrowth();renderEnrollment(calc());renderPayments(calc());renderRevenue()},80)}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']})}catch(_){}}
 function init(){install();watchTheme()}
