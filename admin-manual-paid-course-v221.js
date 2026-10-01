@@ -29,6 +29,6 @@ async function saveDate(){if(state.dateEditBusy||!state.dateEditId)return;const 
 function injectButton(){const host=document.querySelector('#aprWrap .v184-payments-actions');if(!host||host.querySelector('.v221-admin-add-paid'))return;const b=document.createElement('button');b.type='button';b.className='v172-btn primary v221-admin-add-paid';b.textContent='+ Add Paid User';b.onclick=()=>api.open();host.prepend(b)}
 const api={async open(){ensure();reset();document.getElementById('v221ManualPaidOverlay').classList.add('open');try{await loadCourses()}catch(e){status('Paid courses could not load: '+(e.message||e),'error')}setTimeout(()=>document.getElementById('v221ManualUserSearch')?.focus(),80)},close(){document.getElementById('v221ManualPaidOverlay')?.classList.remove('open')},editDate,saveDate,closeDateEditor(){state.dateEditId=null;document.getElementById('v236ManualDateOverlay')?.classList.remove('open')},submit};
 window.PSPManualPaidCourseV221=api;
-function init(){ensure();injectButton();new MutationObserver(injectButton).observe(document.body,{childList:true,subtree:true})}
+function init(){ensure();injectButton();setTimeout(injectButton,300);setTimeout(injectButton,1200);setTimeout(injectButton,3000)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
