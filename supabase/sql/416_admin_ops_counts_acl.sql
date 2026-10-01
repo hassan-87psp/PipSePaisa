@@ -1,0 +1,1 @@
+-- V416: Admin-only Ops Counts RPC access.\nrevoke execute on function public.psp_admin_ops_counts_v409() from public, anon;\ngrant execute on function public.psp_admin_ops_counts_v409() to authenticated, service_role;\n
