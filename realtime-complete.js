@@ -25,6 +25,7 @@ function adminTableActive(table){
 }
 function call(name,...args){try{if(typeof window[name]==='function')return window[name](...args)}catch(e){console.warn(name,e)}}
 function refresh(table){
+  if(adminShell()){try{window.pspAdminPerfClear?.()}catch(_){}}
   const userMap={
     signals:()=>call('loadSignalsFromDB'),
     charts:()=>{call('loadArticlesFromDB');call('loadCharts');call('loadChart')},
