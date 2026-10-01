@@ -401,7 +401,7 @@ function startAdminTabsRealtime(){var db=c();if(!db)return setTimeout(startAdmin
 
 function wrapShowPageFinal(){if(window.__pspAdminFinalWrapped||typeof showPage!=='function')return setTimeout(wrapShowPageFinal,200);var old=showPage;window.showPage=function(page,el){var r=old.apply(this,arguments);if(page==='admintabs'){document.getElementById('pageTitle').textContent='Admin Tabs';document.getElementById('pageSubtitle').textContent='Show or hide admin sidebar pages in real time';setTimeout(window.loadAdminTabsControl,0)}return r};window.__pspAdminFinalWrapped=true}
 
-function init(){ensureAdminTabsPage();buildDashboardCards();wrapShowPageFinal();setTimeout(window.loadAdminTabsControl,300);startAdminTabsRealtime();var role=document.getElementById('adminUserRoleFilter');if(role)role.onchange=renderAdminUsersFinal;var search=document.getElementById('adminUserSearch');if(search)search.oninput=renderAdminUsersFinal}
+function init(){ensureAdminTabsPage();wrapShowPageFinal();setTimeout(window.loadAdminTabsControl,300);startAdminTabsRealtime()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 
