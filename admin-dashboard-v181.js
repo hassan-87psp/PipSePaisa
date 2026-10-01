@@ -115,8 +115,8 @@ async function load(force){if(!install())return;if(!force&&dashboardLoadedAt&&Da
  safe('profiles','id,full_name,email,created_at,is_premium,role','created_at',2500),
  safe('course_enrollments','id,user_id,course_key,course_name,course_type,price,full_name,email,payment_method,payment_status,enrollment_status,access_granted_at,reviewed_at,created_at,updated_at,payment_provider,provider_status,provider_callback_at','created_at',3000),
  safe('courses','id,title,is_published,display_order','display_order',200),
- safe('signals','id,pair,direction,status,is_official,created_at,pips','created_at',150),
- safe('account_verifications','id,broker,submission_status,trading_account_id,created_at,submitted_at,updated_at','submitted_at',300),
+ safe('signals','id,pair,direction,status,is_official,created_at','created_at',150),
+ safe('account_verifications','user_id,broker,submission_status,trading_account_id,created_at,submitted_at,updated_at','submitted_at',300),
  safe('ea_indicator_requests','id,user_id,product_id,trading_account_id,broker,status,admin_note,created_at,updated_at','created_at',600),
  safe('admin_activity_logs','actor_name,actor_email,actor_role,action,section,summary,created_at,device_type,city,country','created_at',80)
  ]);cache.profiles=rs[0];cache.enrollments=rs[1];cache.courses=rs[2];cache.signals=rs[3];cache.verifications=rs[4];cache.paymentRequests=[];cache.eaRequests=rs[5];cache.logs=rs[6];dashboardLoadedAt=Date.now();populatePeriods();renderAll()}catch(e){console.error('[V181 dashboard]',e);if(err){err.style.display='block';err.textContent='Dashboard loaded with limited data: '+(e.message||e)}}finally{if(p)p.classList.remove('ad181-loading');if(btn){btn.disabled=false;btn.textContent='↻ Refresh'}}}
