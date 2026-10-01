@@ -4,7 +4,7 @@
 let settings=null, rows=[], profiles=new Map(), enabled=true, installed=false;
 let av85ModalState={type:null,uid:null};
 let av116Filter={status:'pending',broker:'all',access:'all',search:''};
-let av116CountdownTimer=null;
+let av116CountdownTimer=null; let avAccessRealtime=null;
 const q=(s,r=document)=>r.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 function db(){try{return typeof sb!=='undefined'?sb:window.sb||null}catch(_){return window.sb||null}}
@@ -388,8 +388,16 @@ async function submitReview(uid,action,reason,throwOnError){
   window.loadAdminUsers?.();
 }
 
-function wrap(){if(window._av56Wrapped||typeof window.showPage!=='function')return;window._av56Wrapped=true;const old=window.showPage;window.showPage=function(page,el){const out=old.apply(this,arguments);const t=q('#pageTitle'),s=q('#pageSubtitle');if(page==='verification'){if(t)t.textContent='Access Approvals';if(s)s.textContent='Review broker proof and approve or reject Full Access';setTimeout(loadRows,0)}if(page==='accesssettings'){if(t)t.textContent='Access Settings';if(s)s.textContent='Manage trial days, broker links and verification setup';setTimeout(loadSettings,0)}return out}}
-function init(){if(installed)return;installed=true;menu();approvalPage();settingsPage();ensureActionModal();wrap();setTimeout(()=>{menu();approvalPage();settingsPage();ensureActionModal();wrap()},500);const c=db();if(c){try{c.channel('admin-access-v56').on('postgres_changes',{event:'*',schema:'public',table:'account_verifications'},()=>{if(document.getElementById('page-verification')?.classList.contains('active'))loadRows().catch(()=>{})}).on('postgres_changes',{event:'*',schema:'public',table:'account_verification_settings'},()=>{if(document.getElementById('page-accesssettings')?.classList.contains('active'))loadSettings().catch(()=>{})}).subscribe()}catch(_){}}}
+function setupAccessRealtime(){
+  const client=db();if(!client||avAccessRealtime)return;
+  try{
+    avAccessRealtime=client.channel('admin-access-v56')
+      .on('postgres_changes',{event:'*',schema:'public',table:'account_verifications'},()=>{if(document.getElementById('page-verification')?.classList.contains('active'))loadRows().catch(()=>{})})
+      .on('postgres_changes',{event:'*',schema:'public',table:'account_verification_settings'},()=>{if(document.getElementById('page-accesssettings')?.classList.contains('active'))loadSettings().catch(()=>{})})
+      .subscribe();
+  }catch(_){avAccessRealtime=null}
+} function wrap(){if(window._av56Wrapped||typeof window.showPage!=='function')return;window._av56Wrapped=true;const old=window.showPage;window.showPage=function(page,el){const out=old.apply(this,arguments);const t=q('#pageTitle'),s=q('#pageSubtitle');if(page==='verification'){if(t)t.textContent='Access Approvals';if(s)s.textContent='Review broker proof and approve or reject Full Access';setTimeout(()=>{loadRows();setupAccessRealtime()},0)}if(page==='accesssettings'){if(t)t.textContent='Access Settings';if(s)s.textContent='Manage trial days, broker links and verification setup';setTimeout(()=>{loadSettings();setupAccessRealtime()},0)}return out}}
+function init(){if(installed)return;installed=true;menu();approvalPage();settingsPage();ensureActionModal();wrap();setTimeout(()=>{menu();approvalPage();settingsPage();ensureActionModal();wrap()},500)}
 window.PSPAdminVerification={loadRows,loadSettings,openProof,review,saveSettings,grantTrial,trialFromForm,toggleFilters:av116ToggleFilters,resetFilters:av116ResetFilters,toggleDetails:av116ToggleDetails,setStatusFilter:av185SetStatusFilter};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
