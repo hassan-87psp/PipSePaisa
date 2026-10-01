@@ -40,13 +40,13 @@ function headersFor(input,init){
   return h;
 }
 function ttlFor(url,rpc){
-  if(rpc) return 10000;
+  if(rpc) return 3000;
   var p=url.pathname;
-  if(p.indexOf('/rest/v1/courses')===0) return 30000;
-  if(p.indexOf('/rest/v1/profiles')===0) return 12000;
-  if(p.indexOf('/rest/v1/course_enrollments')===0) return 5000;
-  if(p.indexOf('/rest/v1/tracked_link')===0) return 15000;
-  return 8000;
+  if(p.indexOf('/rest/v1/courses')===0) return 3000;
+  if(p.indexOf('/rest/v1/profiles')===0) return 2000;
+  if(p.indexOf('/rest/v1/course_enrollments')===0) return 1200;
+  if(p.indexOf('/rest/v1/tracked_link')===0) return 2500;
+  return 1200;
 }
 async function bodyText(input,init,method){
   if(method==='GET'||method==='HEAD') return '';
