@@ -4075,6 +4075,308 @@ html[data-theme="light"] #view-overview .recent-row{
 }
 </style>
 
+
+<style id="teamPerformanceMobileExecutiveV392Css">
+/* V392 — executive mobile Performance refinement. Desktop >=761px remains untouched. */
+#view-performance .funnel-progress-v392{display:none}
+@media(max-width:760px){
+  /* Keep the top compact and intentional */
+  #view-performance>.page-head{
+    gap:7px!important;
+    margin-bottom:8px!important;
+  }
+  #view-performance>.page-head>div:first-child::before{
+    min-height:18px!important;
+    margin-bottom:4px!important;
+    padding:0 6px!important;
+    font-size:5.9px!important;
+  }
+  #view-performance>.page-head h1{
+    font-size:23px!important;
+    letter-spacing:-.055em!important;
+  }
+
+  /* Better segmented control */
+  #view-performance .range-tools{
+    gap:4px!important;
+    padding:4px!important;
+    border-radius:14px!important;
+    background:color-mix(in srgb,var(--panel) 84%,var(--panel2))!important;
+    box-shadow:0 4px 12px rgba(58,40,20,.035),inset 0 1px 0 rgba(255,255,255,.40)!important;
+  }
+  #view-performance .range-chip{
+    min-width:86px!important;
+    min-height:34px!important;
+    padding:0 10px!important;
+    border-radius:10px!important;
+    font-size:7.2px!important;
+  }
+  #view-performance .range-chip.active{
+    box-shadow:0 5px 13px rgba(243,149,34,.20),inset 0 1px 0 rgba(255,255,255,.34)!important;
+  }
+
+  /* Remove the large empty "Showing" box: turn it into two compact chips */
+  #view-performance .range-caption{
+    width:auto!important;
+    min-height:0!important;
+    margin:0 0 8px!important;
+    padding:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:6px!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+  }
+  #view-performance .range-caption>span:first-child{
+    display:inline-flex!important;
+    min-height:26px!important;
+    align-items:center!important;
+    padding:0 9px!important;
+    border:1px solid var(--pf-line)!important;
+    border-radius:999px!important;
+    background:color-mix(in srgb,var(--panel) 76%,var(--panel2))!important;
+    color:var(--muted)!important;
+    font-size:6.8px!important;
+    font-weight:800!important;
+  }
+  #view-performance .range-caption>span:first-child b{
+    margin-left:3px!important;
+    color:#b8660b!important;
+  }
+  #view-performance .range-caption .auto-badge{
+    min-height:26px!important;
+    padding:0 9px!important;
+    font-size:5.8px!important;
+  }
+
+  /* KPI grid = denser app dashboard, not large empty cards */
+  #view-performance .perf-kpis-v273{
+    gap:7px!important;
+    margin-bottom:8px!important;
+  }
+  #view-performance .perf-kpis-v273 .kpi{
+    min-height:73px!important;
+    padding:10px 11px 9px 13px!important;
+    border-radius:14px!important;
+    box-shadow:0 5px 16px rgba(52,37,19,.035),inset 0 1px 0 rgba(255,255,255,.42)!important;
+  }
+  #view-performance .perf-kpis-v273 .kpi::after{
+    content:""!important;
+    position:absolute!important;
+    right:10px!important;
+    top:10px!important;
+    width:7px!important;
+    height:7px!important;
+    border-radius:999px!important;
+    background:rgba(243,149,34,.28)!important;
+    box-shadow:0 0 0 4px rgba(243,149,34,.055)!important;
+  }
+  #view-performance .perf-kpis-v273 .kpi:nth-child(2)::after{background:rgba(79,139,234,.38)!important;box-shadow:0 0 0 4px rgba(79,139,234,.055)!important}
+  #view-performance .perf-kpis-v273 .kpi:nth-child(4)::after{background:rgba(34,184,109,.42)!important;box-shadow:0 0 0 4px rgba(34,184,109,.055)!important}
+  #view-performance .perf-kpis-v273 .kpi .label{
+    font-size:6.2px!important;
+    letter-spacing:.06em!important;
+  }
+  #view-performance .perf-kpis-v273 .kpi .value{
+    margin-top:7px!important;
+    font-size:21px!important;
+  }
+
+  /* Premium focal card: dark funnel with real progress bars */
+  #view-performance .performance-main-v273{gap:8px!important;margin-bottom:8px!important}
+  #view-performance .chart-card{
+    padding:14px!important;
+    border-color:rgba(243,149,34,.18)!important;
+    border-radius:17px!important;
+    background:
+      radial-gradient(circle at 100% 0%,rgba(243,149,34,.18),transparent 34%),
+      linear-gradient(150deg,#151515,#22201d)!important;
+    box-shadow:0 12px 28px rgba(27,20,12,.16),inset 0 1px 0 rgba(255,255,255,.055)!important;
+  }
+  #view-performance .chart-card .chart-head h3{
+    color:#fff!important;
+    font-size:13.5px!important;
+  }
+  #view-performance .chart-card .chart-head p{
+    color:#a8a8a8!important;
+    font-size:6.9px!important;
+  }
+  #view-performance .funnel{
+    gap:7px!important;
+    margin-top:11px!important;
+  }
+  #view-performance .funnel-step{
+    position:relative!important;
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto auto!important;
+    grid-template-rows:auto 3px!important;
+    gap:7px 8px!important;
+    min-height:43px!important;
+    padding:8px 10px 7px 12px!important;
+    border:1px solid rgba(255,255,255,.07)!important;
+    border-radius:11px!important;
+    background:rgba(255,255,255,.035)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+  }
+  #view-performance .funnel-step::after{
+    top:9px!important;
+    bottom:9px!important;
+    background:#F39522!important;
+    opacity:.95!important;
+  }
+  #view-performance .funnel-step:nth-child(5)::after{background:#2bd17b!important}
+  #view-performance .funnel-step>span:first-child{
+    color:#d2d2d2!important;
+    font-size:7.3px!important;
+    font-weight:850!important;
+  }
+  #view-performance .funnel-step .funnel-rate{
+    min-width:43px!important;
+    padding:3px 6px!important;
+    background:rgba(243,149,34,.12)!important;
+    color:#f4ad4a!important;
+    font-size:5.9px!important;
+  }
+  #view-performance .funnel-step>b{
+    color:#fff!important;
+    font-size:12.5px!important;
+  }
+  #view-performance .funnel-progress-v392{
+    grid-column:1/-1!important;
+    grid-row:2!important;
+    display:block!important;
+    width:100%!important;
+    height:3px!important;
+    overflow:hidden!important;
+    border-radius:999px!important;
+    background:rgba(255,255,255,.07)!important;
+  }
+  #view-performance .funnel-progress-v392 i{
+    display:block!important;
+    height:100%!important;
+    border-radius:999px!important;
+    background:linear-gradient(90deg,#F39522,#f6b45f)!important;
+    box-shadow:0 0 10px rgba(243,149,34,.22)!important;
+  }
+  #view-performance .funnel-step:nth-child(5) .funnel-progress-v392 i{
+    background:linear-gradient(90deg,#22b86d,#49d795)!important;
+    box-shadow:0 0 10px rgba(34,184,109,.22)!important;
+  }
+
+  /* Secondary performance cards: tighter, more premium */
+  #view-performance .quick-card{
+    padding:12px!important;
+    border-radius:16px!important;
+  }
+  #view-performance .quick-card>h3{
+    font-size:12px!important;
+  }
+  #view-performance .quick-card>p{
+    margin-top:3px!important;
+    font-size:6.8px!important;
+  }
+  #view-performance .quick-breakdown{
+    gap:6px!important;
+    margin-top:8px!important;
+  }
+  #view-performance .quick-item{
+    min-height:51px!important;
+    padding:8px 9px!important;
+    border-radius:11px!important;
+  }
+  #view-performance .quick-item span{
+    font-size:5.9px!important;
+    letter-spacing:.04em!important;
+  }
+  #view-performance .quick-item b{
+    margin-top:6px!important;
+    font-size:13.5px!important;
+  }
+
+  /* Course card gets a subtle premium section divider */
+  #view-performance .performance-main-v273>.quick-card{
+    position:relative!important;
+  }
+  #view-performance .performance-main-v273>.quick-card::before{
+    content:"COURSE MIX"!important;
+    position:absolute!important;
+    right:12px!important;
+    top:12px!important;
+    padding:4px 6px!important;
+    border:1px solid rgba(243,149,34,.16)!important;
+    border-radius:999px!important;
+    background:rgba(243,149,34,.055)!important;
+    color:#b96b0c!important;
+    font-size:5.4px!important;
+    line-height:1!important;
+    font-weight:950!important;
+    letter-spacing:.06em!important;
+  }
+
+  /* Attention card gets clearer urgency without looking aggressive */
+  #view-performance .perf-quick>.quick-card:nth-child(2){
+    background:
+      radial-gradient(circle at 100% 0%,rgba(243,149,34,.065),transparent 34%),
+      linear-gradient(155deg,color-mix(in srgb,var(--panel) 98%,white 2%),color-mix(in srgb,var(--panel2) 40%,var(--panel)))!important;
+  }
+
+  /* Source performance footer card */
+  #view-performance .source-card{
+    border-radius:16px!important;
+  }
+  #view-performance .source-card .section-title{
+    padding:12px 12px 8px!important;
+  }
+  #view-performance .source-card .section-title h3{font-size:12px!important}
+  #view-performance .source-card .section-title p{font-size:6.8px!important}
+  #view-performance .source-card .table-wrap{padding:7px 10px 10px!important}
+  #view-performance #sourceRows tr{
+    padding:5px 9px!important;
+    border-radius:11px!important;
+  }
+  #view-performance #sourceRows td{
+    min-height:26px!important;
+    padding:4px 0!important;
+    font-size:7px!important;
+  }
+  #view-performance #sourceRows td::before{
+    flex-basis:82px!important;
+    font-size:5.7px!important;
+  }
+}
+
+/* On extra-narrow phones keep the same premium density. */
+@media(max-width:390px){
+  #view-performance>.page-head h1{font-size:22px!important}
+  #view-performance .range-chip{min-width:82px!important}
+  #view-performance .perf-kpis-v273 .kpi{min-height:70px!important}
+  #view-performance .perf-kpis-v273 .kpi .value{font-size:20px!important}
+  #view-performance .funnel-step{padding-left:11px!important}
+}
+
+/* Light theme exact tuning for current PSP TEAM palette. */
+@media(max-width:760px){
+  html[data-theme="light"] #view-performance .range-caption>span:first-child{
+    background:#fffaf2!important;
+    border-color:#ead8ba!important;
+  }
+  html[data-theme="light"] #view-performance .perf-kpis-v273 .kpi{
+    border-color:#e7d4b5!important;
+    background:
+      radial-gradient(circle at 100% 0%,rgba(243,149,34,.06),transparent 36%),
+      linear-gradient(155deg,#fffefa,#fcf8f0)!important;
+  }
+  html[data-theme="light"] #view-performance .quick-card,
+  html[data-theme="light"] #view-performance .source-card{
+    border-color:#e7d4b5!important;
+    background:linear-gradient(155deg,#fffefa,#fcf8f0)!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="boot"><div class="bootmark"><div class="spinner"></div><span>TEAM COMMAND CENTER</span></div></div>
@@ -5180,7 +5482,7 @@ function renderPerformanceRange(){
   renderPerformanceFunnel(rows);
   renderSourceRange(rows)
 }
-function renderPerformanceFunnel(rows){if(!$('performanceFunnel'))return;rows=rows||[];const auto=c=>clientAutoConvertedV359(c),steps=[['Assigned',rows.length],['Contacted',rows.filter(c=>clientWorkStatus(c)!=='new'||auto(c)).length],['Interested',rows.filter(c=>['interested','follow_up','converted'].includes(clientWorkStatus(c))||auto(c)).length],['Follow-up',rows.filter(c=>['follow_up','converted'].includes(clientWorkStatus(c))||auto(c)).length],['Converted',rows.filter(auto).length]];$('performanceFunnel').innerHTML=steps.map((x,i)=>{const prev=i?num(steps[i-1][1]):0,rate=i?conversion(num(x[1]),prev):100;return `<div class="funnel-step"><span>${x[0]}</span>${i?`<span class="funnel-rate">${rate.toFixed(1)}%</span>`:''}<b>${fmt(x[1])}</b></div>`}).join('')}
+function renderPerformanceFunnel(rows){if(!$('performanceFunnel'))return;rows=rows||[];const auto=c=>clientAutoConvertedV359(c),steps=[['Assigned',rows.length],['Contacted',rows.filter(c=>clientWorkStatus(c)!=='new'||auto(c)).length],['Interested',rows.filter(c=>['interested','follow_up','converted'].includes(clientWorkStatus(c))||auto(c)).length],['Follow-up',rows.filter(c=>['follow_up','converted'].includes(clientWorkStatus(c))||auto(c)).length],['Converted',rows.filter(auto).length]],base=Math.max(1,num(steps[0][1]));$('performanceFunnel').innerHTML=steps.map((x,i)=>{const prev=i?num(steps[i-1][1]):0,rate=i?conversion(num(x[1]),prev):100,share=Math.max(0,Math.min(100,num(x[1])/base*100));return `<div class="funnel-step"><span>${x[0]}</span>${i?`<span class="funnel-rate">${rate.toFixed(1)}%</span>`:'<span class="funnel-rate">100%</span>'}<b>${fmt(x[1])}</b><span class="funnel-progress-v392"><i style="width:${share.toFixed(1)}%"></i></span></div>`}).join('')}
 function renderSourceRange(rows){if(!$('sourceRows'))return;const groups={};(rows||[]).forEach(c=>{const k=clientSourceKeyV273(c),label=k==='ad'?'Ad / Auto':k==='manager'?'Manager Transfer':'Old Tracking';groups[label]=groups[label]||[];groups[label].push(c)});const out=Object.entries(groups).map(([label,a])=>{const conv=a.filter(clientAutoConvertedV359).length,contacted=a.filter(c=>clientWorkStatus(c)!=='new'||clientAutoConvertedV359(c)).length,interested=a.filter(c=>['interested','follow_up','converted'].includes(clientWorkStatus(c))||clientAutoConvertedV359(c)).length;return[label,a.length,contacted,interested,conv,a.length?conv/a.length*100:0]});$('sourceRows').innerHTML=out.length?out.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${fmt(r[1])}</td><td>${fmt(r[2])}</td><td>${fmt(r[3])}</td><td>${fmt(r[4])}</td><td>${r[5].toFixed(1)}%</td></tr>`).join(''):'<tr><td colspan="6" class="empty">No activity for this date range.</td></tr>'}
 async function setPerformanceRange(mode){S.performanceMode=mode;if(mode==='custom'){const d=performanceDates('today');if(!$('rangeFrom').value)$('rangeFrom').value=d.start;if(!$('rangeTo').value)$('rangeTo').value=d.end;S.performanceStart=$('rangeFrom').value;S.performanceEnd=$('rangeTo').value;renderPerformanceRange();return}await loadPerformanceRange()}
 async function applyCustomPerformanceRange(){const f=$('rangeFrom').value,t=$('rangeTo').value;if(!f||!t)return toast('Choose From and To dates.','bad');if(t<f)return toast('To date cannot be before From date.','bad');S.performanceMode='custom';S.performanceStart=f;S.performanceEnd=t;await loadPerformanceRange()}
