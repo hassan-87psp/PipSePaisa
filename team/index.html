@@ -2687,6 +2687,76 @@ html[data-theme="light"] #view-overview .recent-row{
 }
 </style>
 
+
+<style id="teamClientsMobileCleanupV388Css">
+/* V388 — mobile cleanup from live screenshot. Desktop stays untouched. */
+@media(max-width:760px){
+  /* Reporting period: show the full month name instead of clipping October/September. */
+  .mobile-period-bar{
+    gap:8px!important;
+  }
+  .mobile-period-copy{
+    min-width:0!important;
+    flex:1 1 auto!important;
+  }
+  .mobile-period-selects{
+    flex:0 0 auto!important;
+    gap:6px!important;
+  }
+  #mobileMonthSelect{
+    width:108px!important;
+    min-width:108px!important;
+    max-width:108px!important;
+    padding:0 27px 0 11px!important;
+    font-size:9px!important;
+    text-overflow:clip!important;
+  }
+  #mobileYearSelect{
+    width:72px!important;
+    min-width:72px!important;
+    max-width:72px!important;
+    padding:0 24px 0 9px!important;
+    font-size:9px!important;
+  }
+
+  /* Refresh: one icon only. Older mobile CSS already adds the pseudo icon. */
+  #view-clients #clientRefreshBtn{
+    font-size:0!important;
+    line-height:0!important;
+  }
+  #view-clients #clientRefreshBtn::before{
+    content:"↻"!important;
+    display:block!important;
+    font-size:17px!important;
+    line-height:1!important;
+  }
+  #view-clients #clientRefreshBtn:disabled::before{
+    animation:clientRefreshSpinV388 .75s linear infinite!important;
+  }
+
+  /* "Showing 1–25 of..." duplicates the client count and wastes a whole row on mobile. */
+  #view-clients .client-summary-bar{
+    display:none!important;
+  }
+}
+@keyframes clientRefreshSpinV388{to{transform:rotate(360deg)}}
+
+@media(max-width:390px){
+  #mobileMonthSelect{
+    width:102px!important;
+    min-width:102px!important;
+    max-width:102px!important;
+    padding-left:9px!important;
+    font-size:8.7px!important;
+  }
+  #mobileYearSelect{
+    width:70px!important;
+    min-width:70px!important;
+    max-width:70px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="boot"><div class="bootmark"><div class="spinner"></div><span>TEAM COMMAND CENTER</span></div></div>
