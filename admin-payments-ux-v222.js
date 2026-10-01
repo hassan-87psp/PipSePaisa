@@ -345,6 +345,7 @@ document.addEventListener('visibilitychange',()=>{
 // Uses provider_expires_at when present; otherwise created_at + 20 minutes.
 let infinityCountdownTimer=null,infinityExpirySyncBusy=false;
 function updateInfinityCountdowns(){
+  if(!infinityPollPageActive()){if(infinityCountdownTimer){clearInterval(infinityCountdownTimer);infinityCountdownTimer=null}return}
   const nodes=[...document.querySelectorAll('.v231-expiry[data-expire-at]')];
   if(!nodes.length){if(infinityCountdownTimer){clearInterval(infinityCountdownTimer);infinityCountdownTimer=null}return}
   const now=Date.now();let reachedZero=false;
