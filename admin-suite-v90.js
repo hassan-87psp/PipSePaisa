@@ -141,27 +141,39 @@ async function refreshOpsCounts(force){
   if(!force&&refreshOpsCounts._at&&now-refreshOpsCounts._at<30000)return;
   refreshOpsCounts._promise=(async function(){
     var c=db();if(!c)return;
-    var paid=[],ver=[],general=[];
+    var coursePending=0,accessPending=0,generalPending=0;
     try{
-      var rr=await Promise.all([
-        c.from('course_enrollments').select('id,payment_status,enrollment_status,course_type,course_key'),
-        c.from('account_verifications').select('user_id,submission_status'),
-        c.from('payment_requests').select('id,status')
-      ]);
-      paid=rr[0].data||[];ver=rr[1].data||[];general=rr[2].data||[];
-    }catch(_){}
-    var coursePending=paid.filter(function(r){var isPaid=r.course_type==='paid'||r.course_key==='advanced';return isPaid&&(r.payment_status==='pending'||r.enrollment_status==='pending')}).length;
-    var accessPending=ver.filter(function(r){return String(r.submission_status||'').toLowerCase()==='pending'}).length;
-    var generalPending=general.filter(function(r){return String(r.status||'').toLowerCase()==='pending'}).length;
+      var r=await c.rpc('psp_admin_ops_counts_v409');
+      if(r.error)throw r.error;
+      var row=Array.isArray(r.data)?r.data[0]:r.data;
+      coursePending=Number(row&&row.course_pending)||0;
+      accessPending=Number(row&&row.access_pending)||0;
+      generalPending=Number(row&&row.general_pending)||0;
+    }catch(error){
+      console.warn('[V410 ops counts RPC fallback]',error&&error.message||error);
+      try{
+        var rr=await Promise.all([
+          c.from('course_enrollments').select('id,payment_status,enrollment_status,course_type,course_key'),
+          c.from('account_verifications').select('user_id,submission_status'),
+          c.from('payment_requests').select('id,status')
+        ]);
+        var paid=rr[0].data||[],ver=rr[1].data||[],general=rr[2].data||[];
+        coursePending=paid.filter(function(x){var isPaid=x.course_type==='paid'||x.course_key==='advanced';return isPaid&&(x.payment_status==='pending'||x.enrollment_status==='pending')}).length;
+        accessPending=ver.filter(function(x){return String(x.submission_status||'').toLowerCase()==='pending'}).length;
+        generalPending=general.filter(function(x){return String(x.status||'').toLowerCase()==='pending'}).length;
+      }catch(_){}
+    }
     V90.counts={payments:coursePending,access:accessPending,general:generalPending};
-    setNavCount('course-enrollments',coursePending);setNavCount('verification',accessPending);setNavCount('paymentreqs',coursePending+generalPending);
-    var dot=q('.topbar .notif-dot');if(dot)dot.style.display=(coursePending+accessPending+generalPending)>0?'block':'none';
+    setNavCount('course-enrollments',coursePending);
+    setNavCount('verification',accessPending);
+    setNavCount('paymentreqs',coursePending+generalPending);
+    var dot=q('.topbar .notif-dot');
+    if(dot)dot.style.display=(coursePending+accessPending+generalPending)>0?'block':'none';
     renderNotificationOps();
     refreshOpsCounts._at=Date.now();
   })().finally(function(){refreshOpsCounts._promise=null});
   return refreshOpsCounts._promise;
-}
-function renderNotificationOps(){var p=q('#page-notifications');if(!p)return;var old=q('#v90OpSummary',p);if(old)old.remove();var el=document.createElement('div');el.id='v90OpSummary';el.className='v90-op-summary';el.innerHTML='<div class="v90-op-tile" onclick="v90Go(\'course-enrollments\')"><span>Course Payments Pending</span><strong>'+V90.counts.payments+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'verification\')"><span>Access Reviews Pending</span><strong>'+V90.counts.access+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'paymentreqs\')"><span>General Payment Requests</span><strong>'+V90.counts.general+'</strong></div>';var strip=q('.v90-page-strip',p);if(strip&&strip.nextSibling)p.insertBefore(el,strip.nextSibling);else p.insertBefore(el,p.firstChild)}
+} function renderNotificationOps(){var p=q('#page-notifications');if(!p)return;var old=q('#v90OpSummary',p);if(old)old.remove();var el=document.createElement('div');el.id='v90OpSummary';el.className='v90-op-summary';el.innerHTML='<div class="v90-op-tile" onclick="v90Go(\'course-enrollments\')"><span>Course Payments Pending</span><strong>'+V90.counts.payments+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'verification\')"><span>Access Reviews Pending</span><strong>'+V90.counts.access+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'paymentreqs\')"><span>General Payment Requests</span><strong>'+V90.counts.general+'</strong></div>';var strip=q('.v90-page-strip',p);if(strip&&strip.nextSibling)p.insertBefore(el,strip.nextSibling);else p.insertBefore(el,p.firstChild)}
 
 /* ---------- Global search ---------- */
 async function safeRows(table,limit){var c=db();if(!c)return[];try{var r=await c.from(table).select('*').limit(limit||600);return r.error?[]:(r.data||[])}catch(_){return[]}}
