@@ -343,12 +343,9 @@ window.saveCoursePaymentEdit=async function(){const id=document.getElementById('
 function wrap(){if(window.__aceV20Wrapped||typeof window.showPage!=='function')return;const old=window.showPage;window.showPage=function(p,e){const r=old.apply(this,arguments);if(p==='course-enrollments'){const t=document.getElementById('pageTitle');if(t)t.textContent='Course Enrollments';const s=document.getElementById('pageSubtitle');if(s)s.textContent='Review payment receipts and control course access';setTimeout(window.loadAdminCourseEnrollments,0)}return r};window.__aceV20Wrapped=true}
 function realtime(){const client=db();if(!client||window.__aceV20Realtime)return;window.__aceV20Realtime=true;try{client.channel('psp-course-enrollments-admin-v20').on('postgres_changes',{event:'*',schema:'public',table:'course_enrollments'},()=>{var p=document.getElementById('page-course-enrollments');if(p&&p.classList.contains('active'))window.loadAdminCourseEnrollments();else window.__aceV20Dirty=true;}).subscribe()}catch(e){console.warn(e)}}
 function init(){
-  // V170: do not fetch the full enrollments table while the admin is on another page.
+  // V410: core showPage exists before this file; avoid observing the full body forever.
   inject();wrap();realtime();
-  if(window.MutationObserver&&!window.__aceWrapObserver){
-    window.__aceWrapObserver=new MutationObserver(()=>{inject();wrap();});
-    window.__aceWrapObserver.observe(document.body,{childList:true,subtree:true});
-  }
+  setTimeout(()=>{inject();wrap();},600);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
