@@ -310,7 +310,11 @@ async function reconcileInfinityAutomatic(client){
 // reloading the full payments center or requiring any Admin action.
 let infinityStatusPollTimer=null,infinityStatusPollBusy=false;
 function stopInfinityStatusPoll(){if(infinityStatusPollTimer){clearInterval(infinityStatusPollTimer);infinityStatusPollTimer=null}}
+function infinityPollPageActive(){
+  return document.visibilityState==='visible'&&!!document.getElementById('page-paymentreqs')?.classList.contains('active');
+}
 async function pollInfinityStatusRows(){
+  if(!infinityPollPageActive()){stopInfinityStatusPoll();return}
   if(infinityStatusPollBusy)return;
   const ids=uniq((S.paymentCourse||[]).filter(courseProcessing).map(r=>r.id));
   if(!ids.length){stopInfinityStatusPoll();return}
@@ -329,9 +333,13 @@ async function pollInfinityStatusRows(){
 }
 function ensureInfinityStatusPoll(){
   const has=(S.paymentCourse||[]).some(courseProcessing);
-  if(!has){stopInfinityStatusPoll();return}
+  if(!has||!infinityPollPageActive()){stopInfinityStatusPoll();return}
   if(!infinityStatusPollTimer)infinityStatusPollTimer=setInterval(pollInfinityStatusRows,2500);
 }
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible')ensureInfinityStatusPoll();
+  else stopInfinityStatusPoll();
+});
 
 // V231: live 20-minute Infinity expiry countdown in Admin.
 // Uses provider_expires_at when present; otherwise created_at + 20 minutes.
