@@ -21,5 +21,5 @@ function keepFinanceBelowDashboard(){
 }
 function run(){cleanUrl();keepFinanceBelowDashboard()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
-setTimeout(run,250);setTimeout(run,1000);setInterval(keepFinanceBelowDashboard,5000);
+setTimeout(run,250);setTimeout(run,1000);setTimeout(keepFinanceBelowDashboard,8000);
 })();
