@@ -1311,7 +1311,7 @@ select option{background:#0f1729;color:#e8eaf0}
         }
 
         let anhLoaded=false;
-        window.anhInitLoad=function(){if(!anhLoaded){anhLoaded=true;anhLoad();setInterval(anhLoad,5*60*1000);}};
+        window.anhInitLoad=function(){if(!anhLoaded){anhLoaded=true;anhLoad();setInterval(function(){if(!document.hidden&&document.getElementById('page-newshub')?.classList.contains('active'))anhLoad();},5*60*1000);}};
         </script>
       </div>
 
