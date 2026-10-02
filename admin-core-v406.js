@@ -584,7 +584,7 @@ async function loadAdGroupList(){
 async function delAdminGroup(id){if(!(await window.pspConfirm('Delete this group and all its posts?')))return;await sb.from('groups').delete().eq('id',id);loadAdGroupList();}
 
 // ============ MEMBER CHATS (DM — admin) ============
-var _aDmPeer=null,_aDmConvs=[],_aDmRt=false,_aTypeChan=null;
+var _aDmPeer=null,_aDmConvs=[],_aDmRt=false,_aTypeChan=null,_aDmListSeq=0,_aDmOpenSeq=0;
 function aIsOnline(ls){return ls&&(Date.now()-new Date(ls)<90000);}
 function aDot(ls){return '<span style="position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg-card,#0f1729);background:'+(aIsOnline(ls)?'#10b981':'#6b7280')+'"></span>';}
 function aAv(p,s){s=s||40;var u=p&&p.avatar_url;var i=((p&&(p.full_name||p.email)||'M')[0]||'M').toUpperCase();if(u)return '<div style="width:'+s+'px;height:'+s+'px;border-radius:50%;flex:0 0 auto;background:#000 url(\''+u+'\') center/cover"></div>';return '<div style="width:'+s+'px;height:'+s+'px;border-radius:50%;flex:0 0 auto;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#0a0e1a;font-weight:800;font-size:'+Math.round(s*.4)+'px">'+i+'</div>';}
@@ -779,26 +779,28 @@ async function aDmSearchUsers(){
   box.innerHTML=data.length?('<div style="border:1px solid var(--border,#1f2937);border-radius:10px;padding:4px;margin-bottom:6px">'+data.map(function(u){return '<div onclick="aOpenDM(\''+u.id+'\')" style="display:flex;align-items:center;gap:8px;padding:7px;border-radius:8px;cursor:pointer">'+aAv(u,30)+'<div style="font-size:13px">'+aNm(u)+'</div></div>';}).join('')+'</div>'):'<div style="font-size:12px;color:#94a0b8;padding:4px">No match</div>';
 }
 async function aLoadDMList(){
-  if(!currentAdmin||!sb)return;aDmInitRt();var me=currentAdmin.id;
+  if(!currentAdmin||!sb)return;var seq=++_aDmListSeq;aDmInitRt();var me=currentAdmin.id;
   var r=await sb.from('dm_messages').select('*').or('sender_id.eq.'+me+',recipient_id.eq.'+me).order('created_at',{ascending:false}).limit(400);
   var msgs=r.data||[];var byPeer={};
   msgs.forEach(function(m){var peer=m.sender_id===me?m.recipient_id:m.sender_id;if(!byPeer[peer])byPeer[peer]={last:m,unread:0};if(m.recipient_id===me&&!m.read_at)byPeer[peer].unread++;});
   var ids=Object.keys(byPeer),profs={};
-  if(ids.length){var pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').in('id',ids);(pr.data||[]).forEach(function(p){profs[p.id]=p;});}
+  if(ids.length){var pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').in('id',ids);if(seq!==_aDmListSeq)return;(pr.data||[]).forEach(function(p){profs[p.id]=p;});}
+  if(seq!==_aDmListSeq)return;
   _aDmConvs=ids.map(function(id){return {prof:profs[id]||{id:id,full_name:'Member'},last:byPeer[id].last,unread:byPeer[id].unread};}).sort(function(a,b){return new Date(b.last.created_at)-new Date(a.last.created_at);});
   var box=document.getElementById('aDmList');if(!box)return;
   if(!_aDmConvs.length){box.innerHTML='<div style="color:#94a0b8;font-size:13px">No chats yet. Search a member above.</div>';return;}
   box.innerHTML=_aDmConvs.map(function(c){var sel=_aDmPeer&&_aDmPeer.id===c.prof.id;var prev=(c.last.sender_id===me?'You: ':'')+(c.last.body||'');return '<div onclick="aOpenDM(\''+c.prof.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;margin-bottom:4px;background:'+(sel?'rgba(245,158,11,.08)':'transparent')+';border:1px solid '+(sel?'#f59e0b':'transparent')+'"><div style="position:relative">'+aAv(c.prof,38)+aDot(c.prof.last_seen)+'</div><div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><strong style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+aNm(c.prof)+'</strong>'+(c.unread?'<span style="background:#ef4444;color:#fff;font-size:9px;font-weight:800;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px">'+c.unread+'</span>':'')+'</div><div style="font-size:11px;color:#94a0b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+aEsc(prev.slice(0,36))+'</div></div></div>';}).join('');
 }
 async function aOpenDM(peerId,peerObj,silent){
-  if(!currentAdmin||!sb)return;var me=currentAdmin.id;
+  if(!currentAdmin||!sb)return;var seq=++_aDmOpenSeq,requestedPeer=String(peerId),me=currentAdmin.id;
   document.getElementById('aDmNew').value='';document.getElementById('aDmSearchRes').innerHTML='';
-  if(!peerObj){var pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').eq('id',peerId).maybeSingle();peerObj=pr.data;}
-  if(!peerObj)peerObj={id:peerId,full_name:'Member'};_aDmPeer=peerObj;
+  if(!peerObj){var pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').eq('id',peerId).maybeSingle();if(seq!==_aDmOpenSeq)return;peerObj=pr.data;}
+  if(seq!==_aDmOpenSeq)return;if(!peerObj)peerObj={id:peerId,full_name:'Member'};_aDmPeer=peerObj;
   var head=document.getElementById('aDmHead');head.style.display='flex';
   head.innerHTML='<div style="position:relative">'+aAv(peerObj,40)+aDot(peerObj.last_seen)+'</div><div><div style="font-weight:700;font-size:15px">'+aNm(peerObj)+'</div><div style="font-size:11px;color:#94a0b8">'+(aIsOnline(peerObj.last_seen)?'🟢 Online':'Offline')+'</div></div>';
   document.getElementById('aDmComposer').style.display='flex';
   var r=await sb.from('dm_messages').select('*').or('and(sender_id.eq.'+me+',recipient_id.eq.'+peerId+'),and(sender_id.eq.'+peerId+',recipient_id.eq.'+me+')').order('created_at',{ascending:true}).limit(500);
+  if(seq!==_aDmOpenSeq||!_aDmPeer||String(_aDmPeer.id)!==requestedPeer)return;
   var msgs=r.data||[];var body=document.getElementById('aDmBody');var atB=body.scrollHeight-body.scrollTop-body.clientHeight<80;
   var lastMine=null;msgs.forEach(function(m){if(m.sender_id===me)lastMine=m;});
   body.innerHTML=msgs.map(function(m){var mine=m.sender_id===me;var seen=(mine&&m===lastMine&&m.read_at)?'<div style="font-size:10px;color:#94a0b8;text-align:right;margin-top:2px">Seen</div>':'';return '<div style="align-self:'+(mine?'flex-end':'flex-start')+';max-width:72%"><div style="font-size:10px;color:#94a0b8;margin-bottom:2px;'+(mine?'text-align:right':'')+'">'+(mine?'You':aNm(_aDmPeer))+'</div><div style="padding:9px 13px;border-radius:16px;font-size:14px;line-height:1.45;background:'+(mine?'linear-gradient(135deg,#f59e0b,#d97706);color:#0a0e1a':'rgba(255,255,255,.06);color:var(--text-primary,#e8eaf0)')+'">'+aEsc(m.body||'')+'</div>'+seen+'</div>';}).join('')||'<div style="margin:auto;color:#94a0b8">Say hi 👋</div>';
@@ -808,6 +810,7 @@ async function aOpenDM(peerId,peerObj,silent){
   if(!silent)aLoadDMList();
   if(!silent){var ck=[me,peerId].sort().join('_');try{if(_aTypeChan)sb.removeChannel(_aTypeChan);}catch(e){}_aTypeChan=sb.channel('dm-typing-'+ck);_aTypeChan.on('broadcast',{event:'typing'},function(p){if(p.payload&&p.payload.from===peerId)aShowTyping();}).subscribe();}
 }
+window.pspAdminRefreshDM=function(){aLoadDMList();if(_aDmPeer)aOpenDM(_aDmPeer.id,_aDmPeer,true)};
 var _aTypeTimer=null;function aShowTyping(){var t=document.getElementById('aDmTyping');if(!t||!_aDmPeer)return;t.textContent=aNm(_aDmPeer)+' is typing...';clearTimeout(_aTypeTimer);_aTypeTimer=setTimeout(function(){t.textContent='';},2500);}
 var _aPing=0;function aTypePing(){if(!_aTypeChan)return;var n=Date.now();if(n-_aPing<1200)return;_aPing=n;try{_aTypeChan.send({type:'broadcast',event:'typing',payload:{from:currentAdmin.id}});}catch(e){}}
 async function aSendDM(){
@@ -819,10 +822,11 @@ async function aSendDM(){
 
 // ============ SUPPORT MESSAGES (admin inbox - threaded) ============
 // ============ SUPPORT (admin — ticket based) ============
-var _tickets={};var _selTicket=null;var _msgSig='';
+var _tickets={};var _selTicket=null;var _msgSig='',_msgLoadSeq=0;
 async function loadAdminMessages(silent){
-  var box=document.getElementById('messagesInbox');if(!box||!sb)return;
+  var box=document.getElementById('messagesInbox');if(!box||!sb)return;var seq=++_msgLoadSeq;
   var r=await sb.from('support_messages').select('*').order('created_at',{ascending:true}).limit(1000);
+  if(seq!==_msgLoadSeq)return;
   if(r.error){if(!silent)box.innerHTML='<div style="padding:16px;color:#ef4444;font-size:12px">'+aEsc(r.error.message)+'</div>';return;}
   var rows=r.data||[];
   var lastr=rows[rows.length-1];
