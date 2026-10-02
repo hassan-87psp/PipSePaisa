@@ -42,32 +42,14 @@ async function loadActionCenter(){
   const anchor=q('.stats-grid',page);if(anchor&&anchor.nextSibling)anchor.parentNode.insertBefore(box,anchor.nextSibling);else page.insertBefore(box,page.firstChild);
   box.innerHTML='<div class="v174-action-card"><small>Admin Action Center</small><strong>…</strong><span>Loading priorities</span></div>';
   try{
-    var d=window.PSPExecutiveDashboard181;
-    for(var wait=0;wait<20&&d&&typeof d.isLoaded==='function'&&!d.isLoaded();wait++)await new Promise(function(resolve){setTimeout(resolve,100)});
-    var cr=[],av=[],lg=[],pr=[];
-    if(d&&typeof d.isLoaded==='function'&&d.isLoaded()){
-      cr=(d.cache&&d.cache.enrollments)||[];
-      av=(d.cache&&d.cache.verifications)||[];
-      lg=(d.cache&&d.cache.logs)||[];
-      var one=await c.from('payment_requests').select('status,created_at');
-      pr=one.data||[];
-    }else{
-      const rr=await Promise.all([
-        c.from('course_enrollments').select('course_type,course_key,payment_method,payment_provider,payment_status,enrollment_status,provider_status,created_at'),
-        c.from('payment_requests').select('status,created_at'),
-        c.from('account_verifications').select('submission_status,created_at'),
-        c.from('admin_activity_logs').select('id,created_at').gte('created_at',new Date(new Date().setHours(0,0,0,0)).toISOString())
-      ]);
-      cr=rr[0].data||[];pr=rr[1].data||[];av=rr[2].data||[];lg=rr[3].data||[];
-    }
-    const manual=cr.filter(r=>{const paid=r.course_type==='paid'||r.course_key==='advanced',auto=/local bank/i.test(r.payment_method||'')||low(r.payment_provider)==='infinity',done=['approved','rejected','revoked'].includes(low(r.payment_status))||['enrolled','rejected','cancelled'].includes(low(r.enrollment_status));return paid&&!auto&&!done}).length+pr.filter(r=>low(r.status)==='pending').length;
-    const processing=cr.filter(r=>{const paid=r.course_type==='paid'||r.course_key==='advanced',auto=/local bank/i.test(r.payment_method||'')||['initiated','processing','pending'].includes(low(r.provider_status));const done=['approved','rejected','revoked'].includes(low(r.payment_status));return paid&&auto&&!done}).length;
-    const access=av.filter(r=>low(r.submission_status)==='pending').length;
-    const today=new Date();today.setHours(0,0,0,0);
-    const logs=lg.filter(r=>{const x=new Date(r.created_at);return !isNaN(x)&&x>=today}).length;
+    const r=await c.rpc('psp_admin_action_center_v435');
+    if(r.error)throw r.error;
+    const x=Array.isArray(r.data)?(r.data[0]||{}):(r.data||{});
+    const manual=num(x.manual_review),processing=num(x.auto_processing),access=num(x.access_pending),logs=num(x.activity_today);
+    if(currentPage()!=='dashboard'||!document.body.contains(box))return;
     box.innerHTML=`<div class="v174-action-card" onclick="showPage('paymentreqs',document.querySelector('[data-page=paymentreqs]'));setTimeout(()=>pspV172PaymentTab('needs'),80)"><small>Needs Manual Review</small><strong>${manual}</strong><span>Payments that need your decision</span></div><div class="v174-action-card" onclick="showPage('paymentreqs',document.querySelector('[data-page=paymentreqs]'));setTimeout(()=>pspV172PaymentTab('processing'),80)"><small>Auto Processing</small><strong>${processing}</strong><span>Provider is handling these</span></div><div class="v174-action-card" onclick="showPage('verification',document.querySelector('[data-page=verification]'))"><small>Access Reviews</small><strong>${access}</strong><span>Broker verification waiting</span></div><div class="v174-action-card" onclick="showPage('logs',document.querySelector('[data-page=logs]'))"><small>Activity Today</small><strong>${logs}</strong><span>Permanent audit events</span></div>`;
   }catch(e){
-    box.innerHTML='<div class="v174-action-card"><small>Admin Action Center</small><strong>—</strong><span>Could not load summary</span></div>';
+    if(document.body.contains(box))box.innerHTML='<div class="v174-action-card"><small>Admin Action Center</small><strong>—</strong><span>Could not load summary</span></div>';
   }
 }
 function installLogsShell(){const page=q('#page-logs');if(!page)return;page.innerHTML='<div class="card"><div id="v174LogsPage"><div class="v174-log-head"><div><div style="font-size:8px;color:var(--gold);font-weight:900;letter-spacing:.08em">PERMANENT AUDIT TRAIL</div><h2>📋 Activity Logs</h2><p>Admin, mentor and team activity. Logs are append-only: there is no Delete Log button.</p></div><div style="display:flex;gap:7px"><span class="v174-no-delete">🔒 Permanent</span><button class="btn btn-secondary btn-sm" onclick="pspV174ExportLogs()">⇩ Export CSV</button><button class="btn btn-sm" onclick="pspV174LoadLogs(true)">↻ Refresh</button></div></div><div id="v174LogBody"><div style="padding:30px;text-align:center;color:var(--text-muted)">Loading activity…</div></div></div></div>'}
