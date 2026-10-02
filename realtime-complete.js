@@ -1,31 +1,139 @@
 (function(){
 'use strict';
-let started=false;
-function getClient(){try{return typeof sb!=='undefined'?sb:null}catch(_){return null}}
-function visible(id){const p=document.getElementById(id);return !!(p&&p.classList.contains('active'))}
+if(window.__PSP_COMPLETE_RT_V3__)return;
+window.__PSP_COMPLETE_RT_V3__=true;
+
+let userStarted=false;
+let adminChannel=null;
+let adminKey='';
+let adminPage='';
+let adminRetryTimer=null;
+let adminSyncTimer=null;
+let showWrapped=false;
+
+function getClient(){try{return typeof sb!=='undefined'?sb:(window.sb||window.adminSb||null)}catch(_){return window.sb||window.adminSb||null}}
 function adminShell(){return !!(document.getElementById('page-dashboard')&&document.getElementById('loginOverlay'))}
-function adminTableActive(table){
-  const map={
-    signals:['page-adsignals'],
-    charts:['page-adcharts'],
-    articles:['page-articles'],
-    courses:['page-courses'],
-    course_enrollments:['page-paymentreqs'],
-    payment_methods:['page-payments','page-paymentreqs'],
-    payment_requests:['page-paymentreqs'],
-    site_settings:['page-settings','page-sitetabs','page-mentoraccess'],
-    mentor_access_settings:['page-mentoraccess'],
-    subscription_plans:['page-subscriptions'],
-    notifications:['page-notifications'],
-    news_posts:['page-news','page-newshub'],
-    banners:['page-adbanners'],
-    youtube_videos:['page-community']
-  };
-  return (map[table]||[]).some(visible);
+function activePage(){const p=document.querySelector('.page.active');return p?p.id.replace(/^page-/,''):''}
+function adminReady(){const ov=document.getElementById('loginOverlay');return !ov||!ov.classList.contains('active')}
+function call(name,...args){try{if(typeof window[name]==='function')return window[name](...args)}catch(e){console.warn('[PSP realtime]',name,e)}}
+
+const ADMIN_TABLES={
+  adsignals:['signals'],
+  adcharts:['charts'],
+  articles:['articles'],
+  courses:['courses'],
+  'course-enrollments':['course_enrollments'],
+  paymentreqs:['course_enrollments','payment_methods','payment_requests'],
+  payments:['payment_methods'],
+  sitetabs:['site_settings'],
+  mentoraccess:['site_settings','mentor_access_settings'],
+  admintabs:['site_settings'],
+  subscriptions:['subscription_plans'],
+  notifications:['notifications'],
+  news:['news_posts'],
+  newshub:['news_posts'],
+  adbanners:['banners'],
+  community:['youtube_videos'],
+  messages:['support_messages'],
+  chats:['dm_messages']
+};
+
+function refreshAdmin(page,table){
+  try{window.pspAdminPerfClear?.()}catch(_){}
+  if(page==='adsignals'&&table==='signals')return call('loadAdSignals');
+  if(page==='adcharts'&&table==='charts')return call('loadAdCharts');
+  if(page==='articles'&&table==='articles')return call('loadAdminArticles');
+  if(page==='courses'&&table==='courses')return call('loadAdminCourses');
+  if(page==='course-enrollments'&&table==='course_enrollments')return call('loadAdminCourseEnrollments');
+  if(page==='paymentreqs')return call('loadAdminPaymentReqs');
+  if(page==='payments'&&table==='payment_methods')return call('loadAdminPayments');
+  if(page==='sitetabs'&&table==='site_settings')return call('loadSiteTabs');
+  if(page==='mentoraccess')return call('loadMentorAccess');
+  if(page==='admintabs'&&table==='site_settings')return call('loadAdminTabsControl');
+  if(page==='subscriptions'&&table==='subscription_plans')return call('loadAdminSubs');
+  if(page==='notifications'&&table==='notifications')return call('loadRecentNotifs');
+  if(page==='news'&&table==='news_posts')return call('loadAdminNewsPosts');
+  if(page==='newshub'&&table==='news_posts')return call('anhInitLoad');
+  if(page==='adbanners'&&table==='banners')return call('loadAdBanners');
+  if(page==='community'&&table==='youtube_videos')return call('loadAdminCommunity');
+  if(page==='messages'&&table==='support_messages')return call('loadAdminMessages',true);
+  if(page==='chats'&&table==='dm_messages')return call('aLoadDMList');
 }
-function call(name,...args){try{if(typeof window[name]==='function')return window[name](...args)}catch(e){console.warn(name,e)}}
-function refresh(table){
-  if(adminShell()){try{window.pspAdminPerfClear?.()}catch(_){}}
+
+function clearAdminRetry(){
+  if(adminRetryTimer){clearTimeout(adminRetryTimer);adminRetryTimer=null}
+}
+function removeAdminChannel(){
+  clearAdminRetry();
+  const c=getClient(),ch=adminChannel;
+  adminChannel=null;adminKey='';
+  if(ch&&c){try{c.removeChannel(ch)}catch(_){}}
+}
+function syncAdmin(page){
+  if(!adminShell())return;
+  page=page||activePage();
+  if(adminPage==='chats'&&page!=='chats')call('pspAdminChatRealtimeCleanup');
+  adminPage=page;
+  if(document.hidden||!adminReady()){removeAdminChannel();return}
+  const tables=ADMIN_TABLES[page]||[];
+  const key=page+'|'+tables.join(',');
+  if(!tables.length){removeAdminChannel();return}
+  if(adminChannel&&adminKey===key)return;
+
+  removeAdminChannel();
+  const c=getClient();if(!c){scheduleAdminSync(page,500);return}
+  adminKey=key;
+  let ch=c.channel('psp-admin-active-v3-'+page);
+  tables.forEach(table=>{
+    ch=ch.on('postgres_changes',{event:'*',schema:'public',table},()=>refreshAdmin(page,table));
+  });
+  adminChannel=ch;
+  ch.subscribe(status=>{
+    if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
+      if(adminChannel!==ch)return;
+      try{c.removeChannel(ch)}catch(_){}
+      adminChannel=null;adminKey='';
+      clearAdminRetry();
+      adminRetryTimer=setTimeout(()=>syncAdmin(activePage()),2200);
+    }
+  });
+}
+function scheduleAdminSync(page,delay){
+  if(adminSyncTimer)clearTimeout(adminSyncTimer);
+  adminSyncTimer=setTimeout(()=>{adminSyncTimer=null;syncAdmin(page||activePage())},delay==null?40:delay);
+}
+function wrapShowPage(){
+  if(showWrapped||typeof window.showPage!=='function')return;
+  showWrapped=true;
+  const old=window.showPage;
+  window.showPage=function(page,el){
+    const r=old.apply(this,arguments);
+    if(adminShell())scheduleAdminSync(page,30);
+    return r;
+  };
+}
+function refreshActiveAdminPage(){
+  const page=activePage(),tables=ADMIN_TABLES[page]||[];
+  if(page==='dashboard')call('loadDashboardStats',false);
+  else if(tables.length)refreshAdmin(page,tables[0]);
+}
+function startAdmin(){
+  wrapShowPage();
+  scheduleAdminSync(activePage(),250);
+  window.addEventListener('psp-admin-auth-ready',()=>scheduleAdminSync(activePage(),30));
+  window.addEventListener('psp-admin-auth-closed',()=>{removeAdminChannel();call('pspAdminChatRealtimeCleanup')});
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){removeAdminChannel();call('pspAdminChatRealtimeCleanup');return}
+    scheduleAdminSync(activePage(),80);
+    refreshActiveAdminPage();
+  });
+  window.addEventListener('beforeunload',()=>{removeAdminChannel();call('pspAdminChatRealtimeCleanup')});
+}
+
+function startUser(){
+  if(userStarted)return;
+  const client=getClient();if(!client)return setTimeout(startUser,700);
+  userStarted=true;
   const userMap={
     signals:()=>call('loadSignalsFromDB'),
     charts:()=>{call('loadArticlesFromDB');call('loadCharts');call('loadChart')},
@@ -39,53 +147,15 @@ function refresh(table){
     banners:()=>call('loadBanners'),
     youtube_videos:()=>call('loadVideos')
   };
-  const adminMap={
-    signals:()=>{call('loadAdSignals');call('loadAdminSignals')},
-    charts:()=>{call('loadAdCharts');call('loadAdChartList');call('loadCharts')},
-    articles:()=>{call('loadAdminArticles');call('loadMentorArticles')},
-    courses:()=>{call('loadAdminCourses');call('loadCourses')},
-    course_enrollments:()=>call('loadCourseEnrollmentsAdmin'),
-    payment_methods:()=>call('loadPaymentMethods'),
-    payment_requests:()=>call('loadPaymentRequests'),
-    site_settings:()=>{call('loadTabControl');call('loadSiteSettings');call('loadMentorAccessSettings')},
-    mentor_access_settings:()=>call('loadMentorAccessSettings'),
-    subscription_plans:()=>call('loadPlans')
-  };
-  if(adminShell()){
-    if(!adminTableActive(table))return;
-    (adminMap[table]||(()=>{}))();
-    return;
-  }
-  (userMap[table]||(()=>{}))();
-}
-function start(){
-  if(started)return;
-  const client=getClient();if(!client)return setTimeout(start,700);
-  started=true;
-  const tables=[
-    'signals','charts','articles','courses','course_enrollments',
-    'site_settings','mentor_access_settings','subscription_plans',
-    'notifications','news_posts','banners','youtube_videos',
-    'payment_methods','payment_requests'
-  ];
-  let channel=client.channel('psp-complete-realtime-v2');
-  tables.forEach(table=>{
-    channel=channel.on('postgres_changes',{event:'*',schema:'public',table},()=>refresh(table));
-  });
-  channel.subscribe(status=>{
-    if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
-      started=false;setTimeout(start,1800);
-    }
-  });
+  const tables=Object.keys(userMap);
+  let channel=client.channel('psp-complete-realtime-v3-user');
+  tables.forEach(table=>{channel=channel.on('postgres_changes',{event:'*',schema:'public',table},()=>userMap[table]?.())});
+  channel.subscribe();
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden)return;
-    if(adminShell()){
-      tables.forEach(refresh);
-      if(visible('page-dashboard'))call('loadDashboardStats',false);
-      return;
-    }
-    ['signals','charts','articles','courses','course_enrollments','site_settings'].forEach(refresh);
+    ['signals','charts','articles','courses','course_enrollments','site_settings'].forEach(t=>userMap[t]?.());
   });
 }
-document.addEventListener('DOMContentLoaded',start,{once:true});
+function start(){if(adminShell())startAdmin();else startUser()}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
