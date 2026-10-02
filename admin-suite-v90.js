@@ -24,6 +24,7 @@ function usd(v){return '$'+n(v).toLocaleString(undefined,{minimumFractionDigits:
 function q(s,r){return (r||document).querySelector(s)}
 function qa(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
 function activePage(){var p=q('#content>.page.active');return p?p.id.replace(/^page-/,''):'dashboard'}
+function adminReady(){try{return typeof currentAdmin!=='undefined'&&!!currentAdmin}catch(_){return false}}
 function toast(msg,type){if(window.pipToast)return window.pipToast(msg,type||'ok');if(window.pspAlert)return window.pspAlert(msg,type==='err'?'Error':'PipSePaisa');console.log(msg)}
 function go(page){var el=q('[data-page="'+page+'"]');if(typeof window.showPage==='function')window.showPage(page,el||null)}
 window.v90Go=go;
@@ -81,7 +82,7 @@ function organizeSidebar(){
 
 var sidebarUserCountBusy=false,sidebarUserCountLastAt=0;
 async function syncSidebarUserCount(force){
- var c=db(),badge=q('#sidebarUsersCount'),now=Date.now();if(!c||!badge||sidebarUserCountBusy)return;if(!force&&sidebarUserCountLastAt&&now-sidebarUserCountLastAt<30000)return;
+ var c=db(),badge=q('#sidebarUsersCount'),now=Date.now();if(!adminReady()||!c||!badge||sidebarUserCountBusy)return;if(!force&&sidebarUserCountLastAt&&now-sidebarUserCountLastAt<30000)return;
  sidebarUserCountBusy=true;
  try{
    var r=await c.from('profiles').select('*',{count:'exact',head:true});
@@ -164,6 +165,7 @@ function ensureSettingsMap(){var p=q('#page-settings');if(!p||q('#v90SettingsMap
 /* ---------- Pending operation counts ---------- */
 function setNavCount(page,count){var item=q('.menu-item[data-page="'+page+'"]');if(!item)return;var b=q('.v90-nav-badge',item);if(!b){b=document.createElement('span');b.className='v90-nav-badge';item.appendChild(b)}b.textContent=String(count||0);b.classList.toggle('zero',!(count>0))}
 async function refreshOpsCounts(force){
+  if(!adminReady())return;
   var now=Date.now();
   if(refreshOpsCounts._promise)return refreshOpsCounts._promise;
   if(!force&&refreshOpsCounts._at&&now-refreshOpsCounts._at<30000)return;
@@ -287,6 +289,6 @@ function wrapShowPage(){if(V90.showWrapped||typeof window.showPage!=='function')
 
 function bindRevenueMonth(){var el=q('#crMonth');if(!el||el.dataset.v90Bound==='1')return;el.dataset.v90Bound='1';el.addEventListener('change',function(){setTimeout(function(){reconcileSelectedMonth(true)},250)})}
 function periodicInstall(){organizeSidebar();ensureAllStrips();renderCourseSchedule();installSearch();upgradeQuickAdd();installSajidTab();addRevenueSyncButton();ensureSettingsMap();wrapCourseApproval();bindRevenueMonth();syncSidebarUserCount()}
-function init(){periodicInstall();wrapShowPage();syncSidebarUserCount();setTimeout(refreshOpsCounts,1800);setTimeout(periodicInstall,900);setTimeout(periodicInstall,2200)}
+function init(){periodicInstall();wrapShowPage();if(adminReady()){syncSidebarUserCount(true);refreshOpsCounts(true)}window.addEventListener('psp-admin-auth-ready',()=>{syncSidebarUserCount(true);refreshOpsCounts(true);periodicInstall()});setTimeout(periodicInstall,900);setTimeout(periodicInstall,2200)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
