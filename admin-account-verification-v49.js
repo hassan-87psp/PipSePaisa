@@ -388,7 +388,7 @@ async function submitReview(uid,action,reason,throwOnError){
   window.loadAdminUsers?.();
 }
 
-function stopAccessRealtime(){const client=db();if(client&&avAccessRealtime){try{client.removeChannel(avAccessRealtime)}catch(_){}avAccessRealtime=null}}
+function stopAccessRealtime(){const client=db();if(client&&avAccessRealtime){try{client.removeChannel(avAccessRealtime)}catch(_){}avAccessRealtime=null}if(av116CountdownTimer){clearInterval(av116CountdownTimer);av116CountdownTimer=null}}
 function setupAccessRealtime(){
   const client=db();if(!client||avAccessRealtime)return;
   try{
