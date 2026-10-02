@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-let rows=[],activeDateFilter='all',verificationMap=new Map(),identityMap=new Map(),userPage=1;const USER_PAGE_SIZE=100;
+let rows=[],activeDateFilter='all',verificationMap=new Map(),identityMap=new Map(),userPage=1,loadSeq=0;const USER_PAGE_SIZE=100;
 function client(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(_){return null}}
 function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function roleKey(v){const r=String(v||'user').toLowerCase().replace(/[\s-]+/g,'_');if(['superadmin','super_admin','owner'].includes(r))return'admin';if(['pspmentor','psp_mentor'].includes(r))return'mentor';return['admin','mentor'].includes(r)?r:'user'}
@@ -84,6 +84,7 @@ async function fallback(c){
 async function load(){
   inject();
   const c=client();if(!c)return;
+  const seq=++loadSeq;
 
   let base=[];
   try{
@@ -94,6 +95,7 @@ async function load(){
     catch(inner){console.warn('Admin user directory RPC fallback',inner);base=await fallback(c)}
   }
 
+  if(seq!==loadSeq)return;
   rows=Array.isArray(base)?base:[];
   verificationMap.clear();
   identityMap.clear();
