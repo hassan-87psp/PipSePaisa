@@ -9,6 +9,7 @@ let adminKey='';
 let adminPage='';
 let adminRetryTimer=null;
 let adminSyncTimer=null;
+const adminRefreshTimers={};
 let showWrapped=false;
 
 function getClient(){try{return typeof sb!=='undefined'?sb:(window.sb||window.adminSb||null)}catch(_){return window.sb||window.adminSb||null}}
@@ -59,12 +60,22 @@ function refreshAdmin(page,table){
   if(page==='messages'&&table==='support_messages')return call('loadAdminMessages',true);
   if(page==='chats'&&table==='dm_messages')return call('aLoadDMList');
 }
+function queueAdminRefresh(page,table){
+  const key=page||'';
+  if(adminRefreshTimers[key])clearTimeout(adminRefreshTimers[key]);
+  adminRefreshTimers[key]=setTimeout(()=>{
+    delete adminRefreshTimers[key];
+    if(activePage()!==page||document.hidden)return;
+    refreshAdmin(page,table);
+  },250);
+}
 
 function clearAdminRetry(){
   if(adminRetryTimer){clearTimeout(adminRetryTimer);adminRetryTimer=null}
 }
 function removeAdminChannel(){
   clearAdminRetry();
+  Object.keys(adminRefreshTimers).forEach(k=>{clearTimeout(adminRefreshTimers[k]);delete adminRefreshTimers[k]});
   const c=getClient(),ch=adminChannel;
   adminChannel=null;adminKey='';
   if(ch&&c){try{c.removeChannel(ch)}catch(_){}}
@@ -85,7 +96,7 @@ function syncAdmin(page){
   adminKey=key;
   let ch=c.channel('psp-admin-active-v3-'+page);
   tables.forEach(table=>{
-    ch=ch.on('postgres_changes',{event:'*',schema:'public',table},()=>refreshAdmin(page,table));
+    ch=ch.on('postgres_changes',{event:'*',schema:'public',table},()=>queueAdminRefresh(page,table));
   });
   adminChannel=ch;
   ch.subscribe(status=>{
