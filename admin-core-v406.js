@@ -32,8 +32,15 @@ window.addEventListener('load', async () => {
         isLoggedIn = true;
         const ov = document.getElementById('loginOverlay');
         if (ov) ov.classList.remove('active');
-        setTimeout(initCharts, 100);
-        loadDashboardStats();
+        setTimeout(function(){
+          if(window.PSPExecutiveDashboard181&&typeof window.loadDashboardStats==='function'){
+            window.loadDashboardStats(true);
+          }else{
+            initCharts();
+            loadDashboardStats();
+          }
+          window.dispatchEvent(new Event('psp-admin-auth-ready'));
+        },100);
         return;
       }
     }
@@ -88,8 +95,15 @@ async function loginAdmin() {
     currentAdmin = profile;
     document.getElementById('loginOverlay').classList.remove('active');
     isLoggedIn = true;
-    setTimeout(initCharts, 100);
-    loadDashboardStats();
+    setTimeout(function(){
+      if(window.PSPExecutiveDashboard181&&typeof window.loadDashboardStats==='function'){
+        window.loadDashboardStats(true);
+      }else{
+        initCharts();
+        loadDashboardStats();
+      }
+      window.dispatchEvent(new Event('psp-admin-auth-ready'));
+    },100);
     
   } catch (e) {
     errorEl.textContent = '❌ Network error: ' + e.message;
@@ -104,6 +118,7 @@ async function logoutAdmin() {
   await sb.auth.signOut();
   currentAdmin = null;
   isLoggedIn = false;
+  window.dispatchEvent(new Event('psp-admin-auth-closed'));
   document.getElementById('loginOverlay').classList.add('active');
   document.getElementById('adminEmail').value = '';
   document.getElementById('adminPassword').value = '';
@@ -754,7 +769,8 @@ async function aToggleGroup(gid){
 }
 async function aHeartbeat(){try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',currentAdmin.id);}catch(e){}}
 setInterval(function(){if(!document.hidden&&typeof currentAdmin!=='undefined'&&currentAdmin&&sb)aHeartbeat();},180000);
-function aDmInitRt(){if(_aDmRt||!sb)return;_aDmRt=true;try{sb.channel('rt-admin-dm').on('postgres_changes',{event:'*',schema:'public',table:'dm_messages'},function(){aLoadDMList();if(_aDmPeer)aOpenDM(_aDmPeer.id,_aDmPeer,true);}).subscribe();}catch(e){}}
+function aDmInitRt(){return;}
+window.pspAdminChatRealtimeCleanup=function(){try{if(_aTypeChan&&sb){sb.removeChannel(_aTypeChan);_aTypeChan=null;}}catch(_){}};.subscribe();}catch(e){}}
 async function aDmSearchUsers(){
   var q=(document.getElementById('aDmNew').value||'').trim();var box=document.getElementById('aDmSearchRes');
   if(q.length<2){box.innerHTML='';return;}
@@ -935,14 +951,8 @@ async function loadRecentNotifs(){
 }
 // Auto-refresh support inbox while the Messages page is open (fallback)
 setInterval(function(){if(document.hidden)return;var p=document.getElementById('page-messages');if(p&&p.classList.contains('active'))loadAdminMessages(true);},120000);
-// INSTANT realtime updates (Supabase Realtime — needs realtime-enable.sql)
-(function rtAdmin(){
-  if(typeof sb==='undefined'||!sb){return setTimeout(rtAdmin,800);}
-  try{
-    sb.channel('rt-admin-support').on('postgres_changes',{event:'*',schema:'public',table:'support_messages'},function(){var p=document.getElementById('page-messages');if(p&&p.classList.contains('active'))loadAdminMessages(true);}).subscribe();
-    sb.channel('rt-admin-notif').on('postgres_changes',{event:'*',schema:'public',table:'notifications'},function(){var p=document.getElementById('page-notifications');if(p&&p.classList.contains('active'))loadRecentNotifs();}).subscribe();
-  }catch(e){}
-})();
+// Realtime for Support + Notifications is owned by realtime-complete.js V3.
+// It connects only while the matching admin tab is active.
 
 // ========== COMPANY REVENUE V85 ==========
 const CR_INCOME_CATEGORIES = ['DPrime Commission','XM Commission','Exness Commission','Total Courses Revenue','Other Income'];
@@ -1510,6 +1520,9 @@ function toggleTheme() {
 
 // ============ LOAD REAL STATS FROM DATABASE ============
 async function loadDashboardStats() {
+  if (typeof window.loadDashboardStats==='function' && window.loadDashboardStats!==loadDashboardStats) {
+    return window.loadDashboardStats.apply(window, arguments);
+  }
   if (!sb) return;
   
   try {
@@ -2282,6 +2295,7 @@ async function saveYoutube() {
 }
 
 async function initCharts() {
+  if(window.PSPExecutiveDashboard181)return;
   // User Growth Chart - REAL DATA from signups
   const ctx1 = document.getElementById('growthChart');
   if (ctx1) {
