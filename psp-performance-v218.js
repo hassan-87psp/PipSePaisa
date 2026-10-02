@@ -81,6 +81,9 @@
 
 ;(function(){
   if(window.__pspSmoothWheelInstalled)return;
+  var appRoot=document.documentElement;
+  var appPath=String(location.pathname||'').toLowerCase();
+  if(appRoot.classList.contains('psp-app-page')||/\/admin(?:\/|$)|admin-panel|mentor-panel|team-panel|user-website/.test(appPath))return;
   if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   if(window.matchMedia&&window.matchMedia('(hover: none), (pointer: coarse)').matches)return;
   const root=document.scrollingElement||document.documentElement;
