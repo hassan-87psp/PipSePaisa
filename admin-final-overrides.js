@@ -2,6 +2,7 @@
 (function(){
 'use strict';
 function c(){try{return sb||null}catch(_){return null}}
+function adminAuthed(){try{return typeof currentAdmin!=='undefined'&&!!currentAdmin}catch(_){return false}}
 function esc(v){return String(v==null?'':v).replace(/[&<>\"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]})}
 function setText(id,v){var e=document.getElementById(id);if(e)e.textContent=v}
 function uniq(rows,key){var s=new Set();(rows||[]).forEach(function(r){var v=r&&r[key];if(v)s.add(String(v))});return s.size}
@@ -395,13 +396,13 @@ function ensureAdminTabsPage(){
 function adminMenuDefs(){var out=[];document.querySelectorAll('.sidebar nav.menu .menu-item[data-page]').forEach(function(el){var page=el.dataset.page;if(!out.some(function(x){return x.page===page}))out.push({page:page,label:ADMIN_LABELS[page]||el.textContent.trim()})});return out}
 function applyAdminTabs(){adminMenuDefs().forEach(function(d){var el=document.querySelector('.sidebar nav.menu .menu-item[data-page="'+d.page+'"]');if(!el)return;var enabled=ADMIN_LOCKED[d.page]||adminTabState[d.page]!==false;el.style.display=enabled?'flex':'none';if(!enabled&&el.classList.contains('active')){var dash=document.querySelector('[data-page="dashboard"]');if(typeof showPage==='function')showPage('dashboard',dash)}})}
 function renderAdminTabs(){var box=document.getElementById('adminTabsControl');if(!box)return;box.innerHTML=adminMenuDefs().map(function(d){var locked=!!ADMIN_LOCKED[d.page];var enabled=locked||adminTabState[d.page]!==false;return '<div class="psp-admin-tab-row"><div><strong>'+esc(d.label)+'</strong><small>'+(locked?'Always visible for safety':'Show or hide this admin page')+'</small></div><button class="psp-admin-toggle '+(locked?'locked':enabled?'on':'off')+'" '+(locked?'disabled':'onclick="toggleAdminTab(\''+d.page+'\','+(!enabled)+')"')+'>'+(locked?'LOCKED':enabled?'ON':'OFF')+'</button></div>'}).join('')}
-window.loadAdminTabsControl=async function(){ensureAdminTabsPage();var db=c();if(!db)return;var r=await db.from('site_settings').select('key,enabled').like('key','admin_tab_%');adminTabState={};(r.data||[]).forEach(function(x){adminTabState[String(x.key).replace('admin_tab_','')]=x.enabled!==false});applyAdminTabs();renderAdminTabs()};
+window.loadAdminTabsControl=async function(){ensureAdminTabsPage();if(!adminAuthed())return;var db=c();if(!db)return;var r=await db.from('site_settings').select('key,enabled').like('key','admin_tab_%');adminTabState={};(r.data||[]).forEach(function(x){adminTabState[String(x.key).replace('admin_tab_','')]=x.enabled!==false});applyAdminTabs();renderAdminTabs()};
 window.toggleAdminTab=async function(page,enabled){if(ADMIN_LOCKED[page])return;adminTabState[page]=!!enabled;applyAdminTabs();renderAdminTabs();var db=c();if(!db)return;var r=await db.from('site_settings').upsert({key:'admin_tab_'+page,enabled:!!enabled,updated_at:new Date().toISOString()},{onConflict:'key'});if(r.error){alert('Save error: '+r.error.message);adminTabState[page]=!enabled;applyAdminTabs();renderAdminTabs()}};
 function startAdminTabsRealtime(){/* V422: active-tab realtime is centralized in realtime-complete.js */}
 
 function wrapShowPageFinal(){if(window.__pspAdminFinalWrapped||typeof showPage!=='function')return setTimeout(wrapShowPageFinal,200);var old=showPage;window.showPage=function(page,el){var r=old.apply(this,arguments);if(page==='admintabs'){document.getElementById('pageTitle').textContent='Admin Tabs';document.getElementById('pageSubtitle').textContent='Show or hide admin sidebar pages in real time';setTimeout(window.loadAdminTabsControl,0)}return r};window.__pspAdminFinalWrapped=true}
 
-function init(){ensureAdminTabsPage();wrapShowPageFinal();setTimeout(window.loadAdminTabsControl,300);startAdminTabsRealtime()}
+function init(){ensureAdminTabsPage();wrapShowPageFinal();if(adminAuthed())setTimeout(window.loadAdminTabsControl,300);window.addEventListener('psp-admin-auth-ready',()=>setTimeout(window.loadAdminTabsControl,50));startAdminTabsRealtime()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 
