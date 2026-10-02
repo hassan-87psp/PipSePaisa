@@ -27,8 +27,18 @@ function dateStatus(msg,type){const el=document.getElementById('v236ManualDateSt
 async function editDate(enrollmentId){ensure();const c=db();if(!c)return alert('Database is not connected.');state.dateEditId=enrollmentId;dateStatus('Loading…');document.getElementById('v236ManualDateOverlay').classList.add('open');try{const r=await c.from('course_enrollments').select('id,full_name,email,course_name,enrollment_source,payment_method,manual_payment_date,manual_added_at,created_at').eq('id',enrollmentId).maybeSingle();if(r.error)throw r.error;const row=r.data;if(!row)throw new Error('Manual payment record was not found.');const manual=['admin_manual','manual','admin added'].includes(String(row.enrollment_source||'').toLowerCase())||['admin manual','manual admin'].includes(String(row.payment_method||'').toLowerCase());if(!manual)throw new Error('Payment date can only be edited for Manual / Admin Added records.');document.getElementById('v236ManualDateMeta').innerHTML=`<b>${esc(row.full_name||'User')}</b><span>${esc(row.email||'')} · ${esc(row.course_name||'Paid Course')}</span>`;document.getElementById('v236ManualEditPaymentDate').value=dateOnly(row.manual_payment_date)||dateOnly(row.manual_added_at)||dateOnly(row.created_at)||today();dateStatus('')}catch(e){state.dateEditId=null;dateStatus(e.message||String(e),'error')}}
 async function saveDate(){if(state.dateEditBusy||!state.dateEditId)return;const c=db();const paymentDate=dateOnly(document.getElementById('v236ManualEditPaymentDate')?.value);if(!paymentDate)return dateStatus('Select the payment date.','error');const btn=document.getElementById('v236ManualDateSave');state.dateEditBusy=true;if(btn){btn.disabled=true;btn.textContent='Saving…'}try{const r=await c.rpc('psp_admin_manual_paid_course_payment_date_v236',{p_enrollment_id:state.dateEditId,p_payment_date:paymentDate});if(r.error)throw r.error;dateStatus('Payment date updated.','ok');try{if(typeof window.loadAprList==='function')await window.loadAprList(true)}catch(_){}try{if(typeof window.loadAdminCourseEnrollments==='function')await window.loadAdminCourseEnrollments(true)}catch(_){}setTimeout(()=>api.closeDateEditor(),500)}catch(e){dateStatus(e.message||String(e),'error')}finally{state.dateEditBusy=false;if(btn){btn.disabled=false;btn.textContent='Save Payment Date'}}}
 function injectButton(){const host=document.querySelector('#aprWrap .v184-payments-actions');if(!host||host.querySelector('.v221-admin-add-paid'))return;const b=document.createElement('button');b.type='button';b.className='v172-btn primary v221-admin-add-paid';b.textContent='+ Add Paid User';b.onclick=()=>api.open();host.prepend(b)}
+function watchPaymentActions(){
+  const page=document.getElementById('page-paymentreqs');
+  if(!page||window.__PSP_MANUAL_PAID_ACTIONS_OBSERVER_V436__)return;
+  window.__PSP_MANUAL_PAID_ACTIONS_OBSERVER_V436__=true;
+  let queued=false;
+  new MutationObserver(()=>{
+    if(queued)return;queued=true;
+    queueMicrotask(()=>{queued=false;injectButton()});
+  }).observe(page,{childList:true,subtree:true});
+}
 const api={async open(){ensure();reset();document.getElementById('v221ManualPaidOverlay').classList.add('open');try{await loadCourses()}catch(e){status('Paid courses could not load: '+(e.message||e),'error')}setTimeout(()=>document.getElementById('v221ManualUserSearch')?.focus(),80)},close(){document.getElementById('v221ManualPaidOverlay')?.classList.remove('open')},editDate,saveDate,closeDateEditor(){state.dateEditId=null;document.getElementById('v236ManualDateOverlay')?.classList.remove('open')},submit};
 window.PSPManualPaidCourseV221=api;
-function init(){ensure();injectButton();setTimeout(injectButton,300);setTimeout(injectButton,1200);setTimeout(injectButton,3000)}
+function init(){ensure();watchPaymentActions();injectButton();setTimeout(injectButton,300)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
