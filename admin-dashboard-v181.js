@@ -4,7 +4,7 @@
 if(window.__PSP_ADMIN_DASH_V181__)return;window.__PSP_ADMIN_DASH_V181__=true;
 var charts={growth:null,enroll:null,payments:null,revenue:null};
 var cache={dashboard:null,logs:[]};
-var dashboardLoadedAt=0,dashboardLoadedKey='';
+var dashboardLoadedAt=0,dashboardLoadedKey='',dashboardRequestSeq=0;
 var growthMode='monthly',selectedPeriod='all',installed=false;
 function db(){try{return typeof sb!=='undefined'&&sb?sb:(window.sb||window.adminSb||null)}catch(_){return window.sb||window.adminSb||null}}
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(ch){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]})}
@@ -99,22 +99,27 @@ async function load(force){
   if(!install())return;
   if(!force&&dashboardLoadedAt&&dashboardLoadedKey===selectedPeriod&&Date.now()-dashboardLoadedAt<15000){renderAll();return}
   var c=db();if(!c)return;
+  var requestPeriod=selectedPeriod,seq=++dashboardRequestSeq;
   var p=document.getElementById('page-dashboard'),btn=document.getElementById('ad181Refresh'),err=document.getElementById('ad181Error');
   if(p)p.classList.add('ad181-loading');if(btn){btn.disabled=true;btn.textContent='↻ Loading…'}if(err){err.style.display='none';err.textContent=''}
   try{
-    var monthArg=selectedPeriod==='all'?null:(selectedPeriod+'-01');
+    var monthArg=requestPeriod==='all'?null:(requestPeriod+'-01');
     var r=await c.rpc('psp_admin_dashboard_v422',{p_period_month:monthArg});
+    if(seq!==dashboardRequestSeq||requestPeriod!==selectedPeriod)return;
     if(r.error)throw r.error;
     cache.dashboard=r.data||{};
     cache.logs=Array.isArray(cache.dashboard.logs)?cache.dashboard.logs:[];
-    dashboardLoadedAt=Date.now();dashboardLoadedKey=selectedPeriod;
+    dashboardLoadedAt=Date.now();dashboardLoadedKey=requestPeriod;
     populatePeriods();renderAll();
   }catch(e){
-    console.error('[V422 dashboard]',e);
+    if(seq!==dashboardRequestSeq||requestPeriod!==selectedPeriod)return;
+    console.error('[V433 dashboard]',e);
     if(err){err.style.display='block';err.textContent='Dashboard loaded with limited data: '+(e.message||e)}
   }finally{
-    if(p)p.classList.remove('ad181-loading');
-    if(btn){btn.disabled=false;btn.textContent='↻ Refresh'}
+    if(seq===dashboardRequestSeq){
+      if(p)p.classList.remove('ad181-loading');
+      if(btn){btn.disabled=false;btn.textContent='↻ Refresh'}
+    }
   }
 }
 
