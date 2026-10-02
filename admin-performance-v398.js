@@ -41,13 +41,29 @@ function headersFor(input,init){
   return h;
 }
 function ttlFor(url,rpc){
-  if(rpc) return 3000;
+  if(rpc){
+    if(rpc==='psp_admin_dashboard_v422') return 8000;
+    if(rpc==='psp_admin_ops_counts_v409') return 15000;
+    if(rpc.indexOf('psp_admin_team_')===0) return 12000;
+    if(rpc.indexOf('psp_admin_ad_')===0) return 10000;
+    if(rpc==='psp_admin_tracked_link_stats_v314') return 15000;
+    if(rpc==='psp_admin_fc2_dashboard_v308') return 12000;
+    if(rpc==='psp_finance_account_balances') return 10000;
+    return 8000;
+  }
   var p=url.pathname;
-  if(p.indexOf('/rest/v1/courses')===0) return 3000;
-  if(p.indexOf('/rest/v1/profiles')===0) return 2000;
-  if(p.indexOf('/rest/v1/course_enrollments')===0) return 1200;
-  if(p.indexOf('/rest/v1/tracked_link')===0) return 2500;
-  return 1200;
+  if(p.indexOf('/auth/v1/user')===0) return 5000;
+  if(p.indexOf('/rest/v1/site_settings')===0) return 60000;
+  if(p.indexOf('/rest/v1/payment_methods')===0) return 30000;
+  if(p.indexOf('/rest/v1/subscription_plans')===0) return 30000;
+  if(p.indexOf('/rest/v1/courses')===0) return 30000;
+  if(p.indexOf('/rest/v1/tracked_link')===0) return 20000;
+  if(p.indexOf('/rest/v1/profiles')===0) return 15000;
+  if(p.indexOf('/rest/v1/course_enrollments')===0) return 15000;
+  if(p.indexOf('/rest/v1/account_verifications')===0) return 10000;
+  if(p.indexOf('/rest/v1/signals')===0) return 8000;
+  if(p.indexOf('/rest/v1/admin_activity_logs')===0) return 8000;
+  return 5000;
 }
 async function bodyText(input,init,method){
   if(method==='GET'||method==='HEAD') return '';
