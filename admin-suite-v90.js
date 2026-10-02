@@ -142,7 +142,7 @@ function ensureStrip(page){
  var el=document.createElement('div');el.className='v90-page-strip';el.innerHTML='<div class="v90-strip-copy"><div class="v90-strip-kicker">'+esc(cfg[0])+'</div><div class="v90-strip-title">'+esc(cfg[1])+'</div><div class="v90-strip-sub">'+esc(cfg[2])+'</div></div><div class="v90-strip-actions">'+cfg[3].map(function(a){return actionButton(a[0],a[1])}).join('')+'<button class="v90-mini-btn primary" onclick="v90RefreshPage(\''+esc(page)+'\')">↻ Refresh</button></div>';
  p.insertBefore(el,p.firstChild);
 }
-function ensureAllStrips(){Object.keys(STRIPS).forEach(ensureStrip)}
+function ensureAllStrips(){ensureStrip(activePage())}
 
 /* ---------- Course schedule ---------- */
 function renderCourseSchedule(){
@@ -201,11 +201,11 @@ async function refreshOpsCounts(force){
     setNavCount('paymentreqs',coursePending+generalPending);
     var dot=q('.topbar .notif-dot');
     if(dot)dot.style.display=(coursePending+accessPending+generalPending)>0?'block':'none';
-    renderNotificationOps();
     refreshOpsCounts._at=Date.now();
+    if(activePage()==='notifications')renderNotificationOps();
   })().finally(function(){refreshOpsCounts._promise=null});
   return refreshOpsCounts._promise;
-} function renderNotificationOps(){var p=q('#page-notifications');if(!p)return;var old=q('#v90OpSummary',p);if(old)old.remove();var el=document.createElement('div');el.id='v90OpSummary';el.className='v90-op-summary';el.innerHTML='<div class="v90-op-tile" onclick="v90Go(\'course-enrollments\')"><span>Course Payments Pending</span><strong>'+V90.counts.payments+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'verification\')"><span>Access Reviews Pending</span><strong>'+V90.counts.access+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'paymentreqs\')"><span>General Payment Requests</span><strong>'+V90.counts.general+'</strong></div>';var strip=q('.v90-page-strip',p);if(strip&&strip.nextSibling)p.insertBefore(el,strip.nextSibling);else p.insertBefore(el,p.firstChild)}
+} function renderNotificationOps(){var p=q('#page-notifications');if(!p)return;var signature=JSON.stringify(V90.counts),old=q('#v90OpSummary',p);if(old&&old.dataset.counts===signature)return;if(old)old.remove();var el=document.createElement('div');el.id='v90OpSummary';el.className='v90-op-summary';el.innerHTML='<div class="v90-op-tile" onclick="v90Go(\'course-enrollments\')"><span>Course Payments Pending</span><strong>'+V90.counts.payments+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'verification\')"><span>Access Reviews Pending</span><strong>'+V90.counts.access+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'paymentreqs\')"><span>General Payment Requests</span><strong>'+V90.counts.general+'</strong></div>';var strip=q('.v90-page-strip',p);if(strip&&strip.nextSibling)p.insertBefore(el,strip.nextSibling);else p.insertBefore(el,p.firstChild)}
 
 /* ---------- Global search ---------- */
 async function searchNow(term){
@@ -290,7 +290,7 @@ var TITLES={paymentreqs:['Payment Review Center','Review general and course paym
 function wrapShowPage(){if(V90.showWrapped||typeof window.showPage!=='function')return;V90.showWrapped=true;var old=window.showPage;window.showPage=function(page,el){var r=old.apply(this,arguments);if(activePage()===page&&TITLES[page]){var titleEl=q('#pageTitle'),subEl=q('#pageSubtitle');if(titleEl)titleEl.textContent=TITLES[page][0];if(subEl)subEl.textContent=TITLES[page][1]}setTimeout(function(){if(activePage()!==page)return;ensureAllStrips();syncSidebarUserCount();if(page==='courses')renderCourseSchedule();if(page==='adcharts')addContentVisibility('adcharts','charts');if(page==='articles')addContentVisibility('articles','articles');if(page==='settings')ensureSettingsMap();if(page==='notifications')renderNotificationOps();if(page==='revenue'){installSajidTab();addRevenueSyncButton()}refreshOpsCounts()},40);return r}}
 
 function bindRevenueMonth(){var el=q('#crMonth');if(!el||el.dataset.v90Bound==='1')return;el.dataset.v90Bound='1';el.addEventListener('change',function(){setTimeout(function(){reconcileSelectedMonth(true)},250)})}
-function periodicInstall(){organizeSidebar();ensureAllStrips();renderCourseSchedule();installSearch();upgradeQuickAdd();installSajidTab();addRevenueSyncButton();ensureSettingsMap();wrapCourseApproval();bindRevenueMonth();syncSidebarUserCount()}
+function periodicInstall(){organizeSidebar();ensureAllStrips();installSearch();upgradeQuickAdd();wrapCourseApproval();const page=activePage();if(page==='courses')renderCourseSchedule();if(page==='revenue'){installSajidTab();addRevenueSyncButton();bindRevenueMonth()}if(page==='settings')ensureSettingsMap();syncSidebarUserCount()}
 function init(){periodicInstall();wrapShowPage();if(adminReady()){syncSidebarUserCount(true);refreshOpsCounts(true)}window.addEventListener('psp-admin-auth-ready',()=>{syncSidebarUserCount(true);refreshOpsCounts(true);periodicInstall()});setTimeout(periodicInstall,900);setTimeout(periodicInstall,2200)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

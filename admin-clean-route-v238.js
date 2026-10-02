@@ -25,6 +25,7 @@ const names=['loadAdminCourses','loadAdminTrades','loadAdSignals','loadAdCharts'
 function installPageReads(){
   names.forEach(name=>{
     const fn=window[name];if(typeof fn!=='function'||fn.__pspPageRead)return;
+    for(const key of reads.keys())if(key.startsWith(name+'|'))reads.delete(key);
     function wrapped(){
       const args=Array.from(arguments),force=args[0]===true,revision=window.pspAdminReadRevision||0;
       const key=name+'|'+JSON.stringify(force?args.slice(1):args)+'|'+revision;
@@ -40,6 +41,7 @@ function installPageReads(){
   if(typeof window.showPage==='function'&&!window.showPage.__pspNavigationGuard){
     const old=window.showPage;
     function navigate(page,el){
+      window.pspAdminNavigationIntent?.(page);
       const active=document.querySelector('#content>.page.active');
       if(active?.id==='page-'+page&&!window.pspAdminForceNavigation)return;
       return old.apply(this,arguments);
@@ -49,6 +51,7 @@ function installPageReads(){
 }
 window.pspAdminInvalidatePageReads=function(){reads.clear();window.pspAdminPerfClear?.()};
 window.addEventListener('psp-admin-auth-closed',()=>reads.clear());
+window.addEventListener('psp-admin-workspace-ready',installPageReads);
 document.addEventListener('DOMContentLoaded',()=>setTimeout(installPageReads,0),{once:true});
 if(document.readyState!=='loading')setTimeout(installPageReads,0);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();

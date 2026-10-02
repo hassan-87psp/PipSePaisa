@@ -4,7 +4,7 @@
 if(window.__PSP_ADMIN_PREMIUM_V182__)return;window.__PSP_ADMIN_PREMIUM_V182__=true;
 const q=(s,r=document)=>r.querySelector(s),qa=(s,r=document)=>Array.from(r.querySelectorAll(s));
 
-function tagPages(){qa('#content>.page').forEach(p=>p.classList.add('p182-premium-page'))}
+function tagPages(){qa('#content>.page:not(.p182-premium-page)').forEach(p=>p.classList.add('p182-premium-page'))}
 
 function accessOverview(){
   const page=q('#page-accesssettings');if(!page)return;

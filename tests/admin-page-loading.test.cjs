@@ -63,6 +63,13 @@ test('Users reentry reuses the same request and a loaded page without replacing 
   await h.c.loadAdminUsers();assert.equal(h.requests.length,1);assert.equal(h.body.innerHTML,rows);
   assert.equal(h.table.attrs['aria-busy'],undefined);
 });
+test('Users cached visits and unchanged responses keep mounted rows; changed responses update them',async()=>{
+  const h=users();let html='',writes=0;Object.defineProperty(h.body,'innerHTML',{get:()=>html,set:v=>{html=v;++writes}});
+  const first=h.c.loadAdminUsers();h.requests[0].resolve({data:page('Stable')});await first;assert.equal(writes,1);
+  await h.c.loadAdminUsers();assert.equal(writes,1);
+  const refresh=h.c.loadAdminUsers(true);h.requests[1].resolve({data:page('Stable')});await refresh;assert.equal(writes,1);
+  const changed=h.c.loadAdminUsers(true);h.requests[2].resolve({data:page('Updated')});await changed;assert.equal(writes,2);assert.match(html,/Updated/);
+});
 test('Users next page fetches an offset and keeps existing data during the request',async()=>{
   const h=users(),first=h.c.loadAdminUsers();h.requests[0].resolve({data:page('First')});await first;
   const next=h.c.pspAdminUsersPage(1);assert.equal(h.requests[1].args.p_offset,100);assert.match(h.body.innerHTML,/First/);

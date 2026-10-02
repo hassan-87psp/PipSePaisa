@@ -130,7 +130,7 @@ function wrapShowPage(){
   const old=window.showPage;
   window.showPage=function(page,el){
     const r=old.apply(this,arguments);
-    if(adminShell())scheduleAdminSync(page,30);
+    if(adminShell())scheduleAdminSync(activePage(),30);
     return r;
   };
 }
