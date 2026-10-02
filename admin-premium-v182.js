@@ -35,10 +35,15 @@ function wireAccess(){
 function decorate(){tagPages();wireAccess()}
 
 function wrapShow(){
-  if(typeof window.showPage!=='function'||window.showPage.__p182premium)return;
+  if(window.__PSP_PREMIUM_SHOW_WRAPPED_V433__||typeof window.showPage!=='function')return;
   const old=window.showPage;
-  function wrapped(page,el){const out=old.apply(this,arguments);setTimeout(decorate,30);setTimeout(decorate,220);return out}
-  wrapped.__p182premium=true;window.showPage=wrapped;
+  function wrapped(page,el){
+    const out=old.apply(this,arguments);
+    setTimeout(()=>{const active=document.querySelector('.page.active')?.id?.replace(/^page-/,'');if(active===page)decorate()},30);
+    setTimeout(()=>{const active=document.querySelector('.page.active')?.id?.replace(/^page-/,'');if(active===page)decorate()},220);
+    return out
+  }
+  wrapped.__p182premium=true;window.__PSP_PREMIUM_SHOW_WRAPPED_V433__=true;window.showPage=wrapped;
 }
 
 function init(){decorate();wrapShow();setTimeout(()=>{wrapShow();decorate()},900);setTimeout(()=>{wrapShow();decorate()},2500)}
