@@ -301,9 +301,17 @@ async function sessionToken(){const client=db();const s=await client.auth.getSes
 async function batchCourseEmail(row){const token=await sessionToken();if(!token)return false;const type=low(row.payment_status)==='approved'?'payment_approved':courseRejected(row)?'payment_rejected':'payment_receipt_received';try{const res=await fetch('https://etfolhinohgmskbfjoyh.supabase.co/functions/v1/send-course-email',{method:'POST',headers:{'Content-Type':'application/json','apikey':'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw','Authorization':`Bearer ${token}`},body:JSON.stringify({type,target_user_id:row.user_id,target_email:row.email||undefined,user_email:row.email||undefined,user_name:row.full_name||'Student',course_title:row.course_name||'Advanced Forex Course',amount:money(row.price,row.currency||'USD'),payment_method:row.payment_method||undefined,transaction_id:row.transaction_id||undefined,enrollment_id:row.id,rejection_reason:courseReason(row)||undefined})});return res.ok}catch(_){return false}}
 window.pspV172BulkCourse=async action=>{const ids=[...S.courseSelected],chosen=S.courseRows.filter(r=>ids.includes(String(r.id))&&courseNeeds(r));if(!chosen.length)return toast('Select paid-course records first.','error');if(action==='refresh'){await window.loadAdminCourseEnrollments(true);return}const ok=await confirmOne(`${action==='approve'?'Approve':action==='reject'?'Reject':action==='email'?'Resend email for':'Update'} ${chosen.length} selected payment(s)?`);if(!ok)return;let done=0,failed=0;if(action==='email'){for(const r of chosen){(await batchCourseEmail(r))?done++:failed++}}else{const reason=action==='reject'?'Bulk declined by Admin.':'';for(const r of chosen){const x=await batchCourseRpc(r,action,reason);if(x.ok){done++;if(action==='approve'||action==='reject')await batchCourseEmail({...r,payment_status:action==='approve'?'approved':'rejected'})}else failed++}}S.courseSelected.clear();await window.loadAdminCourseEnrollments(true);toast(`${done} updated${failed?`, ${failed} failed`:''}`,failed?'error':'success')};
 
-async function reconcileInfinityAutomatic(client){
-  try{await client.rpc('psp_reconcile_all_infinity_state');}catch(_){ }
-  try{await client.rpc('psp_reconcile_all_infinity_expiry');}catch(_){ }
+let infinityReconcileAt=0,infinityReconcilePromise=null;
+async function reconcileInfinityAutomatic(client,force=false){
+  if(!client)return;
+  const now=Date.now();
+  if(!force&&infinityReconcileAt&&now-infinityReconcileAt<15000)return;
+  if(infinityReconcilePromise)return infinityReconcilePromise;
+  infinityReconcilePromise=Promise.allSettled([
+    client.rpc('psp_reconcile_all_infinity_state'),
+    client.rpc('psp_reconcile_all_infinity_expiry')
+  ]).then(function(){infinityReconcileAt=Date.now()}).finally(function(){infinityReconcilePromise=null});
+  return infinityReconcilePromise;
 }
 
 // V229: while Infinity payments are processing, refresh only those enrollment rows.
@@ -362,7 +370,7 @@ function updateInfinityCountdowns(){
   if(reachedZero&&!infinityExpirySyncBusy){
     infinityExpirySyncBusy=true;
     const client=db();
-    Promise.resolve(client?reconcileInfinityAutomatic(client):null).then(()=>pollInfinityStatusRows()).finally(()=>{setTimeout(()=>{infinityExpirySyncBusy=false},2500)});
+    Promise.resolve(client?reconcileInfinityAutomatic(client,true):null).then(()=>pollInfinityStatusRows()).finally(()=>{setTimeout(()=>{infinityExpirySyncBusy=false},2500)});
   }
 }
 function ensureInfinityCountdown(){
