@@ -7,6 +7,7 @@
   let statsRows=[];
   let realtimeChannel=null;
   let fallbackClient=null;
+  let linkLoadPromise=null,linkLoadForceRunning=false,linkLoadQueuedForce=false,linkReloadTimer=null;
 
   function esc(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
   function toast(message,type){if(window.pipToast)window.pipToast(message,type);else alert(message);}
@@ -209,7 +210,19 @@
     }finally{btn.disabled=false;btn.textContent='Create Link';}
   }
 
+  function scheduleLinkReload(force){
+    if(force)linkLoadQueuedForce=true;
+    clearTimeout(linkReloadTimer);
+    linkReloadTimer=setTimeout(()=>{linkReloadTimer=null;const f=linkLoadQueuedForce;linkLoadQueuedForce=false;loadLinks(f)},220);
+  }
   async function loadLinks(force){
+    force=!!force;
+    if(linkLoadPromise){
+      if(force&&!linkLoadForceRunning)linkLoadQueuedForce=true;
+      return linkLoadPromise;
+    }
+    linkLoadForceRunning=force;
+    linkLoadPromise=(async()=>{
     const client=await waitForSb(),tbody=document.getElementById('lmTable');if(!tbody)return;
     if(!client){tbody.innerHTML='<tr><td colspan="10">Database connection is still loading. Refresh the Admin Panel once.</td></tr>';return;}
     tbody.innerHTML='<tr><td colspan="10">Loading tracked links…</td></tr>';
@@ -235,8 +248,13 @@
       <td><span class="lm-status ${x.is_active?'on':'off'}">${x.is_active?'Active':'Disabled'}</span></td>
       <td><div class="lm-actions"><button class="lm-btn" onclick="copyTrackedLinkV42('${esc(x.slug)}','${esc(x.destination_path)}')">Copy</button><button class="lm-btn" onclick="setTrackedLinkWhatsAppV75('${x.id}','${esc(x.whatsapp_number||'')}')">WhatsApp</button><button class="lm-btn" onclick="viewTrackedLinkV42('${x.id}')">Details</button><button class="lm-btn" onclick="toggleTrackedLinkV42('${x.id}',${x.is_active?'false':'true'})">${x.is_active?'Disable':'Enable'}</button><button class="lm-btn" onclick="deleteTrackedLinkV42('${x.id}')">Delete</button></div></td>
     </tr>`).join('');
+  })();
+    try{return await linkLoadPromise}
+    finally{
+      linkLoadPromise=null;linkLoadForceRunning=false;
+      if(linkLoadQueuedForce){linkLoadQueuedForce=false;scheduleLinkReload(true)}
+    }
   }
-
   async function copyText(text){
     try{await navigator.clipboard.writeText(text);}catch(_){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();}
   }
@@ -315,7 +333,7 @@
   }
   async function setupRealtime(){
     const client=await waitForSb();if(!client||realtimeChannel)return;
-    try{realtimeChannel=client.channel('admin-link-manager-v424').on('postgres_changes',{event:'*',schema:'public',table:'tracked_links'},()=>{if(document.getElementById('page-linkmanager')?.classList.contains('active'))loadLinks(true);}).subscribe();}catch(_){ }
+    try{realtimeChannel=client.channel('admin-link-manager-v434').on('postgres_changes',{event:'*',schema:'public',table:'tracked_links'},()=>{if(document.getElementById('page-linkmanager')?.classList.contains('active'))scheduleLinkReload(true);}).subscribe();}catch(_){ }
   }
 
   function init(){addStyles();addMenuAndPage();installShowPageHook();document.addEventListener('visibilitychange',()=>{if(document.hidden)stopRealtime();else if(document.getElementById('page-linkmanager')?.classList.contains('active'))setupRealtime()});if(document.getElementById('page-linkmanager')?.classList.contains('active'))setTimeout(()=>{loadTeamMembersV203();loadLinks();setupRealtime();},100);}
