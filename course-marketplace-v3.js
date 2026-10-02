@@ -151,8 +151,12 @@ function normalize(row,key){
   return 'not_enrolled';
 }
 async function reconcileMyInfinity(){
-  const db=client();if(!db)return;
-  try{await db.rpc('psp_reconcile_my_infinity_payments');}catch(_){ }
+  const db=client();if(!db||!db.auth?.getSession)return;
+  try{
+    const s=await db.auth.getSession();
+    if(!s?.data?.session?.user?.id)return;
+    await db.rpc('psp_reconcile_my_infinity_payments');
+  }catch(_){ }
 }
 async function getEnrollment(key){
   const db=client();if(!db)return null;
