@@ -770,7 +770,7 @@ async function aToggleGroup(gid){
 async function aHeartbeat(){try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',currentAdmin.id);}catch(e){}}
 setInterval(function(){if(!document.hidden&&typeof currentAdmin!=='undefined'&&currentAdmin&&sb)aHeartbeat();},180000);
 function aDmInitRt(){return;}
-window.pspAdminChatRealtimeCleanup=function(){try{if(_aTypeChan&&sb){sb.removeChannel(_aTypeChan);_aTypeChan=null;}}catch(_){}};.subscribe();}catch(e){}}
+window.pspAdminChatRealtimeCleanup=function(){try{if(_aTypeChan&&sb){sb.removeChannel(_aTypeChan);_aTypeChan=null;}}catch(_){}};
 async function aDmSearchUsers(){
   var q=(document.getElementById('aDmNew').value||'').trim();var box=document.getElementById('aDmSearchRes');
   if(q.length<2){box.innerHTML='';return;}
