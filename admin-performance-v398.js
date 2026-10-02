@@ -8,6 +8,7 @@ var SUPABASE_HOST='etfolhinohgmskbfjoyh.supabase.co';
 var cache=new Map();
 var inflight=new Map();
 var cacheGeneration=0;
+window.pspAdminReadRevision=0;
 var MAX_CACHE=180;
 
 var READ_RPCS=new Set([
@@ -21,12 +22,13 @@ var READ_RPCS=new Set([
   'psp_admin_ad_link_summary_v344','psp_admin_ad_leads_v307',
   'psp_admin_ad_leads_v261','psp_admin_search_client_v273',
   'psp_admin_client_transfer_history_v273','psp_admin_fc2_dashboard_v308',
-  'psp_admin_user_directory','psp_admin_client_identity_v76','psp_admin_ops_counts_v409','psp_admin_dashboard_v422','psp_admin_global_search_v431','psp_admin_action_center_v435',
-  'psp_finance_account_balances'
+  'psp_admin_user_directory','psp_admin_user_directory_v413','psp_admin_users_page_v439','psp_admin_user_export_v299','psp_admin_client_identity_v76','psp_admin_ops_counts_v409','psp_admin_dashboard_v422','psp_admin_global_search_v431','psp_admin_action_center_v435',
+  'psp_finance_account_balances','psp_admin_finance_workspace_v439'
 ]);
 
 function clear(){
   cacheGeneration++;
+  window.pspAdminReadRevision=cacheGeneration;
   cache.clear();
   inflight.clear();
 }
@@ -111,6 +113,10 @@ window.fetch=async function(input,init){
   var method=String((init&&init.method)||(input instanceof Request&&input.method)||'GET').toUpperCase();
   var rpc=rpcName(url);
   var cacheable=isCacheable(method,url,rpc);
+  var body=await bodyText(input,init,method);
+  if(rpc==='psp_admin_finance_workspace_v439'){
+    try{cacheable=cacheable&&JSON.parse(body||'{}').p_prepare!==true}catch(_){cacheable=false}
+  }
 
   if(!cacheable){
     if(isSupabase(url) && url.pathname.indexOf('/rest/v1/')===0 && method!=='GET' && method!=='HEAD'){
@@ -128,7 +134,6 @@ window.fetch=async function(input,init){
   }
 
   var headers=headersFor(input,init);
-  var body=await bodyText(input,init,method);
   var key=keyFor(method,url,headers,body);
   var now=Date.now();
   var hit=cache.get(key);

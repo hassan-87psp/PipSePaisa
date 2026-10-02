@@ -39,6 +39,7 @@ async function pagedRpc(c){
   return out;
 }
 function fallbackRows(){
+  if(window.adminUsersComplete===false)throw new Error('The complete export could not load. Please retry; only one page of users is loaded on screen.');
   const src=Array.isArray(window.adminUsers)?window.adminUsers:[];
   return src.map(r=>({
     ...r,

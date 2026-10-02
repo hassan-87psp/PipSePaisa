@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-let rows=[],activeDateFilter='all',verificationMap=new Map(),identityMap=new Map(),userPage=1,loadSeq=0;const USER_PAGE_SIZE=100;
+let rows=[],activeDateFilter='all',verificationMap=new Map(),identityMap=new Map(),userPage=1,loadSeq=0,filteredTotal=0,userTotals={all:0,premium:0,free:0,banned:0},loaded=false,filterTimer=null;const USER_PAGE_SIZE=100,pageCache=new Map(),pageInflight=new Map();
 function client(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(_){return null}}
 function esc(v){return String(v==null?'':v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function roleKey(v){const r=String(v||'user').toLowerCase().replace(/[\s-]+/g,'_');if(['superadmin','super_admin','owner'].includes(r))return'admin';if(['pspmentor','psp_mentor'].includes(r))return'mentor';return['admin','mentor'].includes(r)?r:'user'}
@@ -29,11 +29,11 @@ function searchMatch(r){const x=(document.getElementById('adminUserSearch')?.val
 function render(list){
   const table=document.querySelector('#page-users table'),body=table?.querySelector('tbody');if(!body)return;
   table.querySelector('thead tr').innerHTML='<th>Name / Email Status</th><th>Email</th><th>WhatsApp</th><th>Registration Link</th><th>Joined</th><th>Account Access</th>';
-  const filteredTotal=list.length,pages=Math.max(1,Math.ceil(filteredTotal/USER_PAGE_SIZE));userPage=Math.min(Math.max(1,userPage),pages);
-  const start=(userPage-1)*USER_PAGE_SIZE,visible=list.slice(start,start+USER_PAGE_SIZE);
+  const pages=Math.max(1,Math.ceil(filteredTotal/USER_PAGE_SIZE));userPage=Math.min(Math.max(1,userPage),pages);
+  const start=(userPage-1)*USER_PAGE_SIZE,visible=list;
   if(!visible.length)body.innerHTML='<tr><td colspan="6" style="text-align:center;padding:38px;color:var(--text-muted)">No registrations match this filter.</td></tr>';
   else body.innerHTML=visible.map(r=>{const name=r.full_name||String(r.email||'User').split('@')[0],initials=name.split(/\s+/).map(x=>x[0]||'').join('').slice(0,2).toUpperCase(),e=emailStatus(r),a=accessStatus(r),src=r.referral_name||'Direct / Organic',detail=r.referral_name?[r.referral_source,r.referral_campaign,r.referral_slug?('ref='+r.referral_slug):''].filter(Boolean).join(' · '):'No tracked team link';return '<tr><td><div class="user-cell"><div class="user-cell-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706)">'+esc(initials)+'</div><div><div class="user-cell-name">'+esc(name)+'</div><div class="v56-client-id">Client ID: '+esc(clientId(r))+'</div><div class="v56-badges"><span class="v56-pill role">'+esc(roleLabel(r.role))+'</span><span class="v56-pill '+e.cls+'">'+esc(e.label)+'</span></div></div></div></td><td>'+esc(r.email||'—')+'</td><td>'+esc(r.whatsapp||'—')+'</td><td><div class="v56-source"><strong>'+esc(src)+'</strong><small>'+esc(detail)+'</small></div></td><td>'+esc(fmt(r.created_at))+'</td><td><div class="v56-status"><span class="v56-pill '+a.cls+'">'+esc(a.label)+'</span><small>'+esc(a.sub)+'</small></div></td></tr>'}).join('');
-  const total=rows.length,premium=rows.filter(x=>x.is_premium).length,banned=rows.filter(x=>x.is_banned).length,set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  const total=Number(userTotals.all)||0,premium=Number(userTotals.premium)||0,banned=Number(userTotals.banned)||0,set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
   set('usersAllCount',total);set('usersPremiumCount',premium);set('usersFreeCount',total-premium);set('usersBannedCount',banned);
   const first=filteredTotal?start+1:0,last=Math.min(start+visible.length,filteredTotal);
   set('usersShowing','Showing '+first.toLocaleString()+'–'+last.toLocaleString()+' of '+filteredTotal.toLocaleString()+(filteredTotal!==total?' filtered':''));
@@ -44,94 +44,48 @@ function render(list){
     pager.innerHTML='<button '+(userPage<=1?'disabled':'')+' onclick="pspAdminUsersPage(-1)">← Prev</button><span>Page '+userPage+' / '+pages+'</span><button '+(userPage>=pages?'disabled':'')+' onclick="pspAdminUsersPage(1)">Next →</button>';
   }
 }
-function apply(resetPage=true){if(resetPage)userPage=1;render(rows.filter(r=>dateMatch(r)&&searchMatch(r)))}
-window.pspAdminUsersPage=function(delta){userPage=Math.max(1,userPage+Number(delta||0));apply(false);document.querySelector('#page-users .data-table')?.scrollIntoView({block:'start',behavior:'smooth'})};
-async function pagedTable(c,table,select,orderCol){
-  const size=1000,out=[];
-  for(let from=0;from<50000;from+=size){
-    let q=c.from(table).select(select||'*');
-    if(orderCol)q=q.order(orderCol,{ascending:false});
-    const r=await q.range(from,from+size-1);
-    if(r.error)throw r.error;
-    const part=r.data||[];
-    out.push(...part);
-    if(part.length<size)break;
-  }
-  return out;
+function readRevision(){return window.pspAdminReadRevision||0}
+function dateBounds(){
+  if(activeDateFilter==='all')return {from:null,to:null};
+  const now=new Date();let a,b;
+  if(activeDateFilter==='today'){a=dayStart(now);b=dayEnd(now)}
+  else if(activeDateFilter==='yesterday'){const y=new Date(now);y.setDate(y.getDate()-1);a=dayStart(y);b=dayEnd(y)}
+  else if(activeDateFilter==='week'){a=dayStart(now);a.setDate(a.getDate()-6);b=dayEnd(now)}
+  else if(activeDateFilter==='month'){a=dayStart(now);a.setDate(a.getDate()-29);b=dayEnd(now)}
+  else{const f=document.getElementById('v56From')?.value,t=document.getElementById('v56To')?.value;a=f?dayStart(new Date(f+'T00:00:00')):null;b=t?dayEnd(new Date(t+'T00:00:00')):null}
+  return {from:a?a.toISOString():null,to:b?b.toISOString():null};
 }
-async function pagedRpc(c,name,args){
-  const size=1000,out=[];
-  for(let from=0;from<50000;from+=size){
-    const r=await c.rpc(name,args||{}).range(from,from+size-1);
-    if(r.error)throw r.error;
-    const part=Array.isArray(r.data)?r.data:[];
-    out.push(...part);
-    if(part.length<size)break;
+function apply(resetPage=true){if(resetPage)userPage=1;return load()}
+window.pspAdminUsersPage=function(delta){userPage=Math.min(Math.max(1,userPage+Number(delta||0)),Math.max(1,Math.ceil(filteredTotal/USER_PAGE_SIZE)));return apply(false)};
+async function load(force=false){
+  if(force===true)window.pspAdminPerfClear?.();
+  inject();const c=client();if(!c)return;
+  clearTimeout(filterTimer);const seq=++loadSeq,revision=readRevision(),bounds=dateBounds();
+  const args={p_search:(document.getElementById('adminUserSearch')?.value||'').trim()||null,p_role:document.getElementById('adminUserRoleFilter')?.value||'all',p_from:bounds.from,p_to:bounds.to,p_offset:(userPage-1)*USER_PAGE_SIZE,p_limit:USER_PAGE_SIZE};
+  const key=revision+'|'+JSON.stringify(args),table=document.querySelector('#page-users table'),showing=document.getElementById('usersShowing');
+  const cached=pageCache.get(key);let data=cached&&Date.now()-cached.at<15000&&!force?cached.data:null;
+  if(!data){
+    if(table)table.setAttribute('aria-busy','true');if(showing)showing.textContent=loaded?'Updating users…':'Loading first 100 users…';
+    if(!loaded)['usersAllCount','usersPremiumCount','usersFreeCount','usersBannedCount'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—'});
+    try{
+      let job=pageInflight.get(key);
+      if(!job){job=(async()=>{const r=await c.rpc('psp_admin_users_page_v439',args);if(r.error)throw r.error;return r.data||{}})();pageInflight.set(key,job);job.finally(()=>{if(pageInflight.get(key)===job)pageInflight.delete(key)}).catch(()=>{});}
+      data=await job;if(seq!==loadSeq)return;if(revision!==readRevision())return load(true);
+      pageCache.set(key,{at:Date.now(),data});if(pageCache.size>30)pageCache.delete(pageCache.keys().next().value);
+    }catch(e){
+      if(seq!==loadSeq)return;
+      if(showing)showing.textContent='Users could not update. Please use Refresh to retry.';
+      if(!loaded){const body=table?.querySelector('tbody');if(body)body.innerHTML='<tr><td colspan="6" style="padding:24px;text-align:center">'+esc(e.message||'Users could not load.')+'</td></tr>';}
+      return;
+    }finally{if(seq===loadSeq&&table)table.removeAttribute('aria-busy');}
   }
-  return out;
+  if(seq!==loadSeq)return;rows=Array.isArray(data.rows)?data.rows:[];filteredTotal=Number(data.filtered_total)||0;userTotals=data.totals||userTotals;loaded=true;
+  verificationMap.clear();identityMap.clear();rows.forEach(x=>{verificationMap.set(x.id,x);identityMap.set(x.id,x)});
+  window.adminUsers=rows.slice();window.adminUsersComplete=rows.length===Number(userTotals.all);
+  const side=document.getElementById('sidebarUsersCount');if(side)side.textContent=Number(userTotals.all).toLocaleString();
+  render(rows);
 }
-async function fallback(c){
-  const profiles=await pagedTable(c,'profiles','*','created_at');
-  let events=[];
-  try{events=await pagedTable(c,'tracked_link_events','user_id,created_at,tracked_links(name,slug,source,campaign)','created_at')}catch(_){}
-  const refs={};
-  events.slice().reverse().forEach(e=>{if(e.user_id&&!refs[e.user_id])refs[e.user_id]=e.tracked_links||{}});
-  return profiles.map(x=>{
-    const r=refs[x.id]||{};
-    return {...x,referral_name:r.name||null,referral_slug:r.slug||null,referral_source:r.source||null,referral_campaign:r.campaign||null}
-  });
-}
-async function load(){
-  inject();
-  const c=client();if(!c)return;
-  const seq=++loadSeq;
-
-  let base=[];
-  try{
-    base=await pagedRpc(c,'psp_admin_user_directory_v413',{});
-  }catch(e){
-    console.warn('Fast Admin user directory fallback',e);
-    try{base=await pagedRpc(c,'psp_admin_user_directory',{})}
-    catch(inner){console.warn('Admin user directory RPC fallback',inner);base=await fallback(c)}
-  }
-
-  if(seq!==loadSeq)return;
-  rows=Array.isArray(base)?base:[];
-  verificationMap.clear();
-  identityMap.clear();
-
-  // V413 already includes access verification + Client ID, so no second/third full-table pass.
-  rows.forEach(x=>{
-    verificationMap.set(x.id,{
-      email_verified_at:x.email_verified_at||null,
-      submission_status:x.submission_status||null,
-      rejection_reason:x.rejection_reason||null,
-      admin_trial_expires_at:x.admin_trial_expires_at||null,
-      approved_expires_at:x.approved_expires_at||null
-    });
-    identityMap.set(x.id,{
-      user_id:x.id,
-      client_id:x.client_id||null,
-      email_verified:x.email_verified===true,
-      email_verified_at:x.email_verified_at||null
-    });
-  });
-
-  window.adminUsers=rows.slice();
-
-  const realTotal=rows.length;
-  const side=document.getElementById('sidebarUsersCount');
-  if(side)side.textContent=realTotal.toLocaleString();
-
-  apply();
-
-  const all=document.getElementById('usersAllCount');
-  if(all)all.textContent=realTotal.toLocaleString();
-  const showing=document.getElementById('usersShowing');
-  if(showing&&activeDateFilter==='all'&&!String((document.getElementById('adminUserSearch')||{}).value||'').trim()){
-    showing.textContent='Showing '+rows.length.toLocaleString()+' of '+realTotal.toLocaleString();
-  }
-}
-window.filterAdminUsers=function(){apply(true)};window.loadAdminUsers=load;
+window.filterAdminUsers=function(){++loadSeq;clearTimeout(filterTimer);userPage=1;filterTimer=setTimeout(()=>load(),250)};window.loadAdminUsers=load;
+window.addEventListener('psp-admin-auth-closed',()=>{++loadSeq;rows=[];loaded=false;pageCache.clear();pageInflight.clear();verificationMap.clear();identityMap.clear();window.adminUsers=[];window.adminUsersComplete=false});
 function init(){inject()}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();

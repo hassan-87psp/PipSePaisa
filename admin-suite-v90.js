@@ -26,9 +26,10 @@ function qa(s,r){return Array.prototype.slice.call((r||document).querySelectorAl
 function activePage(){var p=q('#content>.page.active');return p?p.id.replace(/^page-/,''):'dashboard'}
 function adminReady(){try{return typeof currentAdmin!=='undefined'&&!!currentAdmin}catch(_){return false}}
 function toast(msg,type){if(window.pipToast)return window.pipToast(msg,type||'ok');if(window.pspAlert)return window.pspAlert(msg,type==='err'?'Error':'PipSePaisa');console.log(msg)}
-function go(page){var el=q('[data-page="'+page+'"]');if(typeof window.showPage==='function')window.showPage(page,el||null)}
+function go(page,force){var el=q('[data-page="'+page+'"]');if(typeof window.showPage!=='function')return;window.pspAdminForceNavigation=!!force;try{return window.showPage(page,el||null)}finally{window.pspAdminForceNavigation=false}}
 window.v90Go=go;
 function refreshPage(page){
+ window.pspAdminInvalidatePageReads?.();
  page=page||activePage();
  if(page!==activePage())return go(page);
  try{
@@ -51,11 +52,12 @@ function refreshPage(page){
    if(page==='sitetabs'&&typeof window.loadSiteTabs==='function')return window.loadSiteTabs();
    if(page==='mentoraccess'&&typeof window.loadMentorAccess==='function')return window.loadMentorAccess();
    if(page==='logs'&&typeof window.pspV174LoadLogs==='function')return window.pspV174LoadLogs(true);
+   if(page==='eaindicator'&&window.PSPEAIAdmin?.load)return window.PSPEAIAdmin.load();
    if(page==='revenue'&&typeof window.pspFinance179Load==='function')return window.pspFinance179Load(true);
    if(page==='verification'&&window.PSPAdminVerification?.loadRows)return window.PSPAdminVerification.loadRows();
    if(page==='accesssettings'&&window.PSPAdminVerification?.loadSettings)return window.PSPAdminVerification.loadSettings();
  }catch(e){console.warn('[V433 refresh]',page,e)}
- return go(page);
+ return go(page,true);
 }
 window.v90RefreshPage=refreshPage;
 
@@ -285,7 +287,7 @@ function wrapCourseApproval(){if(window.__v90CourseApproveWrapped)return;if(type
 
 /* ---------- showPage hook ---------- */
 var TITLES={paymentreqs:['Payment Review Center','Review general and course payments'],verification:['Access Approvals','Broker proof and permanent access review'],accesssettings:['Access Settings','Temporary access and broker verification rules'],linkmanager:['Link Manager','Tracked referral links and conversions'],teamaccess:['Team Performance','Read-only team link performance'], 'course-enrollments':['Course Enrollments','Paid/free course access and payment review'],admintabs:['Admin Tabs','Admin sidebar visibility and organization']};
-function wrapShowPage(){if(V90.showWrapped||typeof window.showPage!=='function')return;V90.showWrapped=true;var old=window.showPage;window.showPage=function(page,el){var r=old.apply(this,arguments);if(activePage()===page&&TITLES[page]){var titleEl=q('#pageTitle'),subEl=q('#pageSubtitle');if(titleEl)titleEl.textContent=TITLES[page][0];if(subEl)subEl.textContent=TITLES[page][1]}setTimeout(function(){if(activePage()!==page)return;ensureAllStrips();syncSidebarUserCount(page==='users');if(page==='courses')renderCourseSchedule();if(page==='adcharts')addContentVisibility('adcharts','charts');if(page==='articles')addContentVisibility('articles','articles');if(page==='settings')ensureSettingsMap();if(page==='notifications')renderNotificationOps();if(page==='revenue'){installSajidTab();addRevenueSyncButton()}refreshOpsCounts()},40);return r}}
+function wrapShowPage(){if(V90.showWrapped||typeof window.showPage!=='function')return;V90.showWrapped=true;var old=window.showPage;window.showPage=function(page,el){var r=old.apply(this,arguments);if(activePage()===page&&TITLES[page]){var titleEl=q('#pageTitle'),subEl=q('#pageSubtitle');if(titleEl)titleEl.textContent=TITLES[page][0];if(subEl)subEl.textContent=TITLES[page][1]}setTimeout(function(){if(activePage()!==page)return;ensureAllStrips();syncSidebarUserCount();if(page==='courses')renderCourseSchedule();if(page==='adcharts')addContentVisibility('adcharts','charts');if(page==='articles')addContentVisibility('articles','articles');if(page==='settings')ensureSettingsMap();if(page==='notifications')renderNotificationOps();if(page==='revenue'){installSajidTab();addRevenueSyncButton()}refreshOpsCounts()},40);return r}}
 
 function bindRevenueMonth(){var el=q('#crMonth');if(!el||el.dataset.v90Bound==='1')return;el.dataset.v90Bound='1';el.addEventListener('change',function(){setTimeout(function(){reconcileSelectedMonth(true)},250)})}
 function periodicInstall(){organizeSidebar();ensureAllStrips();renderCourseSchedule();installSearch();upgradeQuickAdd();installSajidTab();addRevenueSyncButton();ensureSettingsMap();wrapCourseApproval();bindRevenueMonth();syncSidebarUserCount()}

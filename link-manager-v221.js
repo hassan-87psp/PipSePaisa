@@ -4,7 +4,7 @@
   window.__pspLinkManagerV2111=true;
 
   const BASE_DOMAIN='https://pipsepaisa.com';
-  let statsRows=[];
+  let statsRows=[],loadedAt=0,loadedRevision=0;
   let realtimeChannel=null;
   let fallbackClient=null;
   let linkLoadPromise=null,linkLoadForceRunning=false,linkLoadQueuedForce=false,linkReloadTimer=null;
@@ -225,7 +225,7 @@
     linkLoadPromise=(async()=>{
     const client=await waitForSb(),tbody=document.getElementById('lmTable');if(!tbody)return;
     if(!client){tbody.innerHTML='<tr><td colspan="10">Database connection is still loading. Refresh the Admin Panel once.</td></tr>';return;}
-    tbody.innerHTML='<tr><td colspan="10">Loading tracked links…</td></tr>';
+    if(!loadedAt)tbody.innerHTML='<tr><td colspan="10">Loading tracked links…</td></tr>';
     if(force){
       const refreshed=await client.rpc('psp_admin_refresh_tracked_link_stats_v424');
       if(refreshed.error)console.warn('[V424 link stats refresh]',refreshed.error.message);
@@ -236,7 +236,7 @@
       tbody.innerHTML='<tr><td colspan="10"><strong style="color:var(--red)">Could not load link analytics.</strong><br>Please refresh the Admin Panel and try again.</td></tr>';
       return;
     }
-    statsRows=data||[];
+    statsRows=data||[];loadedAt=Date.now();loadedRevision=window.pspAdminReadRevision||0;
     document.getElementById('lmActive').textContent=fmt(statsRows.filter(x=>x.is_active).length);
     document.getElementById('lmClicks').textContent=fmt(statsRows.reduce((a,x)=>a+Number(x.total_clicks||0),0));
     document.getElementById('lmSignups').textContent=fmt(statsRows.reduce((a,x)=>a+Number(x.signups||0),0));
@@ -317,6 +317,7 @@
   };
 
   function stopRealtime(){const client=getSb();if(client&&realtimeChannel){try{client.removeChannel(realtimeChannel)}catch(_){}realtimeChannel=null;}}
+  window.addEventListener('psp-admin-auth-closed',()=>{loadedAt=0;loadedRevision=-1});
   function installShowPageHook(){
     if(typeof window.showPage!=='function'||window.__pspLinkShowPageHook)return;
     window.__pspLinkShowPageHook=true;
@@ -326,7 +327,7 @@
       if(page==='linkmanager'){
         const title=document.getElementById('pageTitle'),sub=document.getElementById('pageSubtitle');
         if(title)title.textContent='Link Manager';if(sub)sub.textContent='Generate tracked links and measure clicks, signups and same-cohort enrolled users';
-        setTimeout(()=>{loadTeamMembersV203();loadLinks();setupRealtime();},0);
+        setTimeout(()=>{if(!document.getElementById('page-linkmanager')?.classList.contains('active'))return;if(!loadedAt||Date.now()-loadedAt>=15000||loadedRevision!==(window.pspAdminReadRevision||0)){loadTeamMembersV203();loadLinks();}setupRealtime();},0);
       }else stopRealtime();
       return result;
     };

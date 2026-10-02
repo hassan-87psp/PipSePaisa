@@ -19,7 +19,7 @@ let currentAdmin = null;
 let isLoggedIn = false;
 
 // On load, check if already logged in
-window.addEventListener('load', async () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Check for an existing admin session; otherwise show the login screen
   try {
     let user=null;
@@ -32,7 +32,7 @@ window.addEventListener('load', async () => {
         isLoggedIn = true;
         const ov = document.getElementById('loginOverlay');
         if (ov) ov.classList.remove('active');
-        setTimeout(function(){
+        queueMicrotask(function(){
           if(window.PSPExecutiveDashboard181&&typeof window.loadDashboardStats==='function'){
             window.loadDashboardStats(true);
           }else{
@@ -40,7 +40,7 @@ window.addEventListener('load', async () => {
             loadDashboardStats();
           }
           window.dispatchEvent(new Event('psp-admin-auth-ready'));
-        },100);
+        });
         return;
       }
     }
@@ -2340,7 +2340,7 @@ async function saveYoutube() {
 }
 
 async function initCharts() {
-  if(window.PSPExecutiveDashboard181)return;
+  if(window.PSPExecutiveDashboard181||typeof Chart==='undefined')return;
   // User Growth Chart - REAL DATA from signups
   const ctx1 = document.getElementById('growthChart');
   if (ctx1) {
