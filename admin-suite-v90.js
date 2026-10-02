@@ -27,7 +27,35 @@ function activePage(){var p=q('#content>.page.active');return p?p.id.replace(/^p
 function toast(msg,type){if(window.pipToast)return window.pipToast(msg,type||'ok');if(window.pspAlert)return window.pspAlert(msg,type==='err'?'Error':'PipSePaisa');console.log(msg)}
 function go(page){var el=q('[data-page="'+page+'"]');if(typeof window.showPage==='function')window.showPage(page,el||null)}
 window.v90Go=go;
-function refreshPage(page){page=page||activePage();go(page)}
+function refreshPage(page){
+ page=page||activePage();
+ if(page!==activePage())return go(page);
+ try{
+   if(page==='dashboard'&&typeof window.loadDashboardStats==='function')return window.loadDashboardStats(true);
+   if(page==='users'&&typeof window.loadAdminUsers==='function')return window.loadAdminUsers(true);
+   if(page==='trades'&&typeof window.loadAdminTrades==='function')return window.loadAdminTrades();
+   if(page==='subscriptions'&&typeof window.loadAdminSubs==='function')return window.loadAdminSubs();
+   if(page==='payments'&&typeof window.loadAdminPayments==='function')return window.loadAdminPayments(true);
+   if(page==='paymentreqs'&&typeof window.loadAdminPaymentReqs==='function')return window.loadAdminPaymentReqs(true);
+   if(page==='courses'&&typeof window.loadAdminCourses==='function')return window.loadAdminCourses();
+   if(page==='news'&&typeof window.loadAdminNewsPosts==='function')return window.loadAdminNewsPosts();
+   if(page==='quiz'&&typeof window.loadAdminQuiz==='function')return window.loadAdminQuiz();
+   if(page==='adsignals'&&typeof window.loadAdSignals==='function')return window.loadAdSignals();
+   if(page==='adcharts'&&typeof window.loadAdCharts==='function')return window.loadAdCharts();
+   if(page==='articles'&&typeof window.loadAdminArticles==='function')return window.loadAdminArticles();
+   if(page==='adbanners'&&typeof window.loadAdBanners==='function')return window.loadAdBanners();
+   if(page==='community'&&typeof window.loadAdminCommunity==='function')return window.loadAdminCommunity();
+   if(page==='messages'&&typeof window.loadAdminMessages==='function')return window.loadAdminMessages(true);
+   if(page==='notifications'&&typeof window.loadRecentNotifs==='function')return window.loadRecentNotifs();
+   if(page==='sitetabs'&&typeof window.loadSiteTabs==='function')return window.loadSiteTabs();
+   if(page==='mentoraccess'&&typeof window.loadMentorAccess==='function')return window.loadMentorAccess();
+   if(page==='logs'&&typeof window.pspV174LoadLogs==='function')return window.pspV174LoadLogs(true);
+   if(page==='revenue'&&typeof window.pspFinance179Load==='function')return window.pspFinance179Load(true);
+   if(page==='verification'&&window.PSPAdminVerification?.loadRows)return window.PSPAdminVerification.loadRows();
+   if(page==='accesssettings'&&window.PSPAdminVerification?.loadSettings)return window.PSPAdminVerification.loadSettings();
+ }catch(e){console.warn('[V433 refresh]',page,e)}
+ return go(page);
+}
 window.v90RefreshPage=refreshPage;
 
 /* ---------- Sidebar groups ---------- */
