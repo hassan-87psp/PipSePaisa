@@ -294,6 +294,7 @@
     body.innerHTML=`<div class="lm-grid" style="margin-bottom:14px"><div class="lm-stat"><span>Clicks</span><strong>${fmt(row.total_clicks)}</strong></div><div class="lm-stat"><span>Unique</span><strong>${fmt(row.unique_visitors)}</strong></div><div class="lm-stat"><span>Signups</span><strong>${fmt(row.signups)}</strong></div><div class="lm-stat"><span>Enrolled Users</span><strong>${fmt(row.enrollments)}</strong></div></div><div class="lm-preview" style="margin-bottom:14px"><span>💬</span><span class="lm-link">Referral WhatsApp: ${esc(row.whatsapp_number||'Not set — WhatsApp Channel fallback')}</span></div>`+(events.length?events.map(e=>`<div class="lm-event"><b>${esc(e.event_type)}</b><span>${esc(date(e.created_at))}</span><span>${e.course_key?'Course: '+esc(e.course_key)+' · ':''}${e.user_id?'User conversion':'Visitor '+esc((e.visitor_id||'').slice(0,14))}</span></div>`).join(''):'<div class="lm-empty">No activity recorded yet.</div>');
   };
 
+  function stopRealtime(){const client=getSb();if(client&&realtimeChannel){try{client.removeChannel(realtimeChannel)}catch(_){}realtimeChannel=null;}}
   function installShowPageHook(){
     if(typeof window.showPage!=='function'||window.__pspLinkShowPageHook)return;
     window.__pspLinkShowPageHook=true;
@@ -304,7 +305,7 @@
         const title=document.getElementById('pageTitle'),sub=document.getElementById('pageSubtitle');
         if(title)title.textContent='Link Manager';if(sub)sub.textContent='Generate tracked links and measure clicks, signups and same-cohort enrolled users';
         setTimeout(()=>{loadTeamMembersV203();loadLinks();setupRealtime();},0);
-      }
+      }else stopRealtime();
       return result;
     };
   }
@@ -313,6 +314,6 @@
     try{realtimeChannel=client.channel('admin-link-manager-v42').on('postgres_changes',{event:'*',schema:'public',table:'tracked_links'},()=>{if(document.getElementById('page-linkmanager')?.classList.contains('active'))loadLinks();}).on('postgres_changes',{event:'*',schema:'public',table:'tracked_link_events'},()=>{if(document.getElementById('page-linkmanager')?.classList.contains('active'))loadLinks();}).subscribe();}catch(_){ }
   }
 
-  function init(){addStyles();addMenuAndPage();installShowPageHook();if(document.getElementById('page-linkmanager')?.classList.contains('active'))setTimeout(()=>{loadTeamMembersV203();loadLinks();setupRealtime();},100);}
+  function init(){addStyles();addMenuAndPage();installShowPageHook();document.addEventListener('visibilitychange',()=>{if(document.hidden)stopRealtime();else if(document.getElementById('page-linkmanager')?.classList.contains('active'))setupRealtime()});if(document.getElementById('page-linkmanager')?.classList.contains('active'))setTimeout(()=>{loadTeamMembersV203();loadLinks();setupRealtime();},100);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
