@@ -67,6 +67,18 @@ window.PSPPairsV216={GROUPS,options,normalize,attach,value,setValue,scan};
 // Existing admin/mentor renderers call these helpers when building their forms.
 window.adPairOpts=function(){return options('XAU/USD')};
 window.pairOptions=function(){return options('XAU/USD')};
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
-new MutationObserver(()=>{clearTimeout(window.__pspPairScanT);window.__pspPairScanT=setTimeout(scan,20)}).observe(document.documentElement,{subtree:true,childList:true});
+function scanNode(node){
+  if(!node||node.nodeType!==1)return;
+  const ids=['as-pair','ac-pair','artPair','sgPair','chPair','maPair'];
+  if(node.id&&ids.includes(node.id))attach(node);
+  if(node.querySelectorAll)ids.forEach(id=>node.querySelectorAll('#'+id).forEach(attach));
+}
+function installPairObserver(){
+  const root=document.getElementById('content');
+  if(!root||window.__pspPairObserverV420)return;
+  window.__pspPairObserverV420=true;
+  new MutationObserver(records=>{records.forEach(r=>(r.addedNodes||[]).forEach(scanNode));}).observe(root,{subtree:true,childList:true});
+}
+function bootPairs(){scan();installPairObserver();setTimeout(scan,300);setTimeout(scan,1200);}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootPairs,{once:true});else bootPairs();
 })();
