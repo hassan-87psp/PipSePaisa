@@ -120,7 +120,7 @@
     dest.addEventListener('change',()=>{document.getElementById('lmCustomWrap').style.display=dest.value==='custom'?'':'none';updatePreview();});
     document.getElementById('lmCustomDestination')?.addEventListener('input',updatePreview);
     document.getElementById('lmCreateBtn').onclick=createLink;
-    document.getElementById('lmRefreshBtn').onclick=()=>Promise.all([loadLinks(),loadTeamMembersV203()]);
+    document.getElementById('lmRefreshBtn').onclick=()=>Promise.all([loadLinks(true),loadTeamMembersV203()]);
     document.getElementById('lmCloseModal').onclick=()=>document.getElementById('lmModal').classList.remove('open');
     document.getElementById('lmModal').addEventListener('click',e=>{if(e.target.id==='lmModal')e.currentTarget.classList.remove('open');});
     document.getElementById('lmWhatsappCancel').onclick=()=>closeWhatsappModal();
@@ -202,17 +202,21 @@
       await copyText(trackedUrl(destination,slug));
       toast(teamId?`Tracked link created, assigned to ${teamName||teamUsername}, and copied.`:'Tracked link created and copied.','ok');
       ['lmName','lmCampaign','lmSlug','lmWhatsapp','lmNotes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-      updatePreview();await loadLinks();
+      updatePreview();await loadLinks(true);
     }catch(error){
       const msg=/duplicate|unique/i.test(error.message||'')?'This reference code already exists. Choose another one.':error.message;
       toast('Could not create link: '+msg,'err');
     }finally{btn.disabled=false;btn.textContent='Create Link';}
   }
 
-  async function loadLinks(){
+  async function loadLinks(force){
     const client=await waitForSb(),tbody=document.getElementById('lmTable');if(!tbody)return;
     if(!client){tbody.innerHTML='<tr><td colspan="10">Database connection is still loading. Refresh the Admin Panel once.</td></tr>';return;}
     tbody.innerHTML='<tr><td colspan="10">Loading tracked links…</td></tr>';
+    if(force){
+      const refreshed=await client.rpc('psp_admin_refresh_tracked_link_stats_v424');
+      if(refreshed.error)console.warn('[V424 link stats refresh]',refreshed.error.message);
+    }
     const result=await client.rpc('psp_admin_tracked_link_stats_v314');
     const {data,error}=result;
     if(error){
@@ -273,14 +277,14 @@
       if(error)throw error;
       closeWhatsappModal();
       toast(teamId?'WhatsApp synced from the assigned Team Member.':(whatsapp?'Referral WhatsApp saved.':'WhatsApp removed. This link will use the channel fallback.'),'ok');
-      await loadLinks();
+      await loadLinks(true);
     }catch(error){toast(error.message||'Could not save WhatsApp number.','err');}
     finally{if(btn){btn.disabled=false;btn.textContent='Save WhatsApp';}}
   }
-  window.toggleTrackedLinkV42=async function(id,isActive){const client=getSb();const {error}=await client.from('tracked_links').update({is_active:isActive}).eq('id',id);if(error)return toast(error.message,'err');toast(isActive?'Link enabled.':'Link disabled.','ok');loadLinks();};
+  window.toggleTrackedLinkV42=async function(id,isActive){const client=getSb();const {error}=await client.from('tracked_links').update({is_active:isActive}).eq('id',id);if(error)return toast(error.message,'err');toast(isActive?'Link enabled.':'Link disabled.','ok');loadLinks(true);};
   window.deleteTrackedLinkV42=async function(id){
     const ok=window.pspConfirm?await window.pspConfirm('Delete this tracked link and all of its analytics?'):confirm('Delete this tracked link?');if(!ok)return;
-    const client=getSb();const {error}=await client.from('tracked_links').delete().eq('id',id);if(error)return toast(error.message,'err');toast('Tracked link deleted.','ok');loadLinks();
+    const client=getSb();const {error}=await client.from('tracked_links').delete().eq('id',id);if(error)return toast(error.message,'err');toast('Tracked link deleted.','ok');loadLinks(true);
   };
   window.viewTrackedLinkV42=async function(id){
     const row=statsRows.find(x=>x.id===id);if(!row)return;
@@ -311,7 +315,7 @@
   }
   async function setupRealtime(){
     const client=await waitForSb();if(!client||realtimeChannel)return;
-    try{realtimeChannel=client.channel('admin-link-manager-v42').on('postgres_changes',{event:'*',schema:'public',table:'tracked_links'},()=>{if(document.getElementById('page-linkmanager')?.classList.contains('active'))loadLinks();}).on('postgres_changes',{event:'*',schema:'public',table:'tracked_link_events'},()=>{if(document.getElementById('page-linkmanager')?.classList.contains('active'))loadLinks();}).subscribe();}catch(_){ }
+    try{realtimeChannel=client.channel('admin-link-manager-v424').on('postgres_changes',{event:'*',schema:'public',table:'tracked_links'},()=>{if(document.getElementById('page-linkmanager')?.classList.contains('active'))loadLinks(true);}).subscribe();}catch(_){ }
   }
 
   function init(){addStyles();addMenuAndPage();installShowPageHook();document.addEventListener('visibilitychange',()=>{if(document.hidden)stopRealtime();else if(document.getElementById('page-linkmanager')?.classList.contains('active'))setupRealtime()});if(document.getElementById('page-linkmanager')?.classList.contains('active'))setTimeout(()=>{loadTeamMembersV203();loadLinks();setupRealtime();},100);}
