@@ -7,6 +7,7 @@ var nativeFetch=window.fetch.bind(window);
 var SUPABASE_HOST='etfolhinohgmskbfjoyh.supabase.co';
 var cache=new Map();
 var inflight=new Map();
+var cacheGeneration=0;
 var MAX_CACHE=180;
 
 var READ_RPCS=new Set([
@@ -25,7 +26,9 @@ var READ_RPCS=new Set([
 ]);
 
 function clear(){
+  cacheGeneration++;
   cache.clear();
+  inflight.clear();
 }
 function trim(){
   if(cache.size<=MAX_CACHE) return;
@@ -139,14 +142,15 @@ window.fetch=async function(input,init){
     return shared.clone();
   }
 
+  var generation=cacheGeneration;
   var job=nativeFetch(input,init).then(function(res){
-    if(res.ok){
+    if(res.ok && generation===cacheGeneration){
       cache.set(key,{response:res.clone(),expires:Date.now()+ttlFor(url,rpc)});
       trim();
     }
     return res.clone();
   }).finally(function(){
-    inflight.delete(key);
+    if(inflight.get(key)===job) inflight.delete(key);
   });
 
   inflight.set(key,job);

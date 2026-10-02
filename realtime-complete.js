@@ -15,7 +15,15 @@ let showWrapped=false;
 function getClient(){try{return typeof sb!=='undefined'?sb:(window.sb||window.adminSb||null)}catch(_){return window.sb||window.adminSb||null}}
 function adminShell(){return !!(document.getElementById('page-dashboard')&&document.getElementById('loginOverlay'))}
 function activePage(){const p=document.querySelector('.page.active');return p?p.id.replace(/^page-/,''):''}
-function adminReady(){const ov=document.getElementById('loginOverlay');return !ov||!ov.classList.contains('active')}
+function adminReady(){const ov=document.getElementById('loginOverlay');return typeof currentAdmin!=='undefined'&&!!currentAdmin&&(!ov||!ov.classList.contains('active'))}
+function adminTables(page){
+  if(page==='chats'){
+    const tab=typeof _aChatTab!=='undefined'?_aChatTab:'chats';
+    if(tab==='live')return [];
+    if(tab==='comm')return ['groups','group_posts','post_likes','post_comments'];
+  }
+  return ADMIN_TABLES[page]||[];
+}
 function call(name,...args){try{if(typeof window[name]==='function')return window[name](...args)}catch(e){console.warn('[PSP realtime]',name,e)}}
 
 const ADMIN_TABLES={
@@ -58,7 +66,10 @@ function refreshAdmin(page,table){
   if(page==='adbanners'&&table==='banners')return call('loadAdBanners');
   if(page==='community'&&table==='youtube_videos')return call('loadAdminCommunity');
   if(page==='messages'&&table==='support_messages')return call('loadAdminMessages',true);
-  if(page==='chats'&&table==='dm_messages')return call('pspAdminRefreshDM');
+  if(page==='chats'){
+    if(table==='dm_messages')return call('pspAdminRefreshDM');
+    return table==='groups'?call('aCommInit'):call('aCommFeed');
+  }
 }
 function queueAdminRefresh(page,table){
   const key=page||'';
@@ -86,7 +97,7 @@ function syncAdmin(page){
   if(adminPage==='chats'&&page!=='chats')call('pspAdminChatRealtimeCleanup');
   adminPage=page;
   if(document.hidden||!adminReady()){removeAdminChannel();return}
-  const tables=ADMIN_TABLES[page]||[];
+  const tables=adminTables(page);
   const key=page+'|'+tables.join(',');
   if(!tables.length){removeAdminChannel();return}
   if(adminChannel&&adminKey===key)return;
@@ -124,7 +135,9 @@ function wrapShowPage(){
   };
 }
 function refreshActiveAdminPage(){
-  const page=activePage(),tables=ADMIN_TABLES[page]||[];
+  if(!adminReady())return;
+  const page=activePage(),tables=adminTables(page);
+  if(page==='chats'&&!tables.length){call('aLiveLoad',false,true);return call('aLiveOpenActive')}
   if(page==='dashboard')call('loadDashboardStats',false);
   else if(tables.length)refreshAdmin(page,tables[0]);
 }
@@ -132,6 +145,7 @@ function startAdmin(){
   wrapShowPage();
   scheduleAdminSync(activePage(),250);
   window.addEventListener('psp-admin-auth-ready',()=>scheduleAdminSync(activePage(),30));
+  window.addEventListener('psp-admin-chat-tab',()=>syncAdmin(activePage()));
   window.addEventListener('psp-admin-auth-closed',()=>{removeAdminChannel();call('pspAdminChatRealtimeCleanup')});
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden){removeAdminChannel();call('pspAdminChatRealtimeCleanup');return}
