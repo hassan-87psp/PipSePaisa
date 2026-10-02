@@ -14,6 +14,7 @@ function dt(v){if(!v)return'—';try{return new Date(v).toLocaleString()}catch(_
 function today(v){if(!v)return false;const a=new Date(v),b=new Date();return a.toDateString()===b.toDateString()}
 function uniq(a){return [...new Set(a.filter(Boolean).map(x=>String(x)))].sort()}
 function currentPage(){return q('.page.active')?.id?.replace(/^page-/,'')||''}
+function adminReady(){try{return typeof currentAdmin!=='undefined'&&!!currentAdmin}catch(_){return false}}
 
 function installCss(){if(q('#v174AdminCss'))return;const s=document.createElement('style');s.id='v174AdminCss';s.textContent=`
 #page-paymentreqs>.v90-page-strip{display:none!important}#page-course-enrollments{display:none!important}.menu-item[data-page="course-enrollments"]{display:none!important}
@@ -36,6 +37,7 @@ function renderRevenueOverview(){if(window.__PSP_FINANCE_V179__)return;const pag
 function wrapRevenue(){if(U.revenueWrapped||typeof window.crRenderRevenue!=='function')return;U.revenueWrapped=true;const old=window.crRenderRevenue;window.crRenderRevenue=function(){const r=old.apply(this,arguments);setTimeout(renderRevenueOverview,0);return r}}
 
 async function loadActionCenter(){
+  if(!adminReady())return;
   const page=q('#page-dashboard');if(!page||q('#v174ActionCenter',page))return;
   const c=db();if(!c)return;
   const box=document.createElement('div');box.id='v174ActionCenter';box.className='v174-action-center';
@@ -60,6 +62,6 @@ window.pspV174LogSet=(k,v)=>{U.logFilter[k]=v;renderLogs();if(k==='q'){const e=q
 
 function wrapShow(){if(U.showWrapped||typeof window.showPage!=='function')return;const old=window.showPage;function w(page,el){if(page==='course-enrollments'){page='paymentreqs';el=q('[data-page="paymentreqs"]')}const r=old.call(this,page,el);setTimeout(()=>{unifyPayments();if(currentPage()!==page)return;if(page==='revenue'&&!window.__PSP_FINANCE_V179__){wrapRevenue();renderRevenueOverview()}if(page==='logs'){installLogsShell();window.pspV174LoadLogs()}if(page==='dashboard'){q('#v174ActionCenter')?.remove();loadActionCenter()}},30);return r}w.__v174ux=true;U.showWrapped=true;window.showPage=w}
 function updateTitles(){const nav=q('[data-page="paymentreqs"]');if(nav)nav.title='Payments & Enrollments';const qaMenu=q('#qaMenu');if(qaMenu&&qaMenu.dataset.v174!=='1'){qaMenu.dataset.v174='1';qaMenu.innerHTML='<div onclick="qaGo(\'users\')">👤 Find / Add User</div><div onclick="qaGo(\'paymentreqs\')">🧾 Payments & Enrollments</div><div onclick="qaGo(\'adsignals\')">📊 Create / Manage Signal</div><div onclick="v90RevenueTransaction()">💰 Add Income / Expense</div><div onclick="qaGo(\'verification\')">✅ Access Approval</div><div onclick="qaGo(\'notifications\')">🔔 Send Notification</div>'}}
-function init(){installCss();unifyPayments();updateTitles();wrapRevenue();wrapShow();installLogsShell();if(currentPage()==='dashboard')loadActionCenter();if(currentPage()==='revenue'&&!window.__PSP_FINANCE_V179__)renderRevenueOverview();if(currentPage()==='logs')window.pspV174LoadLogs();setTimeout(()=>{unifyPayments();updateTitles();wrapRevenue();wrapShow()},700)}
+function init(){installCss();unifyPayments();updateTitles();wrapRevenue();wrapShow();installLogsShell();if(adminReady()){if(currentPage()==='dashboard')loadActionCenter();if(currentPage()==='revenue'&&!window.__PSP_FINANCE_V179__)renderRevenueOverview();if(currentPage()==='logs')window.pspV174LoadLogs()}window.addEventListener('psp-admin-auth-ready',()=>{if(currentPage()==='dashboard'){q('#v174ActionCenter')?.remove();loadActionCenter()}if(currentPage()==='logs')window.pspV174LoadLogs?.()});setTimeout(()=>{unifyPayments();updateTitles();wrapRevenue();wrapShow()},700)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
