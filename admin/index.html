@@ -1945,7 +1945,8 @@ function toast(msg,type){mount();var t=document.createElement('div');t.className
 window.pipToast=toast;window.alert=function(m){m=String(m);var err=/error|fail|invalid|wrong|required|not found|denied/i.test(m);toast(m,err?'err':'ok');};
 function animateNum(el){if(el.dataset.cu)return;var raw=(el.textContent||'').trim();var m=raw.match(/^([^0-9-]*)(-?[\d,]+\.?\d*)(.*)$/);if(!m)return;var pre=m[1],num=parseFloat(m[2].replace(/,/g,'')),suf=m[3];if(isNaN(num)||num===0)return;el.dataset.cu='1';var dur=900,t0=performance.now();function step(t){var p=Math.min(1,(t-t0)/dur);var v=Math.round(num*(0.5-Math.cos(p*Math.PI)/2));el.textContent=pre+v.toLocaleString()+suf;if(p<1)requestAnimationFrame(step);else el.textContent=pre+num.toLocaleString()+suf;}requestAnimationFrame(step);}
 function scan(){document.querySelectorAll('.stat .n, .stat-value').forEach(function(el){var x=(el.textContent||'').trim();if(/\d/.test(x)&&x!=='...')animateNum(el);});}
-var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=setTimeout(scan,150)});document.addEventListener('DOMContentLoaded',function(){try{mo.observe(document.body,{subtree:true,childList:true,characterData:true});}catch(e){}setTimeout(scan,500)});})();
+window.pspAnimateAdminStats=scan;
+document.addEventListener('DOMContentLoaded',function(){setTimeout(scan,500)},{once:true});})();
 </script>
 <script>(function(){function hide(){var b=document.getElementById('pipBoot');if(b){b.classList.add('gone');setTimeout(function(){if(b)b.remove();},700);}}if(document.readyState==='complete'){setTimeout(hide,450);}else{window.addEventListener('load',function(){setTimeout(hide,450);});}setTimeout(hide,3500);})();</script>
 
