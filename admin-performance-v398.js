@@ -20,7 +20,7 @@ var READ_RPCS=new Set([
   'psp_admin_ad_link_summary_v344','psp_admin_ad_leads_v307',
   'psp_admin_ad_leads_v261','psp_admin_search_client_v273',
   'psp_admin_client_transfer_history_v273','psp_admin_fc2_dashboard_v308',
-  'psp_admin_user_directory','psp_admin_client_identity_v76','psp_admin_ops_counts_v409','psp_admin_dashboard_v422','psp_admin_global_search_v431',
+  'psp_admin_user_directory','psp_admin_client_identity_v76','psp_admin_ops_counts_v409','psp_admin_dashboard_v422','psp_admin_global_search_v431','psp_admin_action_center_v435',
   'psp_finance_account_balances'
 ]);
 
