@@ -388,6 +388,7 @@ async function submitReview(uid,action,reason,throwOnError){
   window.loadAdminUsers?.();
 }
 
+function stopAccessRealtime(){const client=db();if(client&&avAccessRealtime){try{client.removeChannel(avAccessRealtime)}catch(_){}avAccessRealtime=null}}
 function setupAccessRealtime(){
   const client=db();if(!client||avAccessRealtime)return;
   try{
@@ -396,8 +397,8 @@ function setupAccessRealtime(){
       .on('postgres_changes',{event:'*',schema:'public',table:'account_verification_settings'},()=>{if(document.getElementById('page-accesssettings')?.classList.contains('active'))loadSettings().catch(()=>{})})
       .subscribe();
   }catch(_){avAccessRealtime=null}
-} function wrap(){if(window._av56Wrapped||typeof window.showPage!=='function')return;window._av56Wrapped=true;const old=window.showPage;window.showPage=function(page,el){const out=old.apply(this,arguments);const t=q('#pageTitle'),s=q('#pageSubtitle');if(page==='verification'){if(t)t.textContent='Access Approvals';if(s)s.textContent='Review broker proof and approve or reject Full Access';setTimeout(()=>{loadRows();setupAccessRealtime()},0)}if(page==='accesssettings'){if(t)t.textContent='Access Settings';if(s)s.textContent='Manage trial days, broker links and verification setup';setTimeout(()=>{loadSettings();setupAccessRealtime()},0)}return out}}
-function init(){if(installed)return;installed=true;menu();approvalPage();settingsPage();ensureActionModal();wrap();setTimeout(()=>{menu();approvalPage();settingsPage();ensureActionModal();wrap()},500)}
+} function wrap(){if(window._av56Wrapped||typeof window.showPage!=='function')return;window._av56Wrapped=true;const old=window.showPage;window.showPage=function(page,el){const out=old.apply(this,arguments);const t=q('#pageTitle'),s=q('#pageSubtitle');if(page==='verification'){if(t)t.textContent='Access Approvals';if(s)s.textContent='Review broker proof and approve or reject Full Access';setTimeout(()=>{loadRows();setupAccessRealtime()},0)}if(page==='accesssettings'){if(t)t.textContent='Access Settings';if(s)s.textContent='Manage trial days, broker links and verification setup';setTimeout(()=>{loadSettings();setupAccessRealtime()},0)}if(page!=='verification'&&page!=='accesssettings')stopAccessRealtime();return out}}
+function init(){if(installed)return;installed=true;menu();approvalPage();settingsPage();ensureActionModal();wrap();document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAccessRealtime();else if(document.getElementById('page-verification')?.classList.contains('active')||document.getElementById('page-accesssettings')?.classList.contains('active'))setupAccessRealtime()});setTimeout(()=>{menu();approvalPage();settingsPage();ensureActionModal();wrap()},500)}
 window.PSPAdminVerification={loadRows,loadSettings,openProof,review,saveSettings,grantTrial,trialFromForm,toggleFilters:av116ToggleFilters,resetFilters:av116ResetFilters,toggleDetails:av116ToggleDetails,setStatusFilter:av185SetStatusFilter};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
