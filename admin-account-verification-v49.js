@@ -1,7 +1,7 @@
 /* PipSePaisa V85 — Access Approvals + themed Trial/Reject modals */
 (function(){
 'use strict';
-let settings=null, rows=[], profiles=new Map(), enabled=true, installed=false;
+let settings=null, rows=[], profiles=new Map(), enabled=true, installed=false, rowsLoadSeq=0, settingsLoadSeq=0;
 let av85ModalState={type:null,uid:null};
 let av116Filter={status:'pending',broker:'all',access:'all',search:''};
 let av116CountdownTimer=null; let avAccessRealtime=null;
@@ -165,7 +165,7 @@ function openRejectModal(uid){
 }
 
 function setMode(v){enabled=!!v;q('#av49ModeDirect')?.classList.toggle('active',enabled);q('#av49ModeVerify')?.classList.toggle('active',!enabled);if(q('#av50AccessDays'))q('#av50AccessDays').disabled=!enabled}
-async function loadSettings(){const c=db();if(!c)return;const r=await c.from('account_verification_settings').select('*').eq('id',1).maybeSingle();if(r.error)throw r.error;settings=r.data||{};setMode(settings.direct_access_enabled!==false);const set=(id,v)=>{const e=q('#'+id);if(e)e.value=v??''};set('av50AccessDays',settings.direct_access_days??7);set('av49Whatsapp',settings.admin_whatsapp||'601156961157');set('av49Deposit',settings.recommended_deposit??300);set('av49ExnessLink',settings.exness_link||'https://one.exnessonelink.com/a/be2kjlypr9');set('av49DprimeLink',settings.dprime_link||'https://my.dooprime.com/links/go/72929');set('av49XmLink',settings.xm_link||'https://affs.click/tr9cq');set('av49ExnessGuide',settings.exness_shift_instructions||'');set('av49XmGuide',settings.xm_shift_instructions||'');set('av49DprimeGuide',settings.dprime_shift_instructions||'')}
+async function loadSettings(){const c=db();if(!c)return;const seq=++settingsLoadSeq;const r=await c.from('account_verification_settings').select('*').eq('id',1).maybeSingle();if(seq!==settingsLoadSeq)return;if(r.error)throw r.error;settings=r.data||{};setMode(settings.direct_access_enabled!==false);const set=(id,v)=>{const e=q('#'+id);if(e)e.value=v??''};set('av50AccessDays',settings.direct_access_days??7);set('av49Whatsapp',settings.admin_whatsapp||'601156961157');set('av49Deposit',settings.recommended_deposit??300);set('av49ExnessLink',settings.exness_link||'https://one.exnessonelink.com/a/be2kjlypr9');set('av49DprimeLink',settings.dprime_link||'https://my.dooprime.com/links/go/72929');set('av49XmLink',settings.xm_link||'https://affs.click/tr9cq');set('av49ExnessGuide',settings.exness_shift_instructions||'');set('av49XmGuide',settings.xm_shift_instructions||'');set('av49DprimeGuide',settings.dprime_shift_instructions||'')}
 async function saveSettings(){const c=db();if(!c)return;const get=id=>(q('#'+id)?.value||'').trim();let days=Math.round(Number(get('av50AccessDays'))||0);if(enabled&&(days<1||days>365))return alert('Free Access duration must be between 1 and 365 days.');if(!enabled)days=Math.max(1,days||7);const payload={id:1,verification_required:true,direct_access_enabled:enabled,direct_access_days:days,admin_whatsapp:get('av49Whatsapp')||'601156961157',recommended_deposit:Math.max(0,Number(get('av49Deposit'))||0),exness_link:get('av49ExnessLink'),dprime_link:get('av49DprimeLink'),xm_link:get('av49XmLink'),exness_shift_instructions:get('av49ExnessGuide'),xm_shift_instructions:get('av49XmGuide'),dprime_shift_instructions:get('av49DprimeGuide'),updated_at:new Date().toISOString()};const r=await c.from('account_verification_settings').upsert(payload,{onConflict:'id'});if(r.error)return alert('Settings not saved: '+r.error.message);settings=payload;alert('Access settings saved. Verification remains mandatory.')}
 async function setTrial(id,days){const c=db();const r=await c.rpc('psp_admin_set_user_trial',{p_identifier:String(id||'').trim(),p_days:Number(days)});if(r.error)throw r.error;return Array.isArray(r.data)?r.data[0]:r.data}
 async function trialFromForm(clear){const id=(q('#av55TrialUser')?.value||'').trim();if(!id)return alert('Enter user email or User ID.');const days=clear?0:Math.round(Number(q('#av55TrialDays')?.value)||0);if(!clear&&(days<1||days>365))return alert('Trial days must be between 1 and 365.');try{const r=await setTrial(id,days);alert(r?.message||'Trial updated.');await loadRows()}catch(e){alert('Trial update failed: '+(e.message||e))}}
@@ -274,17 +274,21 @@ function av116ResetFilters(){
 
 async function loadRows(){
   const c=db();if(!c)return;
+  const seq=++rowsLoadSeq;
   const r=await c.from('account_verifications').select('*').order('submitted_at',{ascending:false,nullsFirst:false});
+  if(seq!==rowsLoadSeq)return;
   if(r.error)throw r.error;
-  rows=r.data||[];
-
-  const ids=[...new Set(rows.map(x=>x.user_id).filter(Boolean))];
-  profiles.clear();
+  const nextRows=r.data||[];
+  const ids=[...new Set(nextRows.map(x=>x.user_id).filter(Boolean))];
+  const nextProfiles=new Map();
   if(ids.length){
     // profiles can exceed 1000 globally; only current verification users are needed here.
     const p=await c.from('profiles').select('id,full_name,email,phone,whatsapp').in('id',ids);
-    if(!p.error)(p.data||[]).forEach(x=>profiles.set(x.id,x))
+    if(seq!==rowsLoadSeq)return;
+    if(!p.error)(p.data||[]).forEach(x=>nextProfiles.set(x.id,x))
   }
+  if(seq!==rowsLoadSeq)return;
+  rows=nextRows;profiles=nextProfiles;
   renderRows();
 }
 
