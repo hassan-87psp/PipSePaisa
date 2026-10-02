@@ -58,7 +58,7 @@ function refreshAdmin(page,table){
   if(page==='adbanners'&&table==='banners')return call('loadAdBanners');
   if(page==='community'&&table==='youtube_videos')return call('loadAdminCommunity');
   if(page==='messages'&&table==='support_messages')return call('loadAdminMessages',true);
-  if(page==='chats'&&table==='dm_messages')return call('aLoadDMList');
+  if(page==='chats'&&table==='dm_messages')return call('pspAdminRefreshDM');
 }
 function queueAdminRefresh(page,table){
   const key=page||'';
