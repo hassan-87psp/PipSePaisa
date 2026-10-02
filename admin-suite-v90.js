@@ -176,17 +176,19 @@ async function refreshOpsCounts(force){
 } function renderNotificationOps(){var p=q('#page-notifications');if(!p)return;var old=q('#v90OpSummary',p);if(old)old.remove();var el=document.createElement('div');el.id='v90OpSummary';el.className='v90-op-summary';el.innerHTML='<div class="v90-op-tile" onclick="v90Go(\'course-enrollments\')"><span>Course Payments Pending</span><strong>'+V90.counts.payments+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'verification\')"><span>Access Reviews Pending</span><strong>'+V90.counts.access+'</strong></div><div class="v90-op-tile" onclick="v90Go(\'paymentreqs\')"><span>General Payment Requests</span><strong>'+V90.counts.general+'</strong></div>';var strip=q('.v90-page-strip',p);if(strip&&strip.nextSibling)p.insertBefore(el,strip.nextSibling);else p.insertBefore(el,p.firstChild)}
 
 /* ---------- Global search ---------- */
-async function safeRows(table,limit){var c=db();if(!c)return[];try{var r=await c.from(table).select('*').limit(limit||600);return r.error?[]:(r.data||[])}catch(_){return[]}}
-async function loadSearchCache(){if(V90.searchCache&&Date.now()-V90.searchLoadedAt<120000)return V90.searchCache;var all=await Promise.all([safeRows('profiles',1000),safeRows('course_enrollments',800),safeRows('account_verifications',800),safeRows('tracked_links',500),safeRows('payment_requests',500)]);V90.searchCache={users:all[0],courses:all[1],access:all[2],links:all[3],payments:all[4]};V90.searchLoadedAt=Date.now();return V90.searchCache}
-function contains(row,term,keys){term=term.toLowerCase();return keys.some(function(k){var v=row&&row[k];return v!=null&&String(v).toLowerCase().indexOf(term)>=0})}
-function result(ico,title,sub,kind,page){return{ico:ico,title:title,sub:sub,kind:kind,page:page}}
-async function searchNow(term){var data=await loadSearchCache(),out=[];term=term.trim().toLowerCase();if(term.length<2)return out;
- data.users.filter(function(r){return contains(r,term,['full_name','email','whatsapp','client_id'])}).slice(0,5).forEach(function(r){out.push(result('👤',r.full_name||r.email||'User',[r.email,r.whatsapp,r.client_id&&('Client '+r.client_id)].filter(Boolean).join(' · '),'User','users'))});
- data.courses.filter(function(r){return contains(r,term,['full_name','email','whatsapp','course_name','transaction_id','payment_method'])}).slice(0,5).forEach(function(r){out.push(result('🎓',(r.full_name||r.email||'Student')+' — '+(r.course_name||'Course'),[r.payment_status,r.transaction_id].filter(Boolean).join(' · '),'Enrollment','course-enrollments'))});
- data.access.filter(function(r){return contains(r,term,['broker','trading_account_id','rejection_reason'])}).slice(0,4).forEach(function(r){out.push(result('🔐',(r.broker||'Broker')+' — '+(r.trading_account_id||'Access request'),r.submission_status||'Verification','Access','verification'))});
- data.links.filter(function(r){return contains(r,term,['name','slug','source','campaign','assigned_name'])}).slice(0,4).forEach(function(r){out.push(result('🔗',r.name||r.slug||'Tracked link',[r.source,r.campaign,r.slug].filter(Boolean).join(' · '),'Link','linkmanager'))});
- data.payments.filter(function(r){return contains(r,term,['transaction_id','payment_method','status','sender_name','sender_number'])}).slice(0,4).forEach(function(r){out.push(result('🧾',r.sender_name||r.transaction_id||'Payment request',[r.status,r.payment_method].filter(Boolean).join(' · '),'Payment','paymentreqs'))});
- return out.slice(0,14)}
+async function searchNow(term){
+  term=String(term||'').trim();
+  if(term.length<2)return[];
+  var c=db();if(!c)return[];
+  try{
+    var r=await c.rpc('psp_admin_global_search_v431',{p_term:term});
+    if(r.error){console.warn('[V431 global search]',r.error.message);return[]}
+    return Array.isArray(r.data)?r.data:[];
+  }catch(e){
+    console.warn('[V431 global search]',e);
+    return[];
+  }
+}
 function installSearch(){var box=q('.topbar .search-box'),input=box&&q('input',box);if(!box||!input||q('#v90SearchPanel',box))return;input.placeholder='Search users, payments, IDs, links...';var panel=document.createElement('div');panel.id='v90SearchPanel';panel.className='v90-search-panel';box.appendChild(panel);var timer=null;input.addEventListener('input',function(){clearTimeout(timer);var term=input.value.trim();if(term.length<2){panel.classList.remove('open');panel.innerHTML='';return}panel.classList.add('open');panel.innerHTML='<div class="v90-search-empty">Searching…</div>';timer=setTimeout(async function(){var rows=await searchNow(term);if(input.value.trim()!==term)return;panel.innerHTML='<div class="v90-search-head"><span>Global Search</span><span>'+rows.length+' result'+(rows.length===1?'':'s')+'</span></div>'+(rows.length?rows.map(function(r){return '<div class="v90-search-item" data-page="'+esc(r.page)+'"><div class="v90-search-ico">'+r.ico+'</div><div class="v90-search-copy"><strong>'+esc(r.title)+'</strong><span>'+esc(r.sub||'')+'</span></div><div class="v90-search-kind">'+esc(r.kind)+'</div></div>'}).join(''):'<div class="v90-search-empty">No matching users, payments or IDs found.</div>');qa('.v90-search-item',panel).forEach(function(el){el.onclick=function(){go(el.dataset.page);panel.classList.remove('open')}})},180)});document.addEventListener('click',function(e){if(!box.contains(e.target))panel.classList.remove('open')})}
 
 /* ---------- Quick Add ---------- */
