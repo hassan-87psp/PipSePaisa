@@ -3849,7 +3849,7 @@
       else feats.push(t);});
     return {id:row.id,name:row.name,price:row.price,currency:row.currency,local_bank_price_pkr:row.local_bank_price_pkr,member_type:row.member_type||'premium',icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats,ib:ib,iblink:iblink,ibdep:ibdep,ibbroker:ibbroker,ibprice:ibprice,services:services};
   }
-  var VSVC_LABELS={signal:'📶 Signal',chart:'📈 Chart',courses:'🎓 Courses',vipindicator:'📐 VIP Indicator',vipea:'🤖 VIP EA'};
+  var VSVC_LABELS={signal:'📶 Signals',chart:'📈 Charts & Analysis',articles:'📰 Articles',journal:'📔 Journal',performance:'📊 Performance',tools:'🧰 Tools',community:'💬 Community',courses:'🎓 Courses',vipindicator:'📐 VIP Indicator',vipea:'🤖 VIP EA'};
   function vSvcChips(arr){return (arr||[]).map(function(s){return '<span style="display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:20px;background:rgba(245,158,11,.15);color:var(--gold);font-weight:700;margin:2px 3px 0 0">'+vEsc(VSVC_LABELS[s]||s)+'</span>';}).join('');}
   function vipPlanCard(p){
     const perLbl=p.period==='lifetime'?'one-time':(p.period==='yearly'?'/yr':'/mo');
