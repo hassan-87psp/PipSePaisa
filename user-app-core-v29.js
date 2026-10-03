@@ -3616,7 +3616,7 @@
           try{updateAuthUI();}catch(e){}
         });
       },0);
-      setTimeout(function(){if(typeof window.pspApplyIntendedRoute==='function')window.pspApplyIntendedRoute();},0);
+      setTimeout(function(){if(typeof window.pspApplyIntendedRoute==='function')window.pspApplyIntendedRoute();try{var qp=new URLSearchParams(location.search);if(qp.get('payment')==='return'&&typeof window.pspOpenVipPlansForPayment==='function')window.pspOpenVipPlansForPayment();}catch(_){ }},0);
     } catch (error) {
       console.error('Login error:', error);
       let msg = error && error.message ? error.message : 'Login failed';
@@ -5689,7 +5689,9 @@
       document.body.style.overflow = '';
       try { sessionStorage.setItem('hasEnteredApp', 'true'); } catch(e) {}
       try {
-        var pp = new URLSearchParams(location.search).get('page');
+        var qp2=new URLSearchParams(location.search);
+        if(qp2.get('payment')==='return'&&typeof window.pspOpenVipPlansForPayment==='function'){window.pspOpenVipPlansForPayment();}
+        var pp = qp2.get('page');
         if (pp && !window._ppOpened) {
           window._ppOpened = true;
           var it = document.querySelector('.menu-item[data-page="' + pp + '"]');
