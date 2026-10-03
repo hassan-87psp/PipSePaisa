@@ -3828,7 +3828,7 @@
       if(mentorId){const mp=await sb.from('profiles').select('full_name,phone').eq('id',mentorId).single();if(mp.data)vipMentorContact=mp.data;}
     }catch(e){error=e;}
     if(error){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div>'+vEsc(error.message||'Error')+'</div></div>';return;}
-    if(!rows.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div>No VIP plans available yet.</div><div style="font-size:12px;color:var(--text-muted);margin-top:6px;">'+(mentorId?'Your mentor hasn\'t published any premium plans yet.':'You are not linked to a mentor yet. Sign up using a mentor code to see their VIP plans.')+'</div></div>';return;}
+    if(!rows.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;padding:28px 20px;border:1px solid var(--border);border-radius:14px;background:var(--bg-card)"><div style="font-size:30px;margin-bottom:8px">💳</div><div style="font-weight:900;font-size:15px;color:var(--text-primary)">Paid VIP Plan Not Configured Yet</div><div style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.5">No active paid VIP plan is available right now. Once Admin publishes a plan, you can pay by Local Bank or USDT and activate VIP access.</div></div>';return;}
     grid.innerHTML=rows.map(function(r){var p=parseVipPlan(r);vipPlansById[p.id]=p;return vipPlanCard(p);}).join('');
     loadMyVipRequests();
   }
