@@ -241,6 +241,33 @@
       console.warn('Site tab settings could not be loaded yet:',e&&e.message?e.message:e);
     }
   }
+  function pspNormalizeGetAccessNavV464(){
+    try{
+      var nav=document.querySelector('#sidebar .menu-item[data-page="vipplans"]');
+      if(!nav)return;
+      var expected='<span class="menu-icon">🔓</span><strong class="psp-get-access-label">Get Access</strong><span class="psp-get-access-ways">2 WAYS</span>';
+      if(nav.innerHTML!==expected)nav.innerHTML=expected;
+      nav.style.display='';
+      nav.style.setProperty('background','linear-gradient(135deg,#F39522,#e9840c)','important');
+      nav.style.setProperty('border','1px solid rgba(214,111,0,.35)','important');
+      nav.style.setProperty('color','#111827','important');
+      nav.style.setProperty('box-shadow','0 6px 14px rgba(243,149,34,.14)','important');
+      nav.style.setProperty('font-weight','800','important');
+      nav.style.setProperty('order','12','important');
+      var ways=nav.querySelector('.psp-get-access-ways');
+      if(ways){
+        ways.style.marginLeft='auto';
+        ways.style.fontSize='7px';
+        ways.style.padding='2px 6px';
+        ways.style.background='rgba(255,255,255,.34)';
+        ways.style.color='#7a3d00';
+        ways.style.borderRadius='999px';
+        ways.style.fontWeight='900';
+      }
+      var strength=document.querySelector('#sidebar .menu-item[data-page="strength"]');
+      if(strength&&strength.nextElementSibling!==nav)strength.insertAdjacentElement('afterend',nav);
+    }catch(_){}
+  }
   function applyTabVisibility(){
     document.querySelectorAll('.menu-item[data-page]').forEach(function(m){
       var pg=m.getAttribute('data-page');
@@ -272,20 +299,8 @@
       }
     }
 
-    // Get Access is a permanent account-access entry, not a configurable content tab.
-    // Re-assert it after every tab-visibility pass so first Dashboard load cannot hide it.
-    var accessNav=document.querySelector('#sidebar .menu-item[data-page="vipplans"]');
-    var strengthNav=document.querySelector('#sidebar .menu-item[data-page="strength"]');
-    if(accessNav){
-      accessNav.style.display='';
-      accessNav.style.setProperty('background','linear-gradient(135deg,#F39522,#e9840c)','important');
-      accessNav.style.setProperty('border','1px solid rgba(214,111,0,.35)','important');
-      accessNav.style.setProperty('color','#111827','important');
-      accessNav.style.setProperty('box-shadow','0 6px 14px rgba(243,149,34,.16)','important');
-      var ai=accessNav.querySelector('.menu-icon');if(ai&&ai.textContent!=='🔓')ai.textContent='🔓';
-      var as=accessNav.querySelector('strong');if(as&&as.textContent!=='Get Access')as.textContent='Get Access';
-      if(strengthNav&&strengthNav.nextElementSibling!==accessNav)strengthNav.insertAdjacentElement('afterend',accessNav);
-    }
+    // Get Access is permanent and always normalized to one clean sidebar item.
+    pspNormalizeGetAccessNavV464();
   }
   // V218: use the last known tab configuration immediately, then refresh it
   // quietly from Supabase after first paint. This avoids an early DB request
@@ -3814,30 +3829,8 @@
       var page=document.getElementById('page-vipplans');
       if(!page)return;
 
-      // Force the navigation label/icon so stale HTML cannot keep "VIP Plans".
-      document.querySelectorAll('.menu-item[data-page="vipplans"]').forEach(function(nav){
-        nav.style.setProperty('order','12','important');
-        nav.style.setProperty('background','linear-gradient(135deg,#F39522,#e9840c)','important');
-        nav.style.setProperty('border','1px solid rgba(214,111,0,.35)','important');
-        nav.style.setProperty('color','#111827','important');
-        nav.style.setProperty('box-shadow','0 6px 14px rgba(243,149,34,.16)','important');
-        var icon=nav.querySelector('.menu-icon');if(icon&&icon.textContent!=='🔓')icon.textContent='🔓';
-        var strong=nav.querySelector('strong');
-        if(strong&&strong.textContent!=='Get Access')strong.textContent='Get Access';
-        else{
-          var texts=[].slice.call(nav.childNodes).filter(function(n){return n.nodeType===3&&String(n.textContent||'').trim()});
-          if(texts[0])texts[0].textContent=' Get Access ';
-          else{
-            var s=document.createElement('strong');s.textContent='Get Access';
-            if(icon&&icon.nextSibling)nav.insertBefore(s,icon.nextSibling);else nav.appendChild(s);
-          }
-        }
-        var badge=[].slice.call(nav.querySelectorAll('span')).find(function(x){return String(x.textContent||'').trim()==='2 WAYS'});
-        if(badge){
-          badge.style.setProperty('background','rgba(255,255,255,.34)','important');
-          badge.style.setProperty('color','#7a3d00','important');
-        }
-      });
+      // Keep one stable sidebar item without appending duplicate labels.
+      pspNormalizeGetAccessNavV464();
 
       var title=document.getElementById('pageTitle');if(title)title.textContent='Get Access';
 
@@ -5256,12 +5249,21 @@
     const box=document.getElementById('myVipReqs');if(!box||!currentProfile||!sb)return;
     let data=[];try{const r=await sb.from('payment_requests').select('*').eq('user_id',currentProfile.id).order('created_at',{ascending:false}).limit(10);data=r.data||[];}catch(e){return;}
     if(!data.length){box.innerHTML='';return;}
-    box.innerHTML='<div class="card"><div class="card-title">📋 My Requests</div>'+data.map(function(r){
-      const stc=r.status==='approved'?'var(--green)':(r.status==='rejected'?'var(--red)':'var(--gold)');
-      const typeLbl=r.request_type==='ib'?'<span style="font-size:10px;padding:1px 7px;border-radius:10px;background:rgba(16,185,129,.18);color:var(--green);font-weight:700;margin-left:6px;">🤝 IB</span>':'';
-      const sub=r.request_type==='ib'?('Acc: '+vEsc(r.trading_account||'-')):((r.amount||0)+' '+vEsc(r.currency||''));
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)"><div><strong>'+vEsc(r.plan_name||'Plan')+'</strong>'+typeLbl+' <span style="color:var(--text-muted);font-size:12px">'+sub+'</span><div style="font-size:11px;color:var(--text-muted)">'+new Date(r.created_at).toLocaleString()+'</div></div><span style="color:'+stc+';font-weight:800;font-size:12px;text-transform:uppercase">'+vEsc(r.status)+'</span></div>';
-    }).join('')+'</div>';
+    function reqStatusClass(st){st=String(st||'pending').toLowerCase();return st==='approved'?'approved':(st==='rejected'?'rejected':(st==='expired'?'expired':'pending'))}
+    box.innerHTML='<div class="pp-access-requests">'+
+      '<div class="pp-access-requests-head"><div><span class="pp-access-requests-icon">▣</span><div><small>ACCESS ACTIVITY</small><strong>My Requests</strong></div></div><span class="pp-access-request-count">'+data.length+' '+(data.length===1?'REQUEST':'REQUESTS')+'</span></div>'+
+      '<div class="pp-access-request-list">'+data.map(function(r){
+        const type=String(r.request_type||r.method_type||'payment').toLowerCase();
+        const isIb=type==='ib';
+        const amount=isIb?('Account '+vEsc(r.trading_account||'-')):((r.amount||0)+' '+vEsc(r.currency||''));
+        const method=isIb?'Broker / IB':(String(r.method_type||'').toLowerCase()==='infinity'?'Local Bank':'USDT / Payment');
+        return '<div class="pp-access-request-row">'+
+          '<div class="pp-access-request-main"><div class="pp-access-request-mark">'+(isIb?'🤝':'♛')+'</div><div><strong>'+vEsc(r.plan_name||'Access Request')+'</strong><span>'+vEsc(method)+' · '+amount+'</span></div></div>'+
+          '<div class="pp-access-request-date"><small>SUBMITTED</small><span>'+new Date(r.created_at).toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'})+'</span></div>'+
+          '<span class="pp-access-request-status '+reqStatusClass(r.status)+'">'+vEsc(String(r.status||'pending').toUpperCase())+'</span>'+
+        '</div>';
+      }).join('')+'</div>'+
+    '</div>';
   }
 
 
