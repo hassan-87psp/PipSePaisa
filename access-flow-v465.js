@@ -722,3 +722,233 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 `;
   document.head.appendChild(s);
 })();
+
+
+/* V469 compact premium VIP checkout */
+(function(){
+  if(document.getElementById('psp-vip-checkout-v469'))return;
+  const s=document.createElement('style');
+  s.id='psp-vip-checkout-v469';
+  s.textContent=`
+#vipModalHost .vip-checkout-bg{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  padding:18px!important
+}
+#vipModalHost .vip-checkout-modal{
+  width:min(760px,calc(100vw - 36px))!important;
+  max-width:760px!important;
+  max-height:min(88vh,760px)!important;
+  overflow:hidden!important;
+  display:flex!important;
+  flex-direction:column!important;
+  border-radius:24px!important
+}
+#vipModalHost .vip-checkout-head{
+  flex:0 0 auto!important;
+  padding:17px 20px 14px!important;
+  gap:12px!important
+}
+#vipModalHost .vip-checkout-head-icon{
+  width:44px!important;height:44px!important;border-radius:13px!important;font-size:21px!important
+}
+#vipModalHost .vip-checkout-head-copy strong{font-size:21px!important}
+#vipModalHost .vip-checkout-head-copy small{font-size:10px!important}
+#vipModalHost .vip-checkout-close{width:36px!important;height:36px!important}
+
+#vipModalHost .vip-checkout-pricebar{
+  flex:0 0 auto!important;
+  padding:12px 20px 0!important;
+  gap:10px!important
+}
+#vipModalHost .vip-price-card{
+  min-height:60px!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;
+  padding:10px 12px!important;border-radius:13px!important
+}
+#vipModalHost .vip-price-card small{
+  display:block!important;font-size:7.5px!important;letter-spacing:.08em!important
+}
+#vipModalHost .vip-price-card strong{
+  display:block!important;font-size:17px!important;margin-top:2px!important
+}
+#vipModalHost .vip-price-card em{
+  display:block!important;margin-top:2px!important;font-size:8px!important;font-style:normal!important;
+  color:var(--text-muted)!important
+}
+#vipModalHost .vip-price-badge{
+  display:grid!important;place-items:center!important;min-width:42px!important;height:28px!important;
+  padding:0 8px!important;border-radius:8px!important;
+  background:rgba(243,149,34,.10)!important;border:1px solid rgba(243,149,34,.18)!important;
+  color:#a85d00!important;font-size:8px!important;font-weight:900!important;letter-spacing:.06em!important
+}
+
+#vipModalHost .vip-checkout-body{
+  min-height:0!important;
+  flex:1 1 auto!important;
+  display:flex!important;
+  flex-direction:column!important
+}
+#vipModalHost .vip-checkout-main{
+  min-height:0!important;
+  overflow:auto!important;
+  overscroll-behavior:contain!important;
+  padding-bottom:2px!important
+}
+#vipModalHost .vip-checkout-section{
+  padding:13px 20px 0!important
+}
+#vipModalHost .vip-checkout-label-row{margin-bottom:6px!important}
+#vipModalHost .vip-checkout-label{font-size:10.5px!important}
+#vipModalHost .vip-secure-chip,#vipModalHost .vip-required-chip{
+  font-size:7px!important;padding:4px 7px!important
+}
+#vipModalHost .vip-checkout-select{
+  height:43px!important;border-radius:11px!important;font-size:12px!important
+}
+
+#vipModalHost .vip-checkout-workspace{
+  display:grid!important;
+  grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;
+  gap:12px!important;
+  align-items:start!important;
+  padding:12px 20px 14px!important
+}
+#vipModalHost .vip-checkout-workspace.single{grid-template-columns:1fr!important}
+#vipModalHost .vip-checkout-workspace.single .vip-checkout-detail{max-width:none!important}
+
+#vipModalHost .vip-checkout-detail{
+  margin:0!important;
+  padding:13px!important;
+  border-radius:14px!important;
+  min-width:0!important
+}
+#vipModalHost .vip-method-head{
+  gap:9px!important;padding-bottom:9px!important
+}
+#vipModalHost .vip-method-icon{
+  width:34px!important;height:34px!important;flex-basis:34px!important;border-radius:9px!important;font-size:15px!important
+}
+#vipModalHost .vip-method-head small{font-size:7px!important}
+#vipModalHost .vip-method-head strong{font-size:13px!important}
+#vipModalHost .vip-method-head p{font-size:9px!important;line-height:1.35!important;margin-top:3px!important}
+#vipModalHost .vip-pay-sheet{margin-top:6px!important}
+#vipModalHost .vip-pay-row{
+  grid-template-columns:92px minmax(0,1fr)!important;
+  gap:8px!important;padding:7px 0!important
+}
+#vipModalHost .vip-pay-row>span{font-size:8.5px!important}
+#vipModalHost .vip-pay-row>div{gap:6px!important}
+#vipModalHost .vip-pay-row strong{
+  font-size:9.5px!important;line-height:1.3!important;
+  max-width:100%!important
+}
+#vipModalHost .vip-copy-btn{
+  padding:4px 6px!important;border-radius:7px!important;font-size:7.5px!important
+}
+#vipModalHost .vip-payment-note{
+  margin-top:8px!important;padding:7px 8px!important;border-radius:9px!important;
+  font-size:8.5px!important
+}
+
+#vipModalHost .vip-checkout-manual{
+  margin:0!important;padding:12px!important;
+  border:1px solid #eadbc3!important;
+  border-radius:14px!important;
+  background:linear-gradient(180deg,#fffdf9,#fbf6ed)!important;
+  min-width:0!important
+}
+#vipModalHost .vip-receipt-heading{margin-bottom:7px!important}
+#vipModalHost .vip-checkout-upload{
+  min-height:58px!important;
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  gap:9px!important;
+  padding:9px 10px!important;
+  margin-bottom:9px!important;
+  border-radius:11px!important
+}
+#vipModalHost .vip-upload-icon{
+  width:32px!important;height:32px!important;border-radius:8px!important;font-size:15px!important
+}
+#vipModalHost .vip-upload-copy strong{font-size:9.5px!important}
+#vipModalHost .vip-upload-copy small{font-size:7.5px!important}
+#vipModalHost .vip-upload-action{
+  min-height:28px!important;padding:0 9px!important;border-radius:7px!important;font-size:8px!important
+}
+#vipModalHost .vip-checkout-grid{gap:8px!important}
+#vipModalHost .vip-field-shell{
+  padding:6px 9px 0!important;border-radius:10px!important
+}
+#vipModalHost .vip-field-shell>span{font-size:7px!important}
+#vipModalHost .vip-field-shell>span em{
+  font-style:normal!important;font-weight:700!important;color:#a4adba!important
+}
+#vipModalHost .vip-field-shell input{height:32px!important;font-size:10.5px!important}
+#vipModalHost .vip-field-shell textarea{min-height:48px!important;font-size:10.5px!important;padding-top:5px!important}
+
+#vipModalHost .vip-checkout-footer{
+  flex:0 0 auto!important;
+  padding:10px 20px 13px!important;
+  border-top:1px solid rgba(222,205,177,.78)!important;
+  background:rgba(255,253,249,.96)!important;
+  box-shadow:0 -8px 24px rgba(15,23,42,.035)!important
+}
+#vipModalHost .vip-checkout-submit{
+  width:100%!important;
+  min-height:44px!important;
+  margin:0!important;
+  border-radius:11px!important;
+  font-size:11px!important
+}
+#vipModalHost .vip-checkout-trust{
+  padding:7px 0 0!important;
+  gap:7px!important;
+  font-size:7.5px!important
+}
+#vipModalHost .vip-checkout-message{
+  min-height:0!important;
+  margin:5px 0 0!important;
+  font-size:9px!important
+}
+#vipModalHost .vip-checkout-message:empty{display:none!important}
+
+[data-theme="dark"] #vipModalHost .vip-checkout-manual{
+  background:#142033!important;border-color:#334158!important
+}
+[data-theme="dark"] #vipModalHost .vip-checkout-footer{
+  background:rgba(16,25,39,.97)!important;border-color:#2d394c!important
+}
+[data-theme="dark"] #vipModalHost .vip-price-badge{
+  background:rgba(243,149,34,.12)!important;color:#f1b55d!important;border-color:#4c4436!important
+}
+
+@media(max-width:760px){
+  #vipModalHost .vip-checkout-bg{align-items:center!important;padding:12px!important}
+  #vipModalHost .vip-checkout-modal{
+    width:min(620px,calc(100vw - 24px))!important;
+    max-height:92vh!important;
+    border-radius:20px!important
+  }
+  #vipModalHost .vip-checkout-workspace{
+    grid-template-columns:1fr!important;
+    padding-left:16px!important;padding-right:16px!important
+  }
+  #vipModalHost .vip-checkout-section{padding-left:16px!important;padding-right:16px!important}
+  #vipModalHost .vip-checkout-footer{padding-left:16px!important;padding-right:16px!important}
+}
+@media(max-width:520px){
+  #vipModalHost .vip-checkout-head{padding:15px 14px 12px!important}
+  #vipModalHost .vip-checkout-head-icon{width:40px!important;height:40px!important}
+  #vipModalHost .vip-checkout-head-copy strong{font-size:18px!important}
+  #vipModalHost .vip-checkout-pricebar{padding:10px 14px 0!important;gap:7px!important}
+  #vipModalHost .vip-price-card{min-height:54px!important;padding:8px 9px!important}
+  #vipModalHost .vip-price-card strong{font-size:15px!important}
+  #vipModalHost .vip-price-card em{display:none!important}
+  #vipModalHost .vip-price-badge{display:none!important}
+  #vipModalHost .vip-checkout-section{padding:11px 14px 0!important}
+  #vipModalHost .vip-checkout-workspace{padding:10px 14px 12px!important}
+  #vipModalHost .vip-pay-row{grid-template-columns:80px minmax(0,1fr)!important}
+  #vipModalHost .vip-checkout-footer{padding:9px 14px 11px!important}
+}
+`;
+  document.head.appendChild(s);
+})();
