@@ -323,7 +323,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   if(document.getElementById('psp-access-v467-readable'))return;
   const s=document.createElement('style');
   s.id='psp-access-v467-readable';
-  s.textContent=\`
+  s.textContent=`
 #page-vipplans .ga-shell{max-width:1180px!important;gap:16px!important}
 #page-vipplans .ga-header{padding:22px 24px!important;border-radius:20px!important;box-shadow:0 16px 44px rgba(76,48,10,.07)!important}
 #page-vipplans .ga-kicker{font-size:10px!important;margin-bottom:6px!important}
@@ -376,6 +376,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  #page-vipplans .ga-plan-desc{font-size:11.5px!important;min-height:0!important}
  #page-vipplans .ga-benefit{font-size:10.5px!important}
 }
-\`;
+`;
   document.head.appendChild(s);
 })();
