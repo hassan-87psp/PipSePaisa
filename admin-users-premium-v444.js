@@ -97,8 +97,15 @@ function injectStyle(){
   }
 
   /* directory table */
+  #page-users.v444-users{
+    overflow:visible!important;max-height:none!important;height:auto!important;touch-action:auto!important
+  }
+  #page-users.v444-users .v444-directory{
+    overflow:visible!important
+  }
   #page-users.v444-users .v444-table-wrap{
-    overflow:auto!important;max-height:calc(100vh - 345px)!important;min-height:310px!important;background:var(--bg-card)!important
+    overflow-x:auto!important;overflow-y:visible!important;max-height:none!important;min-height:0!important;
+    background:var(--bg-card)!important;touch-action:auto!important
   }
   #page-users.v444-users .v444-table-wrap table{margin:0!important;width:100%!important;min-width:1120px!important}
   #page-users.v444-users .v444-table-wrap thead th{
@@ -151,7 +158,7 @@ function injectStyle(){
 @media (max-width:1180px) and (min-width:901px){
   #page-users.v444-users .v444-directory .table-controls.v444-user-controls{grid-template-columns:1fr 150px!important}
   #page-users.v444-users .v444-user-actions{grid-column:1/-1!important;justify-content:flex-start!important}
-  #page-users.v444-users .v444-table-wrap{max-height:calc(100vh - 405px)!important}
+  #page-users.v444-users .v444-table-wrap{max-height:none!important}
 }
 `;
   document.head.appendChild(s);
@@ -197,10 +204,14 @@ function enhance(){
     if(footer)footer.classList.add('v444-directory-footer');
 
     // Keep the most useful workspace hierarchy stable after legacy scripts re-render.
+    // Only move nodes when the order is actually wrong; repeated appendChild calls
+    // can create a mutation/reflow loop and continuously reset the user's scroll.
     const pager=document.getElementById('v56Pager');
-    [header,controls,wrap,footer,pager].filter(Boolean).forEach(node=>{
-      if(node.parentElement===directory)directory.appendChild(node);
-    });
+    const desired=[header,controls,wrap,footer,pager].filter(Boolean);
+    const present=[...directory.children].filter(node=>desired.includes(node));
+    if(desired.some((node,index)=>present[index]!==node)){
+      desired.forEach(node=>{if(node.parentElement===directory)directory.appendChild(node)});
+    }
   }finally{busy=false}
 }
 
