@@ -3,6 +3,7 @@
 (function(){
   'use strict';
   let busy=false,raf=0;
+  const desktop=window.matchMedia('(min-width:901px)');
   const txt=el=>(el&&el.textContent||'').trim();
 
   function freeTotal(section){
@@ -69,7 +70,7 @@
   }
 
   function enhance(){
-    if(busy)return;
+    if(!desktop.matches||busy)return;
     busy=true;
     try{
       const wrap=document.getElementById('aprWrap');
@@ -118,6 +119,7 @@
     const wrap=document.getElementById('aprWrap');
     if(!wrap){setTimeout(start,250);return}
     new MutationObserver(schedule).observe(wrap,{childList:true,subtree:true});
+    if(typeof desktop.addEventListener==='function')desktop.addEventListener('change',schedule);
     schedule();
   }
 
