@@ -4,7 +4,7 @@
 if(window.__PSP_ADMIN_WORKSPACES_V440__)return;
 window.__PSP_ADMIN_WORKSPACES_V440__=true;
 const assets={
-  users:['/admin-users-v56-clean.js?v=20261002-v440-on-demand','/admin-users-export-v299.js?v=20261002-v439-page-loading'],
+  users:['/admin-users-v56-clean.js?v=20261002-v440-on-demand','/admin-users-export-v299.js?v=20261002-v439-page-loading','/admin-users-premium-v444.js?v=20261003-v444-premium'],
   revenue:['/finance-management-v179.js?v=20261002-v439-page-loading'],
   teamperformance:['/admin-team-performance-v206.js?v=20261002-v440-on-demand'],
   adsignals:['/signals-workspace-v154.js?v=20260909-v216-pairs'],
