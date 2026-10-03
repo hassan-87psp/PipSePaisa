@@ -113,15 +113,25 @@
     if(!c||!loggedIn()){
       state=null;lastLoadedAt=0;renderMini();markLocks();renderCard();return null
     }
-    // V467: never convert a short auth/session race into a false "email not verified" state.
+    // V467B: wait through a short session-restore race before asking the API.
+    // The Access page can open immediately after login, while Supabase is still
+    // restoring the persistent token in this tab.
     try{
-      const sessionResult=await c.auth.getSession();
+      let sessionResult=await c.auth.getSession();
+      if(!sessionResult?.data?.session){
+        await new Promise(resolve=>setTimeout(resolve,260));
+        sessionResult=await c.auth.getSession();
+      }
       if(!sessionResult?.data?.session){
         lastLoadedAt=0;
-        if(!silent)setTimeout(()=>load(true,true),450);
+        setTimeout(()=>load(true,true),550);
         return state;
       }
-    }catch(_){}
+    }catch(_){
+      lastLoadedAt=0;
+      setTimeout(()=>load(true,true),550);
+      return state;
+    }
     if(!force&&state&&Date.now()-lastLoadedAt<8000)return state;
     if(loadPromise)return loadPromise;
 
@@ -179,11 +189,24 @@
           const br=bridgeResult&&bridgeResult.data?bridgeResult:await c.rpc('psp_user_access_bridge_v157');
           if(!br.error&&br.data){
             const bx=Array.isArray(br.data)?(br.data[0]||{}):br.data;
-            state={verification_required:true,email_verified:false,submission_status:bx.submission_status||'not_submitted',admin_whatsapp:'601156961157',direct_access_enabled:false,direct_access_active:false,...bx};
-            state.temporary_access=!!bx.admin_trial_active;
-            state.can_access=!!(bx.admin_trial_active||bx.approved_active);
-            lastLoadedAt=Date.now();
-            window.PSP_ACCOUNT_ACCESS_STATE=state;renderMini();markLocks();renderCard();return state;
+            // Never invent email_verified=false from the bridge; that RPC does
+            // not carry email state. Only merge it into a state we already trust.
+            if(state){
+              state={...state,...bx};
+              state.temporary_access=!!(state.temporary_access||bx.admin_trial_active);
+              state.can_access=!!(state.can_access||bx.admin_trial_active||bx.approved_active);
+              lastLoadedAt=Date.now();
+              window.PSP_ACCOUNT_ACCESS_STATE=state;renderMini();markLocks();renderCard();return state;
+            }
+            // Approved/pending broker states can only exist after verified-email
+            // submission, so they are safe to recover if the main snapshot alone failed.
+            if(bx.submission_status==='approved'||bx.submission_status==='pending'){
+              state={verification_required:true,email_verified:true,submission_status:bx.submission_status,admin_whatsapp:'601156961157',direct_access_enabled:false,direct_access_active:false,...bx};
+              state.temporary_access=!!bx.admin_trial_active;
+              state.can_access=!!(bx.admin_trial_active||bx.approved_active||bx.submission_status==='pending');
+              lastLoadedAt=Date.now();
+              window.PSP_ACCOUNT_ACCESS_STATE=state;renderMini();markLocks();renderCard();return state;
+            }
           }
         }catch(_){}
         // V467: fail neutral. A temporary RPC/network error must never tell a
