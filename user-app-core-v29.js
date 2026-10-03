@@ -4097,24 +4097,36 @@
     const dur=p.period==='lifetime'?36500:(p.period==='yearly'?365:30);
     window._vipCheckout={plan:p,methods:methods,dur:dur};
     const host=document.getElementById('vipModalHost');if(!host)return;
-    const tlMap={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'Crypto USDT (TRC20)'};
+    const tlMap={easypaisa:'EasyPaisa',jazzcash:'JazzCash',bank:'Bank Transfer',crypto:'USDT TRC20',infinity:'Local Bank Transfer'};
     const opts=methods.map(function(m,i){return '<option value="'+i+'">'+vEsc(m.label||tlMap[m.type]||m.type)+'</option>';}).join('');
     const body=methods.length?(
-      '<label style="font-size:12px;color:var(--text-muted)">Choose payment method</label>'+
-      '<select id="vipMethod" onchange="vipMethodDetail()" style="width:100%;padding:10px;margin:6px 0 10px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);color:var(--text)">'+opts+'</select>'+
-      '<div id="vipMethodDetail" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:12px;font-size:13px;margin-bottom:12px"></div>'+
-      '<div id="vipManualFields">'+
-        '<label style="font-size:12px;color:var(--text-muted)">Upload payment receipt (screenshot) *</label>'+
-        '<input type="file" id="vipReceipt" accept="image/*" style="width:100%;margin:6px 0 10px;color:var(--text)">'+
-        '<input type="text" id="vipTxn" placeholder="Transaction ID (optional)" style="width:100%;padding:10px;margin-bottom:10px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);color:var(--text)">'+
-        '<textarea id="vipNotes" placeholder="Notes (optional)" rows="2" style="width:100%;padding:10px;margin-bottom:12px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border);color:var(--text)"></textarea>'+
+      '<div class="vip-checkout-section">'+
+        '<label class="vip-checkout-label" for="vipMethod">Choose Payment Method</label>'+
+        '<select id="vipMethod" class="vip-checkout-select" onchange="vipMethodDetail()">'+opts+'</select>'+
       '</div>'+
-      '<button id="vipSubmitBtn" onclick="submitVipRequest()" style="width:100%;padding:12px;border:none;border-radius:10px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;cursor:pointer">📤 Submit Payment Request</button>'+
-      '<div id="vipSubMsg" style="margin-top:10px;font-size:13px"></div>'
-    ):'<div style="color:var(--text-muted);font-size:13px">Your mentor hasn\'t added any payment methods yet. Please contact them directly to subscribe.</div>';
-    host.innerHTML='<div class="vip-modal-bg" onclick="if(event.target===this)closeVipModal()"><div class="vip-modal">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:18px;font-weight:800">💎 Subscribe — '+vEsc(p.name)+'</div><button onclick="closeVipModal()" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer">✕</button></div>'+
-      '<div style="color:var(--gold);font-weight:800;font-size:20px;margin-bottom:14px">'+(p.price||0)+' '+vEsc(p.currency||'')+'</div>'+body+'</div></div>';
+      '<div id="vipMethodDetail" class="vip-checkout-detail"></div>'+
+      '<div id="vipManualFields" class="vip-checkout-manual">'+
+        '<label class="vip-checkout-label" for="vipReceipt">Payment Receipt <span>Required</span></label>'+
+        '<div class="vip-checkout-upload"><input type="file" id="vipReceipt" accept="image/*"><small>Upload a clear payment screenshot</small></div>'+
+        '<div class="vip-checkout-grid">'+
+          '<input type="text" id="vipTxn" placeholder="Transaction ID (optional)">'+
+          '<textarea id="vipNotes" placeholder="Notes (optional)" rows="2"></textarea>'+
+        '</div>'+
+      '</div>'+
+      '<button id="vipSubmitBtn" class="vip-checkout-submit" onclick="submitVipRequest()">Submit Payment Request →</button>'+
+      '<div id="vipSubMsg" class="vip-checkout-message"></div>'
+    ):'<div class="vip-checkout-empty">No payment method is available right now. Please contact Admin.</div>';
+    host.innerHTML='<div class="vip-modal-bg vip-checkout-bg" onclick="if(event.target===this)closeVipModal()"><div class="vip-modal vip-checkout-modal">'+
+      '<div class="vip-checkout-head">'+
+        '<div class="vip-checkout-head-icon">♛</div>'+
+        '<div class="vip-checkout-head-copy"><span>PREMIUM ACCESS</span><strong>Activate VIP Access</strong><small>30 Days Full Website Access</small></div>'+
+        '<button class="vip-checkout-close" onclick="closeVipModal()" aria-label="Close">✕</button>'+
+      '</div>'+
+      '<div class="vip-checkout-pricebar">'+
+        '<div><span>USDT TRC20</span><strong>$50</strong></div>'+
+        '<div><span>LOCAL BANK</span><strong>PKR 14,000</strong></div>'+
+      '</div>'+body+
+    '</div></div>';
     if(methods.length)vipMethodDetail();
   }
   function vipMethodDetail(){
