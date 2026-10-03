@@ -206,3 +206,58 @@ body{
   .link-display{grid-template-columns:1fr!important}
   .copy-btn{width:100%!important}
 }
+
+
+/* V467 readable premium override */
+.top{height:72px!important}
+.brand img{width:42px!important;height:42px!important}
+.brand-name{font-size:19px!important}
+.brand small{font-size:8px!important}
+.back{padding:9px 14px!important;font-size:12px!important}
+.wrap{max-width:1160px!important;margin:28px auto!important;padding:0 22px 60px!important}
+.hero{padding:26px 28px!important;border-radius:21px!important;margin-bottom:17px!important;box-shadow:0 16px 42px rgba(78,55,20,.075)!important}
+.kicker,.eyebrow{font-size:10px!important}
+.hero h1{font-size:31px!important;margin:7px 0 9px!important}
+.hero p,.hero>p{font-size:13.5px!important;line-height:1.62!important}
+.status{font-size:12px!important;padding:12px 14px!important}
+.brokers{gap:15px!important;margin:17px 0!important}
+.broker{min-height:235px!important;border-radius:19px!important;padding:19px!important;box-shadow:0 12px 30px rgba(78,55,20,.065)!important}
+.broker strong{font-size:18px!important}
+.broker-badge{width:40px!important;height:40px!important;font-size:12px!important}
+.broker p{font-size:12px!important;line-height:1.52!important;min-height:38px!important;margin:11px 0!important}
+.link-shell{padding:6px!important;margin-bottom:12px!important;border-radius:10px!important}
+.urltxt{font-size:9.5px!important}
+.copy{padding:7px 9px!important;font-size:9.5px!important}
+.broker-link,.choose{padding:10px 12px!important;font-size:11px!important;border-radius:9px!important}
+.card{padding:22px!important;border-radius:20px!important;box-shadow:0 16px 42px rgba(78,55,20,.075)!important}
+.title,.card h2{font-size:20px!important}
+.sub,.muted{font-size:12px!important;line-height:1.58!important}
+.step-chip,.secure-pill{padding:7px 10px!important;font-size:8.5px!important}
+.grid,.formgrid{gap:13px!important}
+.field label,.field-label{font-size:9.5px!important;margin-bottom:7px!important}
+.field input,.field select,.broker-link-panel select{height:46px!important;font-size:13px!important;padding:0 13px!important;border-radius:10px!important}
+.recommend{font-size:9.5px!important}
+.upload{padding:16px!important;min-height:126px!important;border-radius:14px!important;margin-top:13px!important}
+.upload strong{font-size:13.5px!important}
+.upload .muted{font-size:11px!important;line-height:1.5!important}
+.upload input[type=file]{font-size:10.5px!important}
+.upload-badge{font-size:7.5px!important;padding:5px 7px!important}
+.required-note{font-size:10.5px!important;padding:11px 13px!important}
+.btn{padding:11px 15px!important;font-size:11.5px!important;border-radius:10px!important}
+.broker-link-panel{grid-template-columns:230px minmax(0,1fr)!important;padding:14px!important;border-radius:15px!important}
+.link-box,.copy-btn{height:46px!important}
+.link-box{font-size:10.5px!important}.copy-btn{font-size:10px!important}
+.guide-grid{gap:14px!important;margin:15px 0 18px!important}
+.guide{min-height:365px!important;border-radius:18px!important;padding:18px!important;box-shadow:0 12px 30px rgba(69,49,18,.065)!important}
+.guide.active{padding:17px!important}
+.guide h3{font-size:17px!important}
+.guide-tag{font-size:8px!important;padding:5px 7px!important}
+.guide ol{font-size:11px!important;line-height:1.55!important;padding-left:20px!important}
+.guide li{margin-bottom:6px!important}
+.email-mini,.important{font-size:10px!important;line-height:1.5!important;padding:9px 10px!important}
+.preupload{font-size:9.5px!important}
+@media(max-width:900px){
+ .wrap{padding:0 15px 48px!important;margin-top:20px!important}
+ .hero{padding:21px!important}.hero h1{font-size:25px!important}
+ .broker-link-panel{grid-template-columns:1fr!important}
+}
