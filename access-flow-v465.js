@@ -370,6 +370,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #vipModalHost .vip-checkout-head-copy strong{font-size:21px!important}
 #vipModalHost .vip-checkout-label{font-size:11px!important}
 #vipModalHost .vip-checkout-select,#vipModalHost .vip-checkout-grid input{font-size:12px!important}
+
+/* V467C: restore the premium interaction/detail styles that the compact cleanup removed */
+#page-vipplans .ga-status-slot .psp-access-status small,
+#page-vipplans .ga-status-slot .psp-access-status strong,
+#page-vipplans .ga-status-slot .psp-access-status span{display:block!important}
+#page-vipplans .ga-status-slot .psp-access-status>div:nth-child(2){min-width:0!important}
+#page-vipplans .ga-status-slot .psp-access-status strong{margin-top:2px!important}
+#page-vipplans .ga-status-slot .psp-access-status span{color:var(--text-muted)!important}
+#page-vipplans .ga-plan-card{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important}
+#page-vipplans .ga-plan-card:hover{transform:translateY(-2px)!important}
+#page-vipplans .ga-plan-card.broker:hover{box-shadow:0 20px 44px rgba(16,185,129,.10)!important;border-color:rgba(16,185,129,.42)!important}
+#page-vipplans .ga-plan-card.paid:hover{box-shadow:0 20px 46px rgba(243,149,34,.13)!important;border-color:rgba(243,149,34,.48)!important}
+#page-vipplans .ga-plan-card:after{
+  content:"";position:absolute;pointer-events:none;width:190px;height:190px;border-radius:50%;
+  right:-92px;top:-105px;filter:blur(2px);opacity:.55
+}
+#page-vipplans .ga-plan-card.broker:after{background:radial-gradient(circle,rgba(16,185,129,.15),transparent 68%)}
+#page-vipplans .ga-plan-card.paid:after{background:radial-gradient(circle,rgba(243,149,34,.18),transparent 68%)}
+#page-vipplans .ga-plan-card>*{position:relative;z-index:1}
+#page-vipplans .ga-cta .psp-access-btn{border:0!important;cursor:pointer!important;transition:transform .15s ease,box-shadow .15s ease,filter .15s ease!important}
+#page-vipplans .ga-plan-card.broker .psp-access-btn:not([disabled]){
+  background:linear-gradient(135deg,#10B981,#059669)!important;color:#fff!important;
+  box-shadow:0 10px 22px rgba(16,185,129,.20)!important
+}
+#page-vipplans .ga-plan-card.paid .psp-access-btn:not([disabled]){
+  background:linear-gradient(135deg,#F7A638,#F39522)!important;color:#261600!important;
+  box-shadow:0 10px 22px rgba(243,149,34,.22)!important
+}
+#page-vipplans .ga-cta .psp-access-btn:not([disabled]):hover{transform:translateY(-1px)!important;filter:saturate(1.03)!important}
+#page-vipplans .ga-cta .psp-access-btn[disabled]{
+  background:linear-gradient(180deg,#f8f6f1,#f1eee8)!important;
+  color:#9aa3af!important;border:1px solid #ddd8cf!important;
+  box-shadow:none!important;cursor:not-allowed!important
+}
+[data-theme="dark"] #page-vipplans .ga-cta .psp-access-btn[disabled]{
+  background:#172235!important;color:#748197!important;border-color:#2b394e!important
+}
+#page-vipplans .ga-price-area{box-shadow:inset 0 1px 0 rgba(255,255,255,.75)!important}
+#page-vipplans .ga-pay-method{box-shadow:0 3px 10px rgba(15,23,42,.025)!important}
+#page-vipplans .ga-plan-access{letter-spacing:.01em!important}
+#page-vipplans .ga-included-items span{box-shadow:0 2px 8px rgba(15,23,42,.025)!important}
 @media(max-width:620px){
  #page-vipplans .ga-title{font-size:23px!important}
  #page-vipplans .ga-header{padding:16px!important}
