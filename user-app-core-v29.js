@@ -3812,7 +3812,7 @@
       var side=document.getElementById('sidebar');
       if(!side)return;
       pspGetAccessNavWatchV455=new MutationObserver(function(){try{pspGetAccessForceUiV453()}catch(_){}});
-      pspGetAccessNavWatchV455.observe(side,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['style','class']});
+      pspGetAccessNavWatchV455.observe(side,{childList:true,subtree:true,characterData:true});
     }catch(_){}
   }
   function pspGetAccessForceUiV453(){
