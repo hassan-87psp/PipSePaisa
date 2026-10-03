@@ -1178,13 +1178,14 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
       <div class="menu-item" data-page="articles" onclick="showPage('articles', this)"><span class="menu-icon">📈</span>Charts &amp; Articles<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--green);color:white;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="newshub" onclick="showPage('newshub', this)"><span class="menu-icon">📡</span>World News Hub<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:white;border-radius:10px;font-weight:700;animation:pulse 2s infinite;">LIVE</span></div>
       <div class="menu-item" data-page="strength" onclick="showPage('strength', this)"><span class="menu-icon">💪</span>Currency Strength Meter</div>
+      <div class="menu-item" data-page="vipplans" onclick="if(window.pspOpenVipPlansForPayment){window.pspOpenVipPlansForPayment()}else{showPage('vipplans',this)}" style="background:linear-gradient(135deg,#F39522,#e9840c);border:1px solid rgba(214,111,0,.35);color:#111827;box-shadow:0 6px 14px rgba(243,149,34,.16);"><span class="menu-icon">🔓</span><strong>Get Access</strong><span style="margin-left:auto;font-size:7px;padding:2px 6px;background:rgba(255,255,255,.34);color:#7a3d00;border-radius:999px;font-weight:900;">2 WAYS</span></div>
       <div class="menu-item" data-page="trades" onclick="showPage('trades', this)"><span class="menu-icon">📈</span>My Trades</div>
       <div class="menu-item" data-page="analysis" onclick="showPage('analysis', this)"><span class="menu-icon">📉</span>Trades Analysis</div>
       <div class="menu-item" data-page="tools" onclick="showPage('tools', this)"><span class="menu-icon">🔧</span>Tools</div>
       <div class="menu-item" data-page="aireport" onclick="showPage('aireport', this)"><span class="menu-icon">🤖</span>AI Report<span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:700;">NEW</span></div>
       <div class="menu-item" data-page="news" onclick="showPage('news', this)"><span class="menu-icon">📰</span>Economic News<span class="dot"></span></div>
       <div class="menu-item" data-page="chats" onclick="showPage('chats', this)"><span class="menu-icon">💬</span>Member Chats<span id="chatsNavBadge" style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--red);color:#fff;border-radius:10px;font-weight:700;display:none;">0</span></div>
-      <div class="menu-item" data-page="vipplans" onclick="if(window.pspOpenVipPlansForPayment){window.pspOpenVipPlansForPayment()}else{showPage('vipplans',this)}" style="background:linear-gradient(135deg,#F39522,#e9840c);border:1px solid rgba(214,111,0,.35);color:#111827;box-shadow:0 6px 14px rgba(243,149,34,.16);"><span class="menu-icon">🔓</span><strong>Get Access</strong><span style="margin-left:auto;font-size:7px;padding:2px 6px;background:rgba(255,255,255,.34);color:#7a3d00;border-radius:999px;font-weight:900;">2 WAYS</span></div>
+      
       <div class="menu-item" id="mentorAiToolsNav" data-page="aitools" onclick="showPage('aitools', this)" style="display:none;background:linear-gradient(135deg,rgba(245,158,11,.14),transparent);border:1px solid rgba(245,158,11,.24);"><span class="menu-icon">✨</span><strong>AI Tools</strong><span style="margin-left:auto;font-size:8px;padding:2px 6px;background:var(--gold);color:#0a0e1a;border-radius:10px;font-weight:800;">MENTOR</span></div>
       <div class="menu-item" data-tabkey="vipindicators" onclick="alert('🚀 VIP Indicators launching soon!\nStay tuned for premium trading indicators.')" style="cursor:pointer;">
         <span class="menu-icon">📊</span>VIP Indicators
@@ -4482,5 +4483,52 @@ body.psp-authenticated #authMenuItem{
 </style>
 
 <script defer src="/psp-smooth-scroll-v322.js?v=20260930-v322-all-pages"></script>
+
+<script id="pspGetAccessNavLockV456">
+(function(){
+  function lock(){
+    try{
+      var menu=document.querySelector('#sidebar .menu');
+      var strength=document.querySelector('#sidebar .menu-item[data-page="strength"]');
+      var vip=document.querySelector('#sidebar .menu-item[data-page="vipplans"]');
+      if(!menu||!strength||!vip)return;
+
+      if(strength.nextElementSibling!==vip) strength.insertAdjacentElement('afterend',vip);
+
+      var expected='<span class="menu-icon">🔓</span><strong>Get Access</strong><span class="psp-get-access-ways" style="margin-left:auto;font-size:7px;padding:2px 6px;background:rgba(255,255,255,.34);color:#7a3d00;border-radius:999px;font-weight:900;">2 WAYS</span>';
+      if((vip.querySelector('strong')?.textContent||'').trim()!=='Get Access' || (vip.querySelector('.menu-icon')?.textContent||'').trim()!=='🔓'){
+        vip.innerHTML=expected;
+      }
+
+      vip.style.setProperty('background','linear-gradient(135deg,#F39522,#e9840c)','important');
+      vip.style.setProperty('border','1px solid rgba(214,111,0,.35)','important');
+      vip.style.setProperty('color','#111827','important');
+      vip.style.setProperty('box-shadow','0 6px 14px rgba(243,149,34,.16)','important');
+      vip.style.setProperty('font-weight','800','important');
+      vip.style.setProperty('order','12','important');
+      vip.style.display='';
+
+      var title=document.getElementById('pageTitle');
+      if(document.getElementById('page-vipplans')?.classList.contains('active') && title) title.textContent='Get Access';
+    }catch(_){}
+  }
+  function start(){
+    lock();
+    var side=document.getElementById('sidebar');
+    if(!side)return;
+    var queued=false;
+    new MutationObserver(function(){
+      if(queued)return;
+      queued=true;
+      requestAnimationFrame(function(){queued=false;lock();});
+    }).observe(side,{childList:true,subtree:true,characterData:true});
+    setTimeout(lock,250);
+    setTimeout(lock,1000);
+    setTimeout(lock,2500);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
+})();
+</script>
 </body>
 </html>
