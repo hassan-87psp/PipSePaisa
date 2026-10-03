@@ -3924,6 +3924,18 @@
     const statusEl=document.getElementById('vipStatus');
     if(!grid)return;
 
+    // V467B: Get Access is often opened immediately after login. Give the
+    // persistent Supabase session a brief chance to restore before protected RPCs.
+    try{
+      if(sb&&sb.auth){
+        let ses=await sb.auth.getSession();
+        if(!ses?.data?.session){
+          await new Promise(function(resolve){setTimeout(resolve,260)});
+          ses=await sb.auth.getSession();
+        }
+      }
+    }catch(_){}
+
     try{
       const qp=new URLSearchParams(location.search);
       if(qp.get('payment')==='return'&&currentProfile&&sb){
@@ -3958,6 +3970,18 @@
         if(fallback.error)error=fallback.error;
       }
     }catch(e){error=e;}
+
+    // One retry prevents a restored login session from leaving the paid plan
+    // stuck as "Temporarily Unavailable" until a manual page refresh.
+    if((!rows||!rows.length)&&sb){
+      try{
+        await new Promise(function(resolve){setTimeout(resolve,220)});
+        if(sb.auth)await sb.auth.getSession();
+        const retry=await sb.rpc('psp_get_official_vip_plan_v458');
+        const retryRows=Array.isArray(retry.data)?retry.data:(retry.data?[retry.data]:[]);
+        if(retryRows.length){rows=retryRows;error=null}
+      }catch(_){}
+    }
 
     const accessState=window.PSP_ACCOUNT_ACCESS_STATE||null;
     const now=Date.now();
