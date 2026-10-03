@@ -38,7 +38,7 @@ function approvalPage(){
         <span class="av185-kpi-icon">⏳</span><span class="av185-kpi-label">Needs Action</span><strong id="av49Pending">0</strong><small>Pending admin review</small>
       </button>
       <button class="av49-stat av185-kpi approved" type="button" onclick="PSPAdminVerification.setStatusFilter('approved')">
-        <span class="av185-kpi-icon">✅</span><span class="av185-kpi-label">90-Day Active</span><strong id="av49Approved">0</strong><small>Full access currently active</small>
+        <span class="av185-kpi-icon">✅</span><span class="av185-kpi-label">30-Day Active</span><strong id="av49Approved">0</strong><small>Full access currently active</small>
       </button>
       <button class="av49-stat av185-kpi rejected" type="button" onclick="PSPAdminVerification.setStatusFilter('rejected')">
         <span class="av185-kpi-icon">⛔</span><span class="av185-kpi-label">Rejected</span><strong id="av49Rejected">0</strong><small>Verification/access declined</small>
@@ -47,7 +47,7 @@ function approvalPage(){
 
     <div class="av185-status-tabs av186-status-tabs" role="tablist" aria-label="Verification status filters">
       <button type="button" data-av185-status="pending" class="active" onclick="PSPAdminVerification.setStatusFilter('pending')">Needs Action <b id="av185PendingCount">0</b></button>
-      <button type="button" data-av185-status="approved" onclick="PSPAdminVerification.setStatusFilter('approved')">90-Day Active <b id="av185ApprovedCount">0</b></button>
+      <button type="button" data-av185-status="approved" onclick="PSPAdminVerification.setStatusFilter('approved')">30-Day Active <b id="av185ApprovedCount">0</b></button>
       <button type="button" data-av185-status="rejected" onclick="PSPAdminVerification.setStatusFilter('rejected')">Rejected <b id="av185RejectedCount">0</b></button>
       <button type="button" data-av185-status="expired" onclick="PSPAdminVerification.setStatusFilter('expired')">Expired <b id="av185ExpiredCount">0</b></button>
       <button type="button" data-av185-status="all" onclick="PSPAdminVerification.setStatusFilter('all')">All History <b id="av185AllCount">0</b></button>
@@ -70,7 +70,7 @@ function approvalPage(){
           <option value="all">All Brokers</option><option value="exness">Exness</option><option value="dprime">DPrime</option><option value="xm">XM</option>
         </select></div>
         <div><select id="av116Access" aria-label="Access filter">
-          <option value="all">All Access</option><option value="approved">90-Day Access Active</option><option value="trial">Trial Active</option><option value="expired">Expired</option>
+          <option value="all">All Access</option><option value="approved">30-Day Access Active</option><option value="trial">Trial Active</option><option value="expired">Expired</option>
         </select></div>
         <button class="av116-reset av186-reset" type="button" onclick="PSPAdminVerification.resetFilters()">Clear Filters</button>
       </div>
@@ -110,7 +110,7 @@ function settingsPage(){
   if(q('#page-accesssettings'))return;
   const content=q('#content'); if(!content)return;
   const page=document.createElement('div'); page.className='page'; page.id='page-accesssettings';
-  page.innerHTML=`<div class="card av50-access-control" style="margin-bottom:14px"><div class="card-header"><div><div class="card-title">⚡ Free Access After Signup</div><div class="card-meta">Set how long new users can use protected services while completing mandatory verification.</div></div><button class="btn" id="av49SaveSettings">💾 Save Access Settings</button></div><div class="av49-mode"><button type="button" id="av49ModeDirect"><b>Temporary Free Access Enabled</b><span>New users can use protected tabs for the configured number of days.</span></button><button type="button" id="av49ModeVerify"><b>No Temporary Access</b><span>Protected services lock immediately until verification is completed.</span></button></div><div class="av50-duration"><div class="form-group"><label>Default Free Access Duration (Days)</label><input id="av50AccessDays" type="number" min="1" max="365" value="7"><div class="av50-presets"><button type="button" data-days="2">2 Days</button><button type="button" data-days="5">5 Days</button><button type="button" data-days="7">7 Days</button><button type="button" data-days="10">10 Days</button></div></div><div class="av50-required-note"><b>🔐 Verification stays mandatory</b><span>Email verification + broker proof are required for 90-day Full Access. Temporary access only controls the grace period.</span></div></div></div>
+  page.innerHTML=`<div class="card av50-access-control" style="margin-bottom:14px"><div class="card-header"><div><div class="card-title">⚡ Free Access After Signup</div><div class="card-meta">Set how long new users can use protected services while completing mandatory verification.</div></div><button class="btn" id="av49SaveSettings">💾 Save Access Settings</button></div><div class="av49-mode"><button type="button" id="av49ModeDirect"><b>Temporary Free Access Enabled</b><span>New users can use protected tabs for the configured number of days.</span></button><button type="button" id="av49ModeVerify"><b>No Temporary Access</b><span>Protected services lock immediately until verification is completed.</span></button></div><div class="av50-duration"><div class="form-group"><label>Default Free Access Duration (Days)</label><input id="av50AccessDays" type="number" min="1" max="365" value="7"><div class="av50-presets"><button type="button" data-days="2">2 Days</button><button type="button" data-days="5">5 Days</button><button type="button" data-days="7">7 Days</button><button type="button" data-days="10">10 Days</button></div></div><div class="av50-required-note"><b>🔐 Verification stays mandatory</b><span>Email verification + broker proof are required for 30-day Full Access. Temporary access only controls the grace period.</span></div></div></div>
 <div class="card av55-user-trial" style="margin-bottom:14px"><div class="card-header"><div><div class="card-title">⏱ User Trial Access</div><div class="card-meta">Give a specific user extra temporary access without changing the global signup duration.</div></div></div><div class="av55-trial-grid"><div class="form-group"><label>User Email or User ID</label><input id="av55TrialUser" placeholder="user@example.com or UUID"></div><div class="form-group"><label>Trial Days</label><input id="av55TrialDays" type="number" min="1" max="365" value="7"><div class="av50-presets"><button type="button" data-user-days="7">7</button><button type="button" data-user-days="10">10</button><button type="button" data-user-days="14">14</button></div></div><div class="av55-trial-actions"><button class="btn" id="av55GrantTrial">Give Trial</button><button class="btn btn-secondary" id="av55ClearTrial">Remove Trial</button></div></div></div>
 <div class="card"><div class="card-header"><div><div class="card-title">🔗 Broker & Verification Settings</div><div class="card-meta">Manage broker referral links, Admin WhatsApp and client-shift instructions.</div></div></div><div class="av49-settings"><div class="form-group"><label>Admin WhatsApp</label><input id="av49Whatsapp" placeholder="601156961157"></div><div class="form-group"><label>Recommended Deposit (USD)</label><input id="av49Deposit" type="number" min="0" step="1"></div><div class="form-group"><label>Exness Link</label><input id="av49ExnessLink"></div><div class="form-group"><label>DPrime Link</label><input id="av49DprimeLink"></div><div class="form-group"><label>XM Link</label><input id="av49XmLink"></div></div><div class="av49-guide-grid" style="margin-top:12px"><div class="form-group"><label>How to Shift Clients in Exness</label><textarea id="av49ExnessGuide"></textarea></div><div class="form-group"><label>How to Shift Clients in XM</label><textarea id="av49XmGuide"></textarea></div><div class="form-group"><label>How to Shift Clients in DPrime</label><textarea id="av49DprimeGuide"></textarea></div></div></div>`;
   content.appendChild(page);
@@ -202,13 +202,13 @@ function av116Remaining(expires){
 function av116AccessCell(x){
   const st=av116DerivedStatus(x);
   if(st==='approved'&&x.approved_expires_at){
-    return '<div class="av116-countdown good" data-av116-exp="'+esc(x.approved_expires_at)+'" data-kind="90"><b>90-Day Access</b><span>'+esc(av116Remaining(x.approved_expires_at))+'</span></div>';
+    return '<div class="av116-countdown good" data-av116-exp="'+esc(x.approved_expires_at)+'" data-kind="90"><b>30-Day Access</b><span>'+esc(av116Remaining(x.approved_expires_at))+'</span></div>';
   }
   if(av116Future(x.admin_trial_expires_at)){
     return '<div class="av116-countdown trial" data-av116-exp="'+esc(x.admin_trial_expires_at)+'" data-kind="trial"><b>Trial Active</b><span>'+esc(av116Remaining(x.admin_trial_expires_at))+'</span></div>';
   }
   if(st==='expired'){
-    return '<div class="av116-countdown expired"><b>Expired</b><span>90-day access ended</span></div>';
+    return '<div class="av116-countdown expired"><b>Expired</b><span>30-day access ended</span></div>';
   }
   return '<span class="av116-no-access">—</span>';
 }
@@ -330,9 +330,9 @@ function renderRows(){
       ((!x.deposit_proof_path&&!x.proof_path)?'<span class="av185-missing-proof">No proof</span>':'')+'</div>';
 
     let action='';
-    if(st==='pending') action='<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">✓ Approve 90 Days</button><button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject</button>';
+    if(st==='pending') action='<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">✓ Approve 30 Days</button><button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject</button>';
     else if(st==='approved') action='<button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Revoke Access</button>';
-    else action='<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">✓ Approve 90 Days</button>'+(st!=='rejected'?'<button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject</button>':'');
+    else action='<button class="av49-approve" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'approve\')">✓ Approve 30 Days</button>'+(st!=='rejected'?'<button class="av49-reject" onclick="PSPAdminVerification.review(\''+x.user_id+'\',\'reject\')">Reject</button>':'');
 
     const detailsId='av116-details-'+x.user_id;
     return `<tr class="av116-main-row av185-row av185-${esc(st)}">
@@ -354,8 +354,8 @@ async function openProof(path){if(!path)return alert('No proof screenshot upload
 async function review(uid,action){
   if(action==='reject'){openRejectModal(uid);return;}
   const ok=typeof window.pspConfirm==='function'
-    ?await window.pspConfirm('Approve this account and grant Full Access for 90 days from now?')
-    :confirm('Approve this account and grant Full Access for 90 days from now?');
+    ?await window.pspConfirm('Approve this account and grant Full Access for 30 days from now?')
+    :confirm('Approve this account and grant Full Access for 30 days from now?');
   if(!ok)return;
   await submitReview(uid,'approve','');
 }
@@ -385,7 +385,7 @@ async function submitReview(uid,action,reason,throwOnError){
   const data=Array.isArray(r.data)?r.data[0]:r.data;
   alert(data?.message||(
     action==='approve'
-      ?'90-day access approved successfully.'
+      ?'30-day access approved successfully.'
       :'Access rejected and revoked successfully.'
   ));
   await loadRows();
