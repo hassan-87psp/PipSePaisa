@@ -10,7 +10,7 @@ const activeJs = [
   'psp-link-tracking-v42.js','psp-direct-signup-v1.js','psp-performance-v218.js','user-news-hub-v29.js',
   'user-app-core-v29.js','user-signals-core-v29.js','course-auth-path-v207.js','course-enrollment.js',
   'course-marketplace-v3.js','course-post-auth-v207.js','psp-v28-fixes.js','push-subscribe-prompt.js',
-  'psp-v49-auth-compat.js','psp-v29-final.js','account-verification-v49.js','user-dashboard-v56.js',
+  'psp-v49-auth-compat.js','psp-v29-final.js','account-verification-v49.js','get-access-v464.js','access-flow-v465.js','user-dashboard-v56.js',
   'course-enrollments-admin.js','admin-final-overrides.js','admin-payments-ux-v222.js','psp-v18-admin-control.js',
   'realtime-complete.js','admin-v28-fixes.js','admin-v29-final.js','email-campaign-admin-v296.js',
   'admin-users-v56-clean.js','admin-users-export-v299.js','link-manager-v221.js','team-performance-admin-v56.js',
@@ -24,7 +24,9 @@ const activeJs = [
 const criticalPages = new Set([
   'index.html','admin/index.html','admin-panel.html','team/index.html','freecourse2/index.html','courses/index.html',
   'sign-in/index.html','sign-up/index.html','sajid-khan-ghori/index.html','ghulam-abbas/index.html',
-  'ad/technical/index.html','ad/fundamental/index.html'
+  'ad/technical/index.html','ad/fundamental/index.html',
+  'free-access/index.html','brokershift/index.html','broker-shift/index.html',
+  'verify-account/index.html','email-verified.html'
 ]);
 
 const exactDuplicateCopies = [
