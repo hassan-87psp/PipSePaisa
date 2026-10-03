@@ -188,7 +188,7 @@
   // V30: only tabs explicitly enabled by admin are shown. While settings load,
   // controlled tabs fail closed so a new user never sees disabled pages flash.
   var PSP_SITE_TAB_KEYS=['performance','addtrade','trades','analysis','aireport','charts','chats','signals','articles','vipplans','news','newshub','strength','tools','learn','vipindicators','vipea','banners','aitools','about','announce','support'];
-  var PSP_ALWAYS_VISIBLE_TABS={dashboard:true,mycourses:true,settings:true};
+  var PSP_ALWAYS_VISIBLE_TABS={dashboard:true,mycourses:true,vipplans:true,settings:true};
   var _disabledTabs={};
   var _tabSettingsReady=false;
   var _tabSettingsRetryTimer=null;
@@ -338,7 +338,7 @@
       dashboard: 'Dashboard', journal: 'Journal', performance: 'Performance', trades: 'My Trades',
       analysis: 'Trades Analysis', aireport: 'AI Report', news: 'Economic News', newshub: 'World News Hub', strength: 'Currency Strength',
       market: 'Live Market', charts: 'Live Charts', tools: 'Tools', learn: 'Learn Forex', mycourses: 'My Courses',
-      signals: 'Signals', eaindicator: 'EA & Indicator', articles: 'Charts & Articles', vipplans: 'VIP Plans',
+      signals: 'Signals', eaindicator: 'EA & Indicator', articles: 'Charts & Articles', vipplans: 'Get Access',
       support: 'Support', announce: 'Announcements', aitools: 'AI Tools',
       settings: 'Profile', about: 'About'
     };
@@ -3805,33 +3805,125 @@
   let vipPlansById={};
   let vipMentorContact = null;
   async function loadVipPlans(){
-    const grid=document.getElementById('vipPlansGrid');const statusEl=document.getElementById('vipStatus');
+    const grid=document.getElementById('vipPlansGrid');
+    const statusEl=document.getElementById('vipStatus');
     if(!grid)return;
+
     try{
       const qp=new URLSearchParams(location.search);
       if(qp.get('payment')==='return'&&currentProfile&&sb){
         const fresh=await sb.from('profiles').select('*').eq('id',currentProfile.id).single();
         if(fresh.data)currentProfile=Object.assign({},currentProfile,fresh.data);
       }
+      if(window.PSPAccountVerification&&typeof window.PSPAccountVerification.load==='function'){
+        await window.PSPAccountVerification.load(true,true);
+      }
     }catch(_){}
-    if(statusEl){
-      statusEl.innerHTML=(currentProfile&&currentProfile.is_premium)
-        ?'<div class="card" style="margin-bottom:14px;border:1px solid rgba(16,185,129,.4);background:linear-gradient(135deg,rgba(16,185,129,.12),transparent);"><div style="font-weight:800;color:var(--green);font-size:15px;">✨ You are a '+(currentProfile.member_type==='vip'?'👑 VIP':'💎 Premium')+' member</div><div style="font-size:13px;color:var(--text-muted);margin-top:3px;">'+(function(){var s=userServicesList();return (s&&s.length)?('Unlocked: '+vSvcChips(s)):'You have full access to premium signals, charts &amp; analysis.';})()+'</div></div>'
-        :'';
+
+    if(!sb){
+      grid.innerHTML='<div class="empty-state" style="grid-column:1/-1">Connect to view access options.</div>';
+      return;
     }
-    if(!sb){grid.innerHTML='<div class="empty-state"><div>Connect to view plans.</div></div>';return;}
-    const mentorId=currentProfile&&currentProfile.mentor_id;
+
     let rows=[],error=null;
     try{
-      const r=await sb.from('subscription_plans').select('*').eq('is_active',true).order('price',{ascending:true});
-      rows=r.data||[];error=r.error;
-      if(mentorId){const mp=await sb.from('profiles').select('full_name,phone').eq('id',mentorId).single();if(mp.data)vipMentorContact=mp.data;}
+      const r=await sb.from('subscription_plans')
+        .select('*')
+        .eq('is_active',true)
+        .eq('is_official',true)
+        .eq('member_type','vip')
+        .order('display_order',{ascending:true})
+        .order('price',{ascending:true});
+      rows=r.data||[];
+      error=r.error;
     }catch(e){error=e;}
-    if(error){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div>'+vEsc(error.message||'Error')+'</div></div>';return;}
-    if(!rows.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1;padding:28px 20px;border:1px solid var(--border);border-radius:14px;background:var(--bg-card)"><div style="font-size:30px;margin-bottom:8px">💳</div><div style="font-weight:900;font-size:15px;color:var(--text-primary)">Paid VIP Plan Not Configured Yet</div><div style="font-size:12px;color:var(--text-muted);margin-top:6px;line-height:1.5">No active paid VIP plan is available right now. Once Admin publishes a plan, you can pay by Local Bank or USDT and activate VIP access.</div></div>';return;}
-    grid.innerHTML=rows.map(function(r){var p=parseVipPlan(r);vipPlansById[p.id]=p;return vipPlanCard(p);}).join('');
+
+    const accessState=window.PSP_ACCOUNT_ACCESS_STATE||null;
+    const now=Date.now();
+    const premiumUntil=currentProfile&&currentProfile.premium_until?new Date(currentProfile.premium_until).getTime():0;
+    const paidActive=!!(currentProfile&&currentProfile.is_premium&&(!premiumUntil||premiumUntil>now));
+    const brokerExpiry=accessState&&accessState.approved_expires_at?new Date(accessState.approved_expires_at).getTime():0;
+    const brokerActive=!!(accessState&&accessState.submission_status==='approved'&&accessState.approved_active!==false&&(!brokerExpiry||brokerExpiry>now));
+    const brokerPending=!!(accessState&&accessState.submission_status==='pending');
+    const brokerRejected=!!(accessState&&accessState.submission_status==='rejected');
+    const brokerExpired=!!(accessState&&(accessState.submission_status==='expired'||(brokerExpiry&&brokerExpiry<=now)));
+
+    function dateText(ms){
+      if(!ms||!Number.isFinite(ms))return '';
+      try{return new Date(ms).toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'})}catch(_){return ''}
+    }
+
+    if(statusEl){
+      let icon='🔒',title='No Active Access',sub='Choose one of the two options below to unlock protected website features.',badge='NOT ACTIVE',badgeClass='pending';
+      if(paidActive){
+        icon='👑';title='VIP Paid Access Active';
+        sub=premiumUntil?('Active until '+dateText(premiumUntil)+' • Paid access is independent from broker verification.'):'Paid VIP access is active.';
+        badge='30-DAY VIP';badgeClass='active';
+      }else if(brokerActive){
+        icon='✅';title='90-Day Broker Access Active';
+        sub=brokerExpiry?('Active until '+dateText(brokerExpiry)+' • Verified through the PipSePaisa broker route.'):'Broker access is active.';
+        badge='FREE ACCESS';badgeClass='active';
+      }else if(brokerPending){
+        icon='⏳';title='Broker Verification Under Review';
+        sub='Your broker proof is pending Admin review. You can still choose paid access if you do not want to wait.';
+        badge='UNDER REVIEW';badgeClass='pending';
+      }else if(brokerRejected){
+        icon='⚠️';title='Broker Verification Needs Attention';
+        sub='Fix the broker link and resubmit, or choose the paid 30-day access option.';
+        badge='ACTION REQUIRED';badgeClass='pending';
+      }
+      statusEl.innerHTML='<div class="psp-access-status"><div class="psp-access-status-icon">'+icon+'</div><div><small>Current access</small><strong>'+title+'</strong><span>'+sub+'</span></div><div class="psp-access-status-badge '+badgeClass+'">'+badge+'</div></div>';
+    }
+
+    let brokerBtn='';
+    if(brokerActive){
+      brokerBtn='<button class="psp-access-btn" type="button" disabled>✓ 90-Day Access Active</button>';
+    }else if(brokerPending){
+      brokerBtn='<button class="psp-access-btn" type="button" disabled>⏳ Verification Under Review</button>';
+    }else if(brokerRejected){
+      brokerBtn='<button class="psp-access-btn" type="button" onclick="PSPAccountVerification.openFreeAccess(true)">Fix & Resubmit</button>';
+    }else if(brokerExpired){
+      brokerBtn='<button class="psp-access-btn" type="button" onclick="location.href=\'/free-access/?resubmit=1\'">Renew 90-Day Free Access</button>';
+    }else{
+      brokerBtn='<button class="psp-access-btn" type="button" onclick="PSPAccountVerification.openFreeAccess()">Get 90-Day Free Access</button>';
+    }
+
+    const paidRow=rows[0]||null;
+    let paidPlan=null;
+    if(paidRow){paidPlan=parseVipPlan(paidRow);vipPlansById[paidPlan.id]=paidPlan;}
+    const paidBtn=paidPlan
+      ? '<button class="psp-access-btn" type="button" onclick="openVipCheckout(\''+paidPlan.id+'\')">'+(paidActive?'Renew VIP — Add 30 Days':'Get 30-Day VIP Access')+'</button>'
+      : '<button class="psp-access-btn" type="button" disabled>Paid Plan Temporarily Unavailable</button>';
+
+    grid.innerHTML=
+      '<div class="psp-access-card broker">'+
+        '<div class="psp-access-card-top"><div class="psp-access-card-icon">🤝</div><div class="psp-access-card-badge">FREE</div></div>'+
+        '<h3>Broker / IB Access</h3>'+
+        '<div class="sub">Open or link your trading account under PipSePaisa, submit verification proof, and get full protected website access after approval.</div>'+
+        '<div class="psp-access-pricebox"><div><small>Access Fee</small><strong>FREE</strong></div><div><small>Duration</small><strong>90 Days</strong></div></div>'+
+        '<div class="psp-access-duration">✓ 90 Days Full Website Access</div>'+
+        '<ul class="psp-access-list"><li>Signals & premium market updates</li><li>Charts, Articles & Analysis</li><li>Journal, Performance & trade tools</li><li>News, community & protected website features</li><li>Broker verification required</li></ul>'+
+        brokerBtn+
+        '<div class="psp-access-note">Best for users who want access through the PipSePaisa broker route.</div>'+
+      '</div>'+
+      '<div class="psp-access-card paid">'+
+        '<div class="psp-access-card-top"><div class="psp-access-card-icon">👑</div><div class="psp-access-card-badge">NO BROKER REQUIRED</div></div>'+
+        '<h3>VIP Access with Fee</h3>'+
+        '<div class="sub">Get the same protected website access without broker verification. Pay using USDT or secure Local Bank Transfer.</div>'+
+        '<div class="psp-access-pricebox"><div><small>USDT TRC20</small><strong>$50</strong></div><div><small>Local Bank</small><strong>PKR 14,000</strong></div></div>'+
+        '<div class="psp-access-duration">👑 30 Days Full Website Access</div>'+
+        '<ul class="psp-access-list"><li>Signals & premium market updates</li><li>Charts, Articles & Analysis</li><li>Journal, Performance & trade tools</li><li>News, community & protected website features</li><li>No broker verification required</li></ul>'+
+        paidBtn+
+        '<div class="psp-access-note">Local Bank activates automatically after successful payment. USDT activates after Admin verification.</div>'+
+      '</div>'+
+      '<div class="psp-access-compare"><b>Same protected website access.</b> Broker route gives <b>90 days free</b>; paid VIP gives <b>30 days for $50 / PKR 14,000</b>.</div>';
+
+    if(error&&!paidPlan){
+      console.warn('Paid VIP plan lookup failed:',error.message||error);
+    }
     loadMyVipRequests();
   }
+
   function parseVipPlan(row){
     const lines=(row.features||'').split('\n');let icon='💎',tag='',pop=false,vip=false,period='monthly';const feats=[];
     let ib=false,iblink='',ibdep=0,ibbroker='',ibprice=0,services=[];
