@@ -210,6 +210,7 @@
     // an explicit mycourses setting is not present. My Courses remains safe.
     disabled.dashboard=false;
     disabled.mycourses=false;
+    disabled.vipplans=false;
     return disabled;
   }
   function pspScheduleTabSettingsRetry(){
@@ -264,7 +265,7 @@
     if(_tabSettingsReady){
       var active=document.querySelector('.page.active[id^="page-"]');
       var activeKey=active?active.id.replace(/^page-/,''):'';
-      if(activeKey && _disabledTabs[activeKey] && activeKey!=='dashboard'){
+      if(activeKey && _disabledTabs[activeKey] && !PSP_ALWAYS_VISIBLE_TABS[activeKey] && activeKey!=='dashboard'){
         setTimeout(function(){
           try{showPage('dashboard',document.querySelector('.menu-item[data-page="dashboard"]'));}catch(_){ }
         },0);
@@ -291,7 +292,7 @@
       document.querySelectorAll('.menu-item, .submenu-item').forEach(function(m){m.classList.remove('active')});
       var nav=document.querySelector('.menu-item[data-page="vipplans"]');
       if(nav)nav.classList.add('active');
-      var title=document.getElementById('pageTitle');if(title)title.textContent='VIP Plans';
+      var title=document.getElementById('pageTitle');if(title)title.textContent='Get Access';
       var side=document.getElementById('sidebar');if(side)side.classList.remove('open');
       var overlay=document.getElementById('sidebarOverlay');if(overlay)overlay.style.display='none';
       try{pspReleaseMobileDrawerLock()}catch(_){}
@@ -318,7 +319,7 @@
   }
 
   function showPage(page, el) {
-    if(_disabledTabs[page] && page!=='dashboard'){ page='dashboard'; el=document.querySelector('.menu-item[data-page="dashboard"]'); }
+    if(_disabledTabs[page] && !PSP_ALWAYS_VISIBLE_TABS[page] && page!=='dashboard'){ page='dashboard'; el=document.querySelector('.menu-item[data-page="dashboard"]'); }
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     const pageEl = document.getElementById('page-' + page);
     if (pageEl) pageEl.classList.add('active');
