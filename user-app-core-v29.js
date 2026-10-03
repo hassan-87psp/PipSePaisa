@@ -271,6 +271,21 @@
         },0);
       }
     }
+
+    // Get Access is a permanent account-access entry, not a configurable content tab.
+    // Re-assert it after every tab-visibility pass so first Dashboard load cannot hide it.
+    var accessNav=document.querySelector('#sidebar .menu-item[data-page="vipplans"]');
+    var strengthNav=document.querySelector('#sidebar .menu-item[data-page="strength"]');
+    if(accessNav){
+      accessNav.style.display='';
+      accessNav.style.setProperty('background','linear-gradient(135deg,#F39522,#e9840c)','important');
+      accessNav.style.setProperty('border','1px solid rgba(214,111,0,.35)','important');
+      accessNav.style.setProperty('color','#111827','important');
+      accessNav.style.setProperty('box-shadow','0 6px 14px rgba(243,149,34,.16)','important');
+      var ai=accessNav.querySelector('.menu-icon');if(ai&&ai.textContent!=='🔓')ai.textContent='🔓';
+      var as=accessNav.querySelector('strong');if(as&&as.textContent!=='Get Access')as.textContent='Get Access';
+      if(strengthNav&&strengthNav.nextElementSibling!==accessNav)strengthNav.insertAdjacentElement('afterend',accessNav);
+    }
   }
   // V218: use the last known tab configuration immediately, then refresh it
   // quietly from Supabase after first paint. This avoids an early DB request
@@ -3606,7 +3621,7 @@
           try{updateAuthUI();}catch(e){}
         });
       },0);
-      setTimeout(function(){if(typeof window.pspApplyIntendedRoute==='function')window.pspApplyIntendedRoute();try{var qp=new URLSearchParams(location.search);if(qp.get('payment')==='return'&&typeof window.pspOpenVipPlansForPayment==='function')window.pspOpenVipPlansForPayment();}catch(_){ }},0);
+      setTimeout(function(){try{applyTabVisibility()}catch(_){ }if(typeof window.pspApplyIntendedRoute==='function')window.pspApplyIntendedRoute();try{var qp=new URLSearchParams(location.search);if(qp.get('payment')==='return'&&typeof window.pspOpenVipPlansForPayment==='function')window.pspOpenVipPlansForPayment();}catch(_){ }},0);
     } catch (error) {
       console.error('Login error:', error);
       let msg = error && error.message ? error.message : 'Login failed';
