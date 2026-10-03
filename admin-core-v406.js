@@ -1346,7 +1346,7 @@ function toggleSidebar() {
 const SITE_TAB_DEFS=[
  ['performance','🏆 Performance'],['dashboard','📊 Dashboard'],['addtrade','➕ Add Trade'],['trades','📈 My Trades'],['analysis','📉 Trades Analysis'],
  ['aireport','🤖 AI Report'],['charts','📊 Live Charts'],['chats','💬 Member Chats'],
- ['signals','📶 Signals'],['articles','📝 Articles'],['vipplans','💎 VIP Plans'],
+ ['signals','📶 Signals'],['articles','📝 Articles'],['vipplans','🔓 Get Access'],
  ['news','📰 Economic News'],['newshub','📡 World News Hub'],['strength','💪 Currency Strength'],
  ['tools','🔧 Tools'],['eaindicator','🧩 EA & Indicator'],['learn','🎓 Learn Forex'],['vipindicators','⭐ VIP Indicators'],['vipea','🤖 VIP EAs'],
  ['banners','🖼️ Banners'],
