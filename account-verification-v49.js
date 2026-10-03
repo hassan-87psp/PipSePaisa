@@ -85,12 +85,43 @@
     }
   }
   async function sendEmail(btn){const c=client();if(!c)return alert('Please sign in again.');const old=btn?.textContent;if(btn){btn.disabled=true;btn.textContent='Sending…'}try{const r=await c.functions.invoke('request-account-verification',{body:{}});if(r.error)throw r.error;if(!r.data?.success)throw new Error(r.data?.error||'Could not send verification email.');if(r.data?.already_verified){await load(true,true);alert('Your email is already verified.');return}alert(r.data.message||'Verification email sent. Please check your inbox.')}catch(e){alert(e.message||'Could not send verification email.')}finally{if(btn){btn.disabled=false;btn.textContent=old||'Verify Email'}}}
-  function openFreeAccess(resubmit=false){if(!state)return goProfile();if(approvedActive())return goProfile();if(approvedExpired())return goProfile();if(!state.email_verified){const m=ensureModal();q('#pspAvLockTitle',m).textContent='Verify Email First';q('#pspAvLockText',m).textContent='Email Verification is required before the broker Full Access step. Use the Verify Email button in Profile, then continue here.';const b=q('#pspAvLockAction',m);b.textContent='Verify Email';b.onclick=()=>{m.classList.remove('open');goProfile();setTimeout(()=>q('.psp-av-email-card .psp-av-primary')?.focus(),250)};m.classList.add('open');return}location.href='/free-access/'+(resubmit?'?resubmit=1':'')}
+  async function openFreeAccess(resubmit=false){
+    // V467: always refresh the authoritative server state at the moment the user clicks.
+    await load(true,true);
+    if(!state)return goProfile();
+    if(approvedActive())return goProfile();
+    if(approvedExpired())return goProfile();
+    if(!state.email_verified){
+      // Retry once after a short delay in case the auth token was refreshing.
+      await new Promise(resolve=>setTimeout(resolve,180));
+      await load(true,true);
+    }
+    if(!state?.email_verified){
+      const m=ensureModal();
+      q('#pspAvLockTitle',m).textContent='Verify Email First';
+      q('#pspAvLockText',m).textContent='Email verification is required before the broker Full Access step. If you already verified, this status will refresh automatically.';
+      const b=q('#pspAvLockAction',m);
+      b.textContent='Open Profile';
+      b.onclick=()=>{m.classList.remove('open');goProfile();setTimeout(()=>q('.psp-av-email-card .psp-av-primary')?.focus(),250)};
+      m.classList.add('open');
+      return;
+    }
+    location.href='/free-access/'+(resubmit?'?resubmit=1':'');
+  }
   async function load(silent=false,force=false){
     const c=client();
     if(!c||!loggedIn()){
       state=null;lastLoadedAt=0;renderMini();markLocks();renderCard();return null
     }
+    // V467: never convert a short auth/session race into a false "email not verified" state.
+    try{
+      const sessionResult=await c.auth.getSession();
+      if(!sessionResult?.data?.session){
+        lastLoadedAt=0;
+        if(!silent)setTimeout(()=>load(true,true),450);
+        return state;
+      }
+    }catch(_){}
     if(!force&&state&&Date.now()-lastLoadedAt<8000)return state;
     if(loadPromise)return loadPromise;
 
@@ -99,7 +130,7 @@
       let expiryResult=null,bridgeResult=null;
       try{
         const settled=await Promise.allSettled([
-          c.rpc('psp_get_access_status'),
+          c.rpc('psp_get_access_snapshot_v467'),
           c.rpc('psp_get_access_expiry_v116'),
           c.rpc('psp_user_access_bridge_v157')
         ]);
@@ -155,10 +186,12 @@
             window.PSP_ACCOUNT_ACCESS_STATE=state;renderMini();markLocks();renderCard();return state;
           }
         }catch(_){}
-        if(!silent){
-          state={verification_required:true,can_access:false,email_verified:false,submission_status:'not_submitted',admin_whatsapp:'601156961157',direct_access_enabled:false,direct_access_active:false};
-          lastLoadedAt=Date.now();
-          renderMini();markLocks();renderCard()
+        // V467: fail neutral. A temporary RPC/network error must never tell a
+        // verified user to verify again. Keep the last known state and retry.
+        if(!silent&&!state){
+          lastLoadedAt=0;
+          renderMini();markLocks();renderCard();
+          setTimeout(()=>load(true,true),650);
         }
         return state;
       }finally{loading=false;loadPromise=null}
