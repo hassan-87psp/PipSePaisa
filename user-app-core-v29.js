@@ -282,6 +282,26 @@
     _disabledTabs=pspBuildDisabledTabs([]);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyTabVisibility,{once:true});else applyTabVisibility();
+  window.pspOpenVipPlansForPayment=function(){
+    try{
+      document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+      var pageEl=document.getElementById('page-vipplans');
+      if(!pageEl){location.href='/?tab=vipplans&paid=1';return}
+      pageEl.classList.add('active');
+      document.querySelectorAll('.menu-item, .submenu-item').forEach(function(m){m.classList.remove('active')});
+      var nav=document.querySelector('.menu-item[data-page="vipplans"]');
+      if(nav)nav.classList.add('active');
+      var title=document.getElementById('pageTitle');if(title)title.textContent='VIP Plans';
+      var side=document.getElementById('sidebar');if(side)side.classList.remove('open');
+      var overlay=document.getElementById('sidebarOverlay');if(overlay)overlay.style.display='none';
+      try{pspReleaseMobileDrawerLock()}catch(_){}
+      if(typeof loadVipPlans==='function')loadVipPlans();
+      setTimeout(function(){try{pageEl.scrollIntoView({behavior:'smooth',block:'start'})}catch(_){}},80);
+    }catch(e){
+      console.warn('VIP payment page open failed',e);
+      location.href='/?tab=vipplans&paid=1';
+    }
+  };
   function pspReleaseMobileDrawerLock(){
     try{
       var hadFixed=document.body.style.position==='fixed';
