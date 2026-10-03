@@ -4124,30 +4124,35 @@
     const opts=methods.map(function(m,i){return '<option value="'+i+'">'+vEsc(m.label||tlMap[m.type]||m.type)+'</option>';}).join('');
     const body=methods.length?(
       '<div class="vip-checkout-body">'+
-        '<div class="vip-checkout-section">'+
-          '<div class="vip-checkout-label-row"><label class="vip-checkout-label" for="vipMethod">Choose Payment Method</label><span class="vip-secure-chip">SECURE CHECKOUT</span></div>'+
-          '<div class="vip-select-shell"><select id="vipMethod" class="vip-checkout-select" onchange="vipMethodDetail()">'+opts+'</select><span class="vip-select-icon">⌄</span></div>'+
-        '</div>'+
-        '<div id="vipMethodDetail" class="vip-checkout-detail"></div>'+
-        '<div id="vipManualFields" class="vip-checkout-manual">'+
-          '<div class="vip-checkout-label-row"><label class="vip-checkout-label" for="vipReceipt">Payment Receipt</label><span class="vip-required-chip">REQUIRED</span></div>'+
-          '<label class="vip-checkout-upload" for="vipReceipt">'+
-            '<span class="vip-upload-icon">⇧</span>'+
-            '<span class="vip-upload-copy"><strong>Upload payment receipt</strong><small id="vipReceiptName">PNG, JPG or WEBP • clear screenshot</small></span>'+
-            '<span class="vip-upload-action">Choose File</span>'+
-            '<input type="file" id="vipReceipt" accept="image/png,image/jpeg,image/webp" onchange="vipReceiptChanged(this)">'+
-          '</label>'+
-          '<div class="vip-checkout-grid">'+
-            '<div class="vip-field-shell"><span>Transaction ID</span><input type="text" id="vipTxn" placeholder="Optional transaction / reference ID"></div>'+
-            '<div class="vip-field-shell"><span>Notes</span><textarea id="vipNotes" placeholder="Optional note for Admin" rows="2"></textarea></div>'+
+        '<div class="vip-checkout-main">'+
+          '<div class="vip-checkout-section">'+
+            '<div class="vip-checkout-label-row"><label class="vip-checkout-label" for="vipMethod">Payment Method</label><span class="vip-secure-chip">SECURE CHECKOUT</span></div>'+
+            '<div class="vip-select-shell"><select id="vipMethod" class="vip-checkout-select" onchange="vipMethodDetail()">'+opts+'</select><span class="vip-select-icon">⌄</span></div>'+
+          '</div>'+
+          '<div class="vip-checkout-workspace">'+
+            '<div id="vipMethodDetail" class="vip-checkout-detail"></div>'+
+            '<div id="vipManualFields" class="vip-checkout-manual">'+
+              '<div class="vip-checkout-label-row vip-receipt-heading"><label class="vip-checkout-label" for="vipReceipt">Payment Receipt</label><span class="vip-required-chip">REQUIRED</span></div>'+
+              '<label class="vip-checkout-upload" for="vipReceipt">'+
+                '<span class="vip-upload-icon">↑</span>'+
+                '<span class="vip-upload-copy"><strong>Upload Receipt</strong><small id="vipReceiptName">PNG, JPG or WEBP • clear screenshot</small></span>'+
+                '<span class="vip-upload-action">Browse</span>'+
+                '<input type="file" id="vipReceipt" accept="image/png,image/jpeg,image/webp" onchange="vipReceiptChanged(this)">'+
+              '</label>'+
+              '<div class="vip-checkout-grid">'+
+                '<div class="vip-field-shell"><span>Transaction ID <em>Optional</em></span><input type="text" id="vipTxn" placeholder="Reference / transaction ID"></div>'+
+                '<div class="vip-field-shell"><span>Admin Note <em>Optional</em></span><textarea id="vipNotes" placeholder="Add a short note" rows="2"></textarea></div>'+
+              '</div>'+
+            '</div>'+
           '</div>'+
         '</div>'+
-        '<button id="vipSubmitBtn" class="vip-checkout-submit" onclick="submitVipRequest()"><span>Submit Payment Request</span><b>→</b></button>'+
-        '<div class="vip-checkout-trust"><span>🔒 Secure submission</span><span>30-day access after approval</span></div>'+
-        '<div id="vipSubMsg" class="vip-checkout-message"></div>'+
+        '<div class="vip-checkout-footer">'+
+          '<button id="vipSubmitBtn" class="vip-checkout-submit" onclick="submitVipRequest()"><span>Submit Payment Request</span><b>→</b></button>'+
+          '<div class="vip-checkout-trust"><span>🔒 Secure submission</span><span>•</span><span>30-day access after approval</span></div>'+
+          '<div id="vipSubMsg" class="vip-checkout-message"></div>'+
+        '</div>'+
       '</div>'
     ):'<div class="vip-checkout-empty">No payment method is available right now. Please contact Admin.</div>';
-
     host.innerHTML='<div class="vip-modal-bg vip-checkout-bg" onclick="if(event.target===this)closeVipModal()"><div class="vip-modal vip-checkout-modal" role="dialog" aria-modal="true" aria-label="Activate VIP Access">'+
       '<div class="vip-checkout-head">'+
         '<div class="vip-checkout-head-icon">♛</div>'+
@@ -4155,8 +4160,8 @@
         '<button class="vip-checkout-close" onclick="closeVipModal()" aria-label="Close">✕</button>'+
       '</div>'+
       '<div class="vip-checkout-pricebar">'+
-        '<div class="vip-price-card"><span class="vip-price-icon">₮</span><div><small>USDT TRC20</small><strong>$50</strong></div></div>'+
-        '<div class="vip-price-card"><span class="vip-price-icon">🏦</span><div><small>LOCAL BANK</small><strong>PKR 14,000</strong></div></div>'+
+        '<div class="vip-price-card"><div><small>USDT TRC20</small><strong>$50</strong><em>Crypto payment</em></div><span class="vip-price-badge">USDT</span></div>'+
+        '<div class="vip-price-card"><div><small>LOCAL BANK</small><strong>PKR 14,000</strong><em>Bank transfer</em></div><span class="vip-price-badge">PKR</span></div>'+
       '</div>'+
       body+
     '</div></div>';
@@ -4199,7 +4204,7 @@
     const c=window._vipCheckout;if(!c)return;
     const select=document.getElementById('vipMethod');
     const i=parseInt(select&&select.value,10)||0;const m=c.methods[i];if(!m)return;
-    const detail=document.getElementById('vipMethodDetail'),manual=document.getElementById('vipManualFields'),btn=document.getElementById('vipSubmitBtn');
+    const detail=document.getElementById('vipMethodDetail'),manual=document.getElementById('vipManualFields'),btn=document.getElementById('vipSubmitBtn'),workspace=document.querySelector('#vipModalHost .vip-checkout-workspace');
 
     if(m.type==='infinity'){
       if(detail)detail.innerHTML=
@@ -4209,6 +4214,7 @@
           '<div class="vip-auto-note"><span>⚡</span><div><strong>Automatic Activation</strong><small>No receipt upload is required for secure Local Bank payment.</small></div></div>'+
         '</div>';
       if(manual)manual.style.display='none';
+      if(workspace)workspace.classList.add('single');
       if(btn)btn.innerHTML='<span>Pay PKR 14,000 Securely</span><b>→</b>';
       return;
     }
@@ -4230,6 +4236,7 @@
       '<div class="vip-payment-note"><span>✓</span> After payment, upload a clear receipt below and submit your request.</div>';
 
     if(manual)manual.style.display='block';
+    if(workspace)workspace.classList.remove('single');
     if(btn)btn.innerHTML='<span>Submit Payment Request</span><b>→</b>';
   }
 
