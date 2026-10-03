@@ -3805,19 +3805,44 @@
   function vEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   let vipPlansById={};
   let vipMentorContact = null;
+  var pspGetAccessNavWatchV455=null;
+  function pspStartGetAccessNavWatchV455(){
+    try{
+      if(pspGetAccessNavWatchV455)return;
+      var side=document.getElementById('sidebar');
+      if(!side)return;
+      pspGetAccessNavWatchV455=new MutationObserver(function(){try{pspGetAccessForceUiV453()}catch(_){}});
+      pspGetAccessNavWatchV455.observe(side,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['style','class']});
+    }catch(_){}
+  }
   function pspGetAccessForceUiV453(){
     try{
       var page=document.getElementById('page-vipplans');
       if(!page)return;
+      pspStartGetAccessNavWatchV455();
 
       // Force the navigation label/icon so stale HTML cannot keep "VIP Plans".
       document.querySelectorAll('.menu-item[data-page="vipplans"]').forEach(function(nav){
+        nav.style.setProperty('order','12','important');
+        nav.style.setProperty('background','linear-gradient(135deg,#F39522,#e9840c)','important');
+        nav.style.setProperty('border','1px solid rgba(214,111,0,.35)','important');
+        nav.style.setProperty('color','#111827','important');
+        nav.style.setProperty('box-shadow','0 6px 14px rgba(243,149,34,.16)','important');
         var icon=nav.querySelector('.menu-icon');if(icon)icon.textContent='🔓';
         var strong=nav.querySelector('strong');
         if(strong)strong.textContent='Get Access';
         else{
           var texts=[].slice.call(nav.childNodes).filter(function(n){return n.nodeType===3&&String(n.textContent||'').trim()});
           if(texts[0])texts[0].textContent=' Get Access ';
+          else{
+            var s=document.createElement('strong');s.textContent='Get Access';
+            if(icon&&icon.nextSibling)nav.insertBefore(s,icon.nextSibling);else nav.appendChild(s);
+          }
+        }
+        var badge=[].slice.call(nav.querySelectorAll('span')).find(function(x){return String(x.textContent||'').trim()==='2 WAYS'});
+        if(badge){
+          badge.style.setProperty('background','rgba(255,255,255,.34)','important');
+          badge.style.setProperty('color','#7a3d00','important');
         }
       });
 
@@ -3964,7 +3989,7 @@
         sub=premiumUntil?('Active until '+dateText(premiumUntil)+' • Paid access is independent from broker verification.'):'Paid VIP access is active.';
         badge='30-DAY VIP';badgeClass='active';
       }else if(brokerActive){
-        icon='✅';title='90-Day Broker Access Active';
+        icon='✅';title='Broker Access Active';
         sub=brokerExpiry?('Active until '+dateText(brokerExpiry)+' • Verified through the PipSePaisa broker route.'):'Broker access is active.';
         badge='FREE ACCESS';badgeClass='active';
       }else if(brokerPending){
@@ -3981,15 +4006,15 @@
 
     let brokerBtn='';
     if(brokerActive){
-      brokerBtn='<button class="psp-access-btn" type="button" disabled>✓ 90-Day Access Active</button>';
+      brokerBtn='<button class="psp-access-btn" type="button" disabled>✓ 30-Day Access Active</button>';
     }else if(brokerPending){
       brokerBtn='<button class="psp-access-btn" type="button" disabled>⏳ Verification Under Review</button>';
     }else if(brokerRejected){
       brokerBtn='<button class="psp-access-btn" type="button" onclick="PSPAccountVerification.openFreeAccess(true)">Fix & Resubmit</button>';
     }else if(brokerExpired){
-      brokerBtn='<button class="psp-access-btn" type="button" onclick="location.href=\'/free-access/?resubmit=1\'">Renew 90-Day Free Access</button>';
+      brokerBtn='<button class="psp-access-btn" type="button" onclick="location.href=\'/free-access/?resubmit=1\'">Renew 30-Day Free Access</button>';
     }else{
-      brokerBtn='<button class="psp-access-btn" type="button" onclick="PSPAccountVerification.openFreeAccess()">Get 90-Day Free Access</button>';
+      brokerBtn='<button class="psp-access-btn" type="button" onclick="PSPAccountVerification.openFreeAccess()">Get 30-Day Free Access</button>';
     }
 
     const paidRow=rows[0]||null;
@@ -4004,8 +4029,8 @@
         '<div class="psp-access-card-top"><div class="psp-access-card-icon">🤝</div><div class="psp-access-card-badge">FREE</div></div>'+
         '<h3>Broker / IB Access</h3>'+
         '<div class="sub">Open or link your trading account under PipSePaisa, submit verification proof, and get full protected website access after approval.</div>'+
-        '<div class="psp-access-pricebox"><div><small>Access Fee</small><strong>FREE</strong></div><div><small>Duration</small><strong>90 Days</strong></div></div>'+
-        '<div class="psp-access-duration">✓ 90 Days Full Website Access</div>'+
+        '<div class="psp-access-pricebox"><div><small>Access Fee</small><strong>FREE</strong></div><div><small>Duration</small><strong>30 Days</strong></div></div>'+
+        '<div class="psp-access-duration">✓ 30 Days Full Website Access</div>'+
         '<ul class="psp-access-list"><li>Signals & premium market updates</li><li>Charts, Articles & Analysis</li><li>Journal, Performance & trade tools</li><li>News, community & protected website features</li><li>Broker verification required</li></ul>'+
         brokerBtn+
         '<div class="psp-access-note">Best for users who want access through the PipSePaisa broker route.</div>'+
@@ -4020,7 +4045,7 @@
         paidBtn+
         '<div class="psp-access-note">Local Bank activates automatically after successful payment. USDT activates after Admin verification.</div>'+
       '</div>'+
-      '<div class="psp-access-compare"><b>Same protected website access.</b> Broker route gives <b>90 days free</b>; paid VIP gives <b>30 days for $50 / PKR 14,000</b>.</div>';
+      '<div class="psp-access-compare"><b>Same protected website access.</b> Broker route gives <b>30 days free</b>; paid VIP gives <b>30 days for $50 / PKR 14,000</b>.</div>';
 
     if(error&&!paidPlan){
       console.warn('Paid VIP plan lookup failed:',error.message||error);
