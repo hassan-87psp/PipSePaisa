@@ -3084,8 +3084,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20261003-v459-dashboard-access-visible"></script>
-<script src="get-access-v463.js?v=20261003-v463-balanced-premium"></script>
+<script src="user-app-core-v29.js?v=20261003-v464-final-access"></script>
+<script src="get-access-v464.js?v=20261003-v464-final-premium"></script>
 <script id="mentorPortalAiJs">
 (function(){
   const tools={
@@ -4483,51 +4483,6 @@ body.psp-authenticated #authMenuItem{
 
 <script defer src="/psp-smooth-scroll-v322.js?v=20260930-v322-all-pages"></script>
 
-<script id="pspGetAccessNavLockV456">
-(function(){
-  function lock(){
-    try{
-      var menu=document.querySelector('#sidebar .menu');
-      var strength=document.querySelector('#sidebar .menu-item[data-page="strength"]');
-      var vip=document.querySelector('#sidebar .menu-item[data-page="vipplans"]');
-      if(!menu||!strength||!vip)return;
 
-      if(strength.nextElementSibling!==vip) strength.insertAdjacentElement('afterend',vip);
-
-      var expected='<span class="menu-icon">🔓</span><strong>Get Access</strong><span class="psp-get-access-ways" style="margin-left:auto;font-size:7px;padding:2px 6px;background:rgba(255,255,255,.34);color:#7a3d00;border-radius:999px;font-weight:900;">2 WAYS</span>';
-      if((vip.querySelector('strong')?.textContent||'').trim()!=='Get Access' || (vip.querySelector('.menu-icon')?.textContent||'').trim()!=='🔓'){
-        vip.innerHTML=expected;
-      }
-
-      vip.style.setProperty('background','linear-gradient(135deg,#F39522,#e9840c)','important');
-      vip.style.setProperty('border','1px solid rgba(214,111,0,.35)','important');
-      vip.style.setProperty('color','#111827','important');
-      vip.style.setProperty('box-shadow','0 6px 14px rgba(243,149,34,.16)','important');
-      vip.style.setProperty('font-weight','800','important');
-      vip.style.setProperty('order','12','important');
-      vip.style.display='';
-
-      var title=document.getElementById('pageTitle');
-      if(document.getElementById('page-vipplans')?.classList.contains('active') && title) title.textContent='Get Access';
-    }catch(_){}
-  }
-  function start(){
-    lock();
-    var side=document.getElementById('sidebar');
-    if(!side)return;
-    var queued=false;
-    new MutationObserver(function(){
-      if(queued)return;
-      queued=true;
-      requestAnimationFrame(function(){queued=false;lock();});
-    }).observe(side,{childList:true,subtree:true,characterData:true});
-    setTimeout(lock,250);
-    setTimeout(lock,1000);
-    setTimeout(lock,2500);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
-  else start();
-})();
-</script>
 </body>
 </html>
