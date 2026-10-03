@@ -101,7 +101,9 @@
       const table=shell.querySelector('.v172-table-wrap');
       const pager=shell.querySelector('.v208-pager');
 
-      [hero,kpis,paid,status,other,filterPanel,current,bulk,table,pager,free].filter(Boolean).forEach(node=>shell.appendChild(node));
+      const desired=[hero,kpis,paid,status,other,filterPanel,current,bulk,table,pager,free].filter(Boolean);
+      const orderedChildren=[...shell.children].filter(node=>desired.includes(node));
+      if(desired.some((node,index)=>orderedChildren[index]!==node))desired.forEach(node=>shell.appendChild(node));
     }finally{
       busy=false;
     }
