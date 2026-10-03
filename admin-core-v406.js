@@ -305,7 +305,8 @@ function loadAdminSubs(){
     '<div class="card"><h3 style="margin:0 0 4px">✨ Create Official Plan</h3><div class="card-meta" style="margin-bottom:12px">Shown to ALL students (every mentor). Official platform package.</div><div style="display:grid;gap:11px">'+
       '<div style="display:flex;gap:10px"><input id="op-icon" maxlength="2" value="💎" style="'+APMS+';max-width:60px;text-align:center;font-size:18px" oninput="opPreview()"><input id="op-name" placeholder="Plan name e.g. PipSePaisa VIP" style="'+APMS+'" oninput="opPreview()"></div>'+
       '<input id="op-tag" placeholder="Short tagline (optional)" style="'+APMS+'" oninput="opPreview()">'+
-      '<div style="display:flex;gap:10px"><input id="op-price" type="number" placeholder="Price" style="'+APMS+'" oninput="opPreview()"><select id="op-cur" style="'+APMS+';max-width:90px" onchange="opPreview()"><option>PKR</option><option>USD</option></select><select id="op-period" style="'+APMS+';max-width:130px" onchange="opPreview()"><option value="monthly">per month</option><option value="yearly">per year</option><option value="lifetime">Lifetime</option></select></div>'+
+      '<div style="display:flex;gap:10px"><input id="op-price" type="number" placeholder="Plan price" style="'+APMS+'" oninput="opPreview()"><select id="op-cur" style="'+APMS+';max-width:90px" onchange="opPreview()"><option>PKR</option><option>USD</option></select><select id="op-period" style="'+APMS+';max-width:130px" onchange="opPreview()"><option value="monthly">per month</option><option value="yearly">per year</option><option value="lifetime">Lifetime</option></select></div>'+
+      '<input id="op-localbank" type="number" placeholder="Local Bank price (PKR) — required for automatic bank payment" style="'+APMS+'" oninput="opPreview()">'+
       '<textarea id="op-feat" rows="3" placeholder="Features (one per line)" style="'+APMS+'" oninput="opPreview()"></textarea>'+
       '<div><div style="font-size:12px;font-weight:700;color:var(--text-secondary,#94a0b8);margin-bottom:7px">📦 Services included</div><div style="display:flex;flex-wrap:wrap;gap:8px">'+
         ['signal','chart','courses','vipindicator','vipea'].map(function(v){return '<label class="tick-chip"><input type="checkbox" class="op-svc" value="'+v+'" onchange="opPreview()"> '+ASVC[v]+(v==='vipindicator'||v==='vipea'?' <span style="font-size:10px;color:#94a0b8">(soon)</span>':'')+'</label>';}).join('')+
@@ -332,16 +333,17 @@ function opCardHTML(p){
   var feats=((p.features&&p.features.length)?p.features:['Premium access']).map(function(x){return '<li style="padding:3px 0;font-size:12.5px">✓ '+aEsc(x)+'</li>';}).join('');
   var chips=(p.services&&p.services.length)?'<div style="margin:4px 0 6px;line-height:1.9">'+asSvcChips(p.services)+'</div>':'';
   var mt='<span style="font-size:10px;padding:2px 8px;border-radius:20px;font-weight:800;'+(p.member_type==='vip'?'background:#f59e0b;color:#0a0e1a':'background:rgba(139,92,246,.2);color:#a78bfa')+'">'+(p.member_type==='vip'?'👑 VIP':'💎 PREMIUM')+'</span>';
+  var bank=Number(p.local_bank_price_pkr||0)>0?'<div style="margin-top:6px;padding:6px 9px;border-radius:8px;background:rgba(59,130,246,.10);font-size:12px;color:#2563eb;font-weight:800">🏦 Local Bank: PKR '+Number(p.local_bank_price_pkr).toLocaleString()+'</div>':'';
   var ib=p.ib?'<div style="margin-top:6px;padding:6px 9px;border-radius:8px;background:rgba(16,185,129,.12);font-size:12px;color:#10b981;font-weight:800">🤝 IB: '+(p.ibprice>0?(p.ibprice+' '+aEsc(p.currency||'')):'FREE')+'</div>':'';
   return '<div style="border:1px solid var(--border,#1f2937);border-radius:14px;padding:16px;background:linear-gradient(160deg,rgba(245,158,11,.06),transparent)">'+
     '<div style="font-size:28px">'+aEsc(p.icon||'💎')+'</div><div style="font-weight:800;font-size:16px;margin-top:4px">'+aEsc(p.name||'Plan')+'</div>'+
     (p.tagline?'<div style="font-size:12px;color:#94a0b8">'+aEsc(p.tagline)+'</div>':'')+'<div style="margin-top:6px">'+mt+'</div>'+chips+
-    '<div style="font-size:24px;font-weight:800;color:#f59e0b;margin:8px 0">'+(p.price||0)+'<span style="font-size:12px;color:#94a0b8;font-weight:600"> '+aEsc(p.currency||'')+' '+perLbl+'</span></div>'+ib+
+    '<div style="font-size:24px;font-weight:800;color:#f59e0b;margin:8px 0">'+(p.price||0)+'<span style="font-size:12px;color:#94a0b8;font-weight:600"> '+aEsc(p.currency||'')+' '+perLbl+'</span></div>'+bank+ib+
     '<ul style="list-style:none;padding:0;margin:8px 0 0">'+feats+'</ul>'+(p.id?'<button onclick="delOfficialPlan(\''+p.id+'\')" style="margin-top:10px;padding:5px 12px;border-radius:8px;background:rgba(239,68,68,.15);border:none;color:#ef4444;cursor:pointer;font-size:12px">🗑️ Remove</button>':'')+'</div>';
 }
 function opPreview(){
   var box=document.getElementById('opPreview');if(!box)return;
-  var p={icon:opVal('op-icon')||'💎',name:opVal('op-name')||'Plan name',tagline:opVal('op-tag'),price:parseFloat(opVal('op-price'))||0,currency:opVal('op-cur'),period:(document.getElementById('op-period')||{}).value,features:opVal('op-feat').split('\n').map(function(x){return x.trim();}).filter(Boolean),services:opGetSvc(),member_type:(document.getElementById('op-mtype')||{}).value||'premium',ib:(document.getElementById('op-ibon')||{}).checked,ibprice:parseFloat(opVal('op-ibprice'))||0};
+  var p={icon:opVal('op-icon')||'💎',name:opVal('op-name')||'Plan name',tagline:opVal('op-tag'),price:parseFloat(opVal('op-price'))||0,currency:opVal('op-cur'),local_bank_price_pkr:parseFloat(opVal('op-localbank'))||0,period:(document.getElementById('op-period')||{}).value,features:opVal('op-feat').split('\n').map(function(x){return x.trim();}).filter(Boolean),services:opGetSvc(),member_type:(document.getElementById('op-mtype')||{}).value||'premium',ib:(document.getElementById('op-ibon')||{}).checked,ibprice:parseFloat(opVal('op-ibprice'))||0};
   box.innerHTML=opCardHTML(p);
 }
 async function createOfficialPlan(){
@@ -354,10 +356,10 @@ async function createOfficialPlan(){
   if(services.length)f+='[SERVICES]'+services.join(',')+'\n';
   if(ibon){f+='[IB]\n';var lk=opVal('op-iblink');if(lk)f+='[IBLINK]'+lk+'\n';var br=opVal('op-ibbroker');if(br)f+='[IBBROKER]'+br+'\n';var dp=parseFloat(opVal('op-ibdep'))||0;if(dp)f+='[IBDEPOSIT]'+dp+'\n';f+='[IBPRICE]'+(parseFloat(opVal('op-ibprice'))||0)+'\n';}
   f+='[PERIOD]'+period+'\n';var tag=opVal('op-tag');if(tag)f+='[TAG]'+tag+'\n';f+=opVal('op-feat');
-  var obj={owner_id:currentAdmin.id,is_official:true,name:name,price:parseFloat(opVal('op-price'))||0,currency:opVal('op-cur'),duration_days:dur,features:f,is_active:true,services:(services.length?services.join(','):null),member_type:(document.getElementById('op-mtype')||{}).value||'premium'};
+  var obj={owner_id:currentAdmin.id,is_official:true,name:name,price:parseFloat(opVal('op-price'))||0,currency:opVal('op-cur'),local_bank_price_pkr:parseFloat(opVal('op-localbank'))||null,duration_days:dur,features:f,is_active:true,services:(services.length?services.join(','):null),member_type:(document.getElementById('op-mtype')||{}).value||'premium'};
   var r=await sb.from('subscription_plans').insert(obj);
   if(r.error){alert('Error: '+r.error.message);return;}
-  ['op-name','op-price','op-feat','op-tag','op-iblink','op-ibbroker','op-ibdep'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
+  ['op-name','op-price','op-localbank','op-feat','op-tag','op-iblink','op-ibbroker','op-ibdep'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
   document.getElementById('op-icon').value='💎';document.getElementById('op-pop').checked=false;document.getElementById('op-vip').checked=false;document.getElementById('op-ibon').checked=false;document.getElementById('op-ibprice').value='0';document.getElementById('op-mtype').value='premium';
   document.querySelectorAll('.op-svc').forEach(function(c){c.checked=false;});opIbToggle();opPreview();loadOfficialPlans();
 }
@@ -380,7 +382,7 @@ function opParse(row){
     else if(t.indexOf('[IBLINK]')===0||t.indexOf('[IBBROKER]')===0||t.indexOf('[IBDEPOSIT]')===0){}
     else feats.push(t);});
   if(row.services)services=row.services.split(',').map(function(x){return x.trim();}).filter(Boolean);
-  return {id:row.id,name:row.name,price:row.price,currency:row.currency,icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats,ib:ib,ibprice:ibprice,services:services,member_type:row.member_type||'premium'};
+  return {id:row.id,name:row.name,price:row.price,currency:row.currency,local_bank_price_pkr:row.local_bank_price_pkr,icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats,ib:ib,ibprice:ibprice,services:services,member_type:row.member_type||'premium'};
 }
 async function delOfficialPlan(id){if(!(await window.pspConfirm('Delete this official plan?')))return;await sb.from('subscription_plans').delete().eq('id',id);loadOfficialPlans();}
 
