@@ -3805,7 +3805,110 @@
   function vEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   let vipPlansById={};
   let vipMentorContact = null;
+  function pspGetAccessForceUiV453(){
+    try{
+      var page=document.getElementById('page-vipplans');
+      if(!page)return;
+
+      // Force the navigation label/icon so stale HTML cannot keep "VIP Plans".
+      document.querySelectorAll('.menu-item[data-page="vipplans"]').forEach(function(nav){
+        var icon=nav.querySelector('.menu-icon');if(icon)icon.textContent='🔓';
+        var strong=nav.querySelector('strong');
+        if(strong)strong.textContent='Get Access';
+        else{
+          var texts=[].slice.call(nav.childNodes).filter(function(n){return n.nodeType===3&&String(n.textContent||'').trim()});
+          if(texts[0])texts[0].textContent=' Get Access ';
+        }
+      });
+
+      var title=document.getElementById('pageTitle');if(title)title.textContent='Get Access';
+
+      // Replace any stale VIP Plans header with the Access Center hero.
+      var staleCards=[].slice.call(page.querySelectorAll(':scope > .card'));
+      staleCards.forEach(function(card){
+        var t=String(card.textContent||'');
+        if(t.indexOf('VIP Plans')>-1&&t.indexOf('My Requests')===-1)card.remove();
+      });
+      if(!page.querySelector('.psp-access-hero')){
+        var hero=document.createElement('div');
+        hero.className='psp-access-hero';
+        hero.innerHTML='<div><div class="psp-access-kicker">PIPSEPAISA ACCESS CENTER</div><h2>🔓 Get Full Website Access</h2><p>Choose the access route that suits you. Both options unlock PipSePaisa protected website features.</p></div><div class="psp-access-hero-badge">GROW WITH US</div>';
+        var status=page.querySelector('#vipStatus');
+        page.insertBefore(hero,status||page.firstChild);
+      }
+
+      var grid=page.querySelector('#vipPlansGrid');if(grid)grid.classList.add('psp-access-grid');
+      var history=page.querySelector('#myVipReqs');if(history)history.classList.add('psp-access-history');
+
+      if(!document.getElementById('psp-get-access-v453-inline')){
+        var st=document.createElement('style');
+        st.id='psp-get-access-v453-inline';
+        st.textContent=`
+#page-vipplans{--ga-orange:#f39522;--ga-green:#10b981}
+#page-vipplans .psp-access-hero{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;margin:0 0 14px;border:1px solid rgba(243,149,34,.28);border-radius:18px;background:radial-gradient(circle at 88% 18%,rgba(243,149,34,.16),transparent 24%),linear-gradient(135deg,rgba(243,149,34,.10),rgba(255,255,255,.015) 55%);box-shadow:0 12px 32px rgba(45,32,12,.06)}
+#page-vipplans .psp-access-kicker{font-size:8px;letter-spacing:.12em;font-weight:900;color:#d97706;margin-bottom:4px}
+#page-vipplans .psp-access-hero h2{margin:0;font-size:22px;line-height:1.15;color:var(--text-primary)}
+#page-vipplans .psp-access-hero p{margin:6px 0 0;font-size:11.5px;line-height:1.5;color:var(--text-muted);max-width:720px}
+#page-vipplans .psp-access-hero-badge{font-size:8px;font-weight:900;letter-spacing:.08em;padding:8px 10px;border-radius:999px;background:rgba(243,149,34,.14);color:#d97706;border:1px solid rgba(243,149,34,.22)}
+#page-vipplans .psp-access-status{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:12px 14px;margin:0 0 14px;border:1px solid var(--border);border-radius:14px;background:var(--bg-card);box-shadow:0 7px 18px rgba(31,41,55,.035)}
+#page-vipplans .psp-access-status-icon{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--bg-elevated);border:1px solid var(--border);font-size:18px}
+#page-vipplans .psp-access-status small{display:block;color:var(--text-muted);font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+#page-vipplans .psp-access-status strong{display:block;font-size:12px;color:var(--text-primary);margin-top:2px}
+#page-vipplans .psp-access-status span{font-size:9px;color:var(--text-muted)}
+#page-vipplans .psp-access-status-badge{font-size:8px;font-weight:900;padding:6px 8px;border-radius:999px}
+#page-vipplans .psp-access-status-badge.active{color:#047857;background:rgba(16,185,129,.11);border:1px solid rgba(16,185,129,.2)}
+#page-vipplans .psp-access-status-badge.pending{color:#b45309;background:rgba(243,149,34,.11);border:1px solid rgba(243,149,34,.2)}
+#page-vipplans .psp-access-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px!important;align-items:stretch!important}
+#page-vipplans .psp-access-card{position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:410px;border-radius:18px;padding:18px;background:var(--bg-card);border:1px solid var(--border);box-shadow:0 10px 28px rgba(31,41,55,.05)}
+#page-vipplans .psp-access-card:after{content:"";position:absolute;width:190px;height:190px;border-radius:50%;right:-70px;top:-85px;pointer-events:none}
+#page-vipplans .psp-access-card.broker{border-color:rgba(16,185,129,.28);background:linear-gradient(155deg,rgba(16,185,129,.08),var(--bg-card) 42%)}
+#page-vipplans .psp-access-card.broker:after{background:rgba(16,185,129,.07)}
+#page-vipplans .psp-access-card.paid{border-color:rgba(243,149,34,.36);background:linear-gradient(155deg,rgba(243,149,34,.11),var(--bg-card) 44%);box-shadow:0 14px 36px rgba(243,149,34,.09)}
+#page-vipplans .psp-access-card.paid:after{background:rgba(243,149,34,.10)}
+#page-vipplans .psp-access-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:relative;z-index:1}
+#page-vipplans .psp-access-card-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:21px;background:var(--bg-elevated);border:1px solid var(--border)}
+#page-vipplans .psp-access-card-badge{font-size:7px;font-weight:900;padding:5px 7px;border-radius:999px;white-space:nowrap}
+#page-vipplans .broker .psp-access-card-badge{background:rgba(16,185,129,.12);color:#047857}
+#page-vipplans .paid .psp-access-card-badge{background:rgba(243,149,34,.14);color:#b45309}
+#page-vipplans .psp-access-card h3{position:relative;z-index:1;margin:14px 0 4px;font-size:18px;color:var(--text-primary)}
+#page-vipplans .psp-access-card .sub{position:relative;z-index:1;font-size:10px;color:var(--text-muted);line-height:1.5;min-height:31px}
+#page-vipplans .psp-access-pricebox{position:relative;z-index:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:13px 0}
+#page-vipplans .psp-access-pricebox>div{padding:9px 10px;border-radius:10px;background:var(--bg-elevated);border:1px solid var(--border)}
+#page-vipplans .psp-access-pricebox small{display:block;font-size:7px;color:var(--text-muted);font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+#page-vipplans .psp-access-pricebox strong{display:block;margin-top:3px;font-size:13px;color:var(--text-primary)}
+#page-vipplans .psp-access-duration{position:relative;z-index:1;padding:8px 10px;border-radius:10px;font-size:9.5px;font-weight:900;text-align:center;margin-bottom:12px}
+#page-vipplans .broker .psp-access-duration{background:rgba(16,185,129,.09);color:#047857}
+#page-vipplans .paid .psp-access-duration{background:rgba(243,149,34,.11);color:#b45309}
+#page-vipplans .psp-access-list{position:relative;z-index:1;display:grid;gap:7px;margin:0 0 16px;padding:0;list-style:none;flex:1}
+#page-vipplans .psp-access-list li{display:flex;align-items:flex-start;gap:7px;font-size:9.5px;color:var(--text-primary);line-height:1.4}
+#page-vipplans .psp-access-list li:before{content:"✓";font-weight:900;color:var(--ga-green)}
+#page-vipplans .paid .psp-access-list li:before{color:#d97706}
+#page-vipplans .psp-access-btn{position:relative;z-index:1;width:100%;border:0;border-radius:11px;padding:11px 12px;font-family:inherit;font-size:10.5px;font-weight:900;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease}
+#page-vipplans .psp-access-btn:hover{transform:translateY(-1px)}
+#page-vipplans .broker .psp-access-btn{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 8px 18px rgba(16,185,129,.14)}
+#page-vipplans .paid .psp-access-btn{background:linear-gradient(135deg,#fb9201,#e77d00);color:#111827;box-shadow:0 8px 18px rgba(243,149,34,.17)}
+#page-vipplans .psp-access-btn[disabled]{opacity:.62;cursor:default;transform:none;box-shadow:none}
+#page-vipplans .psp-access-note{position:relative;z-index:1;font-size:8px;color:var(--text-muted);text-align:center;margin-top:7px;line-height:1.4}
+#page-vipplans .psp-access-compare{grid-column:1/-1;padding:10px 12px;border:1px dashed rgba(127,142,165,.25);border-radius:12px;background:rgba(127,142,165,.035);font-size:9px;color:var(--text-muted);text-align:center}
+#page-vipplans .psp-access-compare b{color:var(--text-primary)}
+#page-vipplans .psp-access-history{margin-top:14px!important}
+#page-vipplans .psp-access-history>.card{border-radius:14px!important;box-shadow:0 8px 20px rgba(31,41,55,.035)!important}
+@media(max-width:768px){
+  #page-vipplans .psp-access-hero{padding:14px;align-items:flex-start}
+  #page-vipplans .psp-access-hero h2{font-size:18px}
+  #page-vipplans .psp-access-hero-badge{display:none}
+  #page-vipplans .psp-access-status{grid-template-columns:auto 1fr}
+  #page-vipplans .psp-access-status-badge{grid-column:1/-1;width:max-content}
+  #page-vipplans .psp-access-grid{grid-template-columns:1fr!important}
+  #page-vipplans .psp-access-card{min-height:0;padding:15px}
+}`;
+        document.head.appendChild(st);
+      }
+    }catch(e){console.warn('Get Access UI force failed',e)}
+  }
+
   async function loadVipPlans(){
+    pspGetAccessForceUiV453();
     const grid=document.getElementById('vipPlansGrid');
     const statusEl=document.getElementById('vipStatus');
     if(!grid)return;
@@ -3923,6 +4026,7 @@
       console.warn('Paid VIP plan lookup failed:',error.message||error);
     }
     loadMyVipRequests();
+    setTimeout(pspGetAccessForceUiV453,0);
   }
 
   function parseVipPlan(row){
