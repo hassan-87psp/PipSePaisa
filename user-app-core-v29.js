@@ -3865,7 +3865,7 @@
       '<div style="font-size:18px;font-weight:800;margin-top:8px;">'+vEsc(p.name||'Plan')+'</div>'+
       (p.tagline?'<div style="font-size:12px;color:var(--text-muted);margin-top:2px;">'+vEsc(p.tagline)+'</div>':'')+
       chips+
-      '<div style="font-size:30px;font-weight:800;color:var(--gold);margin:12px 0;">'+(p.price||0)+'<span style="font-size:13px;color:var(--text-muted);font-weight:600;"> '+vEsc(p.currency||'')+' '+perLbl+'</span></div>'+
+      '<div style="font-size:30px;font-weight:800;color:var(--gold);margin:12px 0;">'+(p.price||0)+'<span style="font-size:13px;color:var(--text-muted);font-weight:600;"> '+vEsc(p.currency||'')+' '+perLbl+'</span></div><div style="font-size:11px;color:var(--text-muted);line-height:1.55;margin:-4px 0 10px"><b style="color:var(--text-primary)">USDT:</b> $50 &nbsp;•&nbsp; <b style="color:var(--text-primary)">Local Bank:</b> PKR 14,000<br><b style="color:var(--green)">30 Days Full Website Access</b></div>'+
       '<ul style="list-style:none;padding:0;margin:0 0 16px;flex:1 1 auto;">'+feats+'</ul>'+
       subBtn+ibBtn+ibNote+
     '</div>';
