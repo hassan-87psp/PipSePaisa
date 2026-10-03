@@ -317,3 +317,65 @@ function inject(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',inject,{once:true});else inject();
 })();
+
+/* V467 premium readable scale */
+(function(){
+  if(document.getElementById('psp-access-v467-readable'))return;
+  const s=document.createElement('style');
+  s.id='psp-access-v467-readable';
+  s.textContent=\`
+#page-vipplans .ga-shell{max-width:1180px!important;gap:16px!important}
+#page-vipplans .ga-header{padding:22px 24px!important;border-radius:20px!important;box-shadow:0 16px 44px rgba(76,48,10,.07)!important}
+#page-vipplans .ga-kicker{font-size:10px!important;margin-bottom:6px!important}
+#page-vipplans .ga-title{font-size:30px!important;letter-spacing:-.035em!important}
+#page-vipplans .ga-subtitle{font-size:13px!important;line-height:1.55!important;margin-top:7px!important}
+#page-vipplans .ga-status-slot .psp-access-status{padding:13px 14px!important;gap:11px!important;border-radius:14px!important}
+#page-vipplans .ga-status-slot .psp-access-status-icon{width:42px!important;height:42px!important;font-size:19px!important;border-radius:12px!important}
+#page-vipplans .ga-status-slot .psp-access-status small{font-size:8px!important}
+#page-vipplans .ga-status-slot .psp-access-status strong{font-size:13.5px!important}
+#page-vipplans .ga-status-slot .psp-access-status span{font-size:10.5px!important;line-height:1.4!important;margin-top:3px!important}
+#page-vipplans .ga-status-slot .psp-access-status-badge{font-size:8px!important;padding:6px 9px!important}
+#page-vipplans #vipPlansGrid.ga-plan-grid{gap:18px!important}
+#page-vipplans .ga-plan-card{min-height:355px!important;border-radius:21px!important;box-shadow:0 16px 38px rgba(15,23,42,.065)!important}
+#page-vipplans .ga-plan-head{padding:20px 20px 12px!important;gap:13px!important}
+#page-vipplans .ga-plan-icon{width:48px!important;height:48px!important;border-radius:14px!important;font-size:22px!important}
+#page-vipplans .ga-plan-type{font-size:8.5px!important;margin-bottom:4px!important}
+#page-vipplans .ga-plan-name{font-size:21px!important}
+#page-vipplans .ga-plan-badge{font-size:8px!important;padding:6px 9px!important}
+#page-vipplans .ga-plan-desc{padding:0 20px 13px!important;font-size:12px!important;line-height:1.55!important;min-height:50px!important}
+#page-vipplans .ga-price-area{margin:0 20px 13px!important;border-radius:13px!important}
+#page-vipplans .ga-free-price{padding:14px 15px!important}
+#page-vipplans .ga-free-price strong{font-size:28px!important}
+#page-vipplans .ga-free-price small,#page-vipplans .ga-pay-method small{font-size:8px!important}
+#page-vipplans .ga-period{font-size:9px!important}
+#page-vipplans .ga-period b{font-size:18px!important}
+#page-vipplans .ga-paid-price{padding:11px!important;gap:10px!important}
+#page-vipplans .ga-pay-method{padding:11px 12px!important;border-radius:10px!important}
+#page-vipplans .ga-pay-method strong{font-size:17px!important;margin-top:4px!important}
+#page-vipplans .ga-plan-access{margin:-1px 20px 13px!important;padding:8px 10px!important;font-size:9px!important}
+#page-vipplans .ga-benefits{padding:0 20px 17px!important;gap:10px 16px!important}
+#page-vipplans .ga-benefit{font-size:11px!important;gap:8px!important}
+#page-vipplans .ga-benefit i{width:20px!important;height:20px!important;flex-basis:20px!important;font-size:10px!important}
+#page-vipplans .ga-cta{padding:14px 20px 17px!important}
+#page-vipplans .ga-cta .psp-access-btn{min-height:45px!important;font-size:12px!important;border-radius:12px!important}
+#page-vipplans .ga-note{font-size:9.5px!important;line-height:1.45!important;margin-top:8px!important}
+#page-vipplans .psp-access-compare.ga-included{padding:12px 15px!important;border-radius:14px!important;gap:16px!important}
+#page-vipplans .ga-included-title small{font-size:8px!important}
+#page-vipplans .ga-included-title strong{font-size:11px!important}
+#page-vipplans .ga-included-items span{font-size:9.5px!important;padding:6px 10px!important}
+.psp-av-title{font-size:21px!important}.psp-av-sub{font-size:12px!important}.psp-av-step-copy strong{font-size:13.5px!important}.psp-av-step-copy p{font-size:10.5px!important}
+.psp-av-access-top h3{font-size:17px!important}.psp-av-access-main>p{font-size:11px!important}.psp-av-benefits span{font-size:9px!important}.psp-av-access-cta b{font-size:11.5px!important}
+.psp-av-modal-card{width:min(510px,100%)!important;padding:27px!important}.psp-av-modal-card h2{font-size:23px!important}.psp-av-modal-card p{font-size:13px!important}
+#vipModalHost .vip-checkout-modal{max-width:560px!important;border-radius:22px!important}
+#vipModalHost .vip-checkout-head-copy strong{font-size:21px!important}
+#vipModalHost .vip-checkout-label{font-size:11px!important}
+#vipModalHost .vip-checkout-select,#vipModalHost .vip-checkout-grid input{font-size:12px!important}
+@media(max-width:620px){
+ #page-vipplans .ga-title{font-size:23px!important}
+ #page-vipplans .ga-header{padding:16px!important}
+ #page-vipplans .ga-plan-desc{font-size:11.5px!important;min-height:0!important}
+ #page-vipplans .ga-benefit{font-size:10.5px!important}
+}
+\`;
+  document.head.appendChild(s);
+})();
