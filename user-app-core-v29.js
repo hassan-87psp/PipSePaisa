@@ -285,22 +285,11 @@
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',applyTabVisibility,{once:true});else applyTabVisibility();
   window.pspOpenVipPlansForPayment=function(){
     try{
-      document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
-      var pageEl=document.getElementById('page-vipplans');
-      if(!pageEl){location.href='/?tab=vipplans&paid=1';return}
-      pageEl.classList.add('active');
-      document.querySelectorAll('.menu-item, .submenu-item').forEach(function(m){m.classList.remove('active')});
       var nav=document.querySelector('.menu-item[data-page="vipplans"]');
-      if(nav)nav.classList.add('active');
-      var title=document.getElementById('pageTitle');if(title)title.textContent='Get Access';
-      var side=document.getElementById('sidebar');if(side)side.classList.remove('open');
-      var overlay=document.getElementById('sidebarOverlay');if(overlay)overlay.style.display='none';
-      try{pspReleaseMobileDrawerLock()}catch(_){}
-      if(typeof loadVipPlans==='function')loadVipPlans();
-      setTimeout(function(){try{pageEl.scrollIntoView({behavior:'smooth',block:'start'})}catch(_){}},80);
+      showPage('vipplans',nav||undefined);
     }catch(e){
-      console.warn('VIP payment page open failed',e);
-      location.href='/?tab=vipplans&paid=1';
+      console.warn('Get Access page open failed',e);
+      try{location.href='/?tab=vipplans&paid=1'}catch(_){}
     }
   };
   function pspReleaseMobileDrawerLock(){
@@ -3805,21 +3794,10 @@
   function vEsc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
   let vipPlansById={};
   let vipMentorContact = null;
-  var pspGetAccessNavWatchV455=null;
-  function pspStartGetAccessNavWatchV455(){
-    try{
-      if(pspGetAccessNavWatchV455)return;
-      var side=document.getElementById('sidebar');
-      if(!side)return;
-      pspGetAccessNavWatchV455=new MutationObserver(function(){try{pspGetAccessForceUiV453()}catch(_){}});
-      pspGetAccessNavWatchV455.observe(side,{childList:true,subtree:true,characterData:true});
-    }catch(_){}
-  }
   function pspGetAccessForceUiV453(){
     try{
       var page=document.getElementById('page-vipplans');
       if(!page)return;
-      pspStartGetAccessNavWatchV455();
 
       // Force the navigation label/icon so stale HTML cannot keep "VIP Plans".
       document.querySelectorAll('.menu-item[data-page="vipplans"]').forEach(function(nav){
@@ -3828,9 +3806,9 @@
         nav.style.setProperty('border','1px solid rgba(214,111,0,.35)','important');
         nav.style.setProperty('color','#111827','important');
         nav.style.setProperty('box-shadow','0 6px 14px rgba(243,149,34,.16)','important');
-        var icon=nav.querySelector('.menu-icon');if(icon)icon.textContent='🔓';
+        var icon=nav.querySelector('.menu-icon');if(icon&&icon.textContent!=='🔓')icon.textContent='🔓';
         var strong=nav.querySelector('strong');
-        if(strong)strong.textContent='Get Access';
+        if(strong&&strong.textContent!=='Get Access')strong.textContent='Get Access';
         else{
           var texts=[].slice.call(nav.childNodes).filter(function(n){return n.nodeType===3&&String(n.textContent||'').trim()});
           if(texts[0])texts[0].textContent=' Get Access ';
