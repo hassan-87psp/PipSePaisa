@@ -3934,15 +3934,21 @@
 
     let rows=[],error=null;
     try{
-      const r=await sb.from('subscription_plans')
-        .select('*')
-        .eq('is_active',true)
-        .eq('is_official',true)
-        .eq('member_type','vip')
-        .order('display_order',{ascending:true})
-        .order('price',{ascending:true});
-      rows=r.data||[];
-      error=r.error;
+      const r=await sb.rpc('psp_get_official_vip_plan_v458');
+      rows=Array.isArray(r.data)?r.data:(r.data?[r.data]:[]);
+      error=r.error||null;
+      if((!rows||!rows.length)){
+        const fallback=await sb.from('subscription_plans')
+          .select('*')
+          .eq('is_active',true)
+          .eq('is_official',true)
+          .eq('member_type','vip')
+          .order('display_order',{ascending:true})
+          .order('price',{ascending:true})
+          .limit(1);
+        rows=fallback.data||[];
+        if(fallback.error)error=fallback.error;
+      }
     }catch(e){error=e;}
 
     const accessState=window.PSP_ACCOUNT_ACCESS_STATE||null;
@@ -4033,9 +4039,10 @@
   }
 
   function parseVipPlan(row){
-    const lines=(row.features||'').split('\n');let icon='💎',tag='',pop=false,vip=false,period='monthly';const feats=[];
+    const rawFeatures=Array.isArray(row.features)?row.features.join('\n'):String(row.features||'');
+    const lines=rawFeatures.split('\n');let icon='💎',tag='',pop=false,vip=false,period='monthly';const feats=[];
     let ib=false,iblink='',ibdep=0,ibbroker='',ibprice=0,services=[];
-    lines.forEach(function(l){const t=l.trim();if(!t)return;
+    lines.forEach(function(l){const t=String(l||'').trim();if(!t)return;
       if(t==='[POPULAR]')pop=true;else if(t==='[VIP]')vip=true;
       else if(t==='[IB]')ib=true;
       else if(t.indexOf('[SERVICES]')===0)services=t.slice(10).split(',').map(function(x){return x.trim();}).filter(Boolean);
@@ -4047,7 +4054,8 @@
       else if(t.indexOf('[TAG]')===0)tag=t.slice(5).trim();
       else if(t.indexOf('[PERIOD]')===0)period=t.slice(8).trim()||'monthly';
       else feats.push(t);});
-    return {id:row.id,name:row.name,price:row.price,currency:row.currency,local_bank_price_pkr:row.local_bank_price_pkr,member_type:row.member_type||'premium',icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats,ib:ib,iblink:iblink,ibdep:ibdep,ibbroker:ibbroker,ibprice:ibprice,services:services};
+    if(!services.length&&row.services)services=String(row.services).split(',').map(function(x){return x.trim();}).filter(Boolean);
+    return {id:row.id,name:row.name,price:row.price,currency:row.currency,local_bank_price_pkr:row.local_bank_price_pkr,member_type:row.member_type||'premium',icon:icon,tagline:tag,popular:pop,vip:vip,period:period,features:feats,ib:ib,iblink:iblink,ibdep:ibdep,ibbroker:ibbroker,ibprice:ibprice,services:services,duration_days:Number(row.duration_days||30)};
   }
   var VSVC_LABELS={signal:'📶 Signals',chart:'📈 Charts & Analysis',articles:'📰 Articles',journal:'📔 Journal',performance:'📊 Performance',tools:'🧰 Tools',community:'💬 Community',courses:'🎓 Courses',vipindicator:'📐 VIP Indicator',vipea:'🤖 VIP EA'};
   function vSvcChips(arr){return (arr||[]).map(function(s){return '<span style="display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:20px;background:rgba(245,158,11,.15);color:var(--gold);font-weight:700;margin:2px 3px 0 0">'+vEsc(VSVC_LABELS[s]||s)+'</span>';}).join('');}
