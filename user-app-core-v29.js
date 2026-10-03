@@ -3906,13 +3906,13 @@
     const i=parseInt(document.getElementById('vipMethod').value,10)||0;const m=c.methods[i];if(!m)return;
     const detail=document.getElementById('vipMethodDetail'),manual=document.getElementById('vipManualFields'),btn=document.getElementById('vipSubmitBtn');
     if(m.type==='infinity'){
-      if(detail)detail.innerHTML='<div style="font-weight:800;margin-bottom:5px">🏦 Secure Local Bank Transfer</div><div style="font-size:12px;line-height:1.5">Continue to the secure bank payment page. VIP access activates automatically after a successful payment.</div>';
+      if(detail)detail.innerHTML='<div style="font-weight:800;margin-bottom:5px">🏦 Secure Local Bank Transfer</div><div style="font-size:12px;line-height:1.55"><b>Amount: PKR 14,000</b><br>VIP access activates automatically after successful payment and remains active for 30 days.</div>';
       if(manual)manual.style.display='none';
-      if(btn)btn.textContent='🏦 Continue to Secure Bank Payment';
+      if(btn)btn.textContent='🏦 Pay PKR 14,000';
       return;
     }
     let h='';
-    if(m.type==='crypto'){h='<div><strong>Wallet (TRC20):</strong> '+vEsc(m.wallet||'')+'</div><div><strong>Network:</strong> '+vEsc(m.network||'TRC20')+'</div>';}
+    if(m.type==='crypto'){h='<div><strong>Amount:</strong> $50 USDT</div><div><strong>Wallet (TRC20):</strong> '+vEsc(m.wallet||'')+'</div><div><strong>Network:</strong> '+vEsc(m.network||'TRC20')+'</div>';}
     else{h='<div><strong>Account Title:</strong> '+vEsc(m.account_title||'')+'</div><div><strong>Account Number:</strong> '+vEsc(m.account_number||'')+'</div>'+(m.bank_name?('<div><strong>Bank:</strong> '+vEsc(m.bank_name)+'</div>'):'');}
     if(detail)detail.innerHTML='<div style="font-weight:700;margin-bottom:5px">Send payment to:</div>'+h+'<div style="color:var(--text-muted);font-size:11.5px;margin-top:7px">After paying, upload the receipt below & submit.</div>';
     if(manual)manual.style.display='block';
