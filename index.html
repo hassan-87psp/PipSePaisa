@@ -1448,6 +1448,11 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 .landing-auth-field input{width:100%;border:1px solid #decba9;border-radius:8px;background:#fff;padding:10px 11px;color:#171b27;outline:none;font:inherit;font-size:13px}.landing-auth-field input:focus{border-color:#ef9200;box-shadow:0 0 0 3px rgba(239,146,0,.12)}
 .dark-theme .landing-auth-field input{background:#0e1420;border-color:#394253;color:#f6f7fb}
 .landing-auth-submit{width:100%;border:0;border-radius:10px;padding:11px 14px;background:linear-gradient(135deg,#ffa20a,#e67f00);color:#17120b;font-weight:900;cursor:pointer;margin-top:5px}
+.landing-auth-consent{display:flex;align-items:flex-start;gap:8px;margin:2px 0 10px;color:#666;font-size:10.5px;line-height:1.45;cursor:pointer}
+.landing-auth-consent input{width:16px;height:16px;min-width:16px;margin:1px 0 0;accent-color:#ef9200;cursor:pointer}
+.landing-auth-consent span{display:block}
+.dark-theme .landing-auth-consent{color:#b8c0cd}
+@media(max-width:520px){.landing-auth-consent{font-size:10px;gap:7px;margin-bottom:9px}.landing-auth-consent input{width:15px;height:15px;min-width:15px}}
 .landing-auth-submit:disabled{opacity:.65;cursor:wait}
 .landing-auth-message{display:none;margin:10px 0 0;padding:9px 10px;border-radius:8px;font-size:11px;line-height:1.4}
 .landing-auth-message.error{display:block;background:#fee2e2;color:#b91c1c}.landing-auth-message.success{display:block;background:#dcfce7;color:#15803d}.landing-auth-message.info{display:block;background:#fff1cf;color:#9a5600}
@@ -2046,6 +2051,7 @@ body.page-home footer.psp-footer .footer-bottom .container{display:flex!importan
 <div class="landing-auth-field"><label for="landingSignupPhone">WhatsApp Number</label><input autocomplete="tel" id="landingSignupPhone" placeholder="+92..." type="tel"/></div>
 <div class="landing-auth-field"><label for="landingSignupPassword">Password</label><input autocomplete="new-password" id="landingSignupPassword" placeholder="Minimum 6 characters" type="password"/></div>
 <div class="landing-auth-field"><label for="landingSignupPassword2">Confirm Password</label><input autocomplete="new-password" id="landingSignupPassword2" placeholder="Repeat password" type="password"/></div>
+<label class="landing-auth-consent" for="landingSignupTerms"><input id="landingSignupTerms" type="checkbox"/><span>I agree to the Terms &amp; Conditions.</span></label>
 <button class="landing-auth-submit" id="landingSignupBtn" onclick="landingSignupUser()" type="button">✨ Create Free Account</button>
 <div class="landing-auth-message" id="landingSignupMessage"></div>
 <div class="landing-auth-switch">Already registered? <button onclick="switchLandingAuth('login')" type="button">Login →</button></div>
@@ -2308,7 +2314,9 @@ async function landingSignupUser(){
   const phone=document.getElementById('landingSignupPhone')?.value.trim();
   const password=document.getElementById('landingSignupPassword')?.value||'';
   const password2=document.getElementById('landingSignupPassword2')?.value||'';
+  const termsAccepted=!!document.getElementById('landingSignupTerms')?.checked;
   if(!fullName||!email||!phone||!password){showLandingAuthMessage('error','Please complete all required fields.','landingSignupMessage');return;}
+  if(!termsAccepted){showLandingAuthMessage('error','Please agree to the Terms & Conditions to create your account.','landingSignupMessage');return;}
   if(phone.length<7){showLandingAuthMessage('error','Please enter a valid WhatsApp number.','landingSignupMessage');return;}
   if(password.length<6){showLandingAuthMessage('error','Password must be at least 6 characters.','landingSignupMessage');return;}
   if(password!==password2){showLandingAuthMessage('error','Passwords do not match.','landingSignupMessage');return;}
