@@ -287,7 +287,7 @@
     if(!desc){desc=document.createElement('meta');desc.name='description';document.head.appendChild(desc)}
     desc.content=info[1];
     const base='https://www.pipsepaisa.com';
-    const canonicalPath=file==='/'?'/':('/'+file.replace(/\.html$/,''));
+    const canonicalPath=file==='/'?'/':('/'+file.replace(/\.html$/,'')+'/');
     const tags=[['link','canonical','href',base+canonicalPath],['meta','og:title','content',info[0]],['meta','og:description','content',info[1]],['meta','og:type','content','website'],['meta','og:url','content',base+canonicalPath],['meta','og:image','content',base+'/hero-bg-light.webp']];
     tags.forEach(([tag,key,attr,value])=>{let el=tag==='link'?document.querySelector('link[rel="'+key+'"]'):document.querySelector('meta[property="'+key+'"]');if(!el){el=document.createElement(tag);if(tag==='link')el.rel=key;else el.setAttribute('property',key);document.head.appendChild(el)}el.setAttribute(attr,value)});
   }
