@@ -14,9 +14,18 @@ function currentFromUrl(){try{const q=new URLSearchParams(location.search);retur
 function remember(key){
   key=cleanKey(key);if(!key)return null;
   const attr=window.PSPTrack?.getAttribution?.()||null;
-  const prior=readStored()||{};const data={key,created_at:new Date().toISOString(),source_path:location.pathname,attribution:attr||prior.attribution||null,tracking:{...(prior.tracking||{}),...rawTracking()}};
+  const prior=readStored()||{};
+  const tracking={...(prior.tracking||{}),...rawTracking()};
+  const referralSlug=String(attr?.slug||prior?.attribution?.slug||'').trim();
+  if(referralSlug&&!tracking.ref&&!tracking.psp_ref)tracking.ref=referralSlug;
+  const data={key,created_at:new Date().toISOString(),source_path:location.pathname,attribution:attr||prior.attribution||null,tracking};
   try{sessionStorage.setItem(STORE,JSON.stringify(data));localStorage.setItem(STORE,JSON.stringify(data));}catch(_){}
   return data;
+}
+function isReferralIntent(intent){
+  const live=window.PSPTrack?.getAttribution?.()||null;
+  const t=intent?.tracking||{};
+  return !!(t.ref||t.psp_ref||intent?.attribution?.slug||live?.slug);
 }
 function read(){const key=currentFromUrl();if(key)return remember(key);const saved=readStored();return saved&&cleanKey(saved.key)?saved:null;}
 function clear(){try{sessionStorage.removeItem(STORE);localStorage.removeItem(STORE);}catch(_){}}
@@ -38,7 +47,7 @@ async function cta(key){
     if(typeof window.openCourseEnrollment==='function'){window.openCourseEnrollment(key);return true;}
     location.assign(appUrl(key));return true;
   }
-  location.assign(authUrl(key,'login'));return true;
+  location.assign(authUrl(key,isReferralIntent(intent)?'signup':'login'));return true;
 }
 function afterAuth(){const intent=read();if(!intent)return '';restoreAttribution(intent);return appUrl(intent.key);}
 window.PSPCourseAuthFlow={cleanKey,remember,read,clear,restoreAttribution,authUrl,appUrl,afterAuth,hasSession,cta};
