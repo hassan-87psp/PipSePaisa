@@ -562,7 +562,7 @@ function normalizeTeamDestinationV401(raw){
     const u=new URL(s,BASE);
     const route=String(u.searchParams.get('psp_route')||'').replace(/\/+$/,'');
     const routeMap={
-      '/courses':'/courses/','/free-course':'/courses/','/broker-reviews':'/broker-reviews/',
+      '/courses':'/courses/','/free-course':'/free-course/','/broker-reviews':'/broker-reviews/',
       '/partner':'/becomepartner/','/become-partner':'/becomepartner/',
       '/trading-tools':'/tradingtools/','/tools-services':'/tradingtools/',
       '/sign-in':'/sign-in/','/sign-up':'/sign-up/'
