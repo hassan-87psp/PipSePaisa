@@ -3,7 +3,7 @@
   if(window.__pspLinkManagerV2111)return;
   window.__pspLinkManagerV2111=true;
 
-  const BASE_DOMAIN='https://pipsepaisa.com';
+  const BASE_DOMAIN='https://www.pipsepaisa.com';
   let statsRows=[],loadedAt=0,loadedRevision=0;
   let realtimeChannel=null;
   let fallbackClient=null;
@@ -17,7 +17,34 @@
   function slugify(value){return String(value||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,80);}
   function normalizeWhatsapp(value){return String(value||'').trim().replace(/\s+/g,' ');}
   function validWhatsapp(value){const digits=String(value||'').replace(/\D/g,'');return !value||digits.length>=8&&digits.length<=16;}
-  function trackedUrl(destination,slug){const path=String(destination||'/');const join=path.includes('?')?'&':'?';return BASE_DOMAIN+path+join+'ref='+encodeURIComponent(slug);}
+  function normalizeTrackedDestinationV222(destination){
+  const raw=String(destination||'/').trim()||'/';
+  try{
+    const u=new URL(raw,BASE_DOMAIN);
+    const route=(u.searchParams.get('psp_route')||'').replace(/\/+$/,'');
+    const routeMap={
+      '/courses':'/courses/','/free-course':'/free-course/','/broker-reviews':'/broker-reviews/',
+      '/partner':'/becomepartner/','/become-partner':'/becomepartner/',
+      '/trading-tools':'/tradingtools/','/tools-services':'/tradingtools/',
+      '/sign-in':'/sign-in/','/sign-up':'/sign-up/','/technical':'/technical/','/fundamental':'/fundamental/'
+    };
+    const pathMap={
+      '/courses':'/courses/','/courses.html':'/courses/','/broker-reviews':'/broker-reviews/',
+      '/broker-reviews.html':'/broker-reviews/','/become-partner':'/becomepartner/',
+      '/partner':'/becomepartner/','/partner.html':'/becomepartner/',
+      '/trading-tools':'/tradingtools/','/tools-services.html':'/tradingtools/',
+      '/sign-in':'/sign-in/','/sign-up':'/sign-up/','/free-course':'/free-course/',
+      '/technical':'/technical/','/fundamental':'/fundamental/'
+    };
+    const p=routeMap[route]||pathMap[u.pathname]||u.pathname||'/';
+    u.searchParams.delete('psp_route');
+    const q=u.searchParams.toString();
+    return p+(q?'?'+q:'')+(u.hash||'');
+  }catch(_){
+    return raw.startsWith('/')?raw:'/'+raw;
+  }
+}
+function trackedUrl(destination,slug){const path=normalizeTrackedDestinationV222(destination);const join=path.includes('?')?'&':'?';return BASE_DOMAIN+path+join+'ref='+encodeURIComponent(slug);}
   function getSb(){
     try{
       if(typeof sb!=='undefined'&&sb)return sb;
@@ -82,7 +109,7 @@
         <div class="card-header"><div><div class="card-title">🔗 Generate Tracked Link</div><div class="card-meta">Create a link and see how many visitors, signups and enrollments came from it.</div></div></div>
         <div class="lm-form-grid">
           <div><label>Link Name *</label><input id="lmName" placeholder="Free Course WhatsApp August"></div>
-          <div><label>Destination Page *</label><select id="lmDestination"><option value="/">Home</option><option value="/courses">Courses</option><option value="/become-partner">Become Partner</option><option value="/broker-reviews">Broker Reviews</option><option value="/trading-tools">Trading Tools & Services</option><option value="/sign-in">Sign In</option><option value="/sign-up">Sign Up</option><option value="/courses.html?psp_enroll=basic-b3">Basic Forex Course — Batch 3 (Signup + Enrollment)</option><option value="/courses.html?psp_enroll=fundamental-b2">Free Fundamental Forex Course — Batch 2 (Signup + Enrollment)</option><option value="/courses.html?psp_enroll=advanced">ADVANCE COURSE — Paid (Login + Payment)</option><option value="/courses.html?psp_enroll=advance-fundamental">Advance Fundamental — Paid (Login + Payment)</option><option value="custom">Custom Path</option></select></div>
+          <div><label>Destination Page *</label><select id="lmDestination"><option value="/">Home</option><option value="/courses/">Courses</option><option value="/becomepartner/">Become Partner</option><option value="/broker-reviews/">Broker Reviews</option><option value="/tradingtools/">Trading Tools & Services</option><option value="/sign-in/">Sign In</option><option value="/sign-up/">Sign Up</option><option value="/courses/?psp_enroll=basic-b3">Basic Forex Course — Batch 3 (Signup + Enrollment)</option><option value="/courses/?psp_enroll=fundamental-b2">Free Fundamental Forex Course — Batch 2 (Signup + Enrollment)</option><option value="/courses/?psp_enroll=advanced">ADVANCE COURSE — Paid (Login + Payment)</option><option value="/courses/?psp_enroll=advance-fundamental">Advance Fundamental — Paid (Login + Payment)</option><option value="custom">Custom Path</option></select></div>
           <div><label>Source</label><select id="lmSource"><option>WhatsApp</option><option>Facebook</option><option>Instagram</option><option>YouTube</option><option>Email</option><option>Google</option><option>Other</option></select></div>
           <div><label>Referral WhatsApp Number</label><input id="lmWhatsapp" placeholder="Auto from selected Team Member"><div id="lmWhatsappHint" style="font-size:9px;color:var(--text-muted);margin-top:5px">Select a Team Member to auto-use their active WhatsApp.</div></div><div><label>Assign Team Member</label><select id="lmTeamMember"><option value="">No team member</option></select></div>
           <div class="wide" id="lmCustomWrap" style="display:none"><label>Custom Destination</label><input id="lmCustomDestination" placeholder="/courses#courses"></div>
@@ -90,7 +117,7 @@
           <div class="wide"><label>Team Member / Reference Code *</label><input id="lmSlug" placeholder="person-1"></div>
           <div><label>Notes</label><input id="lmNotes" placeholder="Optional internal note"></div>
         </div>
-        <div class="lm-preview" style="margin-top:14px"><span>🔗</span><span class="lm-link" id="lmPreview">${BASE_DOMAIN}/courses.html?psp_enroll=basic-b3&ref=person-1</span><button class="lm-btn" style="margin-left:auto" type="button" id="lmCreateBtn">Create Link</button></div>
+        <div class="lm-preview" style="margin-top:14px"><span>🔗</span><span class="lm-link" id="lmPreview">${BASE_DOMAIN}/courses/?psp_enroll=basic-b3&ref=person-1</span><button class="lm-btn" style="margin-left:auto" type="button" id="lmCreateBtn">Create Link</button></div>
       </div>
       <div class="card" style="margin-bottom:18px">
         <div class="card-header"><div><div class="card-title">Clean Page URLs</div><div class="card-meta">Normal page links without campaign tracking.</div></div></div>
@@ -132,7 +159,7 @@
   }
   function updatePreview(){
     const slug=slugify(document.getElementById('lmSlug')?.value||'person-1')||'person-1';
-    let destination=document.getElementById('lmDestination')?.value||'/courses.html?psp_enroll=basic-b3';
+    let destination=document.getElementById('lmDestination')?.value||'/courses/?psp_enroll=basic-b3';
     if(destination==='custom')destination=document.getElementById('lmCustomDestination')?.value.trim()||'/';
     const p=document.getElementById('lmPreview');if(p)p.textContent=trackedUrl(destination,slug);
   }
