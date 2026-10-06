@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>PipSePaisa Link</title>
+<link rel="icon" href="/favicon.png">
+<script defer src="/psp-link-tracking-v42.js?v=20261006-v403-short-links"></script>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#fff8ed;color:#111827;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.card{width:min(420px,calc(100% - 32px));padding:28px;border:1px solid #ead7b8;border-radius:20px;background:#fff;box-shadow:0 20px 50px rgba(80,53,15,.10);text-align:center}
+.logo{width:52px;height:52px;border-radius:14px;margin-bottom:12px}.spin{width:26px;height:26px;border:3px solid #f2dfc2;border-top-color:#F39522;border-radius:50%;margin:18px auto;animation:s .8s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}h1{font-size:22px;margin:0 0 8px}p{color:#667085;line-height:1.5;margin:0}
+</style>
+</head>
+<body>
+<div class="card"><img class="logo" src="/favicon.png" alt="PipSePaisa logo"><h1>Opening your link…</h1><p id="msg">Please wait a moment.</p><div class="spin"></div></div>
+<script>
+(function(){
+  const BASE='https://www.pipsepaisa.com';
+  function slug(){
+    try{
+      const q=new URLSearchParams(location.search);
+      return String(q.get('s')||q.get('ref')||'').trim().toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,80);
+    }catch(_){return '';}
+  }
+  function normalizeDestination(raw){
+    const s=String(raw||'/').trim()||'/';
+    try{
+      const u=new URL(s,BASE);
+      const route=(u.searchParams.get('psp_route')||'').replace(/\/+$/,'');
+      const routeMap={
+        '/courses':'/courses/','/free-course':'/free-course/','/broker-reviews':'/broker-reviews/',
+        '/partner':'/becomepartner/','/become-partner':'/becomepartner/',
+        '/trading-tools':'/tradingtools/','/tools-services':'/tradingtools/',
+        '/sign-in':'/sign-in/','/sign-up':'/sign-up/','/technical':'/technical/','/fundamental':'/fundamental/'
+      };
+      const pathMap={
+        '/courses':'/courses/','/courses.html':'/courses/','/broker-reviews':'/broker-reviews/',
+        '/broker-reviews.html':'/broker-reviews/','/become-partner':'/becomepartner/',
+        '/partner':'/becomepartner/','/partner.html':'/becomepartner/',
+        '/trading-tools':'/tradingtools/','/tools-services.html':'/tradingtools/',
+        '/sign-in':'/sign-in/','/sign-up':'/sign-up/','/free-course':'/free-course/',
+        '/technical':'/technical/','/fundamental':'/fundamental/'
+      };
+      const p=routeMap[route]||pathMap[u.pathname]||u.pathname||'/';
+      u.searchParams.delete('psp_route');
+      const q=u.searchParams.toString();
+      return p+(q?'?'+q:'')+(u.hash||'');
+    }catch(_){return '/';}
+  }
+  async function run(){
+    const s=slug(),msg=document.getElementById('msg');
+    if(!s){msg.textContent='This link is incomplete.';setTimeout(()=>location.replace('/'),900);return;}
+    for(let i=0;i<50&&!window.PSPTrack;i++)await new Promise(r=>setTimeout(r,80));
+    if(!window.PSPTrack){msg.textContent='Could not open this link. Redirecting…';setTimeout(()=>location.replace('/'),900);return;}
+    const result=await window.PSPTrack.record('click',{slug:s,metadata:{short_link:true,entry_path:'/r/'}});
+    const row=result&&result.row;
+    if(!result?.ok||!row){msg.textContent='This link is unavailable or inactive.';setTimeout(()=>location.replace('/'),1200);return;}
+    const dest=normalizeDestination(row.destination_path||'/');
+    location.replace(dest);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
+})();
+</script>
+</body>
+</html>
