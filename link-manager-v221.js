@@ -44,7 +44,7 @@
     return raw.startsWith('/')?raw:'/'+raw;
   }
 }
-function trackedUrl(destination,slug){const path=normalizeTrackedDestinationV222(destination);const join=path.includes('?')?'&':'?';return BASE_DOMAIN+path+join+'ref='+encodeURIComponent(slug);}
+function trackedUrl(destination,slug){return BASE_DOMAIN+'/r/?s='+encodeURIComponent(slugify(slug)||'link');}
   function getSb(){
     try{
       if(typeof sb!=='undefined'&&sb)return sb;
@@ -114,7 +114,7 @@ function trackedUrl(destination,slug){const path=normalizeTrackedDestinationV222
           <div><label>Referral WhatsApp Number</label><input id="lmWhatsapp" placeholder="Auto from selected Team Member"><div id="lmWhatsappHint" style="font-size:9px;color:var(--text-muted);margin-top:5px">Select a Team Member to auto-use their active WhatsApp.</div></div><div><label>Assign Team Member</label><select id="lmTeamMember"><option value="">No team member</option></select></div>
           <div class="wide" id="lmCustomWrap" style="display:none"><label>Custom Destination</label><input id="lmCustomDestination" placeholder="/courses#courses"></div>
           <div><label>Campaign</label><input id="lmCampaign" placeholder="august-free-course"></div>
-          <div class="wide"><label>Team Member / Reference Code *</label><input id="lmSlug" placeholder="person-1"></div>
+          <div class="wide"><label>Short Link Code *</label><input id="lmSlug" placeholder="samiya-f2"><div style="font-size:9px;color:var(--text-muted);margin-top:5px">New links will look like pipsepaisa.com/r/?s=samiya-f2</div></div>
           <div><label>Notes</label><input id="lmNotes" placeholder="Optional internal note"></div>
         </div>
         <div class="lm-preview" style="margin-top:14px"><span>🔗</span><span class="lm-link" id="lmPreview">${BASE_DOMAIN}/courses/?psp_enroll=basic-b3&ref=person-1</span><button class="lm-btn" style="margin-left:auto" type="button" id="lmCreateBtn">Create Link</button></div>
@@ -165,11 +165,23 @@ function trackedUrl(destination,slug){const path=normalizeTrackedDestinationV222
   }
 
 
-  function syncTeamWhatsappV281(){
+  function syncTeamWhatsappV282(){
     const sel=document.getElementById('lmTeamMember'),wa=document.getElementById('lmWhatsapp'),hint=document.getElementById('lmWhatsappHint');if(!sel||!wa)return;
     const opt=sel.selectedOptions?.[0],teamId=String(sel.value||'').trim(),teamWa=String(opt?.dataset?.whatsapp||'').trim();
-    if(teamId){wa.value=teamWa;wa.readOnly=true;if(hint)hint.textContent=teamWa?'Auto-synced from selected Team Member.':'Selected Team Member has no valid WhatsApp — update it in Ad Link / Team settings first.';}
-    else{wa.readOnly=false;if(hint)hint.textContent='No Team Member selected. You may enter a referral WhatsApp manually.';}
+    const wasAuto=wa.dataset.teamAuto==='1';
+    if(teamId){
+      wa.value=teamWa;
+      wa.readOnly=true;
+      wa.dataset.teamAuto='1';
+      wa.dataset.teamId=teamId;
+      if(hint)hint.textContent=teamWa?'Auto-synced from selected Team Member. Change Team Member and this number will be replaced automatically.':'Selected Team Member has no valid WhatsApp — update it in Ad Link / Team settings first.';
+    }else{
+      if(wasAuto)wa.value='';
+      wa.readOnly=false;
+      wa.dataset.teamAuto='0';
+      wa.dataset.teamId='';
+      if(hint)hint.textContent='No Team Member selected. You may enter a referral WhatsApp manually.';
+    }
   }
   async function loadTeamMembersV203(){
     const sel=document.getElementById('lmTeamMember');if(!sel)return;
@@ -186,7 +198,7 @@ function trackedUrl(destination,slug){const path=normalizeTrackedDestinationV222
       sel.innerHTML='<option value="">No team member</option>'+rows.map(x=>`<option value="${esc(x.team_member_id)}" data-name="${esc(x.display_name||'')}" data-username="${esc(x.username||'')}" data-whatsapp="${esc(x.whatsapp_number||'')}">${esc(x.display_name||x.username||'Team Member')} — @${esc(x.username||'')}</option>`).join('');
       if(previous&&rows.some(x=>String(x.team_member_id)===previous))sel.value=previous;else sel.value='';
       if(!rows.length)sel.innerHTML='<option value="">No active team members found</option>';
-      sel.onchange=syncTeamWhatsappV281;syncTeamWhatsappV281();
+      sel.onchange=syncTeamWhatsappV282;syncTeamWhatsappV282();
     }catch(e){
       console.warn('Team members could not load in Link Manager.',e);
       sel.innerHTML='<option value="">No team member</option>';
@@ -229,8 +241,8 @@ function trackedUrl(destination,slug){const path=normalizeTrackedDestinationV222
       if(error)throw error;
       await copyText(trackedUrl(destination,slug));
       toast(teamId?`Tracked link created, assigned to ${teamName||teamUsername}, and copied.`:'Tracked link created and copied.','ok');
-      ['lmName','lmCampaign','lmSlug','lmWhatsapp','lmNotes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-      updatePreview();await loadLinks(true);
+      ['lmName','lmCampaign','lmSlug','lmNotes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+      syncTeamWhatsappV282();updatePreview();await loadLinks(true);
     }catch(error){
       const msg=/duplicate|unique/i.test(error.message||'')?'This reference code already exists. Choose another one.':error.message;
       toast('Could not create link: '+msg,'err');
@@ -270,7 +282,7 @@ function trackedUrl(destination,slug){const path=normalizeTrackedDestinationV222
     document.getElementById('lmEnrollments').textContent=fmt(statsRows.reduce((a,x)=>a+Number(x.enrollments||0),0));
     if(!statsRows.length){tbody.innerHTML='<tr><td colspan="10" class="lm-empty">No tracked links yet. Create your first link above.</td></tr>';return;}
     tbody.innerHTML=statsRows.map(x=>`<tr>
-      <td><strong>${esc(x.name)}</strong><div style="font-size:10px;color:var(--text-muted);margin-top:3px">${esc(x.destination_path)}?ref=${esc(x.slug)}${x.campaign?' · '+esc(x.campaign):''}</div></td>
+      <td><strong>${esc(x.name)}</strong><div style="font-size:10px;color:var(--text-muted);margin-top:3px">${esc(trackedUrl(x.destination_path,x.slug))}${x.campaign?' · '+esc(x.campaign):''}</div></td>
       <td>${esc(x.source||'—')}<div style="font-size:9px;color:var(--text-muted);margin-top:4px">${x.whatsapp_number?'WhatsApp: '+esc(x.whatsapp_number):'Channel fallback'}</div></td><td>${esc(x.destination_path)}</td><td><strong>${fmt(x.total_clicks)}</strong></td><td>${fmt(x.unique_visitors)}</td><td>${fmt(x.signups)}</td><td>${fmt(x.enrollments)}</td><td>${conversionRate(x.enrollments,x.signups).toFixed(1)}%</td>
       <td><span class="lm-status ${x.is_active?'on':'off'}">${x.is_active?'Active':'Disabled'}</span></td>
       <td><div class="lm-actions"><button class="lm-btn" onclick="copyTrackedLinkV42('${esc(x.slug)}','${esc(x.destination_path)}')">Copy</button><button class="lm-btn" onclick="setTrackedLinkWhatsAppV75('${x.id}','${esc(x.whatsapp_number||'')}')">WhatsApp</button><button class="lm-btn" onclick="viewTrackedLinkV42('${x.id}')">Details</button><button class="lm-btn" onclick="toggleTrackedLinkV42('${x.id}',${x.is_active?'false':'true'})">${x.is_active?'Disable':'Enable'}</button><button class="lm-btn" onclick="deleteTrackedLinkV42('${x.id}')">Delete</button></div></td>
