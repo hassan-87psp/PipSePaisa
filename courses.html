@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forex Courses | PipSePaisa</title>
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="https://www.pipsepaisa.com/courses/">
+<meta http-equiv="refresh" content="0;url=/courses/">
+<script>
+(function(){
+  var u=new URL(location.href);
+  var route=(u.searchParams.get('psp_route')||'').replace(/\/+$/,'');
+  var map={
+    '/courses':'/courses/',
+    '/free-course':'/free-course/',
+    '/technical':'/technical/',
+    '/fundamental':'/fundamental/'
+  };
+  var dest=map[route]||'/courses/';
+  u.searchParams.delete('psp_route');
+  var q=u.searchParams.toString();
+  location.replace(dest+(q?'?'+q:'')+(u.hash||''));
+})();
+</script>
+</head>
+<body><p>Redirecting to <a href="/courses/">Forex Courses</a>…</p></body>
+</html>
