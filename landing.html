@@ -2067,6 +2067,15 @@ const landingSb=(window.supabase&&window.supabase.createClient)?window.supabase.
     flowType:'pkce'
   }}
 ):null;
+if(!LANDING_IS_EMBEDDED && landingSb && (location.pathname==='/' || /\/index\.html$/i.test(location.pathname))){
+  landingSb.auth.getSession().then(({data})=>{
+    if(data?.session?.user){
+      const qs=location.search||'';
+      const hs=location.hash||'';
+      location.replace('/dashboard/'+qs+hs);
+    }
+  }).catch(()=>{});
+}
 function safeJson(v){try{return JSON.parse(v||'{}')}catch(e){return {}}}
 async function loadLandingAdminContent(){
   if(!landingSb)return;
@@ -2200,7 +2209,7 @@ async function landingLoginUser(){
 
       loginResult={ok:true,userId:result.data.user.id};
       localStorage.setItem('pipsepaisa_last_login_email',email);
-      location.replace('./?logged_in=1');
+      location.replace('/dashboard/?logged_in=1');
     }
 
     if(!loginResult?.ok){
