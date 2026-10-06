@@ -1,0 +1,19 @@
+# PipSePaisa
+
+> PipSePaisa is a Forex education and trading-tools platform focused on structured learning, broker reviews, mentor-led education, practical market resources, and responsible trading.
+
+## Main public pages
+- https://www.pipsepaisa.com/ — Forex trading education, courses and trading tools
+- https://www.pipsepaisa.com/courses/ — Forex trading courses
+- https://www.pipsepaisa.com/broker-reviews/ — Forex broker reviews and comparisons
+- https://www.pipsepaisa.com/tradingtools/ — Forex trading tools and calculators
+- https://www.pipsepaisa.com/becomepartner/ — Forex IB partner program
+- https://www.pipsepaisa.com/mentors/ — Forex mentors and instructors
+- https://www.pipsepaisa.com/mentors/sajid-khan-ghori/ — Sajid Khan Ghori
+- https://www.pipsepaisa.com/mentors/ghulam-abbas/ — Malik Ghulam Abbas
+- https://www.pipsepaisa.com/about-us/ — About PipSePaisa
+- https://www.pipsepaisa.com/contact/ — Contact and support
+- https://www.pipsepaisa.com/risk-disclaimer/ — Forex trading risk disclaimer
+
+## Notes
+PipSePaisa content is educational and does not constitute personal financial advice. Trading involves risk.
