@@ -191,23 +191,19 @@ Deno.serve(async (req: Request) => {
     }
 
     const expectedToken = String(tokenCheck.data.provider_callback_token ?? "").trim();
-    const tokenValid = !!suppliedToken && suppliedToken.length >= 32 && !!expectedToken && suppliedToken === expectedToken;
-    let callbackAuthMode = "token";
+    const tokenValid =
+      !!suppliedToken &&
+      suppliedToken.length >= 32 &&
+      !!expectedToken &&
+      suppliedToken === expectedToken;
+    const callbackAuthMode = "token";
+
+    // V479 security: every state-changing callback, including rejected/expired,
+    // must prove possession of the per-request 256-bit callback token.
+    // The create-payment function places the token in both callback path and query.
     if (!tokenValid) {
-      // SECURITY: a tokenless callback can NEVER grant access.
-      // For negative terminal events only, allowing the provider to close an
-      // initiated request is safe and prevents gateways that strip query strings
-      // from leaving rejected payments stuck forever in Auto Processing.
-      if (status !== "rejected" && status !== "expired") {
-        console.warn(`[${trace}] invalid callback token for positive/non-terminal request ${requestIdRaw}`);
-        return json({ success: false, error: "Invalid callback token.", version: "v230" }, 401);
-      }
-      const current = String(tokenCheck.data.provider_status ?? tokenCheck.data.status ?? "").trim().toLowerCase();
-      if (["accepted","approved","success","successful","completed","paid","captured","confirmed","verified","settled"].includes(current)) {
-        return json({ success: false, error: "Accepted payment cannot be downgraded.", version: "v230" }, 409);
-      }
-      callbackAuthMode = "negative_only_fallback";
-      console.warn(`[${trace}] Infinity negative callback accepted without token for request ${requestIdRaw}`);
+      console.warn(`[${trace}] invalid callback token for request ${requestIdRaw}`);
+      return json({ success: false, error: "Invalid callback token.", version: "v230" }, 401);
     }
 
     const amount = (status === "rejected" || status === "expired")
