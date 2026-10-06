@@ -1462,9 +1462,8 @@ body:not(.dark-theme) .partner-promo-item:nth-child(3) .partner-promo-card.visua
 .landing-auth-switch{text-align:center;margin-top:12px;color:#777;font-size:11px}.dark-theme .landing-auth-switch{color:#aeb5c2}.landing-auth-switch button{border:0;background:none;color:#df7900;font-weight:800;cursor:pointer;padding:0}
 @media(max-width:520px){.landing-auth-overlay{padding:12px}.landing-auth-card{padding:23px 18px 24px;border-radius:16px}}
 </style>
-<link href="mobile-reference-layout.css?v=20260727-exact-v3" rel="stylesheet"/>
-<link href="psp-final-fixes.css?v=20260727-all-fixes-v1" rel="stylesheet"/>
-<link href="push-subscribe-prompt.css?v=20260728-desktop-mobile-v5" rel="stylesheet"/>
+<link href="/psp-home-layout-bundle-v1.css?v=20261006-perf1" rel="stylesheet"/>
+
 <style>
 @media(max-width:980px){
   .topbar,.nav,.nav-actions{position:relative;z-index:10020}
@@ -1715,8 +1714,8 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
   html.psp-desktop-mobile-view .topbar .menu a{font-size:15px;padding:11px 15px}
 }
 </style>
-<link href="psp-public-v40.css?v=20261006-v474-header-lock" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><link href="psp-mobile-reference-v46.css?v=20260814-v79-cross-browser-mobile-lock" media="(max-width: 768px)" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
-<script src="psp-direct-signup-v1.js?v=20260930-v352-perfsingle-manager-short-wa"></script>
+<link href="/psp-home-public-bundle-v1.css?v=20261006-perf1" rel="stylesheet"/><link href="psp-mobile-reference-v46.css?v=20260814-v79-cross-browser-mobile-lock" media="(max-width: 768px)" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
+<script defer src="psp-direct-signup-v1.js?v=20260930-v352-perfsingle-manager-short-wa"></script>
 
 <style id="pspV81HomeFooterExactTools">
 body.page-home footer.psp-footer{background:#07111f!important;color:#fff!important;padding:0!important;border-top:4px solid transparent!important;border-image:linear-gradient(90deg,#f88702,#f5a623,#f88702) 1!important}
@@ -1752,7 +1751,7 @@ body.page-home footer.psp-footer .footer-bottom .container{display:flex!importan
 }
 </style>
 <script defer src="/psp-performance-v220.js?v=20260910-v220-deep"></script>
-<link rel="stylesheet" href="/live-desk-v242.css?v=20260917-v244-stability">
+
 <script id="pspSiteSchemaV475" type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://www.pipsepaisa.com/#organization","name":"PipSePaisa","url":"https://www.pipsepaisa.com/","logo":{"@type":"ImageObject","url":"https://www.pipsepaisa.com/icon-192.png"},"sameAs":["https://www.instagram.com/pipsepaisa/","https://www.facebook.com/share/1AUgXGtVYy/"]},{"@type":"WebSite","@id":"https://www.pipsepaisa.com/#website","url":"https://www.pipsepaisa.com/","name":"PipSePaisa","publisher":{"@id":"https://www.pipsepaisa.com/#organization"}}]}</script>
 
 <style id="pspSeoLearningV477">
@@ -2419,7 +2418,7 @@ document.addEventListener('DOMContentLoaded',function(){
   });
 });
 </script>
-<script defer="" src="push-subscribe-prompt.js?v=20260728-desktop-mobile-v5"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded',function(){
   if(location.hash==='#login'||location.hash==='#auth-login'){
@@ -2472,7 +2471,35 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
 
-<script defer src="/live-desk-v242.js?v=20260917-v244-stability"></script>
-<script defer src="/psp-smooth-scroll-v322.js?v=20260930-v322-all-pages"></script>
+
+
+<script id="pspDeferredEnhancementsV478">
+(function(){
+  'use strict';
+  var loaded=false;
+  function css(href,id){
+    if(document.getElementById(id))return;
+    var l=document.createElement('link');l.id=id;l.rel='stylesheet';l.href=href;document.head.appendChild(l);
+  }
+  function js(src,id){
+    if(document.getElementById(id))return;
+    var s=document.createElement('script');s.id=id;s.src=src;s.async=true;document.body.appendChild(s);
+  }
+  function load(){
+    if(loaded)return;loaded=true;
+    css('/push-subscribe-prompt.css?v=20260728-desktop-mobile-v5','pspPushCssDeferred');
+    js('/push-subscribe-prompt.js?v=20260728-desktop-mobile-v5','pspPushJsDeferred');
+    css('/live-desk-v242.css?v=20260917-v244-stability','pspLiveDeskCssDeferred');
+    js('/live-desk-v242.js?v=20260917-v244-stability','pspLiveDeskJsDeferred');
+    js('/psp-smooth-scroll-v322.js?v=20260930-v322-all-pages','pspSmoothScrollJsDeferred');
+  }
+  function schedule(){
+    if('requestIdleCallback' in window)requestIdleCallback(load,{timeout:1400});
+    else setTimeout(load,650);
+  }
+  if(document.readyState==='complete')schedule();
+  else window.addEventListener('load',schedule,{once:true,passive:true});
+})();
+</script>
 </body>
 </html>
