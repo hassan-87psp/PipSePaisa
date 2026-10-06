@@ -174,7 +174,7 @@ footer.psp-footer{background:#07111f!important;color:#fff!important;padding:0!im
 .psp-footer .footer-brand{display:flex;align-items:center;gap:12px;font-size:27px;font-weight:950;color:#fff}
 .psp-footer .footer-brand img{width:48px;height:48px;border-radius:14px;object-fit:cover}
 .psp-footer .footer-about{max-width:360px;color:#aeb9c9;line-height:1.75;font-size:13px}
-.psp-footer h4{font-size:14px;text-transform:uppercase;letter-spacing:.12em;color:#ffb42a;margin:4px 0 17px}
+.psp-footer h3{font-size:14px;text-transform:uppercase;letter-spacing:.12em;color:#ffb42a;margin:4px 0 17px}
 .psp-footer ul{list-style:none;padding:0;margin:0;display:grid;gap:11px;color:#c6cfdd;font-size:13px}
 .psp-footer a{transition:color .2s ease}.psp-footer a:hover{color:#ffb42a}
 .psp-footer .footer-socials{display:flex;gap:10px;margin-top:17px}
