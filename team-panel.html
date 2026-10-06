@@ -514,7 +514,7 @@ const THEME_KEY='pipsepaisa-team-theme-v206';
 const IDENTITY_KEY='pipsepaisa-team-identity-v278';
 const TEAM_CLIENT_DATA_VERSION='v300';
 const PWA_INSTALLED_KEY='pipsepaisa-psp-team-installed-v278';
-const BASE='https://pipsepaisa.com';
+const BASE='https://www.pipsepaisa.com';
 const TEAM_EARNINGS_CUTOFF_YM=202609; // Previous team earnings were manually settled before Sep 2026.
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
 const S={token:localStorage.getItem(SESSION_KEY)||'',identity:(()=>{try{return JSON.parse(localStorage.getItem(IDENTITY_KEY)||'{}')}catch(_){return{}}})(),metrics:null,metricsAvailable:false,links:[],clients:[],clientsLoading:false,errors:{},daily:null,dailyHistory:[],history:[],performanceRange:null,performanceMode:'today',performanceStart:null,performanceEnd:null,clientCourseFilter:'all',clientPeriodFilter:'all',clientSourceFilter:'all',clientSort:'newest',clientPage:1,clientPageSize:25,searchResults:[],view:'overview',loaded:{clients:false,daily:false,history:false,performance:false},cache:{overviewKey:'',overviewAt:0}};
@@ -556,7 +556,31 @@ function vipTierFallback(count){count=num(count);if(count<=20)return {level:'Lev
 function lotTierFallback(lots){lots=num(lots);if(lots<=200)return {level:'200-Lot Tier',xm:1,ex:.3,next:201,nextXm:1.3,nextEx:.5,remaining:Math.max(0,201-lots)};if(lots<=400)return {level:'400-Lot Tier',xm:1.3,ex:.5,next:401,nextXm:1.5,nextEx:.7,remaining:Math.max(0,401-lots)};if(lots<1000)return {level:'600-Lot Tier',xm:1.5,ex:.7,next:1000,nextXm:2,nextEx:1,remaining:Math.max(0,1000-lots)};return {level:'1000+ Tier',xm:2,ex:1,next:null,nextXm:null,nextEx:null,remaining:0}}
 function normalizeMetrics(raw){const m=Object.assign({},raw||{}),paid=num(m.course_paid_users),ct=courseTierFallback(paid),vip=num(m.vip_clients),vt=vipTierFallback(vip),lots=num(m.overall_lots),lt=lotTierFallback(lots);if(m.course_tier_basis!=='paid_users'||m.course_next_target==null&&paid<500||num(m.course_rate)===0){m.course_level=ct.level;m.course_rate=ct.rate;m.course_next_target=ct.next;m.course_next_rate=ct.nextRate;m.course_remaining=ct.remaining;m.course_tier_basis='paid_users';m.course_earnings=Math.round(num(m.course_performance)*ct.rate)/100;}if(m.vip_next_target==null&&vip<100||num(m.vip_rate)===0){m.vip_level=vt.level;m.vip_rate=vt.rate;m.vip_next_target=vt.next;m.vip_next_rate=vt.nextRate;m.vip_remaining=vt.remaining;}if(m.lot_next_target==null&&lots<1000||num(m.xm_dprime_rate)===0){m.lot_level=lt.level;m.xm_dprime_rate=lt.xm;m.exness_rate=lt.ex;m.lot_next_target=lt.next;m.next_xm_dprime_rate=lt.nextXm;m.next_exness_rate=lt.nextEx;m.lot_remaining=lt.remaining;}m.total_earnings=num(m.course_earnings)+num(m.vip_earnings)+num(m.lot_earnings);return m}
 function setProgress(id,value){requestAnimationFrame(()=>{$(id).style.width=Math.max(0,Math.min(100,value))+'%'})}
-function buildUrl(l){const p=l.destination_path||'/';return BASE+p+(p.includes('?')?'&':'?')+'ref='+encodeURIComponent(l.link_slug||l.slug||'')}
+function normalizeTeamDestinationV401(raw){
+  const s=String(raw||'/').trim()||'/';
+  try{
+    const u=new URL(s,BASE);
+    const route=String(u.searchParams.get('psp_route')||'').replace(/\/+$/,'');
+    const routeMap={
+      '/courses':'/courses/','/free-course':'/courses/','/broker-reviews':'/broker-reviews/',
+      '/partner':'/becomepartner/','/become-partner':'/becomepartner/',
+      '/trading-tools':'/tradingtools/','/tools-services':'/tradingtools/',
+      '/sign-in':'/sign-in/','/sign-up':'/sign-up/'
+    };
+    const pathMap={
+      '/courses.html':'/courses/','/broker-reviews.html':'/broker-reviews/',
+      '/partner.html':'/becomepartner/','/tools-services.html':'/tradingtools/',
+      '/landing.html':'/'
+    };
+    const p=routeMap[route]||pathMap[u.pathname]||u.pathname||'/';
+    u.searchParams.delete('psp_route');
+    const q=u.searchParams.toString();
+    return p+(q?'?'+q:'')+(u.hash||'');
+  }catch(_){
+    return s.startsWith('/')?s:'/'+s;
+  }
+}
+function buildUrl(l){const p=normalizeTeamDestinationV401(l.destination_path||'/');return BASE+p+(p.includes('?')?'&':'?')+'ref='+encodeURIComponent(l.link_slug||l.slug||'')}
 async function copyText(text){try{await navigator.clipboard.writeText(text);toast('Tracking link copied.')}catch(_){toast('Could not copy link.','bad')}}
 window.pspCopyTeamLinkV206=i=>{const l=S.links[i];if(l)copyText(buildUrl(l))};
 function conversion(a,b){return b>0?(a*100/b):0}
