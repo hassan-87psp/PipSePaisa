@@ -1,103 +1,86 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" style="visibility:hidden">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PipSePaisa</title>
 <meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co" crossorigin>
 <script>
 (function(){
   'use strict';
-  var BASE='https://www.pipsepaisa.com';
-  var p=String(location.pathname||'/');
-  while(p.length>1&&p.charAt(p.length-1)==='/')p=p.slice(0,-1);
-
-  function normalizeDestination(raw){
-    var s=String(raw||'/').trim()||'/';
+  
+  var SUPA='https://etfolhinohgmskbfjoyh.supabase.co';
+  var KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
+  var ATTR='psp_link_attribution_v42', VIS='psp_visitor_id_v42', SES='psp_session_id_v42';
+  function id(prefix){try{return prefix+(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36));}catch(_){return prefix+Math.random().toString(36).slice(2)+Date.now().toString(36);}}
+  function stored(store,key,prefix){try{var v=store.getItem(key)||'';if(!v){v=id(prefix);store.setItem(key,v);}return v;}catch(_){return id(prefix);}}
+  function saveAttr(code,row){
     try{
-      var u=new URL(s,BASE);
-      var route=String(u.searchParams.get('psp_route')||'').replace(/\/+$/,'');
-      var routeMap={
-        '/courses':'/courses/','/free-course':'/free-course/','/broker-reviews':'/broker-reviews/',
-        '/partner':'/becomepartner/','/become-partner':'/becomepartner/',
-        '/trading-tools':'/tradingtools/','/tools-services':'/tradingtools/',
-        '/sign-in':'/sign-in/','/sign-up':'/sign-up/','/technical':'/technical/','/fundamental':'/fundamental/'
-      };
-      var pathMap={
-        '/courses':'/courses/','/courses.html':'/courses/','/broker-reviews':'/broker-reviews/',
-        '/broker-reviews.html':'/broker-reviews/','/become-partner':'/becomepartner/',
-        '/partner':'/becomepartner/','/partner.html':'/becomepartner/',
-        '/trading-tools':'/tradingtools/','/tools-services.html':'/tradingtools/',
-        '/sign-in':'/sign-in/','/sign-up':'/sign-up/','/free-course':'/free-course/',
-        '/technical':'/technical/','/fundamental':'/fundamental/'
-      };
+      var cur={};try{cur=JSON.parse(localStorage.getItem(ATTR)||'{}')||{};}catch(_){}
+      var now=new Date().toISOString();
+      localStorage.setItem(ATTR,JSON.stringify({
+        ...cur,slug:code,link_id:row.link_id||null,name:row.link_name||null,
+        destination_path:row.destination_path||null,source:row.source||null,campaign:row.campaign||null,
+        entry_path:location.pathname,first_seen_at:cur.first_seen_at||now,last_seen_at:now
+      }));
+    }catch(_){}
+  }
+  async function resolveShort(code){
+    var body={
+      p_slug:code,p_event_type:'click',
+      p_visitor_id:stored(localStorage,VIS,'v_'),
+      p_session_id:stored(sessionStorage,SES,'s_'),
+      p_user_id:null,p_course_key:null,
+      p_page_path:location.pathname+location.search,
+      p_referrer:document.referrer||null,p_user_agent:navigator.userAgent||null,
+      p_metadata:{short_link:true,entry_path:location.pathname}
+    };
+    var res=await fetch(SUPA+'/rest/v1/rpc/psp_record_tracked_link_event',{
+      method:'POST',mode:'cors',cache:'no-store',
+      headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY,'Accept':'application/json'},
+      body:JSON.stringify(body)
+    });
+    if(!res.ok)throw new Error('resolve-failed');
+    var data=await res.json();
+    var row=Array.isArray(data)?data[0]:data;
+    if(!row||!row.destination_path)throw new Error('link-unavailable');
+    saveAttr(code,row);
+    return row.destination_path;
+  }
+  function normalizeDestination(raw){
+    var BASE='https://www.pipsepaisa.com',s=String(raw||'/').trim()||'/';
+    try{
+      var u=new URL(s,BASE),route=String(u.searchParams.get('psp_route')||'').replace(/\/+$/,'');
+      var routeMap={'/courses':'/courses/','/free-course':'/free-course/','/broker-reviews':'/broker-reviews/','/partner':'/becomepartner/','/become-partner':'/becomepartner/','/trading-tools':'/tradingtools/','/tools-services':'/tradingtools/','/sign-in':'/sign-in/','/sign-up':'/sign-up/','/technical':'/technical/','/fundamental':'/fundamental/'};
+      var pathMap={'/courses':'/courses/','/courses.html':'/courses/','/broker-reviews':'/broker-reviews/','/broker-reviews.html':'/broker-reviews/','/become-partner':'/becomepartner/','/partner':'/becomepartner/','/partner.html':'/becomepartner/','/trading-tools':'/tradingtools/','/tools-services.html':'/tradingtools/','/sign-in':'/sign-in/','/sign-up':'/sign-up/','/free-course':'/free-course/','/technical':'/technical/','/fundamental':'/fundamental/'};
       var out=routeMap[route]||pathMap[u.pathname]||u.pathname||'/';
-      u.searchParams.delete('psp_route');
-      var q=u.searchParams.toString();
+      u.searchParams.delete('psp_route');var q=u.searchParams.toString();
       return out+(q?'?'+q:'')+(u.hash||'');
     }catch(_){return '/';}
   }
 
-  function showFallback(message){
-    document.documentElement.style.visibility='';
-    document.documentElement.className='show';
-    var m=document.getElementById('shortMessage');
-    if(m&&message)m.textContent=message;
-  }
+  var p=String(location.pathname||'/');
+  while(p.length>1&&p.charAt(p.length-1)==='/')p=p.slice(0,-1);
 
   if(p.indexOf('/r/')===0){
     var code=p.slice(3).toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,80);
     if(code&&code.indexOf('/')===-1){
-      document.documentElement.style.visibility='hidden';
-      window.__pspShortCode=code;
-      var s=document.createElement('script');
-      s.src='/psp-link-tracking-v42.js?v=20261006-v404-instant-short';
-      s.async=true;
-      s.onload=async function(){
-        try{
-          for(var i=0;i<40&&!window.PSPTrack;i++)await new Promise(function(r){setTimeout(r,50)});
-          if(!window.PSPTrack)throw new Error('tracking-unavailable');
-          var result=await window.PSPTrack.record('click',{slug:code,metadata:{short_link:true,entry_path:'/r/'+code}});
-          var row=result&&result.row;
-          if(!result||!result.ok||!row)throw new Error('link-unavailable');
-          location.replace(normalizeDestination(row.destination_path||'/'));
-        }catch(_){
-          showFallback('This link is unavailable.');
-        }
-      };
-      s.onerror=function(){showFallback('This link is unavailable.');};
-      document.head.appendChild(s);
+      resolveShort(code).then(function(dest){location.replace(normalizeDestination(dest));}).catch(function(){location.replace('/');});
       return;
     }
   }
 
-  var map={
-    '/courses':'/courses/',
-    '/broker-reviews':'/broker-reviews/',
-    '/partner':'/becomepartner/',
-    '/become-partner':'/becomepartner/',
-    '/trading-tools':'/tradingtools/',
-    '/trading-tools-services':'/tradingtools/',
-    '/tools-services':'/tradingtools/',
-    '/courses.html':'/courses/',
-    '/broker-reviews.html':'/broker-reviews/',
-    '/partner.html':'/becomepartner/',
-    '/tools-services.html':'/tradingtools/'
-  };
+  var map={'/courses':'/courses/','/broker-reviews':'/broker-reviews/','/partner':'/becomepartner/','/become-partner':'/becomepartner/','/trading-tools':'/tradingtools/','/trading-tools-services':'/tradingtools/','/tools-services':'/tradingtools/','/courses.html':'/courses/','/broker-reviews.html':'/broker-reviews/','/partner.html':'/becomepartner/','/tools-services.html':'/tradingtools/'};
   var dest=map[p];
   if(dest){location.replace(dest+(location.search||'')+(location.hash||''));return;}
+  document.documentElement.style.visibility='visible';
   document.documentElement.className='show';
 })();
 </script>
 <style>
-html:not(.show) body{visibility:hidden}
-body{font-family:system-ui;background:#fff8ed;color:#111827;display:grid;place-items:center;min-height:100vh;margin:0}
-.c{text-align:center}
-.c a{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#FB9201;color:#111;text-decoration:none;font-weight:800}
+body{font-family:system-ui;background:#fff8ed;color:#111827;display:grid;place-items:center;min-height:100vh;margin:0}.c{text-align:center}.c a{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#FB9201;color:#111;text-decoration:none;font-weight:800}
 </style>
 </head>
-<body>
-<div class="c"><h1 id="shortMessage">Page not found</h1><a href="/">Go Home</a></div>
-<script defer src="/psp-smooth-scroll-v322.js?v=20260930-v322-all-pages"></script>
-</body>
+<body><div class="c"><h1>Page not found</h1><a href="/">Go Home</a></div></body>
 </html>
