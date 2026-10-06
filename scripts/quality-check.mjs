@@ -106,8 +106,9 @@ for (const page of productionHtml) {
     const resolved = resolveLocal(page, baseHref, ref);
     if (resolved && !exists(resolved)) failures.push('Missing local reference in ' + page + ': ' + ref + ' -> ' + resolved);
   }
-  const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)]
-    .map(m => m[1]).filter(s => s.trim());
+  const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .filter(m => { const t=(m[1].match(/\btype=["']([^"']+)["']/i)?.[1]||'').toLowerCase(); return !t || t==='text/javascript' || t==='application/javascript' || t==='module'; })
+    .map(m => m[2]).filter(s => s.trim());
   inline.forEach((code, index) => {
     try { new Function(code); }
     catch (error) {
