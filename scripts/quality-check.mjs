@@ -152,6 +152,48 @@ for (const file of [...new Set([...activeJs, ...criticalPages])]) {
   }
 }
 
+// Public SEO guardrails: every explicitly indexable canonical page should remain search-ready.
+const publicCanonicals = new Map();
+for (const page of productionHtml) {
+  const html = fs.readFileSync(path.join(root, page), 'utf8');
+  const robots = html.match(/<meta[^>]+name=["']robots["'][^>]+content=["']([^"']+)["']/i)?.[1] || '';
+  if (!/\bindex\b/i.test(robots) || /\bnoindex\b/i.test(robots)) continue;
+
+  const canonical = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']/i)?.[1] || '';
+  if (!canonical.startsWith('https://www.pipsepaisa.com/')) {
+    failures.push('Indexable page missing www HTTPS canonical: ' + page);
+    continue;
+  }
+
+  const expected = page === 'index.html'
+    ? 'https://www.pipsepaisa.com/'
+    : page.endsWith('/index.html')
+      ? 'https://www.pipsepaisa.com/' + page.slice(0, -'index.html'.length)
+      : canonical;
+
+  if (canonical !== expected) failures.push('Indexable page canonical is not self-referencing: ' + page + ' -> ' + canonical);
+  if (publicCanonicals.has(canonical)) failures.push('Duplicate indexable canonical: ' + canonical + ' in ' + publicCanonicals.get(canonical) + ' and ' + page);
+  else publicCanonicals.set(canonical, page);
+
+  const title = (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '').replace(/<[^>]+>/g,'').trim();
+  const desc = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i)?.[1] || '';
+  const h1Count = (html.match(/<h1\b/gi) || []).length;
+  const hasLang = /<html\b[^>]*\blang=["'][^"']+["']/i.test(html);
+  const hasSchema = /<script[^>]+type=["']application\/ld\+json["']/i.test(html);
+
+  if (title.length < 30 || title.length > 65) failures.push('SEO title length outside 30-65 chars in ' + page + ': ' + title.length);
+  if (desc.length < 100 || desc.length > 170) failures.push('Meta description length outside 100-170 chars in ' + page + ': ' + desc.length);
+  if (h1Count !== 1) failures.push('Indexable page must have exactly one H1: ' + page + ' has ' + h1Count);
+  if (!hasLang) failures.push('Indexable page missing html lang attribute: ' + page);
+  if (!hasSchema) failures.push('Indexable page missing structured data: ' + page);
+}
+
+try {
+  execFileSync(process.execPath, ['scripts/generate-sitemap.mjs', '--check'], { stdio: 'pipe' });
+} catch (error) {
+  failures.push('Sitemap sync check failed:\n' + String(error.stderr || error.message));
+}
+
 const rootHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 if (/cdn\.jsdelivr\.net\/npm\/\[email protected\]/i.test(rootHtml)) failures.push('Malformed Bootstrap CDN reference is back in index.html');
 
