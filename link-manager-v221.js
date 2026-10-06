@@ -44,7 +44,7 @@
     return raw.startsWith('/')?raw:'/'+raw;
   }
 }
-function trackedUrl(destination,slug){return BASE_DOMAIN+'/r/?s='+encodeURIComponent(slugify(slug)||'link');}
+function trackedUrl(destination,slug){return BASE_DOMAIN+'/r/'+encodeURIComponent(slugify(slug)||'link');}
   function getSb(){
     try{
       if(typeof sb!=='undefined'&&sb)return sb;
@@ -114,7 +114,7 @@ function trackedUrl(destination,slug){return BASE_DOMAIN+'/r/?s='+encodeURICompo
           <div><label>Referral WhatsApp Number</label><input id="lmWhatsapp" placeholder="Auto from selected Team Member"><div id="lmWhatsappHint" style="font-size:9px;color:var(--text-muted);margin-top:5px">Select a Team Member to auto-use their active WhatsApp.</div></div><div><label>Assign Team Member</label><select id="lmTeamMember"><option value="">No team member</option></select></div>
           <div class="wide" id="lmCustomWrap" style="display:none"><label>Custom Destination</label><input id="lmCustomDestination" placeholder="/courses#courses"></div>
           <div><label>Campaign</label><input id="lmCampaign" placeholder="august-free-course"></div>
-          <div class="wide"><label>Short Link Code *</label><input id="lmSlug" placeholder="samiya-f2"><div style="font-size:9px;color:var(--text-muted);margin-top:5px">New links will look like pipsepaisa.com/r/?s=samiya-f2</div></div>
+          <div class="wide"><label>Short Link Code *</label><input id="lmSlug" placeholder="samiya-f2"><div style="font-size:9px;color:var(--text-muted);margin-top:5px">New links will look like pipsepaisa.com/r/samiya-f2</div></div>
           <div><label>Notes</label><input id="lmNotes" placeholder="Optional internal note"></div>
         </div>
         <div class="lm-preview" style="margin-top:14px"><span>🔗</span><span class="lm-link" id="lmPreview">${BASE_DOMAIN}/courses/?psp_enroll=basic-b3&ref=person-1</span><button class="lm-btn" style="margin-left:auto" type="button" id="lmCreateBtn">Create Link</button></div>
