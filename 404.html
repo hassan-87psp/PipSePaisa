@@ -28,15 +28,9 @@
   }
   async function resolveShort(code){
     var body={
-      p_slug:code,p_event_type:'click',
-      p_visitor_id:stored(localStorage,VIS,'v_'),
-      p_session_id:stored(sessionStorage,SES,'s_'),
-      p_user_id:null,p_course_key:null,
-      p_page_path:location.pathname+location.search,
-      p_referrer:document.referrer||null,p_user_agent:navigator.userAgent||null,
-      p_metadata:{short_link:true,entry_path:location.pathname}
+      p_slug:code,
     };
-    var res=await fetch(SUPA+'/rest/v1/rpc/psp_record_tracked_link_event',{
+    var res=await fetch(SUPA+'/rest/v1/rpc/psp_resolve_tracked_link',{
       method:'POST',mode:'cors',cache:'no-store',
       headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+KEY,'Accept':'application/json'},
       body:JSON.stringify(body)
@@ -46,7 +40,8 @@
     var row=Array.isArray(data)?data[0]:data;
     if(!row||!row.destination_path)throw new Error('link-unavailable');
     saveAttr(code,row);
-    return row.destination_path;
+    var dest=normalizeDestination(row.destination_path);
+    try{var u=new URL(dest,location.origin);u.searchParams.set('ref',code);return u.pathname+(u.search||'')+(u.hash||'');}catch(_){return dest;}
   }
   function normalizeDestination(raw){
     var BASE='https://www.pipsepaisa.com',s=String(raw||'/').trim()||'/';
@@ -66,7 +61,7 @@
   if(p.indexOf('/r/')===0){
     var code=p.slice(3).toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,80);
     if(code&&code.indexOf('/')===-1){
-      resolveShort(code).then(function(dest){location.replace(normalizeDestination(dest));}).catch(function(){location.replace('/');});
+      resolveShort(code).then(function(dest){location.replace(dest);}).catch(function(){location.replace('/');});
       return;
     }
   }
