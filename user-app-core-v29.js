@@ -2435,7 +2435,7 @@
     if(cached){ paintAIChart(box,cached.report,true); return; }
     box.innerHTML='<div class="card" style="text-align:center;padding:34px;color:var(--text-muted);">🤖 AI is reading '+candles.length+' real candles and mapping zones... (10-20 sec)</div>';
     var report='';
-    try{var rr=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:buildChartPrompt(meta,tf,price,candles)})});if(rr.ok){var dd=await rr.json();if(dd.report)report=dd.report;}}catch(e){}
+    try{var rr=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:await pspAiAuthHeaders(),body:JSON.stringify({prompt:buildChartPrompt(meta,tf,price,candles)})});if(rr.ok){var dd=await rr.json();if(dd.report)report=dd.report;}}catch(e){}
     if(!report){box.innerHTML='<div class="card" style="text-align:center;padding:24px;color:#ef4444;">AI is busy right now. Please try again in a moment.</div>';return;}
     try{localStorage.setItem(ckey,JSON.stringify({report:report,time:Date.now()}));}catch(e){}
     paintAIChart(box,report,false);
@@ -3387,6 +3387,19 @@
     if (initSupabaseClient()) return true;
     await loadSupabaseSdk();
     return initSupabaseClient();
+  }
+
+  // V475: AI requests are allowed only for the active signed-in Supabase session.
+  async function pspAiAuthHeaders(){
+    const headers={'Content-Type':'application/json'};
+    try{
+      if(await ensureSupabaseClient()){
+        const result=await sb.auth.getSession();
+        const token=result&&result.data&&result.data.session&&result.data.session.access_token;
+        if(token)headers.Authorization='Bearer '+token;
+      }
+    }catch(_){}
+    return headers;
   }
   initSupabaseClient();
   setTimeout(initSupabaseClient, 700);
@@ -5153,7 +5166,7 @@
     if(btn){btn.disabled=true;btn.textContent='⏳ Analyzing...';}
     box.innerHTML='<div style="color:var(--text-muted);">🤖 Analyzing your '+s.n+' trades in depth... (10-20 sec)</div>';
     let report='',provider='rules';
-    try{const r=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:buildReportPrompt(s,tradeSample(trades))})});if(r.ok){const d=await r.json();if(d.report){report=d.report;provider=d.provider||'ai';}}}catch(e){}
+    try{const r=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:await pspAiAuthHeaders(),body:JSON.stringify({prompt:buildReportPrompt(s,tradeSample(trades))})});if(r.ok){const d=await r.json();if(d.report){report=d.report;provider=d.provider||'ai';}}}catch(e){}
     if(!report){report=generateRuleReport(s);provider='rules';}
     renderAIReport(box,report,provider,false,s);
     if(btn){btn.disabled=false;btn.textContent='🔄 Regenerate';}
@@ -5224,9 +5237,9 @@
     return '<div style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeEventAI()"><div style="background:var(--bg-card);border:1px solid var(--gold);border-radius:18px;max-width:660px;width:100%;max-height:90vh;overflow-y:auto;padding:20px;">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px;"><div><div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;">'+(FLAG_MAP[ev.country]||'🌐')+' '+vEsc(ev.country)+' · '+vEsc(ev.impact)+' impact</div><div style="font-size:17px;font-weight:800;margin-top:2px;">'+vEsc(ev.title)+'</div></div><div style="display:flex;gap:6px;flex:0 0 auto;">'+(cached?'<button onclick="aiEventAnalyze('+(newsRawData.indexOf(ev))+',true)" title="Regenerate" style="background:rgba(255,255,255,.06);border:none;color:var(--text);height:32px;padding:0 12px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;">🔄</button>':'')+'<button onclick="closeEventAI()" style="background:rgba(255,255,255,.06);border:none;color:var(--text);width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:16px;">✕</button></div></div>'+
       '<div style="display:flex;gap:8px;margin:10px 0 14px;flex-wrap:wrap;">'+
-        '<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:7px 12px;"><span style="font-size:10px;color:var(--text-muted);">FORECAST</span><div style="font-weight:800;color:var(--gold);">'+(ev.forecast||'-')+'</div></div>'+
-        '<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:7px 12px;"><span style="font-size:10px;color:var(--text-muted);">PREVIOUS</span><div style="font-weight:800;">'+(ev.previous||'-')+'</div></div>'+
-        '<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:7px 12px;"><span style="font-size:10px;color:var(--text-muted);">ACTUAL</span><div style="font-weight:800;color:'+(ev.actual?'var(--gold)':'var(--text-muted)')+';">'+(ev.actual||'-')+'</div></div>'+
+        '<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:7px 12px;"><span style="font-size:10px;color:var(--text-muted);">FORECAST</span><div style="font-weight:800;color:var(--gold);">'+vEsc(ev.forecast||'-')+'</div></div>'+
+        '<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:7px 12px;"><span style="font-size:10px;color:var(--text-muted);">PREVIOUS</span><div style="font-weight:800;">'+vEsc(ev.previous||'-')+'</div></div>'+
+        '<div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:9px;padding:7px 12px;"><span style="font-size:10px;color:var(--text-muted);">ACTUAL</span><div style="font-weight:800;color:'+(ev.actual?'var(--gold)':'var(--text-muted)')+';">'+vEsc(ev.actual||'-')+'</div></div>'+
       '</div>'+
       '<div id="eventAIBody"></div></div></div>';
   }
@@ -5252,7 +5265,7 @@
       }}catch(e){}
     var body=document.getElementById('eventAIBody');if(!body)return;
     var report='';
-    try{var rr=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:buildEventPrompt(ev,heads)})});if(rr.ok){var dd=await rr.json();if(dd.report)report=dd.report;}}catch(e){}
+    try{var rr=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:await pspAiAuthHeaders(),body:JSON.stringify({prompt:buildEventPrompt(ev,heads)})});if(rr.ok){var dd=await rr.json();if(dd.report)report=dd.report;}}catch(e){}
     if(!report){body.innerHTML='<div style="text-align:center;padding:24px;color:#ef4444;">AI is busy right now. Please try again in a moment.</div>';return;}
     try{localStorage.setItem(evCacheKey(ev),JSON.stringify({report:report,time:Date.now()}));}catch(e){}
     renderEventReport(body,report,ev,false);
