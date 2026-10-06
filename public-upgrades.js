@@ -272,13 +272,13 @@
     const map={
       '/':['PipSePaisa — Forex Education & Trading Tools','Learn Forex through structured courses, practical tools and responsible market education from PipSePaisa.'],
       'landing.html':['PipSePaisa — Forex Education & Trading Tools','Learn Forex through structured courses, practical tools and responsible market education from PipSePaisa.'],
-      'courses':['Forex Courses | PipSePaisa','Explore structured PipSePaisa Forex learning paths from beginner foundations to advanced market education.'],
+      'courses':['Forex Trading Courses for Beginners & Advanced | PipSePaisa','Explore structured Forex trading courses from beginner foundations to advanced technical and fundamental education with PipSePaisa.'],
       'courses.html':['Forex Courses | PipSePaisa','Explore structured PipSePaisa Forex learning paths from beginner foundations to advanced market education.'],
-      'becomepartner':['Partner Education & Support | PipSePaisa','Explore PipSePaisa partner education, team training, marketing resources and broker-program information.'],
+      'becomepartner':['Forex IB Partner Program & Support | PipSePaisa','Explore the PipSePaisa Forex IB partner program with structured team training, marketing support, broker programs and practical business resources.'],
       'partner.html':['Partner Education & Support | PipSePaisa','Explore PipSePaisa partner education, team training, marketing resources and broker-program information.'],
-      'tradingtools':['Trading Tools & Services | PipSePaisa','Use practical trading journals, calculators, market resources and educational services from PipSePaisa.'],
+      'tradingtools':['Forex Trading Tools & Calculators | PipSePaisa','Use practical Forex trading tools including a trading journal, calculators, currency strength, market alerts, news and economic calendar resources.'],
       'tools-services.html':['Trading Tools & Services | PipSePaisa','Use practical trading journals, calculators, market resources and educational services from PipSePaisa.'],
-      'broker-reviews':['Broker Reviews | PipSePaisa','Compare broker account features, trading conditions and official offer information.'],
+      'broker-reviews':['Forex Broker Reviews & Comparisons | PipSePaisa','Compare Forex brokers, account options, spreads, leverage, minimum deposits and trading conditions with clear PipSePaisa broker reviews.'],
       'sign-in':['Sign In | PipSePaisa','Sign in securely to your PipSePaisa account.']
     };
     const file=location.pathname.replace(/\/$/,'').split('/').pop()||'/';
@@ -288,7 +288,7 @@
     desc.content=info[1];
     const base='https://www.pipsepaisa.com';
     const canonicalPath=file==='/'?'/':('/'+file.replace(/\.html$/,''));
-    const tags=[['link','canonical','href',base+canonicalPath],['meta','og:title','content',info[0]],['meta','og:description','content',info[1]],['meta','og:type','content','website'],['meta','og:url','content',base+canonicalPath],['meta','og:image','content',base+'/hero-bg-light.png']];
+    const tags=[['link','canonical','href',base+canonicalPath],['meta','og:title','content',info[0]],['meta','og:description','content',info[1]],['meta','og:type','content','website'],['meta','og:url','content',base+canonicalPath],['meta','og:image','content',base+'/hero-bg-light.webp']];
     tags.forEach(([tag,key,attr,value])=>{let el=tag==='link'?document.querySelector('link[rel="'+key+'"]'):document.querySelector('meta[property="'+key+'"]');if(!el){el=document.createElement(tag);if(tag==='link')el.rel=key;else el.setAttribute('property',key);document.head.appendChild(el)}el.setAttribute(attr,value)});
   }
 
