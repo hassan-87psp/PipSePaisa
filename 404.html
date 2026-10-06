@@ -7,13 +7,66 @@
 <meta name="robots" content="noindex,nofollow">
 <script>
 (function(){
+  'use strict';
+  var BASE='https://www.pipsepaisa.com';
   var p=String(location.pathname||'/');
-  while(p.length>1 && p.charAt(p.length-1)==='/') p=p.slice(0,-1);
+  while(p.length>1&&p.charAt(p.length-1)==='/')p=p.slice(0,-1);
+
+  function normalizeDestination(raw){
+    var s=String(raw||'/').trim()||'/';
+    try{
+      var u=new URL(s,BASE);
+      var route=String(u.searchParams.get('psp_route')||'').replace(/\/+$/,'');
+      var routeMap={
+        '/courses':'/courses/','/free-course':'/free-course/','/broker-reviews':'/broker-reviews/',
+        '/partner':'/becomepartner/','/become-partner':'/becomepartner/',
+        '/trading-tools':'/tradingtools/','/tools-services':'/tradingtools/',
+        '/sign-in':'/sign-in/','/sign-up':'/sign-up/','/technical':'/technical/','/fundamental':'/fundamental/'
+      };
+      var pathMap={
+        '/courses':'/courses/','/courses.html':'/courses/','/broker-reviews':'/broker-reviews/',
+        '/broker-reviews.html':'/broker-reviews/','/become-partner':'/becomepartner/',
+        '/partner':'/becomepartner/','/partner.html':'/becomepartner/',
+        '/trading-tools':'/tradingtools/','/tools-services.html':'/tradingtools/',
+        '/sign-in':'/sign-in/','/sign-up':'/sign-up/','/free-course':'/free-course/',
+        '/technical':'/technical/','/fundamental':'/fundamental/'
+      };
+      var out=routeMap[route]||pathMap[u.pathname]||u.pathname||'/';
+      u.searchParams.delete('psp_route');
+      var q=u.searchParams.toString();
+      return out+(q?'?'+q:'')+(u.hash||'');
+    }catch(_){return '/';}
+  }
+
+  function showFallback(message){
+    document.documentElement.style.visibility='';
+    document.documentElement.className='show';
+    var m=document.getElementById('shortMessage');
+    if(m&&message)m.textContent=message;
+  }
 
   if(p.indexOf('/r/')===0){
-    var code=p.slice(3);
-    if(code && code.indexOf('/')===-1){
-      location.replace('/r/?s='+encodeURIComponent(code));
+    var code=p.slice(3).toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,80);
+    if(code&&code.indexOf('/')===-1){
+      document.documentElement.style.visibility='hidden';
+      window.__pspShortCode=code;
+      var s=document.createElement('script');
+      s.src='/psp-link-tracking-v42.js?v=20261006-v404-instant-short';
+      s.async=true;
+      s.onload=async function(){
+        try{
+          for(var i=0;i<40&&!window.PSPTrack;i++)await new Promise(function(r){setTimeout(r,50)});
+          if(!window.PSPTrack)throw new Error('tracking-unavailable');
+          var result=await window.PSPTrack.record('click',{slug:code,metadata:{short_link:true,entry_path:'/r/'+code}});
+          var row=result&&result.row;
+          if(!result||!result.ok||!row)throw new Error('link-unavailable');
+          location.replace(normalizeDestination(row.destination_path||'/'));
+        }catch(_){
+          showFallback('This link is unavailable.');
+        }
+      };
+      s.onerror=function(){showFallback('This link is unavailable.');};
+      document.head.appendChild(s);
       return;
     }
   }
@@ -32,21 +85,19 @@
     '/tools-services.html':'/tradingtools/'
   };
   var dest=map[p];
-  if(dest){
-    location.replace(dest+(location.search||'')+(location.hash||''));
-    return;
-  }
+  if(dest){location.replace(dest+(location.search||'')+(location.hash||''));return;}
   document.documentElement.className='show';
 })();
 </script>
 <style>
 html:not(.show) body{visibility:hidden}
 body{font-family:system-ui;background:#fff8ed;color:#111827;display:grid;place-items:center;min-height:100vh;margin:0}
-.c{text-align:center}.c a{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#FB9201;color:#111;text-decoration:none;font-weight:800}
+.c{text-align:center}
+.c a{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#FB9201;color:#111;text-decoration:none;font-weight:800}
 </style>
 </head>
 <body>
-<div class="c"><h1>Page not found</h1><a href="/">Go Home</a></div>
+<div class="c"><h1 id="shortMessage">Page not found</h1><a href="/">Go Home</a></div>
 <script defer src="/psp-smooth-scroll-v322.js?v=20260930-v322-all-pages"></script>
 </body>
 </html>
