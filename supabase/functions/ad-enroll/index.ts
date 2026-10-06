@@ -79,6 +79,18 @@ async function ensureProfile(admin: ReturnType<typeof createClient>, userId: str
   return clean(prepared.data?.client_id, 80);
 }
 
+async function existingProfileClientId(
+  admin: ReturnType<typeof createClient>,
+  userId: string,
+): Promise<string> {
+  const existing = await admin.from("profiles")
+    .select("client_id")
+    .eq("id", userId)
+    .maybeSingle();
+  if (existing.error) throw new Error(`Profile could not be read: ${existing.error.message}`);
+  return clean(existing.data?.client_id, 80);
+}
+
 async function sendCredentialsEmail(admin: ReturnType<typeof createClient>, name: string, email: string, course: string, clientId: string, password: string) {
   let recoveryLink = `${SITE_URL}/reset-password.html`;
   try {
@@ -153,6 +165,18 @@ Deno.serve(async (req) => {
     const rate = await admin.from("psp_ad_submissions_v259").select("id", { count: "exact", head: true }).ilike("email", email).gte("created_at", since);
     if (!rate.error && (rate.count ?? 0) >= 4) return json({ ok: false, error: "Too many requests. Please wait a few minutes and try again." }, 429);
 
+    // V478: also throttle by hashed source IP so rotating victim emails cannot
+    // be used for bulk account/enrollment creation.
+    if (ipHash) {
+      const ipRate = await admin.from("psp_ad_submissions_v259")
+        .select("id", { count: "exact", head: true })
+        .eq("ip_hash", ipHash)
+        .gte("created_at", since);
+      if (!ipRate.error && (ipRate.count ?? 0) >= 12) {
+        return json({ ok: false, error: "Too many requests. Please wait a few minutes and try again." }, 429);
+      }
+    }
+
     const formEventTask = admin.from("psp_ad_events_v261").insert({
       course_code: course, event_type: "form_submit", visitor_id: clean(body.visitor_id,120) || null,
       utm_source: clean(body.utm_source,160) || null, utm_medium: clean(body.utm_medium,160) || null,
@@ -176,8 +200,13 @@ Deno.serve(async (req) => {
     const existingAdTask = admin.from("psp_ad_submissions_v259")
       .select("id,enrollment_id,course_name,client_id,team_member_id,team_member_name,team_member_whatsapp")
       .eq("user_id", userId).eq("course_code", course).order("created_at", { ascending: true }).limit(1).maybeSingle();
+    // V478 security: a public ad form must never overwrite an existing
+    // account's canonical profile identity/contact fields.
+    const profileClientTask = created
+      ? ensureProfile(admin, userId, name, email, whatsapp)
+      : existingProfileClientId(admin, userId);
     const [profileClientId, existingAd] = await Promise.all([
-      ensureProfile(admin, userId, name, email, whatsapp),
+      profileClientTask,
       existingAdTask,
     ]);
     let result: any = existingAd.data ? {
