@@ -4729,14 +4729,22 @@
     host.innerHTML='<div style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeVipModal()"><div style="background:var(--bg-card,#0f1729);border:1px solid var(--border);border-radius:16px;max-width:420px;width:100%;max-height:80vh;overflow-y:auto;padding:18px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><div style="font-weight:800;font-size:16px;">👥 '+vEsc(g.name)+' — Members</div><button onclick="closeVipModal()" style="background:none;border:none;color:var(--text-muted);font-size:20px;cursor:pointer;">✕</button></div><div id="memberListBody"><div style="color:var(--text-muted);font-size:13px;">Loading...</div></div></div></div>';
     let members=[];
     try{
-      if(g.is_official){const r=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen,role,member_type').order('last_seen',{ascending:false,nullsFirst:false}).limit(200);members=r.data||[];}
-      else{
-        let q=sb.from('profiles').select('id,full_name,email,avatar_url,last_seen,role,member_type').eq('mentor_id',g.owner_id);
-        if(g.audience==='premium')q=q.in('member_type',['premium','vip']);
-        else if(g.audience==='vip')q=q.eq('member_type','vip');
-        const r=await q.limit(200);members=r.data||[];
-        const ow=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen,role,member_type').eq('id',g.owner_id).maybeSingle();
-        if(ow.data&&!members.some(function(m){return m.id===ow.data.id;}))members.unshift(ow.data);
+      if(g.is_official){
+        const r=await sb.rpc('psp_member_directory_v481',{p_limit:200});
+        members=r.data||[];
+      } else {
+        var memberTypes=null;
+        if(g.audience==='premium')memberTypes=['premium','vip'];
+        else if(g.audience==='vip')memberTypes=['vip'];
+        const r=await sb.rpc('psp_member_directory_v481',{
+          p_mentor_id:g.owner_id,
+          p_member_types:memberTypes,
+          p_limit:200
+        });
+        members=r.data||[];
+        const ow=await sb.rpc('psp_member_directory_v481',{p_user_id:g.owner_id,p_limit:1});
+        const ownerRow=ow.data&&ow.data[0];
+        if(ownerRow&&!members.some(function(m){return m.id===ownerRow.id;}))members.unshift(ownerRow);
       }
     }catch(e){}
     const body=document.getElementById('memberListBody');if(!body)return;
@@ -4785,7 +4793,7 @@
     msgs.forEach(function(m){var peer=m.sender_id===me?m.recipient_id:m.sender_id;if(!byPeer[peer])byPeer[peer]={peer:peer,last:m,unread:0};if(m.recipient_id===me&&!m.read_at)byPeer[peer].unread++;});
     var peerIds=Object.keys(byPeer);
     var profs={};
-    if(peerIds.length){try{const pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').in('id',peerIds);(pr.data||[]).forEach(function(p){profs[p.id]=p;});}catch(e){}}
+    if(peerIds.length){try{const pr=await sb.rpc('psp_member_directory_v481',{p_ids:peerIds,p_limit:Math.min(500,peerIds.length)});(pr.data||[]).forEach(function(p){profs[p.id]=p;});}catch(e){}}
     _dmConvs=peerIds.map(function(id){return {prof:profs[id]||{id:id,full_name:'Member'},last:byPeer[id].last,unread:byPeer[id].unread};}).sort(function(a,b){return new Date(b.last.created_at)-new Date(a.last.created_at);});
     var totalUnread=_dmConvs.reduce(function(s,c){return s+c.unread;},0);
     var nb=document.getElementById('chatsNavBadge');if(nb){if(totalUnread){nb.style.display='inline-block';nb.textContent=totalUnread>9?'9+':totalUnread;}else{nb.style.display='none';}}
@@ -4829,7 +4837,7 @@
     const me=currentProfile.id;
     // ensure on chats page
     if(!silent){var pg=document.getElementById('page-chats');if(pg&&!pg.classList.contains('active')){showPage('chats',document.querySelector('[data-page=chats]'));}if(typeof uTabSwitch==='function'&&_uTab!=='direct')uTabSwitch('direct');}
-    if(!peerObj){try{const pr=await sb.from('profiles').select('id,full_name,email,avatar_url,last_seen').eq('id',peerId).maybeSingle();peerObj=pr.data;}catch(e){}}
+    if(!peerObj){try{const pr=await sb.rpc('psp_member_directory_v481',{p_user_id:peerId,p_limit:1});peerObj=pr.data&&pr.data[0];}catch(e){}}
     if(!peerObj)peerObj={id:peerId,full_name:'Member'};
     _dmPeer=peerObj;
     const head=document.getElementById('dmThreadHead');
