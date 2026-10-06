@@ -1681,7 +1681,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <link href="psp-public-v40.css?v=20261006-v474-header-lock" rel="stylesheet"/><link href="psp-mobile-v41.css?v=20260804-v41" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20260805-v42"></script>
 <link rel="canonical" href="https://www.pipsepaisa.com/sign-in/">
 <script src="/psp-direct-signup-v1.js?v=20260930-v352-perfsingle-manager-short-wa"></script>
-<script src="/course-auth-path-v207.js?v=20260930-v342-auth-intent"></script>
+<script src="/course-auth-path-v207.js?v=20261006-v402-team-signup"></script>
 <script>try{window.PSPCourseAuthFlow?.read?.();}catch(_){}</script>
 </head>
 <body class="page-home">
@@ -2308,7 +2308,21 @@ document.addEventListener('DOMContentLoaded',function(){
 }
 </style>
 <script defer="" src="psp-public-performance-v40.js?v=20260804-v40"></script>
-<script>document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){if(typeof openLandingAuth==='function')openLandingAuth('login');},120);},{once:true});</script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(function(){
+    if(typeof openLandingAuth!=='function')return;
+    let mode='login';
+    try{
+      const q=new URLSearchParams(location.search);
+      const hasReferral=!!(q.get('ref')||q.get('psp_ref')||window.PSPTrack?.getAttribution?.()?.slug);
+      const requested=String(q.get('psp_auth')||'').toLowerCase();
+      mode=hasReferral?'signup':(requested==='signup'?'signup':'login');
+    }catch(_){}
+    openLandingAuth(mode);
+  },120);
+},{once:true});
+</script>
 <script defer src="/psp-smooth-scroll-v322.js?v=20260930-v322-all-pages"></script>
 </body>
 </html>
