@@ -137,6 +137,20 @@ Deno.serve(async (req) => {
       const eventType = clean(body.event_type, 32).toLowerCase();
       if (!["technical", "fundamental"].includes(course)) return json({ ok: false, error: "Invalid course link." }, 400);
       if (!["click", "form_open"].includes(eventType)) return json({ ok: false, error: "Invalid tracking event." }, 400);
+
+      // V495: public analytics are intentionally anonymous, but one source must
+      // not be able to flood the event table indefinitely.
+      if (ipHash) {
+        const trackSince = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+        const trackRate = await admin.from("psp_ad_events_v261")
+          .select("id", { count: "exact", head: true })
+          .eq("ip_hash", ipHash)
+          .gte("created_at", trackSince);
+        if (!trackRate.error && (trackRate.count ?? 0) >= 100) {
+          return json({ ok: false, error: "Too many tracking requests. Please try again later." }, 429);
+        }
+      }
+
       await admin.from("psp_ad_events_v261").insert({
         course_code: course, event_type: eventType, visitor_id: clean(body.visitor_id, 120) || null,
         utm_source: clean(body.utm_source,160) || null, utm_medium: clean(body.utm_medium,160) || null,
