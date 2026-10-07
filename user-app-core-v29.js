@@ -3541,8 +3541,8 @@
     if (!phone || phone.length < 7) {
       showAuthMessage('error', 'WhatsApp number is required. Please enter a valid number.', 'authMessageSignup'); return;
     }
-    if (password.length < 6) {
-      showAuthMessage('error', 'Password must be at least 6 characters', 'authMessageSignup'); return;
+    if (password.length < 8) {
+      showAuthMessage('error', 'Password must be at least 8 characters.', 'authMessageSignup'); return;
     }
     if (password !== password2) {
       showAuthMessage('error', 'Passwords do not match. Please re-enter.', 'authMessageSignup'); return;
@@ -5578,7 +5578,7 @@
       const password=String(payload?.password||'');
       if(!fullName||!email||!phone||!password) throw new Error('Please complete all required fields.');
       if(phone.length<7) throw new Error('Please enter a valid WhatsApp number.');
-      if(password.length<6) throw new Error('Password must be at least 6 characters.');
+      if(password.length < 8) throw new Error('Password must be at least 8 characters.');
       if(typeof window.PSPDirectSignup!=='function') throw new Error('Signup system did not load correctly. Please refresh and try again.');
 
       const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
