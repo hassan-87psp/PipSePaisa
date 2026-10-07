@@ -450,7 +450,7 @@
               <div class="ce-field"><label>Full Name</label><input id="ceNewName" type="text" autocomplete="name" placeholder="Your full name"></div>
               <div class="ce-field"><label>WhatsApp Number</label><input id="ceNewPhone" type="tel" autocomplete="tel" placeholder="+92..."></div>
               <div class="ce-field full"><label>Email Address</label><input id="ceNewEmail" type="email" autocomplete="email" placeholder="you@example.com"></div>
-              <div class="ce-field"><label>Password</label><input id="ceNewPassword" type="password" autocomplete="new-password" placeholder="Minimum 6 characters"></div>
+              <div class="ce-field"><label>Password</label><input id="ceNewPassword" type="password" autocomplete="new-password" placeholder="Minimum 8 characters"></div>
               <div class="ce-field"><label>Confirm Password</label><input id="ceNewPassword2" type="password" autocomplete="new-password" placeholder="Repeat password"></div>
               <div class="ce-field full ce-question-field"><label>What is your current trading level?</label><select id="ceNewExperience" onchange="courseEnrollmentToggleOther('ceNewExperience','ceNewExperienceOtherWrap')"><option value="">Select one option</option><option value="Beginner — Never traded before">Beginner — Never traded before</option><option value="Basic Knowledge — Learning fundamentals">Basic Knowledge — Learning fundamentals</option><option value="Demo Trader — Practising on demo">Demo Trader — Practising on demo</option><option value="Live Trader — Trading with a real account">Live Trader — Trading with a real account</option><option value="Experienced Trader — Improving consistency">Experienced Trader — Improving consistency</option><option value="Other">Other</option></select></div>
               <div class="ce-field full ce-other-field" id="ceNewExperienceOtherWrap" hidden><label>Please specify your trading level</label><input id="ceNewExperienceOther" type="text" placeholder="Write your answer"></div>
@@ -1269,7 +1269,7 @@
     const receipt=manual?(document.getElementById('ceNewReceipt')?.files?.[0]||null):null;
     if(!values.name||!values.phone||!values.email||!values.password){setMessage('ceNewMessage','error','Please complete all required account fields.');return;}
     if(values.phone.length<7){setMessage('ceNewMessage','error','Please enter a valid WhatsApp number.');return;}
-    if(values.password.length<6){setMessage('ceNewMessage','error','Password must be at least 6 characters.');return;}
+    if(values.password.length<8){setMessage('ceNewMessage','error','Password must be at least 8 characters.');return;}
     if(values.password!==values.password2){setMessage('ceNewMessage','error','Passwords do not match.');return;}
     if(!values.experience||!values.goal){setMessage('ceNewMessage','error','Please answer both enrollment questions.');return;}
     if(selectedCourse.type==='paid'&&!pay){setMessage('ceNewMessage','error','Choose a payment method to continue.');return;}
