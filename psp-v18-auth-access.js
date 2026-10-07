@@ -307,8 +307,10 @@ async function subscribeRealtime(){
   try{
     const s=await client.auth.getSession();const user=s?.data?.session?.user;if(!user)return;
     if(realtimeChannel){try{await client.removeChannel(realtimeChannel);}catch(_){}}
-    realtimeChannel=client.channel('psp-user-pin-access-v20-'+user.id)
-      .on('postgres_changes',{event:'*',schema:'public',table:'user_access_pins',filter:`user_id=eq.${user.id}`},()=>loadAccessStatus())
+    // V484: user_access_pins contains the secret PIN and is no longer readable
+    // by normal users. Keep realtime only for non-secret global settings; user
+    // access state refreshes through the safe status RPC/poll below.
+    realtimeChannel=client.channel('psp-user-pin-access-v484-'+user.id)
       .on('postgres_changes',{event:'*',schema:'public',table:'pin_access_settings'},()=>loadAccessStatus())
       .subscribe();
   }catch(e){console.warn('PIN realtime unavailable',e);}
@@ -316,7 +318,8 @@ async function subscribeRealtime(){
 function init(){
   installSignupFix();installPageGuard();ensureAccessModal();ensureResultModal();ensureSettingsCard();subscribeAuthChanges();
   setResolving(true);loadAccessStatus().then(subscribeRealtime);
-  clearInterval(accessTimer);accessTimer=setInterval(()=>{if(!document.hidden)loadAccessStatus();},5*60*1000);
+  // V484: keep access changes responsive without exposing the PIN table to Realtime.
+  clearInterval(accessTimer);accessTimer=setInterval(()=>{if(!document.hidden)loadAccessStatus();},30*1000);
   clearInterval(wrapTimer);let wrapAttempts=0;installSignupFix();installPageGuard();ensureSettingsCard();wrapTimer=setInterval(()=>{installSignupFix();installPageGuard();ensureSettingsCard();wrapAttempts+=1;if(wrapAttempts>=10)clearInterval(wrapTimer);},500);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,20));else setTimeout(init,20);
