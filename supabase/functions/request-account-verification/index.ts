@@ -59,6 +59,19 @@ Deno.serve(async(req:Request)=>{
     const current=await admin.from("account_verifications").select("email_verified_at").eq("user_id",user.id).maybeSingle();
     if(current.data?.email_verified_at)return json({success:true,already_verified:true,message:"Your email is already verified."});
 
+    const latestToken=await admin.from("account_verification_email_tokens")
+      .select("created_at")
+      .eq("user_id",user.id)
+      .order("created_at",{ascending:false})
+      .limit(1)
+      .maybeSingle();
+    if(!latestToken.error&&latestToken.data?.created_at){
+      const age=Date.now()-new Date(latestToken.data.created_at).getTime();
+      if(Number.isFinite(age)&&age>=0&&age<60000){
+        return json({success:false,error:"Please wait 60 seconds before requesting another verification email."},429);
+      }
+    }
+
     await admin.from("account_verifications").upsert({user_id:user.id,updated_at:new Date().toISOString()},{onConflict:"user_id"});
     await admin.from("account_verification_email_tokens").delete().eq("user_id",user.id).is("used_at",null);
 
