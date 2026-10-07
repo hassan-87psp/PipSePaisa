@@ -1374,7 +1374,6 @@ async function handleWebsiteEmail(
     const roles = [
       normalizeRole(profileResult.data?.role),
       normalizeRole(currentUser.app_metadata?.role),
-      normalizeRole(currentUser.user_metadata?.role),
     ];
 
     const isAdmin = roles.some((role) =>
