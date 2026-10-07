@@ -28,6 +28,13 @@ async function sha256Hex(input: string) {
   const hash = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
+function publicIp(req: Request) {
+  return (
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    req.headers.get('cf-connecting-ip')?.trim() ||
+    ''
+  ).slice(0, 80);
+}
 function randomToken() {
   const b = new Uint8Array(32); crypto.getRandomValues(b);
   return Array.from(b).map(x => x.toString(16).padStart(2, '0')).join('');
@@ -378,6 +385,23 @@ Deno.serve(async (req) => {
     const question = clean(p?.message, 2000);
     const clientMessageId = clean(p?.client_message_id, 160) || randomToken().slice(0, 24);
     if (!question) return json({ error: 'Message is required' }, 400);
+
+    // Protect the public AI path from automated cost abuse while keeping normal
+    // chat usage unrestricted. The visitor token is still the primary chat auth.
+    const ip = publicIp(req);
+    if (ip) {
+      const ipHash = await sha256Hex(`${ip}|pipsepaisa-freecourse2-ai-v353`);
+      const since = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+      const recent = await db.from('psp_fc2_rate_v353')
+        .select('id', { count: 'exact', head: true })
+        .eq('ip_hash', ipHash)
+        .gte('created_at', since);
+      if (!recent.error && (recent.count ?? 0) >= 50) {
+        return json({ error: 'Too many chat messages. Please wait a few minutes and try again.' }, 429);
+      }
+      const rateWrite = await db.from('psp_fc2_rate_v353').insert({ ip_hash: ipHash });
+      if (rateWrite.error) console.warn('freecourse2 rate log warning', rateWrite.error);
+    }
 
     // Idempotency: retries from mobile/network must not create temporary duplicate messages or duplicate AI answers.
     let visitorMsg: any = null;
