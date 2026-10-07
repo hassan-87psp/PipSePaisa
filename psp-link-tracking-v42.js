@@ -125,6 +125,16 @@
     const medium=(params.get('utm_medium')||'').trim()||null;
     const campaign=(params.get('utm_campaign')||'').trim()||null;
     const sessionFlag='psp_link_click_recorded_'+slug;
+    // V479: the URL itself is authoritative immediately. This closes the
+    // page-load race where an older manager could remain in localStorage until
+    // the async tracking RPC finished.
+    saveAttribution({
+      slug,
+      source,
+      campaign,
+      medium,
+      entry_path:location.pathname
+    });
     if(storageGet(sessionStorage,sessionFlag)==='1'){
       // V477: a repeated manager link in the same browser session must still
       // become the active attribution. Only suppress the duplicate click event.
