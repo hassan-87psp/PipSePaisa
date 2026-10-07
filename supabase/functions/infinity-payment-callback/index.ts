@@ -226,6 +226,12 @@ Deno.serve(async (req: Request) => {
       return json({ success: false, error: final.error.message, version: "v230" }, 400);
     }
 
+    const secretCleanup = await service.from("psp_payment_callback_secrets_v493")
+      .delete()
+      .eq("payment_scope", "course")
+      .eq("provider_request_id", Number(requestIdRaw));
+    if (secretCleanup.error) console.warn(`[${trace}] callback secret cleanup warning`, secretCleanup.error);
+
     const row = (Array.isArray(final.data) ? final.data[0] : final.data) as Record<string, unknown> | null;
     if (!row) return json({ success: false, error: "Payment finalization returned no record.", version: "v230" }, 500);
 
