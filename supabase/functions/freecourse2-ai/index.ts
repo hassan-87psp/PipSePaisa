@@ -336,6 +336,23 @@ Deno.serve(async (req) => {
           return json({ ok: true, conversation_id: found.id, visitor_token: existingToken, greeting: settings?.greeting, suggestions: settings?.suggestions || [], messages: messages || [], ai_enabled: found.ai_enabled });
         }
       }
+      // V495: cap anonymous creation of new chat sessions so bots cannot
+      // fill conversation/event tables without ever sending a message.
+      const startIp = publicIp(req);
+      if (startIp) {
+        const startHash = await sha256Hex(`${startIp}|pipsepaisa-freecourse2-start-v495`);
+        const startSince = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+        const startRecent = await db.from('psp_fc2_rate_v353')
+          .select('id', { count: 'exact', head: true })
+          .eq('ip_hash', startHash)
+          .gte('created_at', startSince);
+        if (!startRecent.error && (startRecent.count ?? 0) >= 20) {
+          return json({ error: 'Too many new chat sessions. Please wait a few minutes and try again.' }, 429);
+        }
+        const startRateWrite = await db.from('psp_fc2_rate_v353').insert({ ip_hash: startHash });
+        if (startRateWrite.error) console.warn('freecourse2 start rate log warning', startRateWrite.error);
+      }
+
       const token = randomToken(); const tokenHash = await sha256Hex(token);
       const meta = p?.meta || {};
       const row = {
