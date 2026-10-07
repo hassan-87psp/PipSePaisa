@@ -52,7 +52,7 @@ function installSignupFix(){
     const fail=m=>window.showAuthMessage?.('error',m,'authMessageSignup');
     if(!fullName||!email||!password)return fail('Please fill in: Full Name, Email, and Password');
     if(!phone||phone.length<7)return fail('WhatsApp number is required. Please enter a valid number.');
-    if(password.length<6)return fail('Password must be at least 6 characters');
+    if(password.length < 8)return fail('Password must be at least 8 characters.');
     if(password!==password2)return fail('Passwords do not match. Please re-enter.');
     if(!agreed)return fail('Please agree to the terms');
     const client=db();if(!client)return fail('Connection problem. Please reload the page.');
