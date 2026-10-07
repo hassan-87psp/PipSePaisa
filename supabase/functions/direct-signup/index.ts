@@ -50,6 +50,24 @@ function cleanText(value: unknown, max = 250): string {
   return String(value ?? "").trim().slice(0, max);
 }
 
+function publicIp(req: Request): string {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("cf-connecting-ip")?.trim() ||
+    ""
+  ).slice(0, 80);
+}
+
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 function cleanMetadata(input: unknown): Record<string, unknown> {
   const src = input && typeof input === "object" ? input as Record<string, unknown> : {};
   const out: Record<string, unknown> = {
@@ -109,6 +127,66 @@ Deno.serve(async (req) => {
     const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },
     });
+
+    // Public signup intentionally bypasses the normal Auth signup flow so the
+    // account can be immediately enrolled. Protect this service-role path from
+    // both targeted email abuse and bulk IP abuse.
+    const since = new Date(Date.now() - 10 * 60 * 1000).toISOString();
+    const emailHash = await sha256Hex(`email:${email}|pipsepaisa-direct-signup-v484`);
+    const emailRecent = await admin
+      .from("psp_direct_signup_rate_v353")
+      .select("id", { count: "exact", head: true })
+      .eq("ip_hash", emailHash)
+      .gte("created_at", since);
+
+    if (!emailRecent.error && (emailRecent.count ?? 0) >= 6) {
+      return json(
+        {
+          ok: false,
+          error: "Too many signup attempts for this email. Please wait a few minutes and try again.",
+        },
+        429,
+      );
+    }
+
+    const emailRateWrite = await admin
+      .from("psp_direct_signup_rate_v353")
+      .insert({ ip_hash: emailHash });
+    if (emailRateWrite.error) {
+      console.warn("direct-signup email rate log warning", emailRateWrite.error);
+    }
+
+    const ip = publicIp(req);
+    if (ip) {
+      const ipHash = await sha256Hex(`${ip}|pipsepaisa-direct-signup-v353`);
+      const recent = await admin
+        .from("psp_direct_signup_rate_v353")
+        .select("id", { count: "exact", head: true })
+        .eq("ip_hash", ipHash)
+        .gte("created_at", since);
+
+      if (!recent.error && (recent.count ?? 0) >= 25) {
+        return json(
+          {
+            ok: false,
+            error: "Too many signup attempts. Please wait a few minutes and try again.",
+          },
+          429,
+        );
+      }
+
+      const rateWrite = await admin
+        .from("psp_direct_signup_rate_v353")
+        .insert({ ip_hash: ipHash });
+      if (rateWrite.error) {
+        console.warn("direct-signup rate log warning", rateWrite.error);
+      }
+    }
+
+    await admin
+      .from("psp_direct_signup_rate_v353")
+      .delete()
+      .lt("created_at", new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString());
 
     const metadata = cleanMetadata(body.metadata);
     const result = await admin.auth.admin.createUser({
