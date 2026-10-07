@@ -54,14 +54,19 @@ Deno.serve(async(req:Request)=>{
 
     const service=createClient(SUPABASE_URL,SERVICE,{auth:{persistSession:false}});
     const row=await service.from("payment_requests")
-      .select("id,provider_callback_token,provider_amount,provider_status,status")
+      .select("id,provider_amount,provider_status,status")
       .eq("provider","infinity").eq("provider_request_id",Number(requestId))
       .limit(1).maybeSingle();
     if(row.error||!row.data)return json({success:false,error:"VIP payment request not found.",version:VERSION},404);
 
     const supplied=tokenFrom(req);
-    const expected=String(row.data.provider_callback_token??"");
-    if(!expected||supplied!==expected)return json({success:false,error:"Invalid callback token.",version:VERSION},401);
+    if(!supplied||supplied.length<32)return json({success:false,error:"Invalid callback token.",version:VERSION},401);
+    const tokenVerify=await service.rpc("psp_verify_payment_callback_v493",{
+      p_scope:"vip",
+      p_request_id:Number(requestId),
+      p_token:supplied,
+    });
+    if(tokenVerify.error||tokenVerify.data!==true)return json({success:false,error:"Invalid callback token.",version:VERSION},401);
 
     const amount = (status==="rejected"||status==="expired")
       ? Number(row.data.provider_amount??0)
