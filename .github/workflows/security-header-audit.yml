@@ -1,4 +1,4 @@
-# Audit trigger: 2026-10-07 final security verification
+# Audit trigger: 2026-10-07 repeat final security verification
 name: PipSePaisa Security Header Audit
 
 on:
