@@ -78,7 +78,7 @@ Deno.serve(async(req:Request)=>{
       p_provider_status:status,
       p_callback_amount:amount,
       p_rejection_reason:reason||null,
-      p_payload:{...p,_psp_received_status:rawStatus,_psp_normalized_status:status},
+      p_payload:{...Object.fromEntries(Object.entries(p).filter(([key])=>key.toLowerCase()!=="token")),_psp_received_status:rawStatus,_psp_normalized_status:status},
     });
     if(fin.error)return json({success:false,error:fin.error.message,version:VERSION},400);
 
