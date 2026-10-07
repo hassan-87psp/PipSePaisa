@@ -126,6 +126,28 @@
     const campaign=(params.get('utm_campaign')||'').trim()||null;
     const sessionFlag='psp_link_click_recorded_'+slug;
     if(storageGet(sessionStorage,sessionFlag)==='1'){
+      // V477: a repeated manager link in the same browser session must still
+      // become the active attribution. Only suppress the duplicate click event.
+      try{
+        const client=await getClient();
+        const {data,error}=await client.rpc('psp_resolve_tracked_link',{p_slug:slug});
+        if(error)throw error;
+        const row=Array.isArray(data)?data[0]:data;
+        if(row){
+          saveAttribution({
+            slug,
+            link_id:row.link_id||null,
+            name:row.link_name||null,
+            destination_path:row.destination_path||location.pathname,
+            source:row.source||source,
+            campaign:row.campaign||campaign,
+            medium,
+            entry_path:location.pathname
+          });
+        }
+      }catch(error){
+        console.warn('PipSePaisa attribution restore skipped:',error?.message||error);
+      }
       cleanTrackingParams();
       return;
     }
