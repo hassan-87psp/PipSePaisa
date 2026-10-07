@@ -64,6 +64,48 @@
     return clientPromise;
   }
   function cleanSlug(value){return String(value||'').trim().toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,80);}
+  function canonicalLegacyEnrollmentFromSlug(slug){
+    // V484: these four historical Team links were shared with a wrong
+    // Fundamental B2 destination. Correct the course synchronously before
+    // page-level enrollment code can act on the stale query string.
+    return ({
+      '125143':'basic-b3',
+      '18790':'basic-b3',
+      'as891023':'basic-b3',
+      '89a4wh':'basic-b3'
+    })[cleanSlug(slug)]||'';
+  }
+  function redirectLegacyEnrollmentImmediately(slug){
+    try{
+      const canonical=canonicalLegacyEnrollmentFromSlug(slug);
+      if(!canonical)return false;
+      const url=new URL(location.href);
+      const current=String(url.searchParams.get('psp_enroll')||'').trim().toLowerCase();
+      if(!current||current===canonical)return false;
+      url.searchParams.set('psp_enroll',canonical);
+      location.replace(url.pathname+(url.search?'?'+url.searchParams.toString():'')+url.hash);
+      return true;
+    }catch(_){return false;}
+  }
+  function redirectToCanonicalEnrollment(row,slug,source,medium,campaign){
+    try{
+      const raw=String(row?.destination_path||'').trim();
+      if(!raw)return false;
+      const target=new URL(raw,location.origin);
+      if(target.origin!==location.origin)return false;
+      const current=new URL(location.href);
+      const targetEnroll=String(target.searchParams.get('psp_enroll')||'').trim().toLowerCase();
+      const currentEnroll=String(current.searchParams.get('psp_enroll')||'').trim().toLowerCase();
+      if(!targetEnroll||!currentEnroll||targetEnroll===currentEnroll)return false;
+      target.searchParams.set('ref',slug);
+      if(source)target.searchParams.set('utm_source',source);
+      if(medium)target.searchParams.set('utm_medium',medium);
+      if(campaign)target.searchParams.set('utm_campaign',campaign);
+      target.hash=current.hash;
+      location.replace(target.pathname+(target.search?'?'+target.searchParams.toString():'')+target.hash);
+      return true;
+    }catch(_){return false;}
+  }
   function cleanTrackingParams(){
     try{
       const url=new URL(location.href);
@@ -121,6 +163,7 @@
     try{params=new URLSearchParams(location.search);}catch(_){return;}
     const slug=cleanSlug(params.get('ref')||params.get('psp_ref'));
     if(!slug)return;
+    if(redirectLegacyEnrollmentImmediately(slug))return;
     const source=(params.get('utm_source')||'').trim()||null;
     const medium=(params.get('utm_medium')||'').trim()||null;
     const campaign=(params.get('utm_campaign')||'').trim()||null;
@@ -154,6 +197,7 @@
             medium,
             entry_path:location.pathname
           });
+          if(redirectToCanonicalEnrollment(row,slug,row.source||source,medium,row.campaign||campaign))return;
         }
       }catch(error){
         console.warn('PipSePaisa attribution restore skipped:',error?.message||error);
@@ -174,6 +218,7 @@
         entry_path:location.pathname
       });
       storageSet(sessionStorage,sessionFlag,'1');
+      if(redirectToCanonicalEnrollment(result.row,slug,result.row.source||source,medium,result.row.campaign||campaign))return;
     }
     // Invalid or disabled references never block the normal website page.
     cleanTrackingParams();
@@ -201,6 +246,7 @@
     sessionId:getSessionId
   };
 
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',captureFromUrl,{once:true});
-  else captureFromUrl();
+  // V484: start attribution/canonical-link handling immediately instead of
+  // waiting for DOMContentLoaded, so stale shared URLs cannot win the race.
+  captureFromUrl();
 })();
