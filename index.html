@@ -2265,6 +2265,14 @@ if(!LANDING_IS_EMBEDDED && landingSb && (location.pathname==='/' || /\/index\.ht
   }).catch(()=>{});
 }
 function safeJson(v){try{return JSON.parse(v||'{}')}catch(e){return {}}}
+function landingEsc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function landingSafeUrl(v,fallback='#'){
+  try{
+    const raw=String(v||'').trim();if(!raw)return fallback;
+    const u=new URL(raw,location.origin);
+    return (u.protocol==='https:'||u.protocol==='http:')?u.href:fallback;
+  }catch(_){return fallback;}
+}
 async function loadLandingAdminContent(){
   if(!landingSb)return;
   try{
@@ -2279,12 +2287,12 @@ async function loadLandingAdminContent(){
     });
     if(brokers.length){
       const grid=document.getElementById('landingBrokerGrid');
-      grid.innerHTML=brokers.map(b=>{const name=(b.title||'').split('|').slice(1).join('|')||'Broker';const meta=safeJson(b.description);const light=b.image_url||'';const dark=meta.dark_url||light;const link=meta.link||'#';return `<a class="broker-logo-card" href="${link}" target="_blank" rel="noopener"><picture class="theme-picture"><img src="${document.body.classList.contains('dark-theme')?dark:light}" data-light="${light}" data-dark="${dark}" alt="${name} broker" loading="lazy" decoding="async"></picture><div class="broker-card-footer"><strong>${name}</strong><span>Open Account →</span></div></a>`}).join('');
+      grid.innerHTML=brokers.map(b=>{const name=(b.title||'').split('|').slice(1).join('|')||'Broker';const meta=safeJson(b.description);const light=landingSafeUrl(b.image_url,'');const dark=landingSafeUrl(meta.dark_url||light,light);const link=landingSafeUrl(meta.link,'#');return `<a class="broker-logo-card" href="${landingEsc(link)}" target="_blank" rel="noopener"><picture class="theme-picture"><img src="${landingEsc(document.body.classList.contains('dark-theme')?dark:light)}" data-light="${landingEsc(light)}" data-dark="${landingEsc(dark)}" alt="${landingEsc(name)} broker" loading="lazy" decoding="async"></picture><div class="broker-card-footer"><strong>${landingEsc(name)}</strong><span>Open Account →</span></div></a>`}).join('');
     }
     const social={};rows.filter(x=>(x.title||'').startsWith('LANDING_SOCIAL|')).forEach(x=>social[(x.title||'').split('|')[1]]=x.description||'#');
-    if(social.facebook)document.getElementById('socialFacebook').href=social.facebook;
-    if(social.instagram)document.getElementById('socialInstagram').href=social.instagram;
-    if(social.whatsapp)document.getElementById('socialWhatsapp').href=social.whatsapp;
+    if(social.facebook)document.getElementById('socialFacebook').href=landingSafeUrl(social.facebook,'#');
+    if(social.instagram)document.getElementById('socialInstagram').href=landingSafeUrl(social.instagram,'#');
+    if(social.whatsapp)document.getElementById('socialWhatsapp').href=landingSafeUrl(social.whatsapp,'#');
   }catch(e){console.warn('Landing admin content load failed',e)}
 }
 (function scheduleLandingAdminContent(){
