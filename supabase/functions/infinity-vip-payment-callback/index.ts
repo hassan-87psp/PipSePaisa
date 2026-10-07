@@ -82,6 +82,12 @@ Deno.serve(async(req:Request)=>{
     });
     if(fin.error)return json({success:false,error:fin.error.message,version:VERSION},400);
 
+    const secretCleanup=await service.from("psp_payment_callback_secrets_v493")
+      .delete()
+      .eq("payment_scope","vip")
+      .eq("provider_request_id",Number(requestId));
+    if(secretCleanup.error)console.warn("VIP callback secret cleanup warning",secretCleanup.error);
+
     return json({success:true,request_id:requestId,status,idempotent:Array.isArray(fin.data)&&fin.data[0]?.idempotent===true,version:VERSION});
   }catch(error){
     console.error("infinity-vip-payment-callback failed",error);
