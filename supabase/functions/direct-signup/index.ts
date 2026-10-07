@@ -120,8 +120,8 @@ Deno.serve(async (req) => {
     if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
       return json({ ok: false, error: "Please enter a valid email address." }, 400);
     }
-    if (password.length < 6 || password.length > 200) {
-      return json({ ok: false, error: "Password must be at least 6 characters." }, 400);
+    if (password.length < 8 || password.length > 200) {
+      return json({ ok: false, error: "Password must be at least 8 characters." }, 400);
     }
 
     const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
