@@ -1,0 +1,38 @@
+name: PipSePaisa Security Header Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/security-header-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  header-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check HTTP redirect and HTTPS security headers
+        shell: bash
+        run: |
+          set -u
+          echo "=== HTTP response ==="
+          curl -sS -I --max-time 20 http://www.pipsepaisa.com/ || true
+
+          echo
+          echo "=== HTTPS response ==="
+          HEADERS="$(curl -sS -I --max-time 20 https://www.pipsepaisa.com/ || true)"
+          printf '%s\n' "$HEADERS"
+
+          echo
+          echo "=== Security header summary ==="
+          for header in             strict-transport-security             content-security-policy             x-frame-options             referrer-policy             x-content-type-options             permissions-policy
+          do
+            if printf '%s\n' "$HEADERS" | grep -qi "^$header:"; then
+              printf 'FOUND   %s\n' "$header"
+            else
+              printf 'MISSING %s\n' "$header"
+            fi
+          done
