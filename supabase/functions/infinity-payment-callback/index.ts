@@ -175,11 +175,12 @@ Deno.serve(async (req: Request) => {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     });
 
-    // Lookup by request id first. V230 compares the stored token in-process so it
-    // can safely support both query-token and path-token callback URLs.
+    // Lookup the payment row by provider request id. The callback token itself is
+    // never stored in this browser-readable table; V493 stores only its SHA-256
+    // hash in a service-only table and verifies it through a service-only RPC.
     const tokenCheck = await service
       .from("course_payments")
-      .select("id,amount,provider_status,status,provider_callback_token")
+      .select("id,amount,provider_status,status")
       .eq("provider", "infinity")
       .eq("provider_request_id", Number(requestIdRaw))
       .order("created_at", { ascending: false })
@@ -190,19 +191,21 @@ Deno.serve(async (req: Request) => {
       return json({ success: false, error: "Payment request not found.", version: "v230" }, 404);
     }
 
-    const expectedToken = String(tokenCheck.data.provider_callback_token ?? "").trim();
-    const tokenValid =
-      !!suppliedToken &&
-      suppliedToken.length >= 32 &&
-      !!expectedToken &&
-      suppliedToken === expectedToken;
-    const callbackAuthMode = "token";
+    if (!suppliedToken || suppliedToken.length < 32) {
+      console.warn(`[${trace}] missing callback token for request ${requestIdRaw}`);
+      return json({ success: false, error: "Invalid callback token.", version: "v230" }, 401);
+    }
 
-    // V479 security: every state-changing callback, including rejected/expired,
-    // must prove possession of the per-request 256-bit callback token.
-    // The create-payment function places the token in both callback path and query.
+    const tokenVerify = await service.rpc("psp_verify_payment_callback_v493", {
+      p_scope: "course",
+      p_request_id: Number(requestIdRaw),
+      p_token: suppliedToken,
+    });
+    const tokenValid = !tokenVerify.error && tokenVerify.data === true;
+    const callbackAuthMode = "hashed-token-v493";
+
     if (!tokenValid) {
-      console.warn(`[${trace}] invalid callback token for request ${requestIdRaw}`);
+      console.warn(`[${trace}] invalid callback token for request ${requestIdRaw}`, tokenVerify.error ?? null);
       return json({ success: false, error: "Invalid callback token.", version: "v230" }, 401);
     }
 
