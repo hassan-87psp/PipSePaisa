@@ -219,7 +219,7 @@ Deno.serve(async (req: Request) => {
       p_provider_status: status,
       p_callback_amount: amount,
       p_rejection_reason: rejectionReason || (status === "expired" ? "Infinity payment window expired." : null),
-      p_payload: { ...payload, _psp_received_status: rawStatus, _psp_normalized_status: status, _psp_callback_auth: callbackAuthMode },
+      p_payload: { ...Object.fromEntries(Object.entries(payload).filter(([key]) => key.toLowerCase() !== "token")), _psp_received_status: rawStatus, _psp_normalized_status: status, _psp_callback_auth: callbackAuthMode },
     });
     if (final.error) {
       console.error(`[${trace}] finalize failed`, final.error);
