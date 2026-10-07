@@ -1949,7 +1949,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
 <div class="landing-auth-field"><label for="landingSignupName">Full Name</label><input autocomplete="name" id="landingSignupName" placeholder="Your full name" type="text"/></div>
 <div class="landing-auth-field"><label for="landingSignupEmail">Email Address</label><input autocomplete="email" id="landingSignupEmail" placeholder="your@email.com" type="email"/></div>
 <div class="landing-auth-field"><label for="landingSignupPhone">WhatsApp Number</label><input autocomplete="tel" id="landingSignupPhone" placeholder="+92..." type="tel"/></div>
-<div class="landing-auth-field"><label for="landingSignupPassword">Password</label><input autocomplete="new-password" id="landingSignupPassword" placeholder="Minimum 6 characters" type="password"/></div>
+<div class="landing-auth-field"><label for="landingSignupPassword">Password</label><input autocomplete="new-password" id="landingSignupPassword" placeholder="Minimum 8 characters" type="password"/></div>
 <div class="landing-auth-field"><label for="landingSignupPassword2">Confirm Password</label><input autocomplete="new-password" id="landingSignupPassword2" placeholder="Repeat password" type="password"/></div>
 <button class="landing-auth-submit" id="landingSignupBtn" onclick="landingSignupUser()" type="button">✨ Create Free Account</button>
 <div class="landing-auth-message" id="landingSignupMessage"></div>
@@ -2189,7 +2189,7 @@ async function landingSignupUser(){
   const password2=document.getElementById('landingSignupPassword2')?.value||'';
   if(!fullName||!email||!phone||!password){showLandingAuthMessage('error','Please complete all required fields.','landingSignupMessage');return;}
   if(phone.length<7){showLandingAuthMessage('error','Please enter a valid WhatsApp number.','landingSignupMessage');return;}
-  if(password.length<6){showLandingAuthMessage('error','Password must be at least 6 characters.','landingSignupMessage');return;}
+  if(password.length<8){showLandingAuthMessage('error','Password must be at least 8 characters.','landingSignupMessage');return;}
   if(password!==password2){showLandingAuthMessage('error','Passwords do not match.','landingSignupMessage');return;}
   if(!landingSb){showLandingAuthMessage('error','Connection problem. Please reload and try again.','landingSignupMessage');return;}
   if(typeof window.PSPDirectSignup!=='function'){showLandingAuthMessage('error','Signup system did not load correctly. Please refresh and try again.','landingSignupMessage');return;}
