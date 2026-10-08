@@ -49,6 +49,11 @@
     });
   }
   async function getClient(){
+    // V494: prefer the site's authenticated Supabase client when available.
+    // psp_record_tracked_link_event intentionally trusts auth.uid(), not a
+    // browser-supplied user UUID. Using the signed-in client keeps signup /
+    // enrollment attribution bound to the real authenticated user.
+    if(window.sb?.auth&&typeof window.sb.rpc==='function')return window.sb;
     if(window.__pspTrackingSupabase)return window.__pspTrackingSupabase;
     if(clientPromise)return clientPromise;
     clientPromise=(async()=>{
