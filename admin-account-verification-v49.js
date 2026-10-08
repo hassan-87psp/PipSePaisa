@@ -60,6 +60,7 @@ function approvalPage(){
           <div class="card-meta">Pending reviews first — search users, brokers or account IDs and approve access from one compact queue.</div>
         </div>
         <div class="av116-head-actions">
+          <button class="btn mv500-open-btn" type="button" onclick="window.PSPManualVIP&&window.PSPManualVIP.open()">+ Manual Access</button>
           <button class="btn btn-secondary av186-refresh" type="button" onclick="PSPAdminVerification.loadRows()">↻ Refresh</button>
         </div>
       </div>
