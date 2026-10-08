@@ -49,7 +49,16 @@ async function cta(key){
   }
   location.assign(authUrl(key,isReferralIntent(intent)?'signup':'login'));return true;
 }
-function afterAuth(){const intent=read();if(!intent)return '';restoreAttribution(intent);return appUrl(intent.key);}
+function afterAuth(){
+  // V498: never resume a stale saved course during a normal login.
+  // A course continuation is valid only when this auth page was opened with
+  // an explicit course parameter by the course CTA flow.
+  const key=currentFromUrl();
+  if(!key){clear();return '';}
+  const intent=remember(key);
+  restoreAttribution(intent);
+  return appUrl(key);
+}
 window.PSPCourseAuthFlow={cleanKey,remember,read,clear,restoreAttribution,authUrl,appUrl,afterAuth,hasSession,cta};
 window.pspPublicCourseCTA=function(key){return cta(key)};
 })();
