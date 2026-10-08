@@ -123,7 +123,7 @@ function av501OpenManualAccess(){
 
     s=document.createElement('script');
     s.id='pspManualVipV501Loader';
-    s.src='admin-manual-vip-v500.js?v=20261008-v501-click-loader';
+    s.src='admin-manual-vip-v504.js?v=20261008-v504-click-loader';
     s.async=true;
     s.addEventListener('load',()=>{s.dataset.loaded='1';ready()},{once:true});
     s.addEventListener('error',()=>alert('Manual Access script failed to load. Please refresh and try again.'),{once:true});
