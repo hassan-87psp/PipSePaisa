@@ -4,9 +4,11 @@ if(window.__pspCoursePostAuthV207)return;window.__pspCoursePostAuthV207=true;
 function key(){
   try{
     const q=new URLSearchParams(location.search);
-    // V498: post-auth auto-enrollment is allowed only for the explicit
-    // continuation URL created by PSPCourseAuthFlow.appUrl().
-    if(q.get('psp_course_from_auth')!=='1')return '';
+    // V510: an explicit psp_enroll in the CURRENT URL is deliberate and may
+    // auto-open enrollment (team short links, course CTAs, post-auth resume).
+    // Never fall back to a saved/stale course intent when the URL has no
+    // psp_enroll — that is what previously caused normal pipsepaisa.com visits
+    // to start enrollment unexpectedly.
     return window.PSPCourseAuthFlow?.cleanKey?.(q.get('psp_enroll'))||'';
   }catch(_){return '';}
 }
