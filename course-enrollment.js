@@ -1373,11 +1373,15 @@
     try{
       const result=await saveEnrollment(values,null);
 
-      // V252 performance: tracking + confirmation email are non-critical. Run them
-      // in the background so they never hold up the success screen / WhatsApp.
-      Promise.resolve().then(async()=>{
-        try{await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser.id,{enrollment_id:result.row?.id||null,course_type:'free'});}catch(_){ }
-      });
+      // V497 correctness: Team attribution must finish before WhatsApp/team
+      // resolution. Running this in the background could let Round Robin win
+      // the race and briefly route a referred client to the wrong manager.
+      try{
+        await window.PSPTrack?.enrollment?.(selectedCourse.key,activeUser.id,{
+          enrollment_id:result.row?.id||null,
+          course_type:'free'
+        });
+      }catch(_){ }
       if(!result.already||result.updated){
         Promise.resolve().then(async()=>{
           try{
