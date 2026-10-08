@@ -60,7 +60,7 @@ function approvalPage(){
           <div class="card-meta">Pending reviews first — search users, brokers or account IDs and approve access from one compact queue.</div>
         </div>
         <div class="av116-head-actions">
-          <button class="btn mv500-open-btn" type="button" onclick="window.PSPManualVIP&&window.PSPManualVIP.open()">+ Manual Access</button>
+          <button class="btn mv500-open-btn" type="button" onclick="PSPAdminVerification.openManualAccess()">+ Manual Access</button>
           <button class="btn btn-secondary av186-refresh" type="button" onclick="PSPAdminVerification.loadRows()">↻ Refresh</button>
         </div>
       </div>
@@ -98,6 +98,40 @@ function approvalPage(){
     av116Filter.search=(this.value||'').trim().toLowerCase();
     renderRows();
   });
+}
+
+function av501OpenManualAccess(){
+  try{
+    if(window.PSPManualVIP&&typeof window.PSPManualVIP.open==='function'){
+      window.PSPManualVIP.open();
+      return;
+    }
+    const ready=()=>setTimeout(()=>{
+      if(window.PSPManualVIP&&typeof window.PSPManualVIP.open==='function'){
+        window.PSPManualVIP.open();
+      }else{
+        alert('Manual Access could not load. Please refresh the Admin Panel and try again.');
+      }
+    },0);
+
+    let s=document.getElementById('pspManualVipV501Loader');
+    if(s){
+      if(s.dataset.loaded==='1')ready();
+      else s.addEventListener('load',ready,{once:true});
+      return;
+    }
+
+    s=document.createElement('script');
+    s.id='pspManualVipV501Loader';
+    s.src='admin-manual-vip-v500.js?v=20261008-v501-click-loader';
+    s.async=true;
+    s.addEventListener('load',()=>{s.dataset.loaded='1';ready()},{once:true});
+    s.addEventListener('error',()=>alert('Manual Access script failed to load. Please refresh and try again.'),{once:true});
+    document.head.appendChild(s);
+  }catch(e){
+    console.error('[Manual Access]',e);
+    alert('Manual Access could not open. Please refresh and try again.');
+  }
 }
 
 function av185SetStatusFilter(status){
@@ -404,6 +438,6 @@ function setupAccessRealtime(){
   }catch(_){avAccessRealtime=null}
 } function wrap(){if(window._av56Wrapped||typeof window.showPage!=='function')return;window._av56Wrapped=true;const old=window.showPage;window.showPage=function(page,el){const out=old.apply(this,arguments);const t=q('#pageTitle'),s=q('#pageSubtitle');if(page==='verification'){if(t)t.textContent='Access Approvals';if(s)s.textContent='Review broker proof and approve or reject Full Access';setTimeout(()=>{loadRows();setupAccessRealtime()},0)}if(page==='accesssettings'){if(t)t.textContent='Access Settings';if(s)s.textContent='Manage trial days, broker links and verification setup';setTimeout(()=>{loadSettings();setupAccessRealtime()},0)}if(page!=='verification'&&page!=='accesssettings')stopAccessRealtime();return out}}
 function init(){if(installed)return;installed=true;menu();approvalPage();settingsPage();ensureActionModal();wrap();document.addEventListener('visibilitychange',()=>{if(document.hidden)stopAccessRealtime();else if(document.getElementById('page-verification')?.classList.contains('active')||document.getElementById('page-accesssettings')?.classList.contains('active'))setupAccessRealtime()});setTimeout(()=>{menu();approvalPage();settingsPage();ensureActionModal();wrap()},500)}
-window.PSPAdminVerification={loadRows,loadSettings,openProof,review,saveSettings,grantTrial,trialFromForm,toggleFilters:av116ToggleFilters,resetFilters:av116ResetFilters,toggleDetails:av116ToggleDetails,setStatusFilter:av185SetStatusFilter};
+window.PSPAdminVerification={loadRows,loadSettings,openProof,review,saveSettings,grantTrial,trialFromForm,toggleFilters:av116ToggleFilters,resetFilters:av116ResetFilters,toggleDetails:av116ToggleDetails,setStatusFilter:av185SetStatusFilter,openManualAccess:av501OpenManualAccess};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
