@@ -697,13 +697,16 @@ function renderArticles(){
   let lastKey=null;
   let html='';
   list.forEach((a)=>{
-    const key=artDateKey(a.ts);
-    if(key!==lastKey){
-      lastKey=key;
-      html+=`<div class="chart-date-heading" style="grid-column:1/-1;margin:8px 0 2px;display:flex;align-items:center;gap:12px;">
-        <div style="font-size:18px;font-weight:800;color:var(--text-primary);white-space:nowrap;">${artGroupLabel(a.ts)}</div>
-        <div style="height:1px;background:var(--border);flex:1;"></div>
-      </div>`;
+    // Charts retain their date groups. Educational articles show a single continuous grid.
+    if (artMode === 'charts') {
+      const key=artDateKey(a.ts);
+      if(key!==lastKey){
+        lastKey=key;
+        html+=`<div class="chart-date-heading" style="grid-column:1/-1;margin:8px 0 2px;display:flex;align-items:center;gap:12px;">
+          <div style="font-size:18px;font-weight:800;color:var(--text-primary);white-space:nowrap;">${artGroupLabel(a.ts)}</div>
+          <div style="height:1px;background:var(--border);flex:1;"></div>
+        </div>`;
+      }
     }
     const idx=ARTICLES.indexOf(a);
     const actionLabel=a.kind==='article'?'Read More':'View Details';
@@ -711,7 +714,7 @@ function renderArticles(){
       <div class="art-cover" style="background:${a.image?('#000 url('+a.image+') center/cover no-repeat'):a.grad}">${a.image?'':a.ico}${a.locked?'<span style="position:absolute;top:10px;right:10px;background:var(--gold);color:#0a0e1a;font-size:9px;font-weight:800;padding:3px 8px;border-radius:5px">🔒 LOCKED</span>':''}</div>
       <div class="art-body">
         <div class="art-title">${String(a.title||'Untitled').replace(/</g,'&lt;')}</div>
-        <div class="art-time">${a.pair?('<b style="color:var(--gold);margin-right:7px">'+String(a.pair).replace(/</g,'&lt;')+'</b>'):''}${String(a.date||'').replace(/</g,'&lt;')}</div>
+        ${a.kind==='article'?'':`<div class="art-time">${a.pair?('<b style="color:var(--gold);margin-right:7px">'+String(a.pair).replace(/</g,'&lt;')+'</b>'):''}${String(a.date||'').replace(/</g,'&lt;')}</div>`}
         <button type="button" class="art-details-btn" onclick="event.stopPropagation();openArt(${idx})">${actionLabel} <span aria-hidden="true">→</span></button>
       </div>
     </div>`;
@@ -734,7 +737,8 @@ function openArt(i){
   const activeContent=(lang==='ur'&&a.contentUr)?a.contentUr:(a.content||a.contentUr||'');
   const langBtn=(v,lb)=>`<button onclick="setArtLang(${i},'${v}')" style="padding:7px 14px;border-radius:999px;border:1.5px solid ${lang===v?'var(--gold)':'var(--border)'};background:${lang===v?'var(--gold)':'transparent'};color:${lang===v?'#0a0e1a':'var(--text-muted)'};font-weight:800;font-size:12px;cursor:pointer;font-family:inherit">${lb}</button>`;
   const langBar=hasBoth?`<div style="display:flex;gap:8px;margin:4px 0 12px">${langBtn('en','🇬🇧 English')}${langBtn('ur','🇵🇰 Roman Urdu')}</div>`:'';
-  const text=`<h2 style="margin-top:0">${a.title}</h2><div class="art-meta" style="border:none;padding:0"><span></span><span>${a.date}</span></div>${langBar}<div class="body"><p>${(activeContent||'').replace(/\n/g,'<br>')}</p></div>${closeBtn}`;
+  const dateMeta=a.kind==='article'?'':`<div class="art-meta" style="border:none;padding:0"><span></span><span>${a.date}</span></div>`;
+  const text=`<h2 style="margin-top:0">${a.title}</h2>${dateMeta}${langBar}<div class="body"><p>${(activeContent||'').replace(/\n/g,'<br>')}</p></div>${closeBtn}`;
   if(hasImg){
     box.innerHTML=`<div style="display:flex;flex-wrap:wrap;align-items:stretch">
       <div style="flex:1 1 440px;min-width:300px;background:#0a0e1a;display:flex;align-items:center;justify-content:center;padding:14px">
