@@ -142,6 +142,7 @@ var __pspSigLastRenderKey=null;
 var __pspSigRenderedOnce=false;
 var __pspSigLastFetchAt=0;
 var __pspSigAccessSyncAt=0;
+var __pspSigPermissionBlocked=false;
 
 function pspV162SignalRenderKey(rows){
   try{
@@ -213,6 +214,22 @@ async function loadSignalsFromDB(options){
     }
 
     var rows=Array.isArray(data)?data:[];
+    // V224: RLS returns an empty feed when account verification/PIN/VIP access
+    // has expired. Distinguish that from a genuine day with zero live signals.
+    // We never bypass RLS or change access; both checks use current-user RPCs.
+    var wasPermissionBlocked=__pspSigPermissionBlocked;
+    __pspSigPermissionBlocked=false;
+    if(!rows.length){
+      try{
+        var checks=await Promise.all([
+          signalClient.rpc('psp_has_content_access'),
+          signalClient.rpc('psp_signal_user_has_access')
+        ]);
+        __pspSigPermissionBlocked=checks.every(function(r){
+          return r && !r.error && r.data===false;
+        });
+      }catch(_){__pspSigPermissionBlocked=false;}
+    }
     var nextKey=pspV162SignalRenderKey(rows);
     window._SIGRAW=window._SIGRAW||{};
     rows.forEach(function(s){window._SIGRAW[s.id]=s;});
@@ -237,7 +254,7 @@ async function loadSignalsFromDB(options){
 
     // Market monitor updates last_market_price every minute. Those fields are not
     // visible in this table, so do not repaint the entire page for such updates.
-    if(!__pspSigRenderedOnce || nextKey!==__pspSigLastRenderKey){
+    if(!__pspSigRenderedOnce || nextKey!==__pspSigLastRenderKey || wasPermissionBlocked!==__pspSigPermissionBlocked){
       __pspSigLastRenderKey=nextKey;
       __pspSigRenderedOnce=true;
       renderSignals();
@@ -1548,7 +1565,9 @@ function renderSignals(){
   if(!list.length){
     var msg=(sigView==='history'
       ? 'No closed signals'+(sigTimeF!=='all'?' for this period':'')+' yet.'
-      : 'No active signals right now. Check History for past results.');
+      : (__pspSigPermissionBlocked
+        ? 'Your Signals access is inactive or expired. Complete broker verification or activate VIP access in Get Access to view signals.'
+        : 'No active signals right now. Check History for past results.'));
     g.innerHTML=
       '<div class="psp-sig-desktop" style="color:var(--text-muted);padding:28px;text-align:center;border:1px solid var(--border);border-radius:14px;background:var(--bg-card);">'+msg+'</div>'+
       '<div class="psp-sig-mobile-shell">'+
