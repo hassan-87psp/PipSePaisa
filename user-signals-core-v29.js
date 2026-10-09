@@ -625,6 +625,30 @@ let CHART_ITEMS=[];
 let ARTICLE_ITEMS=[];
 let artF='all';
 let artMode='charts';
+const PSP_ARTICLE_SUBJECTS=[
+  {id:'technical',label:'Technical Analysis'},
+  {id:'fundamental',label:'Fundamental Analysis'},
+  {id:'market',label:'Market Analysis'}
+];
+function pspArticleSubject(a){
+  const category=String(a.category||'').toLowerCase();
+  const t=String(a.title||'').toLowerCase();
+  if(category==='analysis'||/why gold is under pressure|nfp outlook|weekly (gold|forex|market) (forecast|outlook)/.test(t)) return 'market';
+  if(/\b(nfp|nonfarm|cpi|pce|fomc|fed|federal reserve|ecb|european central bank|bank of england|bank of japan|monetary policy|interest rates?|bond yields?|treasury yields?|quantitative easing|quantitative tightening|economic growth|real gdp|gross domestic product|jobless claims|retail sales|pmi|\bism\b|commitments of traders|cot report|dxy|dollar index|what moves gold|gold price drivers|macroeconomic|economic calendar)\b/.test(t)) return 'fundamental';
+  return 'technical';
+}
+function pspEnsureArticleSubjectFilters(){
+  const holder=document.getElementById('artFilters');
+  if(!holder||holder.dataset.pspSubjectGroups==='1')return;
+  holder.innerHTML='<button class="sig-fbtn active" data-f="all" onclick="artFilter(\'all\',this)">All Articles</button>'+
+    '<button class="sig-fbtn" data-f="technical" onclick="artFilter(\'technical\',this)">Technical Analysis</button>'+
+    '<button class="sig-fbtn" data-f="fundamental" onclick="artFilter(\'fundamental\',this)">Fundamental Analysis</button>'+
+    '<button class="sig-fbtn" data-f="market" onclick="artFilter(\'market\',this)">Market Analysis</button>';
+  holder.dataset.pspSubjectGroups='1';
+  const active=holder.querySelector('[data-f="'+artF+'"]')||holder.querySelector('[data-f="all"]');
+  holder.querySelectorAll('.sig-fbtn').forEach(b=>b.classList.toggle('active',b===active));
+}
+
 function setArtMode(mode,el){
   artMode=mode;
   document.querySelectorAll('#artModeCharts,#artModeArticles').forEach(b=>b.classList.remove('active'));
@@ -633,9 +657,10 @@ function setArtMode(mode,el){
   const title=document.getElementById('artPageTitle');
   const meta=document.getElementById('artPageMeta');
   if(mode==='articles'){
+    pspEnsureArticleSubjectFilters();
     if(filters) filters.style.display='flex';
     if(title) title.innerHTML='📖 Articles';
-    if(meta) meta.textContent='Forex learning, strategies & educational content';
+    if(meta) meta.textContent=ARTICLE_ITEMS.length+' articles · Technical, Fundamental & Market Analysis';
   }else{
     if(filters) filters.style.display='none';
     if(title) title.innerHTML='📈 Charts & Analysis';
@@ -656,7 +681,7 @@ async function loadArticlesFromDB(){
   if(ares.error){g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">'+ares.error.message+'</div>';return;}
   const grad='linear-gradient(135deg,#3a2f1e,#1f0f33)';
   ARTICLE_ITEMS=(ares.data||[]).filter(a=>a.type!=='chart').map(a=>({
-    kind:'article', cat:(a.category||'education'), tag:(a.category||'Article'), ico:'📝', grad:grad,
+    kind:'article', cat:(a.category||'education'), subject:pspArticleSubject(a), tag:(a.category||'Article'), ico:'📝', grad:grad,
     title:a.title||'(untitled)', pair:a.pair||'', ex:(a.content||'').slice(0,140), content:a.content||'', contentUr:a.content_ur||'',
     image:a.image_url||'', date:pspFmtDateTime(a.created_at), ts:new Date(a.created_at).getTime()
   }));
@@ -691,13 +716,26 @@ function artGroupLabel(ts){
 function renderArticles(){
   const g=document.getElementById('articlesGrid');if(!g)return;
   let list=artMode==='articles'?ARTICLE_ITEMS:CHART_ITEMS;
-  if(artMode==='articles') list=list.filter(a=>artF==='all'||a.cat===artF);
+  if(artMode==='articles') list=list.filter(a=>artF==='all'||a.subject===artF);
   list=list.slice().sort((a,b)=>b.ts-a.ts);
+  if(artMode==='articles'&&artF==='all'){
+    const rank={technical:0,fundamental:1,market:2};
+    list.sort((a,b)=>(rank[a.subject]??3)-(rank[b.subject]??3)||b.ts-a.ts);
+  }
   if(!list.length){g.innerHTML='<div style="color:var(--text-muted);padding:30px;text-align:center;grid-column:1/-1;">No '+(artMode==='articles'?'articles':'charts')+' yet.</div>';return;}
-  let lastKey=null;
+  let lastKey=null, lastSubject=null;
   let html='';
   list.forEach((a)=>{
-    // Charts retain their date groups. Educational articles show a single continuous grid.
+    if(artMode==='articles'&&(artF==='all'||lastSubject===null)&&a.subject!==lastSubject){
+      lastSubject=a.subject;
+      const group=PSP_ARTICLE_SUBJECTS.find(s=>s.id===a.subject);
+      const count=list.filter(item=>item.subject===a.subject).length;
+      html+='<div class="psp-article-group-heading" style="grid-column:1/-1;margin:14px 0 4px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">'+
+        '<h3 style="font-size:19px;font-weight:800;color:var(--text-primary);margin:0;">'+(group?group.label:'Other Articles')+'</h3>'+
+        '<span style="border:1px solid var(--border);background:var(--bg-card);padding:4px 10px;border-radius:999px;font-size:12px;color:var(--text-secondary);">'+count+' Articles</span>'+
+        '<span style="height:1px;background:var(--border);flex:1;min-width:24px;"></span></div>';
+    }
+    // Charts retain their date groups; articles are grouped by subject, never by date.
     if (artMode === 'charts') {
       const key=artDateKey(a.ts);
       if(key!==lastKey){
