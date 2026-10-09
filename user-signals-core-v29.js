@@ -143,6 +143,14 @@ var __pspSigRenderedOnce=false;
 var __pspSigLastFetchAt=0;
 var __pspSigAccessSyncAt=0;
 var __pspSigPermissionBlocked=false;
+var __pspSigFeedSyncFailed=false;
+var __pspSigAccessCheckUnavailable=false;
+function pspSigRetryFeed(){
+  __pspSigLastFetchAt=0;
+  __pspSigLastRenderKey=null;
+  __pspSigRenderedOnce=false;
+  try{loadSignalsFromDB({silent:false,source:'manual-retry'});}catch(e){console.warn('Signal retry unavailable',e);}
+}
 
 function pspV162SignalRenderKey(rows){
   try{
@@ -214,21 +222,42 @@ async function loadSignalsFromDB(options){
     }
 
     var rows=Array.isArray(data)?data:[];
-    // V224: RLS returns an empty feed when account verification/PIN/VIP access
-    // has expired. Distinguish that from a genuine day with zero live signals.
-    // We never bypass RLS or change access; both checks use current-user RPCs.
+    // V225: Empty feed with valid RLS permissions indicates session/sync trouble,
+    // not absence of live signals. Refresh authentication once and retry securely.
     var wasPermissionBlocked=__pspSigPermissionBlocked;
+    var wasFeedSyncFailed=__pspSigFeedSyncFailed;
+    var wasAccessCheckUnavailable=__pspSigAccessCheckUnavailable;
     __pspSigPermissionBlocked=false;
+    __pspSigFeedSyncFailed=false;
+    __pspSigAccessCheckUnavailable=false;
     if(!rows.length){
       try{
         var checks=await Promise.all([
           signalClient.rpc('psp_has_content_access'),
           signalClient.rpc('psp_signal_user_has_access')
         ]);
-        __pspSigPermissionBlocked=checks.every(function(r){
-          return r && !r.error && r.data===false;
-        });
-      }catch(_){__pspSigPermissionBlocked=false;}
+        var checkOk=checks.every(function(r){return r&&!r.error&&typeof r.data==='boolean';});
+        if(!checkOk){
+          __pspSigAccessCheckUnavailable=true;
+        }else{
+          __pspSigPermissionBlocked=checks.some(function(r){return r.data===false;});
+          if(!__pspSigPermissionBlocked){
+            try{
+              if(signalClient.auth&&typeof signalClient.auth.refreshSession==='function'){
+                var refresh=await signalClient.auth.refreshSession();
+                if(refresh&&refresh.error)console.warn('Signal session refresh:',refresh.error);
+              }
+              var retry=await pspV159FetchSignalFeed(signalClient);
+              if(retry&&!retry.error&&Array.isArray(retry.data))rows=retry.data;
+              else if(retry&&retry.error)console.warn('Signal feed retry:',retry.error);
+            }catch(retryErr){console.warn('Signal feed retry:',retryErr);}
+            __pspSigFeedSyncFailed=(rows.length===0);
+          }
+        }
+      }catch(accessErr){
+        __pspSigAccessCheckUnavailable=true;
+        console.warn('Signal access check:',accessErr);
+      }
     }
     var nextKey=pspV162SignalRenderKey(rows);
     window._SIGRAW=window._SIGRAW||{};
@@ -254,7 +283,7 @@ async function loadSignalsFromDB(options){
 
     // Market monitor updates last_market_price every minute. Those fields are not
     // visible in this table, so do not repaint the entire page for such updates.
-    if(!__pspSigRenderedOnce || nextKey!==__pspSigLastRenderKey || wasPermissionBlocked!==__pspSigPermissionBlocked){
+    if(!__pspSigRenderedOnce || nextKey!==__pspSigLastRenderKey || wasPermissionBlocked!==__pspSigPermissionBlocked || wasFeedSyncFailed!==__pspSigFeedSyncFailed || wasAccessCheckUnavailable!==__pspSigAccessCheckUnavailable){
       __pspSigLastRenderKey=nextKey;
       __pspSigRenderedOnce=true;
       renderSignals();
@@ -1563,11 +1592,18 @@ function renderSignals(){
   }
 
   if(!list.length){
-    var msg=(sigView==='history'
-      ? 'No closed signals'+(sigTimeF!=='all'?' for this period':'')+' yet.'
-      : (__pspSigPermissionBlocked
-        ? 'Your Signals access is inactive or expired. Complete broker verification or activate VIP access in Get Access to view signals.'
-        : 'No active signals right now. Check History for past results.'));
+    var msg;
+    if(sigView==='history'){
+      msg='No closed signals'+(sigTimeF!=='all'?' for this period':'')+' yet.';
+    }else if(__pspSigPermissionBlocked){
+      msg='Your Signals access is inactive or expired. Complete broker verification or activate VIP access in Get Access to view signals.';
+    }else if(__pspSigFeedSyncFailed){
+      msg='Your Signals access is active, but the feed could not sync on this browser. Retry below, or sign out and sign back in. <button type="button" onclick="pspSigRetryFeed()" style="display:block;margin:12px auto 0;padding:9px 17px;border:1px solid #f39522;border-radius:9px;background:#f39522;color:#111;font-weight:700;cursor:pointer;">Retry Signals</button>';
+    }else if(__pspSigAccessCheckUnavailable){
+      msg='Your Signals access could not be verified. Check your connection and retry. <button type="button" onclick="pspSigRetryFeed()" style="display:block;margin:12px auto 0;padding:9px 17px;border:1px solid #f39522;border-radius:9px;background:#f39522;color:#111;font-weight:700;cursor:pointer;">Retry Signals</button>';
+    }else{
+      msg='No active signals right now. Check History for past results.';
+    }
     g.innerHTML=
       '<div class="psp-sig-desktop" style="color:var(--text-muted);padding:28px;text-align:center;border:1px solid var(--border);border-radius:14px;background:var(--bg-card);">'+msg+'</div>'+
       '<div class="psp-sig-mobile-shell">'+
