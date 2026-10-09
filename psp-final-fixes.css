@@ -230,3 +230,16 @@ body.dark .ce-modal,body.dark-theme .ce-modal{background:#0b1728;color:#f8fafc;b
   #articlesGrid .art-card.art-media-only .art-cover{height:210px!important;min-height:210px!important}
   #articlesGrid .art-card.art-media-only .art-body{min-height:116px}
 }
+
+
+/* PSP 2026-10-09: uncropped 16:9 thumbnails for published education articles */
+/* Old chart images and existing article covers keep their original cover layout. */
+#articlesGrid .art-card.art-media-only .art-cover[style*="/assets/article-thumbnails/"] {
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 16 / 9 !important;
+  background-position: center center !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-color: #070b10 !important;
+}
