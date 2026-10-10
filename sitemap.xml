@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.pipsepaisa.com/</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url><loc>https://www.pipsepaisa.com/</loc><image:image><image:loc>https://www.pipsepaisa.com/sajid-ghori.webp</image:loc></image:image></url>
   <url><loc>https://www.pipsepaisa.com/about-us/</loc></url>
   <url><loc>https://www.pipsepaisa.com/becomepartner/</loc></url>
   <url><loc>https://www.pipsepaisa.com/broker-reviews/</loc></url>
   <url><loc>https://www.pipsepaisa.com/contact/</loc></url>
   <url><loc>https://www.pipsepaisa.com/courses/</loc></url>
-  <url><loc>https://www.pipsepaisa.com/courses/advanced-forex-trading-course/</loc></url>
-  <url><loc>https://www.pipsepaisa.com/courses/advanced-fundamental-analysis/</loc></url>
-  <url><loc>https://www.pipsepaisa.com/courses/free-forex-trading-course/</loc></url>
-  <url><loc>https://www.pipsepaisa.com/courses/free-fundamental-analysis/</loc></url>
+  <url><loc>https://www.pipsepaisa.com/courses/advanced-forex-trading-course/</loc><image:image><image:loc>https://www.pipsepaisa.com/advanced-course-thumbnail.webp</image:loc></image:image></url>
+  <url><loc>https://www.pipsepaisa.com/courses/advanced-fundamental-analysis/</loc><image:image><image:loc>https://www.pipsepaisa.com/assets/courses/advance-fundamental-thumbnail.png</image:loc></image:image></url>
+  <url><loc>https://www.pipsepaisa.com/courses/free-forex-trading-course/</loc><image:image><image:loc>https://www.pipsepaisa.com/basic-course-thumbnail.webp</image:loc></image:image></url>
+  <url><loc>https://www.pipsepaisa.com/courses/free-fundamental-analysis/</loc><image:image><image:loc>https://www.pipsepaisa.com/fundamental-course-thumbnail.png</image:loc></image:image></url>
   <url><loc>https://www.pipsepaisa.com/learn/</loc></url>
   <url><loc>https://www.pipsepaisa.com/learn/forex-risk-management/</loc></url>
   <url><loc>https://www.pipsepaisa.com/learn/how-economic-news-affects-gold/</loc></url>
   <url><loc>https://www.pipsepaisa.com/learn/what-is-a-currency-pair/</loc></url>
   <url><loc>https://www.pipsepaisa.com/learn/what-is-forex-trading/</loc></url>
   <url><loc>https://www.pipsepaisa.com/mentors/</loc></url>
-  <url><loc>https://www.pipsepaisa.com/mentors/ghulam-abbas/</loc></url>
-  <url><loc>https://www.pipsepaisa.com/mentors/sajid-khan-ghori/</loc></url>
+  <url><loc>https://www.pipsepaisa.com/mentors/ghulam-abbas/</loc><image:image><image:loc>https://www.pipsepaisa.com/ghulam-abbas.png</image:loc></image:image></url>
+  <url><loc>https://www.pipsepaisa.com/mentors/sajid-khan-ghori/</loc><image:image><image:loc>https://www.pipsepaisa.com/sajid-ghori.webp</image:loc></image:image></url>
   <url><loc>https://www.pipsepaisa.com/privacy-policy/</loc></url>
   <url><loc>https://www.pipsepaisa.com/risk-disclaimer/</loc></url>
   <url><loc>https://www.pipsepaisa.com/terms-and-conditions/</loc></url>
