@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://www.pipsepaisa.com/sitemap.xml
+Sitemap: https://www.pipsepaisa.com/image-sitemap.xml
