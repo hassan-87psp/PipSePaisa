@@ -5625,7 +5625,7 @@ html[data-theme="light"] #view-overview .recent-row{
         <div class="field"><label>Date</label><select id="clientPeriodFilter"><option value="all">All Time</option><option value="month">Selected Month</option><option value="today">Today</option></select></div>
         <div class="field"><label>Sort By</label><select id="clientSort"><option value="newest">Newest Assigned</option><option value="oldest">Oldest Assigned</option><option value="az">Name A–Z</option><option value="za">Name Z–A</option><option value="status">Status</option><option value="course">Course / Batch</option></select></div>
         <div class="field"><label>Rows</label><select id="clientPageSize"><option value="25">25 per page</option><option value="50">50 per page</option><option value="100">100 per page</option></select></div>
-      </div><div class="client-filterbar" id="clientCourseFilters" aria-label="Course filters"><button class="client-filter active" data-course="all">All</button><button class="client-filter" data-course="sajid_b1">Sajid B1</button><button class="client-filter" data-course="sajid_b2">Sajid B2</button><button class="client-filter" data-course="sajid_b3">Sajid B3</button><button class="client-filter" data-course="fund_b1">Fundamental B1</button><button class="client-filter" data-course="fund_b2">Fundamental B2</button><button class="client-filter" data-course="fund_b3">Fundamental B3</button><button class="client-filter" data-course="advance">Advance</button><button class="client-filter" data-course="advance_fund">Advance Fundamental</button></div></div>
+      </div><div class="client-filterbar" id="clientCourseFilters" aria-label="Course filters"><button class="client-filter active" data-course="all">All</button><button class="client-filter" data-course="sajid_b1">Sajid B1</button><button class="client-filter" data-course="sajid_b2">Sajid B2</button><button class="client-filter" data-course="sajid_b3">Sajid B3</button><button class="client-filter" data-course="sajid_b4">Sajid B4</button><button class="client-filter" data-course="fund_b1">Fundamental B1</button><button class="client-filter" data-course="fund_b2">Fundamental B2</button><button class="client-filter" data-course="fund_b3">Fundamental B3</button><button class="client-filter" data-course="advance">Advance</button><button class="client-filter" data-course="advance_fund">Advance Fundamental</button></div></div>
       <div class="client-summary-bar"><span><b>Tip:</b> New → Contacted → Interested → Follow-up → Converted.</span><span id="clientPageInfo">Showing 0 of 0</span></div>
       <div class="premium-card client-card"><div class="table-wrap"><table class="data-table client-table-v273"><thead><tr><th>#</th><th>Client</th><th>Course / Batch</th><th>Source</th><th>Assigned Date</th><th>Status</th><th>Next Follow-up</th><th>Contact</th></tr></thead><tbody id="clientRows"><tr><td colspan="8" class="empty">Loading clients…</td></tr></tbody></table></div><div class="client-pager-v273"><button id="clientPrev" class="copy-btn" type="button">← Previous</button><span id="clientPagerText">Page 1</span><button id="clientNext" class="copy-btn" type="button">Next →</button></div></div>
     </section>
@@ -6211,9 +6211,9 @@ function renderOverviewOps(){
   }
 
   const bc=courseBatchCounts(all),
-        max=Math.max(1,...[bc.sajid_b1,bc.sajid_b2,bc.sajid_b3,bc.fund_b1,bc.fund_b2,bc.fund_b3,bc.advance,bc.advance_fund].map(num));
+        max=Math.max(1,...[bc.sajid_b1,bc.sajid_b2,bc.sajid_b3,bc.sajid_b4,bc.fund_b1,bc.fund_b2,bc.fund_b3,bc.advance,bc.advance_fund].map(num));
   if($('overviewCourseBreakdown'))$('overviewCourseBreakdown').innerHTML=[
-    ['Sajid B3',bc.sajid_b3],['Fundamental B3',bc.fund_b3],['Fundamental B2',bc.fund_b2],['Advance',bc.advance],
+    ['Sajid B4',bc.sajid_b4],['Sajid B3',bc.sajid_b3],['Fundamental B3',bc.fund_b3],['Fundamental B2',bc.fund_b2],['Advance',bc.advance],
     ['Sajid B2',bc.sajid_b2],['Sajid B1',bc.sajid_b1],['Fundamental B1',bc.fund_b1],['Adv Fundamental',bc.advance_fund]
   ].map(x=>{const p=Math.max(4,Math.min(100,Math.round(num(x[1])*100/max)));return `<div class="quick-item"><span>${x[0]}</span><b>${fmt(x[1])}</b><div class="course-meter-v351"><i style="width:${p}%"></i></div></div>`}).join('');
 }
@@ -6230,11 +6230,11 @@ function renderDaily(){
   const d=S.daily||{},r=d.manual||{},a=d.auto||{},today=malaysiaToday();
   const weeklyXm=r.xm_weekly_lots!=null?num(r.xm_weekly_lots):num(a.weekly_xm_lots??a.xm_lots),weeklyDp=r.dprime_weekly_lots!=null?num(r.dprime_weekly_lots):num(a.weekly_dprime_lots??a.dprime_lots),weeklyEx=r.exness_weekly_lots!=null?num(r.exness_weekly_lots):num(a.weekly_exness_lots??a.exness_lots);
   $('dailyLeads').value=num(r.leads);$('dailyMessages').value=num(r.messages_sent);$('dailyCalls').value=num(r.calls_made);$('dailyFollowups').value=num(r.follow_ups);$('dailyVipConverted').value=num(r.vip_converted);$('dailyBrokerNew').value=num(r.broker_new_accounts);$('dailyIbShift').value=num(r.ib_shifts);$('dailyXmLots').value=weeklyXm;$('dailyDprimeLots').value=weeklyDp;$('dailyExnessLots').value=weeklyEx;$('dailyNote').value=r.note||'';$('dailySaveStatus').textContent=r.submitted_at||r.updated_at?'Saved for today':'Not submitted';
-  const bc={sajid_b1:num(a.batch1_enrollments),sajid_b2:num(a.batch2_enrollments),sajid_b3:num(a.batch3_enrollments),fund_b1:num(a.fundamental_b1_enrollments),fund_b2:num(a.fundamental_b2_enrollments),fund_b3:num(a.fundamental_b3_enrollments),advance:num(a.advance_enrollments),advance_fund:num(a.advance_fundamental_enrollments)},courseToday=a.course_total!=null?num(a.course_total):Object.values(bc).reduce((x,y)=>x+num(y),0);
+  const bc={sajid_b1:num(a.batch1_enrollments),sajid_b2:num(a.batch2_enrollments),sajid_b3:num(a.batch3_enrollments),sajid_b4:num(a.batch4_enrollments),fund_b1:num(a.fundamental_b1_enrollments),fund_b2:num(a.fundamental_b2_enrollments),fund_b3:num(a.fundamental_b3_enrollments),advance:num(a.advance_enrollments),advance_fund:num(a.advance_fundamental_enrollments)},courseToday=a.course_total!=null?num(a.course_total):Object.values(bc).reduce((x,y)=>x+num(y),0);
   const summary=[['Leads Contacted',r.leads,false],['Messages',r.messages_sent,false],['Calls',r.calls_made,false],['Registrations',a.registrations,true],['Follow-ups',r.follow_ups,false],['Courses',courseToday,true]];
   $('dailySummary').innerHTML=summary.map(x=>`<div class="daily-chip ${x[2]?'auto':''}"><span>${x[0]} ${x[2]?'· Auto':'· Manual'}</span><b>${fmt(x[1])}</b></div>`).join('');
   $('dailyAutoGrid').className='daily-auto-clean';
-  const cards=[['Sajid B1',bc.sajid_b1],['Sajid B2',bc.sajid_b2],['Sajid B3',bc.sajid_b3],['Fundamental B1',bc.fund_b1],['Fundamental B3',bc.fund_b3],['Fundamental B2',bc.fund_b2],['Advance',bc.advance],['Advance Fundamental',bc.advance_fund]];
+  const cards=[['Sajid B1',bc.sajid_b1],['Sajid B2',bc.sajid_b2],['Sajid B4',bc.sajid_b4],['Sajid B3',bc.sajid_b3],['Fundamental B1',bc.fund_b1],['Fundamental B3',bc.fund_b3],['Fundamental B2',bc.fund_b2],['Advance',bc.advance],['Advance Fundamental',bc.advance_fund]];
   $('dailyAutoGrid').innerHTML=`<div class="daily-group"><div class="daily-group-head"><span>Registrations Today</span><b>${fmt(a.registrations)}</b></div><div class="weekly-note">Automatically tracked platform registrations.</div></div><div class="daily-group"><div class="daily-group-head"><span>Course Enrollments Today</span><b>${fmt(courseToday)}</b></div><div class="batch-breakdown-grid">${cards.map(x=>`<div class="batch-mini"><span>${esc(x[0])}</span><b>${fmt(x[1])}</b></div>`).join('')}</div></div>`;
   const hist=Array.isArray(S.dailyHistory)?S.dailyHistory:[];
   $('dailyHistoryRows').innerHTML=hist.length?hist.map(x=>{const m=x.manual||{},z=x.auto||{},cb1=num(z.batch1_enrollments),cb2=num(z.batch2_enrollments),cb3=num(z.batch3_enrollments),cf=num(z.fundamental_enrollments),ca=num(z.advance_enrollments),caf=num(z.advance_fundamental_enrollments),ct=cb1+cb2+cb3+cf+ca+caf,vip=m.vip_converted!=null?num(m.vip_converted):num(z.vip_joined),newAcct=m.broker_new_accounts!=null?num(m.broker_new_accounts):num(z.broker_account_created),ib=m.ib_shifts!=null?num(m.ib_shifts):num(z.ib_shift_completed),lots=(m.xm_weekly_lots!=null||m.dprime_weekly_lots!=null||m.exness_weekly_lots!=null)?num(m.xm_weekly_lots)+num(m.dprime_weekly_lots)+num(m.exness_weekly_lots):num(z.weekly_total_lots??z.total_lots);return `<tr><td><b>${dateLabel(m.report_date)}</b></td><td>${fmt(m.leads)}</td><td>${fmt(m.messages_sent)}</td><td>${fmt(m.calls_made)}</td><td>${fmt(m.follow_ups)}</td><td>${fmt(z.registrations)}</td><td><b>${fmt(vip)}</b></td><td><b>${fmt(ct)}</b><div class="muted">Auto tracked · B1 ${fmt(cb1)} · B2 ${fmt(cb2)} · B3 ${fmt(cb3)} · F ${fmt(cf)} · A ${fmt(ca)} · AF ${fmt(caf)}</div></td><td><b>${fmt(newAcct)} / ${fmt(ib)}</b><div class="muted">New / Shift</div></td><td>${fmt(lots)}</td></tr>`}).join(''):'<tr><td colspan="10" class="empty">No reports submitted in this month.</td></tr>';
@@ -6254,14 +6254,15 @@ function clientCourseInfo(c){
     else if(/fundamental_b3|fundamental[-_ ]?b3/.test(x)||(/fundamental|malik|ghulam\s+abbas/.test(x)&&/batch\s*3|\bb3\b/.test(x))) add('fund_b3','Fundamental — B3');
     else if(/fundamental_b2|fundamental[-_ ]?b2/.test(x)||(/fundamental|malik|ghulam\s+abbas/.test(x)&&/batch\s*2|\bb2\b/.test(x))) add('fund_b2','Fundamental — B2');
     else if(/fundamental_b1|fundamental[-_ ]?b1/.test(x)||(/fundamental|malik|ghulam\s+abbas/.test(x)&&/batch\s*1|\bb1\b/.test(x))) add('fund_b1','Fundamental — B1');
+    else if(/basic_b4|basic[-_ ]?b4/.test(x)) add('sajid_b4','Sir Sajid — B4');
     else if(/basic_b3|basic[-_ ]?b3/.test(x)||(/(?:basic|sajid)/.test(x)&&/batch\s*3|\bb3\b/.test(x))) add('sajid_b3','Sir Sajid — B3');
     else if(/basic_b2|basic[-_ ]?b2/.test(x)||(/(?:basic|sajid)/.test(x)&&/batch\s*2|\bb2\b/.test(x))) add('sajid_b2','Sir Sajid — B2');
     else if(/basic_b1|basic[-_ ]?b1/.test(x)||(/(?:basic|sajid)/.test(x)&&/batch\s*1|\bb1\b/.test(x))) add('sajid_b1','Sir Sajid — B1');
     else if(/advanced?\s+forex|advance course|course_key.?advanced/.test(x)) add('advance','Advance Forex');
     else if(/fundamental|malik|ghulam\s+abbas/.test(x)){const d=clientDateKey(c?.registration_at),k=/fundamental_b3|fundamental[-_ ]?b3/.test(explicitBatch)?'fund_b3':/fundamental_b2|fundamental[-_ ]?b2/.test(explicitBatch)?'fund_b2':/fundamental_b1|fundamental[-_ ]?b1/.test(explicitBatch)?'fund_b1':d?(d>='2026-10-14'?'fund_b3':d>='2026-09-16'?'fund_b2':'fund_b1'):(c?.is_auto_assigned?'fund_b3':'fund_b1');add(k,k==='fund_b3'?'Fundamental — B3':k==='fund_b2'?'Fundamental — B2':'Fundamental — B1')}
     else if(/basic\s+forex|sajid|course_key.?basic/.test(x)){
-      const d=clientDateKey(c?.registration_at),k=/basic_b3|basic[-_ ]?b3/.test(explicitBatch)?'sajid_b3':/basic_b2|basic[-_ ]?b2/.test(explicitBatch)?'sajid_b2':/basic_b1|basic[-_ ]?b1/.test(explicitBatch)?'sajid_b1':d?(d>='2026-09-16'?'sajid_b3':d>='2026-09-01'?'sajid_b2':'sajid_b1'):(c?.is_auto_assigned?'sajid_b3':'sajid_b1');
-      add(k,k==='sajid_b3'?'Sir Sajid — B3':k==='sajid_b2'?'Sir Sajid — B2':'Sir Sajid — B1')
+      const d=clientDateKey(c?.registration_at),k=/basic_b4|basic[-_ ]?b4/.test(explicitBatch)?'sajid_b4':/basic_b3|basic[-_ ]?b3/.test(explicitBatch)?'sajid_b3':/basic_b2|basic[-_ ]?b2/.test(explicitBatch)?'sajid_b2':/basic_b1|basic[-_ ]?b1/.test(explicitBatch)?'sajid_b1':d?(d>='2026-09-16'?'sajid_b3':d>='2026-09-01'?'sajid_b2':'sajid_b1'):(c?.is_auto_assigned?'sajid_b3':'sajid_b1');
+      add(k,k==='sajid_b4'?'Sir Sajid — B4':k==='sajid_b3'?'Sir Sajid — B3':k==='sajid_b2'?'Sir Sajid — B2':'Sir Sajid — B1')
     }
   }
   if(!labels.length&&raw)add('other',raw);
@@ -6269,7 +6270,7 @@ function clientCourseInfo(c){
   // so real historical enrollments remain visible in every matching batch filter.
   return{text:labels.join(', ')||'No course yet',labels,keys};
 }
-function courseBatchCounts(rows){const out={sajid_b1:0,sajid_b2:0,sajid_b3:0,fund_b1:0,fund_b2:0,fund_b3:0,advance:0,advance_fund:0};for(const c of rows||[]){for(const k of clientCourseInfo(c).keys)if(k in out)out[k]++}return out}
+function courseBatchCounts(rows){const out={sajid_b1:0,sajid_b2:0,sajid_b3:0,sajid_b4:0,fund_b1:0,fund_b2:0,fund_b3:0,advance:0,advance_fund:0};for(const c of rows||[]){for(const k of clientCourseInfo(c).keys)if(k in out)out[k]++}return out}
 function clientInDateRange(c,start,end){const d=clientDateKey(c?.registration_at);return !!d&&d>=start&&d<=end}
 function clientKeyV273(c){if(c&&c.client_key)return String(c.client_key);if(c&&c.user_id)return 'u:'+String(c.user_id);const e=String(c&&c.email||'').trim().toLowerCase();if(e)return 'e:'+e;const w=String(c&&c.whatsapp||'').replace(/\D/g,'');if(w.length>=7)return 'w:'+w;const id=String(c&&c.client_id||'').trim().toUpperCase();return id?'c:'+id:''}
 function clientWorkStatus(c){let v=String(c&&c.work_status||c&&c.conversion_status||'new').toLowerCase().replace(/\s+/g,'_');if(v==='registered'||v==='open_/_registered'||v==='open')v='new';if(v==='lost')v='not_interested';return ['new','contacted','interested','follow_up','converted','not_interested'].includes(v)?v:'new'}
@@ -6281,7 +6282,7 @@ function clientSourceKeyV273(c){return clientSourceInfo(c).key}
 function duplicateClientSetV273(rows){const seenE=new Map(),seenPerson=new Map(),dupes=new Set();(rows||[]).forEach(c=>{const key=clientKeyV273(c),e=String(c.email||'').trim().toLowerCase(),w=String(c.whatsapp||'').replace(/\D/g,''),n=String(c.full_name||'').trim().toLowerCase().replace(/\s+/g,' ');if(e){if(seenE.has(e)){dupes.add(key);dupes.add(seenE.get(e))}else seenE.set(e,key)}if(w.length>=7&&n){const pk=w+'|'+n;if(seenPerson.has(pk)){dupes.add(key);dupes.add(seenPerson.get(pk))}else seenPerson.set(pk,key)}});return dupes}
 async function updateClientWorkV273(key,status,follow,sourceEl){if(!key)return;try{const followIso=follow?malaysiaInputToIso(follow):null;let r=await db.rpc('psp_team_update_client_work_v359',{p_session_token:S.token,p_client_key:key,p_status:status,p_follow_up_at:followIso,p_note:null});if(r.error&&String(r.error.message||'').includes('psp_team_update_client_work_v359'))r=await db.rpc('psp_team_update_client_work_v273',{p_session_token:S.token,p_client_key:key,p_status:status,p_follow_up_at:followIso,p_note:null});if(r.error)throw r.error;(S.clients||[]).forEach(c=>{if(clientKeyV273(c)===key){c.work_status=status;c.conversion_status=status;c.follow_up_at=followIso}});renderClients();renderKpis();renderOverviewOps();if(S.loaded.performance)renderPerformanceRange();toast('Client updated.')}catch(e){if(handleTeamAuthFailureV365(e))return;toast(e.message||'Could not update client.','bad');if(sourceEl)sourceEl.value=clientWorkStatus((S.clients||[]).find(c=>clientKeyV273(c)===key))}}
 async function copyClientNumberV273(v){const n=String(v||'');if(!n)return;try{await navigator.clipboard.writeText(n)}catch(_){const t=document.createElement('textarea');t.value=n;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}toast('WhatsApp number copied.')}
-function courseFilterCountsV273(rows){const counts={all:(rows||[]).length,sajid_b1:0,sajid_b2:0,sajid_b3:0,fund_b1:0,fund_b2:0,fund_b3:0,advance:0,advance_fund:0};(rows||[]).forEach(c=>{clientCourseInfo(c).keys.forEach(k=>{if(k in counts)counts[k]++})});return counts}
+function courseFilterCountsV273(rows){const counts={all:(rows||[]).length,sajid_b1:0,sajid_b2:0,sajid_b3:0,sajid_b4:0,fund_b1:0,fund_b2:0,fund_b3:0,advance:0,advance_fund:0};(rows||[]).forEach(c=>{clientCourseInfo(c).keys.forEach(k=>{if(k in counts)counts[k]++})});return counts}
 function isPaidCourseFilterV377(k){return k==='advance'||k==='advance_fund'}
 function paidCourseStudentsV377(family){
   const map=new Map();
@@ -6647,7 +6648,7 @@ function renderPerformanceRange(){
         conv=assigned?converted/assigned*100:0,
         backendCourseReady=Object.prototype.hasOwnProperty.call(m,'course_total'),
         bc=backendCourseReady?{
-          sajid_b1:num(m.batch1_users),sajid_b2:num(m.batch2_users),sajid_b3:num(m.batch3_users),
+          sajid_b1:num(m.batch1_users),sajid_b2:num(m.batch2_users),sajid_b3:num(m.batch3_users),sajid_b4:num(m.batch4_users),
           fund_b1:num(m.fundamental_b1_users),fund_b2:num(m.fundamental_b2_users),fund_b3:num(m.fundamental_b3_users),
           advance:num(m.advance_users),advance_fund:num(m.advance_fundamental_users)
         }:courseBatchCounts(rows),
@@ -6663,7 +6664,7 @@ function renderPerformanceRange(){
 
   if($('performanceKpis'))$('performanceKpis').innerHTML=items.map(x=>`<div class="premium-card kpi"><div class="label">${esc(x[0])}</div><div class="value" style="font-size:23px">${typeof x[1]==='string'?esc(x[1]):fmt(x[1])}</div></div>`).join('');
   if($('performanceCourseBreakdown'))$('performanceCourseBreakdown').innerHTML=[
-    ['Sajid B1',bc.sajid_b1],['Sajid B2',bc.sajid_b2],['Sajid B3',bc.sajid_b3],
+    ['Sajid B1',bc.sajid_b1],['Sajid B2',bc.sajid_b2],['Sajid B4',bc.sajid_b4],['Sajid B3',bc.sajid_b3],
     ['Fundamental B1',bc.fund_b1],['Fundamental B3',bc.fund_b3],['Fundamental B2',bc.fund_b2],
     ['Advance',bc.advance],['Adv Fundamental',bc.advance_fund]
   ].map(x=>`<div class="quick-item"><span>${x[0]}</span><b>${fmt(x[1])}</b></div>`).join('');
