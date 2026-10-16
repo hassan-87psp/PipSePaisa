@@ -52,7 +52,7 @@
       const clientId=await resolveClientId(client,userId);
       const courseKey=String(context?.courseKey||row.course_key||'').toLowerCase();
       let shortCourse=courseName;
-      if(['basic','basic-b2','basic-b3'].includes(courseKey)||/basic forex|sajid/i.test(courseName))shortCourse="Sir Sajid's Batch 3";
+      if(['basic','basic-b2','basic-b3','basic-b4'].includes(courseKey)||/basic forex|sajid/i.test(courseName))shortCourse="Sir Sajid's Batch 4";
       else if(['fundamental','fundamental-b2','fundamental-b3'].includes(courseKey)||/fundamental/i.test(courseName))shortCourse="Sir Malik Ghulam Abbas's Batch 3";
       const message=`Hello ${memberName}, I have enrolled in ${shortCourse} (Client ID ${clientId||'Pending'}). Kindly verify and share next steps.`;
       return {
@@ -134,13 +134,13 @@
       return explicit;
     }
     const key=String(context?.courseKey||'').toLowerCase();
-    if(['basic','basic-b2','basic-b3'].includes(key))return 'Basic Forex Course — Batch 3';
+    if(['basic','basic-b2','basic-b3','basic-b4'].includes(key))return 'Basic Forex Course — Batch 4';
     if(['fundamental','fundamental-b2','fundamental-b3'].includes(key))return 'Fundamental Forex Course — Batch 3';
     try{
       const path=String(referral?.destination_path||'');
       const u=new URL(path,'https://pipsepaisa.com');
       const fromLink=String(u.searchParams.get('psp_enroll')||'').toLowerCase();
-      if(['basic','basic-b2','basic-b3'].includes(fromLink))return 'Basic Forex Course — Batch 3';
+      if(['basic','basic-b2','basic-b3','basic-b4'].includes(fromLink))return 'Basic Forex Course — Batch 4';
       if(['fundamental','fundamental-b2'].includes(fromLink))return 'Fundamental Forex Course — Batch 3';
     }catch(_){}
     return 'Free Forex Course';
