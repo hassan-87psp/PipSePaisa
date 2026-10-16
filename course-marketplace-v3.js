@@ -25,7 +25,7 @@ const defaults={
     achievement:['Understand how financial markets and Forex connect.','Read price action and candlestick behaviour with more clarity.','Use technical-analysis tools in a practical way.','Combine indicators with price behaviour instead of depending on them.','Build a structured trading edge for continued learning.']
   },
   fundamental:{
-    key:'fundamental',displayOrder:4,enrollmentKey:'fundamental-b2',enrollmentDbKey:'fundamental',batchKey:'fundamental_b2',batchLabel:'Batch 2',zoomEnabled:false,title:'Fundamental Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'100% FREE COURSE',
+    key:'fundamental',displayOrder:4,enrollmentKey:'fundamental-b3',enrollmentDbKey:'fundamental',batchKey:'fundamental_b3',batchLabel:'Batch 3',zoomEnabled:false,title:'Fundamental Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'100% FREE COURSE',
     thumbnail:'fundamental-course-thumbnail.png',mentorImage:'ghulam-abbas.png',mentorName:'Sir Malik Ghulam Abbas',mentorTitle:'Fundamental Expert & Trainer',
     short:'Learn how economic events, central banks and FOMC decisions influence Forex markets and create trading opportunities.',
     description:'Build a strong foundation in Forex fundamentals by understanding economic events, central bank decisions and major market-moving factors. This course helps beginners learn how fundamental analysis supports smarter trading decisions.',
@@ -101,7 +101,7 @@ function client(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(
 function enrollmentKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.enrollmentKey||key||'').trim();}
 function enrollmentDbKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.enrollmentDbKey||c&&c.enrollmentKey||key||'').trim();}
 function enrollmentBatchKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.batchKey||'').trim();}
-function displayKeyForEnrollment(key){key=String(key||'').trim().toLowerCase();if(key==='basic-b3'||key==='basic-b2')return'basic';if(key==='fundamental-b2')return'fundamental';return key;}
+function displayKeyForEnrollment(key){key=String(key||'').trim().toLowerCase();if(key==='basic-b3'||key==='basic-b2')return'basic';if(key==='fundamental-b2'||key==='fundamental-b3')return'fundamental';return key;}
 function systemThumbnail(key){if(key==='advanced')return'advanced-course-thumbnail.webp?v=20260911-v222';if(key==='fundamental')return'fundamental-course-thumbnail.png?v=20260911-v222';if(key==='advance-fundamental'||key==='advanced-fundamental')return'assets/courses/advance-fundamental-thumbnail.png?v=20260911-v222';return'basic-course-thumbnail.webp?v=20260911-v222';}
 function resolveThumbnail(key,value){
   const raw=String(value||'').trim();
@@ -308,7 +308,7 @@ async function loadCourseDataFresh(){
     }:{...defaults.basic,published:true,videoUrl:'',thumbnail:systemThumbnail('basic'),modules:canonicalModules('basic',defaults.basic.modules)})},
 
     fundamental:{...defaults.fundamental,...(fundamental?{
-      dbId:fundamental.id||'',title:'Fundamental Forex Course',enrollmentKey:'fundamental-b2',enrollmentDbKey:'fundamental',batchKey:'fundamental_b2',batchLabel:'Batch 2',zoomEnabled:false,
+      dbId:fundamental.id||'',title:'Fundamental Forex Course',enrollmentKey:'fundamental-b3',enrollmentDbKey:'fundamental',batchKey:'fundamental_b3',batchLabel:'Batch 3',zoomEnabled:false,
       short:fundamental.short_description||fundamental.description||defaults.fundamental.short,
       description:fundamental.description||defaults.fundamental.description,
       descriptionExtra:fundamental.description_extra||defaults.fundamental.descriptionExtra,
