@@ -3,11 +3,11 @@
 
 const defaults={
   basic:{
-    key:'basic',displayOrder:3,enrollmentKey:'basic-b3',enrollmentDbKey:'basic',batchKey:'basic_b3',batchLabel:'Batch 3',zoomEnabled:false,title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
+    key:'basic',displayOrder:3,enrollmentKey:'basic-b4',enrollmentDbKey:'basic',batchKey:'basic_b4',batchLabel:'Batch 4',zoomEnabled:false,title:'Basic Forex Course',price:0,oldPrice:0,type:'free',level:'Beginner',badge:'FREE BASIC COURSE',
     thumbnail:'basic-course-thumbnail.webp',
     short:'Build a strong foundation in Forex trading, technical analysis, candlestick behaviour, indicators and high-probability trading strategies.',
     description:'A structured 5-module beginner program designed to help new traders understand financial markets, read price behaviour, use technical tools correctly and build a practical trading edge.',
-    descriptionExtra:'Each module follows a clear learning path with practical market examples, defined objectives and expected outcomes. Batch 3 starts fresh with new enrollments.',
+    descriptionExtra:'Each module follows a clear learning path with practical market examples, defined objectives and expected outcomes. Batch 4 starts fresh with new enrollments.',
     included:['5 structured modules','Beginner-friendly practical learning','Mobile and desktop access','Progress saved in your account'],
     contentNote:'One module opens at a time',
     secureNote:'Direct account-linked enrollment',
@@ -101,7 +101,7 @@ function client(){try{return window.sb||(typeof sb!=='undefined'?sb:null)}catch(
 function enrollmentKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.enrollmentKey||key||'').trim();}
 function enrollmentDbKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.enrollmentDbKey||c&&c.enrollmentKey||key||'').trim();}
 function enrollmentBatchKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.batchKey||'').trim();}
-function displayKeyForEnrollment(key){key=String(key||'').trim().toLowerCase();if(key==='basic-b3'||key==='basic-b2')return'basic';if(key==='fundamental-b2'||key==='fundamental-b3')return'fundamental';return key;}
+function displayKeyForEnrollment(key){key=String(key||'').trim().toLowerCase();if(key==='basic-b4'||key==='basic-b3'||key==='basic-b2')return'basic';if(key==='fundamental-b2'||key==='fundamental-b3')return'fundamental';return key;}
 function systemThumbnail(key){if(key==='advanced')return'advanced-course-thumbnail.webp?v=20260911-v222';if(key==='fundamental')return'fundamental-course-thumbnail.png?v=20260911-v222';if(key==='advance-fundamental'||key==='advanced-fundamental')return'assets/courses/advance-fundamental-thumbnail.png?v=20260911-v222';return'basic-course-thumbnail.webp?v=20260911-v222';}
 function resolveThumbnail(key,value){
   const raw=String(value||'').trim();
@@ -286,7 +286,7 @@ async function loadCourseDataFresh(){
 
   courseData={
     basic:{...defaults.basic,...(basic?{
-      dbId:basic.id||'',title:'Basic Forex Course',enrollmentKey:'basic-b3',enrollmentDbKey:'basic',batchKey:'basic_b3',batchLabel:'Batch 3',zoomEnabled:false,mentorImage:'sajid-ghori.webp',
+      dbId:basic.id||'',title:'Basic Forex Course',enrollmentKey:'basic-b4',enrollmentDbKey:'basic',batchKey:'basic_b4',batchLabel:'Batch 4',zoomEnabled:false,mentorImage:'sajid-ghori.webp',
       short:defaults.basic.short,
       description:defaults.basic.description,
       descriptionExtra:defaults.basic.descriptionExtra,
