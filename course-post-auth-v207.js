@@ -12,7 +12,7 @@ function key(){
     return window.PSPCourseAuthFlow?.cleanKey?.(q.get('psp_enroll'))||'';
   }catch(_){return '';}
 }
-function displayKey(k){if(k==='basic-b3'||k==='basic-b2')return'basic';if(k==='fundamental-b2'||k==='fundamental-b3')return'fundamental';return k;}
+function displayKey(k){if(k==='basic-b4'||k==='basic-b3'||k==='basic-b2')return'basic';if(k==='fundamental-b2'||k==='fundamental-b3')return'fundamental';return k;}
 function appVisible(){const app=document.getElementById('mainApp');return !!(app&&getComputedStyle(app).display!=='none');}
 async function sessionReady(){for(let i=0;i<40;i++){try{if(window.sb?.auth){const {data}=await window.sb.auth.getSession();if(data?.session?.user)return true;}}catch(_){}await new Promise(r=>setTimeout(r,100));}return false;}
 async function open(){
