@@ -8,6 +8,7 @@
     basic:{key:'basic',name:'Basic Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     'basic-b2':{key:'basic-b2',name:'Basic Forex Course — Batch 2',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     'basic-b3':{key:'basic-b3',dbKey:'basic',batchKey:'basic_b3',name:'Basic Forex Course — Batch 3',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
+  'basic-b4':{key:'basic-b4',dbKey:'basic',batchKey:'basic_b4',name:'Basic Forex Course — Batch 4',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     fundamental:{key:'fundamental',name:'Fundamental Forex Course',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
     'fundamental-b2':{key:'fundamental-b2',dbKey:'fundamental',batchKey:'fundamental_b2',name:'Fundamental Forex Course — Batch 2',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
   'fundamental-b3':{key:'fundamental-b3',dbKey:'fundamental',batchKey:'fundamental_b3',name:'Fundamental Forex Course — Batch 3',type:'free',price:0,oldPrice:0,currency:'USD',localBankPricePkr:0},
@@ -18,7 +19,7 @@
 
   function normalizeCurrentFreeCourseKey(value){
     const key=String(value||'').trim().toLowerCase();
-    if(key==='basic'||key==='basic-b2'||key==='basic-batch-2')return 'basic-b3';
+    if(key==='basic'||key==='basic-b2'||key==='basic-batch-2'||key==='basic-b3')return 'basic-b4';
     if(key==='fundamental'||key==='fundamental-b1'||key==='fundamental-b2')return 'fundamental-b3';
     return key;
   }
@@ -83,7 +84,7 @@
         if(error)throw error;
         const rows=Array.isArray(data)?data:[];
         if(fallback){
-          if(key==='basic'||key==='basic-b3'){
+          if(key==='basic'||key==='basic-b3'||key==='basic-b4'){
             row=rows.find(r=>String(r.course_key||'').trim().toLowerCase()==='basic')
               ||rows.find(r=>/^basic forex course$/i.test(String(r.title||'').trim()))||null;
           }else if(key==='fundamental-b2'||key==='fundamental-b3'){
@@ -126,10 +127,11 @@
     next.id=row.id||null;
     next.name=String(row.title||next.name);
     next.currency=normalizeCurrency(row.currency||next.currency||'USD',next.currency||'USD');
-    if(['basic','basic-b2','basic-b3','fundamental','fundamental-b2','fundamental-b3'].includes(key)){
+    if(['basic','basic-b2','basic-b3','basic-b4','fundamental','fundamental-b2','fundamental-b3'].includes(key)){
       next.type='free';next.price=0;next.oldPrice=0;next.localBankPricePkr=0;
       if(key==='basic-b2')next.name='Basic Forex Course — Batch 2';
       if(key==='basic-b3')next.name='Basic Forex Course — Batch 3';
+      if(key==='basic-b4')next.name='Basic Forex Course — Batch 4';
       if(key==='fundamental')next.name='Fundamental Forex Course';
       if(key==='fundamental-b2')next.name='Fundamental Forex Course — Batch 2';
       if(key==='fundamental-b3')next.name='Fundamental Forex Course — Batch 3';
@@ -1152,7 +1154,7 @@
     accountWasCreated=false;paidProfileConfirmed=false;activeUser=null;activeProfile=null;activeEnrollmentFallback=null;
     const sessionPromise=currentSession();
     const normalizedKey=normalizeCurrentFreeCourseKey(courseKey);
-    const isCurrentFree=['basic-b3','fundamental-b3'].includes(normalizedKey);
+    const isCurrentFree=['basic-b4','fundamental-b3'].includes(normalizedKey);
     // Current free batches have fixed public pricing/config. Use the local config
     // immediately and let the database enrollment rules remain the authority.
     // This avoids an unnecessary course-catalog request before enrollment.
@@ -1178,7 +1180,7 @@
     }else if(activeUser){
       // V252: current free batches enroll silently. Do not show the intermediate
       // "Confirm Free Enrollment" screen; open the modal only on success/error.
-      autoSubmitCurrentFree=['basic-b3','fundamental-b3'].includes(selectedCourse.key);
+      autoSubmitCurrentFree=['basic-b4','fundamental-b3'].includes(selectedCourse.key);
       if(autoSubmitCurrentFree){
         if(freeDirectBtn)freeDirectBtn.style.display='none';
         showStep('');
