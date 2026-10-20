@@ -152,7 +152,7 @@
   }
 
   async function refreshPublicCoursePricing(){
-    const configs=[['advanced','.course-card.advanced'],['advance-fundamental','.course-card.advance-fundamental']];
+    const configs=[['advanced','.course-card.advanced'],['advance-fundamental','.course-card.advance-fundamental'],['vsa','.course-card.vsa']];
     for(const [key,selector] of configs){
       const course=await loadCourseConfig(key,{refresh:true});
       if(!course)continue;
