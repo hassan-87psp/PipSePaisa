@@ -376,7 +376,7 @@ async function loadCourseDataFresh(){
     const afRequirements=['Basic Forex knowledge is recommended.','Access to an economic calendar and charting platform.','Commitment to live-class learning and responsible risk management.'];
     const afAudience=['Traders who want to understand what moves currencies and Gold.','Technical traders who want stronger fundamental context.','Students building a structured daily and weekly market bias.'];
     courseData[key]={
-      key,dbId:row.id||'',displayOrder:isAdvanceFundamental?2:Number(row.display_order||99),title:String(row.title||'Untitled Course'),
+      key,dbId:row.id||'',displayOrder:isAdvanceFundamental?2:(Number.isFinite(Number(row.display_order))?Number(row.display_order):99),title:String(row.title||'Untitled Course'),
       price:paid?numberValue(row.price,isAdvanceFundamental?150:0):0,oldPrice:paid?numberValue(row.old_price,isAdvanceFundamental?250:0):0,type:paid?'paid':'free',
       level:String(row.level||(isAdvanceFundamental?'Advanced':'All Levels')),badge:String(row.course_badge||(isAdvanceFundamental?'ADVANCE FUNDAMENTAL':(paid?'PROFESSIONAL COURSE':'FOREX COURSE'))),
       thumbnail:isAdvanceFundamental?'assets/courses/advance-fundamental-thumbnail.png':String(row.thumbnail||''),short:String(row.short_description||row.description||(isAdvanceFundamental?'Master the true drivers of currency and Gold movements through live advanced fundamental analysis.':'')),
@@ -396,7 +396,7 @@ async function loadCourseDataFresh(){
       contentHeading:String(row.content_heading||'Course content'),requirementsHeading:String(row.requirements_heading||'Requirements'),
       audienceHeading:String(row.audience_heading||'Who this course is for'),descriptionHeading:String(row.description_heading||'Description'),
       relatedHeading:String(row.related_heading||'Other PipSePaisa Courses'),published:row.is_published!==false,
-      hideModuleCounts:isAdvanceFundamental,hideContentRoadmap:isAdvanceFundamental&&modules.length===0
+      hideModuleCounts:isAdvanceFundamental||key==='vsa',hideContentRoadmap:(isAdvanceFundamental||key==='vsa')&&modules.length===0
     };
     catalogRegistry[key]={...row,course_key:key,_db_course_key:String(row.course_key||'')};
   });
