@@ -2,7 +2,7 @@
 'use strict';
 if(window.PSPCourseAuthFlow)return;
 const STORE='psp_course_auth_intent_v207';
-const VALID=new Set(['basic-b4','fundamental-b3','advanced','advance-fundamental']);
+const VALID=new Set(['basic-b4','fundamental-b3','advanced','advance-fundamental','vsa']);
 const SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
 const SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 let client=null;
