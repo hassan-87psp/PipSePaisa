@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffdf8"/><stop offset=".53" stop-color="#fff9e9"/><stop offset="1" stop-color="#ffe2a3"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2=".4"><stop stop-color="#ffdb7e"/><stop offset=".3" stop-color="#ffaf1d"/><stop offset=".6" stop-color="#f39522"/><stop offset="1" stop-color="#bb6613"/></linearGradient>
+<linearGradient id="black" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#202026"/><stop offset="1" stop-color="#080a0e"/></linearGradient>
+<filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#bd742c" flood-opacity=".25"/></filter>
+<pattern id="grid" width="35" height="35" patternUnits="userSpaceOnUse"><path d="M35 0H0V35" fill="none" stroke="#dfaf71" opacity=".20"/></pattern>
+</defs>
+<rect width="1280" height="720" fill="url(#bg)"/><rect width="1280" height="720" fill="url(#grid)"/>
+<path d="M0 370l45-40 30 22 30-100 28 50 32-80 22 45 35-90 42 110 30-26 40 70" fill="none" stroke="#ec9a22" stroke-width="6" opacity=".16"/>
+<path d="M880 480l38-70 30 24 26-130 35 62 35-115 35 50 35-88 30 112 45-70 38 50 30-36" fill="none" stroke="#f39522" stroke-width="7" opacity=".27"/>
+<path d="M0 0h365L145 100H0Z" fill="url(#black)" stroke="#e6a22e" stroke-width="5"/>
+<text x="22" y="37" font-family="Arial,sans-serif" font-weight="800" font-size="21" fill="#ffe5a1" transform="rotate(-16 22 37)">TAKE YOUR TRADING TO THE NEXT LEVEL</text>
+<rect x="385" y="28" width="520" height="58" rx="26" fill="#fffdf7" stroke="#ed911b" stroke-width="3"/>
+<text x="645" y="66" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="27" fill="#121212">ADVANCED PROFESSIONAL COURSE</text>
+<text x="57" y="261" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="232" fill="url(#black)" stroke="#eaa121" stroke-width="5" paint-order="stroke" filter="url(#shadow)">VSA</text>
+<text x="60" y="344" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="91" fill="#0b0e11">COURSE</text>
+<text x="60" y="386" font-family="Arial,sans-serif" font-weight="800" font-size="23" fill="#996211">VOLUME SPREAD ANALYSIS</text>
+<g transform="translate(60 420)">
+<rect x="0" y="0" width="635" height="119" rx="20" fill="url(#black)" filter="url(#shadow)"/>
+<rect x="0" y="0" width="222" height="119" rx="20" fill="url(#gold)"/>
+<text x="111" y="38" text-anchor="middle" font-family="Arial,sans-serif" font-size="22" font-weight="800" fill="#1d1307">ONLY</text>
+<text x="111" y="98" text-anchor="middle" font-family="Arial,sans-serif" font-size="73" font-weight="900" fill="#121212">$500</text>
+<text x="320" y="62" text-anchor="middle" font-family="Arial,sans-serif" font-size="46" font-weight="900" fill="white" opacity=".6">$1000</text><path d="M248 84L393 25" stroke="#d31c1c" stroke-width="6"/>
+<path d="M428 20v80" stroke="#f3a231" stroke-width="3"/>
+<text x="522" y="44" text-anchor="middle" font-family="Arial,sans-serif" font-size="31" font-weight="900" fill="white">SAVE</text>
+<text x="522" y="91" text-anchor="middle" font-family="Arial,sans-serif" font-size="48" font-weight="900" fill="#ffad23">$500</text>
+</g>
+<g transform="translate(772 100)">
+<rect x="0" y="0" width="458" height="428" rx="30" fill="url(#black)" stroke="#e9a62c" stroke-width="5" filter="url(#shadow)"/>
+<rect x="18" y="18" width="422" height="392" rx="20" fill="none" stroke="#f7d189" opacity=".55" stroke-width="2"/>
+<text x="229" y="75" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="60" fill="url(#gold)">PRO</text>
+<text x="229" y="107" text-anchor="middle" font-family="Arial,sans-serif" font-weight="700" font-size="22" fill="#fff5df">VOLUME SPREAD ANALYSIS</text>
+<path d="M55 160h350" stroke="#d28a29" stroke-width="2" opacity=".5"/>
+<text x="44" y="202" font-family="Arial,sans-serif" font-size="28" font-weight="800" fill="#ffc34b">✓</text><text x="88" y="201" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="white">SMART MONEY ACTIVITY</text>
+<text x="44" y="255" font-family="Arial,sans-serif" font-size="28" font-weight="800" fill="#ffc34b">✓</text><text x="88" y="254" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="white">ACCUMULATION</text>
+<text x="44" y="308" font-family="Arial,sans-serif" font-size="28" font-weight="800" fill="#ffc34b">✓</text><text x="88" y="307" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="white">DISTRIBUTION</text>
+<text x="44" y="361" font-family="Arial,sans-serif" font-size="28" font-weight="800" fill="#ffc34b">✓</text><text x="88" y="360" font-family="Arial,sans-serif" font-size="23" font-weight="700" fill="white">MARKET BEHAVIOUR</text>
+</g>
+<g transform="translate(747 545)"><rect width="491" height="91" rx="18" fill="url(#black)" stroke="#dfa237" stroke-width="4"/>
+<text x="245" y="38" text-anchor="middle" font-family="Arial,sans-serif" font-size="33" font-weight="900" fill="#fff">SIR SAJID KHAN GHORI</text>
+<text x="245" y="70" text-anchor="middle" font-family="Arial,sans-serif" font-size="20" font-weight="800" fill="#ffd472">ASIA TOP FOREX INSTRUCTOR</text></g>
+<rect y="656" width="1280" height="64" fill="#050b15"/>
+<text x="35" y="698" font-family="Arial,sans-serif" font-weight="800" font-size="22" fill="#ffe8b1">✓ PROFESSIONAL LEARNING</text>
+<text x="452" y="698" font-family="Arial,sans-serif" font-weight="800" font-size="22" fill="#ffe8b1">✓ COMMUNITY SUPPORT</text>
+<rect x="943" y="666" rx="10" width="309" height="45" fill="url(#gold)"/>
+<text x="1097" y="697" text-anchor="middle" font-family="Arial,sans-serif" font-weight="900" font-size="26" fill="#090c11">ENROLL NOW →</text>
+</svg>
