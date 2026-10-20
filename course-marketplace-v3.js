@@ -555,11 +555,11 @@ function marketplaceSearchMatch(c){
 }
 function marketplaceSortRows(rows){
   const list=[...rows];
-  if(marketplaceSort==='price-low')return list.sort((a,b)=>Number(a.price||0)-Number(b.price||0)||Number(a.displayOrder||99)-Number(b.displayOrder||99));
-  if(marketplaceSort==='price-high')return list.sort((a,b)=>Number(b.price||0)-Number(a.price||0)||Number(a.displayOrder||99)-Number(b.displayOrder||99));
+  if(marketplaceSort==='price-low')return list.sort((a,b)=>Number(a.price||0)-Number(b.price||0)||Number(a.displayOrder??99)-Number(b.displayOrder??99));
+  if(marketplaceSort==='price-high')return list.sort((a,b)=>Number(b.price||0)-Number(a.price||0)||Number(a.displayOrder??99)-Number(b.displayOrder??99));
   return list.sort((a,b)=>{
     const sa=enrollmentState[a.key]==='approved'?0:1,sb=enrollmentState[b.key]==='approved'?0:1;
-    return sa-sb||Number(a.displayOrder||99)-Number(b.displayOrder||99);
+    return sa-sb||Number(a.displayOrder??99)-Number(b.displayOrder??99);
   });
 }
 function syncMarketplaceControls(page){
@@ -767,7 +767,7 @@ function moduleRows(c,unlocked){
 }
 function detailMarkup(c){
   const state=enrollmentState[c.key];const unlocked=c.type==='free'||state==='approved';
-  const others=Object.values(courseData).filter(x=>x.key!==c.key&&x.published!==false).sort((a,b)=>Number(a.displayOrder||99)-Number(b.displayOrder||99)).slice(0,2);
+  const others=Object.values(courseData).filter(x=>x.key!==c.key&&x.published!==false).sort((a,b)=>Number(a.displayOrder??99)-Number(b.displayOrder??99)).slice(0,2);
   const totalMinutes=c.modules.reduce((sum,m)=>sum+(parseInt(m.duration,10)||0),0);
   const totalHours=c.key==='basic'?7.5:(totalMinutes>0?Math.max(1,Math.round((totalMinutes/60)*10)/10):0);
   const totalTimeLabel=totalHours?`${totalHours}+ hrs`:(c.modules.length?`${c.modules.length} Sessions`:'');
