@@ -5625,7 +5625,7 @@ html[data-theme="light"] #view-overview .recent-row{
         <div class="field"><label>Date</label><select id="clientPeriodFilter"><option value="all">All Time</option><option value="month">Selected Month</option><option value="today">Today</option></select></div>
         <div class="field"><label>Sort By</label><select id="clientSort"><option value="newest">Newest Assigned</option><option value="oldest">Oldest Assigned</option><option value="az">Name A–Z</option><option value="za">Name Z–A</option><option value="status">Status</option><option value="course">Course / Batch</option></select></div>
         <div class="field"><label>Rows</label><select id="clientPageSize"><option value="25">25 per page</option><option value="50">50 per page</option><option value="100">100 per page</option></select></div>
-      </div><div class="client-filterbar" id="clientCourseFilters" aria-label="Course filters"><button class="client-filter active" data-course="all">All</button><button class="client-filter" data-course="sajid_b1">Sajid B1</button><button class="client-filter" data-course="sajid_b2">Sajid B2</button><button class="client-filter" data-course="sajid_b3">Sajid B3</button><button class="client-filter" data-course="sajid_b4">Sajid B4</button><button class="client-filter" data-course="fund_b1">Fundamental B1</button><button class="client-filter" data-course="fund_b2">Fundamental B2</button><button class="client-filter" data-course="fund_b3">Fundamental B3</button><button class="client-filter" data-course="advance">Advance</button><button class="client-filter" data-course="advance_fund">Advance Fundamental</button></div></div>
+      </div><div class="client-filterbar" id="clientCourseFilters" aria-label="Course filters"><button class="client-filter active" data-course="all">All</button><button class="client-filter" data-course="sajid_b1">Sajid B1</button><button class="client-filter" data-course="sajid_b2">Sajid B2</button><button class="client-filter" data-course="sajid_b3">Sajid B3</button><button class="client-filter" data-course="sajid_b4">Sajid B4</button><button class="client-filter" data-course="fund_b1">Fundamental B1</button><button class="client-filter" data-course="fund_b2">Fundamental B2</button><button class="client-filter" data-course="fund_b3">Fundamental B3</button><button class="client-filter" data-course="advance">Advance</button><button class="client-filter" data-course="advance_fund">Advance Fundamental</button><button class="client-filter" data-course="vsa">VSA Course</button></div></div>
       <div class="client-summary-bar"><span><b>Tip:</b> New → Contacted → Interested → Follow-up → Converted.</span><span id="clientPageInfo">Showing 0 of 0</span></div>
       <div class="premium-card client-card"><div class="table-wrap"><table class="data-table client-table-v273"><thead><tr><th>#</th><th>Client</th><th>Course / Batch</th><th>Source</th><th>Assigned Date</th><th>Status</th><th>Next Follow-up</th><th>Contact</th></tr></thead><tbody id="clientRows"><tr><td colspan="8" class="empty">Loading clients…</td></tr></tbody></table></div><div class="client-pager-v273"><button id="clientPrev" class="copy-btn" type="button">← Previous</button><span id="clientPagerText">Page 1</span><button id="clientNext" class="copy-btn" type="button">Next →</button></div></div>
     </section>
@@ -6250,7 +6250,8 @@ function clientCourseInfo(c){
   const add=(key,label)=>{if(!keys.has(key)){keys.add(key);labels.push(label)}};
   for(const p of parts){const x=p.toLowerCase();
     // Most specific paid / fundamental rules first so "Fundamental Forex ... Batch 2" never becomes Sajid B2.
-    if(/advance.*fundamental|advanced.*fundamental|fundamental.*advance/.test(x)) add('advance_fund','Advance Fundamental');
+    if(/\bvsa\b|volume spread analysis/.test(x)) add('vsa','VSA Course');
+    else if(/advance.*fundamental|advanced.*fundamental|fundamental.*advance/.test(x)) add('advance_fund','Advance Fundamental');
     else if(/fundamental_b3|fundamental[-_ ]?b3/.test(x)||(/fundamental|malik|ghulam\s+abbas/.test(x)&&/batch\s*3|\bb3\b/.test(x))) add('fund_b3','Fundamental — B3');
     else if(/fundamental_b2|fundamental[-_ ]?b2/.test(x)||(/fundamental|malik|ghulam\s+abbas/.test(x)&&/batch\s*2|\bb2\b/.test(x))) add('fund_b2','Fundamental — B2');
     else if(/fundamental_b1|fundamental[-_ ]?b1/.test(x)||(/fundamental|malik|ghulam\s+abbas/.test(x)&&/batch\s*1|\bb1\b/.test(x))) add('fund_b1','Fundamental — B1');
@@ -6270,7 +6271,7 @@ function clientCourseInfo(c){
   // so real historical enrollments remain visible in every matching batch filter.
   return{text:labels.join(', ')||'No course yet',labels,keys};
 }
-function courseBatchCounts(rows){const out={sajid_b1:0,sajid_b2:0,sajid_b3:0,sajid_b4:0,fund_b1:0,fund_b2:0,fund_b3:0,advance:0,advance_fund:0};for(const c of rows||[]){for(const k of clientCourseInfo(c).keys)if(k in out)out[k]++}return out}
+function courseBatchCounts(rows){const out={sajid_b1:0,sajid_b2:0,sajid_b3:0,sajid_b4:0,fund_b1:0,fund_b2:0,fund_b3:0,advance:0,advance_fund:0,vsa:0};for(const c of rows||[]){for(const k of clientCourseInfo(c).keys)if(k in out)out[k]++}return out}
 function clientInDateRange(c,start,end){const d=clientDateKey(c?.registration_at);return !!d&&d>=start&&d<=end}
 function clientKeyV273(c){if(c&&c.client_key)return String(c.client_key);if(c&&c.user_id)return 'u:'+String(c.user_id);const e=String(c&&c.email||'').trim().toLowerCase();if(e)return 'e:'+e;const w=String(c&&c.whatsapp||'').replace(/\D/g,'');if(w.length>=7)return 'w:'+w;const id=String(c&&c.client_id||'').trim().toUpperCase();return id?'c:'+id:''}
 function clientWorkStatus(c){let v=String(c&&c.work_status||c&&c.conversion_status||'new').toLowerCase().replace(/\s+/g,'_');if(v==='registered'||v==='open_/_registered'||v==='open')v='new';if(v==='lost')v='not_interested';return ['new','contacted','interested','follow_up','converted','not_interested'].includes(v)?v:'new'}
@@ -6282,8 +6283,8 @@ function clientSourceKeyV273(c){return clientSourceInfo(c).key}
 function duplicateClientSetV273(rows){const seenE=new Map(),seenPerson=new Map(),dupes=new Set();(rows||[]).forEach(c=>{const key=clientKeyV273(c),e=String(c.email||'').trim().toLowerCase(),w=String(c.whatsapp||'').replace(/\D/g,''),n=String(c.full_name||'').trim().toLowerCase().replace(/\s+/g,' ');if(e){if(seenE.has(e)){dupes.add(key);dupes.add(seenE.get(e))}else seenE.set(e,key)}if(w.length>=7&&n){const pk=w+'|'+n;if(seenPerson.has(pk)){dupes.add(key);dupes.add(seenPerson.get(pk))}else seenPerson.set(pk,key)}});return dupes}
 async function updateClientWorkV273(key,status,follow,sourceEl){if(!key)return;try{const followIso=follow?malaysiaInputToIso(follow):null;let r=await db.rpc('psp_team_update_client_work_v359',{p_session_token:S.token,p_client_key:key,p_status:status,p_follow_up_at:followIso,p_note:null});if(r.error&&String(r.error.message||'').includes('psp_team_update_client_work_v359'))r=await db.rpc('psp_team_update_client_work_v273',{p_session_token:S.token,p_client_key:key,p_status:status,p_follow_up_at:followIso,p_note:null});if(r.error)throw r.error;(S.clients||[]).forEach(c=>{if(clientKeyV273(c)===key){c.work_status=status;c.conversion_status=status;c.follow_up_at=followIso}});renderClients();renderKpis();renderOverviewOps();if(S.loaded.performance)renderPerformanceRange();toast('Client updated.')}catch(e){if(handleTeamAuthFailureV365(e))return;toast(e.message||'Could not update client.','bad');if(sourceEl)sourceEl.value=clientWorkStatus((S.clients||[]).find(c=>clientKeyV273(c)===key))}}
 async function copyClientNumberV273(v){const n=String(v||'');if(!n)return;try{await navigator.clipboard.writeText(n)}catch(_){const t=document.createElement('textarea');t.value=n;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}toast('WhatsApp number copied.')}
-function courseFilterCountsV273(rows){const counts={all:(rows||[]).length,sajid_b1:0,sajid_b2:0,sajid_b3:0,sajid_b4:0,fund_b1:0,fund_b2:0,fund_b3:0,advance:0,advance_fund:0};(rows||[]).forEach(c=>{clientCourseInfo(c).keys.forEach(k=>{if(k in counts)counts[k]++})});return counts}
-function isPaidCourseFilterV377(k){return k==='advance'||k==='advance_fund'}
+function courseFilterCountsV273(rows){const counts={all:(rows||[]).length,sajid_b1:0,sajid_b2:0,sajid_b3:0,sajid_b4:0,fund_b1:0,fund_b2:0,fund_b3:0,advance:0,advance_fund:0,vsa:0};(rows||[]).forEach(c=>{clientCourseInfo(c).keys.forEach(k=>{if(k in counts)counts[k]++})});return counts}
+function isPaidCourseFilterV377(k){return k==='advance'||k==='advance_fund'||k==='vsa'}
 function paidCourseStudentsV377(family){
   const map=new Map();
   for(const r of S.paidCourseMonth||[]){
@@ -6395,6 +6396,7 @@ function renderClients(){
   // Paid tabs are monthly commission tabs: counts come only from this selected month's paid events.
   counts.advance=paidCourseStudentsV377('advance').length;
   counts.advance_fund=paidCourseStudentsV377('advance_fund').length;
+  counts.vsa=paidCourseStudentsV377('vsa').length;
 
   document.querySelectorAll('#clientCourseFilters .client-filter').forEach(b=>{
     const k=b.dataset.course;b.classList.toggle('active',k===cf);
