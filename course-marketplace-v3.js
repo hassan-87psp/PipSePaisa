@@ -102,7 +102,7 @@ function enrollmentKeyFor(key){const c=courseData&&courseData[key];return String
 function enrollmentDbKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.enrollmentDbKey||c&&c.enrollmentKey||key||'').trim();}
 function enrollmentBatchKeyFor(key){const c=courseData&&courseData[key];return String(c&&c.batchKey||'').trim();}
 function displayKeyForEnrollment(key){key=String(key||'').trim().toLowerCase();if(key==='basic-b4'||key==='basic-b3'||key==='basic-b2')return'basic';if(key==='fundamental-b2'||key==='fundamental-b3')return'fundamental';return key;}
-function systemThumbnail(key){if(key==='advanced')return'advanced-course-thumbnail.webp?v=20260911-v222';if(key==='fundamental')return'fundamental-course-thumbnail.png?v=20260911-v222';if(key==='advance-fundamental'||key==='advanced-fundamental')return'assets/courses/advance-fundamental-thumbnail.png?v=20260911-v222';return'basic-course-thumbnail.webp?v=20260911-v222';}
+function systemThumbnail(key){if(key==='vsa')return'assets/courses/vsa-course-banner.svg?v=20261020';if(key==='advanced')return'advanced-course-thumbnail.webp?v=20260911-v222';if(key==='fundamental')return'fundamental-course-thumbnail.png?v=20260911-v222';if(key==='advance-fundamental'||key==='advanced-fundamental')return'assets/courses/advance-fundamental-thumbnail.png?v=20260911-v222';return'basic-course-thumbnail.webp?v=20260911-v222';}
 function resolveThumbnail(key,value){
   const raw=String(value||'').trim();
   if(!raw||/service-banners\/forex-education/i.test(raw)||/^(?:\.\/)?course-thumbnails\//i.test(raw)||/(?:^|\/)basic-course-thumbnail\.webp(?:\?|$)/i.test(raw)||/(?:^|\/)advanced-course-thumbnail\.webp(?:\?|$)/i.test(raw)||/(?:^|\/)fundamental-course-thumbnail\.(?:png|webp)(?:\?|$)/i.test(raw))return systemThumbnail(key);
@@ -447,6 +447,7 @@ function statusLabel(key){
   return {text:(key==='basic'||key==='fundamental')?'Free Enrollment':'Payment Required',cls:'locked'};
 }
 function courseCardLearningMeta(c){
+  if(c.key==='vsa')return 'Syllabus Coming Soon';
   if(c.hideModuleCounts)return 'Live Classes';
   return c.modules.length?`${c.modules.length} Modules`:'Structured Learning';
 }
