@@ -30,3 +30,37 @@ jobs:
         run: node --check scripts/live-seo-audit.mjs
       - name: Check deployed public SEO pages and PageSpeed
         run: node scripts/live-seo-audit.mjs
+      - name: Lighthouse lab performance (independent of PageSpeed API quota)
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -u
+          echo "Independent Chrome Lighthouse lab metrics (not Google CrUX field data)"
+          success_count=0
+          for entry in "home-mobile|https://www.pipsepaisa.com/|mobile" "home-desktop|https://www.pipsepaisa.com/|desktop" "vsa-mobile|https://www.pipsepaisa.com/courses/vsa-volume-spread-analysis/|mobile"; do
+            IFS='|' read -r name target device <<< "$entry"
+            options=""
+            if [ "$device" = "desktop" ]; then options="--preset=desktop"; fi
+            echo "=== LIGHTHOUSE $name ==="
+            if npm exec --yes --package=lighthouse@12.8.2 -- lighthouse "$target" --only-categories=performance --chrome-flags="--headless --no-sandbox --disable-dev-shm-usage" --output=json --output-path="/tmp/$name.json" --quiet $options; then
+              node -e '
+                const fs=require("node:fs");
+                const report=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+                const a=report.audits||{}, m=k=>a[k]?.displayValue||"n/a";
+                const score=report.categories?.performance?.score;
+                console.log("LAB_REPORT "+process.argv[2]+" score="+(typeof score==="number"?Math.round(score*100):"n/a")
+                  +" FCP="+m("first-contentful-paint")
+                  +" LCP="+m("largest-contentful-paint")
+                  +" TBT="+m("total-blocking-time")
+                  +" CLS="+m("cumulative-layout-shift")
+                  +" SpeedIndex="+m("speed-index"));
+                const opp=Object.values(a).filter(x=>x&&x.details?.type==="opportunity"&&Number.isFinite(x.details.overallSavingsMs)&&x.details.overallSavingsMs>150).sort((x,y)=>y.details.overallSavingsMs-x.details.overallSavingsMs).slice(0,5);
+                opp.forEach(x=>console.log("LAB_OPPORTUNITY "+process.argv[2]+" "+x.id+" potentialMs="+Math.round(x.details.overallSavingsMs)));
+              ' "/tmp/$name.json" "$name"
+              success_count=$((success_count+1))
+            else
+              echo "LAB_UNAVAILABLE $name Lighthouse could not complete"
+            fi
+          done
+          echo "Lighthouse lab reports completed: $success_count / 3"
+          if [ "$success_count" -eq 0 ]; then exit 1; fi
