@@ -205,7 +205,18 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
       .save-price{grid-column:1/2;background:#159b63;color:#fff;padding:7px 11px;border-radius:9px;font-size:12px;font-weight:900;text-align:center}
       .offer-label{grid-column:2/3;color:#ffd27b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
       @media (max-width:850px){.topics{grid-template-columns:1fr 1fr}.discount-pricing{grid-template-columns:auto 1fr}}
-    </style>
+    
+/* VSA mentorship: separate, readable outline, benefits and resource items */
+.course-card.vsa .vsa-detail-groups{display:grid;gap:19px;margin:21px 0 24px}
+.course-card.vsa .vsa-detail-group h4{font-size:14px;font-weight:900;letter-spacing:.025em;margin:0 0 10px;color:#ffb63d}
+.course-card.vsa .vsa-detail-list{display:grid;grid-template-columns:minmax(0,1fr);gap:7px}
+.course-card.vsa .vsa-detail-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid rgba(205,223,249,.11);border-radius:10px;background:rgba(255,255,255,.045);font-size:12.5px;font-weight:650;line-height:1.5;min-width:0;overflow-wrap:anywhere}
+.course-card.vsa .vsa-number,.course-card.vsa .vsa-tick{display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px;width:24px;min-height:24px;border-radius:7px;background:rgba(243,149,34,.14);color:#ffb63d;font-weight:900;font-size:11px}
+.course-card.vsa .vsa-tick{border-radius:50%;font-size:13px}
+.course-card.vsa p.vsa-resource-note{font-size:12px;margin:0 0 9px;color:#c4cfdf}
+.course-card.vsa .vsa-resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:420px){.course-card.vsa .vsa-resource-grid{grid-template-columns:minmax(0,1fr)}}
+</style>
 <link href="mobile-reference-layout.css?v=20260727-exact-v3" rel="stylesheet"/>
 <link href="psp-final-fixes.css?v=20260728-click-payment-v6" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -321,10 +332,26 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 <div class="save-price">You Save $500</div>
 <div class="offer-label">Limited-Time Offer</div>
 </div>
-<div class="topics">
-<div class="topic"><span class="check">✓</span><span>Basic of VSA, SOS, SOW &amp; Market Structre / Time Fractal</span></div>
-<div class="topic"><span class="check">✓</span><span>COT and Open Interest • Practical Trading Strategies</span></div>
-<div class="topic"><span class="check">✓</span><span>Indicators, Templates, COT &amp; Open Interest files provided</span></div>
+<div class="vsa-detail-groups">
+<div class="vsa-detail-group"><h4>VSA Course Outlines</h4><div class="vsa-detail-list">
+<div class="vsa-detail-row"><span class="vsa-number">01</span><span>Basic of VSA</span></div>
+<div class="vsa-detail-row"><span class="vsa-number">02</span><span>Signs of Strengths (SOS)</span></div>
+<div class="vsa-detail-row"><span class="vsa-number">03</span><span>Signs of Weakness (SOW)</span></div>
+<div class="vsa-detail-row"><span class="vsa-number">04</span><span>How to Trade using VSA, Market Structre and Time Fractal</span></div>
+<div class="vsa-detail-row"><span class="vsa-number">05</span><span>COT and Open Interest</span></div>
+</div></div>
+<div class="vsa-detail-group"><h4>Mentorship Program</h4><div class="vsa-detail-list">
+<div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>5 Live Learning Classes</span></div>
+<div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>10 Weekly Mentorship Classes</span></div>
+<div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>Practical Chart Analysis &amp; Trading Strategies</span></div>
+<div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>Live Q&amp;A and Doubt-Clearing Sessions</span></div>
+</div></div>
+<div class="vsa-detail-group"><h4>Included Resources</h4><p class="vsa-resource-note">All the following files will be provided:</p><div class="vsa-detail-list vsa-resource-grid">
+<div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>Indicators</span></div>
+<div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>Templates</span></div>
+<div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>COT Files</span></div>
+<div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>Open Interest Files</span></div>
+</div></div>
 </div>
 <div class="highlight">PAY $500 USDT TRC20 OR PKR 144,000 LOCAL BANK</div>
 <button class="course-btn" onclick="pspPublicCourseCTA('vsa')" type="button">Enroll in VSA Mentorship →</button>
