@@ -58,10 +58,10 @@ Before deploying a new feature: verify `has_table_privilege('anon', ...)` and `h
 GitHub Actions runs [PipSePaisa Supabase New Table Permissions](../../.github/workflows/supabase-grants-guard.yml) on pushes and pull requests that change SQL migrations, or manually via **Actions → PipSePaisa Supabase New Table Permissions → Run workflow**. The checker compares SQL files against the Git base and inspects **newly introduced CREATE TABLE statements**; historical tables are not re-linted unless a new table is introduced.
 
 For each newly created public-schema table it expects:
-1. \`ALTER TABLE public.table_name ENABLE ROW LEVEL SECURITY\`
-2. An explicit, minimal \`GRANT ... ON TABLE public.table_name TO ...\`, at least for the roles actually needing SQL access (including \`service_role\` for backend-only tables).
-3. A matching \`CREATE POLICY\` whenever \`anon\`, \`authenticated\`, or \`PUBLIC\` receives a table grant.
+1. `ALTER TABLE public.table_name ENABLE ROW LEVEL SECURITY`
+2. An explicit, minimal `GRANT ... ON TABLE public.table_name TO ...`, at least for the roles actually needing SQL access (including `service_role` for backend-only tables).
+3. A matching `CREATE POLICY` whenever `anon`, `authenticated`, or `PUBLIC` receives a table grant.
 
-Broad \`GRANT ALL\` to browser/public roles is rejected. The checker **never executes SQL, automatically grants access, or edits production data**; it is a static migration guard, not a replacement for Supabase role tests, payment-flow regression tests, or a staged database migration. For dynamic SQL and tables introduced outside the reviewed migration paths, perform a separate review.
+Broad `GRANT ALL` to browser/public roles is rejected. The checker **never executes SQL, automatically grants access, or edits production data**; it is a static migration guard, not a replacement for Supabase role tests, payment-flow regression tests, or a staged database migration. For dynamic SQL and tables introduced outside the reviewed migration paths, perform a separate review.
 
 A red check means fix the **new migration**, not all existing production grants. To require this check before merge, add its job as a *required status check* under GitHub branch protection/rulesets (if enabled on the repository).
