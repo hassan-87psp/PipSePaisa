@@ -1,4 +1,4 @@
-# Audit trigger: 2026-10-07 repeat final security verification
+# Read-only security check: no changes to UI, authentication, payments or database.
 name: PipSePaisa Security Header Audit
 
 on:
@@ -6,34 +6,54 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/security-header-audit.yml"
+      - "scripts/security-public-guard.mjs"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  header-audit:
+  security-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 6
     steps:
-      - name: Check HTTP redirect and HTTPS security headers
+      - name: Checkout for source analysis
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Static frontend secret guard
+        run: |
+          node --check scripts/security-public-guard.mjs
+          node scripts/security-public-guard.mjs
+      - name: Public HTTPS and response-header audit
         shell: bash
         run: |
           set -u
-          echo "=== HTTP response ==="
-          curl -sS -I --max-time 20 http://www.pipsepaisa.com/ || true
-
-          echo
-          echo "=== HTTPS response ==="
-          HEADERS="$(curl -sS -I --max-time 20 https://www.pipsepaisa.com/ || true)"
-          printf '%s\n' "$HEADERS"
-
-          echo
-          echo "=== Security header summary ==="
-          for header in             strict-transport-security             content-security-policy             x-frame-options             referrer-policy             x-content-type-options             permissions-policy
-          do
-            if printf '%s\n' "$HEADERS" | grep -qi "^$header:"; then
-              printf 'FOUND   %s\n' "$header"
-            else
-              printf 'MISSING %s\n' "$header"
+          base="https://www.pipsepaisa.com"
+          echo "Public GET/HEAD requests only; no authentication or payment submissions."
+          failure=0
+          for pathname in "/" "/courses/" "/sign-in/" "/courses/vsa-volume-spread-analysis/"; do
+            headers="$(curl -sS -D - -o /dev/null --max-time 25 "$base$pathname" || true)"
+            status="$(printf '%s\n' "$headers" | awk 'toupper($1) ~ /^HTTP\// {code=$2} END {print code}')"
+            echo "PUBLIC_PAGE $pathname status=${status:-no-response}"
+            if [ "$status" != "200" ]; then failure=1; fi
+            if [ "$pathname" = "/" ]; then
+              for key in strict-transport-security content-security-policy x-frame-options x-content-type-options referrer-policy permissions-policy; do
+                if printf '%s\n' "$headers" | grep -qi "^$key:"; then
+                  echo "HEADER_PRESENT $key"
+                else
+                  echo "HEADER_MISSING $key (server/CDN configuration review needed; not an app code change)"
+                fi
+              done
             fi
           done
+          http="$(curl -sS -I --max-time 20 http://www.pipsepaisa.com/ || true)"
+          code="$(printf '%s\n' "$http" | awk 'toupper($1) ~ /^HTTP\// {v=$2} END {print v}')"
+          loc="$(printf '%s\n' "$http" | tr -d '\r' | awk 'tolower($1)=="location:" {print $2}' | tail -1)"
+          echo "HTTP_STATUS ${code:-no-response}"
+          if [ -n "$loc" ]; then
+            case "$loc" in https://*) echo "HTTP_REDIRECT_TO_HTTPS yes" ;; *) echo "HTTP_REDIRECT_TO_HTTPS no" ;; esac
+          fi
+          if [ "$failure" -ne 0 ]; then echo "Public HTTPS page fetch failed"; exit 1; fi
