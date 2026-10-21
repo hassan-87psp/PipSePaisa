@@ -56,6 +56,19 @@ jobs:
                   +" SpeedIndex="+m("speed-index"));
                 const opp=Object.values(a).filter(x=>x&&x.details?.type==="opportunity"&&Number.isFinite(x.details.overallSavingsMs)&&x.details.overallSavingsMs>150).sort((x,y)=>y.details.overallSavingsMs-x.details.overallSavingsMs).slice(0,5);
                 opp.forEach(x=>console.log("LAB_OPPORTUNITY "+process.argv[2]+" "+x.id+" potentialMs="+Math.round(x.details.overallSavingsMs)));
+                if(process.argv[2]==="home-mobile"){
+                  const keys=Object.keys(a).filter(k=>/layout|shift|cls|render-blocking|font-display|unsized-images|lcp-discovery|forced-reflow/.test(k));
+                  console.log("LAB_CLS_DIAGNOSTIC_KEYS "+keys.join(","));
+                  for(const key of keys){
+                    const entry=a[key];
+                    const items=entry?.details?.items;
+                    if(Array.isArray(items)&&items.length){
+                      console.log("LAB_CLS_DIAGNOSTIC "+key+" "+JSON.stringify(items.slice(0,6)).slice(0,6500));
+                    }else if(entry?.displayValue||entry?.description){
+                      console.log("LAB_CLS_NOTE "+key+" "+(entry.displayValue||entry.description).slice(0,220));
+                    }
+                  }
+                }
               ' "/tmp/$name.json" "$name"
               success_count=$((success_count+1))
             else
