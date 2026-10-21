@@ -206,16 +206,16 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
       .offer-label{grid-column:2/3;color:#ffd27b;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
       @media (max-width:850px){.topics{grid-template-columns:1fr 1fr}.discount-pricing{grid-template-columns:auto 1fr}}
     
-/* VSA mentorship: separate, readable outline, benefits and resource items */
-.course-card.vsa .vsa-detail-groups{display:grid;gap:19px;margin:21px 0 24px}
-.course-card.vsa .vsa-detail-group h4{font-size:14px;font-weight:900;letter-spacing:.025em;margin:0 0 10px;color:#ffb63d}
-.course-card.vsa .vsa-detail-list{display:grid;grid-template-columns:minmax(0,1fr);gap:7px}
-.course-card.vsa .vsa-detail-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid rgba(205,223,249,.11);border-radius:10px;background:rgba(255,255,255,.045);font-size:12.5px;font-weight:650;line-height:1.5;min-width:0;overflow-wrap:anywhere}
-.course-card.vsa .vsa-number,.course-card.vsa .vsa-tick{display:inline-flex;align-items:center;justify-content:center;flex:0 0 24px;width:24px;min-height:24px;border-radius:7px;background:rgba(243,149,34,.14);color:#ffb63d;font-weight:900;font-size:11px}
-.course-card.vsa .vsa-tick{border-radius:50%;font-size:13px}
-.course-card.vsa p.vsa-resource-note{font-size:12px;margin:0 0 9px;color:#c4cfdf}
-.course-card.vsa .vsa-resource-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-@media(max-width:420px){.course-card.vsa .vsa-resource-grid{grid-template-columns:minmax(0,1fr)}}
+/* VSA mentorship: compact two-column list like neighboring Advanced Course */
+.course-card.vsa .vsa-detail-groups{display:grid;gap:13px;margin:14px 0 16px}
+.course-card.vsa .vsa-detail-group h4{font-size:12px;font-weight:900;letter-spacing:.02em;margin:0 0 8px;color:#ffb63d}
+.course-card.vsa .vsa-detail-list,.course-card.vsa .vsa-resource-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px;row-gap:8px}
+.course-card.vsa .vsa-detail-row{display:flex;align-items:flex-start;gap:7px;padding:0;border:0;border-radius:0;background:transparent;font-size:11.5px;font-weight:650;line-height:1.38;min-width:0;overflow-wrap:break-word}
+.course-card.vsa .vsa-detail-row:hover{background:transparent}
+.course-card.vsa .vsa-number,.course-card.vsa .vsa-tick{display:inline-flex;align-items:center;justify-content:center;flex:0 0 18px;width:18px;min-height:18px;border:0;border-radius:50%;background:rgba(243,149,34,.18);color:#ffb63d;font-weight:900;font-size:10px}
+.course-card.vsa .vsa-tick{font-size:12px}
+.course-card.vsa p.vsa-resource-note{display:none}
+@media(max-width:620px){.course-card.vsa .vsa-detail-list,.course-card.vsa .vsa-resource-grid{grid-template-columns:minmax(0,1fr)}}
 </style>
 <link href="mobile-reference-layout.css?v=20260727-exact-v3" rel="stylesheet"/>
 <link href="psp-final-fixes.css?v=20260728-click-payment-v6" rel="stylesheet"/>
@@ -325,7 +325,7 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 <img class="course-cover" src="/assets/courses/vsa-course-banner.webp?v=20261020-original" onerror="this.onerror=null;this.src='/assets/courses/vsa-course-banner.svg'" alt="VSA Volume Spread Analysis professional course by Sir Sajid Khan Ghori" loading="lazy" decoding="async">
 <h3>VSA Advanced Trading Mentorship</h3>
 <div class="course-instructor">By Sir Sajid Khan Ghori</div><div class="course-meta-row"><span class="course-meta-pill">STARTS 15 NOVEMBER 2026</span><span class="course-meta-pill">5 LIVE CLASSES + 10 WEEKLY MENTORSHIP</span></div>
-<p>Learn Volume Spread Analysis with 5 live learning classes and 10 weekly mentorship classes, including practical chart analysis and live Q&amp;A. Starting 15 November 2026.</p>
+<p>Learn VSA through practical chart analysis, live classes and weekly mentorship with Sir Sajid Khan Ghori.</p>
 <div class="discount-pricing">
 <div class="was-price"><span>Original Price</span><strong>$1,000</strong></div>
 <div class="now-price"><span>Now Only</span><strong>$500</strong></div>
@@ -346,7 +346,7 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 <div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>Practical Chart Analysis &amp; Trading Strategies</span></div>
 <div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>Live Q&amp;A and Doubt-Clearing Sessions</span></div>
 </div></div>
-<div class="vsa-detail-group"><h4>Included Resources</h4><p class="vsa-resource-note">All the following files will be provided:</p><div class="vsa-detail-list vsa-resource-grid">
+<div class="vsa-detail-group"><h4>Included Resources</h4><div class="vsa-detail-list vsa-resource-grid">
 <div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>Indicators</span></div>
 <div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>Templates</span></div>
 <div class="vsa-detail-row"><span class="vsa-tick">✓</span><span>COT Files</span></div>
