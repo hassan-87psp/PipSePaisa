@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/live-seo-audit.mjs'
+      - 'scripts/public-ui-smoke.mjs'
       - '.github/workflows/live-seo-audit.yml'
   workflow_dispatch:
 
@@ -30,6 +31,12 @@ jobs:
         run: node --check scripts/live-seo-audit.mjs
       - name: Check deployed public SEO pages and PageSpeed
         run: node scripts/live-seo-audit.mjs
+      - name: Install browser checker (runner only)
+        run: npm install --no-save --no-package-lock --ignore-scripts puppeteer-core@24.14.0
+      - name: Verify public UI browser check script
+        run: node --check scripts/public-ui-smoke.mjs
+      - name: Verify mobile and desktop public layouts and enrollment links (read-only)
+        run: CHROME_PATH="$(command -v google-chrome || command -v chromium || command -v chromium-browser)" node scripts/public-ui-smoke.mjs
       - name: Lighthouse lab performance (independent of PageSpeed API quota)
         continue-on-error: true
         shell: bash
