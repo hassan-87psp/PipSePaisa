@@ -1,0 +1,32 @@
+name: PipSePaisa Live SEO and PageSpeed Audit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/live-seo-audit.mjs'
+      - '.github/workflows/live-seo-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pipsepaisa-live-seo
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Checkout audited version
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Set up Node 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Verify checker syntax
+        run: node --check scripts/live-seo-audit.mjs
+      - name: Check deployed public SEO pages and PageSpeed
+        run: node scripts/live-seo-audit.mjs
