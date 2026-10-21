@@ -8,7 +8,7 @@ const extraPaths = [
   '/dashboard/','/profile/','/my-courses/','/vip-plans/','/free-access/',
   '/signals/','/live-charts/','/journal/','/support/',
   '/freecourse2/','/ad/technical/','/ad/fundamental/',
-  '/eaindicator/','/performance/','/my-trades/','/mentor/','/sajid-live/'
+  '/eaindicator/','/performance/','/my-trades/','/sajid-live/'
 ];
 const warnings=[], failures=[], cases=[];
 const now=Date.now();
@@ -78,7 +78,21 @@ async function pageCheck(target,mode,fromSitemap){
       let u;try{u=new URL(href,target)}catch{continue}
       if(u.origin===ORIGIN&&safePaths(u.pathname))linkPaths.add(u.pathname);
     }
-    if(mode==='mobile'&&state.scrollWidth>state.viewport+16)warn(name,'horizontal overflow '+(state.scrollWidth-state.viewport)+'px');
+    if(mode==='mobile'&&state.scrollWidth>state.viewport+16){
+      const offending=await page.evaluate(()=>{
+        const width=document.documentElement.clientWidth;
+        return [...document.querySelectorAll('body *')].map(el=>{
+          const box=el.getBoundingClientRect();
+          return {el,box};
+        }).filter(({box})=>box.width>2&&(box.right>width+3||box.left< -3))
+          .slice(0,12).map(({el,box})=>({
+            tag:el.tagName.toLowerCase(),id:el.id||'',className:typeof el.className==='string'?el.className.slice(0,110):'',
+            left:Math.round(box.left),right:Math.round(box.right),width:Math.round(box.width)
+          }));
+      });
+      console.log('FULL_AUDIT_OVERFLOW '+name+' '+JSON.stringify(offending));
+      warn(name,'horizontal overflow '+(state.scrollWidth-state.viewport)+'px');
+    }
     if(fromSitemap){
       if(!state.h1)fail(name,'missing H1');
       if(state.canonical!==target)fail(name,'wrong canonical '+state.canonical);
