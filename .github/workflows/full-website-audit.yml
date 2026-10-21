@@ -1,0 +1,30 @@
+name: PipSePaisa Full Website Read-Only Audit
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/full-public-health-audit.mjs'
+      - '.github/workflows/full-website-audit.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pipsepaisa-full-site-audit
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Node 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Install browser test dependency only in CI
+        run: npm install --no-save --no-package-lock --ignore-scripts puppeteer-core@24.14.0
+      - name: Validate audit syntax
+        run: node --check scripts/full-public-health-audit.mjs
+      - name: Test live website without submissions
+        run: CHROME_PATH="$(command -v google-chrome || command -v chromium || command -v chromium-browser)" node scripts/full-public-health-audit.mjs
