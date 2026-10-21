@@ -4,9 +4,10 @@ name: PipSePaisa Security Header Audit
 on:
   push:
     branches: [main]
-    paths:
-      - ".github/workflows/security-header-audit.yml"
-      - "scripts/security-public-guard.mjs"
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "15 4 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -45,6 +46,7 @@ jobs:
                   echo "HEADER_PRESENT $key"
                 else
                   echo "HEADER_MISSING $key (server/CDN configuration review needed; not an app code change)"
+                  echo "::warning title=Missing security header::$key is not set as an HTTP response header on the public homepage"
                 fi
               done
             fi
@@ -55,5 +57,9 @@ jobs:
           echo "HTTP_STATUS ${code:-no-response}"
           if [ -n "$loc" ]; then
             case "$loc" in https://*) echo "HTTP_REDIRECT_TO_HTTPS yes" ;; *) echo "HTTP_REDIRECT_TO_HTTPS no" ;; esac
+          fi
+          if ! printf '%s\\n' "$loc" | grep -qi '^https://'; then
+            echo "HTTP_REDIRECT_TO_HTTPS no (hosting/CDN fix required)"
+            echo "::warning title=HTTP redirect missing::Plain HTTP is not redirecting to HTTPS at the hosting layer"
           fi
           if [ "$failure" -ne 0 ]; then echo "Public HTTPS page fetch failed"; exit 1; fi
