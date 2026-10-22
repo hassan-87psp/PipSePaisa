@@ -2676,8 +2676,12 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
             <div id="sigTimeFilters" style="display:none;gap:6px;flex-wrap:wrap;">
               <button class="sig-fbtn active" data-t="all" onclick="sigSetTime('all',this)">All Time</button>
               <button class="sig-fbtn" data-t="today" onclick="sigSetTime('today',this)">Today</button>
-              <button class="sig-fbtn" data-t="week" onclick="sigSetTime('week',this)">Last Week</button>
-              <button class="sig-fbtn" data-t="month" onclick="sigSetTime('month',this)">Last Month</button>
+              <button class="sig-fbtn" data-t="yesterday" onclick="sigSetTime('yesterday',this)">Yesterday</button>
+              <button class="sig-fbtn" data-t="this_week" onclick="sigSetTime('this_week',this)">This Week</button>
+              <button class="sig-fbtn" data-t="last_week" onclick="sigSetTime('last_week',this)">Last Week</button>
+              <button class="sig-fbtn" data-t="this_month" onclick="sigSetTime('this_month',this)">This Month</button>
+              <button class="sig-fbtn" data-t="last_month" onclick="sigSetTime('last_month',this)">Last Month</button>
+              <span id="sigHistoryTotalPips" style="font-size:12px;font-weight:900;align-self:center;padding:4px 7px;" aria-live="polite">Total Pips: +0.0</span>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;border-left:1px solid var(--border);padding-left:10px;margin-left:2px;">
               <button id="sigViewActive" class="sig-fbtn active" onclick="sigSetView('active',this)" style="font-weight:800;">⚡ Active</button>
@@ -3923,7 +3927,7 @@ window.addEventListener('keydown',(e)=>{
 .art-modal-box .body p{margin-bottom:14px}
 </style>
 <div id="artModal" onclick="if(event.target===this)closeArt()"><div class="art-modal-box" id="artModalBox"></div></div>
-<script src="/user-signals-core-v29.js?v=20260909-v216-cleanup"></script>
+<script src="/user-signals-core-v29.js?v=20261022-v512-history-calendar-pips"></script>
 <script id="pspV78LandingFooterIsolation">
 /* V78: The logged-in dashboard footer must never be moved inside the public landing overlay.
    landing.html already owns its public footer. Keeping the two footers isolated prevents the
