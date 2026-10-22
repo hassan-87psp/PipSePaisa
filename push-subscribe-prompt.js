@@ -14,6 +14,8 @@ let starting=false;
 let sdkPromise=null;
 let initPromise=null;
 let subscriptionListenerAttached=false;
+// V511: a saved preference does not prove that OneSignal still has a device subscription.
+let verifiedSubscription=null;
 
 
 const PSP_PUSH_SUBSCRIBED_KEY="psp_push_subscribed_v108";
@@ -68,6 +70,10 @@ function rememberedSubscribed(){
 }
 function migrateSubscribedFlag(){
   if(rememberedSubscribed())rememberSubscribed(true);
+}
+function publishVerifiedSubscription(active){
+  verifiedSubscription=!!active;
+  try{window.dispatchEvent(new CustomEvent("psp:push-subscribed",{detail:{active:verifiedSubscription}}));}catch(_){ }
 }
 
 async function removeCompetingPwaWorker(){
@@ -194,7 +200,12 @@ function attachSubscriptionListener(os){
   push.addEventListener("change",function(event){
     const current=event&&event.current?event.current:null;
     const active=!!(current&&current.optedIn&&current.id);
-    if(!active)return;
+    if(!active){
+      // A real subscription may have become inactive despite the old local flag.
+      publishVerifiedSubscription(false);
+      return;
+    }
+    publishVerifiedSubscription(true);
     rememberSubscribed(true);
 
     const bar=document.getElementById("pspNotifyInstallBar");
@@ -276,12 +287,16 @@ async function realSubscriptionActive(){
 
 async function silentlyRepairSubscription(){
   if(!rememberedSubscribed())return;
-  if(!("Notification" in window) || Notification.permission!=="granted")return;
+  if(!("Notification" in window) || Notification.permission!=="granted"){
+    publishVerifiedSubscription(false);
+    return;
+  }
 
   try{
     const os=await oneSignal();
     let state=readPushState(os);
     if(state.optedIn&&state.id){
+      publishVerifiedSubscription(true);
       rememberSubscribed(true);
       return;
     }
@@ -293,7 +308,13 @@ async function silentlyRepairSubscription(){
     }
 
     state=await waitForActiveSubscription(os);
-    if(state.optedIn&&state.id)rememberSubscribed(true);
+    if(state.optedIn&&state.id){
+      publishVerifiedSubscription(true);
+      rememberSubscribed(true);
+    }else{
+      // Keep the user's preference; correctly show OFF until the device is repaired.
+      publishVerifiedSubscription(false);
+    }
   }catch(error){
     /*
       Deliberately do nothing:
@@ -305,11 +326,8 @@ async function silentlyRepairSubscription(){
 }
 
 async function subscribeCurrentDevice(){
-  if(rememberedSubscribed()){
-    removePrompt();
-    return {ok:true,state:"on",message:"Notifications are already active."};
-  }
-
+  // Always verify OneSignal on an explicit subscribe request. The old
+  // permanent localStorage flag alone is NOT proof of a working subscription.
   const iosInfo=pspIosPushInfo();
   if(iosInfo.isIOS && !iosInfo.standalone){
     return {ok:false,state:"ios-install",message:pspIosPushMessage()};
@@ -336,6 +354,7 @@ async function subscribeCurrentDevice(){
     let state=readPushState(os);
 
     if(state.optedIn&&state.id){
+      publishVerifiedSubscription(true);
       rememberSubscribed(true);
       removePrompt();
       return {ok:true,state:"on",message:"Notifications are already active."};
@@ -375,6 +394,7 @@ async function subscribeCurrentDevice(){
       };
     }
 
+    publishVerifiedSubscription(true);
     rememberSubscribed(true);
     removePrompt();
     return {ok:true,state:"on",message:"Notifications are now active."};
@@ -387,12 +407,13 @@ async function subscribeCurrentDevice(){
 }
 
 window.pspPushGetState=function(){
-  if(rememberedSubscribed())return "on";
   const iosInfo=pspIosPushInfo();
   if(iosInfo.isIOS && !iosInfo.standalone)return "ios-install";
   if(!("Notification" in window))return iosInfo.isIOS?"ios-install":"unsupported";
   if(Notification.permission==="denied")return "blocked";
-  return "off";
+  if(Notification.permission!=="granted")return "off";
+  if(verifiedSubscription===false)return "off";
+  return rememberedSubscribed()||verifiedSubscription===true?"on":"off";
 };
 window.pspPushSubscribe=subscribeCurrentDevice;
 
