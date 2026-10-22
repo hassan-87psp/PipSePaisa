@@ -8,7 +8,7 @@ assert.ok(a>=0&&b>a,'Performance helpers should exist');
 const ui={globalTimezone:{value:'Asia/Karachi'},perfPeriodFilters:{querySelectorAll:()=>[]}};
 const document={getElementById:(id)=>ui[id]||null,addEventListener(){},querySelectorAll:()=>[]};
 const ctx={window:{},document,Intl,Date,Math,isFinite,Array};
-vm.createContext(ctx);vm.runInContext(source.slice(a,b+38),ctx);
+vm.createContext(ctx);vm.runInContext(source.slice(a,b+'// PSP V513 PERFORMANCE HELPERS END'.length),ctx);
 const {pspPerfDateKey:dateKey,pspPerfBounds:bounds,pspPerfInRange:inRange,pspPerfFilterRows:filter,pspPerfShiftDay:shift}=ctx;
 const at=(y,m,d,h=0)=>new Date(Date.UTC(y,m-1,d,h)).toISOString();
 const fixed=at(2026,10,22,5);
