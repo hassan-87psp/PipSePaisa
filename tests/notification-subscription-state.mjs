@@ -7,10 +7,11 @@ const source=fs.readFileSync(new URL('../push-subscribe-prompt.js',import.meta.u
 function browser({permanent=true,permission='granted',ios=false,standalone=false,serviceReady=false,initialSubscribed=false,failOptIn=false}={}){
   const flags=new Map(permanent?[['psp_push_subscribed_v139_permanent','1']]:[]);
   let optIns=0;
+  let changeListener=null;
   const push={
     optedIn:initialSubscribed,
     id:initialSubscribed?'test-device-id':'',
-    addEventListener(){},
+    addEventListener(event,callback){if(event==='change')changeListener=callback;},
     async optIn(){
       optIns++;
       if(failOptIn)throw Error('Test optIn failed');
@@ -50,7 +51,7 @@ function browser({permanent=true,permission='granted',ios=false,standalone=false
   if(permission===null)delete ctx.Notification;
   else win.Notification=ctx.Notification;
   vm.runInNewContext(source,ctx,{filename:'push-subscribe-prompt.js',timeout:3000});
-  return {win,push,flags,get optIns(){return optIns}};
+  return {win,push,flags,emitChange(current){changeListener?.({current});},get optIns(){return optIns}};
 }
 async function run(){
   const deny=browser({permission:'denied'});
@@ -84,6 +85,9 @@ async function run(){
   assert.equal(healthyResult.ok,true);
   assert.equal(healthy.optIns,0,'healthy subscription is not opted-in twice');
   console.log('PASS verified existing subscription');
+  healthy.emitChange({optedIn:false,id:''});
+  assert.equal(healthy.win.pspPushGetState(),'off','device losing its subscription must show OFF');
+  console.log('PASS interrupted subscription no longer reports ON');
 
   const failed=browser({serviceReady:true,initialSubscribed:false,failOptIn:true});
   const result=await failed.win.pspPushSubscribe();
@@ -91,6 +95,6 @@ async function run(){
   assert.equal(result.state,'error');
   console.log('PASS optIn error is not mistaken for success');
 
-  console.log('NOTIFICATION_SUBSCRIPTION_TESTS_PASS 7/7');
+  console.log('NOTIFICATION_SUBSCRIPTION_TESTS_PASS 8/8');
 }
 await run();
