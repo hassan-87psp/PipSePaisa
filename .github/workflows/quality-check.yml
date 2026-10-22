@@ -30,3 +30,7 @@ jobs:
         run: |
           node --check user-signals-core-v29.js
           node tests/signal-history-calendar.test.mjs
+      - name: Verify Performance filters, pips and Win Rate
+        run: |
+          node --check user-signals-core-v29.js
+          node tests/performance-calendar.test.mjs
