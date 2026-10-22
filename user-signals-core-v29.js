@@ -516,17 +516,54 @@ function pspPerfFilterRows(rows,b,tz){
   var closed=rows.filter(function(s){return s.result_pips!=null&&isFinite(Number(s.result_pips))&&pspPerfInRange(s.closed_at||s.created_at,b,tz);});
   return {visible:visible,closed:closed};
 }
+function pspPerfMarkActivePeriod(key){
+  document.querySelectorAll('#perfPeriodFilters [data-perf-period]').forEach(function(b){
+    var on=b.dataset.perfPeriod===key;
+    b.classList.toggle('active',on);
+    b.setAttribute('aria-pressed',on?'true':'false');
+  });
+}
 function pspPerfSetPeriod(key){
   if(['all','today','yesterday','this_week','last_week','this_month','last_month','custom'].indexOf(key)<0)return;
+  var c=document.getElementById('pspPerfCustomDates');
+  if(c)c.style.display=key==='custom'?'flex':'none';
+  // Custom is not applied until dates are valid and Apply is clicked.
+  if(key==='custom')return;
   pspPerfPeriod=key;
-  document.querySelectorAll('#perfPeriodFilters [data-perf-period]').forEach(function(b){b.classList.toggle('active',b.dataset.perfPeriod===key);});
-  var c=document.getElementById('pspPerfCustomDates');if(c)c.style.display=key==='custom'?'flex':'none';
-  if(key!=='custom'&&window._perfRows)renderPerfDash(window._perfRows);
+  pspPerfMarkActivePeriod(key);
+  if(window._perfRows)renderPerfDash(window._perfRows);
 }
 function pspPerfApplyCustom(){
   var f=document.getElementById('pspPerfDateFrom'),t=document.getElementById('pspPerfDateTo');
-  if(!f||!t||!f.value||!t.value||f.value>t.value){if(typeof perfToast==='function')perfToast('Choose a valid From / To range');return;}
+  if(!f||!t||!f.value||!t.value||f.value>t.value){
+    if(typeof perfToast==='function')perfToast('Choose a valid From / To range');
+    return;
+  }
+  pspPerfPeriod='custom';
+  pspPerfMarkActivePeriod('custom');
   if(window._perfRows)renderPerfDash(window._perfRows);
+}
+// Keep the same narrow chart design, but cover the entire selected period
+// with at most 14 buckets instead of silently dropping earlier dates.
+function pspPerfChartBuckets(bounds,ref,tz,rows){
+  var today=pspPerfDateKey(ref||new Date(),tz),start=bounds.start||pspPerfShiftDay(today,-13);
+  var end=bounds.end||pspPerfShiftDay(today,1);
+  if(!start||!end||start>=end)return [];
+  var span=Math.round((new Date(end+'T12:00:00Z').getTime()-new Date(start+'T12:00:00Z').getTime())/86400000);
+  var step=Math.max(1,Math.ceil(span/14)),buckets=[],key=start;
+  while(key<end&&buckets.length<14){
+    var edge=pspPerfShiftDay(key,step);
+    if(edge>end)edge=end;
+    var last=pspPerfShiftDay(edge,-1);
+    buckets.push({key:key,end:edge,label:key.slice(8,10)+(step>1?'-'+last.slice(8,10):''),count:0});
+    key=edge;
+  }
+  (rows||[]).forEach(function(s){
+    var k=pspPerfDateKey(s.created_at,tz);
+    var b=buckets.find(function(item){return k>=item.key&&k<item.end;});
+    if(b)b.count++;
+  });
+  return buckets;
 }
 document.addEventListener('change',function(e){if(e.target&&e.target.id==='globalTimezone'&&window._perfRows)renderPerfDash(window._perfRows);});
 // PSP V513 PERFORMANCE HELPERS END
@@ -541,8 +578,9 @@ function renderPerfDash(rows){
   var wins=closed.filter(function(s){return Number(s.result_pips)>0;}).length;
   var losses=closed.filter(function(s){return Number(s.result_pips)<0;}).length;
   var beCount=closed.length-wins-losses;
-  var tpCount=visible.filter(function(s){return Number(s.tp_hit||0)>=1;}).length;
-  var slCount=visible.filter(function(s){return s.status==='sl';}).length;
+  // Closing-date cohort must match the Win Rate/Net Pips denominator.
+  var tpCount=closed.filter(function(s){return Number(s.tp_hit||0)>=1;}).length;
+  var slCount=closed.filter(function(s){return s.status==='sl';}).length;
   var wr=(wins+losses)?Math.round(wins/(wins+losses)*100):0;
   var total=0,greenPips=0,redPips=0;
   closed.forEach(function(s){var p=Number(s.result_pips);total+=p;if(p>0)greenPips+=p;else if(p<0)redPips+=p;});
@@ -556,13 +594,8 @@ function renderPerfDash(rows){
   });
   var fmt=function(v){return (v>=0?'+':'')+(Math.round(v*10)/10);};
   var col=function(v){return v>=0?'#10b981':'#ef4444';};
-  // Preserve the compact chart; its last 14 days stay within the selected period.
-  var chartEnd=bounds.end?pspPerfShiftDay(bounds.end,-1):pspPerfDateKey(now,tz);
-  var chartStart=pspPerfShiftDay(chartEnd,-13);
-  if(bounds.start&&bounds.start>chartStart)chartStart=bounds.start;
-  var days=[],key=chartStart;
-  for(var i=0;i<14&&key<=chartEnd;i++){days.push({key:key,label:Number(key.slice(8,10)),count:0});key=pspPerfShiftDay(key,1);}
-  visible.forEach(function(s){var k=pspPerfDateKey(s.created_at,tz);var dd=days.find(function(x){return x.key===k;});if(dd)dd.count++;});
+  // Entire filtered period is covered; All Time stays last 14 days.
+  var days=pspPerfChartBuckets(bounds,now,tz,visible);
   var maxC=Math.max.apply(null,[1].concat(days.map(function(d){return d.count;})));
   // Created date controls signal counts/top pairs; closing date controls Pips and Win Rate.
   var pc={};visible.forEach(function(s){if(s.pair)pc[s.pair]=(pc[s.pair]||0)+1;});
@@ -582,7 +615,7 @@ function renderPerfDash(rows){
   // 14-day bars
   var bars='<div style="display:flex;align-items:flex-end;gap:4px;height:120px;">'+days.map(function(d){
     var h=Math.round(d.count/maxC*100);
-    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;"><div title="'+d.count+' signals" style="width:100%;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#f59e0b,#d97706);height:'+(d.count?Math.max(h,6):2)+'%;'+(d.count?'':'opacity:.3;')+'transition:height .8s;"></div><div style="font-size:9px;color:var(--text-muted);">'+d.label+'</div></div>';
+    return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;"><div title="'+d.count+' signals ('+d.key+' to '+pspPerfShiftDay(d.end,-1)+')" style="width:100%;border-radius:5px 5px 0 0;background:linear-gradient(180deg,#f59e0b,#d97706);height:'+(d.count?Math.max(h,6):2)+'%;'+(d.count?'':'opacity:.3;')+'transition:height .8s;"></div><div style="font-size:9px;color:var(--text-muted);">'+d.label+'</div></div>';
   }).join('')+'</div>';
 
   // top pairs bars
@@ -620,7 +653,7 @@ function renderPerfDash(rows){
         '<div style="height:9px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;margin-bottom:12px;"><div style="height:100%;width:'+gpct+'%;background:linear-gradient(90deg,#f59e0b,#10b981);border-radius:6px;transition:width 1s;"></div></div>'+
         '<div style="font-size:12px;color:var(--text-muted);">🎯 Target: <b style="color:var(--gold)">'+goal+' pips</b> / month</div>'+
       '</div>'+
-      '<div class="card"><div class="card-title" style="margin-bottom:12px;">📊 Signals — '+(pspPerfPeriod==='all'?'last 14 days':bounds.label+(days.length===14?' (last 14 days)':''))+'</div>'+bars+'</div>'+
+      '<div class="card"><div class="card-title" style="margin-bottom:12px;">📊 Signals — '+(pspPerfPeriod==='all'?'last 14 days':bounds.label)+'</div>'+bars+'</div>'+
       '<div class="card"><div class="card-title" style="margin-bottom:8px;">🎯 Win Rate</div><div style="display:flex;flex-direction:column;align-items:center;">'+ring+'<div style="font-size:12px;color:var(--text-muted);margin-top:6px;">'+tpCount+' TP · '+slCount+' SL · '+beCount+' BE · '+closed.length+' total</div></div></div>'+
     '</div>'+
     // Row B
