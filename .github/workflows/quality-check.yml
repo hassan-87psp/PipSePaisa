@@ -26,3 +26,7 @@ jobs:
         run: node scripts/quality-check.mjs
       - name: Verify OneSignal subscription behavior
         run: node tests/notification-subscription-state.mjs
+      - name: Verify User Signal History date filters and total pips
+        run: |
+          node --check user-signals-core-v29.js
+          node tests/signal-history-calendar.test.mjs
