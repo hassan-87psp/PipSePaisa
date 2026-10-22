@@ -16,7 +16,69 @@ function sigSetView(v,el){
   var rd=document.getElementById('sigResultDash');if(rd)rd.style.display=(v==='history')?'block':'none';
   renderSignals();
 }
-function sigSetTime(t,el){sigTimeF=t;document.querySelectorAll('#sigTimeFilters .sig-fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderSignals()}
+function sigSetTime(t,el){sigTimeF=t;document.querySelectorAll('#sigTimeFilters .sig-fbtn').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');renderSignals()}
+
+// PSP V512 HISTORY FILTER BOUNDS START
+// Local calendar periods; all end boundaries are exclusive.
+function pspSigHistoryBounds(key,refDate){
+  var now=refDate?new Date(refDate):new Date();
+  var y=now.getFullYear(),m=now.getMonth(),day=now.getDate();
+  var today=new Date(y,m,day);
+  var monday=new Date(y,m,day-((now.getDay()+6)%7));
+  var currentEnd=now.getTime()+1;
+  switch(key){
+    case 'today': return {start:today.getTime(),end:currentEnd};
+    case 'yesterday': return {start:new Date(y,m,day-1).getTime(),end:today.getTime()};
+    case 'this_week': return {start:monday.getTime(),end:currentEnd};
+    case 'last_week':
+    case 'week': return {start:new Date(monday.getFullYear(),monday.getMonth(),monday.getDate()-7).getTime(),end:monday.getTime()};
+    case 'this_month': return {start:new Date(y,m,1).getTime(),end:currentEnd};
+    case 'last_month':
+    case 'month': return {start:new Date(y,m-1,1).getTime(),end:new Date(y,m,1).getTime()};
+    case 'custom':
+      var startRaw=window.__pspSigCustomFrom||'';
+      var endRaw=window.__pspSigCustomTo||'';
+      var startDate=startRaw?new Date(startRaw+'T00:00:00'):null;
+      var endDate=endRaw?new Date(endRaw+'T00:00:00'):null;
+      if(endDate&&!isNaN(endDate.getTime()))endDate.setDate(endDate.getDate()+1);
+      return {start:startDate&&!isNaN(startDate.getTime())?startDate.getTime():null,
+        end:endDate&&!isNaN(endDate.getTime())?endDate.getTime():null};
+    default: return {start:null,end:null};
+  }
+}
+function pspSigHistoryInTime(row,key,refDate){
+  if(!key||key==='all')return true;
+  var time=new Date(row.closedTs||row.ts).getTime();
+  if(!isFinite(time))return false;
+  var b=pspSigHistoryBounds(key,refDate);
+  return (b.start===null||time>=b.start)&&(b.end===null||time<b.end);
+}
+function pspSigHistoryNetPips(rows){
+  var sum=0;
+  (rows||[]).forEach(function(s){
+    if(s.pips!=null&&isFinite(Number(s.pips)))sum+=Number(s.pips);
+  });
+  return Math.round(sum*10)/10;
+}
+function pspSigHistoryLabel(key){
+  return {today:'Today',yesterday:'Yesterday',this_week:'This Week',last_week:'Last Week',
+    week:'Last Week',this_month:'This Month',last_month:'Last Month',month:'Last Month',
+    custom:'Custom',all:'Total'}[key]||'Total';
+}
+function pspSigHistoryShowTotal(rows){
+  var sum=pspSigHistoryNetPips(rows);
+  var label='Total Pips: '+(sum>=0?'+':'')+sum.toFixed(1);
+  ['sigHistoryTotalPips','pspSigHistoryPipsV216'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){
+      el.textContent=label;
+      el.style.color=sum>=0?'#10b981':'#ef4444';
+      el.setAttribute('aria-label',pspSigHistoryLabel(sigTimeF)+' — '+label);
+    }
+  });
+}
+// PSP V512 HISTORY FILTER BOUNDS END
+
 function memberCat(){ if(!currentProfile||!currentProfile.is_premium) return 'free'; var mt=currentProfile.member_type; if(!mt) return 'vip'; return mt==='vip'?'vip':'premium'; }
 function userServicesList(){ if(!currentProfile) return []; var s=currentProfile.services; if(s==null||s==='') return null; return String(s).split(',').map(function(x){return x.trim();}).filter(Boolean); }
 function pspHasVerifiedAccess(){
@@ -297,7 +359,7 @@ async function loadSignalsFromDB(options){
 function renderSigResultDash(rows,elId){
   var el=document.getElementById(elId||'sigResultDash');if(!el)return;
   var now=new Date();
-  var weekAgo=new Date(now.getTime()-7*86400000);
+  var weekAgo=new Date(now.getFullYear(),now.getMonth(),now.getDate()-((now.getDay()+6)%7));
   var monthStart=new Date(now.getFullYear(),now.getMonth(),1);
   var tF=(typeof sigTimeF!=='undefined')?sigTimeF:'all';
   var total=0,week=0,month=0,wins=0,losses=0,count=0,bestPair='',bestPips=-1e9,pairAgg={};
@@ -333,7 +395,7 @@ function renderSigResultDash(rows,elId){
       '<div style="flex:1;min-width:250px;"><div class="sigdash" style="grid-template-columns:1fr 1fr;">'+
         (tF==='all'
           ? tile('Total Pips',fmt(total),col(total))+tile('This Week',fmt(week),col(week))+tile('This Month',fmt(month),col(month))
-          : tile(tF==='today'?'Today Pips':(tF==='week'?'Last Week Pips':'This Month Pips'),fmt(total),col(total)))+
+          : tile(pspSigHistoryLabel(tF)+' Pips',fmt(total),col(total)))+
         tile('Best Pair',bestPair?(bestPair+' '+fmt(bestPips)):'-','var(--gold)')+
       '</div></div>'+
     '</div></div>';
@@ -1546,35 +1608,7 @@ function pspSigMobileShell(rows){
 function renderSignals(){
   const g=document.getElementById('signalsGrid');if(!g)return;
 
-  var now=Date.now();
-  function inTime(s){
-    if(sigView!=='history'||sigTimeF==='all')return true;
-    var t=new Date(s.closedTs||s.ts).getTime();
-    var d=new Date();
-    if(sigTimeF==='today'){
-      var ds=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
-      return t>=ds;
-    }
-    if(sigTimeF==='yesterday'){
-      var ys=new Date(d.getFullYear(),d.getMonth(),d.getDate()-1).getTime();
-      var ye=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime();
-      return t>=ys && t<ye;
-    }
-    if(sigTimeF==='week')return t>=now-7*86400000;
-    if(sigTimeF==='month'){
-      var lmStart=new Date(d.getFullYear(),d.getMonth()-1,1).getTime();
-      var lmEnd=new Date(d.getFullYear(),d.getMonth(),1).getTime();
-      return t>=lmStart && t<lmEnd;
-    }
-    if(sigTimeF==='custom'){
-      var from=window.__pspSigCustomFrom?new Date(window.__pspSigCustomFrom+'T00:00:00').getTime():null;
-      var to=window.__pspSigCustomTo?new Date(window.__pspSigCustomTo+'T23:59:59.999').getTime():null;
-      if(from!=null && t<from)return false;
-      if(to!=null && t>to)return false;
-      return true;
-    }
-    return true;
-  }
+  function inTime(s){return sigView!=='history'||pspSigHistoryInTime(s,sigTimeF);}
 
   var list=SIGNALS.filter(function(s){
     var finished=pspSigIsFinished(s);
@@ -1582,6 +1616,8 @@ function renderSignals(){
     var catOk=(sigF==='all')?true:(s.cat===sigF);
     return viewOk&&catOk&&inTime(s);
   });
+
+  if(sigView==='history')pspSigHistoryShowTotal(list);
 
   var rd=document.getElementById('sigResultDash');
   if(rd){
@@ -3093,15 +3129,18 @@ function pspSigMobileDetail(s){
         <div id="pspSigHistoryFiltersV216" class="psp-v216-history-filters" style="display:none">\
           <button class="sig-fbtn active" data-range="today" onclick="pspV216SetHistoryRange(\'today\',this)">Today</button>\
           <button class="sig-fbtn" data-range="yesterday" onclick="pspV216SetHistoryRange(\'yesterday\',this)">Yesterday</button>\
-          <button class="sig-fbtn" data-range="week" onclick="pspV216SetHistoryRange(\'week\',this)">Last 7 Days</button>\
-          <button class="sig-fbtn" data-range="month" onclick="pspV216SetHistoryRange(\'month\',this)">Last Month</button>\
+          <button class="sig-fbtn" data-range="this_week" onclick="pspV216SetHistoryRange(\'this_week\',this)">This Week</button>\
+          <button class="sig-fbtn" data-range="last_week" onclick="pspV216SetHistoryRange(\'last_week\',this)">Last Week</button>\
+          <button class="sig-fbtn" data-range="this_month" onclick="pspV216SetHistoryRange(\'this_month\',this)">This Month</button>\
+          <button class="sig-fbtn" data-range="last_month" onclick="pspV216SetHistoryRange(\'last_month\',this)">Last Month</button>\
           <button class="sig-fbtn" data-range="custom" onclick="pspV216SetHistoryRange(\'custom\',this)">Custom</button>\
         </div>\
         <div id="pspSigCustomRangeV216" class="psp-v216-custom-range" style="display:none">\
           <label>From<input id="pspSigFromV216" type="date"></label>\
           <label>To<input id="pspSigToV216" type="date"></label>\
           <button type="button" class="sig-fbtn" onclick="pspV216ApplyCustomRange()">Apply</button>\
-        </div>';
+        </div>\
+        <div id="pspSigHistoryPipsV216" style="display:none;font-size:12px;font-weight:900;margin:7px 0 3px;" aria-live="polite">Total Pips: +0.0</div>';
       first.insertAdjacentElement('afterend',shell);
     }
     return shell;
@@ -3116,6 +3155,7 @@ function pspSigMobileDetail(s){
     var c=document.getElementById('pspSigCustomRangeV216');
     if(b){b.classList.toggle('active',on);b.textContent=on?'← Active':'History';b.setAttribute('aria-pressed',on?'true':'false');}
     if(f)f.style.display=on?'flex':'none';
+    var pips=document.getElementById('pspSigHistoryPipsV216');if(pips)pips.style.display=on?'block':'none';
     if(c)c.style.display=(on&&sigTimeF==='custom')?'grid':'none';
     document.querySelectorAll('#pspSigHistoryFiltersV216 .sig-fbtn').forEach(function(x){x.classList.toggle('active',x.dataset.range===sigTimeF)});
     // Hide the old built-in Active / History and time rows on mobile only.
@@ -3143,7 +3183,7 @@ function pspSigMobileDetail(s){
     if(typeof renderSignals==='function')renderSignals();
   };
 
-  function install(){removeLegacyDock();if(mobile())ensureShell();sync();}
+  function install(){removeLegacyDock();if(mobile())ensureShell();sync();if(mobile()&&sigView==='history'&&typeof renderSignals==='function')renderSignals();}
   var st=document.createElement('style');st.id='psp-v216-mobile-history-css';st.textContent=`
     @media(max-width:760px){
       #pspSignalPeriodDockV104,.psp-period-wrap,.psp-period-tabs,#pspMobileHistoryV215,#pspSigCustomRangeV215{display:none!important}
