@@ -24,3 +24,5 @@ jobs:
 
       - name: Run project quality checks
         run: node scripts/quality-check.mjs
+      - name: Verify OneSignal subscription behavior
+        run: node tests/notification-subscription-state.mjs
