@@ -321,6 +321,9 @@ async function silentlyRepairSubscription(){
       a temporary network/SDK/service-worker problem is NOT an unsubscribe.
       The permanent local subscribed state remains intact.
     */
+    // Do not erase the user's saved preference, but do not claim push is live
+    // when the SDK cannot verify it. The existing Settings control can retry.
+    publishVerifiedSubscription(false);
     console.warn("PipSePaisa silent notification repair deferred:",error);
   }
 }
