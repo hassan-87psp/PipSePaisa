@@ -1278,6 +1278,22 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
           <div id="perfHello" style="font-size:24px;font-weight:900;margin-top:4px;">Welcome 👋</div>
           <div style="font-size:13px;color:var(--text-muted);margin-top:3px;">Your live overview — signals, charts, news &amp; results in one place.</div>
         </div>
+        <div id="perfPeriodFilters" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:-2px 0 15px;">
+          <button type="button" class="sig-fbtn active" data-perf-period="all" onclick="pspPerfSetPeriod('all')">All Time</button>
+          <button type="button" class="sig-fbtn" data-perf-period="today" onclick="pspPerfSetPeriod('today')">Today</button>
+          <button type="button" class="sig-fbtn" data-perf-period="yesterday" onclick="pspPerfSetPeriod('yesterday')">Yesterday</button>
+          <button type="button" class="sig-fbtn" data-perf-period="this_week" onclick="pspPerfSetPeriod('this_week')">This Week</button>
+          <button type="button" class="sig-fbtn" data-perf-period="last_week" onclick="pspPerfSetPeriod('last_week')">Last Week</button>
+          <button type="button" class="sig-fbtn" data-perf-period="this_month" onclick="pspPerfSetPeriod('this_month')">This Month</button>
+          <button type="button" class="sig-fbtn" data-perf-period="last_month" onclick="pspPerfSetPeriod('last_month')">Last Month</button>
+          <button type="button" class="sig-fbtn" data-perf-period="custom" onclick="pspPerfSetPeriod('custom')">Custom</button>
+          <div id="pspPerfCustomDates" style="display:none;align-items:center;gap:6px;flex-wrap:wrap;">
+            <input id="pspPerfDateFrom" type="date" aria-label="Performance from date" style="min-width:125px;padding:6px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text-primary);font-size:11px;">
+            <span style="font-size:11px;color:var(--text-muted);">to</span>
+            <input id="pspPerfDateTo" type="date" aria-label="Performance to date" style="min-width:125px;padding:6px;border:1px solid var(--border);border-radius:8px;background:var(--bg-card);color:var(--text-primary);font-size:11px;">
+            <button type="button" class="sig-fbtn" onclick="pspPerfApplyCustom()">Apply</button>
+          </div>
+        </div>
         <div id="perfResults"></div>
       </div>
 
@@ -3927,7 +3943,7 @@ window.addEventListener('keydown',(e)=>{
 .art-modal-box .body p{margin-bottom:14px}
 </style>
 <div id="artModal" onclick="if(event.target===this)closeArt()"><div class="art-modal-box" id="artModalBox"></div></div>
-<script src="/user-signals-core-v29.js?v=20261022-v512-history-calendar-pips"></script>
+<script src="/user-signals-core-v29.js?v=20261022-v513-performance-calendar"></script>
 <script id="pspV78LandingFooterIsolation">
 /* V78: The logged-in dashboard footer must never be moved inside the public landing overlay.
    landing.html already owns its public footer. Keeping the two footers isolated prevents the
