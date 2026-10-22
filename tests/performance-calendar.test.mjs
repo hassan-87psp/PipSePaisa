@@ -5,9 +5,16 @@ const source=fs.readFileSync(new URL('../user-signals-core-v29.js',import.meta.u
 const a=source.indexOf('// PSP V513: Local-calendar Performance periods');
 const b=source.indexOf('// PSP V513 PERFORMANCE HELPERS END');
 assert.ok(a>=0&&b>a,'Performance helpers should exist');
-const ui={globalTimezone:{value:'Asia/Karachi'},perfPeriodFilters:{querySelectorAll:()=>[]}};
+const ui={
+  globalTimezone:{value:'Asia/Karachi'},
+  perfPeriodFilters:{querySelectorAll:()=>[]},
+  pspPerfCustomDates:{style:{display:'none'}},
+  pspPerfDateFrom:{value:'2026-10-19'},
+  pspPerfDateTo:{value:'2026-10-22'}
+};
 const document={getElementById:(id)=>ui[id]||null,addEventListener(){},querySelectorAll:()=>[]};
-const ctx={window:{},document,Intl,Date,Math,isFinite,Array};
+let renderCalls=0;
+const ctx={window:{_perfRows:[{id:1}]},document,Intl,Date,Math,isFinite,Array,renderPerfDash:()=>{renderCalls++}};
 vm.createContext(ctx);vm.runInContext(source.slice(a,b+'// PSP V513 PERFORMANCE HELPERS END'.length),ctx);
 const {pspPerfDateKey:dateKey,pspPerfBounds:bounds,pspPerfInRange:inRange,pspPerfFilterRows:filter,pspPerfShiftDay:shift}=ctx;
 const at=(y,m,d,h=0)=>new Date(Date.UTC(y,m-1,d,h)).toISOString();
@@ -53,14 +60,36 @@ assert.deepEqual(Array.from(month.closed.map(x=>x.id)),[5],'last month');
 const wins=week.closed.filter(s=>s.result_pips>0).length,losses=week.closed.filter(s=>s.result_pips<0).length,be=week.closed.length-wins-losses;
 assert.equal(Math.round(wins/(wins+losses)*100),50,'win rate excludes BE');
 assert.equal(be,1,'BE separate');
-assert.equal(week.visible.filter(s=>Number(s.tp_hit||0)>=1).length,0,'TP count uses creation-date window');
-assert.match(source,/var tpCount=visible\.filter\(function\(s\)\{return Number\(s\.tp_hit\|\|0\)>=1;/,'TP history');
+assert.equal(week.closed.filter(s=>Number(s.tp_hit||0)>=1).length,1,'TP count must match closed-date cohort');
+assert.equal(week.closed.filter(s=>s.status==='sl').length,0,'SL matched by closing period');
+assert.match(source,/var tpCount=closed\.filter\(function\(s\)\{return Number\(s\.tp_hit\|\|0\)>=1;/,'TP historical closing cohort');
+assert.match(source,/var slCount=closed\.filter\(function\(s\)\{return s\.status==='sl';/,'SL historical closing cohort');
 assert.match(source,/var wr=\(wins\+losses\)\?Math\.round\(wins\/\(wins\+losses\)\*100\):0/,'win rate');
 assert.match(source,/var earned=Math\.max\(0,month\)/,'monthly goal');
+const make=(date)=>({created_at:date+'T09:00:00Z'});
+const sep=bounds('last_month',fixed,'Asia/Karachi');
+const monthRows=[make('2026-09-01'),make('2026-09-04'),make('2026-09-16'),make('2026-09-30')];
+const allBuckets=ctx.pspPerfChartBuckets(sep,fixed,'Asia/Karachi',monthRows);
+assert.ok(allBuckets.length<=14,'long periods have <=14 graph bars');
+assert.equal(allBuckets[0].key,'2026-09-01','first bar begins start of filtered month');
+assert.equal(allBuckets[allBuckets.length-1].end,'2026-10-01','last bar covers last day of filtered month');
+assert.equal(allBuckets.reduce((sum,x)=>sum+x.count,0),4,'chart includes all created signals across month');
+const custom=bounds('custom',fixed,'Asia/Karachi','2026-08-01','2026-10-20');
+const customBars=ctx.pspPerfChartBuckets(custom,fixed,'Asia/Karachi',[make('2026-08-01'),make('2026-09-15'),make('2026-10-20')]);
+assert.ok(customBars.length<=14,'custom can cover multi-month ranges');
+assert.equal(customBars.reduce((n,b)=>n+b.count,0),3,'custom chart covers full multi-month selected period');
+ctx.pspPerfPeriod='this_week';
+ctx.pspPerfSetPeriod('custom');
+assert.equal(ctx.pspPerfPeriod,'this_week','Custom picker is not an applied filter');
+assert.equal(ui.pspPerfCustomDates.style.display,'flex','Custom reveals date fields');
+assert.equal(renderCalls,0,'do not render Custom until Apply clicked');
+ctx.pspPerfApplyCustom();
+assert.equal(ctx.pspPerfPeriod,'custom','Custom is applied only after valid dates');
+assert.equal(renderCalls,1,'Apply renders once');
 const labels=['all','today','yesterday','this_week','last_week','this_month','last_month','custom'];
 for(const file of ['dashboard/index.html','performance/index.html']){
   const html=fs.readFileSync(new URL('../'+file,import.meta.url),'utf8');
   for(const label of labels)assert.ok(html.includes('data-perf-period="'+label+'"'),file+' missing '+label);
   assert.ok(html.includes('user-signals-core-v29.js?v=20261022-v513-performance-calendar'));
 }
-console.log('PERFORMANCE_CALENDAR_TESTS_PASS: timezone, 6 periods, Sunday/Monday, leap-month, custom range, created-vs-closed, net pips, BE win rate, TP history and both portal pages');
+console.log('PERFORMANCE_CALENDAR_TESTS_PASS: timezone, 6 periods, Sunday/Monday, leap-month, custom range, created-vs-closed, net pips, BE win rate, TP closing cohort, full-period chart, Custom apply and both portal pages');
