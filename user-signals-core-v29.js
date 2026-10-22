@@ -476,35 +476,102 @@ function savePerfGoal(){
   perfToast('✅ Goal saved');
   if(window._perfRows)renderPerfDash(window._perfRows);
 }
+
+// PSP V513: Local-calendar Performance periods follow the selected header timezone.
+// Signal counts use creation date; pips and win rate use closing date.
+var pspPerfPeriod='all';
+function pspPerfTimezone(){var x=document.getElementById('globalTimezone');return x&&x.value||'Asia/Karachi';}
+function pspPerfDateKey(t,tz){
+  if(!t)return '';
+  var d=new Date(t);if(!isFinite(d.getTime()))return '';
+  var parts=new Intl.DateTimeFormat('en-US',{timeZone:tz||'Asia/Karachi',
+    year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d);
+  var v={};parts.forEach(function(p){v[p.type]=p.value;});
+  return v.year+'-'+v.month+'-'+v.day;
+}
+function pspPerfShiftDay(key,n){if(!key)return '';var d=new Date(key+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10);}
+function pspPerfBounds(key,ref,tz,from,to){
+  var today=pspPerfDateKey(ref||new Date(),tz||'Asia/Karachi');
+  var d=new Date(today+'T12:00:00Z'),mon=pspPerfShiftDay(today,-((d.getUTCDay()+6)%7));
+  var month=today.slice(0,7)+'-01',prev=new Date(month+'T12:00:00Z');
+  prev.setUTCMonth(prev.getUTCMonth()-1);
+  var pm=prev.toISOString().slice(0,10),tomorrow=pspPerfShiftDay(today,1);
+  switch(key){
+    case 'today':return {start:today,end:tomorrow,label:'Today'};
+    case 'yesterday':return {start:pspPerfShiftDay(today,-1),end:today,label:'Yesterday'};
+    case 'this_week':return {start:mon,end:tomorrow,label:'This Week'};
+    case 'last_week':return {start:pspPerfShiftDay(mon,-7),end:mon,label:'Last Week'};
+    case 'this_month':return {start:month,end:tomorrow,label:'This Month'};
+    case 'last_month':return {start:pm,end:month,label:'Last Month'};
+    case 'custom':return {start:from||'',end:to?pspPerfShiftDay(to,1):'',label:'Custom'};
+    default:return {start:'',end:'',label:'All Time'};
+  }
+}
+function pspPerfInRange(timestamp,b,tz){
+  var d=pspPerfDateKey(timestamp,tz);
+  return !!d&&(!b.start||d>=b.start)&&(!b.end||d<b.end);
+}
+function pspPerfFilterRows(rows,b,tz){
+  var visible=rows.filter(function(s){return pspPerfInRange(s.created_at,b,tz);});
+  var closed=rows.filter(function(s){return s.result_pips!=null&&isFinite(Number(s.result_pips))&&pspPerfInRange(s.closed_at||s.created_at,b,tz);});
+  return {visible:visible,closed:closed};
+}
+function pspPerfSetPeriod(key){
+  if(['all','today','yesterday','this_week','last_week','this_month','last_month','custom'].indexOf(key)<0)return;
+  pspPerfPeriod=key;
+  document.querySelectorAll('#perfPeriodFilters [data-perf-period]').forEach(function(b){b.classList.toggle('active',b.dataset.perfPeriod===key);});
+  var c=document.getElementById('pspPerfCustomDates');if(c)c.style.display=key==='custom'?'flex':'none';
+  if(key!=='custom'&&window._perfRows)renderPerfDash(window._perfRows);
+}
+function pspPerfApplyCustom(){
+  var f=document.getElementById('pspPerfDateFrom'),t=document.getElementById('pspPerfDateTo');
+  if(!f||!t||!f.value||!t.value||f.value>t.value){if(typeof perfToast==='function')perfToast('Choose a valid From / To range');return;}
+  if(window._perfRows)renderPerfDash(window._perfRows);
+}
+document.addEventListener('change',function(e){if(e.target&&e.target.id==='globalTimezone'&&window._perfRows)renderPerfDash(window._perfRows);});
+// PSP V513 PERFORMANCE HELPERS END
+
 function renderPerfDash(rows){
   var el=document.getElementById('perfResults');if(!el)return;
   window._perfRows=rows;
-  var now=new Date();
-  var weekAgo=new Date(now.getTime()-7*86400000);
-  var monthStart=new Date(now.getFullYear(),now.getMonth(),1);
-  var closed=rows.filter(function(s){return s.result_pips!=null;});
-  var wins=closed.filter(function(s){return Number(s.result_pips)>=0;}).length;
-  var losses=closed.length-wins;
-  var tpCount=rows.filter(function(s){return ['tp1','tp2','tp3'].indexOf(s.status)>=0;}).length;
-  var slCount=rows.filter(function(s){return s.status==='sl';}).length;
-  var wr=closed.length?Math.round(wins/closed.length*100):0;
-  var total=0,week=0,month=0;
-  var greenPips=0,redPips=0;
-  closed.forEach(function(s){var p=Number(s.result_pips)||0;var d=new Date(s.closed_at||s.created_at);total+=p;if(p>=0)greenPips+=p;else redPips+=p;if(d>=weekAgo)week+=p;if(d>=monthStart)month+=p;});
+  var now=new Date(),tz=pspPerfTimezone();
+  var inpFrom=document.getElementById('pspPerfDateFrom'),inpTo=document.getElementById('pspPerfDateTo');
+  var bounds=pspPerfBounds(pspPerfPeriod,now,tz,inpFrom&&inpFrom.value,inpTo&&inpTo.value);
+  var selected=pspPerfFilterRows(rows,bounds,tz),visible=selected.visible,closed=selected.closed;
+  var wins=closed.filter(function(s){return Number(s.result_pips)>0;}).length;
+  var losses=closed.filter(function(s){return Number(s.result_pips)<0;}).length;
+  var beCount=closed.length-wins-losses;
+  var tpCount=visible.filter(function(s){return Number(s.tp_hit||0)>=1;}).length;
+  var slCount=visible.filter(function(s){return s.status==='sl';}).length;
+  var wr=(wins+losses)?Math.round(wins/(wins+losses)*100):0;
+  var total=0,greenPips=0,redPips=0;
+  closed.forEach(function(s){var p=Number(s.result_pips);total+=p;if(p>0)greenPips+=p;else if(p<0)redPips+=p;});
+  var cw=pspPerfBounds('this_week',now,tz),cm=pspPerfBounds('this_month',now,tz);
+  var week=0,month=0;
+  rows.forEach(function(s){
+    if(s.result_pips==null||!isFinite(Number(s.result_pips)))return;
+    var ts=s.closed_at||s.created_at,p=Number(s.result_pips);
+    if(pspPerfInRange(ts,cw,tz))week+=p;
+    if(pspPerfInRange(ts,cm,tz))month+=p;
+  });
   var fmt=function(v){return (v>=0?'+':'')+(Math.round(v*10)/10);};
   var col=function(v){return v>=0?'#10b981':'#ef4444';};
-  // last 14 days
-  var days=[];for(var i=13;i>=0;i--){var d=new Date(now);d.setDate(d.getDate()-i);days.push({key:d.toISOString().slice(0,10),label:d.getDate(),count:0});}
-  rows.forEach(function(s){var k=new Date(s.created_at).toISOString().slice(0,10);var dd=days.find(function(x){return x.key===k;});if(dd)dd.count++;});
+  // Preserve the compact chart; its last 14 days stay within the selected period.
+  var chartEnd=bounds.end?pspPerfShiftDay(bounds.end,-1):pspPerfDateKey(now,tz);
+  var chartStart=pspPerfShiftDay(chartEnd,-13);
+  if(bounds.start&&bounds.start>chartStart)chartStart=bounds.start;
+  var days=[],key=chartStart;
+  for(var i=0;i<14&&key<=chartEnd;i++){days.push({key:key,label:Number(key.slice(8,10)),count:0});key=pspPerfShiftDay(key,1);}
+  visible.forEach(function(s){var k=pspPerfDateKey(s.created_at,tz);var dd=days.find(function(x){return x.key===k;});if(dd)dd.count++;});
   var maxC=Math.max.apply(null,[1].concat(days.map(function(d){return d.count;})));
-  // top pairs
-  var pc={};rows.forEach(function(s){if(s.pair)pc[s.pair]=(pc[s.pair]||0)+1;});
+  // Created date controls signal counts/top pairs; closing date controls Pips and Win Rate.
+  var pc={};visible.forEach(function(s){if(s.pair)pc[s.pair]=(pc[s.pair]||0)+1;});
   var pairs=Object.keys(pc).map(function(k){return {pair:k,n:pc[k]};}).sort(function(a,b){return b.n-a.n;}).slice(0,5);
   var maxP=Math.max.apply(null,[1].concat(pairs.map(function(p){return p.n;})));
-  // recent activity
-  var recent=rows.slice(0,6);
-  // monthly goal
+  var recent=visible.slice(0,6);
+  // Goal is always for current month, independent of selected historical filter.
   var goal=5000;
+  try{var savedGoal=Number(localStorage.getItem('psp_month_goal'));if(savedGoal>0&&isFinite(savedGoal))goal=savedGoal;}catch(_){}
   var earned=Math.max(0,month);
   var gpct=goal>0?Math.min(100,Math.round(earned/goal*100)):0;
 
@@ -540,18 +607,21 @@ function renderPerfDash(rows){
     // pips strip (week / month)
     '<div class="sigdash" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px;">'+
       '<div class="tile"><div class="lab">Total Pips</div><div class="val" style="color:'+col(total)+'">'+fmt(total)+'</div></div>'+
-      '<div class="tile"><div class="lab">This Week</div><div class="val" style="color:'+col(week)+'">'+fmt(week)+'</div></div>'+
-      '<div class="tile"><div class="lab">This Month</div><div class="val" style="color:'+col(month)+'">'+fmt(month)+'</div></div>'+
+      (pspPerfPeriod==='all'
+        ? '<div class="tile"><div class="lab">This Week</div><div class="val" style="color:'+col(week)+'">'+fmt(week)+'</div></div>'+
+          '<div class="tile"><div class="lab">This Month</div><div class="val" style="color:'+col(month)+'">'+fmt(month)+'</div></div>'
+        : '<div class="tile"><div class="lab">Signals</div><div class="val">'+visible.length+'</div></div>'+
+          '<div class="tile"><div class="lab">Winning Trades</div><div class="val" style="color:#10b981">'+wins+'</div></div>')+
     '</div>'+
     // Row A
     '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;" class="perf-rowA">'+
-      '<div class="card"><div class="card-title" style="margin-bottom:12px;">🏆 Monthly Pips Goal</div>'+
+      '<div class="card"><div class="card-title" style="margin-bottom:12px;">🏆 Current Month Pips Goal</div>'+
         '<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;"><span style="color:var(--text-muted);">'+fmt(earned)+' earned</span><b style="color:var(--gold);">'+gpct+'%</b></div>'+
         '<div style="height:9px;border-radius:6px;background:rgba(255,255,255,.07);overflow:hidden;margin-bottom:12px;"><div style="height:100%;width:'+gpct+'%;background:linear-gradient(90deg,#f59e0b,#10b981);border-radius:6px;transition:width 1s;"></div></div>'+
-        '<div style="font-size:12px;color:var(--text-muted);">🎯 Target: <b style="color:var(--gold)">5000 pips</b> / month</div>'+
+        '<div style="font-size:12px;color:var(--text-muted);">🎯 Target: <b style="color:var(--gold)">'+goal+' pips</b> / month</div>'+
       '</div>'+
-      '<div class="card"><div class="card-title" style="margin-bottom:12px;">📊 Signals — last 14 days</div>'+bars+'</div>'+
-      '<div class="card"><div class="card-title" style="margin-bottom:8px;">🎯 Win Rate</div><div style="display:flex;flex-direction:column;align-items:center;">'+ring+'<div style="font-size:12px;color:var(--text-muted);margin-top:6px;">'+tpCount+' TP · '+slCount+' SL · '+closed.length+' total</div></div></div>'+
+      '<div class="card"><div class="card-title" style="margin-bottom:12px;">📊 Signals — '+(pspPerfPeriod==='all'?'last 14 days':bounds.label+(days.length===14?' (last 14 days)':''))+'</div>'+bars+'</div>'+
+      '<div class="card"><div class="card-title" style="margin-bottom:8px;">🎯 Win Rate</div><div style="display:flex;flex-direction:column;align-items:center;">'+ring+'<div style="font-size:12px;color:var(--text-muted);margin-top:6px;">'+tpCount+' TP · '+slCount+' SL · '+beCount+' BE · '+closed.length+' total</div></div></div>'+
     '</div>'+
     // Row B
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;" class="perf-rowB">'+
