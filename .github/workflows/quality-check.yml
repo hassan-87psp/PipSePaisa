@@ -34,3 +34,4 @@ jobs:
         run: |
           node --check user-signals-core-v29.js
           node tests/performance-calendar.test.mjs
+          node tests/performance-render.test.mjs
