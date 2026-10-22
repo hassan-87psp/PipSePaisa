@@ -48,6 +48,7 @@ function browser({permanent=true,permission='granted',ios=false,standalone=false
     console, setTimeout, clearTimeout, queueMicrotask
   };
   if(permission===null)delete ctx.Notification;
+  else win.Notification=ctx.Notification;
   vm.runInNewContext(source,ctx,{filename:'push-subscribe-prompt.js',timeout:3000});
   return {win,push,flags,get optIns(){return optIns}};
 }
