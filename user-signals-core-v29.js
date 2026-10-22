@@ -427,9 +427,9 @@ async function loadPerformance(){
   if(!sb)return;
   var hi=document.getElementById('perfHello');if(hi&&currentProfile){var nm=((currentProfile.full_name||currentProfile.email||'Trader')+'').split(' ')[0];hi.textContent='Welcome 👋';}
   try{
-    var sr=await sb.rpc('psp_user_signals_feed_v158',{p_limit:250});
+    var sr=await sb.rpc('psp_user_signals_feed_v158',{p_limit:500});
     if(sr.error || !(sr.data||[]).length){
-      var oldRpc=await sb.rpc('psp_user_signals_feed',{p_limit:250});
+      var oldRpc=await sb.rpc('psp_user_signals_feed',{p_limit:500});
       if(!oldRpc.error && (oldRpc.data||[]).length) sr=oldRpc;
     }
     if(sr.error)sr=await sb.from('signals').select('*').order('created_at',{ascending:false});
