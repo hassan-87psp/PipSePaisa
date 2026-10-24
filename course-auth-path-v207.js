@@ -31,7 +31,7 @@ function read(){const key=currentFromUrl();if(key)return remember(key);const sav
 function clear(){try{sessionStorage.removeItem(STORE);localStorage.removeItem(STORE);}catch(_){}}
 function restoreAttribution(intent){try{if(intent?.attribution&&window.PSPTrack?.restoreAttribution)window.PSPTrack.restoreAttribution(intent.attribution);}catch(_){} }
 function authUrl(key,mode){key=cleanKey(key);const q=new URLSearchParams();q.set('psp_course',key);q.set('psp_auth',mode==='signup'?'signup':'login');const saved=readStored();Object.entries(saved?.tracking||rawTracking()).forEach(([k,v])=>{if(v)q.set(k,String(v))});return '/sign-in?'+q.toString();}
-function appUrl(key){key=cleanKey(key);const q=new URLSearchParams();q.set('open','mycourses');q.set('psp_enroll',key);q.set('psp_course_from_auth','1');return '/?'+q.toString();}
+function appUrl(key){key=cleanKey(key);const q=new URLSearchParams();q.set('open','mycourses');q.set('psp_enroll',key);q.set('psp_course_from_auth','1');return '/my-courses/?'+q.toString();}
 function getClient(){
   if(window.sb?.auth)return window.sb;
   if(client)return client;
