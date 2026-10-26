@@ -637,7 +637,7 @@ gtag('config', 'G-5M0NKERDHF', { anonymize_ip: true });</script>
 (function(){
   const params=new URLSearchParams(location.search);
   const key=String(params.get('psp_enroll')||'').toLowerCase();
-  if(!['basic-b3','basic-b4','fundamental-b2','fundamental-b3','advanced','advance-fundamental','vsa'].includes(key))return;
+  if(!['basic','basic-b1','basic-b2','basic-b3','basic-b4','basic-batch-2','fundamental','fundamental-b1','fundamental-b2','fundamental-b3','advanced','advance-fundamental','vsa'].includes(key))return;
   let tries=0;
   function openTrackedCourse(){
     tries++;
