@@ -1683,7 +1683,7 @@ body.dark-theme .hero-quote p{color:#d9e0ea!important}
   html.psp-desktop-mobile-view .topbar .menu a{font-size:15px;padding:11px 15px}
 }
 </style>
-<link href="psp-public-v40.css?v=20260805-v44" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20261007-v484-canonical-routing"></script>
+<link href="psp-public-v40.css?v=20260805-v44" rel="stylesheet"/><script defer src="/psp-link-tracking-v42.js?v=20261026-team-enroll-fix"></script>
 <link rel="canonical" href="https://www.pipsepaisa.com/sign-up/">
 <link href="/psp-nav-v44.css?v=20260805-v44" rel="stylesheet"/><link href="/psp-mobile-reference-v46.css?v=20260805-v48" rel="stylesheet"/>
 <script src="/psp-direct-signup-v1.js?v=20261016-batch4"></script>
@@ -2183,6 +2183,34 @@ async function landingForgotPassword(){
   }finally{btn.disabled=false;btn.textContent='📧 Send Reset Link';}
 }
 
+// V20261026: Finish free Batch 4 / Fundamental Batch 3 signup here while the
+// authenticated session is available. This avoids a lost post-auth redirect
+// leaving a successfully created account without the selected enrollment.
+async function pspEnsureFreeSignupBatch(user, courseKey, fullName, phone){
+  const k=window.PSPCourseAuthFlow?.cleanKey?.(courseKey)||'';
+  const cfg=k==='basic-b4'
+    ?{key:'basic',batch:'basic_b4',name:'Basic Forex Course — Batch 4'}
+    :k==='fundamental-b3'
+      ?{key:'fundamental',batch:'fundamental_b3',name:'Fundamental Forex Course — Batch 3'}
+      :null;
+  if(!cfg||!user?.id||!landingSb)return null;
+  const current=await landingSb.from('course_enrollments').select('id,psp_batch_key')
+    .eq('user_id',user.id).eq('psp_batch_key',cfg.batch)
+    .order('created_at',{ascending:false}).limit(1).maybeSingle();
+  if(current.error)throw current.error;
+  let row=current.data;
+  if(!row){
+    const saved=await landingSb.from('course_enrollments').insert({
+      user_id:user.id,course_key:cfg.key,course_name:cfg.name,psp_batch_key:cfg.batch,
+      course_type:'free',price:0,currency:'USD',
+      full_name:fullName,email:user.email,whatsapp:phone,
+      payment_status:'not_required',enrollment_status:'enrolled'
+    }).select('id,psp_batch_key').single();
+    if(saved.error)throw saved.error;
+    row=saved.data;
+  }
+  return {id:row.id,courseKey:k,courseName:cfg.name,batch:cfg.batch};
+}
 async function landingSignupUser(){
   const fullName=document.getElementById('landingSignupName')?.value.trim();
   const email=document.getElementById('landingSignupEmail')?.value.trim().toLowerCase();
@@ -2200,16 +2228,40 @@ async function landingSignupUser(){
   if(btn){btn.disabled=true;btn.textContent='⏳ Creating account...';}
   try{
     const username=email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g,'');
-    const metadata={full_name:fullName,username,phone,whatsapp:phone,role:'user',...(window.PSPTrack?.authMetadata?.()||{})};
+    const requestedCourse=window.PSPCourseAuthFlow?.cleanKey?.(new URLSearchParams(location.search).get('psp_course')||new URLSearchParams(location.search).get('psp_enroll'))||'';
+    const metadata={full_name:fullName,username,phone,whatsapp:phone,role:'user',
+      ...(requestedCourse?{psp_course_interest:requestedCourse}:{}),
+      ...(window.PSPTrack?.authMetadata?.()||{})};
     const data=await window.PSPDirectSignup(landingSb,{email,password,metadata});
     if(!data?.user||!data?.session)throw new Error('Account was created, but the login session could not be started.');
+    window.PSPTrack?.useAuthenticatedClient?.(landingSb);
     try{await window.PSPTrack?.signup?.(data.user.id);}catch(_){}
     const courseNext=window.PSPCourseAuthFlow?.afterAuth?.()||'';
     if(courseNext){
-      showLandingAuthMessage('success','Account created. Opening your selected course...','landingSignupMessage');
-      setTimeout(()=>{window.location.href=courseNext;},450);
+      if(['basic-b4','fundamental-b3'].includes(requestedCourse)){
+        try{
+          const enrolled=await pspEnsureFreeSignupBatch(data.user,requestedCourse,fullName,phone);
+          if(enrolled?.id){
+            try{await window.PSPTrack?.enrollment?.(requestedCourse,data.user.id,{enrollment_id:enrolled.id,source:'signup'});}catch(_){}
+            const target=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id,{
+              courseKey:requestedCourse,courseName:enrolled.courseName,enrollmentId:enrolled.id,
+              clientName:fullName,clientEmail:email
+            });
+            if(target?.url){
+              showLandingAuthMessage('success','Account created and '+enrolled.courseName+' enrollment confirmed. Opening assigned Team WhatsApp...','landingSignupMessage');
+              setTimeout(()=>{window.location.assign(target.url);},600);
+              return;
+            }
+          }
+        }catch(enrollErr){
+          console.warn('PipSePaisa free signup enrollment will retry on My Courses:',enrollErr?.message||enrollErr);
+        }
+      }
+      showLandingAuthMessage('success','Account created. Completing your selected course enrollment...','landingSignupMessage');
+      setTimeout(()=>{window.location.assign(courseNext);},450);
       return;
     }
+
     const postSignup=await window.PSPPostSignup?.resolve?.(landingSb,data.user.id)||{mode:'channel',url:'https://whatsapp.com/channel/0029Vb97Ba4KQuJM5FbsHl3v',clientId:''};
     const copy=window.PSPPostSignup?.successCopy?.(postSignup)||{detail:'You are logged in and your account is ready.',note:'Please follow our WhatsApp Channel for important course updates, market insights, and announcements.',redirect:'Redirecting you to our WhatsApp Channel...'};
     const panel=document.getElementById('landingSignupPanel');
