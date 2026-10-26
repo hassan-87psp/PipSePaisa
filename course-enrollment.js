@@ -1141,6 +1141,9 @@
   }
 
   window.openCourseEnrollment=async function(courseKey){
+    // V20261026: always record conversion events through the signed-in
+    // course client, not the anonymous link-click tracker.
+    try{window.PSPTrack?.useAuthenticatedClient?.(getClient());}catch(_){}
     try{
       document.querySelectorAll('.course-modalshell.open').forEach(function(shell){
         shell.classList.remove('open');
