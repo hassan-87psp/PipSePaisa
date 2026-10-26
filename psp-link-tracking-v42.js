@@ -7,6 +7,7 @@
   const VISITOR_KEY='psp_visitor_id_v42';
   const SESSION_KEY='psp_session_id_v42';
   let clientPromise=null;
+  let authenticatedClient=null; // V20261026: bound to the real signed-in user
 
   function makeId(prefix){
     try{return prefix+(crypto.randomUUID?crypto.randomUUID():Math.random().toString(36).slice(2)+Date.now().toString(36));}
@@ -54,6 +55,7 @@
     // browser-supplied user UUID. Using the signed-in client keeps signup /
     // enrollment attribution bound to the real authenticated user.
     if(window.sb?.auth&&typeof window.sb.rpc==='function')return window.sb;
+    if(authenticatedClient?.auth&&typeof authenticatedClient.rpc==='function')return authenticatedClient;
     if(window.__pspTrackingSupabase)return window.__pspTrackingSupabase;
     if(clientPromise)return clientPromise;
     clientPromise=(async()=>{
@@ -241,6 +243,10 @@
 
   window.PSPTrack={
     getAttribution,
+    useAuthenticatedClient:function(value){
+      if(value?.auth&&typeof value.rpc==='function'){authenticatedClient=value;return true;}
+      return false;
+    },
     restoreAttribution:function(value){return saveAttribution(value||{});},
     authMetadata,
     record,
