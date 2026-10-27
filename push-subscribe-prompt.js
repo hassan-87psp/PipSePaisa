@@ -328,6 +328,25 @@ async function silentlyRepairSubscription(){
   }
 }
 
+// V513: verify and quietly repair browser push when the PWA resumes from
+// suspension. Do not claim background delivery if the OS disallows it.
+let pspPushResumeInFlightV513=false;
+let pspPushLastResumeV513=0;
+async function pspPushResumeV513(){
+  if(document.hidden||pspPushResumeInFlightV513)return;
+  if(Date.now()-pspPushLastResumeV513<60000)return;
+  if(!rememberedSubscribed()||!('Notification' in window)||Notification.permission!=="granted")return;
+  pspPushLastResumeV513=Date.now();
+  pspPushResumeInFlightV513=true;
+  try{await silentlyRepairSubscription();}
+  finally{pspPushResumeInFlightV513=false;}
+}
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden)pspPushResumeV513();
+});
+window.addEventListener('pageshow',function(){pspPushResumeV513();});
+window.addEventListener('focus',function(){pspPushResumeV513();});
+
 async function subscribeCurrentDevice(){
   // Always verify OneSignal on an explicit subscribe request. The old
   // permanent localStorage flag alone is NOT proof of a working subscription.
@@ -511,7 +530,7 @@ async function start(){
   */
   if(rememberedSubscribed()){
     removePrompt();
-    setTimeout(function(){silentlyRepairSubscription();},900);
+    setTimeout(pspPushResumeV513,900);
     return;
   }
 
