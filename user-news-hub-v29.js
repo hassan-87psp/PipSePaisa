@@ -1,6 +1,6 @@
         const NH_PROXY = 'https://pipsepaisa-api.vercel.app/api/news';
         const NH_CATS={conflict:{bg:'rgba(239,68,68,0.12)',c:'var(--red)',l:'⚔️ Conflict',w:['war','strike','attack','military','troops','bomb','missile','killed','wounded','battle','invasion','explosion','coup','rebel','terror','drone','army','shooting','hostage','airstrike','shelling']},geopolitics:{bg:'rgba(139,92,246,0.12)',c:'var(--purple)',l:'🌍 Geopolitics',w:['geopolit','nato','sanction','diplomatic','foreign policy','alliance','treaty','un security','g7','g20','territorial','nuclear deal','peace talks','ceasefire','strait','blockade','embargo']},forex:{bg:'rgba(245,158,11,0.12)',c:'var(--gold)',l:'💹 Forex',w:['forex','xau/usd','xauusd','eurusd','gbpusd','usdjpy','gold price','currency','dollar index','pip','spread','fx market','forexlive','fxstreet','exchange rate']},fundamental:{bg:'rgba(20,184,166,0.12)',c:'#14b8a6',l:'📊 Fundamental',w:['gdp','inflation','cpi','ppi','nonfarm','interest rate','federal reserve','fed rate','central bank','monetary policy','rate hike','rate cut','fomc','ecb','boe','unemployment','jobs report','retail sales']},usnews:{bg:'rgba(236,72,153,0.12)',c:'#ec4899',l:'🇺🇸 US News',w:['trump','biden','white house','congress','senate','us economy','federal','pentagon','wall street','new york','california','washington dc','republican','democrat','tariff']},political:{bg:'rgba(59,130,246,0.12)',c:'var(--blue)',l:'🏛️ Political',w:['president','parliament','election','vote','government','minister','prime minister','summit','policy','political','ruling party','opposition']},disaster:{bg:'rgba(249,115,22,0.12)',c:'var(--orange)',l:'🌪️ Disaster',w:['earthquake','flood','hurricane','cyclone','tsunami','storm','wildfire','drought','eruption','disaster','emergency','rescue','evacuate','death toll','tornado']},economic:{bg:'rgba(16,185,129,0.12)',c:'var(--green)',l:'💰 Economic',w:['economy','market','stock','oil price','crude','opec','budget','fiscal','imf','world bank','trade deal','recession']}};
-        let nhNews=[],nhFilter='all',nhFetching=false;
+        let nhNews=[],nhFilter='all',nhFetching=false,nhSelectedStory=null;
         let nhKws=JSON.parse(localStorage.getItem('nhKws')||'["Iran","Gold","Trump","War","Fed"]');
         let nhNotifOn=false,nhSeen=new Set(),nhFirstLoad=true;
 
@@ -25,6 +25,16 @@
             const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
             const el=document.getElementById('nhLastUp');if(el)el.textContent='Updated '+now;
             nhUpdateStats();nhRender();nhRenderForex();nhUpdateImpact();
+            if(nhSelectedStory && !window.matchMedia('(max-width:820px)').matches){
+              const idx=nhNews.findIndex(n=>(n.link||n.url||n.title)===nhSelectedStory);
+              const detail=document.getElementById('nhDetail');
+              if(idx>=0 && detail){
+                const n=nhNews[idx];detail.innerHTML=nhDetailHTML(n,NH_CATS[n.cat]||NH_CATS.political);
+                const row=document.getElementById('nhni'+idx);if(row)row.classList.add('active');
+              }else if(detail){
+                nhSelectedStory=null;detail.innerHTML='<div class="nh-loading">Select a headline to view its details.</div>';
+              }
+            }
           }catch(e){
             if(!nhNews.length)document.getElementById('nhList').innerHTML=`<div class="nh-err" style="margin:12px">❌ Could not load news<br><small style="opacity:.7">${e.message}</small></div>`;
             else console.warn('News refresh failed; showing previous headlines',e);
@@ -43,29 +53,44 @@
         }
 
         function nhEsc(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-        // Measured prices only. These are NOT predictions or causally verified news effects.
+        // Movement labels describe price change, not news sentiment.
+        function nhMoveGrade(p){
+          const t={
+            'EURUSD=X':[0.035,0.30],'USDJPY=X':[0.035,0.35],
+            'DX-Y.NYB':[0.04,0.35],'GC=F':[0.09,0.85],'CL=F':[0.15,1.50]
+          }[p.symbol]||[0.05,0.75];
+          const x=p.changePercent;
+          if(Math.abs(x)<t[0])return {label:'Neutral',icon:'●',fg:'#64748b',bg:'rgba(100,116,139,.10)'};
+          if(x>=t[1])return {label:'Strong Positive',icon:'▲▲',fg:'#065f46',bg:'rgba(5,150,105,.14)'};
+          if(x>0)return {label:'Positive',icon:'▲',fg:'#15803d',bg:'rgba(22,163,74,.10)'};
+          if(x<=-t[1])return {label:'Strong Negative',icon:'▼▼',fg:'#991b1b',bg:'rgba(220,38,38,.14)'};
+          return {label:'Negative',icon:'▼',fg:'#dc2626',bg:'rgba(239,68,68,.10)'};
+        }
         async function nhUpdateImpact(){
           const el=document.getElementById('nhImpact');if(!el)return;
-          if(!el.dataset.pricesLoaded)el.innerHTML='<div class="nh-impact-row"><span class="nh-neut">Fetching published prices...</span></div>';
+          if(!el.dataset.pricesLoaded)el.innerHTML='<div class="nh-impact-row nh-neut">Loading observed market direction...</div>';
           try{
-            const r=await fetch('https://pipsepaisa-api.vercel.app/api/market-moves',{signal:AbortSignal.timeout(9500)});
-            if(!r.ok)throw new Error('Price source unavailable');
-            const d=await r.json();
-            const prices=Array.isArray(d.prices)?d.prices.filter(p=>p&&typeof p.label==='string'&&Number.isFinite(p.price)&&Number.isFinite(p.previousClose)&&Number.isFinite(p.changePercent)&&p.previousClose>0&&!isNaN(Date.parse(p.asOf))):[];
-            if(!prices.length)throw new Error('No observations available');
-            el.innerHTML=prices.map(p=>{
-              const cls=p.changePercent>0?'nh-bull':p.changePercent<0?'nh-bear':'nh-neut';
-              const arrow=p.changePercent>0?'▲':p.changePercent<0?'▼':'—';
-              const sign=p.changePercent>0?'+':'';
-              const at=new Date(p.asOf).toLocaleString([],{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-              return '<div class="nh-impact-row" style="display:block"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'+
+            const response=await fetch('https://pipsepaisa-api.vercel.app/api/market-moves',{signal:AbortSignal.timeout(9500)});
+            if(!response.ok)throw new Error('market prices unavailable');
+            const data=await response.json();
+            const items=Array.isArray(data.prices)?data.prices.filter(p=>p&&typeof p.label==='string'&&Number.isFinite(p.price)&&Number.isFinite(p.previousClose)&&Number.isFinite(p.changePercent)&&p.previousClose>0&&Number.isFinite(Date.parse(p.asOf))):[];
+            if(!items.length)throw new Error('No usable quotes');
+            el.innerHTML=items.map(p=>{
+              const grade=nhMoveGrade(p);
+              const stale=(Date.now()-Date.parse(p.asOf))>90*60000;
+              const label=stale?'Last recorded move':grade.label,icon=stale?'◷':grade.icon;
+              const fg=stale?'#64748b':grade.fg,bg=stale?'rgba(100,116,139,.09)':grade.bg;
+              const stamped=nhEsc(new Date(p.asOf).toLocaleString());
+              return '<div class="nh-impact-row" style="gap:6px">'+
                 '<span style="font-weight:700;color:var(--text-secondary)">'+nhEsc(p.label)+'</span>'+
-                '<span class="'+cls+'">'+arrow+' '+sign+p.changePercent.toFixed(3)+'%</span></div>'+
-                '<div style="font-size:10px;color:var(--text-muted);margin-top:3px">Last '+nhEsc(p.price)+' · Prev '+nhEsc(p.previousClose)+' · '+nhEsc(at)+'</div></div>';
-            }).join('')+'<div style="padding:9px 14px;font-size:10px;color:var(--text-muted);line-height:1.5">Yahoo Finance · May be delayed · Change vs previous close · Not verified as a reaction to any specific news.</div>';
+                '<span title="Observed price change vs previous close · '+stamped+'" style="display:inline-flex;gap:4px;align-items:center;white-space:nowrap;'+
+                'padding:5px 7px;border-radius:6px;font-size:10px;font-weight:800;color:'+fg+';background:'+bg+'">'+icon+' '+label+'</span></div>';
+            }).join('')+
+              '<div style="padding:8px 14px;font-size:9px;color:var(--text-muted);line-height:1.4">'+
+              'Price direction vs previous close · Yahoo Finance (may be delayed). Not individual-news sentiment.</div>';
             el.dataset.pricesLoaded='1';
           }catch(err){
-            el.innerHTML='<div class="nh-impact-row nh-neut">Published market prices unavailable. No estimate shown.</div>';
+            el.innerHTML='<div class="nh-impact-row nh-neut">Market direction unavailable. No guesses shown.</div>';
             delete el.dataset.pricesLoaded;
           }
         }
@@ -119,10 +144,10 @@
 
               <span style="margin-left:auto;font-size:10px;color:var(--text-muted)">${nhAgo(n.date)} · ${n.source}</span>
             </div>
-            <div style="font-size:16px;font-weight:700;line-height:1.3;margin-bottom:8px;color:var(--text-primary)">${n.title}</div>
+            <div style="font-size:16px;font-weight:700;line-height:1.3;margin-bottom:8px;color:var(--text-primary)">${nhEsc(n.title)}</div>
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap"><span>🕐 ${new Date(n.date).toLocaleString()}</span></div>
             ${n.desc?`<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px">${n.desc}...</div>`:''}
-            <a href="${n.link}" target="_blank" class="btn btn-primary" style="font-size:13px">Read Full Story ↗</a>`;
+            <a href="${nhEsc(n.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size:13px">Read This Story ↗</a>`;
         }
 
         // Mobile inline: headline/badge/location are already shown in the list row above,
@@ -133,11 +158,12 @@
               <span>🕐 ${new Date(n.date).toLocaleString()}</span><span>📰 ${n.source}</span>
             </div>
             ${n.desc?`<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px">${n.desc}...</div>`:'<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Open the full story for more details.</div>'}
-            <a href="${n.link}" target="_blank" class="btn btn-primary" style="font-size:13px">Read Full Story ↗</a>`;
+            <a href="${nhEsc(n.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size:13px">Read This Story ↗</a>`;
         }
 
         function nhDetail(idx){
           const n=nhNews[idx];if(!n)return;
+          nhSelectedStory=n.link||n.url||n.title;
           const s=NH_CATS[n.cat]||NH_CATS.political;
           const isMobile=window.matchMedia('(max-width:820px)').matches;
 
