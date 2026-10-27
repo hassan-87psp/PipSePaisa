@@ -1771,7 +1771,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
               <div style="font-size:22px">📡</div>
               <div>
                 <div style="font-size:16px;font-weight:800">World News Hub</div>
-                <div style="font-size:11px;color:var(--text-muted)">Latest global headlines • Observed market moves • Headline alerts</div>
+                <div style="font-size:11px;color:var(--text-muted)">Latest global headlines • Individual article price observations • Headline alerts</div>
               </div>
               <span style="background:var(--red);color:white;font-size:9px;font-weight:800;padding:2px 8px;border-radius:20px;animation:pulse 2s infinite">LATEST</span>
             </div>
@@ -1814,6 +1814,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
               <div style="padding:10px;border-bottom:1px solid var(--border);background:var(--bg-card)">
                 <div class="nh-tabs">
                   <button class="nh-tab active" onclick="nhSetFilter('all',this)">📡 All</button>
+                   <button class="nh-tab" onclick="nhSetFilter('bloomberg',this)">📰 Bloomberg</button>
                   <button class="nh-tab" onclick="nhSetFilter('forex',this)">💹 Forex</button>
                   <button class="nh-tab" onclick="nhSetFilter('conflict',this)">⚔️ War</button>
                   <button class="nh-tab" onclick="nhSetFilter('geopolitics',this)">🌍 Geo</button>
@@ -1839,8 +1840,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
               </div>
             </div>
             <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px">
-              <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700">📈 Market Direction</div>
-              <div id="nhImpact"><div class="nh-impact-row"><span style="font-weight:700;color:var(--text-secondary)">Loading...</span></div></div>
+              <div style="padding:12px 14px;border-bottom:1px solid var(--border);font-size:12px;font-weight:700">📈 Selected News · 30m Price Move</div>
+              <div id="nhImpact"><div class="nh-impact-row"><span style="font-weight:700;color:var(--text-secondary)">Select a headline to check its market reaction.</span></div></div>
             </div>
             <div class="card" style="padding:14px">
               <div style="font-size:12px;font-weight:700;margin-bottom:10px">📈 Forex & Fundamental</div>
@@ -1850,7 +1851,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         </div>
         <div id="nhToasts" style="position:fixed;bottom:80px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:300px"></div>
 
-        <script src="user-news-hub-v29.js?v=20261027-green-red-v3"></script>
+        <script src="user-news-hub-v29.js?v=20261027-bloomberg-pernews-v4"></script>
       </div>
 
       <!-- ========== CURRENCY STRENGTH ========== -->
