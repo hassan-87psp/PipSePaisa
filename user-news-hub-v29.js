@@ -24,15 +24,15 @@
             nhNews.forEach(n=>{if(!nhSeen.has(n.id)){const fresh=!nhFirstLoad;nhSeen.add(n.id);if(fresh)nhCheckNotif(n);}});nhFirstLoad=false;
             const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
             const el=document.getElementById('nhLastUp');if(el)el.textContent='Updated '+now;
-            nhUpdateStats();nhRender();nhRenderForex();nhUpdateImpact();
+            nhUpdateStats();nhRender();nhRenderForex();
             if(nhSelectedStory && !window.matchMedia('(max-width:820px)').matches){
               const idx=nhNews.findIndex(n=>(n.link||n.url||n.title)===nhSelectedStory);
               const detail=document.getElementById('nhDetail');
               if(idx>=0 && detail){
-                const n=nhNews[idx];detail.innerHTML=nhDetailHTML(n,NH_CATS[n.cat]||NH_CATS.political);
+                const n=nhNews[idx];detail.innerHTML=nhDetailHTML(n,NH_CATS[n.cat]||NH_CATS.political);nhUpdateImpact(n);
                 const row=document.getElementById('nhni'+idx);if(row)row.classList.add('active');
               }else if(detail){
-                nhSelectedStory=null;detail.innerHTML='<div class="nh-loading">Select a headline to view its details.</div>';
+                nhSelectedStory=null;detail.innerHTML='<div class="nh-loading">Select a headline to view its details.</div>';nhUpdateImpact(null);
               }
             }
           }catch(e){
@@ -53,50 +53,58 @@
         }
 
         function nhEsc(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-        // Movement labels describe price change, not news sentiment.
-        function nhMoveGrade(p){
-          const t={
-            'EURUSD=X':[0.035,0.30],'USDJPY=X':[0.035,0.35],
-            'DX-Y.NYB':[0.04,0.35],'GC=F':[0.09,0.85],'CL=F':[0.15,1.50]
-          }[p.symbol]||[0.05,0.75];
-          const x=p.changePercent;
-          if(Math.abs(x)<t[0])return {label:'Neutral',icon:'●',fg:'#64748b',bg:'rgba(100,116,139,.10)'};
-          if(x>=t[1])return {label:'Strong Positive',icon:'▲▲',fg:'#065f46',bg:'rgba(5,150,105,.14)'};
-          if(x>0)return {label:'Positive',icon:'▲',fg:'#15803d',bg:'rgba(22,163,74,.10)'};
-          if(x<=-t[1])return {label:'Strong Negative',icon:'▼▼',fg:'#991b1b',bg:'rgba(220,38,38,.14)'};
-          return {label:'Negative',icon:'▼',fg:'#dc2626',bg:'rgba(239,68,68,.10)'};
+        // This panel refers ONLY to the selected headline, never the overall market.
+        // No directional statement without time-matched observed price candles.
+        let nhReactionSequence=0;
+        function nhReactionBadge(label){
+          const colors={
+            'Strong Positive':['▲▲','#065f46','rgba(5,150,105,.14)'],
+            'Positive':['▲','#15803d','rgba(22,163,74,.10)'],
+            'Neutral':['●','#64748b','rgba(100,116,139,.10)'],
+            'Negative':['▼','#dc2626','rgba(239,68,68,.10)'],
+            'Strong Negative':['▼▼','#991b1b','rgba(220,38,38,.14)']
+          };
+          const v=colors[label];
+          if(!v)return '<span class="nh-neut">Not verified</span>';
+          return '<span style="display:inline-flex;align-items:center;gap:5px;white-space:nowrap;border-radius:6px;'+
+            'padding:5px 7px;font-size:10px;font-weight:800;color:'+v[1]+';background:'+v[2]+'">'+v[0]+' '+nhEsc(label)+'</span>';
         }
-        async function nhUpdateImpact(){
+        async function nhUpdateImpact(article){
           const el=document.getElementById('nhImpact');if(!el)return;
-          if(!el.dataset.pricesLoaded)el.innerHTML='<div class="nh-impact-row nh-neut">Loading observed market direction...</div>';
+          const seq=++nhReactionSequence;
+          if(!article){el.innerHTML='<div class="nh-impact-row nh-neut">Select a headline to check its 30-minute market reaction.</div>';return;}
+          el.innerHTML='<div class="nh-impact-row nh-neut">Checking the published-time market move...</div>';
           try{
-            const response=await fetch('https://pipsepaisa-api.vercel.app/api/market-moves',{signal:AbortSignal.timeout(9500)});
-            if(!response.ok)throw new Error('market prices unavailable');
-            const data=await response.json();
-            const items=Array.isArray(data.prices)?data.prices.filter(p=>p&&typeof p.label==='string'&&Number.isFinite(p.price)&&Number.isFinite(p.previousClose)&&Number.isFinite(p.changePercent)&&p.previousClose>0&&Number.isFinite(Date.parse(p.asOf))):[];
-            if(!items.length)throw new Error('No usable quotes');
-            el.innerHTML=items.map(p=>{
-              const grade=nhMoveGrade(p);
-              const stale=(Date.now()-Date.parse(p.asOf))>90*60000;
-              const label=stale?'Last recorded move':grade.label,icon=stale?'◷':grade.icon;
-              const fg=stale?'#64748b':grade.fg,bg=stale?'rgba(100,116,139,.09)':grade.bg;
-              const stamped=nhEsc(new Date(p.asOf).toLocaleString());
-              return '<div class="nh-impact-row" style="gap:6px">'+
-                '<span style="font-weight:700;color:var(--text-secondary)">'+nhEsc(p.label)+'</span>'+
-                '<span title="Observed price change vs previous close · '+stamped+'" style="display:inline-flex;gap:4px;align-items:center;white-space:nowrap;'+
-                'padding:5px 7px;border-radius:6px;font-size:10px;font-weight:800;color:'+fg+';background:'+bg+'">'+icon+' '+label+'</span></div>';
-            }).join('')+
-              '<div style="padding:8px 14px;font-size:9px;color:var(--text-muted);line-height:1.4">'+
-              'Price direction vs previous close · Yahoo Finance (may be delayed). Not individual-news sentiment.</div>';
-            el.dataset.pricesLoaded='1';
-          }catch(err){
-            el.innerHTML='<div class="nh-impact-row nh-neut">Market direction unavailable. No guesses shown.</div>';
-            delete el.dataset.pricesLoaded;
+            const params=new URLSearchParams({title:article.title||'',at:article.date||''});
+            const r=await fetch('https://pipsepaisa-api.vercel.app/api/news-reaction?'+params.toString(),{signal:AbortSignal.timeout(9500)});
+            if(!r.ok)throw Error('Source unavailable');
+            const d=await r.json();
+            if(seq!==nhReactionSequence)return;
+            if(d.status!=='observed'||!Array.isArray(d.observations)||!d.observations.length){
+              const descriptions={
+                not_applicable:'No directly named market instrument. No impact claimed.',
+                pending:'30-minute post-publication observation is not complete yet.',
+                unavailable:'No verified 30-minute price observations for this news.'
+              };
+              el.innerHTML='<div style="padding:12px 14px;font-size:11px;color:var(--text-muted);line-height:1.5">'+
+                nhEsc(descriptions[d.status]||'Impact cannot be verified.')+'</div>';
+              return;
+            }
+            el.innerHTML=d.observations.map(o=>
+              '<div class="nh-impact-row" style="gap:8px">'+
+              '<span style="font-weight:700;color:var(--text-secondary)">'+nhEsc(o.instrument)+'</span>'+
+              nhReactionBadge(o.sentiment)+'</div>'
+            ).join('')+
+              '<div style="padding:9px 14px;font-size:10px;color:var(--text-muted);line-height:1.45">'+
+              'Observed price move in 30 minutes after publication · Yahoo Finance (may be delayed). '+
+              'Movement does not prove the news caused it.</div>';
+          }catch(e){
+            if(seq===nhReactionSequence)el.innerHTML='<div class="nh-impact-row nh-neut">Verified data unavailable. No sign shown.</div>';
           }
         }
 
         function nhRender(){
-          const items=nhFilter==='all'?nhNews:nhNews.filter(n=>n.cat===nhFilter);
+          const items=nhFilter==='all'?nhNews:nhFilter==='bloomberg'?nhNews.filter(n=>/bloomberg/i.test(n.source||'')):nhNews.filter(n=>n.cat===nhFilter);
           const el=document.getElementById('nhList');if(!el)return;
           if(!items.length){el.innerHTML='<div class="nh-loading">No news in this category</div>';return;}
           el.innerHTML=items.map((item)=>{
@@ -107,8 +115,8 @@
 
                 <span style="margin-left:auto;font-size:9px;color:var(--text-muted)">${nhAgo(item.date)}</span>
               </div>
-              <div style="font-size:12px;font-weight:600;line-height:1.4;margin-bottom:4px;color:var(--text-primary)">${item.title}</div>
-              <div style="font-size:10px;color:var(--text-muted);display:flex;gap:4px">📰 ${item.source}</div>
+              <div style="font-size:12px;font-weight:600;line-height:1.4;margin-bottom:4px;color:var(--text-primary)">${nhEsc(item.title)}</div>
+              <div style="font-size:10px;color:var(--text-muted);display:flex;gap:4px">📰 ${nhEsc(item.source)}</div>
             </div>`;
           }).join('');
         }
@@ -146,7 +154,7 @@
             </div>
             <div style="font-size:16px;font-weight:700;line-height:1.3;margin-bottom:8px;color:var(--text-primary)">${nhEsc(n.title)}</div>
             <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap"><span>🕐 ${new Date(n.date).toLocaleString()}</span></div>
-            ${n.desc?`<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px">${n.desc}...</div>`:''}
+            ${n.desc?`<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px">${nhEsc(n.desc)}...</div>`:''}
             <a href="${nhEsc(n.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size:13px">Read This Story ↗</a>`;
         }
 
@@ -157,13 +165,14 @@
             <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap">
               <span>🕐 ${new Date(n.date).toLocaleString()}</span><span>📰 ${n.source}</span>
             </div>
-            ${n.desc?`<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px">${n.desc}...</div>`:'<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Open the full story for more details.</div>'}
+            ${n.desc?`<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px">${nhEsc(n.desc)}...</div>`:'<div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Open the full story for more details.</div>'}
             <a href="${nhEsc(n.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size:13px">Read This Story ↗</a>`;
         }
 
         function nhDetail(idx){
           const n=nhNews[idx];if(!n)return;
           nhSelectedStory=n.link||n.url||n.title;
+          nhUpdateImpact(n);
           const s=NH_CATS[n.cat]||NH_CATS.political;
           const isMobile=window.matchMedia('(max-width:820px)').matches;
 
