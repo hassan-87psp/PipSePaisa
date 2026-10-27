@@ -184,6 +184,15 @@
     return 0.0001;
   }
   
+  // V516: HOT notification deep links must survive INITIAL_SESSION / SIGNED_IN.
+  // Generic auth URL cleanup previously erased news_url before the news screen loaded.
+  function pspPreservePushRouteV516(){
+    try{
+      const q=new URLSearchParams(location.search);
+      return q.get('page')==='newshub' && Boolean(q.get('news_url')||q.get('news_title'));
+    }catch(_){return false;}
+  }
+
   // ============ NAVIGATION ============
   // V30: only tabs explicitly enabled by admin are shown. While settings load,
   // controlled tabs fail closed so a new user never sees disabled pages flash.
@@ -5537,7 +5546,7 @@
 
       try {
         localStorage.setItem('pipsepaisa_last_login_email', email);
-        history.replaceState(null, '', location.pathname.replace(/index\.html$/,''));
+        if(!pspPreservePushRouteV516()) history.replaceState(null, '', location.pathname.replace(/index\.html$/,''));
       } catch (e) {}
 
       setTimeout(function () {
@@ -5723,7 +5732,7 @@
 
           try{
             localStorage.setItem('pipsepaisa_last_login_email',email);
-            history.replaceState(null,'',location.pathname.replace(/index\.html$/,''));
+            if(!pspPreservePushRouteV516()) history.replaceState(null,'',location.pathname.replace(/index\.html$/,''));
           }catch(e){}
 
           reply({ok:true});
@@ -5855,7 +5864,7 @@
         ) {
           if (session && session.user) {
             queueAuthenticatedUser(session.user);
-            try { history.replaceState(null, '', location.pathname.replace(/index\.html$/,'')); } catch(e) {}
+            try { if(!pspPreservePushRouteV516()) history.replaceState(null, '', location.pathname.replace(/index\.html$/,'')); } catch(e) {}
           }
         } else if (event === 'SIGNED_OUT') {
           // V217: Supabase refresh tokens are single-use. A stale embedded/mobile
