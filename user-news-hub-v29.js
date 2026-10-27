@@ -13,21 +13,21 @@
         function nhAgo(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+' min ago';if(s<86400)return Math.floor(s/3600)+' hr ago';return Math.floor(s/86400)+'d ago';}
 
 
-        // Freshness tags come only from the article publication timestamp.
-        // HOT < 1 hour, WARM 1–6 hours, COLD >= 6 hours.
-        // They do not imply importance, accuracy, or market impact.
-        function nhHeatInfo(date){
-          const time=Date.parse(date);
-          if(!Number.isFinite(time))return null;
-          const age=Date.now()-time;
-          if(age < -60000)return null; // Future timestamps are not labelled "hot".
-          if(age < 60*60*1000)return {key:'hot',label:'🔥 HOT',detail:'Published within the last hour'};
-          if(age < 6*60*60*1000)return {key:'warm',label:'☀️ WARM',detail:'Published 1 to 6 hours ago'};
-          return {key:'cold',label:'❄️ COLD',detail:'Published more than 6 hours ago'};
+        // Headline-based potential market sensitivity, NOT age or confirmed price reaction.
+        // Backend grades from published title only. Fail closed to COLD when data is missing.
+        function nhHeatInfo(article){
+          const value=article&&typeof article==='object'?article.heat:null;
+          const key=['hot','warm','cold'].includes(value)?value:'cold';
+          const labels={
+            hot:{key:'hot',label:'🔥 HOT',detail:'Potentially major Gold, USD or FX market-moving event. Headline classification, not confirmed market impact.'},
+            warm:{key:'warm',label:'☀️ WARM',detail:'Relevant economic or policy news, preview or commentary. Market reaction not confirmed.'},
+            cold:{key:'cold',label:'❄️ COLD',detail:'Routine or less-directly relevant news. Not a measured market reaction.'}
+          };
+          return labels[key];
         }
-        function nhHeatBadge(date){
-          const h=nhHeatInfo(date);
-          return h?'<span class="nh-heat nh-heat-'+h.key+'" title="'+h.detail+'">'+h.label+'</span>':'';
+        function nhHeatBadge(article){
+          const v=nhHeatInfo(article),info=article&&article.heatReason?String(article.heatReason):'';
+          return '<span class="nh-heat nh-heat-'+v.key+'" title="'+nhEsc(v.detail+(info?' '+info:''))+'">'+v.label+'</span>';
         }
         function nhSetHeatFilter(level,button){
           nhHeatFilter=['all','hot','warm','cold'].includes(level)?level:'all';
@@ -133,7 +133,7 @@
 
         function nhRender(){
           const categoryItems=nhFilter==='all'?nhNews:nhFilter==='focus'?nhNews.filter(n=>n.marketFocus===true):nhFilter==='bloomberg'?nhNews.filter(n=>/bloomberg/i.test(n.source||'')):nhNews.filter(n=>n.cat===nhFilter);
-          const items=nhHeatFilter==='all'?categoryItems:categoryItems.filter(n=>nhHeatInfo(n.date)?.key===nhHeatFilter);
+          const items=nhHeatFilter==='all'?categoryItems:categoryItems.filter(n=>nhHeatInfo(n).key===nhHeatFilter);
           const el=document.getElementById('nhList');if(!el)return;
           const count=document.getElementById('nhEC');if(count)count.textContent=items.length;
           if(!items.length){el.innerHTML='<div class="nh-loading">'+(nhFilter==='focus'?'No recent trading-related headlines verified. Choose All for other news.':'No news matches these filters')+'</div>';return;}
@@ -142,7 +142,7 @@
             return`<div class="nh-nitem${nhSelectedStory===(item.link||item.url||item.title)?' active':''}" onclick="nhDetail(${idx})" id="nhni${idx}">
               <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:wrap">
                 <span class="nh-cat" style="background:${s.bg};color:${s.c}">${s.l}</span>
-                ${nhHeatBadge(item.date)}
+                ${nhHeatBadge(item)}
                 ${nhFilter==='all'&&item.marketFocus?'<span class="nh-focus-tag">⚡ Market Focus</span>':''}
                 <span style="margin-left:auto;font-size:9px;color:var(--text-muted)">${nhAgo(item.date)}</span>
               </div>
@@ -180,7 +180,7 @@
           return `
             <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;flex-wrap:wrap">
               <span class="nh-cat" style="background:${s.bg};color:${s.c};font-size:10px;padding:3px 10px">${s.l}</span>
-              ${nhHeatBadge(n.date)}
+              ${nhHeatBadge(n)}
               <span style="margin-left:auto;font-size:10px;color:var(--text-muted)">${nhAgo(n.date)} · ${n.source}</span>
             </div>
             <div style="font-size:16px;font-weight:700;line-height:1.3;margin-bottom:8px;color:var(--text-primary)">${nhEsc(n.title)}</div>
