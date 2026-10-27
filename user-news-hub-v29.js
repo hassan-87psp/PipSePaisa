@@ -240,7 +240,21 @@
         function nhAddKw(){const inp=document.getElementById('nhKwInput');if(!inp)return;const v=inp.value.trim();if(v&&!nhKws.includes(v)){nhKws.push(v);localStorage.setItem('nhKws',JSON.stringify(nhKws));inp.value='';nhRenderNotif();}}
         function nhRemoveKw(i){nhKws.splice(i,1);localStorage.setItem('nhKws',JSON.stringify(nhKws));nhRenderNotif();}
         async function nhRequestNotif(){const p=await Notification.requestPermission();if(p==='granted')nhNotifOn=true;nhRenderNotif();}
-        function nhCheckNotif(item){const tx=(item.title+' '+item.desc).toLowerCase();const match=nhKws.some(kw=>tx.includes(kw.toLowerCase()));if(!match)return;nhShowToast(item);if(Notification.permission==='granted'){try{new Notification('📡 '+item.title.slice(0,80),{body:item.source,tag:item.id});}catch(e){}}}
+        function nhCheckNotif(item){
+          // Client popups only for HOT stories. The server sends push to subscribed
+          // devices; do not create a second native Notification for the same story.
+          if(!item||item.heat!=='hot')return;
+          const tx=(item.title+' '+(item.desc||'')).toLowerCase();
+          const match=nhKws.some(kw=>tx.includes(String(kw).toLowerCase()));
+          if(!match)return;
+          nhShowToast(item);
+          const serverSubscribed=typeof window.pspPushGetState==='function'&&
+            window.pspPushGetState()==='on';
+          if(!serverSubscribed && 'Notification' in window && Notification.permission==='granted'){
+            try{new Notification('🔥 HOT Market News: '+item.title.slice(0,75),
+              {body:item.source,tag:'psp-hot-'+item.id});}catch(e){}
+          }
+        }
         function nhShowToast(item){const s=NH_CATS[item.cat]||NH_CATS.political;const tc=document.getElementById('nhToasts');if(!tc)return;if(!document.getElementById('nhClearBtn')){const cb=document.createElement('button');cb.id='nhClearBtn';cb.textContent='✕ Clear all';cb.style.cssText='pointer-events:all;cursor:pointer;align-self:flex-end;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-primary);font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;font-family:inherit';cb.onclick=nhClearToasts;tc.appendChild(cb);}const t=document.createElement('div');t.className='nh-toast';t.style.cssText=`background:var(--bg-card);border:1px solid var(--border);border-left:3px solid ${s.c};border-radius:10px;padding:12px 14px;pointer-events:all;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.4)`;t.innerHTML=`<div style="font-size:9px;font-weight:800;text-transform:uppercase;color:${s.c};margin-bottom:4px">${s.l}</div><div style="font-size:12px;font-weight:600;line-height:1.4;color:var(--text-primary)">${item.title.slice(0,90)}</div><div style="font-size:10px;color:var(--text-muted);margin-top:3px">${item.source}</div>`;t.onclick=()=>{t.remove();nhMaybeHideClear();};tc.appendChild(t);const all=Array.prototype.slice.call(tc.querySelectorAll('.nh-toast'));while(all.length>3){all.shift().remove();}setTimeout(()=>{t.remove();nhMaybeHideClear();},8000);}
         function nhClearToasts(){const tc=document.getElementById('nhToasts');if(tc)tc.innerHTML='';}
         function nhMaybeHideClear(){const tc=document.getElementById('nhToasts');if(tc&&!tc.querySelector('.nh-toast')){const cb=document.getElementById('nhClearBtn');if(cb)cb.remove();}}
