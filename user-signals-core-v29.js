@@ -970,10 +970,37 @@ function renderArticles(){
   });
   g.innerHTML=html;
 }
+function pspArtHtmlEscV514(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function pspArtSafeImageV514(url){
+  try{const u=new URL(String(url||''),location.href);return u.protocol==='https:'||u.protocol==='http:'?u.href:'';}catch(_){return '';}
+}
+function pspArtOpenImageV514(i){
+  const a=ARTICLES[i],viewer=document.getElementById('pspArtImageViewer'),image=document.getElementById('pspArtImageFull');
+  if(!a||!viewer||!image||!a.image)return;
+  const src=pspArtSafeImageV514(a.image);if(!src)return;
+  image.src=src;image.alt=String(a.title||'PipSePaisa chart');image.style.transform='scale(1)';
+  viewer.classList.add('open');viewer.setAttribute('aria-hidden','false');
+  document.getElementById('pspArtImageClose')?.focus({preventScroll:true});
+}
+function pspArtCloseImageV514(){
+  const viewer=document.getElementById('pspArtImageViewer');
+  if(viewer){viewer.classList.remove('open');viewer.setAttribute('aria-hidden','true');}
+  const image=document.getElementById('pspArtImageFull');if(image)image.removeAttribute('src');
+}
+function pspArtToggleZoomV514(){
+  const image=document.getElementById('pspArtImageFull');if(!image)return;
+  image.style.transform=image.style.transform==='scale(1.75)'?'scale(1)':'scale(1.75)';
+}
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape')return;
+  if(document.getElementById('pspArtImageViewer')?.classList.contains('open'))pspArtCloseImageV514();
+  else if(document.getElementById('artModal')?.classList.contains('open'))closeArt();
+});
 function openArt(i){
   const a=ARTICLES[i];if(!a)return;
   const box=document.getElementById('artModalBox');
-  const hasImg=!!a.image;
+  const safeImage=pspArtSafeImageV514(a.image);
+  const hasImg=!!safeImage;
   box.style.maxWidth=hasImg?'1040px':'680px';
   box.style.padding=hasImg?'0':'26px';
   const closeBtn='<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">'+
@@ -987,11 +1014,11 @@ function openArt(i){
   const langBtn=(v,lb)=>`<button onclick="setArtLang(${i},'${v}')" style="padding:7px 14px;border-radius:999px;border:1.5px solid ${lang===v?'var(--gold)':'var(--border)'};background:${lang===v?'var(--gold)':'transparent'};color:${lang===v?'#0a0e1a':'var(--text-muted)'};font-weight:800;font-size:12px;cursor:pointer;font-family:inherit">${lb}</button>`;
   const langBar=hasBoth?`<div style="display:flex;gap:8px;margin:4px 0 12px">${langBtn('en','🇬🇧 English')}${langBtn('ur','🇵🇰 Roman Urdu')}</div>`:'';
   const dateMeta=a.kind==='article'?'':`<div class="art-meta" style="border:none;padding:0"><span></span><span>${a.date}</span></div>`;
-  const text=`<h2 style="margin-top:0">${a.title}</h2>${dateMeta}${langBar}<div class="body"><p>${(activeContent||'').replace(/\n/g,'<br>')}</p></div>${closeBtn}`;
+  const text=`<h2 style="margin-top:0">${pspArtHtmlEscV514(a.title)}</h2>${dateMeta}${langBar}<div class="body"><p>${pspArtHtmlEscV514(activeContent||'').replace(/\n/g,'<br>')}</p></div>${closeBtn}`;
   if(hasImg){
     box.innerHTML=`<div style="display:flex;flex-wrap:wrap;align-items:stretch">
       <div style="flex:1 1 440px;min-width:300px;background:#0a0e1a;display:flex;align-items:center;justify-content:center;padding:14px">
-        <img src="${a.image}" title="Click to open full size" style="width:100%;max-height:80vh;object-fit:contain;border-radius:8px;cursor:zoom-in" onclick="window.open('${a.image}','_blank')">
+        <img src="${pspArtHtmlEscV514(safeImage)}" alt="${pspArtHtmlEscV514(a.title)}" title="Zoom inside PipSePaisa" style="width:100%;max-height:80vh;object-fit:contain;border-radius:8px;cursor:zoom-in" onclick="pspArtOpenImageV514(${i})">
       </div>
       <div style="flex:1 1 320px;min-width:280px;max-width:440px;padding:26px;overflow-y:auto;max-height:84vh">${text}</div>
     </div>`;
@@ -999,8 +1026,9 @@ function openArt(i){
     box.innerHTML=`<div class="art-cover" style="background:${a.grad};height:150px;font-size:54px">${a.ico}</div>${text}`;
   }
   document.getElementById('artModal').classList.add('open');
+  document.getElementById('artModalCloseV514')?.focus({preventScroll:true});
 }
-function closeArt(){document.getElementById('artModal').classList.remove('open')}
+function closeArt(){pspArtCloseImageV514();document.getElementById('artModal').classList.remove('open')}
 function setArtLang(i,v){try{localStorage.setItem('psp_art_lang',v);}catch(e){}openArt(i);}
 let currentToolsTab='calculators';
 window.currentToolsTab=currentToolsTab;
