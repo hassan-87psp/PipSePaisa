@@ -127,7 +127,7 @@
           const el=document.getElementById('nhUpcoming');if(!el)return;
           const next=nhCalendar.filter(e=>e.impact==='High'&&Date.parse(e.date)>Date.now()).slice(0,3);
           if(!next.length){el.style.display='none';return;}
-          el.style.display='block';
+          el.style.display=nhFilter==='all'?'block':'none';
           el.innerHTML='<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:7px">📅 Upcoming High-Impact Events</div>'+
             next.map(e=>'<div class="nh-upcoming-row"><span class="nh-cal-currency">'+nhEsc(e.country)+'</span>'+
               '<span style="flex:1">'+nhEsc(e.title)+'</span>'+
