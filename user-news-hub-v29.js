@@ -5,6 +5,11 @@
         let nhNotifOn=false,nhSeen=new Set(),nhFirstLoad=true;
 
         function nhCls(t,d){const tx=(t+' '+d).toLowerCase();const o=['forex','fundamental','usnews','geopolitics','conflict','disaster','political','economic'];for(const c of o){if(NH_CATS[c].w.some(w=>tx.includes(w)))return c;}return'political';}
+        function nhCategoryForItem(n){
+          const found=nhCls(n.title||'',n.desc||'');
+          const mapping={Forex:'forex',Gold:'forex',Macro:'fundamental','Central Banks':'fundamental',Markets:'economic',Crypto:'economic',Geopolitics:'geopolitics'};
+          return found==='political' ? (mapping[n.category]||found) : found;
+        }
         function nhSevFn(t,d,cat){const tx=(t+' '+d).toLowerCase();const h=['killed','dead','explosion','attack','strike','crisis','massive','critical'];const m=['injured','conflict','tension','warning'];if(['conflict','disaster'].includes(cat)){if(h.filter(w=>tx.includes(w)).length>=2)return'S4';if(h.some(w=>tx.includes(w)))return'S3';if(m.some(w=>tx.includes(w)))return'S2';return'S1';}if(h.some(w=>tx.includes(w)))return'S2';return'S1';}
         function nhLoc(t,d){const pl=['Ukraine','Russia','Iran','Israel','Gaza','Syria','Iraq','China','Taiwan','North Korea','Pakistan','India','Washington','London','France','Germany','Turkey','Saudi Arabia','Yemen','Sudan','Libya','Afghanistan','Somalia','Panama','Mexico','Japan','South Korea','NATO'];const tx=t+' '+d;for(const p of pl)if(tx.includes(p))return p;return'Global';}
         function nhAgo(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+' min ago';if(s<86400)return Math.floor(s/3600)+' hr ago';return Math.floor(s/86400)+'d ago';}
@@ -12,18 +17,19 @@
         async function nhLoad(){
           if(nhFetching)return;nhFetching=true;
           const btn=document.getElementById('nhRefBtn');if(btn){btn.disabled=true;btn.textContent='⏳';}
-          document.getElementById('nhList').innerHTML='<div class="nh-loading"><div class="nh-spin"></div>Fetching live news...</div>';
+          if(!nhNews.length)document.getElementById('nhList').innerHTML='<div class="nh-loading"><div class="nh-spin"></div>Fetching live news...</div>';
           try{
-            const r=await fetch(NH_PROXY,{signal:AbortSignal.timeout(9000)});
+            const r=await fetch(NH_PROXY,{signal:AbortSignal.timeout(12000)});
             const d=await r.json();
             if(!d.success||!d.items?.length)throw new Error(d.error||'No data');
-            nhNews=d.items.map(n=>({...n,cat:nhCls(n.title,n.desc),sv:nhSevFn(n.title,n.desc,nhCls(n.title,n.desc)),lc:nhLoc(n.title,n.desc),id:n.title.slice(0,40).replace(/[^a-zA-Z0-9]/g,'').toLowerCase()}));
+            nhNews=d.items.map(n=>({...n,cat:nhCategoryForItem(n),sv:nhSevFn(n.title,n.desc,nhCategoryForItem(n)),lc:nhLoc(n.title,n.desc),id:n.title.slice(0,40).replace(/[^a-zA-Z0-9]/g,'').toLowerCase()}));
             nhNews.forEach(n=>{if(!nhSeen.has(n.id)){const fresh=!nhFirstLoad;nhSeen.add(n.id);if(fresh)nhCheckNotif(n);}});nhFirstLoad=false;
             const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
             const el=document.getElementById('nhLastUp');if(el)el.textContent='Updated '+now;
             nhUpdateStats();nhRender();nhRenderForex();nhUpdateImpact();
           }catch(e){
-            document.getElementById('nhList').innerHTML=`<div class="nh-err" style="margin:12px">❌ Could not load news<br><small style="opacity:.7">${e.message}</small></div>`;
+            if(!nhNews.length)document.getElementById('nhList').innerHTML=`<div class="nh-err" style="margin:12px">❌ Could not load news<br><small style="opacity:.7">${e.message}</small></div>`;
+            else console.warn('News refresh failed; showing previous headlines',e);
           }finally{
             nhFetching=false;if(btn){btn.disabled=false;btn.textContent='🔄 Refresh';}
           }
@@ -194,5 +200,5 @@
         function nhMaybeHideClear(){const tc=document.getElementById('nhToasts');if(tc&&!tc.querySelector('.nh-toast')){const cb=document.getElementById('nhClearBtn');if(cb)cb.remove();}}
 
         let nhLoaded=false;
-        window.nhInitLoad=function(){if(!nhLoaded){nhLoaded=true;nhLoad();setInterval(nhLoad,5*60*1000);}};
+        window.nhInitLoad=function(){if(!nhLoaded){nhLoaded=true;nhLoad();setInterval(function(){if(document.hidden)return;const page=document.getElementById('page-newshub');if(!page||page.classList.contains('active'))nhLoad();},2*60*1000);}};
         
