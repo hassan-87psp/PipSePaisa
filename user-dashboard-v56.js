@@ -3,7 +3,7 @@
 'use strict';
 let loading=false,lastLoad=0,clockTimer=null;
 const PSP_DASH_CACHE_TTL_V220=45000;
-function dashCacheKeyV220(uid){return 'psp_dashboard_v220_'+String(uid||'guest')}
+function dashCacheKeyV220(uid){return 'psp_dashboard_v221_b4_'+String(uid||'guest')}
 function readDashCacheV220(uid){
   try{const x=JSON.parse(sessionStorage.getItem(dashCacheKeyV220(uid))||'null');if(!x||!x.html||!x.savedAt)return null;return x}catch(_){return null}
 }
@@ -193,6 +193,32 @@ function signalHTML(s,allowed){
 function activeEnrollment(e){const s=String(e?.enrollment_status||e?.payment_status||e?.status||'').toLowerCase();return e?.course_key==='basic'||['enrolled','approved','active','completed'].includes(s)}
 function classTitle(n){const num=Number(n?.class_number||0);if(String(n?.course_key||'').toLowerCase()==='basic'&&BASIC_TITLES[num])return BASIC_TITLES[num][0];return n?.title||('Class '+(num||''))}
 function classSubtitle(n){const num=Number(n?.class_number||0);if(String(n?.course_key||'').toLowerCase()==='basic'&&BASIC_TITLES[num])return BASIC_TITLES[num][1];return n?.subtitle||''}
+// Public announcement: verified course B4 starts 5 Nov 2026 PKT.
+// No specific first-session clock time has been confirmed; never fabricate one.
+// This is a course start announcement, not a scheduled class record.
+function freeBasicBatch4HTML(){
+  const startDay='5 November 2026';
+  const lastDayMs=Date.parse('2026-11-06T00:00:00+05:00');
+  if(Date.now()>=lastDayMs)return '';
+  return '<div class="psp58-class">'+
+    '<div class="psp58-class-top">'+
+      '<span class="psp58-class-no">100% FREE • BATCH 4</span>'+
+      '<span class="psp58-class-status upcoming">STARTS 5 NOV</span>'+
+    '</div>'+
+    '<div class="psp58-class-title">Free Basic Forex Course — Batch 4</div>'+
+    '<div class="psp58-class-sub">Live Online Learning with Sir Sajid Khan Ghori</div>'+
+    '<div class="psp58-class-info">'+
+      '<div><span>Course</span><b>Free Basic Forex Trading Course</b></div>'+
+      '<div><span>Instructor</span><b>Sir Sajid Khan Ghori</b></div>'+
+    '</div>'+
+    '<div class="psp58-class-datetime">'+
+      '<div><span>📅 Course Starts</span><b>'+startDay+'</b></div>'+
+      '<div><span>🕘 Class Time</span><b>To be announced (PKT)</b></div>'+
+    '</div>'+
+    '<button class="psp58-primary" onclick="openFreeCourseV71()">Open Free Course →</button>'+
+  '</div>';
+}
+
 function nextClassHTML(classes,enrollments,courses){
   const now=Date.now(),keys=new Set((enrollments||[]).filter(activeEnrollment).map(e=>String(e.course_key||'basic').toLowerCase()));
   // V71: the Basic Forex Course is public/free learning and must stay visible even
@@ -203,7 +229,7 @@ function nextClassHTML(classes,enrollments,courses){
   pool=pool.filter(x=>keys.has(String(x.course_key||'basic').toLowerCase()));
   pool.sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
   const n=pool.find(x=>new Date(x.scheduled_at).getTime()>now-90*60000);
-  if(!n)return '<div class="psp58-empty"><span>✅</span><b>No upcoming class scheduled</b><small>The Free Basic Course remains available in My Courses with its full schedule and details.</small><button onclick="openFreeCourseV71()">Open Free Course →</button></div>';
+  if(!n)return freeBasicBatch4HTML() || '<div class="psp58-empty"><span>✅</span><b>No upcoming class scheduled</b><small>The Free Basic Course remains available in My Courses with its full schedule and details.</small><button onclick="openFreeCourseV71()">Open Free Course →</button></div>';
   const key=String(n.course_key||'basic').toLowerCase(),course=(courses||[]).find(c=>String(c.course_key||'').toLowerCase()===key)||{};
   const basicEnrollment=(enrollments||[]).some(e=>String(e?.course_key||'').toLowerCase()==='basic');
   const freePreview=key==='basic'&&!basicEnrollment;
