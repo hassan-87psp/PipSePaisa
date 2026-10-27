@@ -26,6 +26,7 @@ function browser({permanent=true,permission='granted',ios=false,standalone=false
   const deferred=[];
   const win={
     navigator:{standalone},
+    addEventListener(){},
     dispatchEvent(){},
     OneSignalDeferred:{push(callback){deferred.push(callback);queueMicrotask(()=>callback(os));}},
     __PIPSEPAISA_ONESIGNAL_READY__:false,
