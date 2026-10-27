@@ -10,8 +10,6 @@
           const mapping={Forex:'forex',Gold:'forex',Macro:'fundamental','Central Banks':'fundamental',Markets:'economic',Crypto:'economic',Geopolitics:'geopolitics'};
           return found==='political' ? (mapping[n.category]||found) : found;
         }
-        function nhSevFn(t,d,cat){const tx=(t+' '+d).toLowerCase();const h=['killed','dead','explosion','attack','strike','crisis','massive','critical'];const m=['injured','conflict','tension','warning'];if(['conflict','disaster'].includes(cat)){if(h.filter(w=>tx.includes(w)).length>=2)return'S4';if(h.some(w=>tx.includes(w)))return'S3';if(m.some(w=>tx.includes(w)))return'S2';return'S1';}if(h.some(w=>tx.includes(w)))return'S2';return'S1';}
-        function nhLoc(t,d){const pl=['Ukraine','Russia','Iran','Israel','Gaza','Syria','Iraq','China','Taiwan','North Korea','Pakistan','India','Washington','London','France','Germany','Turkey','Saudi Arabia','Yemen','Sudan','Libya','Afghanistan','Somalia','Panama','Mexico','Japan','South Korea','NATO'];const tx=t+' '+d;for(const p of pl)if(tx.includes(p))return p;return'Global';}
         function nhAgo(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+' min ago';if(s<86400)return Math.floor(s/3600)+' hr ago';return Math.floor(s/86400)+'d ago';}
 
         async function nhLoad(){
@@ -67,7 +65,8 @@
             }).join('')+'<div style="padding:9px 14px;font-size:10px;color:var(--text-muted);line-height:1.5">Yahoo Finance · May be delayed · Change vs previous close · Not verified as a reaction to any specific news.</div>';
             el.dataset.pricesLoaded='1';
           }catch(err){
-            if(!el.dataset.pricesLoaded)el.innerHTML='<div class="nh-impact-row nh-neut">Published market prices unavailable. No estimate shown.</div>';
+            el.innerHTML='<div class="nh-impact-row nh-neut">Published market prices unavailable. No estimate shown.</div>';
+            delete el.dataset.pricesLoaded;
           }
         }
 
