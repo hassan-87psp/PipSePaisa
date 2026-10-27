@@ -1750,18 +1750,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
           .nh-nitem:hover{background:var(--bg-elevated)}
           .nh-nitem.active{background:var(--bg-elevated);border-left:3px solid var(--gold)}
           .nh-cat{font-size:9px;font-weight:800;padding:2px 7px;border-radius:3px;text-transform:uppercase}
-          .nh-cal-impact{display:inline-flex;align-items:center;font-size:9px;font-weight:800;padding:3px 7px;border-radius:5px}
-          .nh-cal-high{color:#b91c1c;background:rgba(220,38,38,.13)}
-          .nh-cal-medium{color:#b45309;background:rgba(245,158,11,.13)}
-          .nh-cal-low{color:var(--text-muted);background:var(--bg-elevated)}
-          .nh-cal-other{color:var(--text-muted);background:var(--bg-elevated)}
-          .nh-cal-currency{font-size:10px;font-weight:800;color:var(--gold);padding:3px 6px;border-radius:5px;background:var(--gold-bg)}
-          .nh-cal-controls{display:none;gap:6px;align-items:center;flex-wrap:wrap;padding:0 2px 9px}
-          .nh-cal-btn{border:1px solid var(--border);border-radius:7px;padding:5px 10px;font-size:10px;font-weight:700;cursor:pointer;background:var(--bg-card);color:var(--text-secondary);font-family:inherit}
-          .nh-cal-btn.active{border-color:var(--gold);background:var(--gold-bg);color:var(--gold)}
-          .nh-upcoming{padding:11px 13px;background:var(--bg-elevated);border-bottom:1px solid var(--border)}
-          .nh-upcoming-row{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:10px;color:var(--text-secondary);flex-wrap:wrap}
-          .nh-upcoming-row:not(:last-child){border-bottom:1px solid var(--border)}
           .nh-heat{display:inline-flex;align-items:center;white-space:nowrap;font-size:9px;font-weight:800;padding:3px 7px;border-radius:5px;line-height:1.3}
           .nh-heat-hot{color:#c2410c;background:rgba(234,88,12,.13)}
           .nh-heat-warm{color:#a16207;background:rgba(202,138,4,.13)}
@@ -1836,7 +1824,6 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
                 <div class="nh-tabs">
                   <button class="nh-tab active" onclick="nhSetFilter('all',this)">📡 All</button>
                    <button class="nh-tab" onclick="nhSetFilter('bloomberg',this)">📰 Bloomberg</button>
-                  <button class="nh-tab" onclick="nhSetFilter('calendar',this)">📅 Calendar</button>
                   <button class="nh-tab" onclick="nhSetFilter('forex',this)">💹 Forex</button>
                   <button class="nh-tab" onclick="nhSetFilter('conflict',this)">⚔️ War</button>
                   <button class="nh-tab" onclick="nhSetFilter('geopolitics',this)">🌍 Geo</button>
@@ -1852,17 +1839,10 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
                   <button class="nh-heat-btn" data-heat="warm" aria-pressed="false" onclick="nhSetHeatFilter('warm',this)">☀️ Warm</button>
                   <button class="nh-heat-btn" data-heat="cold" aria-pressed="false" onclick="nhSetHeatFilter('cold',this)">❄️ Cold</button>
                 </div>
-                <div class="nh-cal-controls" id="nhCalendarControls" role="group" aria-label="Filter scheduled economic events">
-                  <span class="nh-heat-title">Scheduled events:</span>
-                  <button class="nh-cal-btn" data-cal-filter="all" onclick="nhSetCalendarFilter('all')">All Events</button>
-                  <button class="nh-cal-btn active" data-cal-filter="high" onclick="nhSetCalendarFilter('high')">🔴 High Impact</button>
-                  <button class="nh-cal-btn" data-cal-filter="speech" onclick="nhSetCalendarFilter('speech')">🎙️ Speeches &amp; Statements</button>
-                </div>
               </div>
               <div style="padding:8px 14px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between">
                 <span><b id="nhEC" style="color:var(--gold)">0</b> events</span><span>Hot &lt;1h · Warm 1–6h · Cold 6h+</span>
               </div>
-              <div id="nhUpcoming" class="nh-upcoming" style="display:none"></div>
               <div id="nhList">
                 <div class="nh-loading"><div class="nh-spin"></div>Fetching live news...</div>
               </div>
@@ -1887,7 +1867,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         </div>
         <div id="nhToasts" style="position:fixed;bottom:80px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:300px"></div>
 
-        <script src="user-news-hub-v29.js?v=20261027-economic-calendar-v8"></script>
+        <script src="user-news-hub-v29.js?v=20261027-published-news-v9"></script>
       </div>
 
       <!-- ========== CURRENCY STRENGTH ========== -->
