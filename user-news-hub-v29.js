@@ -7,7 +7,7 @@
         function nhCls(t,d){const tx=(t+' '+d).toLowerCase();const o=['forex','fundamental','usnews','geopolitics','conflict','disaster','political','economic'];for(const c of o){if(NH_CATS[c].w.some(w=>tx.includes(w)))return c;}return'political';}
         function nhCategoryForItem(n){
           const found=nhCls(n.title||'',n.desc||'');
-          const mapping={Forex:'forex',Gold:'forex',Macro:'fundamental','Central Banks':'fundamental',Markets:'economic',Crypto:'economic',Geopolitics:'geopolitics'};
+          const mapping={Forex:'forex',Gold:'forex',Macro:'fundamental','Central Banks':'fundamental',Markets:'economic',Crypto:'economic',Geopolitics:'geopolitics','US News':'usnews',Energy:'economic'};
           return found==='political' ? (mapping[n.category]||found) : found;
         }
         function nhAgo(d){const s=Math.floor((Date.now()-new Date(d))/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+' min ago';if(s<86400)return Math.floor(s/3600)+' hr ago';return Math.floor(s/86400)+'d ago';}
@@ -23,7 +23,7 @@
             nhNews=d.items.map(n=>({...n,cat:nhCategoryForItem(n),id:n.title.slice(0,40).replace(/[^a-zA-Z0-9]/g,'').toLowerCase()}));
             nhNews.forEach(n=>{if(!nhSeen.has(n.id)){const fresh=!nhFirstLoad;nhSeen.add(n.id);if(fresh)nhCheckNotif(n);}});nhFirstLoad=false;
             const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-            const el=document.getElementById('nhLastUp');if(el)el.textContent='Updated '+now;
+            const el=document.getElementById('nhLastUp');if(el){const active=Number(d.sources), configured=Number(d.configured);el.textContent='Updated '+now+(Number.isFinite(active)&&Number.isFinite(configured)&&configured>0?' · '+active+'/'+configured+' feeds':'');}
             nhUpdateStats();nhRender();nhRenderForex();
             if(nhSelectedStory && !window.matchMedia('(max-width:820px)').matches){
               const idx=nhNews.findIndex(n=>(n.link||n.url||n.title)===nhSelectedStory);
