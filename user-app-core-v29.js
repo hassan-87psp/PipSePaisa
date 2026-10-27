@@ -1802,23 +1802,22 @@
     // Today's start (00:00) - hide all events before today
     const todayStart = new Date(now); todayStart.setHours(0,0,0,0);
     
+    const calendarWeekDay=(new Date(todayKey+'T12:00:00Z')).getUTCDay();
+    const mondayISO=new Date(Date.parse(todayKey+'T00:00:00Z')-(calendarWeekDay===0?6:calendarWeekDay-1)*86400000).toISOString().slice(0,10);
+    const sundayISO=new Date(Date.parse(mondayISO+'T00:00:00Z')+6*86400000).toISOString().slice(0,10);
+
     let filtered = newsRawData.filter(n => {
       const eventDate = new Date(n.date);
       const evKey = nzKey(eventDate);
       
-      // Hide all past events except for custom range (timezone-consistent)
-      if (newsState.time !== 'custom' && evKey < todayKey) return false;
-      
-      // Time filter
+      // Preserve published historical events. "This Week" includes Monday
+      // through Sunday, even when earlier days already passed.
       if (newsState.time === 'today' && evKey !== todayKey) return false;
       if (newsState.time === 'tomorrow' && evKey !== tomorrowKey) return false;
-      if (newsState.time === 'week' && eventDate > thisWeekSunday) return false;
-      // 'all' shows everything from today onwards (handled by past filter above)
-      if (newsState.time === 'custom' && newsState.customFrom && newsState.customTo) {
-        const fromDate = new Date(newsState.customFrom + 'T00:00:00');
-        const toDate = new Date(newsState.customTo + 'T23:59:59');
-        if (eventDate < fromDate || eventDate > toDate) return false;
-      }
+      if (newsState.time === 'week' && (evKey < mondayISO || evKey > sundayISO)) return false;
+      // Compare YYYY-MM-DD calendar keys in the user's chosen timezone.
+      if (newsState.time === 'custom' && newsState.customFrom && newsState.customTo &&
+          (evKey < newsState.customFrom || evKey > newsState.customTo)) return false;
       
       // Impact filter
       if (newsState.impact !== 'all' && n.impact !== newsState.impact) return false;
@@ -1879,14 +1878,16 @@
             <span class="badge ${impactClass}" style="margin-right: 8px;">${n.impact}</span>
             ${pspCalendarEscapeV519(n.title)}
           </div>
-          <div class="news-value" ${n.forecastSnapshot ? 'title="Snapshot 27 Oct 2026 — market forecast may change before release"' : ''}><div class="news-value-label">Forecast${n.forecastSnapshot ? '*' : ''}</div><div class="news-value-num">${pspCalendarEscapeV519(n.forecast || '-')}</div></div>
-          <div class="news-value" ${n.forecastSnapshot ? 'title="Snapshot 27 Oct 2026 — previous figures may be revised"' : ''}><div class="news-value-label">Previous${n.forecastSnapshot ? '*' : ''}</div><div class="news-value-num">${pspCalendarEscapeV519(n.previous || '-')}</div></div>
-          <div class="news-value"><div class="news-value-label">Actual</div><div class="news-value-num" style="color: ${n.actual ? 'var(--gold)' : 'var(--text-muted)'};">${pspCalendarEscapeV519(n.actual || '-')}</div></div>
+          <div class="news-value" ${n.forecastSnapshot ? 'title="Snapshot 27 Oct 2026 — market forecast may change before release"' : ''}><div class="news-value-label">Forecast${n.forecastSnapshot ? '*' : ''}</div><div class="news-value-num" title="${n.forecast ? 'Forecast reported by the source' : 'Forecast not supplied by free data provider'}">${pspCalendarEscapeV519(n.forecast || 'N/A')}</div></div>
+          <div class="news-value" ${n.forecastSnapshot ? 'title="Snapshot 27 Oct 2026 — previous figures may be revised"' : ''}><div class="news-value-label">Previous${n.forecastSnapshot ? '*' : ''}</div><div class="news-value-num" title="${n.previous ? 'Previous figure reported by the source' : 'Previous figure not supplied by free data provider'}">${pspCalendarEscapeV519(n.previous || 'N/A')}</div></div>
+          <div class="news-value"><div class="news-value-label">Actual</div><div class="news-value-num" title="${n.actual ? 'Recorded actual: '+pspCalendarEscapeV519(n.actualSource||n.source||'data source') : (eventTime.getTime()<=Date.now() ? 'Actual not recorded by free provider' : 'Release not yet due')}" style="color: ${n.actual ? 'var(--gold)' : 'var(--text-muted)'};">${pspCalendarEscapeV519(n.actual || (eventTime.getTime()<=Date.now() ? 'N/A' : '—'))}</div></div>
           ${(n.forecast || n.impact === 'High' || n.impact === 'Medium') ? `<button onclick="aiEventAnalyze(${newsRawData.indexOf(n)})" style="background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;border:none;border-radius:8px;padding:6px 11px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">🤖 AI</button>` : '<div></div>'}
         </div>`;
       });
     });
     
+    const missingActual=filtered.filter(n=>Date.parse(n.date)<Date.now()&&!n.actual).length;
+    if(missingActual) html += '<div style="margin-top:10px;font-size:10px;color:var(--text-muted)">N/A = the free provider has not supplied this figure. Past events remain visible; it does not mean the release was cancelled.</div>';
     if(filtered.some(n=>n.forecastSnapshot)){
       html += '<div style="margin-top:10px;font-size:10px;color:var(--text-muted)">* Forecast / Previous from 27 Oct 2026 screenshot; snapshot, not live consensus. Figures can change.</div>';
     }
