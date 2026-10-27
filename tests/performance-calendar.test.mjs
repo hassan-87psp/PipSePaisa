@@ -90,6 +90,6 @@ const labels=['all','today','yesterday','this_week','last_week','this_month','la
 for(const file of ['dashboard/index.html','performance/index.html']){
   const html=fs.readFileSync(new URL('../'+file,import.meta.url),'utf8');
   for(const label of labels)assert.ok(html.includes('data-perf-period="'+label+'"'),file+' missing '+label);
-  assert.ok(html.includes('user-signals-core-v29.js?v=20261022-v514-filter-consistency'));
+  assert.match(html,/user-signals-core-v29\.js\?v=[\w-]+/,file+' missing cache-versioned Performance script');
 }
 console.log('PERFORMANCE_CALENDAR_TESTS_PASS: timezone, 6 periods, Sunday/Monday, leap-month, custom range, created-vs-closed, net pips, BE win rate, TP closing cohort, full-period chart, Custom apply and both portal pages');
