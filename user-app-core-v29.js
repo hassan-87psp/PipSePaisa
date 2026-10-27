@@ -1682,93 +1682,62 @@
     AUD: '🇦🇺', CAD: '🇨🇦', CHF: '🇨🇭', NZD: '🇳🇿', CNY: '🇨🇳'
   };
   
-  async function loadNews() {
-    const container = document.getElementById('newsListContainer');
-    if (!container) return;
-    container.innerHTML = '<div class="empty-state" style="height: 200px;"><div class="empty-icon">📰</div><div>Loading economic events...</div></div>';
-    
-
-    // Vercel proxy fetching Forex Factory data (100% reliable)
-    let success = false;
+  // Verified free calendar events. Never substitute fabricated demo release data.
+  let pspNewsInFlightV519=false, pspNewsLastCheckV519=0;
+  async function loadNews(isBackground=false) {
+    const container=document.getElementById('newsListContainer');
+    if(!container||pspNewsInFlightV519)return;
+    pspNewsInFlightV519=true;
+    if(!isBackground&&!newsRawData.length)
+      container.innerHTML='<div class="empty-state" style="height:200px;"><div class="empty-icon">📰</div><div>Loading verified economic events...</div></div>';
+    let ok=false;
     try {
-      const newsCtrl = new AbortController();
-      const newsTimeout = setTimeout(() => newsCtrl.abort(), 15000);
-      const res = await fetch('https://pipsepaisa-api.vercel.app/api/calendar', { signal: newsCtrl.signal });
-      clearTimeout(newsTimeout);
-      if (!res.ok) throw new Error('API failed: ' + res.status);
-      
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        newsRawData = data;
-        success = true;
-        console.log('✅ News loaded:', data.length, 'events');
-        console.log('📅 First event date:', data[0].date);
-        console.log('📅 Last event date:', data[data.length-1].date);
-        const future = data.filter(n => new Date(n.date) >= new Date()).length;
-        console.log('🔮 Future events from now:', future);
-      } else {
-        throw new Error('No data');
+      const ctrl=new AbortController();
+      const timeout=setTimeout(()=>ctrl.abort(),16000);
+      let res;
+      try{res=await fetch('https://pipsepaisa-api.vercel.app/api/calendar',{signal:ctrl.signal,cache:'no-store'});}
+      finally{clearTimeout(timeout);}
+      if(!res.ok)throw new Error('Calendar HTTP '+res.status);
+      const rows=await res.json();
+      if(!Array.isArray(rows))throw new Error('Invalid calendar data');
+      newsRawData=rows.filter(n=>n&&n.title&&n.country&&n.date&&Number.isFinite(Date.parse(n.date))).map(n=>({
+        ...n,
+        title:String(n.title).slice(0,160),country:String(n.country).slice(0,5),
+        impact:['High','Medium','Low','Holiday'].includes(n.impact)?n.impact:'Low',
+        forecast:n.forecast==null?'':String(n.forecast).slice(0,60),
+        previous:n.previous==null?'':String(n.previous).slice(0,60),
+        actual:n.actual==null?'':String(n.actual).slice(0,60)
+      }));
+      ok=true;pspNewsLastCheckV519=Date.now();
+    }catch(err){
+      console.warn('Economic calendar unavailable:',err);
+      // Preserve previously verified events, but never call them live.
+      ok=false;
+      if(!newsRawData.length){
+        container.innerHTML='<div class="empty-state" style="height:200px;"><div class="empty-icon">⚠️</div><div>Verified calendar data temporarily unavailable</div><div style="font-size:11px;margin-top:8px;color:var(--text-muted)">Please refresh later. No demo events are shown.</div></div>';
       }
-    } catch (e) {
-      console.warn('News fetch failed:', e);
-      success = false;
-    }
-    
-    _newsIsLive = success;
-    if (!success) {
-      const dayOfWeek = new Date().getDay();
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      loadSampleNewsData(isWeekend);
-    }
-    
-    // Update timestamp
-    const now = new Date();
-    const updEl = document.getElementById('newsUpdated');
-    if (updEl) updEl.textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    
-    renderNews(success);
+    }finally{pspNewsInFlightV519=false;}
+    _newsIsLive=ok;
+    const badge=document.getElementById('newsBadge');
+    if(badge&&!ok){badge.innerHTML='⚠️ Data unavailable';badge.className='badge';badge.style.cssText='background:rgba(245,158,11,.15);color:var(--gold)';}
+    const last=document.getElementById('newsUpdated');
+    if(last&&ok)last.textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+    if(ok||newsRawData.length)renderNews(ok);
   }
-  
-  function loadSampleNewsData(isWeekend = false) {
-    const now = new Date();
-    const today = new Date(now); today.setHours(0,0,0,0);
-    const days = [];
-    for (let d = 0; d < 7; d++) {
-      const day = new Date(today.getTime() + d * 86400000);
-      days.push(day);
-    }
-    
-    const samples = [
-      { day: 0, hour: 12, min: 30, title: 'Core PCE Price Index m/m', country: 'USD', impact: 'High', forecast: '0.3%', previous: '0.3%' },
-      { day: 0, hour: 12, min: 30, title: 'Unemployment Claims', country: 'USD', impact: 'Medium', forecast: '215K', previous: '212K' },
-      { day: 0, hour: 14, min: 0, title: 'Pending Home Sales m/m', country: 'USD', impact: 'Low', forecast: '0.4%', previous: '-1.2%' },
-      { day: 1, hour: 9, min: 0, title: 'CPI y/y', country: 'EUR', impact: 'High', forecast: '2.3%', previous: '2.4%' },
-      { day: 1, hour: 10, min: 30, title: 'BOE Gov Bailey Speaks', country: 'GBP', impact: 'High', forecast: '', previous: '' },
-      { day: 1, hour: 3, min: 30, title: 'BOJ Press Conference', country: 'JPY', impact: 'High', forecast: '', previous: '' },
-      { day: 2, hour: 1, min: 30, title: 'GDP q/q', country: 'AUD', impact: 'High', forecast: '0.4%', previous: '0.3%' },
-      { day: 2, hour: 15, min: 30, title: 'Crude Oil Inventories', country: 'USD', impact: 'Medium', forecast: '-1.2M', previous: '0.8M' },
-      { day: 2, hour: 12, min: 30, title: 'Retail Sales m/m', country: 'CAD', impact: 'Medium', forecast: '0.5%', previous: '0.6%' },
-      { day: 3, hour: 7, min: 0, title: 'German Ifo Business Climate', country: 'EUR', impact: 'Medium', forecast: '88.5', previous: '87.8' },
-      { day: 3, hour: 12, min: 30, title: 'NFP - Non-Farm Employment Change', country: 'USD', impact: 'High', forecast: '180K', previous: '175K' },
-      { day: 4, hour: 9, min: 0, title: 'SNB Chairman Speaks', country: 'CHF', impact: 'Medium', forecast: '', previous: '' },
-      { day: 4, hour: 21, min: 45, title: 'GDT Price Index', country: 'NZD', impact: 'Low', forecast: '', previous: '0.8%' },
-    ];
-    
-    newsRawData = samples.map(s => {
-      const d = new Date(days[s.day]);
-      d.setHours(s.hour, s.min, 0, 0);
-      return {
-        title: s.title,
-        country: s.country,
-        date: d.toISOString(),
-        impact: s.impact,
-        forecast: s.forecast,
-        previous: s.previous,
-        actual: ''
-      };
-    });
-  }
-  
+
+  // Poll faster around high-priority releases; idle/off-page users make no calls.
+  setInterval(function(){
+    const page=document.getElementById('page-news');
+    if(!page||!page.classList.contains('active')||document.hidden||pspNewsInFlightV519)return;
+    const now=Date.now();
+    const nearRelease=newsRawData.some(n=>n.impact==='High'&&
+      Math.abs(Date.parse(n.date)-now)<90*60000);
+    const interval=nearRelease?15000:120000;
+    if(now-pspNewsLastCheckV519<interval)return;
+    pspNewsLastCheckV519=now;
+    loadNews(true);
+  },15000);
+
   function renderNews(isLive) {
     const container = document.getElementById('newsListContainer');
     if (!container) return;
@@ -1781,12 +1750,8 @@
         badge.innerHTML = '<span style="width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;"></span>LIVE';
         badge.className = 'badge low';
         badge.style.cssText = '';
-      } else if (isWeekend) {
-        badge.innerHTML = '🔴 Weekend — Market Closed';
-        badge.className = 'badge';
-        badge.style.cssText = 'background:rgba(239,68,68,0.15);color:var(--red);display:flex;align-items:center;gap:5px;';
       } else {
-        badge.innerHTML = '⚠️ Sample Data';
+        badge.innerHTML = '⚠️ Data unavailable';
         badge.className = 'badge';
         badge.style.cssText = 'background:rgba(245,158,11,0.15);color:var(--gold);display:flex;align-items:center;gap:5px;';
       }
