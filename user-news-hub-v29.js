@@ -1,6 +1,6 @@
         const NH_PROXY = 'https://pipsepaisa-api.vercel.app/api/news';
         const NH_CATS={conflict:{bg:'rgba(239,68,68,0.12)',c:'var(--red)',l:'⚔️ Conflict',w:['war','strike','attack','military','troops','bomb','missile','killed','wounded','battle','invasion','explosion','coup','rebel','terror','drone','army','shooting','hostage','airstrike','shelling']},geopolitics:{bg:'rgba(139,92,246,0.12)',c:'var(--purple)',l:'🌍 Geopolitics',w:['geopolit','nato','sanction','diplomatic','foreign policy','alliance','treaty','un security','g7','g20','territorial','nuclear deal','peace talks','ceasefire','strait','blockade','embargo']},forex:{bg:'rgba(245,158,11,0.12)',c:'var(--gold)',l:'💹 Forex',w:['forex','xau/usd','xauusd','eurusd','gbpusd','usdjpy','gold price','currency','dollar index','pip','spread','fx market','forexlive','fxstreet','exchange rate']},fundamental:{bg:'rgba(20,184,166,0.12)',c:'#14b8a6',l:'📊 Fundamental',w:['gdp','inflation','cpi','ppi','nonfarm','interest rate','federal reserve','fed rate','central bank','monetary policy','rate hike','rate cut','fomc','ecb','boe','unemployment','jobs report','retail sales']},usnews:{bg:'rgba(236,72,153,0.12)',c:'#ec4899',l:'🇺🇸 US News',w:['trump','biden','white house','congress','senate','us economy','federal','pentagon','wall street','new york','california','washington dc','republican','democrat','tariff']},political:{bg:'rgba(59,130,246,0.12)',c:'var(--blue)',l:'🏛️ Political',w:['president','parliament','election','vote','government','minister','prime minister','summit','policy','political','ruling party','opposition']},disaster:{bg:'rgba(249,115,22,0.12)',c:'var(--orange)',l:'🌪️ Disaster',w:['earthquake','flood','hurricane','cyclone','tsunami','storm','wildfire','drought','eruption','disaster','emergency','rescue','evacuate','death toll','tornado']},economic:{bg:'rgba(16,185,129,0.12)',c:'var(--green)',l:'💰 Economic',w:['economy','market','stock','oil price','crude','opec','budget','fiscal','imf','world bank','trade deal','recession']}};
-        let nhNews=[],nhFilter='all',nhHeatFilter='all',nhFetching=false,nhSelectedStory=null;
+        let nhNews=[],nhFilter='focus',nhHeatFilter='all',nhFetching=false,nhSelectedStory=null;
         let nhKws=JSON.parse(localStorage.getItem('nhKws')||'["Iran","Gold","Trump","War","Fed"]');
         let nhNotifOn=false,nhSeen=new Set(),nhFirstLoad=true;
 
@@ -132,17 +132,18 @@
         }
 
         function nhRender(){
-          const categoryItems=nhFilter==='all'?nhNews:nhFilter==='bloomberg'?nhNews.filter(n=>/bloomberg/i.test(n.source||'')):nhNews.filter(n=>n.cat===nhFilter);
+          const categoryItems=nhFilter==='all'?nhNews:nhFilter==='focus'?nhNews.filter(n=>n.marketFocus===true):nhFilter==='bloomberg'?nhNews.filter(n=>/bloomberg/i.test(n.source||'')):nhNews.filter(n=>n.cat===nhFilter);
           const items=nhHeatFilter==='all'?categoryItems:categoryItems.filter(n=>nhHeatInfo(n.date)?.key===nhHeatFilter);
           const el=document.getElementById('nhList');if(!el)return;
           const count=document.getElementById('nhEC');if(count)count.textContent=items.length;
-          if(!items.length){el.innerHTML='<div class="nh-loading">No news matches these filters</div>';return;}
+          if(!items.length){el.innerHTML='<div class="nh-loading">'+(nhFilter==='focus'?'No recent trading-related headlines verified. Choose All for other news.':'No news matches these filters')+'</div>';return;}
           el.innerHTML=items.map((item)=>{
             const idx=nhNews.indexOf(item);const s=NH_CATS[item.cat]||NH_CATS.political;
             return`<div class="nh-nitem${nhSelectedStory===(item.link||item.url||item.title)?' active':''}" onclick="nhDetail(${idx})" id="nhni${idx}">
               <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:wrap">
                 <span class="nh-cat" style="background:${s.bg};color:${s.c}">${s.l}</span>
                 ${nhHeatBadge(item.date)}
+                ${nhFilter==='all'&&item.marketFocus?'<span class="nh-focus-tag">⚡ Market Focus</span>':''}
                 <span style="margin-left:auto;font-size:9px;color:var(--text-muted)">${nhAgo(item.date)}</span>
               </div>
               <div style="font-size:12px;font-weight:600;line-height:1.4;margin-bottom:4px;color:var(--text-primary)">${nhEsc(item.title)}</div>
