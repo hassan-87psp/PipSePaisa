@@ -415,8 +415,10 @@ window.pspPushGetState=function(){
   if(!("Notification" in window))return iosInfo.isIOS?"ios-install":"unsupported";
   if(Notification.permission==="denied")return "blocked";
   if(Notification.permission!=="granted")return "off";
+  // Saved preference alone is not proof that OneSignal currently has a device subscription.
+  if(verifiedSubscription===true)return "on";
   if(verifiedSubscription===false)return "off";
-  return rememberedSubscribed()||verifiedSubscription===true?"on":"off";
+  return rememberedSubscribed()?"checking":"off";
 };
 window.pspPushSubscribe=subscribeCurrentDevice;
 
@@ -449,7 +451,7 @@ function showPrompt(){
     </div>
     <div class="psp-notify-copy">
       <strong>Subscribe for Notifications</strong>
-      <span>Receive instant trading signals, TP/SL updates and important alerts.</span>
+      <span>Get signals, charts, articles and HOT market-news alerts.</span>
     </div>
     <button type="button" class="psp-notify-enable">Subscribe</button>
     <button type="button" class="psp-notify-later">Not now</button>
