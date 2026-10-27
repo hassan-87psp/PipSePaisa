@@ -5792,6 +5792,48 @@
     },0);
   }
 
+  // V513: Mobile/PWA cold starts may resume while Safari/Chrome is restoring
+  // local storage or while the network and auth refresh are still waking up.
+  // Never treat one transient empty/error response as an explicit logout.
+  function pspHasSavedSessionV513(){
+    try{return !!localStorage.getItem('pipsepaisa-user-auth-v2');}
+    catch(e){return false;}
+  }
+  async function pspRestoreSessionV513(){
+    if(!sb?.auth)return null;
+    for(let attempt=0;attempt<4;attempt++){
+      try{
+        const result=await sb.auth.getSession();
+        const live=result?.data?.session||null;
+        if(live?.user)return live;
+        // No session stored means this is a normal signed-out visit.
+        if(!pspHasSavedSessionV513())return null;
+      }catch(e){console.warn('PipSePaisa mobile session restore retry',attempt+1);}
+      if(attempt<3){
+        await new Promise(function(resolve){setTimeout(resolve,[450,900,1700][attempt]);});
+      }
+    }
+    return null;
+  }
+  let pspMobileResumeCheckV513=false;
+  async function pspResumeSavedSessionV513(){
+    if(pspMobileResumeCheckV513||window.__pspExplicitLogout||document.hidden||!pspHasSavedSessionV513())return;
+    pspMobileResumeCheckV513=true;
+    try{
+      // Supabase's autoRefreshToken handles foreground refresh. Only recover
+      // UI if the app previously showed Login during a transient cold start.
+      const live=await pspRestoreSessionV513();
+      if(live?.user && (!currentUser||currentUser.id!==live.user.id)){
+        currentUser=live.user;
+        queueAuthenticatedUser(live.user);
+      }
+    }finally{pspMobileResumeCheckV513=false;}
+  }
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden)pspResumeSavedSessionV513();
+  });
+  window.addEventListener('pageshow',function(){pspResumeSavedSessionV513();});
+
   function bindUserAuthListener() {
     if (_authListenerBound || !sb) return;
     _authListenerBound = true;
@@ -5830,8 +5872,7 @@
           } else {
             setTimeout(async function(){
               try {
-                const check = await sb.auth.getSession();
-                const live = check?.data?.session || null;
+                const live = await pspRestoreSessionV513();
                 if (live?.user) {
                   currentUser = live.user;
                   window.__pspLastAuthenticatedAt=Date.now();
@@ -6082,8 +6123,7 @@
 
     let restoredSession = null;
     try {
-      const sessionResult = await sb.auth.getSession();
-      restoredSession = sessionResult?.data?.session || null;
+      restoredSession = await pspRestoreSessionV513();
     } catch (e) {
       console.warn('Session restore failed', e);
     }
