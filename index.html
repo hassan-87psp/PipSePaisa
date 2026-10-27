@@ -2249,20 +2249,29 @@ themeButton?.addEventListener('click',()=>applyLandingTheme(!document.body.class
 const LANDING_SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co';
 const LANDING_SUPABASE_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const LANDING_IS_EMBEDDED=!!(window.parent&&window.parent!==window);
+const PSP_STANDALONE_LAUNCH_V513=!LANDING_IS_EMBEDDED&&(
+  window.navigator.standalone===true||
+  (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)
+);
+if(PSP_STANDALONE_LAUNCH_V513 && (location.pathname==='/'||/\/index\.html$/i.test(location.pathname))) {
+  // Older installed PWAs still start at /; route to the persistent dashboard
+  // without creating another auth-refreshing client on the public landing page.
+  location.replace('/dashboard/'+(location.search||'')+(location.hash||''));
+}
 // V217: when landing.html is inside the authenticated app iframe it must NOT
 // own/persist/refresh the user's auth session. The parent is the single auth owner.
 const landingSb=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(
   LANDING_SUPABASE_URL,
   LANDING_SUPABASE_KEY,
   {auth:{
-    storageKey:LANDING_IS_EMBEDDED?'pipsepaisa-landing-public-v217':'pipsepaisa-user-auth-v2',
-    persistSession:!LANDING_IS_EMBEDDED,
-    autoRefreshToken:!LANDING_IS_EMBEDDED,
-    detectSessionInUrl:!LANDING_IS_EMBEDDED,
+    storageKey:(LANDING_IS_EMBEDDED||PSP_STANDALONE_LAUNCH_V513)?'pipsepaisa-landing-public-v217':'pipsepaisa-user-auth-v2',
+    persistSession:!LANDING_IS_EMBEDDED&&!PSP_STANDALONE_LAUNCH_V513,
+    autoRefreshToken:!LANDING_IS_EMBEDDED&&!PSP_STANDALONE_LAUNCH_V513,
+    detectSessionInUrl:!LANDING_IS_EMBEDDED&&!PSP_STANDALONE_LAUNCH_V513,
     flowType:'pkce'
   }}
 ):null;
-if(!LANDING_IS_EMBEDDED && landingSb && (location.pathname==='/' || /\/index\.html$/i.test(location.pathname))){
+if(!LANDING_IS_EMBEDDED && !PSP_STANDALONE_LAUNCH_V513 && landingSb && (location.pathname==='/' || /\/index\.html$/i.test(location.pathname))){
   landingSb.auth.getSession().then(({data})=>{
     if(data?.session?.user){
       const qs=location.search||'';
