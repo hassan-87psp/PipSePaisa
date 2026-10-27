@@ -1,6 +1,7 @@
         const NH_PROXY = 'https://pipsepaisa-api.vercel.app/api/news';
         const NH_CATS={conflict:{bg:'rgba(239,68,68,0.12)',c:'var(--red)',l:'⚔️ Conflict',w:['war','strike','attack','military','troops','bomb','missile','killed','wounded','battle','invasion','explosion','coup','rebel','terror','drone','army','shooting','hostage','airstrike','shelling']},geopolitics:{bg:'rgba(139,92,246,0.12)',c:'var(--purple)',l:'🌍 Geopolitics',w:['geopolit','nato','sanction','diplomatic','foreign policy','alliance','treaty','un security','g7','g20','territorial','nuclear deal','peace talks','ceasefire','strait','blockade','embargo']},forex:{bg:'rgba(245,158,11,0.12)',c:'var(--gold)',l:'💹 Forex',w:['forex','xau/usd','xauusd','eurusd','gbpusd','usdjpy','gold price','currency','dollar index','pip','spread','fx market','forexlive','fxstreet','exchange rate']},fundamental:{bg:'rgba(20,184,166,0.12)',c:'#14b8a6',l:'📊 Fundamental',w:['gdp','inflation','cpi','ppi','nonfarm','interest rate','federal reserve','fed rate','central bank','monetary policy','rate hike','rate cut','fomc','ecb','boe','unemployment','jobs report','retail sales']},usnews:{bg:'rgba(236,72,153,0.12)',c:'#ec4899',l:'🇺🇸 US News',w:['trump','biden','white house','congress','senate','us economy','federal','pentagon','wall street','new york','california','washington dc','republican','democrat','tariff']},political:{bg:'rgba(59,130,246,0.12)',c:'var(--blue)',l:'🏛️ Political',w:['president','parliament','election','vote','government','minister','prime minister','summit','policy','political','ruling party','opposition']},disaster:{bg:'rgba(249,115,22,0.12)',c:'var(--orange)',l:'🌪️ Disaster',w:['earthquake','flood','hurricane','cyclone','tsunami','storm','wildfire','drought','eruption','disaster','emergency','rescue','evacuate','death toll','tornado']},economic:{bg:'rgba(16,185,129,0.12)',c:'var(--green)',l:'💰 Economic',w:['economy','market','stock','oil price','crude','opec','budget','fiscal','imf','world bank','trade deal','recession']}};
         let nhNews=[],nhFilter='all',nhHeatFilter='all',nhFetching=false,nhSelectedStory=null;
+        let nhCalendar=[],nhCalendarAt=0,nhCalendarFetching=false,nhCalendarError='',nhCalendarFilter='high';
         let nhKws=JSON.parse(localStorage.getItem('nhKws')||'["Iran","Gold","Trump","War","Fed"]');
         let nhNotifOn=false,nhSeen=new Set(),nhFirstLoad=true;
 
@@ -39,6 +40,129 @@
           nhRender();
         }
 
+
+        // Scheduled economic events come from a real weekly calendar export.
+        // Never treat an upcoming speech or economic release as already-published news.
+        function nhCalendarStatus(date){
+          const ms=Date.parse(date), now=Date.now();
+          if(!Number.isFinite(ms))return 'TIME UNAVAILABLE';
+          if(ms>=now)return 'UPCOMING';
+          return 'PAST EVENT';
+        }
+        function nhCalendarDate(date){
+          const ms=Date.parse(date);
+          return Number.isFinite(ms)?new Date(ms).toLocaleString([],{
+            weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',timeZoneName:'short'
+          }):'Time unavailable';
+        }
+        function nhCalImpact(impact){
+          const k=String(impact||'').toLowerCase();
+          if(k==='high')return '<span class="nh-cal-impact nh-cal-high">🔴 High</span>';
+          if(k==='medium')return '<span class="nh-cal-impact nh-cal-medium">🟠 Medium</span>';
+          if(k==='low')return '<span class="nh-cal-impact nh-cal-low">Low</span>';
+          return '<span class="nh-cal-impact nh-cal-other">'+nhEsc(impact||'Other')+'</span>';
+        }
+        async function nhLoadCalendar(force){
+          if(nhCalendarFetching)return;
+          if(!force && nhCalendarAt && Date.now()-nhCalendarAt < 30*60*1000)return;
+          nhCalendarFetching=true;
+          try{
+            const r=await fetch('https://pipsepaisa-api.vercel.app/api/economic-calendar',{
+              signal:AbortSignal.timeout(11000)
+            });
+            if(!r.ok)throw Error('Calendar provider unavailable');
+            const d=await r.json();
+            if(!d.success || !Array.isArray(d.events))throw Error(d.error||'Calendar unavailable');
+            nhCalendar=d.events.filter(e=>e && typeof e.title==='string' &&
+              Number.isFinite(Date.parse(e.date)) && /^[A-Z]{2,5}$/.test(e.country||''));
+            nhCalendarError='';nhCalendarAt=Date.now();
+          }catch(e){
+            nhCalendarError='Source unavailable. Please check Forex Factory directly.';
+            nhCalendarAt=Date.now();
+          }finally{
+            nhCalendarFetching=false;
+            if(nhFilter==='calendar')nhRender();
+            nhRenderUpcoming();
+          }
+        }
+        function nhSetCalendarFilter(level){
+          nhCalendarFilter=['all','high','speech'].includes(level)?level:'high';
+          document.querySelectorAll('.nh-cal-btn').forEach(b=>{
+            b.classList.toggle('active',b.dataset.calFilter===nhCalendarFilter);
+          });
+          nhRender();
+        }
+        function nhCalendarList(){
+          const now=Date.now();
+          const current=nhCalendar.filter(e=>Date.parse(e.date)>=now-12*3600000);
+          if(nhCalendarFilter==='high')return current.filter(e=>e.impact==='High');
+          if(nhCalendarFilter==='speech')return current.filter(e=>
+            /press conference|press briefing|speech|speaks|remarks|testimon|statement/i.test(e.title));
+          return current;
+        }
+        function nhRenderCalendar(){
+          const el=document.getElementById('nhList');if(!el)return;
+          const items=nhCalendarList();
+          const count=document.getElementById('nhEC');if(count)count.textContent=items.length;
+          if(!nhCalendarAt&&!nhCalendarError){el.innerHTML='<div class="nh-loading">Loading verified economic calendar...</div>';return;}
+          if(!items.length){
+            el.innerHTML='<div class="nh-loading">'+
+              nhEsc(nhCalendarError||'No matching scheduled events in the current weekly export.')+
+              '<div style="font-size:10px;margin-top:8px">Source: Forex Factory · Times depend on your device timezone</div></div>';
+            return;
+          }
+          el.innerHTML=items.map(e=>{
+            const idx=nhCalendar.indexOf(e);
+            return '<div class="nh-nitem" onclick="nhShowCalendarEvent('+idx+')">'+
+              '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px">'+
+              nhCalImpact(e.impact)+
+              '<span class="nh-cal-currency">'+nhEsc(e.country)+'</span>'+
+              '<span style="font-size:9px;color:var(--text-muted);margin-left:auto">'+nhCalendarStatus(e.date)+'</span></div>'+
+              '<div style="font-size:12px;font-weight:700;line-height:1.4;color:var(--text-primary)">'+nhEsc(e.title)+'</div>'+
+              '<div style="font-size:10px;color:var(--text-muted);margin-top:6px">🕒 '+nhEsc(nhCalendarDate(e.date))+
+              ' · '+nhEsc(e.source)+'</div></div>';
+          }).join('');
+        }
+        function nhRenderUpcoming(){
+          const el=document.getElementById('nhUpcoming');if(!el)return;
+          const next=nhCalendar.filter(e=>e.impact==='High'&&Date.parse(e.date)>Date.now()).slice(0,3);
+          if(!next.length){el.style.display='none';return;}
+          el.style.display='block';
+          el.innerHTML='<div style="font-size:11px;font-weight:800;color:var(--text-secondary);margin-bottom:7px">📅 Upcoming High-Impact Events</div>'+
+            next.map(e=>'<div class="nh-upcoming-row"><span class="nh-cal-currency">'+nhEsc(e.country)+'</span>'+
+              '<span style="flex:1">'+nhEsc(e.title)+'</span>'+
+              '<span style="font-size:9px;color:var(--text-muted);white-space:nowrap">'+nhEsc(nhCalendarDate(e.date))+'</span></div>').join('')+
+              '<div style="font-size:9px;color:var(--text-muted);padding-top:5px">Scheduled, not released · Forex Factory · Times displayed in your local timezone</div>';
+        }
+        function nhShowCalendarEvent(index){
+          const e=nhCalendar[index];if(!e)return;
+          nhSelectedStory=null;
+          nhUpdateImpact(null);
+          const panel=document.getElementById('nhImpact');
+          if(panel)panel.innerHTML='<div class="nh-impact-row nh-neut">Scheduled event. Market reaction cannot be known in advance.</div>';
+          const html='<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px">'+
+            nhCalImpact(e.impact)+' <span class="nh-cal-currency">'+nhEsc(e.country)+'</span>'+
+            '<span style="margin-left:auto;font-size:10px;color:var(--text-muted)">'+nhCalendarStatus(e.date)+'</span></div>'+
+            '<div style="font-size:16px;font-weight:750;color:var(--text-primary);margin-bottom:10px">'+nhEsc(e.title)+'</div>'+
+            '<div style="font-size:12px;color:var(--text-secondary);line-height:1.8">🕒 '+nhEsc(nhCalendarDate(e.date))+
+            '<div>Event type: '+nhEsc(e.eventType||'Scheduled')+'</div>'+
+            (e.forecast?'<div>Forecast: '+nhEsc(e.forecast)+'</div>':'')+
+            (e.previous?'<div>Previous: '+nhEsc(e.previous)+'</div>':'')+
+            '<div style="font-size:10px;color:var(--text-muted);margin-top:7px">Scheduled time may change. Actual release data not supplied by this calendar.</div></div>'+
+            '<a href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="font-size:12px;margin-top:12px">View Source Calendar ↗</a>';
+          const isMobile=window.matchMedia('(max-width:820px)').matches;
+          if(isMobile){
+            const list=document.getElementById('nhList');
+            if(list){const card=document.getElementById('nhCalendarSelected');
+              if(card)card.remove();
+              const box=document.createElement('div');
+              box.id='nhCalendarSelected';box.className='nh-fcard';box.style.margin='12px';box.innerHTML=html;
+              list.prepend(box);box.scrollIntoView({block:'nearest'});}
+          }else{
+            const panel=document.getElementById('nhDetail');if(panel)panel.innerHTML=html;
+          }
+        }
+
         async function nhLoad(){
           if(nhFetching)return;nhFetching=true;
           const btn=document.getElementById('nhRefBtn');if(btn){btn.disabled=true;btn.textContent='⏳';}
@@ -52,6 +176,7 @@
             const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
             const el=document.getElementById('nhLastUp');if(el){const active=Number(d.sources), configured=Number(d.configured);el.textContent='Updated '+now+(Number.isFinite(active)&&Number.isFinite(configured)&&configured>0?' · '+active+'/'+configured+' feeds':'');}
             nhUpdateStats();nhRender();nhRenderForex();
+            nhLoadCalendar(false);
             if(nhSelectedStory && !window.matchMedia('(max-width:820px)').matches){
               const idx=nhNews.findIndex(n=>(n.link||n.url||n.title)===nhSelectedStory);
               const detail=document.getElementById('nhDetail');
@@ -131,6 +256,7 @@
         }
 
         function nhRender(){
+          if(nhFilter==='calendar'){nhRenderCalendar();return;}
           const categoryItems=nhFilter==='all'?nhNews:nhFilter==='bloomberg'?nhNews.filter(n=>/bloomberg/i.test(n.source||'')):nhNews.filter(n=>n.cat===nhFilter);
           const items=nhHeatFilter==='all'?categoryItems:categoryItems.filter(n=>nhHeatInfo(n.date)?.key===nhHeatFilter);
           const el=document.getElementById('nhList');if(!el)return;
@@ -232,7 +358,18 @@
           d.innerHTML=nhDetailHTML(n,s);
         }
 
-        function nhSetFilter(cat,el){nhFilter=cat;document.querySelectorAll('.nh-tab').forEach(t=>t.classList.remove('active'));if(el)el.classList.add('active');nhRender();}
+        function nhSetFilter(cat,el){
+          nhFilter=cat;document.querySelectorAll('.nh-tab').forEach(t=>t.classList.remove('active'));
+          if(el)el.classList.add('active');
+          const heat=document.getElementById('nhHeatControls');
+          const cal=document.getElementById('nhCalendarControls');
+          if(heat)heat.style.display=cat==='calendar'?'none':'flex';
+          if(cal)cal.style.display=cat==='calendar'?'flex':'none';
+          const upcoming=document.getElementById('nhUpcoming');
+          if(upcoming)upcoming.style.display=cat==='all'&&nhCalendar.length?'block':'none';
+          if(cat==='calendar')nhLoadCalendar(false);
+          nhRender();
+        }
         function nhToggleNotif(){const p=document.getElementById('nhNotifPanel');if(p)p.style.display=p.style.display==='none'?'block':'none';nhRenderNotif();}
         function nhRenderNotif(){const chips=nhKws.map((kw,i)=>`<span class="nh-kw-chip">${kw}<button onclick="nhRemoveKw(${i})">×</button></span>`).join('');const el=document.getElementById('nhKwChips');if(el)el.innerHTML=chips;const status=document.getElementById('nhNotifStatus');if(status&&Notification.permission==='granted'){status.innerHTML='<span style="color:var(--green);font-size:12px">✅ Notifications enabled</span>';nhNotifOn=true;}}
         function nhAddKw(){const inp=document.getElementById('nhKwInput');if(!inp)return;const v=inp.value.trim();if(v&&!nhKws.includes(v)){nhKws.push(v);localStorage.setItem('nhKws',JSON.stringify(nhKws));inp.value='';nhRenderNotif();}}
@@ -244,5 +381,5 @@
         function nhMaybeHideClear(){const tc=document.getElementById('nhToasts');if(tc&&!tc.querySelector('.nh-toast')){const cb=document.getElementById('nhClearBtn');if(cb)cb.remove();}}
 
         let nhLoaded=false;
-        window.nhInitLoad=function(){if(!nhLoaded){nhLoaded=true;nhLoad();setInterval(function(){if(document.hidden)return;const page=document.getElementById('page-newshub');if(!page||page.classList.contains('active'))nhLoad();},2*60*1000);}};
+        window.nhInitLoad=function(){if(!nhLoaded){nhLoaded=true;nhLoad();nhLoadCalendar(false);setInterval(function(){if(document.hidden)return;const page=document.getElementById('page-newshub');if(!page||page.classList.contains('active')){nhLoad();nhLoadCalendar(false);}},2*60*1000);}};
         
