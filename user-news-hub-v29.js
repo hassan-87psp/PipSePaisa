@@ -236,10 +236,40 @@
 
         function nhSetFilter(cat,el){nhFilter=cat;document.querySelectorAll('.nh-tab').forEach(t=>t.classList.remove('active'));if(el)el.classList.add('active');nhRender();}
         function nhToggleNotif(){const p=document.getElementById('nhNotifPanel');if(p)p.style.display=p.style.display==='none'?'block':'none';nhRenderNotif();}
-        function nhRenderNotif(){const chips=nhKws.map((kw,i)=>`<span class="nh-kw-chip">${kw}<button onclick="nhRemoveKw(${i})">×</button></span>`).join('');const el=document.getElementById('nhKwChips');if(el)el.innerHTML=chips;const status=document.getElementById('nhNotifStatus');if(status&&Notification.permission==='granted'){status.innerHTML='<span style="color:var(--green);font-size:12px">✅ Notifications enabled</span>';nhNotifOn=true;}}
+        function nhRenderNotif(){
+          const chips=nhKws.map((kw,i)=>'<span class="nh-kw-chip">'+nhEsc(kw)+'<button onclick="nhRemoveKw('+i+')">×</button></span>').join('');
+          const el=document.getElementById('nhKwChips');if(el)el.innerHTML=chips;
+          const status=document.getElementById('nhNotifStatus');
+          const state=typeof window.pspPushGetState==='function'?window.pspPushGetState():'off';
+          nhNotifOn=state==='on';
+          if(status){
+            const messages={
+              on:'<span style="color:var(--green);font-size:12px">✅ OneSignal push subscribed on this device</span>',
+              checking:'<span style="font-size:12px;color:var(--text-muted)">⏳ Checking device subscription...</span>',
+              blocked:'<span style="font-size:12px;color:var(--red)">Notifications blocked in browser settings</span>',
+              'ios-install':'<span style="font-size:12px;color:var(--text-muted)">Install to Home Screen to enable iPhone push</span>',
+              unsupported:'<span style="font-size:12px;color:var(--text-muted)">Push unsupported on this device</span>',
+              off:'<span style="font-size:12px;color:var(--text-muted)">Not subscribed for background push alerts</span>'
+            };
+            status.innerHTML=messages[state]||messages.off;
+          }
+        }
         function nhAddKw(){const inp=document.getElementById('nhKwInput');if(!inp)return;const v=inp.value.trim();if(v&&!nhKws.includes(v)){nhKws.push(v);localStorage.setItem('nhKws',JSON.stringify(nhKws));inp.value='';nhRenderNotif();}}
         function nhRemoveKw(i){nhKws.splice(i,1);localStorage.setItem('nhKws',JSON.stringify(nhKws));nhRenderNotif();}
-        async function nhRequestNotif(){const p=await Notification.requestPermission();if(p==='granted')nhNotifOn=true;nhRenderNotif();}
+        async function nhRequestNotif(){
+          if(typeof window.pspPushSubscribe!=='function'){
+            const status=document.getElementById('nhNotifStatus');
+            if(status)status.textContent='Notification service not loaded. Refresh and try again.';
+            return;
+          }
+          const result=await window.pspPushSubscribe();
+          nhRenderNotif();
+          if(!result?.ok){
+            const status=document.getElementById('nhNotifStatus');
+            if(status)status.textContent=result?.message||'Could not register this device for push alerts.';
+          }
+        }
+        window.addEventListener('psp:push-subscribed',nhRenderNotif);
         function nhCheckNotif(item){
           // Client popups only for HOT stories. The server sends push to subscribed
           // devices; do not create a second native Notification for the same story.
