@@ -1879,14 +1879,17 @@
             <span class="badge ${impactClass}" style="margin-right: 8px;">${n.impact}</span>
             ${pspCalendarEscapeV519(n.title)}
           </div>
-          <div class="news-value"><div class="news-value-label">Forecast</div><div class="news-value-num">${pspCalendarEscapeV519(n.forecast || '-')}</div></div>
-          <div class="news-value"><div class="news-value-label">Previous</div><div class="news-value-num">${pspCalendarEscapeV519(n.previous || '-')}</div></div>
+          <div class="news-value" ${n.forecastSnapshot ? 'title="Snapshot 27 Oct 2026 — market forecast may change before release"' : ''}><div class="news-value-label">Forecast${n.forecastSnapshot ? '*' : ''}</div><div class="news-value-num">${pspCalendarEscapeV519(n.forecast || '-')}</div></div>
+          <div class="news-value" ${n.forecastSnapshot ? 'title="Snapshot 27 Oct 2026 — previous figures may be revised"' : ''}><div class="news-value-label">Previous${n.forecastSnapshot ? '*' : ''}</div><div class="news-value-num">${pspCalendarEscapeV519(n.previous || '-')}</div></div>
           <div class="news-value"><div class="news-value-label">Actual</div><div class="news-value-num" style="color: ${n.actual ? 'var(--gold)' : 'var(--text-muted)'};">${pspCalendarEscapeV519(n.actual || '-')}</div></div>
           ${(n.forecast || n.impact === 'High' || n.impact === 'Medium') ? `<button onclick="aiEventAnalyze(${newsRawData.indexOf(n)})" style="background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;border:none;border-radius:8px;padding:6px 11px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">🤖 AI</button>` : '<div></div>'}
         </div>`;
       });
     });
     
+    if(filtered.some(n=>n.forecastSnapshot)){
+      html += '<div style="margin-top:10px;font-size:10px;color:var(--text-muted)">* Forecast / Previous from 27 Oct 2026 screenshot; snapshot, not live consensus. Figures can change.</div>';
+    }
     container.innerHTML = html;
     updateNewsCountdowns();
     if(!window._newsCdTimer) window._newsCdTimer=setInterval(updateNewsCountdowns,30000);
