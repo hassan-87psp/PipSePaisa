@@ -74,7 +74,7 @@ async function run(){
   console.log('PASS unsupported browser');
 
   const recover=browser({serviceReady:true,initialSubscribed:false});
-  assert.equal(recover.win.pspPushGetState(),'on','initial sticky flag retained until real check');
+  assert.equal(recover.win.pspPushGetState(),'checking','stored subscription requires verification before showing ON');
   const repaired=await recover.win.pspPushSubscribe();
   assert.equal(repaired.ok,true,'explicit subscribe should register device');
   assert.equal(recover.optIns,1,'stale storage must NOT suppress optIn');
