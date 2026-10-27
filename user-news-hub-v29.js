@@ -40,6 +40,56 @@
         }
 
 
+        // HOT push deep link. Routes through /dashboard/?page=newshub, inside the
+        // installed PWA scope. Select the actual publisher story after feed load.
+        let nhPushRouteHandledV515=false;
+        function nhApplyPushRouteV515(){
+          if(nhPushRouteHandledV515)return false;
+          let q;try{q=new URLSearchParams(location.search);}catch{return false;}
+          if(q.get('page')!=='newshub')return false;
+          const newsUrl=String(q.get('news_url')||'').slice(0,1250);
+          const newsTitle=String(q.get('news_title')||'').slice(0,200);
+          if(!newsUrl&&!newsTitle)return false;
+          const normalize=u=>{
+            try{const parsed=new URL(u);return parsed.origin+parsed.pathname+parsed.search;}catch{return String(u||'');}
+          };
+          const idx=nhNews.findIndex(n=>
+            (newsUrl && normalize(n.link||n.url)===normalize(newsUrl))||
+            (newsTitle && (n.title||'').toLowerCase().trim()===newsTitle.toLowerCase().trim()));
+          // Show the selected story regardless of the default Market Focus filter.
+          nhFilter='all';nhHeatFilter='all';
+          document.querySelectorAll('.nh-tab').forEach(b=>{
+            const code=b.getAttribute('onclick')||'';
+            b.classList.toggle('active',code.includes("nhSetFilter('all'"));
+          });
+          document.querySelectorAll('.nh-heat-btn').forEach(b=>{
+            const active=b.dataset.heat==='all';
+            b.classList.toggle('active',active);
+            b.setAttribute('aria-pressed',active?'true':'false');
+          });
+          nhRender();
+          nhPushRouteHandledV515=true;
+          if(idx>=0){nhDetail(idx);return true;}
+          // A recent push can be opened much later after the story fell off the
+          // rolling 500-item feed. Still show exactly the clicked source article
+          // rather than a random newer story or the Dashboard.
+          let safeSource='';
+          try{const parsed=new URL(newsUrl);if(parsed.protocol==='https:'||parsed.protocol==='http:')safeSource=parsed.href;}catch(_){}
+          const title=newsTitle||'Previously published HOT market news';
+          const html='<div style="padding:16px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);margin:12px 0">'+
+            '<div style="font-size:10px;font-weight:800;color:var(--gold);margin-bottom:8px">🔥 HOT NEWS · FROM NOTIFICATION</div>'+
+            '<div style="font-size:15px;line-height:1.45;font-weight:700;color:var(--text-primary)">'+nhEsc(title)+'</div>'+
+            '<div style="color:var(--text-muted);font-size:11px;line-height:1.5;margin-top:10px">This article is no longer in the latest news feed. Open the original publisher story below.</div>'+
+            (safeSource?'<a class="btn btn-primary" target="_blank" rel="noopener noreferrer" style="margin-top:14px" href="'+nhEsc(safeSource)+'">Read Original News ↗</a>':'')+
+            '</div>';
+          const list=document.getElementById('nhList'),details=document.getElementById('nhDetail');
+          if(window.matchMedia('(max-width:820px)').matches){
+            if(list)list.insertAdjacentHTML('afterbegin',html);
+            const row=list?.firstElementChild;if(row)row.scrollIntoView({block:'start',behavior:'smooth'});
+          }else if(details){details.innerHTML=html;}
+          return true;
+        }
+
         async function nhLoad(){
           if(nhFetching)return;nhFetching=true;
           const btn=document.getElementById('nhRefBtn');if(btn){btn.disabled=true;btn.textContent='⏳';}
@@ -53,6 +103,7 @@
             const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
             const el=document.getElementById('nhLastUp');if(el){const active=Number(d.sources), configured=Number(d.configured);el.textContent='Updated '+now+(Number.isFinite(active)&&Number.isFinite(configured)&&configured>0?' · '+active+'/'+configured+' feeds':'');}
             nhUpdateStats();nhRender();nhRenderForex();
+            if(nhApplyPushRouteV515())return;
             if(nhSelectedStory && !window.matchMedia('(max-width:820px)').matches){
               const idx=nhNews.findIndex(n=>(n.link||n.url||n.title)===nhSelectedStory);
               const detail=document.getElementById('nhDetail');
@@ -66,6 +117,7 @@
           }catch(e){
             if(!nhNews.length)document.getElementById('nhList').innerHTML=`<div class="nh-err" style="margin:12px">❌ Could not load news<br><small style="opacity:.7">${e.message}</small></div>`;
             else console.warn('News refresh failed; showing previous headlines',e);
+            nhApplyPushRouteV515();
           }finally{
             nhFetching=false;if(btn){btn.disabled=false;btn.textContent='🔄 Refresh';}
           }
