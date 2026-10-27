@@ -240,6 +240,10 @@ async function oneSignal(){
               serviceWorkerPath:"/OneSignalSDKWorker.js",
               serviceWorkerUpdaterPath:"/OneSignalSDKUpdaterWorker.js",
               serviceWorkerParam:{scope:"/"},
+              // Prefer an existing same-origin PWA client over a new Chrome tab.
+              // Browser/OS still controls the launch when no app client exists.
+              notificationClickHandlerMatch:"origin",
+              notificationClickHandlerAction:"navigate",
               notifyButton:{enable:false},
               autoResubscribe:true
             });
