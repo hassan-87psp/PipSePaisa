@@ -1738,6 +1738,11 @@
     loadNews(true);
   },15000);
 
+  function pspCalendarEscapeV519(value) {
+    return String(value==null?'':value).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
   function renderNews(isLive) {
     const container = document.getElementById('newsListContainer');
     if (!container) return;
@@ -1747,7 +1752,7 @@
       const dayOfWeek = new Date().getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
       if (isLive) {
-        badge.innerHTML = '<span style="width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;"></span>LIVE';
+        badge.innerHTML = '<span style="width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;"></span>SYNCED';
         badge.className = 'badge low';
         badge.style.cssText = '';
       } else {
@@ -1872,11 +1877,11 @@
           <div class="news-currency">${n.country}</div>
           <div class="news-title">
             <span class="badge ${impactClass}" style="margin-right: 8px;">${n.impact}</span>
-            ${n.title}
+            ${pspCalendarEscapeV519(n.title)}
           </div>
-          <div class="news-value"><div class="news-value-label">Forecast</div><div class="news-value-num">${n.forecast || '-'}</div></div>
-          <div class="news-value"><div class="news-value-label">Previous</div><div class="news-value-num">${n.previous || '-'}</div></div>
-          <div class="news-value"><div class="news-value-label">Actual</div><div class="news-value-num" style="color: ${n.actual ? 'var(--gold)' : 'var(--text-muted)'};">${n.actual || '-'}</div></div>
+          <div class="news-value"><div class="news-value-label">Forecast</div><div class="news-value-num">${pspCalendarEscapeV519(n.forecast || '-')}</div></div>
+          <div class="news-value"><div class="news-value-label">Previous</div><div class="news-value-num">${pspCalendarEscapeV519(n.previous || '-')}</div></div>
+          <div class="news-value"><div class="news-value-label">Actual</div><div class="news-value-num" style="color: ${n.actual ? 'var(--gold)' : 'var(--text-muted)'};">${pspCalendarEscapeV519(n.actual || '-')}</div></div>
           ${(n.forecast || n.impact === 'High' || n.impact === 'Medium') ? `<button onclick="aiEventAnalyze(${newsRawData.indexOf(n)})" style="background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;border:none;border-radius:8px;padding:6px 11px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">🤖 AI</button>` : '<div></div>'}
         </div>`;
       });
