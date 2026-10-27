@@ -22,7 +22,7 @@
             const r=await fetch(NH_PROXY,{signal:AbortSignal.timeout(12000)});
             const d=await r.json();
             if(!d.success||!d.items?.length)throw new Error(d.error||'No data');
-            nhNews=d.items.map(n=>({...n,cat:nhCategoryForItem(n),sv:nhSevFn(n.title,n.desc,nhCategoryForItem(n)),lc:nhLoc(n.title,n.desc),id:n.title.slice(0,40).replace(/[^a-zA-Z0-9]/g,'').toLowerCase()}));
+            nhNews=d.items.map(n=>({...n,cat:nhCategoryForItem(n),id:n.title.slice(0,40).replace(/[^a-zA-Z0-9]/g,'').toLowerCase()}));
             nhNews.forEach(n=>{if(!nhSeen.has(n.id)){const fresh=!nhFirstLoad;nhSeen.add(n.id);if(fresh)nhCheckNotif(n);}});nhFirstLoad=false;
             const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
             const el=document.getElementById('nhLastUp');if(el)el.textContent='Updated '+now;
@@ -44,66 +44,31 @@
           });
         }
 
+        function nhEsc(x){return String(x==null?'':x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+        // Measured prices only. These are NOT predictions or causally verified news effects.
         async function nhUpdateImpact(){
-          // 1) AI-analyzed impact (shared cache in Supabase, 30 min fresh) — fallback: keyword scoring
-          try{
-            const db=(typeof sb!=='undefined'&&sb)?sb:null;
-            let cached=null;
-            if(db){
-              const r=await db.from('nh_impact_cache').select('data,updated_at').eq('id',1).maybeSingle();
-              if(r&&r.data&&r.data.data&&r.data.updated_at&&(Date.now()-new Date(r.data.updated_at).getTime())<30*60*1000){cached=r.data.data;}
-            }
-            if(!cached){
-              const heads=(nhNews||[]).slice(0,15).map(n=>'- '+(n.title||'')).join('\n');
-              if(heads.length>40){
-                const prompt='You are a forex analyst. Based ONLY on these news headlines, give the likely impact on each instrument. Reply with STRICT JSON only, no markdown, exactly this shape: {"XAU/USD":{"bias":"bullish|bearish|neutral","why":"2-4 words"},"EUR/USD":{...},"USD/JPY":{...},"USD Index":{...},"Oil (WTI)":{...}}\nHeadlines:\n'+heads;
-                const rr=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:prompt}),signal:AbortSignal.timeout(15000)});
-                if(rr.ok){
-                  const dd=await rr.json();
-                  let txt=(dd.report||'').replace(/```json|```/g,'').trim();
-                  const m=txt.match(/\{[\s\S]*\}/);
-                  if(m){cached=JSON.parse(m[0]);
-                    if(db){try{await db.from('nh_impact_cache').upsert({id:1,data:cached,updated_at:new Date().toISOString()});}catch(e){}}
-                  }
-                }
-              }
-            }
-            if(cached){
-              const el2=document.getElementById('nhImpact');if(!el2)return;
-              const ic={bullish:'▲ Bullish',bearish:'▼ Bearish',neutral:'— Neutral'};
-              const cl={bullish:'nh-bull',bearish:'nh-bear',neutral:'nh-neut'};
-              el2.innerHTML=['XAU/USD','EUR/USD','USD/JPY','USD Index','Oil (WTI)'].map(function(pr){
-                const o=cached[pr]||{};const b=(o.bias||'neutral').toLowerCase();
-                const why=(o.why&&b!=='neutral')?(' — '+o.why):'';
-                return '<div class="nh-impact-row"><span style="font-weight:700;color:var(--text-secondary)">'+pr+'</span><span class="'+(cl[b]||'nh-neut')+'">'+((ic[b]||'— Neutral')+why)+'</span></div>';
-              }).join('');
-              return;
-            }
-          }catch(e){console.warn('AI impact fallback:',e);}
-          // 2) Fallback: keyword scoring
-          const T=(nhNews||[]).map(n=>((n.title||'')+' '+(n.desc||'')).toLowerCase());
-          const hits=w=>T.filter(t=>t.includes(w)).length;
-          const sum=ws=>ws.reduce((a,w)=>a+hits(w),0);
-          const conflict=sum(['war','strike','attack','missile','airstrike','conflict','military','troops']);
-          const mideast=sum(['iran','israel','gaza','saudi','yemen','hormuz','hezbollah']);
-          const ukr=sum(['ukraine','russia','kremlin']);
-          const fedUp=sum(['rate hike','hawkish','hot inflation','inflation rises','strong jobs','jobs beat','yields rise']);
-          const fedDown=sum(['rate cut','dovish','inflation cools','cooling inflation','weak jobs','recession','jobless claims rise']);
-          const trade=sum(['tariff','trade war','sanction','export ban']);
-          const oilSup=sum(['opec','oil supply','pipeline','embargo','output cut']);
-          const goldS=conflict+mideast+ukr+fedDown-fedUp;
-          const eurS=fedDown-(trade+fedUp);
-          const jpyS=-(conflict+mideast+ukr);
-          const dxyS=fedUp+trade+Math.floor((conflict+mideast)/3)-fedDown;
-          const oilS=mideast+ukr+oilSup;
-          const row=(pair,sc,bw,brw)=>{const cls=sc>1?'nh-bull':(sc<-1?'nh-bear':'nh-neut');const txt=sc>1?('▲ Bullish — '+bw):(sc<-1?('▼ Bearish — '+brw):'— Neutral');return '<div class="nh-impact-row"><span style="font-weight:700;color:var(--text-secondary)">'+pair+'</span><span class="'+cls+'">'+txt+'</span></div>';};
           const el=document.getElementById('nhImpact');if(!el)return;
-          el.innerHTML=
-            row('XAU/USD',goldS,'Risk-off / safe haven','Hawkish Fed')+
-            row('EUR/USD',eurS,'Dovish Fed','Trade war / strong USD')+
-            row('USD/JPY',jpyS,'Risk-on flows','Safe haven JPY')+
-            row('USD Index',dxyS,'Hawkish Fed / geopolitics','Dovish Fed')+
-            row('Oil (WTI)',oilS,'Supply risk','Demand worries');
+          if(!el.dataset.pricesLoaded)el.innerHTML='<div class="nh-impact-row"><span class="nh-neut">Fetching published prices...</span></div>';
+          try{
+            const r=await fetch('https://pipsepaisa-api.vercel.app/api/market-moves',{signal:AbortSignal.timeout(9500)});
+            if(!r.ok)throw new Error('Price source unavailable');
+            const d=await r.json();
+            const prices=Array.isArray(d.prices)?d.prices.filter(p=>p&&typeof p.label==='string'&&Number.isFinite(p.price)&&Number.isFinite(p.previousClose)&&Number.isFinite(p.changePercent)&&p.previousClose>0&&!isNaN(Date.parse(p.asOf))):[];
+            if(!prices.length)throw new Error('No observations available');
+            el.innerHTML=prices.map(p=>{
+              const cls=p.changePercent>0?'nh-bull':p.changePercent<0?'nh-bear':'nh-neut';
+              const arrow=p.changePercent>0?'▲':p.changePercent<0?'▼':'—';
+              const sign=p.changePercent>0?'+':'';
+              const at=new Date(p.asOf).toLocaleString([],{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+              return '<div class="nh-impact-row" style="display:block"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px">'+
+                '<span style="font-weight:700;color:var(--text-secondary)">'+nhEsc(p.label)+'</span>'+
+                '<span class="'+cls+'">'+arrow+' '+sign+p.changePercent.toFixed(3)+'%</span></div>'+
+                '<div style="font-size:10px;color:var(--text-muted);margin-top:3px">Last '+nhEsc(p.price)+' · Prev '+nhEsc(p.previousClose)+' · '+nhEsc(at)+'</div></div>';
+            }).join('')+'<div style="padding:9px 14px;font-size:10px;color:var(--text-muted);line-height:1.5">Yahoo Finance · May be delayed · Change vs previous close · Not verified as a reaction to any specific news.</div>';
+            el.dataset.pricesLoaded='1';
+          }catch(err){
+            if(!el.dataset.pricesLoaded)el.innerHTML='<div class="nh-impact-row nh-neut">Published market prices unavailable. No estimate shown.</div>';
+          }
         }
 
         function nhRender(){
@@ -115,32 +80,48 @@
             return`<div class="nh-nitem" onclick="nhDetail(${idx})" id="nhni${idx}">
               <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:wrap">
                 <span class="nh-cat" style="background:${s.bg};color:${s.c}">${s.l}</span>
-                <span class="nh-sev nh-${item.sv.toLowerCase()}">${item.sv}</span>
+
                 <span style="margin-left:auto;font-size:9px;color:var(--text-muted)">${nhAgo(item.date)}</span>
               </div>
               <div style="font-size:12px;font-weight:600;line-height:1.4;margin-bottom:4px;color:var(--text-primary)">${item.title}</div>
-              <div style="font-size:10px;color:var(--text-muted);display:flex;gap:4px">📍 ${item.lc}<span style="margin-left:auto">${item.source}</span></div>
+              <div style="font-size:10px;color:var(--text-muted);display:flex;gap:4px">📰 ${item.source}</div>
             </div>`;
           }).join('');
         }
 
+        // Show an instrument only when explicitly mentioned in the headline.
+        function nhHeadlineSubject(t){
+          t=String(t||'');
+          if(/\b(?:xau\s*\/?\s*usd|gold|bullion)\b/i.test(t))return'Gold';
+          if(/\b(?:xag\s*\/?\s*usd|silver)\b/i.test(t))return'Silver';
+          const pairs=['EUR/USD','GBP/USD','USD/JPY','USD/CAD','AUD/USD','NZD/USD'];
+          for(const p of pairs)if(new RegExp('\\b'+p.replace('/','\\s*\\/?\\s*')+'\\b','i').test(t))return p;
+          if(/\b(?:bitcoin|btc)\b/i.test(t))return'Bitcoin';
+          if(/\b(?:oil|crude|brent|wti)\b/i.test(t))return'Crude Oil';
+          if(/\b(?:dxy|dollar index|us dollar index)\b/i.test(t))return'USD Index';
+          if(/\b(?:forex|foreign exchange|fx markets?|currencies|currency markets?)\b/i.test(t))return'Forex Market';
+          if(/\b(?:fed|fomc|ecb|boe|boj|cpi|ppi|pce|nfp|payroll|inflation|gdp|unemployment|jobs report|central bank|interest rates?|monetary policy|retail sales)\b/i.test(t))return'Macro News';
+          return null;
+        }
         function nhRenderForex(){
-          const pairs=['XAU/USD','EUR/USD','USD/JPY','GBP/USD','USD/CAD','AUD/USD'];
-          const items=nhNews.filter(n=>n.cat==='forex'||n.cat==='fundamental').slice(0,4);
           const el=document.getElementById('nhForex');if(!el)return;
-          if(!items.length){el.innerHTML='<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:10px">No forex news yet</div>';return;}
-          el.innerHTML=items.map((n,i)=>`<div class="nh-fcard" onclick="nhDetail(${nhNews.indexOf(n)})"><div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:4px">${pairs[i%6]}</div><div style="font-size:12px;color:var(--text-primary);line-height:1.3">${n.title.slice(0,65)}...</div><div style="font-size:10px;color:var(--text-muted);margin-top:4px">${nhAgo(n.date)} · ${n.source}</div></div>`).join('');
+          const items=nhNews.filter(n=>['forex','fundamental'].includes(n.cat)&&nhHeadlineSubject(n.title)).slice(0,6);
+          if(!items.length){el.innerHTML='<div class="nh-loading">No explicitly matched forex/macro headlines</div>';return;}
+          el.innerHTML=items.map(n=>'<div class="nh-fcard" onclick="nhDetail('+nhNews.indexOf(n)+')">'+
+            '<div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:4px">'+nhEsc(nhHeadlineSubject(n.title))+'</div>'+
+            '<div style="font-size:12px;color:var(--text-primary);line-height:1.3">'+nhEsc(n.title.slice(0,100))+'</div>'+
+            '<div style="font-size:10px;color:var(--text-muted);margin-top:4px">'+nhEsc(nhAgo(n.date))+' · '+nhEsc(n.source)+'</div></div>').join('');
         }
 
         function nhDetailHTML(n,s){
           return `
             <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;flex-wrap:wrap">
               <span class="nh-cat" style="background:${s.bg};color:${s.c};font-size:10px;padding:3px 10px">${s.l}</span>
-              <span class="nh-sev nh-${n.sv.toLowerCase()}" style="font-size:10px">${n.sv}</span>
+
               <span style="margin-left:auto;font-size:10px;color:var(--text-muted)">${nhAgo(n.date)} · ${n.source}</span>
             </div>
             <div style="font-size:16px;font-weight:700;line-height:1.3;margin-bottom:8px;color:var(--text-primary)">${n.title}</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap"><span>📍 ${n.lc}</span><span>🕐 ${new Date(n.date).toLocaleString()}</span></div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px;display:flex;gap:12px;flex-wrap:wrap"><span>🕐 ${new Date(n.date).toLocaleString()}</span></div>
             ${n.desc?`<div style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:14px">${n.desc}...</div>`:''}
             <a href="${n.link}" target="_blank" class="btn btn-primary" style="font-size:13px">Read Full Story ↗</a>`;
         }
