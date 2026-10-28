@@ -13,6 +13,7 @@
    [2,'2 minutes'],[1,'1 minute']
  ];
  let events=[],lastRefresh=0;
+ const sending=new Set();
  function get(k){try{return localStorage.getItem(k);}catch(_){return null;}}
  function set(k,v){try{localStorage.setItem(k,v);}catch(_){}}
  function enabled(){return get(KEY)==='1' && 'Notification' in window && Notification.permission==='granted';}
@@ -35,7 +36,22 @@
    const title=String(ev.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'').slice(0,70);
    return String(ev.country||'')+'|'+title+'|'+String(ev.date||'')+'|'+minutes;
  }
- function tick(){
+ async function notify(title,body,tag){
+   try{
+     if(navigator.serviceWorker&&typeof navigator.serviceWorker.getRegistration==='function'){
+       const reg=await navigator.serviceWorker.getRegistration();
+       if(reg&&reg.active&&typeof reg.showNotification==='function'){
+         await reg.showNotification(title,{body,tag,icon:'/favicon.ico'});
+         return true;
+       }
+     }
+   }catch(_){/* Fall back to desktop notification constructor. */}
+   try{const n=new Notification(title,{body,tag,icon:'/favicon.ico'});
+     n.onclick=function(){try{window.focus();document.querySelector('[data-page="news"]')?.click();}catch(_){} };
+     return true;
+   }catch(_){return false;}
+ }
+ async function tick(){
    if(!enabled())return;
    const now=Date.now(),map=sentMap();cleanSent(map);
    let dirty=false;
@@ -48,13 +64,13 @@
        if(left>target||left<target-slack)continue;
        const k=keyFor(e,m);
        if(map[k])continue;
+       if(sending.has(k))continue;
+       sending.add(k);
        try{
          const title='🔴 High Impact · '+String(e.country||'')+' · '+label+' left';
          const body=String(e.title||'Economic news')+' — '+new Date(time).toLocaleTimeString('en-US',{timeZone:'Asia/Karachi',hour:'2-digit',minute:'2-digit',hour12:true})+' PKT';
-         const notif=new Notification(title,{body,tag:'psp-ec-'+k.slice(-100),icon:'/favicon.ico'});
-         notif.onclick=function(){try{window.focus();document.querySelector('[data-page="news"]')?.click();}catch(_){}};
-         map[k]=now;dirty=true;
-       }catch(err){/* Browser may throttle or deny foreground notifications. */}
+         if(await notify(title,body,'psp-ec-'+k.slice(-100))){map[k]=now;dirty=true;}
+       }finally{sending.delete(k);}
      }
    }
    if(dirty)set(SENT,JSON.stringify(map));
