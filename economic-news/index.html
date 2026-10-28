@@ -3598,10 +3598,11 @@ function pspNotificationUiState(){
              localStorage.getItem('psp_push_subscribed_v108')==='1';
     }catch(e){return false;}
   })();
-  if(remembered)return 'on';
   if(!('Notification' in window))return 'unsupported';
   if(Notification.permission==='denied')return 'blocked';
-  return 'off';
+  if(Notification.permission!=='granted')return 'off';
+  // Only the OneSignal SDK can confirm a live device subscription.
+  return remembered?'checking':'off';
 }
 
 function refreshPspNotificationUi(){
@@ -3630,13 +3631,23 @@ function refreshPspNotificationUi(){
     if(badge)badge.textContent='✓ ON';
     if(dot)dot.classList.add('on');
     if(title)title.textContent='Notifications are active';
-    if(copy)copy.textContent='This device is saved as subscribed for PipSePaisa push alerts.';
+    if(copy)copy.textContent='OneSignal has confirmed an active push subscription on this device.';
     if(pill){pill.textContent='ACTIVE';pill.classList.add('on');}
     if(action){
       action.textContent='Notifications Active ✓';
       action.className='psp-notify-center-btn success';
       action.disabled=true;
     }
+    return;
+  }
+
+  if(state==='checking'){
+    if(navText)navText.textContent='Checking Notifications';
+    if(badge)badge.textContent='CHECK';
+    if(title)title.textContent='Verifying device subscription';
+    if(copy)copy.textContent='Checking that this device can receive Signal, Chart, Article and HOT News push alerts.';
+    if(pill)pill.textContent='VERIFYING';
+    if(action)action.textContent='Verify / Repair Notifications';
     return;
   }
 
@@ -3666,7 +3677,7 @@ function refreshPspNotificationUi(){
   if(navText)navText.textContent='Enable Notifications';
   if(badge)badge.textContent='OFF';
   if(title)title.textContent='Enable PipSePaisa notifications';
-  if(copy)copy.textContent='Turn on alerts for signals, TP/SL updates and important announcements.';
+  if(copy)copy.textContent='Turn on alerts for signals, TP/SL, new charts, articles and HOT market news.';
   if(pill)pill.textContent='OFF';
   if(action)action.textContent='Enable Notifications';
 }
@@ -4308,7 +4319,7 @@ window.addEventListener('message',function(event){
 
 
 <script src="psp-v28-fixes.js?v=20260813-v72-clean-routes"></script>
-<script src="push-subscribe-prompt.js?v=20260824-v146-footer-controls"></script>
+<script src="push-subscribe-prompt.js?v=20261028-v519-verified-one-signal"></script>
 
 
 
