@@ -28,6 +28,10 @@ jobs:
         run: node tests/team-referral-enrollment.test.mjs
       - name: Verify OneSignal subscription behavior
         run: node tests/notification-subscription-state.mjs
+      - name: Verify EA & Indicator marketplace JavaScript and P+ eligibility
+        run: |
+          node --check ea-indicator-user-v215.js
+          node -e "const fs=require('fs');const s=fs.readFileSync('ea-indicator-user-v215.js','utf8');const page=fs.readFileSync('tradingtools/index.html','utf8');if(!s.includes('min_deposit_usd')||!s.includes('depositAmount<minimumDeposit')||!page.includes('id=\"p-plus-indicator\"'))process.exit(1)"
       - name: Verify User Signal History date filters and total pips
         run: |
           node --check user-signals-core-v29.js
