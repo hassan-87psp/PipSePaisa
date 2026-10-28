@@ -1654,7 +1654,7 @@
   let newsState = {
     impact: 'all',     // all | High | Medium | Low
     currency: 'all',   // all | USD | EUR | GBP | JPY | AUD | CAD | CHF | NZD | CNY
-    time: 'all',     // today | tomorrow | week | all | custom
+    time: 'week',     // today | tomorrow | week | all | custom
     search: '',
     timezone: 'Asia/Karachi',  // user-selected timezone
     customFrom: null,  // ISO date string (yyyy-mm-dd)
@@ -1722,7 +1722,7 @@
     if(badge&&!ok){badge.innerHTML='⚠️ Data unavailable';badge.className='badge';badge.style.cssText='background:rgba(245,158,11,.15);color:var(--gold)';}
     const last=document.getElementById('newsUpdated');
     if(last&&ok)last.textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
-    if(ok||newsRawData.length)renderNews(ok);
+    if(ok||newsRawData.length){renderNews(ok);if(ok&&typeof window.pspCalendarAlertsUpdate==='function')window.pspCalendarAlertsUpdate(newsRawData);}
   }
 
   // Poll faster around high-priority releases; idle/off-page users make no calls.
@@ -1784,7 +1784,7 @@
     const nextWeekMonday = new Date(thisWeekMonday); nextWeekMonday.setDate(thisWeekMonday.getDate() + 7); nextWeekMonday.setHours(0,0,0,0);
     const nextWeekSunday = new Date(nextWeekMonday); nextWeekSunday.setDate(nextWeekMonday.getDate() + 6); nextWeekSunday.setHours(23,59,59,999);
     
-    // All = show everything in newsRawData that is >= today
+    // All includes history intentionally. The default This Week view avoids starting 30 days in the past.
     const allEnd = nextWeekSunday;
     
     // For nextweek: find the date range of nextweek data dynamically
