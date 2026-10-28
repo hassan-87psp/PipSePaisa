@@ -51,16 +51,31 @@
      return true;
    }catch(_){return false;}
  }
+ async function deliverOnce(k,title,body,tag){
+   const deliver=async function(){
+     const current=sentMap();cleanSent(current);
+     if(current[k])return false;
+     if(!await notify(title,body,tag))return false;
+     // Merge fresh storage so a second tab cannot overwrite another event's alerts.
+     const latest=sentMap();latest[k]=Date.now();cleanSent(latest);
+     set(SENT,JSON.stringify(latest));
+     return true;
+   };
+   // Web Locks serializes duplicate notifications in concurrent desktop/mobile tabs.
+   if(navigator.locks && typeof navigator.locks.request==='function'){
+     return navigator.locks.request('psp-economic-reminders', {mode:'exclusive'},deliver);
+   }
+   return deliver();
+ }
  async function tick(){
    if(!enabled())return;
    const now=Date.now(),map=sentMap();cleanSent(map);
-   let dirty=false;
    for(const e of events){
      if(e.impact!=='High'||(e.status&&!['confirmed','released','scheduled'].includes(String(e.status).toLowerCase())))continue;
      const time=Date.parse(e.date),left=time-now;
      if(!Number.isFinite(time)||left<0||left>720*60000)continue;
      for(const [m,label] of THRESHOLDS){
-       const target=m*60000,slack=m<=2?25000:60000;
+       const target=m*60000,slack=m<=2?45000:90000; // Allow mobile timer throttling without sending after release.
        if(left>target||left<target-slack)continue;
        const k=keyFor(e,m);
        if(map[k])continue;
@@ -69,11 +84,11 @@
        try{
          const title='🔴 High Impact · '+String(e.country||'')+' · '+label+' left';
          const body=String(e.title||'Economic news')+' — '+new Date(time).toLocaleTimeString('en-US',{timeZone:'Asia/Karachi',hour:'2-digit',minute:'2-digit',hour12:true})+' PKT';
-         if(await notify(title,body,'psp-ec-'+k.slice(-100))){map[k]=now;dirty=true;}
+         if(await deliverOnce(k,title,body,'psp-ec-'+k.slice(-100)))map[k]=Date.now();
+       }catch(err){console.warn('PipSePaisa calendar reminder retry available:',err&&err.message||err);
        }finally{sending.delete(k);}
      }
    }
-   if(dirty)set(SENT,JSON.stringify(map));
  }
  window.pspCalendarAlertsUpdate=function(data){
    if(!Array.isArray(data))return;
