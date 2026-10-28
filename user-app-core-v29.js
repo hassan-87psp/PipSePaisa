@@ -1871,7 +1871,7 @@
         const flag = FLAG_MAP[n.country] || '🌐';
         
         html += `<div class="news-item">
-          <div class="news-time">${timeStr}<span class="evcd" data-evt="${eventTime.getTime()}" data-act="${n.actual ? 1 : 0}" style="display:block;font-size:9px;font-weight:800;margin-top:2px;"></span></div>
+          <div class="news-time">${timeStr}<span class="evcd" data-evt="${eventTime.getTime()}" data-act="${n.actual && n.timeRole!=='auction-close' ? 1 : 0}" data-role="${pspCalendarEscapeV519(n.timeRole||'')}" style="display:block;font-size:9px;font-weight:800;margin-top:2px;"></span></div>
           <div class="news-flag">${flag}</div>
           <div class="news-currency">${n.country}</div>
           <div class="news-title">
@@ -1911,6 +1911,7 @@
       var t=parseInt(el.getAttribute('data-evt'))||0;
       var act=el.getAttribute('data-act')==='1';
       var r=fmtNewsCd(t-now,act);
+      if(el.getAttribute('data-role')==='auction-close'&&t<=now)r=['Auction closed','var(--text-muted)'];
       el.textContent=r[0];el.style.color=r[1];
       var row=el.closest('.news-item');
       if(row){var soon=!act&&(t-now)>0&&(t-now)<3600000;row.style.borderLeft=soon?'3px solid #ef4444':'';row.style.paddingLeft=soon?'9px':'';}
