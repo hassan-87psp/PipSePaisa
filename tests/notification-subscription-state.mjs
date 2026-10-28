@@ -99,3 +99,16 @@ async function run(){
   console.log('NOTIFICATION_SUBSCRIPTION_TESTS_PASS 8/8');
 }
 await run();
+
+for (const page of ['economic-news/index.html','world-news/index.html']) {
+  const html=fs.readFileSync(new URL('../'+page,import.meta.url),'utf8');
+  const start=html.indexOf('<script id="pspV140NotificationCenter">');
+  const end=html.indexOf('</script>',start);
+  assert.ok(start>=0 && end>start,page+' must have notification center');
+  const logic=html.slice(start,end);
+  assert.ok(logic.includes("window.pspPushGetState"),page+' must use SDK state');
+  assert.ok(logic.includes("Only the OneSignal SDK can confirm a live device subscription."),
+    page+' must not treat saved flag alone as a live device');
+  assert.ok(!logic.includes("if(remembered)return 'on'"),page+' must not falsely report active push');
+}
+console.log('PASS Economic News and World News verify active OneSignal device subscription');
