@@ -40,7 +40,7 @@
    const now=Date.now(),map=sentMap();cleanSent(map);
    let dirty=false;
    for(const e of events){
-     if(e.impact!=='High')continue;
+     if(e.impact!=='High'||(e.status&&!['confirmed','released','scheduled'].includes(String(e.status).toLowerCase())))continue;
      const time=Date.parse(e.date),left=time-now;
      if(!Number.isFinite(time)||left<0||left>720*60000)continue;
      for(const [m,label] of THRESHOLDS){
@@ -61,7 +61,7 @@
  }
  window.pspCalendarAlertsUpdate=function(data){
    if(!Array.isArray(data))return;
-   events=data.filter(e=>e&&e.impact==='High'&&typeof e.title==='string'&&Number.isFinite(Date.parse(e.date))).slice(0,1500);
+   events=data.filter(e=>e&&e.impact==='High'&&(!e.status||['confirmed','released','scheduled'].includes(String(e.status).toLowerCase()))&&typeof e.title==='string'&&Number.isFinite(Date.parse(e.date))).slice(0,1500);
    tick();
  };
  window.pspCalendarAlertsToggle=async function(){
