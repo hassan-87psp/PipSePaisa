@@ -15,6 +15,15 @@ function reqs(){return api._getPremiumState?.().requests||[]}
 function products(){return api._getCatalog?.()||[]}
 function findRequest(id){return reqs().find(r=>r.id===id)}
 function findProduct(id){return products().find(p=>p.id===id)}
+const SUPPORT_WHATSAPP='601156961157'; // Verified against PipSePaisa admin_whatsapp settings
+function supportUrl(requestId,productId){
+ var r=requestId?findRequest(requestId):null,p=findProduct(productId||r?.product_id);
+ var t=['Hello PipSePaisa Support,','I need help with '+(p?.title||r?.ea_indicator_products?.title||'EA / Indicator')+'.'];
+ if(r){t.push('Application: '+r.id);t.push('Status: '+(r.status||'pending'));if(r.trading_account_id)t.push('MT5 Account ending: '+String(r.trading_account_id).slice(-4));}
+ t.push('Please assist me. Thank you.');
+ return 'https://wa.me/'+SUPPORT_WHATSAPP+'?text='+encodeURIComponent(t.join('\n'));
+}
+function openWhatsApp(requestId,productId){window.open(supportUrl(requestId,productId),'_blank','noopener,noreferrer')}
 function latestFor(productId){return reqs().find(r=>r.product_id===productId)||null}
 function feedback(id){return state.feedback[id]||null}
 function expired(r){return !!(r?.license_expires_at&&new Date(r.license_expires_at).getTime()<=Date.now())}
@@ -178,6 +187,7 @@ function decorateProducts(){
   var secondary=document.createElement('button');secondary.type='button';secondary.className='eaiL-btn';secondary.textContent='View Details';
   secondary.addEventListener('click',e=>{e.stopPropagation();api.detail(p.id)});
   actions.appendChild(secondary);
+  var wa=document.createElement('button');wa.type='button';wa.className='eaiL-btn';wa.textContent='Get WhatsApp Support';wa.addEventListener('click',e=>{e.stopPropagation();openWhatsApp(r?.id,p.id)});actions.appendChild(wa);
   body.appendChild(actions);
  });
 }
@@ -207,7 +217,7 @@ function licHtml(r){
  (r.status==='rejected'?'<div class="eaiL-confirm"><span>!</span><div><strong>Correction required:</strong> '+esc(r.admin_note||'Please verify the broker account and resubmit.')+'</div></div>':'')+
  (f?.issue_description?'<div class="eaiL-confirm"><span>i</span><div><strong>Installation support requested:</strong> '+esc(f.issue_description)+'</div></div>':'')+
  '<div class="eaiL-actions"><button type="button" class="eaiL-btn primary" data-eail-action="'+action+'" data-request="'+esc(r.id)+'" data-product="'+esc(r.product_id)+'">'+esc(mainAction)+'</button>'+
- '<button type="button" class="eaiL-btn" data-eail-action="install" data-request="'+esc(r.id)+'">Installation Guide</button>'+
+ '<button type="button" class="eaiL-btn" data-eail-action="install" data-request="'+esc(r.id)+'">Installation Guide</button>'+ '<button type="button" class="eaiL-btn" data-eail-action="whatsapp" data-request="'+esc(r.id)+'" data-product="'+esc(r.product_id)+'">Get Support on WhatsApp</button>'+
  (r.status==='downloaded'&&!f?.installation_confirmed_at?'<button type="button" class="eaiL-btn" data-eail-action="confirm" data-request="'+esc(r.id)+'">Confirm Installed</button>':'')+
  '</div></div></article>'
 }
@@ -244,7 +254,7 @@ function runAction(action,id,pid){
  if(action==='resubmit'||action==='apply')return api.request(pid);
  if(action==='install')return showInstall(id);
  if(action==='confirm')return confirmInstall(id);
- if(action==='issue')return showSupport(id);
+ if(action==='whatsapp'||action==='issue')return openWhatsApp(id,pid);
  if(action==='explore')return setTab('explore',true);
  if(action==='refresh')return api.load();
 }
@@ -286,7 +296,7 @@ function showInstall(id){
  '<div class="eaiL-modalActions">'+
  (ready&&!isExpired?'<button type="button" class="eaiL-btn primary" data-eail-modal-action="download">↓ Download Licensed File</button>':'')+
  (r.status==='downloaded'&&!f?.installation_confirmed_at?'<button type="button" class="eaiL-btn" data-eail-modal-action="confirm">✓ I Installed It</button>':'')+
- (ready?'<button type="button" class="eaiL-btn" data-eail-modal-action="support">Report Installation Issue</button>':'')+
+ '<button type="button" class="eaiL-btn" data-eail-modal-action="support">Get Support on WhatsApp</button>'+
  '<button type="button" class="eaiL-btn" data-eail-close="1">Close</button></div>';
  var back=modal('Installation — '+(p?.title||r.ea_indicator_products?.title||'Indicator'),html);
  back.addEventListener('click',e=>{var button=e.target.closest('[data-eail-modal-action]');if(!button)return;
@@ -306,29 +316,8 @@ async function confirmInstall(id){
  d('eaiModalBack')?.remove();if(window.pipToast)window.pipToast('Installation confirmed.','ok');
  await api.load();setTab('licenses',false);
 }
-function showSupport(id){
- var r=findRequest(id);if(!r||!['ready','downloaded'].includes(r.status))return;
- var body='<h3>Report an Installation Issue</h3>'+
- '<p style="font-size:13px;color:var(--text-muted);line-height:1.6">Tell the licensing team what is happening in MetaTrader. Include the error message, but never share passwords.</p>'+
- '<form class="eaiL-support" id="eaiLIssueForm"><label for="eaiLIssue" style="font-size:12px;font-weight:850;display:block;margin:10px 0 7px">Describe the issue *</label>'+
- '<textarea id="eaiLIssue" maxlength="1000" minlength="10" required placeholder="E.g., I copied the EX5 file into MQL5/Indicators, but it does not appear in MT5 Navigator.">'+esc(feedback(id)?.issue_description||'')+'</textarea>'+
- '<div class="eaiL-error" id="eaiLIssueError" aria-live="polite"></div>'+
- '<div class="eaiL-modalActions"><button class="eaiL-btn primary" type="submit" id="eaiLIssueSubmit">Send to Licensing Team</button>'+
- '<button class="eaiL-btn" type="button" data-eail-close="1">Cancel</button></div></form>';
- var back=modal('Installation Support',body);
- d('eaiLIssueForm').onsubmit=async function(e){
- e.preventDefault();var btn=d('eaiLIssueSubmit'),msg=d('eaiLIssue').value.trim();
- if(msg.length<10){d('eaiLIssueError').textContent='Please describe your issue in at least 10 characters.';return}
- btn.disabled=true;btn.textContent='Sending…';
- try{
- var u=await me();if(!u)throw Error('Please log in again.');
- var result=await client().from('ea_indicator_license_feedback').upsert({request_id:id,user_id:u.id,issue_description:msg,issue_reported_at:new Date().toISOString(),updated_at:new Date().toISOString()},{onConflict:'request_id'});
- if(result.error)throw result.error;
- back.remove();if(window.pipToast)window.pipToast('Installation issue sent to the licensing team.','ok');
- await api.load();setTab('licenses',false);
- }catch(ex){d('eaiLIssueError').textContent=ex.message||'Could not send request.';btn.disabled=false;btn.textContent='Send to Licensing Team'}
- };
-}
+function showSupport(id){openWhatsApp(id)}
+
 async function refreshDetails(){
  var u=await me();if(!u)return;
  state.userId=u.id;
@@ -365,6 +354,7 @@ api.showExplore=function(){setTab('explore',true)};
 api.installGuide=showInstall;
 api.confirmInstalled=confirmInstall;
 api.reportInstallationIssue=showSupport;
+api.whatsAppSupport=openWhatsApp;
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{
  if(d('page-eaindicator')?.classList.contains('active'))api.load();
 }, {once:true});
