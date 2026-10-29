@@ -239,7 +239,7 @@ async function load(kind){
   const {data,error}=await conn().rpc('psp_staff_queue_v498',{p_kind:kind});
   if(error)throw error;
   st.rows=Array.isArray(data)?data:[];st.loaded=true;
-  if(!st.manualFilter&&st.filter==='pending'&&!visible(kind).length){
+  if(!st.manualFilter&&st.filter==='pending'&&!st.rows.some(r=>['pending','submitted'].includes(status(kind,r)))){
    const next=kind==='indicator'?['under_review','approved','rejected','ready','downloaded','all']:
     ['approved','rejected','expired','all'];
    st.filter=next.find(f=>f==='all'||st.rows.some(r=>status(kind,r)===f))||'all';
