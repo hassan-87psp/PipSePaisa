@@ -6242,7 +6242,7 @@
     sc.addEventListener('load',function(){
       if(document.querySelector('script[data-psp-eai-v348]'))return;
       var advanced=document.createElement('script');
-      advanced.src='/ea-indicator-user-v348.js?v=20261029-v350-private-notifications';
+      advanced.src='/ea-indicator-user-v348.js?v=20261029-v352-license-workspace';
       advanced.defer=true;advanced.dataset.pspEaiV348='1';
       document.head.appendChild(advanced);
     },{once:true});
