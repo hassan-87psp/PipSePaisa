@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co" crossorigin>
 <title>PSP Mentor Panel — PipSePaisa</title>
+<link rel="stylesheet" href="/mentor-staff-review-v498.css?v=20261029-v498">
+<script defer src="/mentor-staff-review-v498.js?v=20261029-v498"></script>
 <meta name="robots" content="noindex,follow">
 <link rel="stylesheet" href="/psp-performance-v220.css?v=20260910-v220-deep">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1053,12 +1055,13 @@ const MODS={
 const NAV=[['MAIN',[['performance','🏆','Performance'],['signals','📊','Signals'],['charts','📈','Charts'],['articles','📖','Articles'],['banners','🖼️','Banners']]],
   ['CONTENT',[['courses','🎓','Courses'],['news','📰','News'],['quiz','❓','Quiz'],['community','👥','Community']]],
   ['INSIGHTS',[['analytics','📉','Analytics'],['earnings','💰','Earnings'],['students','👥','Students']]],
+  ['SOFTWARE',[['indicator_review','🧩','EA & Indicator'],['ib_review','🛡️','IB Verification']]],
   ['MONETIZE',[['requests','🧾','Requests']]],
   ['COMMUNICATION',[['chats','✉️','Member Chats'],['messages','💬','Messages'],['notifications','🔔','Notifications']]],
   ['SYSTEM',[['settings','⚙️','Settings']]]];
-const TITLES={performance:['Performance','Live overview and results'],dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','VIP chart research & analysis'],articles:['Articles','Professional research & insights'],banners:['Banners','Upload social media banners'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members']};
+const TITLES={performance:['Performance','Live overview and results'],dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','VIP chart research & analysis'],articles:['Articles','Professional research & insights'],banners:['Banners','Upload social media banners'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members'],indicator_review:['EA & Indicator','Review software applications'],ib_review:['IB Verification','Review broker account verification']};
 
-let MENTOR_ACCESS={performance:true,dashboard:true,signals:true,charts:true,articles:true,banners:true,settings:true};
+let MENTOR_ACCESS={performance:true,dashboard:true,signals:true,charts:true,articles:true,banners:true,settings:true,indicator_review:false,ib_review:false};
 function mentorCan(k){return MENTOR_ACCESS[k]!==false;}
 async function loadMentorAccessSettings(){
   try{
@@ -1066,7 +1069,7 @@ async function loadMentorAccessSettings(){
     if(r.error)throw r.error;
     (r.data||[]).forEach(x=>{MENTOR_ACCESS[x.key]=x.enabled!==false;});
   }catch(e){
-    MENTOR_ACCESS={performance:true,dashboard:true,signals:true,charts:true,articles:true,banners:true,settings:true};
+    MENTOR_ACCESS={performance:true,dashboard:true,signals:true,charts:true,articles:true,banners:true,settings:true,indicator_review:false,ib_review:false};
   }
 }
 function metaOf(k){return MODS[k]?[MODS[k].label,MODS[k].sub]:(TITLES[k]||[k,'']);}
@@ -1162,6 +1165,11 @@ async function afterLogin(){
   }
   ME=prof;
   await loadMentorAccessSettings();
+  const staffToggles={indicator_review:MENTOR_ACCESS.indicator_review===true,ib_review:MENTOR_ACCESS.ib_review===true};
+  let staffPermission={indicator_review:false,ib_review:false};
+  try{staffPermission=await window.PSPMentorStaffV498?.prepare(sb)||staffPermission;}catch(e){console.warn('Restricted mentor panels unavailable',e)}
+  MENTOR_ACCESS.indicator_review=staffToggles.indicator_review&&staffPermission.indicator_review===true;
+  MENTOR_ACCESS.ib_review=staffToggles.ib_review&&staffPermission.ib_review===true;
   document.getElementById('authOverlay').classList.add('hidden');document.getElementById('app').classList.add('show');
   document.getElementById('whoami').textContent='👤 '+(ME.full_name||ME.email)+' · '+(ME.mentor_code||'MENTOR');
   buildNav();showPage(firstMentorPage());startClock();initBell();
@@ -1311,7 +1319,7 @@ function showPage(k){
   document.getElementById('pg-'+k).classList.add('active');
   const m=metaOf(k);document.getElementById('pageTitle').textContent=m[0];document.getElementById('pageSub').textContent=m[1];
   document.getElementById('sidebar').classList.remove('open');
-  ({performance:renderPerformance,dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,articles:renderMentorArticles,banners:renderMentorBanners,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,courses:renderMentorCourses,community:renderMentorCommunity,chats:renderMentorChats}[k]||(()=>renderModule(k)))();
+  ({performance:renderPerformance,dashboard:renderDashboard,signals:renderSignals,adminsignals:renderAdminSignals,charts:renderCharts,articles:renderMentorArticles,banners:renderMentorBanners,subscriptions:renderSubs,analytics:renderAnalytics,earnings:renderEarnings,students:renderStudents,settings:renderSettings,payments:renderPayments,requests:renderRequests,courses:renderMentorCourses,community:renderMentorCommunity,chats:renderMentorChats,indicator_review:()=>window.PSPMentorStaffV498?.render('indicator_review'),ib_review:()=>window.PSPMentorStaffV498?.render('ib_review')}[k]||(()=>renderModule(k)))();
 }
 
 /* ============ DASHBOARD ============ */
