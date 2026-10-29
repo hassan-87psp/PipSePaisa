@@ -586,3 +586,48 @@ if(document.readyState==="loading"){
   start();
 }
 })();
+
+
+/* V362 — Bind each opted-in OneSignal subscription to the authenticated account.
+   Licensing alerts are targeted by external_id, never the entire subscriber segment. */
+(function(){
+"use strict";
+if(window.__PSP_PUSH_IDENTITY_V362__)return;
+window.__PSP_PUSH_IDENTITY_V362__=true;
+let knownId=null,busy=false,authListenerAttached=false;
+async function syncAlias(){
+ if(busy||!window.__PIPSEPAISA_ONESIGNAL_READY__||!window.sb?.auth||!("Notification" in window)||Notification.permission!=="granted")return;
+ busy=true;
+ try{
+   const result=await window.sb.auth.getUser();
+   const uid=result.data?.user?.id||null;
+   if(uid===knownId)return;
+   window.OneSignalDeferred=window.OneSignalDeferred||[];
+   window.OneSignalDeferred.push(async function(os){
+      try{
+        if(uid){
+          await os.login(uid);
+          knownId=uid;
+        } else if(knownId) {
+          await os.logout();
+          knownId=null;
+        }
+      }catch(e){console.warn("Targeted push identity binding deferred",e?.message||e)}
+   });
+ }catch(e){console.warn("Push identity check deferred",e?.message||e)}
+ finally{busy=false}
+}
+window.pspPushBindUser=function(){return syncAlias()};
+window.addEventListener("psp:push-subscribed",syncAlias);
+window.addEventListener("focus",syncAlias);
+window.addEventListener("pageshow",syncAlias);
+function attachAuth(){
+ if(authListenerAttached||!window.sb?.auth?.onAuthStateChange)return;
+ authListenerAttached=true;
+ window.sb.auth.onAuthStateChange(function(){setTimeout(syncAlias,100)});
+ syncAlias();
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",attachAuth,{once:true});else attachAuth();
+let attempts=0;
+let check=setInterval(function(){attachAuth();if(authListenerAttached||++attempts>30)clearInterval(check)},2000);
+})();
