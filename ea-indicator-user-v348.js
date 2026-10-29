@@ -4,7 +4,7 @@
 if(window.__PSP_EAI_LIBRARY_V348__ || !window.PSPEAIndicator) return;
 window.__PSP_EAI_LIBRARY_V348__=true;
 var api=window.PSPEAIndicator, originalLoad=api.load,originalDownload=api.download;
-var state={tab:'explore',filter:'all',feedback:{},notifications:[],userId:null,requestOpened:false,gridObserver:null,requestSeq:0};
+var state={tab:'explore',filter:'all',feedback:{},notifications:[],updateRequests:[],versions:[],userId:null,requestOpened:false,gridObserver:null,requestSeq:0};
 var d=id=>document.getElementById(id);
 var client=()=>window.sb||null;
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]))}
@@ -26,6 +26,16 @@ function supportUrl(requestId,productId){
 function openWhatsApp(requestId,productId){window.open(supportUrl(requestId,productId),'_blank','noopener,noreferrer')}
 function latestFor(productId){return reqs().find(r=>r.product_id===productId)||null}
 function feedback(id){return state.feedback[id]||null}
+function updateVersion(r){
+ var p=findProduct(r?.product_id);
+ if(!r||!p||!r.licensed_version||!p.version||expired(r)||!['ready','downloaded'].includes(r.status))return null;
+ var lhs=String(p.version).replace(/^v/i,'').split('.').map(Number),rhs=String(r.licensed_version).replace(/^v/i,'').split('.').map(Number);
+ if(!lhs.every(Number.isFinite)||!rhs.every(Number.isFinite))return String(p.version).toLowerCase()!==String(r.licensed_version).toLowerCase()?p.version:null;
+ for(var i=0;i<Math.max(lhs.length,rhs.length);i++){var x=lhs[i]||0,y=rhs[i]||0;if(x>y)return p.version;if(x<y)return null}
+ return null;
+}
+function pendingVersion(r){var v=updateVersion(r);return v?state.updateRequests.find(x=>x.request_id===r.id&&String(x.target_version).toLowerCase()===String(v).toLowerCase()&&x.status==='pending'):null}
+function updateCount(){return reqs().filter(r=>!!updateVersion(r)).length}
 function expired(r){return !!(r?.license_expires_at&&new Date(r.license_expires_at).getTime()<=Date.now())}
 function label(s){return ({
  pending:'Application Submitted',under_review:'Under Review',approved:'Approved',
@@ -34,6 +44,7 @@ function label(s){return ({
 })[s]||'Not Applied'}
 function badge(s,id){
  if(expired(findRequest(id)))return ['expired','License Expired'];
+ if(updateVersion(findRequest(id)))return ['update','New Software Update'];
  if(feedback(id)?.installation_confirmed_at)return ['installed','Installation Confirmed'];
  return [String(s||'new'),s?label(s):'Not Applied'];
 }
@@ -78,13 +89,14 @@ var css=document.createElement('style');css.id='psp-eai-library-v348-css';css.te
 '.eaiL-cardState{position:absolute;top:11px;right:11px;padding:7px 10px;border-radius:50px;background:rgba(11,18,29,.90);color:#fff;font-size:11px;font-weight:800;border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(5px)}',
 '.eaiL-cardState.installed,.eaiL-cardState.ready,.eaiL-cardState.downloaded{background:rgba(11,94,58,.93)}',
 '.eaiL-cardState.rejected,.eaiL-cardState.expired{background:rgba(154,31,33,.94)}',
+'.eaiL-cardState.update{background:rgba(184,103,7,.94)}',
 '.eaiL-cardActions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}',
 '.eaiL-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:11px 14px;border-radius:11px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);font-size:12px;font-weight:850;cursor:pointer;text-align:center}',
 '.eaiL-btn.primary{background:#F39522;color:#171717;border-color:#F39522}',
 '.eaiL-btn:disabled{opacity:.55;cursor:not-allowed}',
 '.eaiL-cardActions .eaiL-btn.primary{flex:1}',
 '.eaiL-shell{display:none}',
-'.eaiL-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;margin-bottom:19px}',
+'.eaiL-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:11px;margin-bottom:19px}',
 '.eaiL-stat{border:1px solid var(--border);background:var(--bg-card);border-radius:16px;padding:15px;min-width:0}',
 '.eaiL-stat .eyebrow{color:var(--text-muted);font-size:11px;font-weight:750}',
 '.eaiL-stat strong{display:block;font-size:28px;line-height:1.3;margin-top:4px}',
@@ -98,6 +110,8 @@ var css=document.createElement('style');css.id='psp-eai-library-v348-css';css.te
 '.eaiL-state{font-size:11px;font-weight:850;color:#a65e03;background:rgba(243,149,34,.12);border:1px solid rgba(243,149,34,.22);border-radius:30px;display:inline-flex;padding:5px 9px}',
 '.eaiL-state.installed,.eaiL-state.ready,.eaiL-state.downloaded{color:#16803d;background:rgba(22,163,74,.09);border-color:rgba(22,163,74,.22)}',
 '.eaiL-state.rejected,.eaiL-state.expired{color:#c42f30;background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.2)}',
+'.eaiL-state.update{color:#a66108;background:rgba(243,149,34,.11);border-color:rgba(243,149,34,.25)}',
+'.eaiL-updateCard{border:1px solid rgba(243,149,34,.38);background:rgba(243,149,34,.08);padding:14px;border-radius:13px;margin:12px 0;font-size:12px;line-height:1.65}.eaiL-updateCard h5{font-size:14px;margin:0 0 5px}.eaiL-updateCard p{margin:5px 0 9px;color:var(--text-muted)}',
 '.eaiL-copy{font-size:13px;color:var(--text-muted);line-height:1.65;margin:12px 0 8px}',
 '.eaiL-meta{font-size:12px;color:var(--text-muted);line-height:1.7;margin:7px 0}',
 '.eaiL-meta strong{color:var(--text-primary)}',
@@ -194,7 +208,7 @@ function decorateProducts(){
 function statsHtml(){
  var c=count();
  return '<div class="eaiL-summary" aria-label="My license totals">'+
- [['Applications',c.total],['In Progress',c.processing],['Ready to Use',c.ready],['Installed (Confirmed)',c.installed],['Expired',c.expired]]
+ [['Applications',c.total],['In Progress',c.processing],['Ready to Use',c.ready],['Installed',c.installed],['Updates',updateCount()],['Expired',c.expired]]
  .map(v=>'<div class="eaiL-stat"><span class="eyebrow">'+esc(v[0])+'</span><strong>'+v[1]+'</strong></div>').join('')+'</div>'
 }
 function width(s){return ({pending:13,under_review:31,approved:53,license_preparing:75,ready:100,downloaded:100})[s]||9}
@@ -202,7 +216,7 @@ function licHtml(r){
  var p=findProduct(r.product_id),f=feedback(r.id);
  var b=badge(r.status,r.id);var preview=validUrl(p?.cover_url||'');
  var [mainAction,action]=buttonInfo(r);
- var isExpired=expired(r);
+ var isExpired=expired(r),versionNew=updateVersion(r),updatePending=pendingVersion(r);
  return '<article class="eaiL-license"><div class="eaiL-licenseBody">'+
  '<div class="eaiL-licHead">'+(preview?'<img loading="lazy" src="'+esc(preview)+'" alt="">':'')+
  '<div><h4>'+esc(p?.title||r.ea_indicator_products?.title||'PipSePaisa Indicator')+'</h4>'+
@@ -214,10 +228,13 @@ function licHtml(r){
  (r.licensed_version?'<br><strong>Licensed version:</strong> '+esc(r.licensed_version):'')+
  (r.license_expires_at?'<br><strong>License expiry:</strong> '+esc(date(r.license_expires_at))+(isExpired?' (date passed)':''):'')+
  '</div><div class="eaiL-progress"><span style="width:'+width(r.status)+'%"></span></div>'+
+ (versionNew?'<div class="eaiL-updateCard"><h5>New Update: '+esc(versionNew)+'</h5><p>'+esc(p?.changelog||'A newer version is available for your private licensed indicator.')+'</p>'+
+ (updatePending?'<span class="eaiL-state">✓ Update Requested — Waiting for Private Build</span>':
+ '<button class="eaiL-btn primary" type="button" data-eail-action="update" data-request="'+esc(r.id)+'">Request Updated License</button>')+'</div>':'')+
  (r.status==='rejected'?'<div class="eaiL-confirm"><span>!</span><div><strong>Correction required:</strong> '+esc(r.admin_note||'Please verify the broker account and resubmit.')+'</div></div>':'')+
  (f?.issue_description?'<div class="eaiL-confirm"><span>i</span><div><strong>Installation support requested:</strong> '+esc(f.issue_description)+'</div></div>':'')+
  '<div class="eaiL-actions"><button type="button" class="eaiL-btn primary" data-eail-action="'+action+'" data-request="'+esc(r.id)+'" data-product="'+esc(r.product_id)+'">'+esc(mainAction)+'</button>'+
- '<button type="button" class="eaiL-btn" data-eail-action="install" data-request="'+esc(r.id)+'">Installation Guide</button>'+ '<button type="button" class="eaiL-btn" data-eail-action="whatsapp" data-request="'+esc(r.id)+'" data-product="'+esc(r.product_id)+'">Get Support on WhatsApp</button>'+
+ '<button type="button" class="eaiL-btn" data-eail-action="install" data-request="'+esc(r.id)+'">Installation Guide</button>'+ '<button type="button" class="eaiL-btn" data-eail-action="versions" data-product="'+esc(r.product_id)+'">Version History</button>'+ '<button type="button" class="eaiL-btn" data-eail-action="whatsapp" data-request="'+esc(r.id)+'" data-product="'+esc(r.product_id)+'">Get Support on WhatsApp</button>'+
  (r.status==='downloaded'&&!f?.installation_confirmed_at?'<button type="button" class="eaiL-btn" data-eail-action="confirm" data-request="'+esc(r.id)+'">Confirm Installed</button>':'')+
  '</div></div></article>'
 }
@@ -236,11 +253,12 @@ function renderLibrary(){
  (state.filter==='progress'&&['pending','under_review','approved','license_preparing'].includes(r.status))||
  (state.filter==='downloads'&&['ready','downloaded'].includes(r.status)&&!expired(r))||
  (state.filter==='installed'&&!!feedback(r.id)?.installation_confirmed_at&&!expired(r))||
- (state.filter==='action'&&(r.status==='rejected'||expired(r))));
+ (state.filter==='action'&&(r.status==='rejected'||expired(r)))||
+ (state.filter==='updates'&&!!updateVersion(r)));
  var html='<div class="eaiL-intro"><div><h3>My Software & Licenses</h3><p>Everything you requested, received or installed — in one place.</p></div>'+
  '<button type="button" class="eaiL-btn" data-eail-action="refresh">↻ Refresh Status</button></div>'+
  statsHtml()+noticeHtml()+'<div class="eaiL-filters" aria-label="Filter software and licenses">'+
- [['all','All Applications'],['progress','In Progress'],['downloads','My Downloads'],['installed','Installed'],['action','Action Required']]
+ [['all','All Applications'],['progress','In Progress'],['downloads','My Downloads'],['installed','Installed'],['updates','Updates'],['action','Action Required']]
  .map(t=>'<button type="button" class="eaiL-filter '+(state.filter===t[0]?'active':'')+'" data-eail-filter="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
  html+=items.length?'<div class="eaiL-list">'+items.map(licHtml).join('')+'</div>':
  '<div class="eaiL-empty"><h3>'+(all.length?'No Licenses in This Category':'No Applications Yet')+'</h3><p>'+(all.length?'Try another filter to see your applications.':'Explore PipSePaisa indicators, choose a tool and request your private licensed file.')+'</p>'+
@@ -254,6 +272,8 @@ function runAction(action,id,pid){
  if(action==='resubmit'||action==='apply')return api.request(pid);
  if(action==='install')return showInstall(id);
  if(action==='confirm')return confirmInstall(id);
+ if(action==='update')return requestVersionUpdate(id);
+ if(action==='versions')return showVersions(pid);
  if(action==='whatsapp'||action==='issue')return openWhatsApp(id,pid);
  if(action==='explore')return setTab('explore',true);
  if(action==='refresh')return api.load();
@@ -275,6 +295,25 @@ function modal(title,content){
  '<button type="button" class="eai-x" aria-label="Close" data-eail-close="1">×</button></div><div class="eaiL-modalBody">'+content+'</div></div>';
  back.addEventListener('click',e=>{if(e.target===back||e.target.closest('[data-eail-close]'))back.remove()});
  document.body.appendChild(back);return back;
+}
+function showVersions(productId){
+ var p=findProduct(productId);if(!p)return;
+ var versions=state.versions.filter(x=>x.product_id===p.id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,12);
+ var html='<h3>Release History</h3><p style="font-size:12px;color:var(--text-muted)">Public software releases. Private licensed files are issued separately per account.</p>'+
+ (versions.length?versions.map(v=>'<div class="eaiL-detail" style="margin:9px 0"><strong>'+esc(v.version)+'</strong><small>'+esc(date(v.created_at))+'</small><div style="white-space:pre-line;font-size:12px;margin-top:8px">'+esc(v.changelog||'No detailed release notes provided.')+'</div></div>').join(''):'<p>Current public version: '+esc(p.version)+'</p>')+
+ '<div class="eaiL-modalActions"><button class="eaiL-btn" type="button" data-eail-close="1">Close</button></div>';
+ modal('Version History — '+p.title,html);
+}
+async function requestVersionUpdate(id){
+ var r=findRequest(id),target=updateVersion(r);
+ if(!r||!target)return alert('No verified newer version is currently available.');
+ if(pendingVersion(r))return alert('Your update request has already been submitted.');
+ if(!confirm('Request a new account-specific '+target+' licensed build? Your existing private file remains available during review.'))return;
+ var u=await me();if(!u)return alert('Sign in again to request the update.');
+ var q=await client().from('ea_indicator_update_requests').insert({request_id:r.id,user_id:u.id,target_version:target,status:'pending'});
+ if(q.error){alert(q.error.code==='23505'?'You already requested this software version.':q.error.message);return}
+ if(window.pipToast)window.pipToast('Update request submitted to the licensing team.','ok');
+ await api.load();setTab('licenses',false);
 }
 function showInstall(id){
  var r=findRequest(id),p=r&&findProduct(r.product_id);if(!r)return;
@@ -323,13 +362,17 @@ async function refreshDetails(){
  state.userId=u.id;
  var c=client(),queries=[
  c.from('ea_indicator_license_feedback').select('request_id,installation_confirmed_at,issue_description,issue_reported_at,updated_at').eq('user_id',u.id),
- c.from('ea_indicator_notifications').select('id,type,title,text,body,link,read,created_at').eq('user_id',u.id).eq('type','ea_indicator').order('created_at',{ascending:false}).limit(8)
+ c.from('ea_indicator_notifications').select('id,type,title,text,body,link,read,created_at').eq('user_id',u.id).order('created_at',{ascending:false}).limit(12),
+ c.from('ea_indicator_update_requests').select('id,request_id,target_version,status,created_at,fulfilled_at').eq('user_id',u.id).order('created_at',{ascending:false}),
+ c.from('ea_indicator_versions').select('product_id,version,changelog,created_at').order('created_at',{ascending:false}).limit(100)
  ];
  var arr=await Promise.all(queries);
  if(arr[0].error)console.warn('EA library feedback unavailable',arr[0].error.message);
  else state.feedback=Object.fromEntries((arr[0].data||[]).map(f=>[f.request_id,f]));
  if(arr[1].error)console.warn('EA library notifications unavailable',arr[1].error.message);
  else state.notifications=arr[1].data||[];
+ if(!arr[2].error)state.updateRequests=arr[2].data||[];
+ if(!arr[3].error)state.versions=arr[3].data||[];
 }
 async function initialize(){
  if(!ensure())return;
