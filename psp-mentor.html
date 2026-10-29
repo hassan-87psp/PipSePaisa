@@ -10,7 +10,8 @@
 <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co" crossorigin>
 <title>PSP Mentor Panel — PipSePaisa</title>
 <link rel="stylesheet" href="/mentor-staff-review-v498.css?v=20261029-v498">
-<script defer src="/mentor-staff-review-v498.js?v=20261029-v500-proof"></script>
+<link rel="stylesheet" href="/mentor-staff-review-v503.css?v=20261029-v503">
+<script defer src="/mentor-staff-review-v503.js?v=20261029-v503-reapprove-access"></script>
 <meta name="robots" content="noindex,follow">
 <link rel="stylesheet" href="/psp-performance-v220.css?v=20260910-v220-deep">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1055,11 +1056,11 @@ const MODS={
 const NAV=[['MAIN',[['performance','🏆','Performance'],['signals','📊','Signals'],['charts','📈','Charts'],['articles','📖','Articles'],['banners','🖼️','Banners']]],
   ['CONTENT',[['courses','🎓','Courses'],['news','📰','News'],['quiz','❓','Quiz'],['community','👥','Community']]],
   ['INSIGHTS',[['analytics','📉','Analytics'],['earnings','💰','Earnings'],['students','👥','Students']]],
-  ['SOFTWARE',[['indicator_review','🧩','EA & Indicator'],['ib_review','🛡️','IB Verification']]],
+  ['SOFTWARE',[['indicator_review','🧩','EA & Indicator'],['ib_review','🛡️','Website Access Approvals']]],
   ['MONETIZE',[['requests','🧾','Requests']]],
   ['COMMUNICATION',[['chats','✉️','Member Chats'],['messages','💬','Messages'],['notifications','🔔','Notifications']]],
   ['SYSTEM',[['settings','⚙️','Settings']]]];
-const TITLES={performance:['Performance','Live overview and results'],dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','VIP chart research & analysis'],articles:['Articles','Professional research & insights'],banners:['Banners','Upload social media banners'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members'],indicator_review:['EA & Indicator','Review software applications'],ib_review:['IB Verification','Review broker account verification']};
+const TITLES={performance:['Performance','Live overview and results'],dashboard:['Dashboard','Live overview'],signals:['Signals','Smart signal creation'],adminsignals:['Admin Signals','Official PipSePaisa signals'],charts:['Charts','VIP chart research & analysis'],articles:['Articles','Professional research & insights'],banners:['Banners','Upload social media banners'],subscriptions:['Subscriptions','Premium plans & subscribers'],analytics:['Analytics','Performance charts'],earnings:['Earnings','Commission & payouts'],students:['Students','Your community'],settings:['Settings','Profile & preferences'],payments:['Payment Methods','EasyPaisa, JazzCash, Bank, Crypto'],requests:['Payment Requests','Approve & activate VIP'],community:['Community','Your member groups'],chats:['Member Chats','Direct messages with members'],indicator_review:['EA & Indicator','Review software applications'],ib_review:['Website Access Approvals','Verify broker proof and grant 30-day website access']};
 
 let MENTOR_ACCESS={performance:true,dashboard:true,signals:true,charts:true,articles:true,banners:true,settings:true,indicator_review:false,ib_review:false};
 function mentorCan(k){return MENTOR_ACCESS[k]!==false;}
