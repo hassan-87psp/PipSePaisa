@@ -190,7 +190,7 @@ function card(r){
  const status=labelStatus[r.status]||String(r.status||'Pending');
  const warning=oldIssued&&!verified;
  const badge=warning?'⚠ Existing License · Recheck':verified?'✓ Broker Verified':'⚠ Verification Needed';
- const action=oldIssued?'View License':'Review & Issue';
+ const action=oldIssued?'View License':String(r.status).toLowerCase()==='rejected'?'Reapprove / Issue':'Review & Issue';
  return '<article class="eaiV374-item" data-id="'+escape(r.id)+'">'+
    '<div class="eaiV374-person"><div class="eaiV374-avatar" aria-hidden="true">'+escape(name.trim().charAt(0).toUpperCase()||'P')+'</div>'+
    '<div class="eaiV374-personText"><strong title="'+escape(name)+'">'+escape(name)+'</strong><span title="'+escape(email)+'">'+escape(email||title)+'</span>'+
@@ -319,6 +319,28 @@ function attachDrawer(requestId){
  [file,version,expiry,confirm,q('eaiAReqStatus'),q('eaiAAdminNote')].filter(Boolean).forEach(el=>{
   const mark=()=>{dirty=true};el.addEventListener('input',mark);el.addEventListener('change',mark);
  });
+ // Previously rejected requests can be approved again after verification.
+ // saveRequest remains authoritative for account matching, funding and file issuance.
+ if(String(r.status||'').toLowerCase()==='rejected'){
+  const actions=form.querySelector('.eaiA-actions');
+  const reopen=document.createElement('button');
+  reopen.type='button';reopen.className='eaiA-btn eaiV503-reapprove';
+  reopen.textContent='Reapprove Request';
+  reopen.title='Reapprove verified request; issuing a file remains a separate validated action';
+  reopen.addEventListener('click',()=>{
+   const v=verification(r);
+   if(v.state!=='ok'){
+    const box=q('eaiURequestError');
+    if(box){box.hidden=false;box.textContent='Cannot reapprove: exact broker, trading account and required deposit must be verified.'}
+    return;
+   }
+   if(!window.confirm('Reapprove this rejected indicator request? The student receives a file only after you upload and issue a personal build.'))return;
+   const stage=q('eaiAReqStatus');if(stage)stage.value='approved';
+   if(typeof form.requestSubmit==='function')form.requestSubmit();
+   else form.querySelector('button[type="submit"]')?.click();
+  });
+  actions?.prepend(reopen);
+ }
  // Capture close attempts while preserving successful save's programmatic remove.
  modal.addEventListener('click',e=>{
   const backdrop=e.target===modal;
