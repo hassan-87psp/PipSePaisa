@@ -6238,7 +6238,15 @@
   if(window.__PSP_EAI_LOADER_V215__)return;window.__PSP_EAI_LOADER_V215__=true;
   function load(){
     if(document.querySelector('script[data-psp-eai-v215]'))return;
-    var sc=document.createElement('script');sc.src='/ea-indicator-user-v215.js?v=20261029-v342-premium-license';sc.defer=true;sc.dataset.pspEaiV215='1';document.head.appendChild(sc);
+    var sc=document.createElement('script');sc.src='/ea-indicator-user-v215.js?v=20261029-v348-smart-license';sc.defer=true;sc.dataset.pspEaiV215='1';
+    sc.addEventListener('load',function(){
+      if(document.querySelector('script[data-psp-eai-v348]'))return;
+      var advanced=document.createElement('script');
+      advanced.src='/ea-indicator-user-v348.js?v=20261029-v348-smart-license';
+      advanced.defer=true;advanced.dataset.pspEaiV348='1';
+      document.head.appendChild(advanced);
+    },{once:true});
+    document.head.appendChild(sc);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();
 })();
