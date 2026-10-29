@@ -17,111 +17,152 @@ try {
 
 let currentAdmin = null;
 let isLoggedIn = false;
+let adminAuthSequence = 0;
+let adminReadyScheduled = false;
 
-// On load, check if already logged in
-document.addEventListener('DOMContentLoaded', async () => {
-  // Check for an existing admin session; otherwise show the login screen
+// Keep the login barrier visible until access has actually been verified.
+// Run session restoration as soon as this deferred core script executes,
+// rather than waiting for every optional admin module to finish loading.
+function adminAuthChecking(on, text) {
+  const overlay = document.getElementById('loginOverlay');
+  const status = document.getElementById('adminAuthStatus');
+  if (overlay) overlay.classList.toggle('is-checking', !!on);
+  if (status) status.textContent = text || 'Checking secure admin session…';
+}
+function adminPresentLogin(message) {
+  const overlay = document.getElementById('loginOverlay');
+  if (overlay) overlay.classList.add('active');
+  adminAuthChecking(false);
+  const error = document.getElementById('loginError');
+  if (error) {
+    error.style.display = message ? 'block' : 'none';
+    error.textContent = message || '';
+  }
+  const button = document.getElementById('loginBtn');
+  if (button) { button.disabled = false; button.textContent = '🔐 Sign In to Admin'; }
+}
+function adminAuthorized(profile) {
+  const role = String(profile && profile.role || '').trim().toLowerCase();
+  return !!(profile && (profile.is_admin === true || ['admin','super_admin','superadmin'].includes(role)));
+}
+function adminScheduleReady() {
+  if (adminReadyScheduled) return;
+  adminReadyScheduled = true;
+  const fire = function() {
+    if (!isLoggedIn) { adminReadyScheduled = false; return; }
+    // The modern RPC dashboard becomes available after deferred scripts finish.
+    // Never start the legacy multi-query loader while those scripts are pending.
+    try {
+      if (typeof window.loadDashboardStats === 'function') {
+        window.loadDashboardStats();
+      }
+    } catch (error) { console.warn('Dashboard boot deferred:', error); }
+    window.dispatchEvent(new Event('psp-admin-auth-ready'));
+  };
+  if (document.readyState === 'complete') queueMicrotask(fire);
+  else document.addEventListener('DOMContentLoaded', fire, {once:true});
+}
+function adminCompleteSignIn(profile) {
+  currentAdmin = profile;
+  isLoggedIn = true;
+  adminAuthChecking(false);
+  const overlay = document.getElementById('loginOverlay');
+  if (overlay) overlay.classList.remove('active');
+  const password = document.getElementById('adminPassword');
+  if (password) password.value = '';
+  adminScheduleReady();
+}
+async function adminRestoreSession() {
+  const sequence = ++adminAuthSequence;
+  adminAuthChecking(true, 'Checking secure admin session…');
+  if (!sb || !sb.auth) {
+    adminPresentLogin('Connection unavailable. Refresh the page and try again.');
+    return;
+  }
   try {
-    let user=null;
-      try{const sr=await sb.auth.getSession();user=(sr&&sr.data&&sr.data.session)?sr.data.session.user:null;}catch(e){}
-      if(!user){try{const ur=await sb.auth.getUser();user=(ur&&ur.data)?ur.data.user:null;}catch(e){}}
-    if (user) {
-      const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
-      if (profile && (profile.is_admin || profile.role === 'admin')) {
-        currentAdmin = profile;
-        isLoggedIn = true;
-        const ov = document.getElementById('loginOverlay');
-        if (ov) ov.classList.remove('active');
-        queueMicrotask(function(){
-          if(window.PSPExecutiveDashboard181&&typeof window.loadDashboardStats==='function'){
-            window.loadDashboardStats(true);
-          }else{
-            initCharts();
-            loadDashboardStats();
-          }
-          window.dispatchEvent(new Event('psp-admin-auth-ready'));
-        });
+    const result = await sb.auth.getSession();
+    if (sequence !== adminAuthSequence) return;
+    if (result.error) throw result.error;
+    const user = result.data && result.data.session && result.data.session.user;
+    if (user && user.id) {
+      const response = await sb.from('profiles').select('*').eq('id', user.id).single();
+      if (sequence !== adminAuthSequence) return;
+      if (response.error) throw response.error;
+      if (adminAuthorized(response.data)) {
+        adminCompleteSignIn(response.data);
         return;
       }
     }
-  } catch (e) {}
-  const ov = document.getElementById('loginOverlay');
-  if (ov) ov.classList.add('active');
-});
+  } catch (error) {
+    if (sequence !== adminAuthSequence) return;
+    console.warn('Admin session restore requires sign-in:', error && error.message || error);
+  }
+  if (sequence === adminAuthSequence) adminPresentLogin();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', adminRestoreSession, {once:true});
+} else {
+  adminRestoreSession();
+}
 
 async function loginAdmin() {
-  const email = document.getElementById('adminEmail').value.trim();
-  const password = document.getElementById('adminPassword').value;
+  const emailInput = document.getElementById('adminEmail');
+  const passwordInput = document.getElementById('adminPassword');
   const errorEl = document.getElementById('loginError');
   const btn = document.getElementById('loginBtn');
-  
+  if (!emailInput || !passwordInput || !errorEl || !btn) return;
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
   errorEl.style.display = 'none';
-  
   if (!email || !password) {
-    errorEl.textContent = '❌ Please enter email and password';
-    errorEl.style.display = 'block';
+    adminPresentLogin('Please enter email and password.');
     return;
   }
-  
+  if (!sb || !sb.auth) {
+    adminPresentLogin('Secure login is unavailable. Please refresh and try again.');
+    return;
+  }
+  const sequence = ++adminAuthSequence;
   btn.textContent = '⏳ Signing in...';
   btn.disabled = true;
-  
   try {
-    // Sign in with Supabase
-    const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-      errorEl.textContent = '❌ ' + error.message;
-      errorEl.style.display = 'block';
-      btn.textContent = '🔐 Sign In to Admin';
-      btn.disabled = false;
-      return;
-    }
-    
-    // Check if user is admin
-    const { data: profile } = await sb.from('profiles').select('*').eq('id', data.user.id).single();
-    
-    if (!profile || !(profile.is_admin === true || profile.role === 'admin')) {
-      // Not an admin — sign out and reject
+    const {data, error} = await sb.auth.signInWithPassword({email, password});
+    if (sequence !== adminAuthSequence) return;
+    if (error) throw error;
+    if (!data || !data.user || !data.user.id) throw new Error('Unable to verify the signed-in account.');
+    const response = await sb.from('profiles').select('*').eq('id', data.user.id).single();
+    if (sequence !== adminAuthSequence) return;
+    if (response.error) throw response.error;
+    if (!adminAuthorized(response.data)) {
       await sb.auth.signOut();
-      errorEl.textContent = '❌ You do not have admin access. Only authorized admins can login here.';
-      errorEl.style.display = 'block';
-      btn.textContent = '🔐 Sign In to Admin';
-      btn.disabled = false;
+      if (sequence === adminAuthSequence) adminPresentLogin('This account does not have admin access.');
       return;
     }
-    
-    // Success! Admin verified
-    currentAdmin = profile;
-    document.getElementById('loginOverlay').classList.remove('active');
-    isLoggedIn = true;
-    setTimeout(function(){
-      if(window.PSPExecutiveDashboard181&&typeof window.loadDashboardStats==='function'){
-        window.loadDashboardStats(true);
-      }else{
-        initCharts();
-        loadDashboardStats();
-      }
-      window.dispatchEvent(new Event('psp-admin-auth-ready'));
-    },100);
-    
-  } catch (e) {
-    errorEl.textContent = '❌ Network error: ' + e.message;
-    errorEl.style.display = 'block';
-    btn.textContent = '🔐 Sign In to Admin';
-    btn.disabled = false;
+    adminCompleteSignIn(response.data);
+  } catch (error) {
+    if (sequence !== adminAuthSequence) return;
+    adminPresentLogin('Sign-in failed: ' + (error && error.message || 'Please try again.'));
+  } finally {
+    if (sequence === adminAuthSequence) {
+      btn.disabled = false;
+      btn.textContent = '🔐 Sign In to Admin';
+    }
   }
 }
 
 async function logoutAdmin() {
   if (!(await window.pspConfirm('Are you sure you want to logout?'))) return;
+  ++adminAuthSequence; // Ignore a stale, earlier session/profile response.
   await sb.auth.signOut();
   currentAdmin = null;
   isLoggedIn = false;
+  adminReadyScheduled = false;
   window.dispatchEvent(new Event('psp-admin-auth-closed'));
-  document.getElementById('loginOverlay').classList.add('active');
-  document.getElementById('adminEmail').value = '';
-  document.getElementById('adminPassword').value = '';
+  adminPresentLogin();
+  const email = document.getElementById('adminEmail');
+  const password = document.getElementById('adminPassword');
+  if (email) email.value = '';
+  if (password) password.value = '';
 }
 
 async function uploadCourseThumb(input){
