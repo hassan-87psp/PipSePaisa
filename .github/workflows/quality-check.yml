@@ -35,6 +35,9 @@ jobs:
           node --test tests/indicator-admin-enterprise.test.cjs
           node --check admin-ea-indicator-compact-v375.js
           node --test tests/indicator-admin-compact.test.cjs
+          node --check admin-eai-staff-access-v498.js
+          node --check mentor-staff-review-v498.js
+          node --test tests/indicator-mentor-access-v498.test.cjs
       - name: Verify team referral course signup and enrollment routing
         run: node tests/team-referral-enrollment.test.mjs
       - name: Verify OneSignal subscription behavior
