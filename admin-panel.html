@@ -18,8 +18,8 @@
 <link rel="stylesheet" href="/psp-performance-v218.css?v=20260910-v2181">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n<script src="/admin-performance-v398.js?v=20261002-v410-stability"></script>
+<script id="pspAdminChartLazyV447">(function(){var started=false;function load(){if(started||window.Chart)return;started=true;var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/chart.js';s.async=true;s.onload=function(){window.dispatchEvent(new Event('psp-admin-charts-ready'))};s.onerror=function(){console.warn('Admin charts unavailable; dashboard remains usable.')};document.head.appendChild(s)}window.addEventListener('psp-admin-auth-ready',load)})();</script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n<script defer src="/admin-performance-v398.js?v=20261002-v410-stability"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
   
@@ -334,6 +334,11 @@
     z-index: 9999; align-items: center; justify-content: center; padding: 20px;
   }
   .login-overlay.active { display: flex; }
+  #adminAuthStatus { display:none; text-align:center; font-size:12px; color:var(--text-muted); padding:18px 10px; line-height:1.6; }
+  .login-overlay.is-checking #adminAuthStatus { display:block; }
+  .login-overlay.is-checking .form-group,
+  .login-overlay.is-checking #loginBtn,
+  .login-overlay.is-checking #loginError { display:none!important; }
   .login-box {
     width: 100%; max-width: 420px; background: var(--bg-card); border: 1px solid var(--border);
     border-radius: 18px; padding: 36px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
@@ -493,16 +498,15 @@ select option{background:#0f1729;color:#e8eaf0}
 .tick-chip:hover{border-color:var(--gold)}
 .tick-chip:has(input:checked){background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(245,158,11,.08));border-color:var(--gold);color:var(--gold)}
 .tick-chip input{accent-color:var(--gold);width:15px;height:15px;cursor:pointer}
-</style><div id="pipBoot"><div class="brand-logo bl"><img src="favicon.png" alt="PipSePaisa"></div><div class="bt">PipSe<span>Paisa</span></div><div class="bar"><i></i></div></div>
-
-<!-- Demo Banner -->
+</style><!-- Demo Banner -->
 <!-- LOGIN OVERLAY (will hide once "Login" clicked) -->
-<div class="login-overlay" id="loginOverlay">
+<div class="login-overlay active is-checking" id="loginOverlay">
   <div class="login-box">
     <div class="login-logo"><img src="favicon.png" alt="PipSePaisa"></div>
     <h1 style="text-align: center; font-size: 22px; margin-bottom: 6px;">Admin Panel</h1>
     <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 24px;">Sign in to manage your platform</p>
     
+    <div id="adminAuthStatus" role="status" aria-live="polite">Checking secure admin session…</div>
     <div id="loginError" style="display: none; padding: 10px 14px; background: var(--red-bg); color: var(--red); border-radius: 8px; margin-bottom: 14px; font-size: 12px;"></div>
     
     <div class="form-group">
@@ -1640,7 +1644,7 @@ select option{background:#0f1729;color:#e8eaf0}
   </main>
 </div>
 
-<script src="/admin-core-v406.js?v=20261001-v406-performance"></script>
+<script defer src="/admin-core-v406.js?v=20261001-v406-performance"></script>
 
 <!-- ========== COURSE FORM MODAL — V129 PREMIUM WORKSPACE ========== -->
 <div class="modal-overlay" id="modal-courseForm">
@@ -1954,7 +1958,7 @@ function animateNum(el){if(el.dataset.cu)return;var raw=(el.textContent||'').tri
 function scan(){document.querySelectorAll('.stat .n, .stat-value').forEach(function(el){var x=(el.textContent||'').trim();if(/\d/.test(x)&&x!=='...')animateNum(el);});}
 var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=setTimeout(scan,150)});document.addEventListener('DOMContentLoaded',function(){try{mo.observe(document.body,{subtree:true,childList:true,characterData:true});}catch(e){}setTimeout(scan,500)});})();
 </script>
-<script>(function(){function hide(){var b=document.getElementById('pipBoot');if(b){b.classList.add('gone');setTimeout(function(){if(b)b.remove();},700);}}if(document.readyState==='complete'){setTimeout(hide,450);}else{window.addEventListener('load',function(){setTimeout(hide,450);});}setTimeout(hide,3500);})();</script>
+
 
 <script>
 async function pspCreateNotificationAndPush(title, body, type, actionLink, audience){
@@ -1966,26 +1970,26 @@ async function pspCreateNotificationAndPush(title, body, type, actionLink, audie
 }
 </script>
 
-<script src="course-enrollments-admin.js?v=20261002-v421-lazy-realtime"></script>
-<script src="admin-final-overrides.js?v=20261002-v418-stability"></script>
-<script src="admin-payments-ux-v222.js?v=20261002-v410-stability"></script>
-<script src="admin-payments-premium-v442.js?v=20261003-v442-premium"></script>
-<script src="psp-v18-admin-control.js?v=20261002-v417-stability"></script>
-<script src="realtime-complete.js?v=20261002-v409-stability"></script>
-<script src="admin-v28-fixes.js?v=20260801-v28-final"></script>
-<script src="admin-v29-final.js?v=20261002-v411-stability"></script>
-<script src="email-campaign-admin-v296.js?v=20260923-v296"></script>
-<script src="admin-users-v56-clean.js?v=20261002-v413-fast-directory"></script>
-<script src="admin-users-export-v299.js?v=20260924-v299"></script>
-<script src="link-manager-v221.js?v=20261020-vsa-links"></script>
-<script src="team-performance-admin-v56.js?v=20261002-v419-lazy-realtime"></script>
-<script src="ad-link-admin-v307.js?v=20261002-v419-lazy-realtime"></script>
-<script src="ad2-admin-v307.js?v=20261002-v419-lazy-realtime"></script>
-<script src="admin-team-performance-v206.js?v=20261016-batch4"></script>
-<script src="admin-account-verification-v49.js?v=20261008-v504-manual-access"></script>
-<script src="admin-manual-vip-v504.js?v=20261008-v504-search-pending-date"></script>
-<script src="admin-dashboard-v181.js?v=20261002-v416-payload"></script>
-<script src="admin-suite-v90.js?v=20261002-v417-stability"></script>
+<script defer src="course-enrollments-admin.js?v=20261002-v421-lazy-realtime"></script>
+<script defer src="admin-final-overrides.js?v=20261002-v418-stability"></script>
+<script defer src="admin-payments-ux-v222.js?v=20261002-v410-stability"></script>
+<script defer src="admin-payments-premium-v442.js?v=20261003-v442-premium"></script>
+<script defer src="psp-v18-admin-control.js?v=20261002-v417-stability"></script>
+<script defer src="realtime-complete.js?v=20261002-v409-stability"></script>
+<script defer src="admin-v28-fixes.js?v=20260801-v28-final"></script>
+<script defer src="admin-v29-final.js?v=20261002-v411-stability"></script>
+<script defer src="email-campaign-admin-v296.js?v=20260923-v296"></script>
+<script defer src="admin-users-v56-clean.js?v=20261002-v413-fast-directory"></script>
+<script defer src="admin-users-export-v299.js?v=20260924-v299"></script>
+<script defer src="link-manager-v221.js?v=20261020-vsa-links"></script>
+<script defer src="team-performance-admin-v56.js?v=20261002-v419-lazy-realtime"></script>
+<script defer src="ad-link-admin-v307.js?v=20261002-v419-lazy-realtime"></script>
+<script defer src="ad2-admin-v307.js?v=20261002-v419-lazy-realtime"></script>
+<script defer src="admin-team-performance-v206.js?v=20261016-batch4"></script>
+<script defer src="admin-account-verification-v49.js?v=20261008-v504-manual-access"></script>
+<script defer src="admin-manual-vip-v504.js?v=20261008-v504-search-pending-date"></script>
+<script defer src="admin-dashboard-v181.js?v=20261002-v416-payload"></script>
+<script defer src="admin-suite-v90.js?v=20261002-v417-stability"></script>
 
 
 <script id="pspV129CourseWorkspace">
@@ -2058,19 +2062,19 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 }
 </style>
 
-<script src="psp-pairs-v216.js?v=20261002-v420-targeted-observer"></script>
-<script src="admin-ea-indicator-v238.js?v=20261029-v370-phase2"></script>
-<script src="/ea-indicator-admin-v365.js?v=20261029-v365-operations"></script>
-<script src="/admin-ea-indicator-ultra-v371.js?v=20261029-v371-enterprise"></script>
-<script src="audit-agent-v174.js?v=20261002-v415-stability"></script>
-<script src="admin-v174-ux.js?v=20261002-v417-stability"></script>
-<script src="signals-workspace-v154.js?v=20260909-v216-pairs"></script>
-<script src="finance-management-v179.js?v=20261008-v509-admin-paid-expense"></script>
-<script src="admin-premium-v182.js?v=20261002-v415-stability"></script>
+<script defer src="psp-pairs-v216.js?v=20261002-v420-targeted-observer"></script>
+<script defer src="admin-ea-indicator-v238.js?v=20261029-v370-phase2"></script>
+<script defer src="/ea-indicator-admin-v365.js?v=20261029-v365-operations"></script>
+<script defer src="/admin-ea-indicator-ultra-v371.js?v=20261029-v371-enterprise"></script>
+<script defer src="audit-agent-v174.js?v=20261002-v415-stability"></script>
+<script defer src="admin-v174-ux.js?v=20261002-v417-stability"></script>
+<script defer src="signals-workspace-v154.js?v=20260909-v216-pairs"></script>
+<script defer src="finance-management-v179.js?v=20261008-v509-admin-paid-expense"></script>
+<script defer src="admin-premium-v182.js?v=20261002-v415-stability"></script>
 
 
-<script src="admin-manual-paid-course-v221.js?v=20261002-v410-stability"></script>
-<script src="admin-clean-route-v238.js?v=20261002-v410-stability"></script>
+<script defer src="admin-manual-paid-course-v221.js?v=20261002-v410-stability"></script>
+<script defer src="admin-clean-route-v238.js?v=20261002-v410-stability"></script>
 <script defer src="/psp-performance-v218.js?v=20260910-v2181"></script>
 
 <script id="pspFc2InlineV308">
