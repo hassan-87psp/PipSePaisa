@@ -78,6 +78,7 @@ function guide(mode){
  document.body.appendChild(backdrop);
  close.focus();
 }
+window.pspPortalInstallSync=sync;
 window.pspPortalInstall=async function(){
  // Keep prompt() in the original user-gesture call stack.
  if(isStandalone()){guide('installed');return}
