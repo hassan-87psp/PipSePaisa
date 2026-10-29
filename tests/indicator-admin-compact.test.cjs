@@ -58,8 +58,8 @@ test('Compact UI delegates tab, product editor and existing private review logic
 test('No false empty queue on first login, and mismatched requests are prioritized',()=>{
  const s=read('admin-ea-indicator-enterprise-v374.js');
  assert.match(s,/if\(!snap\|\|!snap\.loaded\)return null/);
- assert.match(s,/if\(!state\.stats\.action&&state\.stats\.attention\)state\.filter='attention'/);
- assert.match(s,/if\(!state\.stats\.action&&!state\.stats\.attention&&state\.stats\.issued\)state\.filter='issued'/);
+  assert.match(s,/const order=\['new','under_review','approved','rejected','ready','downloaded','total'\]/);
+  assert.match(s,/state\.filter=order\.find/);
  const base=read('admin-ea-indicator-v238.js');
  assert.match(base,/state\.loaded=true/);
  assert.match(base,/getSnapshot:snapshot/);
