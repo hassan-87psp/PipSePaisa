@@ -140,7 +140,9 @@ async function saveRequest(e,r){
   if(primary){primary.disabled=false;primary.textContent='Approve & Deliver File'}
  }
 }
-window.PSPEAIAdmin={load,tab,productForm,requestForm,proof,rejectNotUnder,approveAndDeliver,verificationFor};
+// Read-only admin presentation snapshot. The underlying RLS and verification gates stay authoritative.
+function snapshot(){return {products:state.products.slice(),requests:state.requests.slice(),verifications:state.verifications.slice(),tab:state.tab}}
+window.PSPEAIAdmin={load,tab,productForm,requestForm,proof,rejectNotUnder,approveAndDeliver,verificationFor,getSnapshot:snapshot};
 function init(){inject();if(document.getElementById('page-eaindicator')?.classList.contains('active'))setTimeout(()=>{if(db())load()},100)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
