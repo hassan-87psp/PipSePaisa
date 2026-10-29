@@ -98,7 +98,7 @@ function setupLayout(){
  return page;
 }
 function rowsFromSnapshot(){
- const snap=source();if(!snap)return null;
+ const snap=source();if(!snap||!snap.loaded)return null;
  const rows=(snap.requests||[]).map(r=>{
   const vf=verification(r),flag=vf.state||'none';
   const copy=Object.assign({},r,{_verification:flag,_verificationLabel:vf.label||'Not verified',_platform:typeOf(r,snap)});
