@@ -1,10 +1,10 @@
-/* PipSePaisa v372 — approachable, premium EA & Indicator Manager.
+/* PipSePaisa v373 — approachable, premium EA & Indicator Manager.
    UI-only: preserve account verification, approval, private EX5 uploads and audit APIs.
    Reuses the established PSPEAIAdmin actions, tables and Supabase authorization. */
 (function(){
 'use strict';
-if(window.__PSP_EAI_STUDIO_V372__ || !window.PSPEAIAdmin) return;
-window.__PSP_EAI_STUDIO_V372__=true;
+if(window.__PSP_EAI_STUDIO_V373__ || !window.PSPEAIAdmin) return;
+window.__PSP_EAI_STUDIO_V373__=true;
 const api=window.PSPEAIAdmin;
 const state={search:'',status:'all',observed:null,observer:null};
 const q=id=>document.getElementById(id);
@@ -13,7 +13,7 @@ function style(){
  if(q('eaiUStyle'))return;
  const link=document.createElement('link');
  link.id='eaiUStyle';link.rel='stylesheet';
- link.href='/admin-ea-indicator-ultra-v371.css?v=20261029-v372-friendly';
+ link.href='/admin-ea-indicator-ultra-v371.css?v=20261029-v373-one-step';
  document.head.appendChild(link);
 }
 function hero(){
@@ -139,6 +139,16 @@ function filterProducts(){
  }
  const summary=q('eaiUProductCount');if(summary)summary.textContent=count+' of '+rows.length+' products';
 }
+function enhanceTable(){
+ const table=q('eaiAContent')?.querySelector('table.eaiA-table');
+ if(!table)return;
+ const headers=[...table.querySelectorAll('thead th')].map(x=>x.textContent.trim());
+ table.querySelectorAll('tbody tr').forEach(row=>[...row.querySelectorAll('td')].forEach((td,i)=>{
+  td.dataset.eaiLabel=headers[i]||'';
+  if(headers[i]==='Action')td.classList.add('eaiU-actionCell');
+  if(headers[i]==='Licensed File')td.classList.add('eaiU-fileCell');
+ }));
+}
 function sync(){
  const page=install();if(!page)return;
  const requests=isRequests();
@@ -148,6 +158,7 @@ function sync(){
  if(product)product.setAttribute('aria-selected',String(!requests));
  if(request)request.setAttribute('aria-selected',String(requests));
  filterProducts();
+ enhanceTable();
 }
 function appendSection(form,title,description,ids){
  const fields=ids.map(id=>q(id)?.closest('.eaiA-f')).filter(Boolean);
@@ -174,30 +185,52 @@ function decorateModal(kind){
   head.insertAdjacentElement('afterend',intro);
  }
  if(kind==='request'){
+  intro.textContent='Verify the student, select their private EX5 file and approve delivery in one action.';
   const status=q('eaiAReqStatus');
   if(status){
-   const labels={pending:'Pending — Awaiting Review',under_review:'Under Review',approved:'Approved — File Not Ready',
-    rejected:'Rejected — Correction Needed',license_preparing:'Preparing Private File',ready:'Ready — File Available',downloaded:'Downloaded'};
+   const labels={pending:'Pending',under_review:'Under Review',approved:'Approved (No File)',rejected:'Rejected',license_preparing:'Preparing License',ready:'Ready (Download)',downloaded:'Downloaded'};
    [...status.options].forEach(o=>{if(labels[o.value])o.textContent=labels[o.value]});
   }
-  appendSection(form,'1. Review the application','Check the broker verification above, decide the request status and give a reason if rejected.',['eaiAReqStatus','eaiAAdminNote']);
-  appendSection(form,'2. Prepare the private license','Use the same verified MT5 account ID. Each student must receive their own compiled file.',['eaiALicenseAccount','eaiALicenseVersion','eaiALicenseExpiry','eaiALicensedFile']);
-  const file=q('eaiALicensedFile'),button=form.querySelector('.eaiA-actions [type="submit"]');
-  if(file){
-   const note=document.createElement('p');note.className='eaiU-fileNote';note.setAttribute('aria-live','polite');
-   note.textContent='Upload a .ex5 file for MT5 (or .ex4 for MT4). Source code must never be uploaded.';
-   file.insertAdjacentElement('afterend',note);
-   file.addEventListener('change',()=>{
-    const f=file.files?.[0];note.textContent=f?'Selected: '+f.name+' · This will be delivered to this student only.':'Upload the compiled file made for the approved account.';
-    if(button)button.textContent=f?'Save & Issue Private File':'Save Application Changes';
-   });
-  }
-  if(button)button.textContent='Save Application Changes';
+  const verified=form.dataset.eaiVerified==='true';
   const verification=form.querySelector('.eaiA-verify');
-  if(verification)verification.setAttribute('role','status');
+  verification?.setAttribute('role','status');
+  const badge=document.createElement('div');badge.className='eaiU-reviewBadge eaiA-wide '+(verified?'ok':'blocked');
+  badge.textContent=verified?'✓ Verified — this exact broker and account qualifies for license delivery.':
+    '⚠ Account mismatch, expired verification or insufficient verified deposit. Correct verification before approval.';
+  if(verification)verification.insertAdjacentElement('afterend',badge);
+  else form.prepend(badge);
+  appendSection(form,'1. Upload student-specific indicator','Confirm the MT5 account and version. Each student must receive their own compiled file.',['eaiALicenseAccount','eaiALicenseVersion','eaiALicenseExpiry','eaiALicensedFile']);
+  const account=q('eaiALicenseAccount');
+  if(account){account.readOnly=true;account.title='Locked to student application and verified account'}
+  const actions=form.querySelector('.eaiA-actions'),save=actions?.querySelector('[type="submit"]');
+  if(save){save.textContent='Save Changes';save.classList.remove('primary')}
+  const error=document.createElement('div');error.id='eaiURequestError';error.className='eaiU-error eaiA-wide';
+  error.hidden=true;error.setAttribute('role','alert');actions?.insertAdjacentElement('beforebegin',error);
+  const issue=document.createElement('div');issue.id='eaiUIssueAction';issue.className='eaiU-issueAction eaiA-wide';
+  issue.innerHTML='<div><strong>2. Approve &amp; deliver immediately</strong><p>One click approves this request and releases the private file in the student dashboard.</p></div>'+
+    '<button type="button" id="eaiUApproveDeliver" class="eaiU-deliverBtn" disabled>Choose File to Approve</button>';
+  error.insertAdjacentElement('beforebegin',issue);
+  const approve=q('eaiUApproveDeliver'),file=q('eaiALicensedFile');
+  approve?.addEventListener('click',()=>api.approveAndDeliver?.());
+  const note=document.createElement('p');note.className='eaiU-fileNote';
+  note.setAttribute('aria-live','polite');file?.insertAdjacentElement('afterend',note);
+  const updateFile=()=>{
+   const selected=file?.files?.[0];
+   if(approve){approve.disabled=!verified||!selected;approve.textContent=!verified?'Verification Required':selected?'Approve & Deliver File':'Choose File to Approve'}
+   if(save)save.hidden=!!selected;
+   note.textContent=selected?'Selected: '+selected.name+' — this file will be issued only for this student.':
+    'Choose a compiled EX5 (MT5), EX4 (MT4), or compatible ZIP. Never upload MQ source code.';
+   error.hidden=true;error.textContent='';
+  };
+  file?.addEventListener('change',updateFile);updateFile();
+  const other=document.createElement('details');other.className='eaiU-otherActions eaiA-wide';
+  other.innerHTML='<summary>More options: change status, reject, or add notes <span>⌄</span></summary><div class="eaiU-otherFields"></div>';
+  const fields=other.querySelector('.eaiU-otherFields');
+  ['eaiAReqStatus','eaiAAdminNote'].forEach(id=>{const f=q(id)?.closest('.eaiA-f');if(f)fields.appendChild(f)});
+  actions?.insertAdjacentElement('beforebegin',other);
   const tip=document.createElement('p');tip.className='eaiU-modalTip eaiA-wide';
-  tip.textContent='Important: selecting Approved does not provide a download. A valid individual file must be uploaded and the request saved as Ready before the student can download it.';
-  form.querySelector('.eaiA-actions')?.insertAdjacentElement('beforebegin',tip);
+  tip.textContent='Verification and individual file upload are required for issue. “Save Changes” only updates notes, rejection or preparation status.';
+  other.insertAdjacentElement('beforebegin',tip);
  }else{
   appendSection(form,'Product basics','These details appear in your student-facing EA & Indicator catalog.',['eaiATitle','eaiAVersion','eaiAType','eaiAPlatform','eaiAAccess','eaiAPrice']);
   appendSection(form,'Description & installation','Explain the product clearly. Do not include private strategies or indicator source code.',['eaiAShort','eaiADesc','eaiAFeatures','eaiAInstall','eaiAVideo','eaiAUse','eaiAChange']);
