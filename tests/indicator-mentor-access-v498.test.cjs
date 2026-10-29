@@ -4,75 +4,118 @@ const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
 const root=path.resolve(__dirname,'..');
-const read=name=>fs.readFileSync(path.join(root,name),'utf8');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 
-test('Both admin routes ship interactive status/product filters and staff grant manager',()=>{
- for(const name of ['admin/index.html','admin-panel.html']){
-  const html=read(name);
-  for(const asset of ['admin-eai-review-v498.css?v=20261029-v498',
-                      'admin-eai-staff-access-v498.js?v=20261029-v498',
-                      'admin-ea-indicator-enterprise-v374.js?v=20261029-v500-filter-sort']){
-   assert.equal(html.split(asset).length-1,1,asset+' missing on '+name);
-  }
-  assert.ok(html.indexOf('admin-eai-review-v498.css')<html.indexOf('admin-eai-staff-access-v498.js'));
+test('Both Admin routes preload critical first paint CSS and V503 modules',()=>{
+ for(const p of ['admin/index.html','admin-panel.html']){
+  const h=read(p);
+  for(const name of [
+   'pspAdminNoLegacyPaintV503',
+   'admin-eai-review-v498.css?v=20261029-v503-reapprove',
+   'admin-eai-staff-access-v498.js?v=20261029-v503-grant-issue',
+   'admin-ea-indicator-enterprise-v374.js?v=20261029-v503-reapprove',
+   'admin-dashboard-v181.js?v=20261029-v503-first-paint'
+  ])assert.equal(h.split(name).length-1,1,name+' in '+p);
+  assert.ok(h.indexOf('pspAdminNoLegacyPaintV503')<h.indexOf('admin-dashboard-v181.css'));
+  assert.match(h,/#page-dashboard:not\(\.ad181-mounted\)>\*\{display:none!important\}/);
  }
+ const dash=read('admin-dashboard-v181.js');
+ assert.match(dash,/p\.classList\.add\('ad181-mounted'\)/);
+ assert.match(dash,/if\(!p\.querySelector\('\.ad181-shell'\)\)p\.innerHTML=markup\(\)/);
 });
-test('Mentor navigation shows both tabs only after explicit server grant',()=>{
- const html=read('psp-mentor.html');
- assert.match(html,/mentor-staff-review-v498\.css/);
- assert.match(html,/mentor-staff-review-v498\.js/);
- assert.match(html,/\['indicator_review','🧩','EA & Indicator'\]/);
- assert.match(html,/\['ib_review','🛡️','IB Verification'\]/);
- assert.match(html,/await window\.PSPMentorStaffV498\?\.prepare\(sb\)/);
- assert.match(html,/MENTOR_ACCESS\.indicator_review=staffToggles\.indicator_review&&staffPermission\.indicator_review===true/);
- assert.match(html,/MENTOR_ACCESS\.ib_review=staffToggles\.ib_review&&staffPermission\.ib_review===true/);
- assert.match(html,/indicator_review:\(\)=>window\.PSPMentorStaffV498\?\.render\('indicator_review'\)/);
-});
-test('Application filter statuses preserve unchecked, approved, rejected and ready categories',()=>{
+
+test('Admin queue filters include unchecked, approved, rejected, all three indicators',()=>{
  const js=read('admin-ea-indicator-enterprise-v374.js');
  assert.doesNotThrow(()=>new Function(js));
  const from=js.indexOf('function statusMatch('),to=js.indexOf('function setOptions(',from);
  assert.ok(from>0&&to>from);
- const context={issuedStatuses:new Set(['ready','downloaded']),activeStatuses:new Set(['pending','under_review','approved','license_preparing'])};
- vm.createContext(context);vm.runInContext(js.slice(from,to),context);
- const status=(value,key)=>vm.runInContext('statusMatch({status:'+JSON.stringify(value)+'},'+JSON.stringify(key)+')',context);
- assert.equal(status('pending','new'),true);
- assert.equal(status('pending','rejected'),false);
- assert.equal(status('approved','approved'),true);
- assert.equal(status('license_preparing','approved'),true);
- assert.equal(status('rejected','rejected'),true);
- assert.equal(status('ready','ready'),true);
- assert.equal(status('downloaded','downloaded'),true);
- assert.equal(status('ready','approved'),false);
- for(const selector of ['eaiV498Product','eaiV498Broker','eaiV498Verification','eaiV498Date'])assert.ok(js.includes(selector));
- assert.match(js,/state\.filter=order\.find/);
+ const c={issuedStatuses:new Set(['ready','downloaded']),activeStatuses:new Set(['pending','under_review','approved','license_preparing'])};
+ vm.createContext(c);vm.runInContext(js.slice(from,to),c);
+ const match=(s,key)=>vm.runInContext('statusMatch({status:'+JSON.stringify(s)+'},'+JSON.stringify(key)+')',c);
+ assert.equal(match('pending','new'),true);
+ assert.equal(match('approved','approved'),true);
+ assert.equal(match('rejected','rejected'),true);
+ assert.equal(match('ready','ready'),true);
+ assert.equal(match('downloaded','downloaded'),true);
+ assert.equal(match('ready','approved'),false);
+ assert.match(js,/Reapprove \/ Issue/);
+ assert.match(js,/Reapprove Request/);
+ assert.match(js,/if\(v\.state!=='ok'\)/);
+ for(const selector of ['eaiV498Product','eaiV498Broker','eaiV498Verification','eaiV498Date'])
+  assert.ok(js.includes(selector));
+ const admin=read('admin-ea-indicator-v238.js');
+ assert.match(admin,/status==='ready'&&!file&&!r\.licensed_file_path/);
+ assert.match(admin,/Cannot approve: the exact broker\/account/);
 });
-test('Staff review modules parse and never expose private licensed file downloads',()=>{
- for(const name of ['mentor-staff-review-v498.js','admin-eai-staff-access-v498.js'])
-  assert.doesNotThrow(()=>new Function(read(name)),name);
- const mentor=read('mentor-staff-review-v498.js');
- assert.match(mentor,/psp_staff_my_v498/);
+
+test('Mentor new navigation, permissions and active UI use Website Access Approvals',()=>{
+ const html=read('psp-mentor.html');
+ assert.match(html,/mentor-staff-review-v503\.css/);
+ assert.match(html,/mentor-staff-review-v503\.js/);
+ assert.match(html,/\['indicator_review','🧩','EA & Indicator'\]/);
+ assert.match(html,/\['ib_review','🛡️','Website Access Approvals'\]/);
+ assert.match(html,/await window\.PSPMentorStaffV498\?\.prepare\(sb\)/);
+ assert.match(html,/MENTOR_ACCESS\.indicator_review=staffToggles\.indicator_review&&staffPermission\.indicator_review===true/);
+ assert.match(html,/MENTOR_ACCESS\.ib_review=staffToggles\.ib_review&&staffPermission\.ib_review===true/);
+ const mentor=read('mentor-staff-review-v503.js');
+ assert.doesNotThrow(()=>new Function(mentor));
  assert.match(mentor,/psp_staff_queue_v498/);
- assert.match(mentor,/psp_staff_ib_decide_v498/);
- assert.match(mentor,/psp_staff_note_v498/);
- assert.match(mentor,/permissions\.ib_decide/);
- assert.match(mentor,/const field=\(kind,id\)/);
- assert.doesNotMatch(mentor,/ea-indicator-licensed|storage\.from\('ea-indicator-licensed'\)/);
- const grants=read('admin-eai-staff-access-v498.js');
- assert.match(grants,/psp_staff_grant_v498/);
- assert.match(grants,/psp_staff_list_v498/);
- assert.match(grants,/eaiV375Insights/);
+ assert.match(mentor,/psp_staff_my_v498/);
+ assert.match(mentor,/indicator_issue/);
+ assert.match(mentor,/Reapprove & Issue File/);
+ assert.match(mentor,/Approve & Deliver File/);
+ assert.match(mentor,/psp_staff_indicator_decide_v501/);
+ assert.match(mentor,/psp_staff_access_decide_v501/);
+ assert.match(mentor,/createSignedUrl\(file,90\)/);
+ assert.match(mentor,/bucket='ea-indicator-proofs'/);
+ assert.match(mentor,/if\(result\.error\)throw result\.error/);
+ assert.match(mentor,/await conn\(\)\.storage\.from\('ea-indicator-licensed'\)\.remove\(\[uploaded\]\)/);
 });
-test('Database SQL enforces opt-in staff grants, audit trail and a trusted admin allowlist',()=>{
- const s=read('supabase/sql/498_staff_review_permissions_and_queues.sql');
- const harden=read('supabase/sql/499_staff_trusted_admin_and_profile_role_guard.sql');
- assert.match(s,/create table if not exists public\.psp_staff_access_v498/i);
- assert.match(s,/create table if not exists public\.psp_staff_reviews_v498/i);
- assert.match(s,/enable row level security/i);
- assert.match(s,/revoke all on function public\.psp_staff_queue_v498\(text\) from public,anon/i);
- assert.match(s,/not public\.psp_staff_can_v498\('ib_decide'\)/i);
- assert.match(s,/bucket_id='ea-indicator-proofs'/);
- assert.match(harden,/create table if not exists public\.psp_staff_admins_v499/i);
- assert.match(harden,/psp_staff_is_admin_v499/);
- assert.match(harden,/psp_guard_profile_role_v499 before update of role/i);
+
+test('Mentor review permissions default to none, remain grant-only',async()=>{
+ const module=read('mentor-staff-review-v503.js');
+ const el={getElementById:()=>null};
+ const c={document:el,window:null,console};
+ c.window=c;vm.createContext(c);
+ vm.runInContext(module,c);
+ let result=await c.PSPMentorStaffV498.prepare({rpc:async()=>({data:{indicator_review:true,indicator_issue:false,ib_review:true,ib_decide:false}})});
+ assert.equal(result.indicator_review,true);
+ assert.equal(result.indicator_issue,false);
+ assert.equal(result.ib_review,true);
+ assert.equal(result.ib_decide,false);
+ result=await c.PSPMentorStaffV498.prepare({rpc:async()=>({data:{indicator_review:false,indicator_issue:true,ib_review:false,ib_decide:true}})});
+ assert.equal(result.indicator_review,false);
+ assert.equal(result.indicator_issue,false);
+ assert.equal(result.ib_review,false);
+ assert.equal(result.ib_decide,false);
+});
+
+test('Admin grants independently control private issuing and 30-day website access',()=>{
+ const grants=read('admin-eai-staff-access-v498.js');
+ assert.doesNotThrow(()=>new Function(grants));
+ assert.match(grants,/psp_staff_grant_v501/);
+ assert.match(grants,/psp_staff_list_v498/);
+ assert.match(grants,/p_indicator_issue:!!record\.issue/);
+ assert.match(grants,/p_ib_decide:!!record\.decide/);
+ assert.match(grants,/eai498Issue/);
+ assert.match(grants,/Website Access/);
+});
+
+test('Server permissions enforce account lock, private upload and actual website access semantics',()=>{
+ const db=read('supabase/sql/501_mentor_full_indicator_and_website_access.sql');
+ const queue=read('supabase/sql/502_staff_queue_product_and_expiry_fields.sql');
+ assert.match(db,/indicator_issue boolean NOT NULL DEFAULT false/i);
+ assert.match(db,/psp_staff_is_admin_v499/);
+ assert.match(db,/p_scope WHEN 'indicator_issue'|WHEN 'indicator_issue' THEN s\.indicator_review AND s\.indicator_issue/);
+ assert.match(db,/bucket_id='ea-indicator-licensed'/);
+ assert.match(db,/owner_id=auth\.uid\(\)::text/);
+ assert.match(db,/p_request_id uuid,p_action text/);
+ assert.match(db,/v_req\.user_id::text\|\|'\|'|v_req\.user_id::text\|\|'\/'/);
+ assert.match(db,/p_action text,p_reason text DEFAULT ''/);
+ assert.match(db,/approved_expires_at=v_until,admin_trial_expires_at=NULL/);
+ assert.match(db,/v_until:=CASE WHEN v_action='approve' THEN now\(\)\+interval '30 days'/);
+ assert.match(db,/REVOKE ALL ON FUNCTION public\.psp_staff_indicator_decide_v501/);
+ assert.match(queue,/a\.approved_expires_at/);
+ assert.match(queue,/r\.payment_proof_path/);
+ assert.match(queue,/pr\.access_type/);
 });
