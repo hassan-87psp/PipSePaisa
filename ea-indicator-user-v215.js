@@ -63,3 +63,138 @@ window.PSPEAIndicator={load,detail,request,download,switchTab,selectShot};
 function init(){installPage();[80,300,800,1600,2800].forEach(ms=>setTimeout(ensureEaNav,ms));}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
+
+
+/* PipSePaisa V341: premium 3-step EA/Indicator applications, tracking and mobile UX */
+(function(){
+'use strict';
+if(window.__PSP_EAI_PREMIUM_V341__ || !window.PSPEAIndicator)return;
+window.__PSP_EAI_PREMIUM_V341__=true;
+var api=window.PSPEAIndicator, oldLoad=api.load,oldDetail=api.detail;
+var P={requests:[],events:[],accounts:[],wizard:null};
+var client=function(){return window.sb||null};
+var safe=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var label=function(s){return ({pending:'Application Submitted',under_review:'Under Review',approved:'Approved',license_preparing:'License Preparing',ready:'Ready to Download',downloaded:'Downloaded',rejected:'Action Required'})[s]||s};
+var fmt=function(s){try{return new Date(s).toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'})}catch(e){return ''}};
+var toast=function(s,t){if(window.pipToast)window.pipToast(s,t||'ok');else alert(s)};
+var d=function(id){return document.getElementById(id)};
+var renderError=function(s){var n=d('eaiPError');if(n){n.textContent=s||'';n.style.display=s?'block':'none'}};
+var css=document.createElement('style');css.id='psp-eai-premium-v341-css';
+css.textContent=[
+'#page-eaindicator{--eai-o:#F39522}#page-eaindicator .eai-hero{padding:24px;border-radius:20px;background:linear-gradient(125deg,var(--bg-card),color-mix(in srgb,#F39522 10%,var(--bg-card)))}',
+'#page-eaindicator .eai-sub,#page-eaindicator .eai-desc,#page-eaindicator .eai-text{font-size:13px;line-height:1.65}#page-eaindicator .eai-title{font-size:16px}#page-eaindicator .eai-kicker,#page-eaindicator .eai-tag,#page-eaindicator .eai-badge{font-size:10px}',
+'.eai-modal .eai-license-note{font-size:12px}.eai-modal .eai-detail-tab{font-size:12px}.eai-modal .eai-callout{font-size:12px}.eai-modal .eai-side-meta span{font-size:10px}.eai-modal .eai-side-meta b{font-size:12px}',
+'.eaiP-card{border:1px solid var(--border);background:var(--bg-card);border-radius:18px;padding:17px;box-shadow:0 5px 20px rgba(0,0,0,.025)}.eaiP-cardlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:20px}',
+'.eaiP-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}.eaiP-head h3{margin:3px 0 5px;font-size:16px;line-height:1.35}.eaiP-kicker{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:800;color:var(--text-muted)}',
+'.eaiP-status{display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:6px 9px;font-weight:850;font-size:10px;background:rgba(243,149,34,.12);color:#b86b07;white-space:nowrap}.eaiP-status.ready,.eaiP-status.downloaded{background:rgba(22,163,74,.12);color:#15803d}.eaiP-status.rejected{background:rgba(220,38,38,.10);color:#dc2626}',
+'.eaiP-meta{color:var(--text-muted);font-size:12px;line-height:1.65;margin-bottom:12px}.eaiP-bar{height:5px;border-radius:12px;background:var(--bg-elevated);overflow:hidden;margin:12px 0}.eaiP-bar span{display:block;height:100%;border-radius:12px;background:linear-gradient(90deg,#F39522,#ffd46a)}',
+'.eaiP-btn{border:0;background:#F39522;color:#18202c;border-radius:11px;font-size:13px;font-weight:850;padding:11px 15px;cursor:pointer;min-height:42px}.eaiP-btn:hover{filter:brightness(.97)}.eaiP-btn.secondary{border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary,#18202c)}.eaiP-btn:disabled{opacity:.55;cursor:wait}',
+'.eaiP-wizard{padding:22px 24px 24px;max-width:760px;margin:auto}.eaiP-wizardHeader{padding:16px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:12px;align-items:center;background:var(--bg-card);border-radius:20px 20px 0 0}.eaiP-wizardHeader h2{margin:5px 0 0;font-size:21px;line-height:1.3}.eaiP-wizardMeta{font-size:11px;letter-spacing:.09em;font-weight:850;color:var(--text-muted)}',
+'.eaiP-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 23px}.eaiP-step{border-top:4px solid var(--border);padding-top:10px;color:var(--text-muted);font-size:12px;font-weight:700}.eaiP-step.active{border-color:#F39522;color:var(--text-primary)}.eaiP-step.done{border-color:#16a34a}',
+'.eaiP-wizard h3{font-size:20px;margin:0 0 5px}.eaiP-help{color:var(--text-muted);font-size:13px;line-height:1.65;margin-bottom:17px}.eaiP-fields{display:grid;grid-template-columns:1fr 1fr;gap:15px}.eaiP-field{min-width:0}.eaiP-field.wide{grid-column:1/-1}.eaiP-field label{display:block;font-size:12px;font-weight:800;margin-bottom:8px;color:var(--text-primary)}.eaiP-field input,.eaiP-field select,.eaiP-field textarea{display:block;width:100%;box-sizing:border-box;border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary);border-radius:11px;padding:12px 13px;font-size:14px;min-height:45px}.eaiP-field input:focus,.eaiP-field select:focus,.eaiP-field textarea:focus{outline:2px solid rgba(243,149,34,.38);border-color:#F39522}.eaiP-field small{display:block;margin-top:5px;color:var(--text-muted);font-size:11px}',
+'.eaiP-note{background:rgba(243,149,34,.08);border:1px solid rgba(243,149,34,.24);border-radius:13px;padding:13px;margin-top:16px;font-size:13px;line-height:1.6}.eaiP-priceRow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}.eaiP-priceRow:last-child{border-bottom:0}.eaiP-priceRow b{color:#16803a;font-size:16px}',
+'.eaiP-wizardActions{display:flex;justify-content:space-between;gap:12px;margin-top:24px}.eaiP-wizardActions .eaiP-btn.primary{margin-left:auto;min-width:160px}.eaiP-error{border:1px solid rgba(220,38,38,.25);background:rgba(220,38,38,.08);color:#c52222;border-radius:10px;padding:11px 13px;font-size:13px;margin-top:12px}',
+'.eaiP-review{border:1px solid var(--border);border-radius:14px;background:var(--bg-card);padding:15px}.eaiP-reviewline{display:flex;justify-content:space-between;gap:12px;padding:9px 0;font-size:13px;border-bottom:1px solid var(--border)}.eaiP-reviewline:last-child{border:0}.eaiP-reviewline span{color:var(--text-muted)}',
+'.eaiP-track{padding:22px 24px}.eaiP-tracklist{list-style:none;padding:0;margin:18px 0}.eaiP-tracklist li{display:flex;align-items:flex-start;gap:12px;padding:0 0 20px;position:relative;font-size:13px}.eaiP-tracklist li:not(:last-child):before{content:"";position:absolute;left:12px;top:25px;bottom:1px;border-left:2px solid var(--border)}.eaiP-dot{width:25px;height:25px;flex:0 0 25px;border-radius:50%;display:grid;place-items:center;background:var(--bg-elevated);color:var(--text-muted);font-size:12px;font-weight:900;position:relative;z-index:1}.eaiP-done .eaiP-dot{background:#16a34a;color:white}.eaiP-now .eaiP-dot{background:#F39522;color:#18202c}.eaiP-tracklist strong{display:block;margin:2px 0 3px;font-size:14px}.eaiP-tracklist small{display:block;color:var(--text-muted);line-height:1.5;font-size:12px}.eaiP-trackActions{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}',
+'.eaiP-events{border:1px solid var(--border);background:var(--bg-card);border-radius:12px;padding:13px;margin-top:16px}.eaiP-events p{font-size:12px;line-height:1.55;margin:9px 0;color:var(--text-muted)}',
+'@media(max-width:700px){.eaiP-wizard{padding:14px}.eaiP-wizardHeader{padding:14px}.eaiP-wizardHeader h2{font-size:18px}.eaiP-fields{grid-template-columns:1fr}.eaiP-field.wide{grid-column:auto}.eaiP-wizard h3{font-size:18px}.eaiP-track{padding:16px}.eaiP-cardlist{grid-template-columns:1fr}.eaiP-wizardActions{position:sticky;bottom:0;z-index:4;background:var(--bg-main,#f4eee2);padding:12px 0 0}.eaiP-btn{font-size:13px}}'
+].join('');
+document.head.appendChild(css);
+function statusIndex(s){return ({pending:0,under_review:1,approved:2,license_preparing:3,ready:4,downloaded:5})[s]??0}
+function progress(s){return s==='rejected'?12:([12,28,48,72,100,100][statusIndex(s)]||12)}
+async function me(){var c=client();if(!c)return null;var q=await c.auth.getUser();return q.data&&q.data.user}
+async function syncData(){var c=client(),u=await me();if(!c||!u)return;var out=await Promise.all([
+c.from('ea_indicator_requests').select('*,ea_indicator_products(title,product_type,platform,access_type)').eq('user_id',u.id).order('created_at',{ascending:false}),
+c.from('ea_indicator_request_events').select('request_id,from_status,to_status,note,created_at').eq('user_id',u.id).order('created_at',{ascending:true}).limit(200),
+c.from('account_verifications').select('broker,trading_account_id,submission_status').eq('user_id',u.id)
+]);
+P.requests=out[0].data||[];P.events=out[1].data||[];P.accounts=(out[2].data||[]).filter(function(x){return String(x.submission_status).toLowerCase()==='approved'});
+renderRequests();
+}
+function renderRequests(){
+var box=d('eaiMyRequests');if(!box)return;
+if(!P.requests.length){box.innerHTML='';return}
+box.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 11px"><div><h3 style="margin:0 0 2px;font-size:18px">My Licenses & Applications</h3><div style="font-size:12px;color:var(--text-muted)">Track approvals, private files and request history.</div></div><span class="eaiP-kicker">'+P.requests.length+' TOTAL</span></div><div class="eaiP-cardlist">'+P.requests.map(function(r){
+var ready=r.status==='ready'||r.status==='downloaded';
+return '<div class="eaiP-card"><div class="eaiP-head"><div><div class="eaiP-kicker">'+safe(r.ea_indicator_products?.platform||'MT5')+' · PRIVATE LICENSE</div><h3>'+safe(r.ea_indicator_products?.title||'PipSePaisa Indicator')+'</h3></div><span class="eaiP-status '+safe(r.status)+'">'+safe(label(r.status))+'</span></div><div class="eaiP-meta">'+safe(r.broker)+' · Account '+safe(r.trading_account_id)+'<br>Submitted '+safe(fmt(r.created_at))+' · Updated '+safe(fmt(r.updated_at))+'</div><div class="eaiP-bar"><span style="width:'+progress(r.status)+'%"></span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="eaiP-btn secondary" onclick="PSPEAIndicator.track(\''+safe(r.id)+'\')">Track Application</button>'+(ready?'<button type="button" class="eaiP-btn" onclick="PSPEAIndicator.download(\''+safe(r.id)+'\')">↓ Download EX File</button>':r.status==='rejected'?'<button type="button" class="eaiP-btn" onclick="PSPEAIndicator.request(\''+safe(r.product_id)+'\')">Correct & Resubmit</button>':'')+'</div></div>';
+}).join('')+'</div>';
+}
+api.load=async function(){var result=await oldLoad.apply(api,arguments);await syncData();return result};
+api.detail=function(id){oldDetail.apply(api,arguments);var req=P.requests.find(function(x){return x.product_id===id&&x.status!=='rejected'});var b=document.querySelector('#eaiModalBack .eai-request-btn.secondary');if(req&&b){b.textContent='Track My License';b.onclick=function(){api.track(req.id)}}};
+function popup(content,cls){
+d('eaiModalBack')?.remove();
+var back=document.createElement('div');back.className='eai-modalback';back.id='eaiModalBack';
+back.innerHTML='<div class="eai-modal '+(cls||'')+'">'+content+'</div>';
+back.addEventListener('click',function(e){if(e.target===back)back.remove()});
+document.body.appendChild(back);
+return back;
+}
+api.track=function(id){
+var r=P.requests.find(function(x){return x.id===id});if(!r){toast('Please refresh to view this application.','error');return}
+var stages=[['pending','Application Submitted','Your request was received.'],['under_review','Account Verification','Broker, account and deposit proof are being reviewed.'],['approved','Application Approved','Trading account approved for this license.'],['license_preparing','License Preparation','A private licensed build is being prepared.'],['ready','Ready to Download','Your account-specific file is available.']];
+var index=statusIndex(r.status),events=P.events.filter(function(e){return e.request_id===r.id});
+var timeline=stages.map(function(s,i){var done=r.status!=='rejected'&&i<index;var active=r.status!=='rejected'&&i===index;return '<li class="'+(done?'eaiP-done':active?'eaiP-now':'')+'"><span class="eaiP-dot">'+(done?'✓':i+1)+'</span><div><strong>'+s[1]+'</strong><small>'+s[2]+'</small></div></li>'}).join('');
+var rejected=r.status==='rejected';
+var history=events.length?'<div class="eaiP-events"><strong>Application Activity</strong>'+events.slice(-8).reverse().map(function(e){return '<p>'+safe(fmt(e.created_at))+' — '+safe(label(e.to_status))+(e.note?' · '+safe(e.note):'')+'</p>'}).join('')+'</div>':'';
+popup('<div class="eaiP-wizardHeader"><div><div class="eaiP-wizardMeta">PIPSEPAISA · LICENSE TRACKING</div><h2>'+safe(r.ea_indicator_products?.title||'Indicator License')+'</h2></div><button class="eai-x" type="button" aria-label="Close" onclick="document.getElementById(\'eaiModalBack\').remove()">×</button></div><div class="eaiP-track"><div class="eaiP-head"><div><div class="eaiP-kicker">BROKER · ACCOUNT</div><strong>'+safe(r.broker)+' · '+safe(r.trading_account_id)+'</strong></div><span class="eaiP-status '+safe(r.status)+'">'+safe(label(r.status))+'</span></div>'+(rejected?'<div class="eaiP-error"><strong>Application needs correction</strong><div style="margin-top:5px">'+safe(r.admin_note||'Please check your broker verification and deposit proof, then resubmit your request.')+'</div></div>':'')+'<ul class="eaiP-tracklist">'+timeline+'</ul>'+history+'<div class="eaiP-trackActions">'+(r.status==='ready'||r.status==='downloaded'?'<button class="eaiP-btn" type="button" onclick="PSPEAIndicator.download(\''+safe(r.id)+'\')">Download My Licensed File</button>':'')+(rejected?'<button class="eaiP-btn" type="button" onclick="PSPEAIndicator.request(\''+safe(r.product_id)+'\')">Correct & Resubmit</button>':'')+'<button class="eaiP-btn secondary" type="button" onclick="document.getElementById(\'eaiModalBack\').remove()">Close</button></div></div>','eaiP-trackModal');
+};
+api.request=async function(id){
+var c=client(),u=await me();if(!c||!u){toast('Please sign in to request access.','error');return}
+var query=await c.from('ea_indicator_products').select('*').eq('id',id).eq('status','published').maybeSingle();if(query.error||!query.data){toast('Indicator is not available.','error');return}
+var p=query.data,existing=P.requests.find(function(x){return x.product_id===id});
+if(existing&&existing.status!=='rejected'){api.track(existing.id);return}
+P.wizard={p:p,existing:existing,user:u,step:1};
+var min=Math.max(0,Number(p.requirements?.min_deposit_usd)||0);
+var defaultAccount=P.accounts[0]||null;
+var verifiedOptions=P.accounts.length?'<div class="eaiP-field wide"><label>Use a Verified PipSePaisa Account (Optional)</label><select id="eaiPVerified"><option value="">Enter account manually</option>'+P.accounts.map(function(a,i){return '<option value="'+i+'">'+safe(a.broker)+' · '+safe(a.trading_account_id)+'</option>'}).join('')+'</select><small>Selecting a verified account automatically fills broker and account ID.</small></div>':'';
+var brokers=['Exness','DPrime','XM','HFM','Other'];
+var prevBroker=existing?.broker||defaultAccount?.broker||'',prevAccount=existing?.trading_account_id||defaultAccount?.trading_account_id||'';
+popup('<div class="eaiP-wizardHeader"><div><div class="eaiP-wizardMeta">PIPSEPAISA · SOFTWARE LICENSING</div><h2>'+safe(p.title)+'</h2></div><button type="button" class="eai-x" aria-label="Close" onclick="document.getElementById(\'eaiModalBack\').remove()">×</button></div><form class="eaiP-wizard" id="eaiPForm"><div class="eaiP-steps"><div class="eaiP-step active" data-s="1">01 · Account</div><div class="eaiP-step" data-s="2">02 · Verification</div><div class="eaiP-step" data-s="3">03 · Review</div></div><section data-p="1"><h3>Connect Your Trading Account</h3><div class="eaiP-help">Your private MT5 file will be licensed to the trading account you submit.</div><div class="eaiP-fields">'+verifiedOptions+'<div class="eaiP-field"><label for="eaiPBroker">Trading Broker *</label><select id="eaiPBroker" required><option value="">Select Broker</option>'+brokers.map(function(b){return '<option value="'+b+'" '+(prevBroker.toLowerCase()===b.toLowerCase()?'selected':'')+'>'+b+'</option>'}).join('')+'</select></div><div class="eaiP-field"><label for="eaiPAccount">MT5 Trading Account ID *</label><input id="eaiPAccount" type="text" inputmode="numeric" pattern="[0-9]{4,20}" maxlength="20" required placeholder="Enter account number" value="'+safe(prevAccount)+'"><small>Enter the exact broker trading account number.</small></div></div><div class="eaiP-note">✓ Account-specific license &nbsp;·&nbsp; ✓ Secure private file delivery &nbsp;·&nbsp; ✓ Admin verification</div></section><section data-p="2" hidden><h3>Deposit & Verification</h3><div class="eaiP-help">Upload clear proof showing the broker, trading account and eligible deposit.</div><div class="eaiP-fields"><div class="eaiP-field"><label for="eaiPDeposit">Available Broker Deposit (USD)'+(min?' — Minimum $'+safe(min):'')+' *</label><input id="eaiPDeposit" type="number" step="0.01" min="'+min+'" required placeholder="'+(min?'Minimum $'+min:'USD amount')+'" value="'+(existing?.deposit_amount??'')+'"></div><div class="eaiP-field"><label for="eaiPProof">Deposit Proof '+(existing?.deposit_proof_path?'(Already on file)':'*')+'</label><input id="eaiPProof" type="file" accept="image/png,image/jpeg,image/webp,application/pdf,.pdf" '+(existing?.deposit_proof_path?'':'required')+'><small>PNG, JPG, WEBP or PDF · Maximum 8MB</small></div>'+(p.access_type==='paid'?'<div class="eaiP-field wide"><label for="eaiPPayment">Purchase/Payment Proof '+(existing?.payment_proof_path?'(Already on file)':'*')+'</label><input id="eaiPPayment" type="file" accept="image/png,image/jpeg,image/webp,application/pdf,.pdf" '+(existing?.payment_proof_path?'':'required')+'></div>':'')+'<div class="eaiP-field wide"><label for="eaiPNote">Additional Note (Optional)</label><textarea id="eaiPNote" rows="3" placeholder="Anything our verification team should know">'+safe(existing?.user_note||'')+'</textarea></div></div><div class="eaiP-note"><strong>Important:</strong> '+(min?'The $'+safe(min)+' deposit stays in your own eligible broker account. PipSePaisa does not collect that deposit.':'Your account will be verified before the licensed file is issued.')+'</div></section><section data-p="3" hidden><h3>Review Your Application</h3><div class="eaiP-help">Check the details before submitting your account-specific license request.</div><div class="eaiP-review" id="eaiPReview"></div><div class="eaiP-note">After submission: Account Review → Approval → License Preparation → Private Download. You can track progress anytime under My Licenses.</div></section><div id="eaiPError" class="eaiP-error" style="display:none"></div><div class="eaiP-wizardActions"><button type="button" class="eaiP-btn secondary" id="eaiPBack" onclick="PSPEAIndicator.wizardBack()" style="visibility:hidden">Back</button><button type="button" class="eaiP-btn primary" id="eaiPNext" onclick="PSPEAIndicator.wizardNext()">Continue →</button><button type="submit" class="eaiP-btn primary" id="eaiPSubmit" style="display:none">Submit Application →</button></div></form>','eaiP-wizardModal');
+d('eaiPForm').onsubmit=function(e){e.preventDefault();api.wizardSubmit()};
+if(d('eaiPVerified'))d('eaiPVerified').onchange=function(){
+var a=P.accounts[Number(this.value)];if(this.value!==''&&a){d('eaiPBroker').value=['Exness','DPrime','XM','HFM','Other'].find(function(x){return x.toLowerCase()===a.broker.toLowerCase()})||'Other';d('eaiPAccount').value=a.trading_account_id}
+};
+};
+function validateFile(f){if(!f)return;var ext=(f.name||'').toLowerCase();if(f.size>8*1024*1024)throw Error('File must be 8MB or smaller.');if(!(/\.(png|jpe?g|webp|pdf)$/.test(ext)))throw Error('Only PNG, JPG, WEBP or PDF files are supported.')}
+function validate(n){
+if(n===1){var broker=d('eaiPBroker'),account=d('eaiPAccount');if(!broker.value){broker.focus();throw Error('Please select your broker.')}if(!/^\d{4,20}$/.test(account.value.trim())){account.focus();throw Error('Enter a valid 4–20 digit MT5 trading account number.')}}
+if(n===2){var p=P.wizard.p,min=Math.max(0,Number(p.requirements?.min_deposit_usd)||0),v=Number(d('eaiPDeposit').value);if(!Number.isFinite(v)||d('eaiPDeposit').value===''||v<min){d('eaiPDeposit').focus();throw Error('Please enter an eligible broker deposit'+(min?' of at least $'+min:'')+'.')}
+var dep=d('eaiPProof').files[0];if(!dep&&!P.wizard.existing?.deposit_proof_path)throw Error('Please upload your deposit proof.');validateFile(dep);
+if(p.access_type==='paid'){var pay=d('eaiPPayment').files[0];if(!pay&&!P.wizard.existing?.payment_proof_path)throw Error('Please upload your payment proof.');validateFile(pay)}
+}}
+api.wizardBack=function(){if(!P.wizard)return;P.wizard.step=Math.max(1,P.wizard.step-1);showStep()};
+api.wizardNext=function(){if(!P.wizard)return;try{validate(P.wizard.step);renderError('');P.wizard.step=Math.min(3,P.wizard.step+1);showStep()}catch(e){renderError(e.message)}};
+function showStep(){
+var n=P.wizard.step;
+document.querySelectorAll('#eaiPForm [data-p]').forEach(function(x){x.hidden=Number(x.dataset.p)!==n});
+document.querySelectorAll('#eaiPForm [data-s]').forEach(function(x){x.classList.toggle('active',Number(x.dataset.s)===n);x.classList.toggle('done',Number(x.dataset.s)<n)});
+d('eaiPBack').style.visibility=n===1?'hidden':'visible';d('eaiPNext').style.display=n===3?'none':'inline-flex';d('eaiPSubmit').style.display=n===3?'inline-flex':'none';
+if(n===3){var p=P.wizard.p,min=Math.max(0,Number(p.requirements?.min_deposit_usd)||0);d('eaiPReview').innerHTML=[
+['Product',p.title],['Broker',d('eaiPBroker').value],['Account',d('eaiPAccount').value],['Broker Deposit','$'+Number(d('eaiPDeposit').value).toFixed(2)],['Indicator Fee',p.access_type==='free'?'100% Free':'USD $'+Number(p.price||0).toFixed(2)],['Minimum Required Deposit',min?'$'+min:'Not specified'],['Deposit Proof',d('eaiPProof').files[0]?.name||(P.wizard.existing?.deposit_proof_path?'Previously uploaded':'Missing')]
+].map(function(x){return '<div class="eaiP-reviewline"><span>'+safe(x[0])+'</span><strong>'+safe(x[1])+'</strong></div>'}).join('')}
+d('eaiModalBack')?.querySelector('.eai-modal')?.scrollTo(0,0);
+}
+async function uploadProof(c,bucket,path,f){if(!f)return null;validateFile(f);var filename=(f.name||'proof').replace(/[^a-zA-Z0-9._-]/g,'_');var full=path+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,6)+'-'+filename;var x=await c.storage.from(bucket).upload(full,f,{upsert:false});if(x.error)throw x.error;return full}
+api.wizardSubmit=async function(){
+if(!P.wizard)return;var w=P.wizard,c=client(),btn=d('eaiPSubmit');if(btn.disabled)return;
+try{validate(1);validate(2);renderError('');btn.disabled=true;btn.textContent='Submitting…';
+var id=w.existing?.id||crypto.randomUUID(),base=w.user.id+'/'+id;
+var dep=await uploadProof(c,'ea-indicator-proofs',base,d('eaiPProof').files[0])||w.existing?.deposit_proof_path||null;
+var pay=w.p.access_type==='paid'?(await uploadProof(c,'ea-indicator-proofs',base,d('eaiPPayment').files[0])||w.existing?.payment_proof_path||null):null;
+var row={id:id,product_id:w.p.id,user_id:w.user.id,broker:d('eaiPBroker').value,trading_account_id:d('eaiPAccount').value.trim(),deposit_amount:Number(d('eaiPDeposit').value),deposit_proof_path:dep,payment_proof_path:pay,user_note:d('eaiPNote').value.trim(),status:'pending',updated_at:new Date().toISOString()};
+var q=w.existing?await c.from('ea_indicator_requests').update(row).eq('id',id):await c.from('ea_indicator_requests').insert(row);
+if(q.error)throw q.error;d('eaiModalBack')?.remove();P.wizard=null;toast('Application submitted. Track it under My Licenses.');await api.load();
+}catch(e){renderError(e.message||'Could not submit request. Please try again.');btn.disabled=false;btn.textContent='Submit Application →'}
+};
+api.download=async function(id){
+var c=client(),r=P.requests.find(function(x){return x.id===id});if(!c||!r||!r.licensed_file_path||!['ready','downloaded'].includes(r.status)){toast('Your licensed file is not ready.','error');return}
+var tab=window.open('about:blank','_blank');try{
+var s=await c.storage.from('ea-indicator-licensed').createSignedUrl(r.licensed_file_path,120);
+if(s.error)throw s.error;
+if(tab)tab.location.href=s.data.signedUrl;else window.location.href=s.data.signedUrl;
+var upd=await c.from('ea_indicator_requests').update({status:'downloaded',downloaded_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',id);
+if(upd.error){console.warn('Licensed download opened, activity update failed:',upd.error.message)}
+await api.load();
+}catch(e){if(tab)tab.close();toast('File download could not start: '+(e.message||'Please try again.'),'error')}
+};
+})();
