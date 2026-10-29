@@ -24,6 +24,11 @@ jobs:
 
       - name: Run project quality checks
         run: node scripts/quality-check.mjs
+      - name: Verify admin session restoration and page loading
+        run: |
+          node --check admin-core-v406.js
+          node --check admin-dashboard-v181.js
+          node --test tests/admin-page-loading.test.cjs
       - name: Verify team referral course signup and enrollment routing
         run: node tests/team-referral-enrollment.test.mjs
       - name: Verify OneSignal subscription behavior
