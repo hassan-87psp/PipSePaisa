@@ -150,27 +150,64 @@ test('Preparing Finance is a write; read-only Finance and paged Users reuse the 
   assert.equal(h.c.pspAdminReadRevision,4);await call('psp_admin_users_page_v439',{p_limit:100});assert.equal(calls,5);
 });
 
-test('Admin auth bootstrap runs on DOM readiness before images finish loading',async()=>{
-  const h=harness();let dashboardLoads=0,sessionReads=0;
+test('Admin restore runs on DOM readiness and fires the dashboard only after modules are ready',async()=>{
+  const h=harness();let dashboardLoads=0,sessionReads=0,events=0;
   const client={auth:{getSession:async()=>{++sessionReads;return {data:{session:{user:{id:'admin'}}}};}},
     from:()=>({select(){return this;},eq(){return this;},single:async()=>({data:{id:'admin',role:'admin'}})})};
-  Object.assign(h.c,{supabase:{createClient:()=>client},queueMicrotask,dispatchEvent(){},PSPExecutiveDashboard181:{},loadDashboardStats:()=>++dashboardLoads});
+  Object.assign(h.c,{supabase:{createClient:()=>client},queueMicrotask,dispatchEvent(){++events},PSPExecutiveDashboard181:{},loadDashboardStats:()=>++dashboardLoads});
   let removed=false;h.element('loginOverlay').classList.remove=()=>{removed=true};
-  const text=source('admin-core-v406.js');vm.runInContext(text.slice(0,text.indexOf('async function loginAdmin')),h.c);
-  assert.equal(h.listeners.load,undefined);assert.equal(sessionReads,0);
-  await h.listeners.DOMContentLoaded[0]();await tick();assert.equal(sessionReads,1);assert.equal(dashboardLoads,1);assert.equal(removed,true);
+  const sourceText=source('admin-core-v406.js');
+  vm.runInContext(sourceText.slice(0,sourceText.indexOf('async function loginAdmin')),h.c);
+  assert.equal(h.listeners.load,undefined);
+  assert.equal(sessionReads,0);
+  h.c.document.readyState='interactive';
+  for(const listener of [...h.listeners.DOMContentLoaded]) await listener();
+  await tick();
+  assert.equal(sessionReads,1);assert.equal(dashboardLoads,1);assert.equal(events,1);assert.equal(removed,true);
 });
-test('Admin startup still shows login when there is no authenticated session',async()=>{
-  const h=harness();let shown=false;h.element('loginOverlay').classList.add=()=>{shown=true};
-  const client={auth:{getSession:async()=>({data:{session:null}}),getUser:async()=>({data:{user:null}})}};
-  h.c.supabase={createClient:()=>client};const text=source('admin-core-v406.js');vm.runInContext(text.slice(0,text.indexOf('async function loginAdmin')),h.c);
-  await h.listeners.DOMContentLoaded[0]();assert.equal(shown,true);
+test('Admin startup shows login on missing session and skips redundant getUser call',async()=>{
+  const h=harness();let shown=false,userReads=0;
+  h.element('loginOverlay').classList.add=()=>{shown=true};
+  const client={auth:{getSession:async()=>({data:{session:null}}),getUser:async()=>{++userReads;return {data:{user:null}}}}};
+  h.c.supabase={createClient:()=>client};
+  const sourceText=source('admin-core-v406.js');
+  vm.runInContext(sourceText.slice(0,sourceText.indexOf('async function loginAdmin')),h.c);
+  h.c.document.readyState='interactive';
+  for(const listener of [...h.listeners.DOMContentLoaded]) await listener();
+  assert.equal(shown,true);assert.equal(userReads,0);
 });
-test('Classic inline scripts can parse and install before deferred Supabase and admin core',()=>{
+test('Early restored session removes login barrier even before optional deferred modules finish',async()=>{
+  const h=harness();let reads=0,started=0,events=0,removed=false;
+  h.c.document.readyState='interactive';
+  const client={auth:{getSession:async()=>{++reads;return {data:{session:{user:{id:'admin'}}}};}},
+    from:()=>({select(){return this;},eq(){return this;},single:async()=>({data:{id:'admin',role:'super_admin'}})})};
+  Object.assign(h.c,{supabase:{createClient:()=>client},queueMicrotask,dispatchEvent(){++events},loadDashboardStats:()=>++started});
+  h.element('loginOverlay').classList.remove=()=>{removed=true};
+  const src=source('admin-core-v406.js');
+  vm.runInContext(src.slice(0,src.indexOf('async function loginAdmin')),h.c);
+  await tick();
+  assert.equal(reads,1);assert.equal(removed,true);assert.equal(started,0);
+  for(const listener of [...h.listeners.DOMContentLoaded]) await listener();
+  await tick();
+  assert.equal(started,1);assert.equal(events,1);
+});
+test('Both admin entrypoints render an initial auth barrier and avoid blocking external scripts',()=>{
+  for(const filename of ['admin/index.html','admin-panel.html']){
+    const html=source(filename);
+    assert.match(html,/class="login-overlay active is-checking" id="loginOverlay"/);
+    assert.match(html,/id="adminAuthStatus"/);
+    assert.match(html,/id="pspAdminChartLazyV447"/);
+    const scripts=[...html.matchAll(/<script\b([^>]*)>/g)].filter(m=>/\bsrc=/.test(m[1]));
+    assert.ok(scripts.length>20);
+    assert.equal(scripts.filter(m=>!/(?:\bdefer\b|\basync\b)/.test(m[1])).length,0);
+    assert.doesNotMatch(html,/<div id="pipBoot"/);
+  }
+});
+test('Inline admin scripts parse without requiring Supabase before deferred core',()=>{
   const h=harness();h.c.document.createElement=()=>node('created');h.c.document.body=node('body');h.c.document.head=node('head');
   const html=source('admin/index.html'),scripts=[...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)];
   for(const [,attrs,text] of scripts){if(!/\bsrc=/.test(attrs)&&text.trim())assert.doesNotThrow(()=>vm.runInContext(text,h.c));}
-  assert.match(html,/<script async src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart\.js"/);
+  assert.match(html,/id="pspAdminChartLazyV447"/);
   assert.match(html,/<script defer src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2"/);
   assert.doesNotMatch(html,/pipBoot|hideBoot/);
 });
