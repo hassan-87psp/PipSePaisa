@@ -14,6 +14,15 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co" crossorigin>
 <title>Admin Panel — PipSePaisa Trading Platform</title>
+<style id="pspAdminNoLegacyPaintV503">
+/* First paint: old static dashboard must NEVER be visible before the executive UI mounts. */
+#page-dashboard:not(.ad181-mounted)>*{display:none!important}
+#page-dashboard:not(.ad181-mounted)::before{content:"Opening secure Admin Command Center…";display:block;
+ padding:24px;margin:20px auto;max-width:1100px;background:#fffdf8;border:1px solid #e8ddca;
+ border-radius:13px;color:#77879a;font:600 13px/1.6 "Plus Jakarta Sans",Arial,sans-serif}
+@media(prefers-reduced-motion:no-preference){#page-dashboard:not(.ad181-mounted)::before{animation:pspAdmLoadPulse 1.5s ease-in-out infinite}}
+@keyframes pspAdmLoadPulse{50%{opacity:.7}}
+</style>
 <meta name="robots" content="noindex,nofollow">
 <link rel="stylesheet" href="/psp-performance-v218.css?v=20260910-v2181">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2076,7 +2085,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script defer src="/admin-ea-indicator-ultra-v371.js?v=20261029-v374-immediate-drawer"></script>
 <script defer src="/admin-ea-indicator-enterprise-v374.js?v=20261029-v500-filter-sort"></script>
 <script defer src="/admin-ea-indicator-compact-v375.js?v=20261029-v375-compact"></script>
-<script defer src="/admin-eai-staff-access-v498.js?v=20261029-v498"></script>
+<script defer src="/admin-eai-staff-access-v498.js?v=20261029-v503-grant-issue"></script>
 <script defer src="audit-agent-v174.js?v=20261002-v415-stability"></script>
 <script defer src="admin-v174-ux.js?v=20261002-v417-stability"></script>
 <script defer src="signals-workspace-v154.js?v=20260909-v216-pairs"></script>
