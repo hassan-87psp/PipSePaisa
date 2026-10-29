@@ -7,6 +7,7 @@ const escape=s=>String(s==null?'':s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&
 const permissions={indicator_review:false,ib_review:false,ib_decide:false};
 const state={indicator:{rows:[],filter:'pending',product:'all',broker:'all',search:'',loaded:false},ib:{rows:[],filter:'pending',product:'all',broker:'all',search:'',loaded:false}};
 const get=id=>document.getElementById(id);
+const field=(kind,id)=>document.querySelector('#pg-'+(kind==='indicator'?'indicator_review':'ib_review')+' #'+id);
 const norm=s=>String(s||'').trim().toLowerCase();
 const kindFor=key=>key==='indicator_review'?'indicator':'ib';
 function client(){try{return sb||null}catch(_){return null}}
@@ -82,7 +83,7 @@ function renderRows(kind){
 }
 function paintDetails(kind,id){
  const row=state[kind].rows.find(r=>String(kind==='indicator'?r.id:r.user_id)===id);
- const panel=get('staff498Detail');if(!row||!panel)return;
+ const panel=field(kind,'staff498Detail');if(!row||!panel)return;
  const isIndicator=kind==='indicator';
  panel.innerHTML='<div class="staff498-detailHead"><small>REQUEST REVIEW</small><h3>'+escape(row.full_name||row.email||'Student')+'</h3>'+
  '<p>'+escape(row.email||'')+'</p></div>'+
@@ -105,25 +106,25 @@ function paintDetails(kind,id){
 }
 async function viewProof(kind){
  if(kind!=='ib')return;
- const id=get('staff498Detail')?.dataset.id,r=state.ib.rows.find(v=>String(v.user_id)===id);
+ const id=field(kind,'staff498Detail')?.dataset.id,r=state.ib.rows.find(v=>String(v.user_id)===id);
  const proof=r?.deposit_proof_path||r?.proof_path;
- if(!proof){setMessage('No deposit proof is attached.');return}
+ if(!proof){setMessage(kind,'No deposit proof is attached.');return}
  const c=client();if(!c)return;
  const res=await c.storage.from('verification-proofs').createSignedUrl(proof,90);
- if(res.error){setMessage('Proof access unavailable: '+res.error.message);return}
+ if(res.error){setMessage(kind,'Proof access unavailable: '+res.error.message);return}
  // The signed URL expires automatically; it is not exposed to other reviewers.
  window.open(res.data.signedUrl,'_blank','noopener,noreferrer');
 }
-function setMessage(text,isError=false){
- const node=get('staff498Message');
+function setMessage(kind,text,isError=false){
+ const node=field(kind,'staff498Message');
  if(node){node.textContent=text;node.classList.toggle('error',isError)}
 }
 async function submit(kind,decision,final){
- const panel=get('staff498Detail'),id=panel?.dataset.id;
+ const panel=field(kind,'staff498Detail'),id=panel?.dataset.id;
  if(!panel||panel.dataset.kind!==kind||!id)return;
  const note=panel.querySelector('#staff498Note')?.value.trim()||'';
- if((decision==='recommend_reject'||decision==='needs_info'||decision==='reject')&&note.length<5){setMessage('Please write a reason (at least 5 characters).',true);return}
- if(final&&!permissions.ib_decide){setMessage('Final IB permission is required.',true);return}
+ if((decision==='recommend_reject'||decision==='needs_info'||decision==='reject')&&note.length<5){setMessage(kind,'Please write a reason (at least 5 characters).',true);return}
+ if(final&&!permissions.ib_decide){setMessage(kind,'Final IB permission is required.',true);return}
  if(final&&!window.confirm('Confirm the broker, trading account, deposit proof and final IB decision?'))return;
  const rpc=final?'psp_staff_ib_decide_v498':'psp_staff_note_v498';
  const args=final?{p_user_id:id,p_action:decision,p_reason:note}:{p_kind:kind,p_subject:id,p_recommendation:decision,p_note:note};
@@ -131,9 +132,9 @@ async function submit(kind,decision,final){
  try{
   const {error}=await client().rpc(rpc,args);
   if(error)throw error;
-  setMessage(final?'Verification decision saved.':'Review recommendation recorded.');
+  setMessage(kind,final?'Verification decision saved.':'Review recommendation recorded.');
   if(final)await load(kind,true);
- }catch(e){setMessage(e.message||'Review could not be saved.',true)}
+ }catch(e){setMessage(kind,e.message||'Review could not be saved.',true)}
  finally{buttons.forEach(b=>b.disabled=false)}
 }
 function bind(kind,root){
@@ -160,12 +161,12 @@ async function load(kind,force){
    current.filter=order.find(f=>current.rows.some(r=>norm(kind==='indicator'?r.status:r.submission_status)===f))||'all';
   }
   const opts=filtOptions(kind);
-  fillOptions(get('staff498Product'),opts.products,'All Indicators',current.product);
-  fillOptions(get('staff498Broker'),opts.brokers.map(b=>[b,b]),'All Brokers',current.broker);
+  fillOptions(field(kind,'staff498Product'),opts.products,'All Indicators',current.product);
+  fillOptions(field(kind,'staff498Broker'),opts.brokers.map(b=>[b,b]),'All Brokers',current.broker);
   renderRows(kind);
  }catch(e){
   current.loaded=false;
-  const list=get('staff498List');if(list)list.textContent='Cannot load this queue: '+(e.message||'Access denied');
+  const list=field(kind,'staff498List');if(list)list.textContent='Cannot load this queue: '+(e.message||'Access denied');
  }
 }
 function render(key){
