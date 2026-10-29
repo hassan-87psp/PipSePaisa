@@ -19,6 +19,12 @@ let currentAdmin = null;
 let isLoggedIn = false;
 let adminAuthSequence = 0;
 let adminReadyScheduled = false;
+let adminReadyDispatched = false;
+let adminDOMReady = document.readyState === 'complete';
+document.addEventListener('DOMContentLoaded', function(){
+  adminDOMReady = true;
+  if (adminReadyScheduled) adminFireReady();
+}, {once:true});
 
 // Keep the login barrier visible until access has actually been verified.
 // Run session restoration as soon as this deferred core script executes,
@@ -45,22 +51,20 @@ function adminAuthorized(profile) {
   const role = String(profile && profile.role || '').trim().toLowerCase();
   return !!(profile && (profile.is_admin === true || ['admin','super_admin','superadmin'].includes(role)));
 }
+function adminFireReady() {
+  if (!adminReadyScheduled || adminReadyDispatched || !adminDOMReady || !isLoggedIn) return;
+  adminReadyScheduled = false;
+  adminReadyDispatched = true;
+  // Wait until deferred modules are installed before starting the optimized dashboard.
+  try {
+    if (typeof window.loadDashboardStats === 'function') window.loadDashboardStats();
+  } catch (error) { console.warn('Dashboard boot deferred:', error); }
+  window.dispatchEvent(new Event('psp-admin-auth-ready'));
+}
 function adminScheduleReady() {
-  if (adminReadyScheduled) return;
+  if (adminReadyScheduled || adminReadyDispatched) return;
   adminReadyScheduled = true;
-  const fire = function() {
-    if (!isLoggedIn) { adminReadyScheduled = false; return; }
-    // The modern RPC dashboard becomes available after deferred scripts finish.
-    // Never start the legacy multi-query loader while those scripts are pending.
-    try {
-      if (typeof window.loadDashboardStats === 'function') {
-        window.loadDashboardStats();
-      }
-    } catch (error) { console.warn('Dashboard boot deferred:', error); }
-    window.dispatchEvent(new Event('psp-admin-auth-ready'));
-  };
-  if (document.readyState === 'complete') queueMicrotask(fire);
-  else document.addEventListener('DOMContentLoaded', fire, {once:true});
+  if (adminDOMReady) queueMicrotask(adminFireReady);
 }
 function adminCompleteSignIn(profile) {
   currentAdmin = profile;
@@ -157,6 +161,7 @@ async function logoutAdmin() {
   currentAdmin = null;
   isLoggedIn = false;
   adminReadyScheduled = false;
+  adminReadyDispatched = false;
   window.dispatchEvent(new Event('psp-admin-auth-closed'));
   adminPresentLogin();
   const email = document.getElementById('adminEmail');
