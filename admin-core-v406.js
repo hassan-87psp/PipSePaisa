@@ -138,7 +138,7 @@ async function loginAdmin() {
     if (sequence !== adminAuthSequence) return;
     if (response.error) throw response.error;
     if (!adminAuthorized(response.data)) {
-      await sb.auth.signOut();
+      await sb.auth.signOut({scope:'local'});
       if (sequence === adminAuthSequence) adminPresentLogin('This account does not have admin access.');
       return;
     }
@@ -157,7 +157,7 @@ async function loginAdmin() {
 async function logoutAdmin() {
   if (!(await window.pspConfirm('Are you sure you want to logout?'))) return;
   ++adminAuthSequence; // Ignore a stale, earlier session/profile response.
-  await sb.auth.signOut();
+  await sb.auth.signOut({scope:'local'});
   currentAdmin = null;
   isLoggedIn = false;
   adminReadyScheduled = false;

@@ -3711,7 +3711,7 @@
     if (!(await window.pspConfirm('Are you sure you want to logout?'))) return;
     window.__pspExplicitLogout = true;
     try {
-      await sb.auth.signOut();
+      await sb.auth.signOut({scope:'local'});
       currentUser = null;
       currentProfile = null;
       trades = [];

@@ -1,7 +1,7 @@
 {
-  "name": "PipSePaisa",
-  "short_name": "PipSePaisa",
-  "description": "PipSePaisa trading education, research and member dashboard.",
+  "name": "PSP USER — PipSePaisa",
+  "short_name": "PSP USER",
+  "description": "PipSePaisa student dashboard, education, signals and research.",
   "id": "/",
   "start_url": "/dashboard/",
   "scope": "/",

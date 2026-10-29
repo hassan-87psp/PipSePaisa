@@ -10,6 +10,12 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co" crossorigin>
 <title>Admin Panel — PipSePaisa Trading Platform</title>
+<link rel="manifest" href="/admin-manifest.json">
+<meta name="theme-color" content="#F39522">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PSP ADMIN">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <style id="pspAdminNoLegacyPaintV503">
 /* First paint: old static dashboard must NEVER be visible before the executive UI mounts. */
 #page-dashboard:not(.ad181-mounted)>*{display:none!important}
@@ -2131,5 +2137,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
 <script defer src="/admin-mobile-v441.js?v=20261002-v441-mobile-app"></script>
+
+<script id="pspAdminPwaV1">
+// Dedicated scope: do not replace the User or other portal's service worker.
+window.addEventListener('load',function(){
+  if(!('serviceWorker' in navigator))return;
+  navigator.serviceWorker.register('/pwa-sw.js',{scope:'/admin/',updateViaCache:'none'})
+    .catch(function(err){console.warn('PSP ADMIN app install worker unavailable:',err?.message||err)});
+});
+</script>
 </body>
 </html>
