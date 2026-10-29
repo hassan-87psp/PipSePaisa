@@ -256,6 +256,18 @@ function attachDrawer(requestId){
   input.addEventListener('change',drawChecks);
  });
  drawChecks();
+ // Even keyboard Enter must respect the visible file/account confirmation gate.
+ form.addEventListener('submit',e=>{
+  if(!file?.files?.length)return; // Save-only notes/status remains available.
+  const verified=verification(r).state==='ok';
+  const same=String(account?.value||'').trim()===String(r.trading_account_id||'').trim();
+  const versionOk=!!String(version?.value||'').trim()&&(!expiry?.value||new Date(expiry.value+'T23:59:59Z').getTime()>Date.now());
+  if(verified&&same&&fileValid(file.files[0],platform)&&versionOk&&confirm.checked)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const error=q('eaiURequestError');
+  if(error){error.hidden=false;error.textContent='Review all checklist items and confirm this is the account-locked build before delivering.'}
+  drawChecks();
+ },true);
  let dirty=false;
  [file,version,expiry,confirm,q('eaiAReqStatus'),q('eaiAAdminNote')].filter(Boolean).forEach(el=>{
   const mark=()=>{dirty=true};el.addEventListener('input',mark);el.addEventListener('change',mark);
