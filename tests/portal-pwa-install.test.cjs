@@ -70,7 +70,7 @@ test('Logging out in any portal revokes only its own session, never the other in
  ];
  for(const [file,count] of cases){
   const src=read(file);
-  assert.equal((src.match(/await sb\\.auth\\.signOut\\(\\{scope:'local'\\}\\);/g)||[]).length,count,file+' local signout count');
-  assert.ok(!/await sb\\.auth\\.signOut\\(\\);/.test(src),file+' must not do global signout');
+  assert.equal(src.split("await sb.auth.signOut({scope:'local'});").length-1,count,file+' local signout count');
+  assert.ok(!src.includes('await sb.auth.signOut();'),file+' must not do global signout');
  }
 });
