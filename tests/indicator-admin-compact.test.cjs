@@ -12,7 +12,7 @@ test('Both admin routes preload compact stylesheet and launch compact script las
   const css='/admin-ea-indicator-compact-v375.css?v=20261029-v375-compact';
   const js='/admin-ea-indicator-compact-v375.js?v=20261029-v375-compact';
   const base='admin-ea-indicator-v238.js?v=20261029-v375-support';
-  const prev='/admin-ea-indicator-enterprise-v374.js?v=20261029-v498-filters';
+  const prev='/admin-ea-indicator-enterprise-v374.js?v=20261029-v500-filter-sort';
   assert.equal(html.split(css).length-1,1);
   assert.equal(html.split(js).length-1,1);
   assert.equal(html.split(base).length-1,1);
