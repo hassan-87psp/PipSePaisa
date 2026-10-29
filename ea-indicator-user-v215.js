@@ -132,7 +132,7 @@ return '<div class="eaiP-card"><div class="eaiP-head"><div><div class="eaiP-kick
 }).join('')+'</div>';
 }
 api.load=async function(){var result=await oldLoad.apply(api,arguments);await syncData();return result};
-api.detail=function(id){oldDetail.apply(api,arguments);var req=P.requests.find(function(x){return x.product_id===id&&x.status!=='rejected'});var b=document.querySelector('#eaiModalBack .eai-request-btn.secondary');if(req&&b){b.textContent='Track My License';b.onclick=function(){api.track(req.id)}}};
+api.detail=function(id){oldDetail.apply(api,arguments);var req=P.requests.find(function(x){return x.product_id===id&&x.status!=='rejected'});var b=document.querySelector('#eaiModalBack .eai-request-btn.secondary');if(req&&b){var ready=['ready','downloaded'].includes(req.status);b.textContent=ready?'Download My Licensed File':'Track My Application';b.onclick=function(){ready?api.download(req.id):api.track(req.id)}}};
 function popup(content,cls){
 d('eaiModalBack')?.remove();
 var back=document.createElement('div');back.className='eai-modalback';back.id='eaiModalBack';
