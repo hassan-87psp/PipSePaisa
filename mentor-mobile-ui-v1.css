@@ -17,7 +17,7 @@
   }
   html,body { max-width:100%!important;overflow-x:clip!important;overscroll-behavior-x:none; }
   body { background:var(--pspm-paper)!important;-webkit-tap-highlight-color:transparent; }
-  body.pspm-sheet-open { overflow:hidden!important;touch-action:pan-x; }
+  body.pspm-sheet-open { overflow:hidden!important; }
   .app.show { display:block!important;min-height:100dvh!important;background:var(--pspm-paper)!important; }
   .app.show > #sidebar { display:none!important; }
   .app.show .main {
