@@ -339,6 +339,10 @@
   .login-overlay.is-checking .form-group,
   .login-overlay.is-checking #loginBtn,
   .login-overlay.is-checking #loginError { display:none!important; }
+  /* Auth check has no visible popup; the background remains secured until verified. */
+  .login-overlay.is-checking .login-box {opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
+  .login-overlay:not(.is-checking) .login-box {opacity:1;visibility:visible;}
+  @media(prefers-reduced-motion:reduce){.login-overlay .login-box{transition:none!important}}
   .login-box {
     width: 100%; max-width: 420px; background: var(--bg-card); border: 1px solid var(--border);
     border-radius: 18px; padding: 36px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
