@@ -629,5 +629,6 @@ function attachAuth(){
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",attachAuth,{once:true});else attachAuth();
 let attempts=0;
-let check=setInterval(function(){attachAuth();if(authListenerAttached||++attempts>30)clearInterval(check)},2000);
+function retryAuthBinding(){if(authListenerAttached||attempts++>=30)return;attachAuth();if(!authListenerAttached)setTimeout(retryAuthBinding,2000)}
+setTimeout(retryAuthBinding,2000);
 })();
