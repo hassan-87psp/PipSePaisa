@@ -312,8 +312,9 @@ api.requestForm=async function(id){
  const pending=prevRequest.apply(api,arguments);
  const open=q('eaiAModal');
  if(open)open.classList.add('eaiV374-drawer'); // no old centered popup flash
+ attachDrawer(id); // Form and premium layout are now built synchronously.
  const result=await pending;
- attachDrawer(id);
+ attachDrawer(id); // Safe no-op if already enhanced; covers delayed modules.
  return result;
 };
 function boot(){
