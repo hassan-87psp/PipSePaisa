@@ -61,3 +61,16 @@ test('Three logins use separate Supabase storage keys, so logging out in one doe
  }
  assert.equal(new Set(names).size,3);
 });
+
+test('Logging out in any portal revokes only its own session, never the other installed apps',()=>{
+ const cases=[
+  ['user-app-core-v29.js',1],
+  ['psp-mentor.html',2],
+  ['admin-core-v406.js',2]
+ ];
+ for(const [file,count] of cases){
+  const src=read(file);
+  assert.equal((src.match(/await sb\\.auth\\.signOut\\(\\{scope:'local'\\}\\);/g)||[]).length,count,file+' local signout count');
+  assert.ok(!/await sb\\.auth\\.signOut\\(\\);/.test(src),file+' must not do global signout');
+ }
+});
