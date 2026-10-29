@@ -41,3 +41,7 @@
 #page-eaindicator .eai498Empty{font-size:11px;color:var(--eaiV375-muted,#7f8da1);line-height:1.7;padding:20px 0}
 @media(max-width:1080px){#page-eaindicator .eaiV498-filterRow>label{flex:1 1 140px}#page-eaindicator .eaiV498-filterRow .eaiV374-search{flex:1 1 210px}}
 @media(max-width:700px){#page-eaindicator .eaiV498-filterRow>label{flex:1 1 43%}#page-eaindicator .eaiV498-filterRow .eaiV374-search{flex:1 1 100%}#page-eaindicator .eai498StaffHead{align-items:flex-start;flex-direction:column;padding:15px}#page-eaindicator .eai498Form{padding:13px}#page-eaindicator .eai498StaffMember{flex-direction:column;align-items:flex-start}#page-eaindicator .eai498MemberActions{width:100%}#page-eaindicator .eai498MemberActions button{flex:1}}
+
+/* V503 — Explicit, safe reapproval after an earlier rejection. */
+#page-eaindicator .eaiV503-reapprove{background:#f39522!important;border-color:#ef8c14!important;color:#281706!important;font-size:11px!important;font-weight:900!important;border-radius:9px!important;min-height:38px!important}
+#page-eaindicator .eaiV503-reapprove:hover{background:#ffa833!important}
