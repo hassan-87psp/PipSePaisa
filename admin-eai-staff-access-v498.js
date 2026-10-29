@@ -9,22 +9,24 @@ let mounted=false,busy=false;
 function client(){return window.sb||null}
 function markup(){
  return '<section id="eai498StaffAccess" class="eai498Staff">'+
- '<div class="eai498StaffHead"><div><span>SECURE TEAM PERMISSIONS</span><h3>Mentor &amp; IB Checker Access</h3>'+
- '<p>Allow named staff to review software requests and broker verification. Private indicator uploads and product editing stay admin-only.</p></div>'+
+ '<div class="eai498StaffHead"><div><span>SECURE TEAM PERMISSIONS</span><h3>Mentor Permissions &amp; Website Access</h3>'+
+ '<p>Grant EA & Indicator reviews, account-locked EX5 delivery and 30-day Website Access Approvals separately. Product editing remains Admin-only.</p></div>'+
  '<button type="button" id="eai498Refresh">↻ Refresh Staff</button></div>'+
  '<form id="eai498GrantForm" class="eai498Form"><label>Existing mentor / reviewer email<input type="email" id="eai498Email" placeholder="mentor@company.com" autocomplete="off" required></label>'+
- '<label class="eai498Switch"><input id="eai498Indicator" type="checkbox" checked> EA &amp; Indicator Review</label>'+
- '<label class="eai498Switch"><input id="eai498Ib" type="checkbox" checked> IB Verification Review</label>'+
- '<label class="eai498Switch"><input id="eai498Decide" type="checkbox"> Allow IB Approve / Reject</label>'+
+ '<label class="eai498Switch"><input id="eai498Indicator" type="checkbox" checked> EA &amp; Indicator Review</label>'+ 
+ '<label class="eai498Switch"><input id="eai498Issue" type="checkbox"> Approve &amp; Issue Files</label>'+
+ '<label class="eai498Switch"><input id="eai498Ib" type="checkbox" checked> Website Access Review</label>'+
+ '<label class="eai498Switch"><input id="eai498Decide" type="checkbox"> Allow Website Access Approve / Reject</label>'+
  '<label class="eai498Switch"><input id="eai498Active" type="checkbox" checked> Active Access</label>'+
  '<button type="submit" id="eai498Save">Save Staff Access</button></form>'+
- '<p class="eai498Note">Account must already be an approved PSP Mentor to log in to the Mentor Panel. Staff review permissions never grant access automatically at signup.</p>'+
+ '<p class="eai498Note">Access is granted to approved Mentor accounts only. File issuing still requires a compiled user-specific build; website access uses 30-day verification.</p>'+
  '<div id="eai498Message" role="status" aria-live="polite"></div><div class="eai498StaffList" id="eai498StaffList"><p>Loading approved staff…</p></div></section>';
 }
 function message(value,error=false){const e=$('eai498Message');if(e){e.textContent=value;e.classList.toggle('error',error)}}
 function setForm(record){
  $('eai498Email').value=record.email||'';
  $('eai498Indicator').checked=record.indicator_review===true;
+ $('eai498Issue').checked=record.indicator_issue===true;
  $('eai498Ib').checked=record.ib_review===true;
  $('eai498Decide').checked=record.ib_decide===true;
  $('eai498Active').checked=record.active===true;
@@ -40,8 +42,9 @@ async function refresh(){
   target.innerHTML=rows.length?rows.map((r,i)=>'<div class="eai498StaffMember"><div>'+
     '<strong>'+esc(r.full_name||r.email)+'</strong><small>'+esc(r.email)+'</small>'+
     '<div class="eai498Badges"><span>'+((r.indicator_review)?'Software Review':'No Software')+'</span>'+
-    '<span>'+((r.ib_review)?'IB Review':'No IB')+'</span>'+
-    (r.ib_decide?'<span class="privileged">IB Decision</span>':'')+
+    '<span>'+((r.indicator_issue)?'File Issuing':'Review Only')+'</span>'+ 
+    '<span>'+((r.ib_review)?'Website Access':'No Access Review')+'</span>'+
+    (r.ib_decide?'<span class="privileged">Access Decision</span>':'')+
     '<span class="'+(r.active?'active':'inactive')+'">'+(r.active?'Active':'Disabled')+'</span></div></div>'+
     '<div class="eai498MemberActions"><button type="button" data-eai498-index="'+i+'">Edit</button>'+
     '<button type="button" class="revoke" data-eai498-revoke="'+i+'">Disable</button></div></div>').join(''):
@@ -55,10 +58,11 @@ async function save(record){
  busy=true;const btn=$('eai498Save');if(btn){btn.disabled=true;btn.textContent='Saving…'}
  try{
   const params={
-   p_email:record.email,p_indicator_review:!!record.indicator,
+   p_email:record.email,p_indicator_review:!!record.indicator,p_indicator_issue:!!record.issue,
    p_ib_review:!!record.ib,p_ib_decide:!!record.decide,p_active:!!record.active};
-  if(params.p_ib_decide&&!params.p_ib_review)throw Error('IB decision permission requires IB Review.');
-  const res=await c.rpc('psp_staff_grant_v498',params);
+  if(params.p_ib_decide&&!params.p_ib_review)throw Error('Website Access decision requires Website Access Review.');
+  if(params.p_indicator_issue&&!params.p_indicator_review)throw Error('File issuing requires EA & Indicator Review.');
+  const res=await c.rpc('psp_staff_grant_v501',params);
   if(res.error)throw res.error;
   message('Staff permissions saved. Mentor can use permitted tabs after next login.');
   await refresh();
@@ -72,12 +76,15 @@ function install(){
   host.appendChild(wrapper.firstElementChild);
   $('eai498GrantForm').addEventListener('submit',e=>{
    e.preventDefault();
-   save({email:$('eai498Email').value.trim(),indicator:$('eai498Indicator').checked,
+   save({email:$('eai498Email').value.trim(),indicator:$('eai498Indicator').checked,issue:$('eai498Issue').checked,
     ib:$('eai498Ib').checked,decide:$('eai498Decide').checked,active:$('eai498Active').checked});
   });
   $('eai498Refresh').addEventListener('click',refresh);
   $('eai498Ib').addEventListener('change',()=>{
    if(!$('eai498Ib').checked)$('eai498Decide').checked=false;
+  });
+  $('eai498Indicator').addEventListener('change',()=>{
+   if(!$('eai498Indicator').checked)$('eai498Issue').checked=false;
   });
   $('eai498StaffList').addEventListener('click',e=>{
    const edit=e.target.closest('[data-eai498-index]');
@@ -87,7 +94,7 @@ function install(){
    if(revoke){
     const r=rows[Number(revoke.dataset.eai498Revoke)];
     if(r&&window.confirm('Disable all staff access for '+r.email+'?'))
-      save({email:r.email,indicator:r.indicator_review,ib:r.ib_review,decide:r.ib_decide,active:false});
+      save({email:r.email,indicator:r.indicator_review,issue:r.indicator_issue,ib:r.ib_review,decide:r.ib_decide,active:false});
    }
   });
   refresh();
