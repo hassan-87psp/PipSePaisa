@@ -38,3 +38,94 @@ window.PSPEAIAdmin={load,tab,productForm,requestForm,proof,rejectNotUnder};
 function init(){inject();if(document.getElementById('page-eaindicator')?.classList.contains('active'))setTimeout(()=>{if(db())load()},100)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
+
+
+/* PipSePaisa V341: EA/Indicator admin premium control center and audit trail */
+(function(){
+'use strict';
+if(window.__PSP_EAI_ADMIN_PREMIUM_V341__||!window.PSPEAIAdmin)return;
+window.__PSP_EAI_ADMIN_PREMIUM_V341__=true;
+var api=window.PSPEAIAdmin,oldLoad=api.load,oldTab=api.tab,oldReq=api.requestForm,oldReject=api.rejectNotUnder;
+var S={rows:[],events:[],filter:'all',search:'',observer:null,refreshing:false};
+var q=function(id){return document.getElementById(id)},db=function(){return window.sb||null};
+var safe=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]})};
+var lbl=function(v){return ({pending:'Pending',under_review:'Under Review',approved:'Approved',rejected:'Rejected',license_preparing:'Preparing License',ready:'Ready',downloaded:'Downloaded'})[v]||v};
+var fmt=function(v){try{return new Date(v).toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'})}catch(e){return ''}};
+var css=document.createElement('style');css.id='psp-eai-admin-premium-v341-css';
+css.textContent=[
+'#page-eaindicator .eaiA-head h3{font-size:22px!important}#page-eaindicator .eaiA-head>div>div{font-size:12px!important;line-height:1.5}',
+'#page-eaindicator .eaiA-table th{font-size:11px;padding:13px 12px;letter-spacing:.045em}#page-eaindicator .eaiA-table td{font-size:12px;padding:13px 12px;line-height:1.5}#page-eaindicator .eaiA-table td>div{font-size:11px!important}',
+'#page-eaindicator .eaiA-btn{font-size:12px;padding:10px 13px;min-height:39px}#page-eaindicator .eaiA-proof{font-size:11px;min-height:35px}#page-eaindicator .eaiA-status{font-size:10px;padding:6px 9px}',
+'#page-eaindicator .eaiA-form .eaiA-f label{font-size:11px;margin-bottom:7px}#page-eaindicator .eaiA-form .eaiA-f input,#page-eaindicator .eaiA-form .eaiA-f textarea,#page-eaindicator .eaiA-form .eaiA-f select{font-size:13px;min-height:43px;padding:11px}#page-eaindicator .eaiA-verify{font-size:12px;padding:15px;line-height:1.6}',
+'.eaiAP-container{margin-bottom:14px}.eaiAP-title{font-size:12px;color:var(--text-muted);letter-spacing:.07em;font-weight:850;text-transform:uppercase;margin:0 0 9px}.eaiAP-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px}',
+'.eaiAP-stat{border:1px solid var(--border);background:var(--bg-card);border-radius:16px;padding:15px 13px;text-align:left;cursor:pointer;color:var(--text);transition:transform .15s ease,border-color .15s ease;min-width:0}.eaiAP-stat:hover{transform:translateY(-2px);border-color:rgba(243,149,34,.55)}.eaiAP-stat span{display:block;color:var(--text-muted);font-size:11px;font-weight:750}.eaiAP-stat b{display:block;font-size:27px;margin:5px 0 1px;font-weight:950}.eaiAP-stat small{font-size:10px;color:var(--text-muted)}',
+'.eaiAP-bar{height:5px;background:var(--bg-elevated);border-radius:12px;overflow:hidden;margin:11px 0 1px}.eaiAP-bar span{display:block;height:100%;background:#F39522}',
+'.eaiAP-filter{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:10px 0;padding:12px;border:1px solid var(--border);background:var(--bg-card);border-radius:13px}',
+'.eaiAP-search{min-width:190px;flex:1;max-width:320px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:11px 12px;color:var(--text);font-size:12px}',
+'.eaiAP-filters{display:flex;flex-wrap:wrap;gap:6px}.eaiAP-chip{padding:8px 11px;border:1px solid var(--border);background:var(--bg-elevated);border-radius:100px;color:var(--text-muted);font-size:11px;font-weight:850;cursor:pointer}.eaiAP-chip.on{background:#F39522;color:#141414;border-color:#F39522}',
+'.eaiAP-verified-note{border-radius:11px;background:rgba(243,149,34,.08);border:1px solid rgba(243,149,34,.25);padding:11px 13px;margin:2px 0 8px;line-height:1.6;font-size:12px}',
+'.eaiAP-audit{border:1px solid var(--border);border-radius:12px;background:var(--bg-elevated);padding:12px;grid-column:1/-1}.eaiAP-audit strong{font-size:13px}.eaiAP-audit p{margin:8px 0 3px;color:var(--text-muted);font-size:12px;line-height:1.5}',
+'@media(max-width:900px){.eaiAP-stats{grid-template-columns:repeat(3,1fr)}#page-eaindicator .eaiA-tablewrap{overflow-x:auto}}@media(max-width:600px){.eaiAP-stats{grid-template-columns:repeat(2,1fr)}.eaiAP-stat{padding:12px}.eaiAP-stat b{font-size:24px}.eaiAP-search{max-width:none;width:100%}.eaiAP-filter{align-items:stretch}.eaiA-modalback{padding:7px}.eaiA-modal{width:100%;max-width:100%;max-height:96vh}.eaiA-mhead{padding:14px}}'
+].join('');
+document.head.appendChild(css);
+function counts(){var vals={all:S.rows.length,pending:0,under_review:0,approved:0,license_preparing:0,ready:0,downloaded:0,rejected:0};S.rows.forEach(function(r){if(vals[r.status]!=null)vals[r.status]++});return vals}
+function main(){
+var page=q('page-eaindicator');if(!page)return;
+var head=page.querySelector('.eaiA-head');if(!head)return;
+if(!q('eaiAPanel')){var node=document.createElement('div');node.id='eaiAPanel';node.className='eaiAP-container';head.insertAdjacentElement('afterend',node)}
+if(!q('eaiAPFilter')){var filter=document.createElement('div');filter.id='eaiAPFilter';filter.className='eaiAP-filter';filter.style.display='none';q('eaiAContent')?.insertAdjacentElement('beforebegin',filter)}
+renderDashboard();filterbar();enhanceTable();
+if(!S.observer&&q('eaiAContent')){S.observer=new MutationObserver(function(){enhanceTable();refreshStats()});S.observer.observe(q('eaiAContent'),{childList:true})}
+}
+function renderDashboard(){
+var el=q('eaiAPanel');if(!el)return;var c=counts(),pending=c.pending+c.under_review,issued=c.ready+c.downloaded;
+var stats=[['all','Total Applications',c.all,'All-time requests'],['pending','Needs Review',pending,'Pending + under review'],['license_preparing','Preparing License',c.license_preparing,'Builds in progress'],['ready','Ready to Download',issued,'Private file issued'],['rejected','Rejected',c.rejected,'Correction needed']];
+el.innerHTML='<div class="eaiAP-title">Application & License Control Center</div><div class="eaiAP-stats">'+stats.map(function(x){
+return '<button type="button" class="eaiAP-stat" onclick="PSPEAIAdmin.premiumFilter(\''+x[0]+'\')"><span>'+x[1]+'</span><b>'+x[2]+'</b><small>'+x[3]+'</small><div class="eaiAP-bar"><span style="width:'+(c.all?Math.max(4,Math.round(x[2]/c.all*100)):0)+'%"></span></div></button>'
+}).join('')+'</div>';
+}
+function isRequests(){return q('eaiARequestsTab')?.classList.contains('on')||false}
+function filterbar(){
+var el=q('eaiAPFilter');if(!el)return;el.style.display=isRequests()?'flex':'none';if(!isRequests())return;
+var statuses=[['all','All'],['pending','Pending'],['under_review','Under Review'],['approved','Approved'],['license_preparing','Preparing'],['ready','Ready'],['downloaded','Downloaded'],['rejected','Rejected']];
+el.innerHTML='<input class="eaiAP-search" id="eaiAPSearch" type="search" placeholder="Search name, broker, account or product..." aria-label="Search indicator requests" value="'+safe(S.search)+'"><div class="eaiAP-filters">'+statuses.map(function(x){return '<button type="button" class="eaiAP-chip '+(S.filter===x[0]?'on':'')+'" data-status="'+x[0]+'">'+x[1]+'</button>'}).join('')+'</div><button type="button" class="eaiA-btn" onclick="PSPEAIAdmin.premiumExport()">Export CSV</button>';
+q('eaiAPSearch').addEventListener('input',function(){S.search=this.value;filterRows()});
+el.querySelectorAll('[data-status]').forEach(function(b){b.addEventListener('click',function(){S.filter=b.dataset.status;filterbar();filterRows()})});
+}
+function enhanceTable(){
+var table=q('eaiAContent')?.querySelector('.eaiA-table');if(!table)return;
+if(isRequests()){
+var trs=table.querySelectorAll('tbody tr');trs.forEach(function(tr,i){var row=S.rows[i];if(row){tr.dataset.eaStatus=row.status;tr.dataset.eaSearch=tr.textContent.toLowerCase()+' '+String(row.ea_indicator_products?.title||'').toLowerCase()}});
+filterRows();
+}
+}
+function filterRows(){
+if(!isRequests())return;var trs=q('eaiAContent')?.querySelectorAll('tbody tr')||[],n=0;
+trs.forEach(function(tr){var s=tr.dataset.eaStatus||'',okFilter=S.filter==='all'||s===S.filter||(S.filter==='pending'&&s==='under_review'),okSearch=!S.search||String(tr.dataset.eaSearch||tr.textContent).toLowerCase().includes(S.search.toLowerCase());tr.style.display=okFilter&&okSearch?'':'none';if(okFilter&&okSearch)n++});
+var old=q('eaiAPEmpty');if(!n&&trs.length){if(!old){var el=document.createElement('div');el.id='eaiAPEmpty';el.style.cssText='padding:24px;text-align:center;color:var(--text-muted);font-size:13px';el.textContent='No applications match your filter.';q('eaiAContent').appendChild(el)}}else if(old)old.remove();
+}
+async function refreshStats(){
+if(S.refreshing)return;var c=db();if(!c)return;S.refreshing=true;
+try{var out=await c.from('ea_indicator_requests').select('id,status,product_id,ea_indicator_products(title),created_at').order('created_at',{ascending:false});if(!out.error){S.rows=out.data||[];renderDashboard();enhanceTable()}}catch(e){console.warn('EA admin metrics refresh failed:',e)}finally{S.refreshing=false}
+}
+api.load=async function(){var a=await oldLoad.apply(api,arguments);await refreshStats();main();return a};
+api.tab=function(t){var a=oldTab.apply(api,arguments);main();return a};
+api.premiumFilter=function(t){S.filter=t;api.tab('requests');filterbar();filterRows()};
+api.premiumExport=function(){
+if(!S.rows.length)return;
+var headings=['Product','Status','Created At'];var rows=S.rows.filter(function(r){return S.filter==='all'||r.status===S.filter||(S.filter==='pending'&&r.status==='under_review')}).map(function(r){return [r.ea_indicator_products?.title||'',r.status,r.created_at]});
+var csv=[headings].concat(rows).map(function(a){return a.map(function(v){var s=String(v==null?'':v).replace(/^[=+\-@\t\r]/,'\'' );return '"'+s.replace(/"/g,'""')+'"'}).join(',')}).join('\r\n');
+var url=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));var a=document.createElement('a');a.href=url;a.download='PipSePaisa_Indicator_Applications.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},2000);
+};
+api.requestForm=async function(id){oldReq.apply(api,arguments);var form=q('eaiAReqForm');if(!form)return;
+var help=document.createElement('div');help.className='eaiAP-verified-note eaiA-wide';help.innerHTML='<strong>License approval checklist</strong><div>1. Confirm exact PipSePaisa broker and trading account verification. &nbsp; 2. Check deposit proof. &nbsp; 3. Upload the private account-specific EX5 file. The system will block unverified approvals and invalid deliveries.</div>';
+form.querySelector('.eaiA-verify')?.insertAdjacentElement('afterend',help);
+var note=document.createElement('div');note.className='eaiAP-audit';note.innerHTML='<strong>Application History</strong><p>Loading status activity…</p>';form.querySelector('.eaiA-actions')?.insertAdjacentElement('beforebegin',note);
+var c=db();if(!c)return;var out=await c.from('ea_indicator_request_events').select('from_status,to_status,note,created_at').eq('request_id',id).order('created_at',{ascending:false}).limit(10);
+if(!document.contains(note))return;
+if(out.error){note.innerHTML='<strong>Application History</strong><p>History could not be loaded.</p>';return}
+note.innerHTML='<strong>Application History</strong>'+(out.data?.length?out.data.map(function(x){return '<p>'+safe(fmt(x.created_at))+' — '+safe(lbl(x.from_status||'New'))+' → <b>'+safe(lbl(x.to_status))+'</b>'+(x.note?' · '+safe(x.note):'')+'</p>'}).join(''):'<p>History tracking begins with the next application update.</p>');
+};
+api.rejectNotUnder=async function(){var a=await oldReject.apply(api,arguments);await refreshStats();main();return a};
+setTimeout(function(){if(q('page-eaindicator')&&q('eaiAContent')){main();refreshStats()}},500);
+})();
