@@ -3,7 +3,7 @@
 'use strict';
 if(window.__PSP_EAI_LIBRARY_V348__ || !window.PSPEAIndicator) return;
 window.__PSP_EAI_LIBRARY_V348__=true;
-var api=window.PSPEAIndicator, originalLoad=api.load;
+var api=window.PSPEAIndicator, originalLoad=api.load,originalDownload=api.download;
 var state={tab:'explore',feedback:{},notifications:[],userId:null,requestOpened:false,gridObserver:null,requestSeq:0};
 var d=id=>document.getElementById(id);
 var client=()=>window.sb||null;
@@ -17,12 +17,14 @@ function findRequest(id){return reqs().find(r=>r.id===id)}
 function findProduct(id){return products().find(p=>p.id===id)}
 function latestFor(productId){return reqs().find(r=>r.product_id===productId)||null}
 function feedback(id){return state.feedback[id]||null}
+function expired(r){return !!(r?.license_expires_at&&new Date(r.license_expires_at).getTime()<=Date.now())}
 function label(s){return ({
  pending:'Application Submitted',under_review:'Under Review',approved:'Approved',
  license_preparing:'Preparing License',ready:'Ready to Download',downloaded:'Downloaded',
  rejected:'Action Required'
 })[s]||'Not Applied'}
 function badge(s,id){
+ if(expired(findRequest(id)))return ['expired','License Expired'];
  if(feedback(id)?.installation_confirmed_at)return ['installed','Installation Confirmed'];
  return [String(s||'new'),s?label(s):'Not Applied'];
 }
@@ -37,6 +39,7 @@ function detail(s){return ({
 })[s]||'Get a trading-account-specific PipSePaisa license.'}
 function buttonInfo(r){
  if(!r)return ['Apply for Access','apply'];
+ if(expired(r))return ['License Expired — Details','install'];
  if(r.status==='rejected')return ['Correct & Resubmit','resubmit'];
  if(r.status==='ready')return ['Download Indicator','download'];
  if(r.status==='downloaded')return ['Download Again','download'];
@@ -45,7 +48,7 @@ function buttonInfo(r){
 function icon(id){return '<span aria-hidden="true">'+id+'</span>'}
 function count(){var rows=reqs(),installed=rows.filter(r=>feedback(r.id)?.installation_confirmed_at).length;
 return {total:rows.length,processing:rows.filter(r=>['pending','under_review','approved','license_preparing'].includes(r.status)).length,
- ready:rows.filter(r=>['ready','downloaded'].includes(r.status)).length,installed:installed,
+ ready:rows.filter(r=>['ready','downloaded'].includes(r.status)&&!expired(r)).length,installed:installed,expired:rows.filter(expired).length,
  action:rows.filter(r=>r.status==='rejected').length}}
 var css=document.createElement('style');css.id='psp-eai-library-v348-css';css.textContent=[
 '#page-eaindicator #eaiMyRequests{display:none!important}',
@@ -65,14 +68,14 @@ var css=document.createElement('style');css.id='psp-eai-library-v348-css';css.te
 '.eaiL-intro p{font-size:13px;color:var(--text-muted);margin:0;line-height:1.6}',
 '.eaiL-cardState{position:absolute;top:11px;right:11px;padding:7px 10px;border-radius:50px;background:rgba(11,18,29,.90);color:#fff;font-size:11px;font-weight:800;border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(5px)}',
 '.eaiL-cardState.installed,.eaiL-cardState.ready,.eaiL-cardState.downloaded{background:rgba(11,94,58,.93)}',
-'.eaiL-cardState.rejected{background:rgba(154,31,33,.94)}',
+'.eaiL-cardState.rejected,.eaiL-cardState.expired{background:rgba(154,31,33,.94)}',
 '.eaiL-cardActions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}',
 '.eaiL-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:42px;padding:11px 14px;border-radius:11px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-primary);font-size:12px;font-weight:850;cursor:pointer;text-align:center}',
 '.eaiL-btn.primary{background:#F39522;color:#171717;border-color:#F39522}',
 '.eaiL-btn:disabled{opacity:.55;cursor:not-allowed}',
 '.eaiL-cardActions .eaiL-btn.primary{flex:1}',
 '.eaiL-shell{display:none}',
-'.eaiL-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:19px}',
+'.eaiL-summary{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;margin-bottom:19px}',
 '.eaiL-stat{border:1px solid var(--border);background:var(--bg-card);border-radius:16px;padding:15px;min-width:0}',
 '.eaiL-stat .eyebrow{color:var(--text-muted);font-size:11px;font-weight:750}',
 '.eaiL-stat strong{display:block;font-size:28px;line-height:1.3;margin-top:4px}',
@@ -84,7 +87,7 @@ var css=document.createElement('style');css.id='psp-eai-library-v348-css';css.te
 '.eaiL-licHead h4{font-size:15px;line-height:1.4;margin:0 0 7px;overflow-wrap:anywhere}',
 '.eaiL-state{font-size:11px;font-weight:850;color:#a65e03;background:rgba(243,149,34,.12);border:1px solid rgba(243,149,34,.22);border-radius:30px;display:inline-flex;padding:5px 9px}',
 '.eaiL-state.installed,.eaiL-state.ready,.eaiL-state.downloaded{color:#16803d;background:rgba(22,163,74,.09);border-color:rgba(22,163,74,.22)}',
-'.eaiL-state.rejected{color:#c42f30;background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.2)}',
+'.eaiL-state.rejected,.eaiL-state.expired{color:#c42f30;background:rgba(220,38,38,.07);border-color:rgba(220,38,38,.2)}',
 '.eaiL-copy{font-size:13px;color:var(--text-muted);line-height:1.65;margin:12px 0 8px}',
 '.eaiL-meta{font-size:12px;color:var(--text-muted);line-height:1.7;margin:7px 0}',
 '.eaiL-meta strong{color:var(--text-primary)}',
@@ -180,7 +183,7 @@ function decorateProducts(){
 function statsHtml(){
  var c=count();
  return '<div class="eaiL-summary" aria-label="My license totals">'+
- [['Applications',c.total],['In Progress',c.processing],['Ready / Downloaded',c.ready],['Installed (Confirmed)',c.installed]]
+ [['Applications',c.total],['In Progress',c.processing],['Ready to Use',c.ready],['Installed (Confirmed)',c.installed],['Expired',c.expired]]
  .map(v=>'<div class="eaiL-stat"><span class="eyebrow">'+esc(v[0])+'</span><strong>'+v[1]+'</strong></div>').join('')+'</div>'
 }
 function width(s){return ({pending:13,under_review:31,approved:53,license_preparing:75,ready:100,downloaded:100})[s]||9}
@@ -188,17 +191,17 @@ function licHtml(r){
  var p=findProduct(r.product_id),f=feedback(r.id);
  var b=badge(r.status,r.id);var preview=validUrl(p?.cover_url||'');
  var [mainAction,action]=buttonInfo(r);
- var expired=r.license_expires_at&&new Date(r.license_expires_at)<new Date();
+ var isExpired=expired(r);
  return '<article class="eaiL-license"><div class="eaiL-licenseBody">'+
  '<div class="eaiL-licHead">'+(preview?'<img loading="lazy" src="'+esc(preview)+'" alt="">':'')+
  '<div><h4>'+esc(p?.title||r.ea_indicator_products?.title||'PipSePaisa Indicator')+'</h4>'+
  '<span class="eaiL-state '+b[0]+'">'+esc(b[1])+'</span></div></div>'+
- '<p class="eaiL-copy">'+esc(f?.installation_confirmed_at?'You confirmed installation on '+date(f.installation_confirmed_at)+'.':detail(r.status))+'</p>'+
+ '<p class="eaiL-copy">'+esc(isExpired?'This license has reached its recorded expiry date. Review license details or contact support.':f?.installation_confirmed_at?'You confirmed installation on '+date(f.installation_confirmed_at)+'.':detail(r.status))+'</p>'+
  '<div class="eaiL-meta"><strong>Broker:</strong> '+esc(r.broker)+' &nbsp;·&nbsp; <strong>MT5 Account:</strong> '+esc(r.trading_account_id)+
  '<br><strong>Applied:</strong> '+esc(date(r.created_at))+
  ((r.status==='ready'||r.status==='downloaded')?'<br><strong>File issued:</strong> '+esc(date(r.ready_at)):'')+
  (r.licensed_version?'<br><strong>Licensed version:</strong> '+esc(r.licensed_version):'')+
- (r.license_expires_at?'<br><strong>License expiry:</strong> '+esc(date(r.license_expires_at))+(expired?' (date passed)':''):'')+
+ (r.license_expires_at?'<br><strong>License expiry:</strong> '+esc(date(r.license_expires_at))+(isExpired?' (date passed)':''):'')+
  '</div><div class="eaiL-progress"><span style="width:'+width(r.status)+'%"></span></div>'+
  (r.status==='rejected'?'<div class="eaiL-confirm"><span>!</span><div><strong>Correction required:</strong> '+esc(r.admin_note||'Please verify the broker account and resubmit.')+'</div></div>':'')+
  (f?.issue_description?'<div class="eaiL-confirm"><span>i</span><div><strong>Installation support requested:</strong> '+esc(f.issue_description)+'</div></div>':'')+
@@ -261,7 +264,7 @@ function showInstall(id){
  '1. Open MetaTrader 5 desktop.\n2. Choose File → Open Data Folder → MQL5 → Indicators.\n3. Copy your downloaded licensed EX5 file into the Indicators folder.\n4. Restart MetaTrader 5 or refresh the Navigator.\n5. Attach the indicator to your chart using the approved trading account.');
  var f=feedback(id),ready=['ready','downloaded'].includes(r.status);
  var version=r.licensed_version||null;
- var expired=r.license_expires_at&&new Date(r.license_expires_at)<new Date();
+ var isExpired=expired(r);
  var html='<h3>Install & Manage Your License</h3><div class="eaiL-detailGrid">'+
  [['Broker',r.broker],['Licensed trading account',r.licensed_account_id||r.trading_account_id],
   ['License file',r.licensed_file_name||(ready?'File available':'Not issued yet')],
@@ -269,11 +272,11 @@ function showInstall(id){
   ['Issued on',r.ready_at?date(r.ready_at):'Not issued yet'],
   ['Expires',r.license_expires_at?date(r.license_expires_at):'Not specified']]
  .map(v=>'<div class="eaiL-detail"><small>'+esc(v[0])+'</small><strong>'+esc(v[1])+'</strong></div>').join('')+'</div>'+
- (expired?'<div class="eaiL-confirm">The recorded license expiry date has passed. Contact support before relying on this file.</div>':'')+
+ (isExpired?'<div class="eaiL-confirm">The recorded license expiry date has passed. Contact support before relying on this file.</div>':'')+
  '<h3>MT5 Installation Guide</h3><div class="eaiL-guide">'+esc(guide)+'</div>'+
  '<div class="eaiL-confirm"><span>ℹ</span><div>Download history does not verify that MetaTrader activated the indicator. Mark installation complete only after you have installed it successfully.</div></div>'+
  '<div class="eaiL-modalActions">'+
- (ready?'<button type="button" class="eaiL-btn primary" data-eail-modal-action="download">↓ Download Licensed File</button>':'')+
+ (ready&&!isExpired?'<button type="button" class="eaiL-btn primary" data-eail-modal-action="download">↓ Download Licensed File</button>':'')+
  (r.status==='downloaded'&&!f?.installation_confirmed_at?'<button type="button" class="eaiL-btn" data-eail-modal-action="confirm">✓ I Installed It</button>':'')+
  (ready?'<button type="button" class="eaiL-btn" data-eail-modal-action="support">Report Installation Issue</button>':'')+
  '<button type="button" class="eaiL-btn" data-eail-close="1">Close</button></div>';
@@ -290,7 +293,7 @@ async function confirmInstall(id){
  var r=findRequest(id);if(!r||r.status!=='downloaded'||!r.downloaded_at){alert('Please download your licensed file first.');return}
  if(!window.confirm('Have you installed this indicator successfully in MetaTrader on the approved trading account? This is your own confirmation, not an automatic MT5 verification.'))return;
  var u=await me();if(!u)return;
- var res=await client().from('ea_indicator_license_feedback').upsert({request_id:id,user_id:u.id,installation_confirmed_at:new Date().toISOString(),updated_at:new Date().toISOString()},{onConflict:'request_id'});
+ var res=await client().from('ea_indicator_license_feedback').upsert({request_id:id,user_id:u.id,installation_confirmed_at:new Date().toISOString(),issue_description:null,issue_reported_at:null,updated_at:new Date().toISOString()},{onConflict:'request_id'});
  if(res.error){alert('Could not save installation confirmation: '+res.error.message);return}
  d('eaiModalBack')?.remove();if(window.pipToast)window.pipToast('Installation confirmed.','ok');
  await api.load();setTab('licenses',false);
@@ -341,6 +344,7 @@ async function initialize(){
   if(/^[a-f0-9-]{36}$/i.test(id)&&findRequest(id)){state.requestOpened=true;setTab('licenses',false);api.track(id)}
  }
 }
+api.download=function(id){if(expired(findRequest(id))){alert('This license has expired. Please contact PipSePaisa support to request renewal.');return}return originalDownload.apply(api,arguments)};
 api.load=async function(){
  var thisSeq=++state.requestSeq;
  var result=await originalLoad.apply(api,arguments);
