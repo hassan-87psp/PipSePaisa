@@ -30,7 +30,7 @@ function flowMarkup(){
  return '<section class="eaiU-flow" aria-label="License delivery workflow">'+
  '<div class="eaiU-flowStep"><span class="eaiU-flowIndex">01</span><span><strong>Broker Verification</strong><small>Match broker, MT5 account and eligible funding</small></span></div>'+
  '<div class="eaiU-flowStep"><span class="eaiU-flowIndex">02</span><span><strong>Unique Licensed Build</strong><small>Upload the file made for that exact account</small></span></div>'+
- '<div class="eaiU-flowStep"><span class="eaiU-flowIndex">03</span><span><strong>Private User Download</strong><small>Release only inside the approved user's panel</small></span></div>'+
+ '<div class="eaiU-flowStep"><span class="eaiU-flowIndex">03</span><span><strong>Private User Download</strong><small>Release only inside the approved student dashboard</small></span></div>'+
  '</section>';
 }
 function isRequests(){return !!byId('eaiARequestsTab')?.classList.contains('on')}
