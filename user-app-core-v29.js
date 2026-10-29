@@ -6238,11 +6238,11 @@
   if(window.__PSP_EAI_LOADER_V215__)return;window.__PSP_EAI_LOADER_V215__=true;
   function load(){
     if(document.querySelector('script[data-psp-eai-v215]'))return;
-    var sc=document.createElement('script');sc.src='/ea-indicator-user-v215.js?v=20261029-v348-smart-license';sc.defer=true;sc.dataset.pspEaiV215='1';
+    var sc=document.createElement('script');sc.src='/ea-indicator-user-v215.js?v=20261029-v370-phase2';sc.defer=true;sc.dataset.pspEaiV215='1';
     sc.addEventListener('load',function(){
       if(document.querySelector('script[data-psp-eai-v348]'))return;
       var advanced=document.createElement('script');
-      advanced.src='/ea-indicator-user-v348.js?v=20261029-v352-license-workspace';
+      advanced.src='/ea-indicator-user-v348.js?v=20261029-v370-phase2';
       advanced.defer=true;advanced.dataset.pspEaiV348='1';
       document.head.appendChild(advanced);
     },{once:true});
