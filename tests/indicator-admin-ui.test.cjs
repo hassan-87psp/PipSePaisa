@@ -18,7 +18,7 @@ test('Admin does not show the session-checking popup or literal escaped newline'
 test('Both admin routes load the same refreshed indicator-management interface',()=>{
   for(const name of ['admin/index.html','admin-panel.html']){
     const html=read(name);
-    assert.match(html,/admin-ea-indicator-ultra-v371\.js\?v=20261029-v373-one-step/);
+    assert.match(html,/admin-ea-indicator-ultra-v371\.js\?v=20261029-v374-immediate-drawer/);
     assert.match(html,/<link id="eaiUStyle" rel="stylesheet" href="\/admin-ea-indicator-ultra-v371\.css\?v=20261029-v373-one-step">/);
   }
 });
