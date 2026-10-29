@@ -9,6 +9,12 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co" crossorigin>
 <title>PSP Mentor Panel — PipSePaisa</title>
+<link rel="manifest" href="/mentor-manifest.json">
+<meta name="theme-color" content="#F39522">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PSP MENTOR">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="stylesheet" href="/mentor-staff-review-v498.css?v=20261029-v498">
 <link rel="stylesheet" href="/mentor-staff-review-v503.css?v=20261029-v503">
 <script defer src="/mentor-staff-review-v503.js?v=20261029-v505-filter-stability"></script>
@@ -2698,5 +2704,14 @@ console.log('PSP mentor v4 — More/drawer active');
 <script src="audit-agent-v174.js?v=20260829-v174-audit"></script>
 <script defer src="/psp-performance-v220.js?v=20260910-v220-deep"></script>
 <script defer src="/psp-smooth-scroll-v322.js?v=20260930-v322-all-pages"></script>
+
+<script id="pspMentorPwaV1">
+// Dedicated scope: do not replace the User or other portal's service worker.
+window.addEventListener('load',function(){
+  if(!('serviceWorker' in navigator))return;
+  navigator.serviceWorker.register('/pwa-sw.js',{scope:'/psp-mentor.html',updateViaCache:'none'})
+    .catch(function(err){console.warn('PSP MENTOR app install worker unavailable:',err?.message||err)});
+});
+</script>
 </body>
 </html>
