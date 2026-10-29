@@ -135,10 +135,11 @@ var css=document.createElement('style');css.id='psp-eai-library-v348-css';css.te
 '.eaiL-detail strong{display:block;font-size:13px;overflow-wrap:anywhere}',
 '.eaiL-confirm{display:flex;gap:8px;align-items:flex-start;border-radius:12px;padding:13px;background:rgba(243,149,34,.07);border:1px solid rgba(243,149,34,.25);font-size:12px;line-height:1.6;margin:14px 0}',
 '.eaiL-modalActions{display:flex;gap:9px;flex-wrap:wrap;margin:16px 0 0}',
+'.eaiL-installSteps{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0}.eaiL-installStep{border:1px solid var(--border);border-radius:12px;background:var(--bg-card);padding:13px}.eaiL-installStep strong{display:block;font-size:12px;margin-bottom:6px}.eaiL-installStep span{font-size:11px;color:var(--text-muted);line-height:1.6}.eaiL-installNum{background:#F39522;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;color:#191919;font-size:11px;font-weight:900;margin-right:6px}',
 '.eaiL-support textarea{font-size:14px;line-height:1.55;min-height:135px;width:100%;box-sizing:border-box;padding:13px;border-radius:11px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-primary)}',
 '.eaiL-error{color:#bd2525;font-size:12px;margin-top:8px}',
 '@media(max-width:900px){.eaiL-summary{grid-template-columns:repeat(2,1fr)}}',
-'@media(max-width:580px){.eaiL-tab{padding:12px 10px;font-size:12px}.eaiL-nav{gap:4px;padding:5px}.eaiL-intro h3{font-size:17px}.eaiL-list{grid-template-columns:1fr}.eaiL-licenseBody{padding:14px}.eaiL-licHead img{width:90px}.eaiL-detailGrid{grid-template-columns:1fr}.eaiL-modalBody{padding:14px}.eaiL-summary{gap:7px}.eaiL-stat{padding:12px}.eaiL-stat strong{font-size:23px}.eaiL-btn{min-height:44px}.eaiL-update{gap:5px}.eaiL-modalActions .eaiL-btn{flex:1}}'
+'@media(max-width:580px){.eaiL-installSteps{grid-template-columns:1fr}.eaiL-tab{padding:12px 10px;font-size:12px}.eaiL-nav{gap:4px;padding:5px}.eaiL-intro h3{font-size:17px}.eaiL-list{grid-template-columns:1fr}.eaiL-licenseBody{padding:14px}.eaiL-licHead img{width:90px}.eaiL-detailGrid{grid-template-columns:1fr}.eaiL-modalBody{padding:14px}.eaiL-summary{gap:7px}.eaiL-stat{padding:12px}.eaiL-stat strong{font-size:23px}.eaiL-btn{min-height:44px}.eaiL-update{gap:5px}.eaiL-modalActions .eaiL-btn{flex:1}}'
 ].join('');
 document.head.appendChild(css);
 
@@ -330,7 +331,13 @@ function showInstall(id){
   ['Expires',r.license_expires_at?date(r.license_expires_at):'Not specified']]
  .map(v=>'<div class="eaiL-detail"><small>'+esc(v[0])+'</small><strong>'+esc(v[1])+'</strong></div>').join('')+'</div>'+
  (isExpired?'<div class="eaiL-confirm">The recorded license expiry date has passed. Contact support before relying on this file.</div>':'')+
- '<h3>MT5 Installation Guide</h3><div class="eaiL-guide">'+esc(guide)+'</div>'+
+ '<h3>MT5 Installation Guide</h3>'+
+ '<div class="eaiL-installSteps">'+
+ [['Download','Download your private EX5 build from My Software & Licenses.'],['Open MT5 Folder','In MetaTrader 5 desktop: File → Open Data Folder.'],['Install EX5','Open MQL5 → Indicators and copy the issued file there.'],['Attach Indicator','Restart or refresh Navigator; attach it to your licensed account chart.']]
+ .map(function(step,i){return '<div class="eaiL-installStep"><strong><span class="eaiL-installNum">'+(i+1)+'</span>'+esc(step[0])+'</strong><span>'+esc(step[1])+'</span></div>'}).join('')+'</div>'+
+ '<div class="eaiL-guide">'+esc(guide)+'</div>'+
+ (validUrl(p?.requirements?.installation_video_url)?'<p style="margin:11px 0"><a class="eaiL-btn primary" href="'+esc(p.requirements.installation_video_url)+'" target="_blank" rel="noopener noreferrer">▶ Watch Installation Tutorial</a></p>':'')+
+ '<div class="eaiL-modalActions"><button type="button" class="eaiL-btn" data-eail-modal-action="copy">Copy MT5 Folder Path</button></div>'+
  '<div class="eaiL-confirm"><span>ℹ</span><div>Download history does not verify that MetaTrader activated the indicator. Mark installation complete only after you have installed it successfully.</div></div>'+
  '<div class="eaiL-modalActions">'+
  (ready&&!isExpired?'<button type="button" class="eaiL-btn primary" data-eail-modal-action="download">↓ Download Licensed File</button>':'')+
@@ -341,6 +348,7 @@ function showInstall(id){
  back.addEventListener('click',e=>{var button=e.target.closest('[data-eail-modal-action]');if(!button)return;
  var action=button.dataset.eailModalAction;
  if(action==='download')Promise.resolve(api.download(id)).then(()=>{if(d('eaiModalBack'))showInstall(id)});
+ if(action==='copy'){navigator.clipboard?.writeText('MQL5/Indicators').then(()=>{if(window.pipToast)window.pipToast('MT5 indicator folder path copied.','ok')}).catch(()=>alert('Folder path: MQL5/Indicators'))}
  if(action==='confirm')confirmInstall(id);
  if(action==='support')showSupport(id);
  });
