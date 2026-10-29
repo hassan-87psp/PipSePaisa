@@ -1158,7 +1158,7 @@ async function afterLogin(){
   }
   if(requestedRole==='mentor' && prof.role!=='mentor' && !(prof.role==='admin'||prof.is_admin)){
     showErr('This account is not approved as a PSP Mentor. Ask Super Admin to set role = mentor.');
-    await sb.auth.signOut();
+    await sb.auth.signOut({scope:'local'});
     resetBtn();
     return;
   }
@@ -1181,7 +1181,7 @@ async function afterLogin(){
   document.getElementById('whoami').textContent='👤 '+(ME.full_name||ME.email)+' · '+(ME.mentor_code||'MENTOR');
   buildNav();showPage(firstMentorPage());startClock();initBell();
 }
-async function logout(){await sb.auth.signOut();location.reload();}
+async function logout(){await sb.auth.signOut({scope:'local'});location.reload();}
 let BELL=[];
 async function initBell(){
   try{
