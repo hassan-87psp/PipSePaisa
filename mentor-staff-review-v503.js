@@ -4,7 +4,7 @@
 (function(){
 'use strict';
 const perms={indicator_review:false,indicator_issue:false,ib_review:false,ib_decide:false};
-const states={indicator:{rows:[],filter:'pending',product:'all',broker:'all',search:'',loaded:false},ib:{rows:[],filter:'pending',product:'all',broker:'all',search:'',loaded:false}};
+const states={indicator:{rows:[],filter:'pending',product:'all',broker:'all',verification:'all',date:'all',search:'',loaded:false},ib:{rows:[],filter:'pending',product:'all',broker:'all',verification:'all',date:'all',search:'',loaded:false}};
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').toLowerCase().trim();
 const kindFor=k=>k==='indicator_review'?'indicator':'ib';
@@ -39,6 +39,8 @@ function content(kind){
   filters.map(v=>'<button type="button" data-s503-status="'+v+'">'+(v==='all'?'All':label(v))+'</button>').join('')+
   '</div><div class="staff498-filterbar">'+(software?'<select id="s503Product" aria-label="Indicator"><option value="all">All Indicators</option></select>':'')+
   '<select id="s503Broker" aria-label="Broker"><option value="all">All Brokers</option></select>'+
+  '<select id="s503Verification" aria-label="Verification"><option value="all">Any Verification</option><option value="ok">Verified</option><option value="needs">Needs Verification</option></select>'+
+  '<select id="s503Date" aria-label="Submission date"><option value="all">All Dates</option><option value="today">Today</option><option value="week">This Week</option></select>'+
   '<input id="s503Search" type="search" placeholder="Search student, broker or account..." aria-label="Search"></div>'+
   '<div id="s503List" class="staff498-list"><div class="staff498-empty">Loading verified requests…</div></div></section>'+
   '<aside class="staff498-detail" id="s503Detail"><div class="staff498-empty">Select a request to review.</div></aside></div></div>';
@@ -50,6 +52,13 @@ function visible(kind){
   if(st.filter==='pending'?!['pending','submitted'].includes(s):st.filter!=='all'&&st.filter!==s)return false;
   if(kind==='indicator'&&st.product!=='all'&&r.product_id!==st.product)return false;
   if(st.broker!=='all'&&norm(r.broker)!==norm(st.broker))return false;
+  const verified=kind==='indicator'?r.verification_state==='verified':status(kind,r)==='approved';
+  if(st.verification==='ok'&&!verified||st.verification==='needs'&&verified)return false;
+  if(st.date!=='all'){
+   const dt=new Date(kind==='ib'?(r.submitted_at||r.created_at):r.created_at),now=new Date();
+   const start=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+   if(!Number.isFinite(dt.getTime())||dt<(st.date==='today'?start:new Date(start.getTime()-6*86400000)))return false;
+  }
   return !needle||[r.full_name,r.email,r.product_title,r.broker,r.trading_account_id].some(v=>norm(v).includes(needle));
  }).sort((a,b)=>rank(kind,a)-rank(kind,b)||new Date(b.created_at)-new Date(a.created_at));
 }
@@ -220,6 +229,8 @@ function listeners(kind){
  });
  root.querySelector('#s503Product')?.addEventListener('change',e=>{states[kind].product=e.target.value;renderRows(kind)});
  root.querySelector('#s503Broker')?.addEventListener('change',e=>{states[kind].broker=e.target.value;renderRows(kind)});
+ root.querySelector('#s503Verification')?.addEventListener('change',e=>{states[kind].verification=e.target.value;renderRows(kind)});
+ root.querySelector('#s503Date')?.addEventListener('change',e=>{states[kind].date=e.target.value;renderRows(kind)});
  root.querySelector('#s503Search')?.addEventListener('input',e=>{states[kind].search=e.target.value;renderRows(kind)});
 }
 async function load(kind){
