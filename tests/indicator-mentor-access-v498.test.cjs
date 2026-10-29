@@ -119,3 +119,17 @@ test('Server permissions enforce account lock, private upload and actual website
  assert.match(queue,/r\.payment_proof_path/);
  assert.match(queue,/pr\.access_type/);
 });
+
+test('Stored private files stay scoped to individual student/request paths, not broad mentor access',()=>{
+ const sql=read('supabase/sql/504_staff_storage_path_checks.sql');
+ assert.match(sql,/CREATE OR REPLACE FUNCTION public\.psp_staff_storage_allowed_v504/);
+ assert.match(sql,/IF NOT public\.psp_staff_can_v498\('indicator_issue'\)/);
+ assert.match(sql,/IF NOT public\.psp_staff_can_v498\('indicator'\)/);
+ assert.match(sql,/IF NOT public\.psp_staff_can_v498\('ib'\)/);
+ assert.match(sql,/r\.user_id::text=user_folder AND r\.id::text=request_folder/);
+ assert.match(sql,/owner_id=auth\.uid\(\)::text/);
+ assert.match(sql,/FOR INSERT TO authenticated/);
+ assert.match(sql,/FOR SELECT TO authenticated/);
+ assert.match(sql,/FOR DELETE TO authenticated/);
+ assert.match(sql,/REVOKE ALL ON FUNCTION public\.psp_staff_storage_allowed_v504/);
+});
