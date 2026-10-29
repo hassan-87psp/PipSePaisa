@@ -4,7 +4,7 @@
 if(window.__PSP_EAI_LIBRARY_V348__ || !window.PSPEAIndicator) return;
 window.__PSP_EAI_LIBRARY_V348__=true;
 var api=window.PSPEAIndicator, originalLoad=api.load,originalDownload=api.download;
-var state={tab:'explore',feedback:{},notifications:[],userId:null,requestOpened:false,gridObserver:null,requestSeq:0};
+var state={tab:'explore',filter:'all',feedback:{},notifications:[],userId:null,requestOpened:false,gridObserver:null,requestSeq:0};
 var d=id=>document.getElementById(id);
 var client=()=>window.sb||null;
 function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]))}
@@ -80,6 +80,7 @@ var css=document.createElement('style');css.id='psp-eai-library-v348-css';css.te
 '.eaiL-stat .eyebrow{color:var(--text-muted);font-size:11px;font-weight:750}',
 '.eaiL-stat strong{display:block;font-size:28px;line-height:1.3;margin-top:4px}',
 '.eaiL-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}',
+'.eaiL-filters{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 16px}.eaiL-filter{font-size:12px;font-weight:800;border:1px solid var(--border);border-radius:99px;padding:9px 13px;background:var(--bg-card);color:var(--text-primary);cursor:pointer}.eaiL-filter.active{background:#F39522;color:#171717;border-color:#F39522}',
 '.eaiL-license{border:1px solid var(--border);background:var(--bg-card);border-radius:17px;overflow:hidden;box-shadow:0 7px 24px rgba(0,0,0,.035)}',
 '.eaiL-licenseBody{padding:17px}',
 '.eaiL-licHead{display:flex;gap:11px;align-items:flex-start}',
@@ -221,12 +222,18 @@ function noticeHtml(){
 }
 function renderLibrary(){
  var shell=d('eaiLShell');if(!shell)return;
- var items=reqs();
+ var all=reqs();var items=all.filter(r=>state.filter==='all'||
+ (state.filter==='progress'&&['pending','under_review','approved','license_preparing'].includes(r.status))||
+ (state.filter==='downloads'&&['ready','downloaded'].includes(r.status)&&!expired(r))||
+ (state.filter==='installed'&&!!feedback(r.id)?.installation_confirmed_at&&!expired(r))||
+ (state.filter==='action'&&(r.status==='rejected'||expired(r))));
  var html='<div class="eaiL-intro"><div><h3>My Software & Licenses</h3><p>Everything you requested, received or installed — in one place.</p></div>'+
  '<button type="button" class="eaiL-btn" data-eail-action="refresh">↻ Refresh Status</button></div>'+
- statsHtml()+noticeHtml();
+ statsHtml()+noticeHtml()+'<div class="eaiL-filters" aria-label="Filter software and licenses">'+
+ [['all','All Applications'],['progress','In Progress'],['downloads','My Downloads'],['installed','Installed'],['action','Action Required']]
+ .map(t=>'<button type="button" class="eaiL-filter '+(state.filter===t[0]?'active':'')+'" data-eail-filter="'+t[0]+'">'+t[1]+'</button>').join('')+'</div>';
  html+=items.length?'<div class="eaiL-list">'+items.map(licHtml).join('')+'</div>':
- '<div class="eaiL-empty"><h3>No Applications Yet</h3><p>Explore PipSePaisa indicators, choose a tool and request your private licensed file.</p>'+
+ '<div class="eaiL-empty"><h3>'+(all.length?'No Licenses in This Category':'No Applications Yet')+'</h3><p>'+(all.length?'Try another filter to see your applications.':'Explore PipSePaisa indicators, choose a tool and request your private licensed file.')+'</p>'+
  '<button class="eaiL-btn primary" type="button" data-eail-action="explore">Explore Indicators & EAs</button></div>';
  shell.innerHTML=html;
  d('eaiLNavCount').textContent=String(items.length);
@@ -242,6 +249,7 @@ function runAction(action,id,pid){
  if(action==='refresh')return api.load();
 }
 function clickLibrary(e){
+ var filter=e.target.closest('[data-eail-filter]');if(filter){state.filter=filter.dataset.eailFilter;renderLibrary();return}
  var b=e.target.closest('[data-eail-action]');if(!b)return;e.preventDefault();
  if(b.dataset.eailAction==='notice'){
   var n=state.notifications.find(x=>x.id===b.dataset.notice);
