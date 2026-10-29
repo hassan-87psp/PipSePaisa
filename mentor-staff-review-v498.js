@@ -110,10 +110,13 @@ async function viewProof(kind){
  const proof=r?.deposit_proof_path||r?.proof_path;
  if(!proof){setMessage(kind,'No deposit proof is attached.');return}
  const c=client();if(!c)return;
+ // Open a blank tab synchronously from the click to avoid browser popup blockers.
+ const tab=window.open('about:blank','_blank');
  const res=await c.storage.from('verification-proofs').createSignedUrl(proof,90);
- if(res.error){setMessage(kind,'Proof access unavailable: '+res.error.message);return}
- // The signed URL expires automatically; it is not exposed to other reviewers.
- window.open(res.data.signedUrl,'_blank','noopener,noreferrer');
+ if(res.error){tab?.close();setMessage(kind,'Proof access unavailable: '+res.error.message);return}
+ // The signed link expires after 90 seconds and belongs only to this authorized reviewer.
+ if(tab){tab.opener=null;tab.location.replace(res.data.signedUrl)}
+ else setMessage(kind,'Allow popups to view the proof.');
 }
 function setMessage(kind,text,isError=false){
  const node=field(kind,'staff498Message');
