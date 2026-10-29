@@ -10,13 +10,13 @@ test('Both admin entrypoints preload executive styles before enhanced script',()
  for(const p of ['admin/index.html','admin-panel.html']){
   const html=read(p);
   const css='/admin-ea-indicator-enterprise-v374.css?v=20261029-v374-executive';
-  const js='/admin-ea-indicator-enterprise-v374.js?v=20261029-v374-executive';
+  const js='/admin-ea-indicator-enterprise-v374.js?v=20261029-v374-stable-data';
   const old='/admin-ea-indicator-ultra-v371.js?v=20261029-v374-immediate-drawer';
   assert.equal(html.split(css).length-1,1);
   assert.equal(html.split(js).length-1,1);
   assert.ok(html.indexOf(css)<html.indexOf(js));
   assert.ok(html.indexOf(old)<html.indexOf(js));
-  assert.match(html,/admin-ea-indicator-v238\.js\?v=20261029-v374-priority-snapshot/);
+  assert.match(html,/admin-ea-indicator-v238\.js\?v=20261029-v374-stable-data/);
  }
 });
 
@@ -26,6 +26,8 @@ test('Enterprise script and base admin compile, preserve audited license operati
  assert.doesNotThrow(()=>new Function(enterprise));
  assert.doesNotThrow(()=>new Function(admin));
  assert.match(admin,/getSnapshot:snapshot/);
+ assert.match(admin,/loaded:state\.loaded/);
+ assert.match(enterprise,/if\(!snap\|\|!snap\.loaded\)return null/);
  assert.match(admin,/verificationFor/);
  assert.match(admin,/function approveAndDeliver\(/);
  assert.match(enterprise,/prevRequest\.apply\(api,arguments\)/);
