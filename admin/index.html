@@ -613,6 +613,7 @@ select option{background:#0f1729;color:#e8eaf0}
     </nav>
     
     <div class="sidebar-footer">
+      <div class="menu-item psp-portal-install" id="pspPortalInstallNav" onclick="pspPortalInstall()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();pspPortalInstall()}" role="button" tabindex="0" title="Install PSP ADMIN App"><span class="menu-icon">⬇️</span><strong data-psp-install-label>Install App</strong><span class="psp-portal-install-badge" data-psp-install-badge>NEW</span></div>
       <div class="menu-item" onclick="window.open('./', '_blank')" style="background: var(--green-bg); color: var(--green);"><span class="menu-icon">🌐</span>View User Site</div>
       <div class="menu-item" onclick="logoutAdmin()"><span class="menu-icon">🚪</span>Logout</div>
     </div>
@@ -2146,5 +2147,6 @@ window.addEventListener('load',function(){
     .catch(function(err){console.warn('PSP ADMIN app install worker unavailable:',err?.message||err)});
 });
 </script>
+<script src="/portal-install-v1.js?v=20261030-v1"></script>
 </body>
 </html>
