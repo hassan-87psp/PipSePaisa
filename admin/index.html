@@ -14,7 +14,22 @@
 <link rel="stylesheet" href="/psp-performance-v218.css?v=20260910-v2181">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script async src="https://cdn.jsdelivr.net/npm/chart.js" onload="window.dispatchEvent(new Event('psp-admin-charts-ready'))"></script>
+<script id="pspAdminChartLazyV447">
+(function(){
+  var started=false;
+  function startCharts(){
+    if(started||window.Chart)return;
+    started=true;
+    var script=document.createElement('script');
+    script.src='https://cdn.jsdelivr.net/npm/chart.js';
+    script.async=true;
+    script.onload=function(){window.dispatchEvent(new Event('psp-admin-charts-ready'))};
+    script.onerror=function(){console.warn('Admin charts unavailable; core dashboard remains usable.')};
+    document.head.appendChild(script);
+  }
+  window.addEventListener('psp-admin-auth-ready',startCharts);
+})();
+</script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="/admin-performance-v398.js?v=20261002-v439-page-loading"></script>
 <style>
@@ -331,6 +346,12 @@
     z-index: 9999; align-items: center; justify-content: center; padding: 20px;
   }
   .login-overlay.active { display: flex; }
+  /* Never display the admin workspace while authentication is unknown. */
+  #adminAuthStatus { display:none; text-align:center; font-size:12px; color:var(--text-muted); padding:18px 10px; line-height:1.6; }
+  .login-overlay.is-checking #adminAuthStatus { display:block; }
+  .login-overlay.is-checking .form-group,
+  .login-overlay.is-checking #loginBtn,
+  .login-overlay.is-checking #loginError { display:none!important; }
   .login-box {
     width: 100%; max-width: 420px; background: var(--bg-card); border: 1px solid var(--border);
     border-radius: 18px; padding: 36px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
@@ -485,13 +506,13 @@ select option{background:#0f1729;color:#e8eaf0}
 
 <!-- Demo Banner -->
 <!-- LOGIN OVERLAY (will hide once "Login" clicked) -->
-<div class="login-overlay" id="loginOverlay">
+<div class="login-overlay active is-checking" id="loginOverlay">
   <div class="login-box">
     <div class="login-logo"><img src="favicon.png" alt="PipSePaisa"></div>
     <h1 style="text-align: center; font-size: 22px; margin-bottom: 6px;">Admin Panel</h1>
     <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 24px;">Sign in to manage your platform</p>
     
-    <div id="loginError" style="display: none; padding: 10px 14px; background: var(--red-bg); color: var(--red); border-radius: 8px; margin-bottom: 14px; font-size: 12px;"></div>
+    <div id="adminAuthStatus" role="status" aria-live="polite">Checking secure admin session…</div>\n    <div id="loginError" style="display: none; padding: 10px 14px; background: var(--red-bg); color: var(--red); border-radius: 8px; margin-bottom: 14px; font-size: 12px;"></div>
     
     <div class="form-group">
       <label>Email Address</label>
