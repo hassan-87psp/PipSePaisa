@@ -135,3 +135,56 @@ note.innerHTML='<strong>Application History</strong>'+(out.data?.length?out.data
 api.rejectNotUnder=async function(){var a=await oldReject.apply(api,arguments);await refreshStats();main();return a};
 setTimeout(function(){if(q('page-eaindicator')&&q('eaiAContent')){main();refreshStats()}},500);
 })();
+
+
+/* PipSePaisa V348 — Admin installation-support and license record visibility */
+(function(){
+'use strict';
+if(window.__PSP_EAI_ADMIN_SUPPORT_V348__||!window.PSPEAIAdmin)return;
+window.__PSP_EAI_ADMIN_SUPPORT_V348__=true;
+var api=window.PSPEAIAdmin,oldLoad=api.load,oldRequest=api.requestForm,oldTab=api.tab;
+var S={issues:[],open:false,loading:false},d=id=>document.getElementById(id),db=()=>window.sb||null;
+var safe=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+var date=v=>v?new Date(v).toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'}):'—';
+var css=document.createElement('style');css.id='psp-eai-admin-support-v348-css';
+css.textContent='.eaiAS-supportBar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;border:1px solid var(--border);background:var(--bg-card);border-radius:14px;padding:12px 14px;margin:12px 0}.eaiAS-supportBar strong{font-size:13px}.eaiAS-supportBar small{display:block;font-size:11px;color:var(--text-muted);margin-top:3px}.eaiAS-list{display:grid;gap:10px;margin-bottom:14px}.eaiAS-item{border:1px solid var(--border);background:var(--bg-card);border-radius:13px;padding:15px}.eaiAS-item strong{font-size:14px}.eaiAS-item p{font-size:12px;line-height:1.6;color:var(--text-muted);margin:10px 0}.eaiAS-meta{font-size:11px;color:var(--text-muted);margin:5px 0}.eaiAS-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:11px}@media(max-width:600px){.eaiAS-supportBar{align-items:stretch}.eaiAS-actions button{flex:1}}';
+document.head.appendChild(css);
+async function refresh(){
+var c=db();if(!c)return;
+var r=await c.from('ea_indicator_license_feedback').select('request_id,user_id,issue_description,issue_reported_at,installation_confirmed_at,updated_at').not('issue_description','is',null).order('updated_at',{ascending:false}).limit(150);
+if(r.error){console.warn('Indicator support could not load:',r.error.message);return}
+S.issues=(r.data||[]).filter(x=>String(x.issue_description||'').trim()&&!x.installation_confirmed_at);
+draw();
+}
+function draw(){
+var p=d('page-eaindicator'),area=d('eaiAPanel'),box=d('eaiAContent');if(!p||!area||!box)return;
+var bar=d('eaiASSupportBar');if(!bar){bar=document.createElement('div');bar.id='eaiASSupportBar';bar.className='eaiAS-supportBar';area.insertAdjacentElement('afterend',bar)}
+bar.innerHTML='<div><strong>Installation Support <span style="color:#de7a04">('+S.issues.length+')</span></strong><small>Issues submitted by users after receiving their private license.</small></div><button type="button" class="eaiA-btn '+(S.open?'primary':'')+'" id="eaiASIssuesToggle">'+(S.open?'Back to Requests':'View Installation Issues')+'</button>';
+d('eaiASIssuesToggle').onclick=()=>{S.open=!S.open;if(S.open){api.tab('requests');S.open=true}draw()};
+var wrap=d('eaiASIssues');if(!wrap){wrap=document.createElement('section');wrap.id='eaiASIssues';wrap.className='eaiAS-list';bar.insertAdjacentElement('afterend',wrap)}
+wrap.style.display=S.open?'grid':'none';
+box.style.display=S.open?'none':'';
+var filter=d('eaiAPFilter');if(filter&&S.open)filter.style.display='none';
+if(!S.open)return;
+if(!S.issues.length){wrap.innerHTML='<div class="eaiAS-item">No unresolved installation issues. ✓</div>';return}
+wrap.innerHTML=S.issues.map(x=>'<article class="eaiAS-item"><strong>Indicator License Support</strong><div class="eaiAS-meta">Submitted '+safe(date(x.issue_reported_at||x.updated_at))+'</div><p>'+safe(x.issue_description)+'</p><div class="eaiAS-actions"><button class="eaiA-btn primary" type="button" data-eais-open="'+safe(x.request_id)+'">Open Application</button></div></article>').join('');
+wrap.querySelectorAll('[data-eais-open]').forEach(el=>el.onclick=()=>api.requestForm(el.dataset.eaisOpen));
+}
+api.load=async function(){var a=await oldLoad.apply(api,arguments);await refresh();return a};
+api.requestForm=async function(id){
+await oldRequest.apply(api,arguments);
+var form=d('eaiAReqForm');if(!form)return;
+var box=document.createElement('section');box.className='eaiAP-audit';box.innerHTML='<strong>Installation & Support</strong><p>Checking user installation feedback…</p>';
+form.querySelector('.eaiA-actions')?.insertAdjacentElement('beforebegin',box);
+var r=await db().from('ea_indicator_license_feedback').select('installation_confirmed_at,issue_description,issue_reported_at').eq('request_id',id).maybeSingle();
+if(!box.isConnected)return;
+if(r.error){box.innerHTML='<strong>Installation & Support</strong><p>Could not load feedback.</p>';return}
+var f=r.data;
+box.innerHTML='<strong>Installation & Support</strong>'+
+ (!f?'<p>No installation confirmation or support ticket has been submitted.</p>':
+ (f.installation_confirmed_at?'<p>✓ User confirmed installation on '+safe(date(f.installation_confirmed_at))+' (self-reported, not an MT5 activation check).</p>':'<p>Installation has not been confirmed by the user.</p>')+
+ (f.issue_description?'<p><b>Reported '+safe(date(f.issue_reported_at))+':</b> '+safe(f.issue_description)+'</p>':''));
+};
+api.tab=function(t){S.open=false;var a=oldTab.apply(api,arguments);draw();return a};
+setTimeout(function(){if(d('page-eaindicator')&&d('eaiAContent'))refresh()},600);
+})();
