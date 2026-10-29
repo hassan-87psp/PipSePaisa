@@ -109,14 +109,14 @@ var old=q('eaiAPEmpty');if(!n&&trs.length){if(!old){var el=document.createElemen
 }
 async function refreshStats(){
 if(S.refreshing)return;var c=db();if(!c)return;S.refreshing=true;
-try{var out=await c.from('ea_indicator_requests').select('id,status,product_id,ea_indicator_products(title),created_at').order('created_at',{ascending:false});if(!out.error){S.rows=out.data||[];renderDashboard();enhanceTable()}}catch(e){console.warn('EA admin metrics refresh failed:',e)}finally{S.refreshing=false}
+try{var out=await c.from('ea_indicator_requests').select('id,status,product_id,ea_indicator_products(title),broker,trading_account_id,deposit_amount,created_at,updated_at').order('created_at',{ascending:false});if(!out.error){S.rows=out.data||[];renderDashboard();enhanceTable()}}catch(e){console.warn('EA admin metrics refresh failed:',e)}finally{S.refreshing=false}
 }
 api.load=async function(){var a=await oldLoad.apply(api,arguments);await refreshStats();main();return a};
 api.tab=function(t){var a=oldTab.apply(api,arguments);main();return a};
 api.premiumFilter=function(t){S.filter=t;api.tab('requests');filterbar();filterRows()};
 api.premiumExport=function(){
 if(!S.rows.length)return;
-var headings=['Product','Status','Created At'];var rows=S.rows.filter(function(r){return S.filter==='all'||r.status===S.filter||(S.filter==='pending'&&r.status==='under_review')}).map(function(r){return [r.ea_indicator_products?.title||'',r.status,r.created_at]});
+var headings=['Product','Broker','Trading Account ID','Deposit USD','Status','Submitted','Last Updated'];var rows=S.rows.filter(function(r){return S.filter==='all'||r.status===S.filter||(S.filter==='pending'&&r.status==='under_review')}).map(function(r){return [r.ea_indicator_products?.title||'',r.broker||'',r.trading_account_id||'',r.deposit_amount??'',r.status,r.created_at,r.updated_at]});
 var csv=[headings].concat(rows).map(function(a){return a.map(function(v){var s=String(v==null?'':v).replace(/^[=+\-@\t\r]/,'\'' );return '"'+s.replace(/"/g,'""')+'"'}).join(',')}).join('\r\n');
 var url=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));var a=document.createElement('a');a.href=url;a.download='PipSePaisa_Indicator_Applications.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},2000);
 };
