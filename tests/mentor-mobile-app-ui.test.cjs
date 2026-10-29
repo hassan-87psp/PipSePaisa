@@ -55,7 +55,7 @@ test('Touch, keyboard, table overflow, charts and performance have mobile-specif
  assert.ok(js.includes('wrapWideTables()'));
  assert.ok(js.includes('aria-label'));
  assert.ok(js.includes('syncKeyboard()'));
- assert.ok(js.includes("if(!mobile())return"));
+ assert.ok(js.includes("if(!btn||!mobile())return;"));
  assert.ok(!/\.auth\.|\.rpc\(|\.from\(|signOut\(/.test(js),'UI must not alter backend/auth');
 });
 
