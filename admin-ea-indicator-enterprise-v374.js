@@ -8,7 +8,7 @@ window.__PSP_EAI_ENTERPRISE_V374__=true;
 const api=window.PSPEAIAdmin;
 const q=id=>document.getElementById(id);
 const escape=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const state={filter:'action',search:'',loaded:false,rows:[],stats:{},currentRequest:null,observer:null,timer:0,bound:false,initialTab:false};
+const state={filter:'action',search:'',loaded:false,rows:[],stats:{},currentRequest:null,observer:null,timer:0,bound:false,initialTab:false,initialFilterChosen:false};
 const activeStatuses=new Set(['pending','under_review','approved','license_preparing']);
 const issuedStatuses=new Set(['ready','downloaded']);
 const labelStatus={pending:'New Request',under_review:'Under Review',approved:'Approved · File Pending',license_preparing:'Preparing Build',ready:'File Ready',downloaded:'Downloaded',rejected:'Rejected'};
@@ -73,9 +73,9 @@ function setupLayout(){
   page.dataset.eai374Events='1';
   page.addEventListener('click',event=>{
    const filter=event.target.closest('[data-e374-filter]');
-   if(filter){state.filter=filter.dataset.e374Filter;render();return}
+   if(filter){state.filter=filter.dataset.e374Filter;state.initialFilterChosen=true;render();return}
    const m=event.target.closest('[data-e374-metric]');
-   if(m){state.filter=m.dataset.e374Metric;api.tab('requests');render();q('eaiV374Queue')?.scrollIntoView?.({block:'start',behavior:'smooth'});return}
+   if(m){state.filter=m.dataset.e374Metric;state.initialFilterChosen=true;api.tab('requests');render();q('eaiV374Queue')?.scrollIntoView?.({block:'start',behavior:'smooth'});return}
    const open=event.target.closest('[data-e374-request]');
    if(open){api.requestForm(open.dataset.e374Request);return}
    if(event.target.closest('[data-e374-refresh]')){refresh();return}
@@ -114,6 +114,11 @@ function updateData(){
  const rows=rowsFromSnapshot();
  if(rows){
   state.rows=rows;state.stats=summary(rows);state.loaded=true;
+  if(!state.initialFilterChosen){
+   state.initialFilterChosen=true;
+   if(!state.stats.action&&state.stats.attention)state.filter='attention';
+   else if(!state.stats.action&&!state.stats.attention&&state.stats.issued)state.filter='issued';
+  }
  }
  page.classList.toggle('eaiV374-requests',!!q('eaiARequestsTab')?.classList.contains('on'));
  render();
