@@ -227,6 +227,6 @@
   .app.show .topbar .sub { max-width:160px!important; }
   .app.show .content { padding:12px 10px 18px!important; }
 }
-@media (prefers-reduced-motion:reduce) {
+@media screen and (max-width:700px) and (prefers-reduced-motion:reduce) {
   #mDrawer { transition:none!important; }
 }
