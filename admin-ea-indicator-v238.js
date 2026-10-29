@@ -265,7 +265,7 @@ function draw(){
 var p=d('page-eaindicator'),area=d('eaiAPanel'),box=d('eaiAContent');if(!p||!area||!box)return;
 var bar=d('eaiASSupportBar');if(!bar){bar=document.createElement('div');bar.id='eaiASSupportBar';bar.className='eaiAS-supportBar';area.insertAdjacentElement('afterend',bar)}
 bar.innerHTML='<div><strong>Installation Support <span style="color:#de7a04">('+S.issues.length+')</span></strong><small>Issues submitted by users after receiving their private license.</small></div><button type="button" class="eaiA-btn '+(S.open?'primary':'')+'" id="eaiASIssuesToggle">'+(S.open?'Back to Requests':'View Installation Issues')+'</button>';
-d('eaiASIssuesToggle').onclick=()=>{if(S.open){S.open=false;api.tab('requests');draw()}else{api.tab('requests');S.open=true;draw()}};
+d('eaiASIssuesToggle').onclick=()=>{S.open=!S.open;draw()};
 var wrap=d('eaiASIssues');if(!wrap){wrap=document.createElement('section');wrap.id='eaiASIssues';wrap.className='eaiAS-list';bar.insertAdjacentElement('afterend',wrap)}
 wrap.style.display=S.open?'grid':'none';
 box.style.display=S.open?'none':'';
