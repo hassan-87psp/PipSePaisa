@@ -111,7 +111,9 @@ function rowsFromSnapshot(){
   copy._priority=priority(copy);
   return copy;
  });
- const rank=r=>r._priority==='verified'?0:r._priority==='attention'?1:r._priority==='issued'?3:2;
+ const rank=r=>({
+  pending:0,under_review:1,approved:2,license_preparing:2,rejected:3,ready:4,downloaded:5
+ })[String(r.status||'').toLowerCase()]??6;
  rows.sort((a,b)=>rank(a)-rank(b)||(new Date(a.created_at||0)-new Date(b.created_at||0)));
  return rows;
 }
