@@ -245,7 +245,7 @@ function clickLibrary(e){
  var b=e.target.closest('[data-eail-action]');if(!b)return;e.preventDefault();
  if(b.dataset.eailAction==='notice'){
   var n=state.notifications.find(x=>x.id===b.dataset.notice);
-  if(n){n.read=true;client()?.from('community_notifications').update({read:true,is_read:true}).eq('id',n.id).then(()=>{});}
+  if(n){n.read=true;client()?.from('ea_indicator_notifications').update({read:true,is_read:true}).eq('id',n.id).then(()=>{});}
   renderLibrary();return api.track(b.dataset.request);
  }
  runAction(b.dataset.eailAction,b.dataset.request,b.dataset.product)
@@ -326,7 +326,7 @@ async function refreshDetails(){
  state.userId=u.id;
  var c=client(),queries=[
  c.from('ea_indicator_license_feedback').select('request_id,installation_confirmed_at,issue_description,issue_reported_at,updated_at').eq('user_id',u.id),
- c.from('community_notifications').select('id,type,title,text,body,link,read,created_at').eq('user_id',u.id).eq('type','ea_indicator').order('created_at',{ascending:false}).limit(8)
+ c.from('ea_indicator_notifications').select('id,type,title,text,body,link,read,created_at').eq('user_id',u.id).eq('type','ea_indicator').order('created_at',{ascending:false}).limit(8)
  ];
  var arr=await Promise.all(queries);
  if(arr[0].error)console.warn('EA library feedback unavailable',arr[0].error.message);
