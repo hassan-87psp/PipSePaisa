@@ -4,7 +4,7 @@
 (function(){
 'use strict';
 const perms={indicator_review:false,indicator_issue:false,ib_review:false,ib_decide:false};
-const states={indicator:{rows:[],filter:'pending',product:'all',broker:'all',verification:'all',date:'all',search:'',loaded:false},ib:{rows:[],filter:'pending',product:'all',broker:'all',verification:'all',date:'all',search:'',loaded:false}};
+const states={indicator:{rows:[],filter:'pending',product:'all',broker:'all',verification:'all',date:'all',search:'',loaded:false,manualFilter:false},ib:{rows:[],filter:'pending',product:'all',broker:'all',verification:'all',date:'all',search:'',loaded:false,manualFilter:false}};
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').toLowerCase().trim();
 const kindFor=k=>k==='indicator_review'?'indicator':'ib';
@@ -220,7 +220,7 @@ function listeners(kind){
  root.addEventListener('click',event=>{
   const b=event.target.closest('button');if(!b)return;
   if(b.hasAttribute('data-s503-refresh')){load(kind);return}
-  if(b.hasAttribute('data-s503-status')){states[kind].filter=b.dataset.s503Status;renderRows(kind);return}
+  if(b.hasAttribute('data-s503-status')){states[kind].filter=b.dataset.s503Status;states[kind].manualFilter=true;renderRows(kind);return}
   if(b.hasAttribute('data-s503-id')){details(kind,b.dataset.s503Id);return}
   if(b.hasAttribute('data-s503-proof')){viewProof(kind,b.dataset.s503Proof);return}
   if(b.hasAttribute('data-s503-note')){submit(kind,b.dataset.s503Note,false);return}
@@ -239,7 +239,7 @@ async function load(kind){
   const {data,error}=await conn().rpc('psp_staff_queue_v498',{p_kind:kind});
   if(error)throw error;
   st.rows=Array.isArray(data)?data:[];st.loaded=true;
-  if(st.filter==='pending'&&!visible(kind).length){
+  if(!st.manualFilter&&st.filter==='pending'&&!visible(kind).length){
    const next=kind==='indicator'?['under_review','approved','rejected','ready','downloaded','all']:
     ['approved','rejected','expired','all'];
    st.filter=next.find(f=>f==='all'||st.rows.some(r=>status(kind,r)===f))||'all';
