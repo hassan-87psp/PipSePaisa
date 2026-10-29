@@ -67,7 +67,7 @@ test('Mentor new navigation, permissions and active UI use Website Access Approv
  assert.match(mentor,/psp_staff_indicator_decide_v501/);
  assert.match(mentor,/psp_staff_access_decide_v501/);
  assert.match(mentor,/createSignedUrl\(file,90\)/);
- assert.match(mentor,/bucket='ea-indicator-proofs'/);
+ assert.match(mentor,/kind==='indicator'\?'ea-indicator-proofs'/);
  assert.match(mentor,/if\(result\.error\)throw result\.error/);
  assert.match(mentor,/await conn\(\)\.storage\.from\('ea-indicator-licensed'\)\.remove\(\[uploaded\]\)/);
 });
