@@ -59,7 +59,12 @@ test('Mentor new navigation, permissions and active UI use Website Access Approv
  assert.match(html,/MENTOR_ACCESS\.ib_review=staffToggles\.ib_review&&staffPermission\.ib_review===true/);
  const mentor=read('mentor-staff-review-v503.js');
  assert.doesNotThrow(()=>new Function(mentor));
- assert.match(mentor,/psp_staff_queue_v498/);
+ assert.match(mentor,/s503Product/);
+ assert.match(mentor,/s503Broker/);
+ assert.match(mentor,/s503Verification/);
+ assert.match(mentor,/s503Date/);
+ assert.match(mentor,/manualFilter=true/);
+  assert.match(mentor,/psp_staff_queue_v498/);
  assert.match(mentor,/psp_staff_my_v498/);
  assert.match(mentor,/indicator_issue/);
  assert.match(mentor,/Reapprove & Issue File/);
