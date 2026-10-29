@@ -43,6 +43,8 @@ jobs:
         run: node tests/team-referral-enrollment.test.mjs
       - name: Verify three distinct installable portals and independent logins
         run: node --test tests/portal-pwa-install.test.cjs
+      - name: Verify Mentor native-style mobile app UI without desktop regression
+        run: node --test tests/mentor-mobile-app-ui.test.cjs
       - name: Verify OneSignal subscription behavior
         run: node tests/notification-subscription-state.mjs
       - name: Verify EA & Indicator marketplace JavaScript and P+ eligibility
