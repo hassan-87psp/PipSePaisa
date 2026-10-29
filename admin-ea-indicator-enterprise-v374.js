@@ -8,7 +8,7 @@ window.__PSP_EAI_ENTERPRISE_V374__=true;
 const api=window.PSPEAIAdmin;
 const q=id=>document.getElementById(id);
 const escape=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const state={filter:'action',search:'',loaded:false,rows:[],stats:{},currentRequest:null,observer:null,timer:0,bound:false,initialTab:false,initialFilterChosen:false};
+const state={filter:'new',product:'all',broker:'all',verification:'all',date:'all',search:'',loaded:false,rows:[],stats:{},currentRequest:null,observer:null,timer:0,bound:false,initialTab:false,initialFilterChosen:false};
 const activeStatuses=new Set(['pending','under_review','approved','license_preparing']);
 const issuedStatuses=new Set(['ready','downloaded']);
 const labelStatus={pending:'New Request',under_review:'Under Review',approved:'Approved · File Pending',license_preparing:'Preparing Build',ready:'File Ready',downloaded:'Downloaded',rejected:'Rejected'};
@@ -63,8 +63,12 @@ function setupLayout(){
   root.innerHTML='<div class="eaiV374-queueHead"><div><h3>Applications &amp; License Queue</h3>'+
    '<p id="eaiV374QueueInfo" aria-live="polite">Loading secure application records…</p></div>'+
    '<button type="button" class="eaiV374-refresh" data-e374-refresh="1">↻ Refresh</button></div>'+
-   '<div class="eaiV374-toolbar"><div class="eaiV374-pills" id="eaiV374Pills" role="group" aria-label="Filter applications"></div>'+
-   '<label class="eaiV374-search"><span aria-hidden="true">⌕</span><input id="eaiV374Search" type="search" placeholder="Search student, account or product" aria-label="Search applications"></label></div>'+
+   '<div class="eaiV374-toolbar"><div class="eaiV374-pills" id="eaiV374Pills" role="group" aria-label="Application status"></div>'+
+   '<div class="eaiV498-filterRow"><label>Indicator<select id="eaiV498Product" aria-label="Filter by indicator"><option value="all">All Indicators</option></select></label>'+
+   '<label>Broker<select id="eaiV498Broker" aria-label="Filter by broker"><option value="all">All Brokers</option></select></label>'+
+   '<label>Verification<select id="eaiV498Verification" aria-label="Filter by verification"><option value="all">Any</option><option value="ok">Verified</option><option value="needs">Not Verified</option></select></label>'+
+   '<label>Date<select id="eaiV498Date" aria-label="Filter by date"><option value="all">All Dates</option><option value="today">Today</option><option value="week">This Week</option></select></label>'+
+   '<label class="eaiV374-search"><span aria-hidden="true">⌕</span><input id="eaiV374Search" type="search" placeholder="Search student / account" aria-label="Search applications"></label></div></div>'+
    '<div class="eaiV374-list" id="eaiV374List" aria-live="polite"><div class="eaiV374-empty">Loading applications…</div></div></section>';
   const existing=q('eaiAContent');
   existing?.insertAdjacentElement('afterend',root);
@@ -81,6 +85,8 @@ function setupLayout(){
    if(event.target.closest('[data-e374-refresh]')){refresh();return}
   });
   q('eaiV374Search')?.addEventListener('input',e=>{state.search=e.target.value;render()});
+  [['eaiV498Product','product'],['eaiV498Broker','broker'],['eaiV498Verification','verification'],['eaiV498Date','date']].forEach(([id,key])=>
+   q(id)?.addEventListener('change',e=>{state[key]=e.target.value;render()}));
  }
  const content=q('eaiAContent');
  if(content && !state.observer){
@@ -116,8 +122,8 @@ function updateData(){
   state.rows=rows;state.stats=summary(rows);state.loaded=true;
   if(!state.initialFilterChosen){
    state.initialFilterChosen=true;
-   if(!state.stats.action&&state.stats.attention)state.filter='attention';
-   else if(!state.stats.action&&!state.stats.attention&&state.stats.issued)state.filter='issued';
+   const order=['new','under_review','approved','rejected','ready','downloaded','total'];
+   state.filter=order.find(key=>key==='total'||rows.some(r=>statusMatch(r,key)))||'total';
   }
  }
  page.classList.toggle('eaiV374-requests',!!q('eaiARequestsTab')?.classList.contains('on'));
@@ -136,11 +142,35 @@ const metrics=[
  {key:'attention',label:'Needs Attention',help:'Mismatch / failed verification',kind:'red',icon:'!'},
  {key:'issued',label:'Issued Licenses',help:'Ready or downloaded',kind:'blue',icon:'⬡'}];
 const filters=[
- {key:'action',name:'To Process'},
- {key:'verified',name:'Verified'},
- {key:'attention',name:'Needs Attention'},
- {key:'issued',name:'Issued'},
- {key:'total',name:'All Applications'}];
+ {key:'new',name:'Unchecked'},{key:'under_review',name:'Under Review'},
+ {key:'approved',name:'Approved'},{key:'rejected',name:'Rejected'},
+ {key:'ready',name:'Ready'},{key:'downloaded',name:'Downloaded'},
+ {key:'total',name:'All'}];
+function statusMatch(r,key){
+ const st=String(r.status||'').toLowerCase();
+ if(key==='total')return true;
+ if(key==='new')return st==='pending';
+ if(key==='ready')return st==='ready'||st==='license_preparing';
+ if(key==='attention')return r._priority==='attention';
+ if(key==='verified')return r._priority==='verified';
+ if(key==='issued')return issuedStatuses.has(st);
+ if(key==='action')return activeStatuses.has(st);
+ return st===key;
+}
+function setOptions(id,pairs,value,label){
+ const el=q(id);if(!el)return;
+ const prior=el.value||value;
+ const html='<option value="all">'+escape(label)+'</option>'+pairs.map(p=>'<option value="'+escape(p[0])+'">'+escape(p[1])+'</option>').join('');
+ if(el.innerHTML!==html)el.innerHTML=html;
+ el.value=pairs.some(p=>p[0]===prior)?prior:'all';
+}
+function recent(date,kind){
+ if(kind==='all')return true;
+ const d=new Date(date),now=new Date();
+ if(!Number.isFinite(d.getTime()))return false;
+ const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+ return kind==='today'?d>=today:d>=new Date(today.getTime()-6*86400000);
+}
 function statusClass(r){
  if(r._verification!=='ok')return 'warning';
  if(issuedStatuses.has(r.status))return 'issued';
@@ -184,17 +214,26 @@ function render(){
  if(root)root.hidden=!requests;
  const metricsRoot=q('eaiV374Metrics');
  if(metricsRoot)metricsRoot.innerHTML=metrics.map(metricCard).join('');
- const counts=state.stats;
+ const counts=Object.fromEntries(filters.map(f=>[f.key,state.rows.filter(r=>statusMatch(r,f.key)).length]));
+ const snap=source();
+ const allProducts=new Map((snap?.products||[]).map(p=>[p.id,p.title]));
+ for(const r of state.rows)if(!allProducts.has(r.product_id))allProducts.set(r.product_id,r.ea_indicator_products?.title||'Software');
+ setOptions('eaiV498Product',[...allProducts].sort((a,b)=>String(a[1]).localeCompare(String(b[1]))),state.product,'All Indicators');
+ const brokers=[...new Set(state.rows.map(r=>String(r.broker||'').trim()).filter(Boolean))].sort().map(b=>[b,b]);
+ setOptions('eaiV498Broker',brokers,state.broker,'All Brokers');
  const pills=q('eaiV374Pills');
  if(pills)pills.innerHTML=filters.map(f=>'<button type="button" data-e374-filter="'+f.key+'" class="'+(state.filter===f.key?'active':'')+'" aria-pressed="'+(state.filter===f.key)+'">'+
    escape(f.name)+' <b>'+(state.loaded?(counts[f.key]||0):'—')+'</b></button>').join('');
  const needle=state.search.trim().toLocaleLowerCase();
  const matches=state.rows.filter(r=>{
-  let match=state.filter==='total'||(state.filter==='action'?activeStatuses.has(r.status):
-    state.filter==='verified'?r._priority==='verified':state.filter==='attention'?r._priority==='attention':
-    state.filter==='issued'?issuedStatuses.has(r.status):true);
-  if(!match)return false;
-  return !needle||[r.profiles?.full_name,r.profiles?.email,r.ea_indicator_products?.title,r.trading_account_id,r.broker,r.licensed_file_name].some(v=>String(v||'').toLocaleLowerCase().includes(needle));
+  if(!statusMatch(r,state.filter))return false;
+  if(state.product!=='all'&&r.product_id!==state.product)return false;
+  if(state.broker!=='all'&&String(r.broker||'')!==state.broker)return false;
+  if(state.verification==='ok'&&r._verification!=='ok')return false;
+  if(state.verification==='needs'&&r._verification==='ok')return false;
+  if(!recent(r.created_at,state.date))return false;
+  return !needle||[r.profiles?.full_name,r.profiles?.email,r.ea_indicator_products?.title,r.trading_account_id,r.broker,r.licensed_file_name].some(v=>
+   String(v||'').toLocaleLowerCase().includes(needle));
  });
  const list=q('eaiV374List');
  if(list)list.innerHTML=matches.length?matches.map(card).join(''):'<div class="eaiV374-empty">'+escape(emptyText())+'</div>';
