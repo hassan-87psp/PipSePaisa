@@ -22,6 +22,8 @@ test('Mobile shell files are linked on Mentor only and keep desktop invisible',(
  assert.ok(css.includes('.app.show #mentorMobileBottomNav'));
  assert.ok(css.includes('.app.show > #sidebar { display:none!important; }'));
  assert.ok(css.includes('grid-template-columns:repeat(5,minmax(0,1fr))'));
+ assert.ok(css.includes('body.pspm-sheet-open { overflow:hidden!important; }'),'body scroll locks without forbidding vertical touch gestures');
+ assert.ok(!css.includes('body.pspm-sheet-open { overflow:hidden!important;touch-action:pan-x; }'),'More sheet stays vertically scrollable');
  assert.ok(!read('admin/index.html').includes('mentor-mobile-ui-v1'));
  assert.ok(!read('dashboard/index.html').includes('mentor-mobile-ui-v1'));
 });
