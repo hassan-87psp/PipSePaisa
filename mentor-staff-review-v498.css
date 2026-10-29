@@ -1,0 +1,58 @@
+/* PipSePaisa Mentor Software/IB Review — Premium V498. Scope: new mentor tabs only. */
+.staff498{--staff-bg:#fffdf8;--staff-border:#e7dccb;--staff-muted:#7e8a9a;--staff-ink:#162234;--staff-orange:#f39522;color:var(--staff-ink);font-family:Inter,system-ui,sans-serif}
+.staff498 *{box-sizing:border-box}
+.staff498-hero{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 22px;margin-bottom:14px;border:1px solid var(--staff-border);border-radius:16px;background:linear-gradient(110deg,#fffdf8,#fff2df)}
+.staff498-hero small{font-size:9px;font-weight:850;color:#cf7508;letter-spacing:.14em}
+.staff498-hero h2{font-size:22px;font-weight:850;letter-spacing:-.045em;margin:6px 0;color:var(--staff-ink)}
+.staff498-hero p{font-size:12px;color:var(--staff-muted);line-height:1.6;margin:0}
+.staff498 button{font-family:inherit;cursor:pointer}
+.staff498-refresh{border:1px solid var(--staff-border);border-radius:9px;background:#fffdf8;padding:11px 13px;font-size:11px;font-weight:800;white-space:nowrap}
+.staff498-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(290px,.9fr);gap:15px;align-items:start}
+.staff498-board,.staff498-detail{background:var(--staff-bg);border:1px solid var(--staff-border);border-radius:15px;overflow:hidden;min-width:0}
+.staff498-tabs{display:flex;gap:5px;overflow:auto;padding:11px 12px;background:#fff8ed;border-bottom:1px solid var(--staff-border)}
+.staff498-tabs button{border:1px solid var(--staff-border);background:white;color:#617083;white-space:nowrap;padding:8px 10px;border-radius:8px;font-size:10px;font-weight:850}
+.staff498-tabs button.active{background:#f39522;border-color:#f39522;color:#241809}
+.staff498-filterbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:#fffdf8;border-bottom:1px solid var(--staff-border)}
+.staff498-filterbar select,.staff498-filterbar input{min-height:40px;border:1px solid var(--staff-border);background:#f9f5ee;border-radius:9px;padding:9px 12px;color:var(--staff-ink);font-size:11px;max-width:100%;flex:1 1 120px;outline:0}
+.staff498-filterbar input{flex:1 1 185px}
+.staff498-filterbar select:focus,.staff498-filterbar input:focus{border-color:#f39522}
+.staff498-list{display:grid}
+.staff498-row{border:0;border-bottom:1px solid var(--staff-border);background:#fffdf8;display:flex;gap:12px;align-items:center;width:100%;min-height:71px;padding:13px 15px;text-align:left}
+.staff498-row:last-child{border-bottom:0}
+.staff498-row:hover{background:#fff6e9}
+.staff498-avatar{width:35px;height:35px;flex:0 0 35px;display:grid;place-items:center;background:#ffedce;color:#a95b09;border-radius:10px;font-weight:900}
+.staff498-rowInfo{min-width:0;display:grid;flex:1;gap:4px}
+.staff498-rowInfo strong{color:var(--staff-ink);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.staff498-rowInfo small{color:var(--staff-muted);font-size:10px;line-height:1.5}
+.staff498-rowBadges{display:flex;flex-direction:column;gap:4px;align-items:flex-end;text-align:right}
+.staff498-rowBadges span{display:inline-block;padding:5px 8px;border-radius:8px;font-size:10px;line-height:1.3;font-weight:850}
+.staff498-rowBadges .good{background:#e4f6ed;color:#087b4d}
+.staff498-rowBadges .warn{background:#fff1e0;color:#b65f06}
+.staff498-rowBadges small{font-size:10px;color:var(--staff-muted)}
+.staff498-detail{position:sticky;top:86px;padding:18px}
+.staff498-detailHead{border-bottom:1px solid var(--staff-border);padding-bottom:13px;margin-bottom:8px}
+.staff498-detailHead small{font-size:9px;letter-spacing:.13em;font-weight:850;color:#ce760e}
+.staff498-detailHead h3{font-size:17px;font-weight:850;margin:5px 0;color:var(--staff-ink)}
+.staff498-detailHead p{font-size:11px;color:var(--staff-muted);margin:0}
+.staff498-info{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--staff-border);font-size:11px}
+.staff498-info span{color:var(--staff-muted)}
+.staff498-info b{font-size:11px;max-width:55%;text-align:right;overflow-wrap:anywhere}
+.staff498-proof{border:1px solid #f39522;border-radius:9px;padding:11px;margin-top:12px;background:#fff8ec;color:#ac5d0a;font-size:11px;font-weight:850;width:100%}
+.staff498-review{margin-top:17px}
+.staff498-review label{font-size:11px;color:var(--staff-ink);font-weight:850}
+.staff498-review textarea{width:100%;border:1px solid var(--staff-border);border-radius:9px;background:#fffefa;padding:12px;margin-top:8px;font:inherit;font-size:12px;resize:vertical;min-height:80px}
+.staff498-reviewBtns,.staff498-final{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.staff498-reviewBtns button,.staff498-final button{border:1px solid var(--staff-border);background:#fff7eb;border-radius:9px;font-size:10px;font-weight:850;padding:11px;min-height:40px;color:#95500a}
+.staff498-reviewBtns button:first-child{background:#f39522;color:#231609;border-color:#f39522}
+.staff498-final{border-top:1px solid var(--staff-border);padding-top:12px;margin-top:16px}
+.staff498-final p{grid-column:1/-1;font-size:11px;color:var(--staff-muted);margin:0}
+.staff498-final button:first-of-type{background:#14885c;border-color:#14885c;color:#fff}
+.staff498-final button:last-of-type{color:#ca343b;background:#fff3f3;border-color:#ffd3d3}
+.staff498 button:disabled{opacity:.65;cursor:not-allowed}
+.staff498 #staff498Message{font-size:11px;color:#16835e;line-height:1.6}
+.staff498 #staff498Message.error{color:#c63b3b}
+.staff498-empty{font-size:12px;text-align:center;padding:40px 20px;color:var(--staff-muted);line-height:1.7}
+@media(max-width:1050px){.staff498-layout{grid-template-columns:1fr}.staff498-detail{position:static}}
+@media(max-width:620px){.staff498-hero{flex-direction:column;align-items:flex-start;padding:16px}.staff498-hero h2{font-size:18px}.staff498-layout{gap:9px}.staff498-row{padding:12px}.staff498-detail{padding:14px}.staff498-tabs{gap:5px}.staff498-filterbar select{flex:1 1 42%}.staff498-filterbar input{flex:1 1 100%}}
+html.mdark .staff498{filter:invert(1) hue-rotate(180deg)}
+html.mdark .staff498 img{filter:invert(1) hue-rotate(180deg)}
