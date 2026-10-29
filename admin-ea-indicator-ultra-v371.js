@@ -247,7 +247,7 @@ api.tab=function(){const value=oldTab.apply(api,arguments);sync();return value};
 const oldProduct=api.productForm;
 api.productForm=async function(){const value=await oldProduct.apply(api,arguments);decorateModal('product');return value};
 const oldRequest=api.requestForm;
-api.requestForm=async function(){const value=await oldRequest.apply(api,arguments);decorateModal('request');return value};
+api.requestForm=async function(){const pending=oldRequest.apply(api,arguments);decorateModal('request');return await pending};
 function start(){sync();setTimeout(sync,300)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
 else start();
