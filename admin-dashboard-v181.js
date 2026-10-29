@@ -95,7 +95,21 @@ function renderHealth(ca){var b=document.getElementById('ad181Health');if(!b)ret
 function initials(v){var s=String(v||'Admin').trim().split(/\s+/).map(function(x){return x[0]||''}).join('').toUpperCase();return s.slice(0,2)||'A'}
 function renderActivity(){var b=document.getElementById('ad181Activity');if(!b)return;var rows=(cache.dashboard&&Array.isArray(cache.dashboard.logs)?cache.dashboard.logs:[]);if(!rows.length){b.innerHTML='<div class="ad181-health-row"><span>No audit events for '+esc(periodLabel())+'.</span></div>';return}b.innerHTML=rows.slice(0,6).map(function(r){var d=parseDate(r.created_at),name=r.actor_name||r.actor_email||'Admin',summary=r.summary||String(r.action||'Activity').replace(/_/g,' '),sub=[String(r.action||'').replace(/_/g,' '),r.section].filter(Boolean).join(' · ');return'<div class="ad181-activity-row"><div class="ad181-avatar">'+esc(initials(name))+'</div><div class="ad181-activity-copy"><strong>'+esc(name)+'</strong><span>'+esc(summary+(sub?' · '+sub:''))+'</span></div><div class="ad181-time">'+esc(fmtTime(d))+'</div></div>'}).join('')}
 function renderAll(){var sel=document.getElementById('ad181Period');if(sel&&sel.value!==selectedPeriod)sel.value=selectedPeriod;var c=calc();renderKpis(c);renderGrowth();renderEnrollment(c);renderPayments(c);renderRevenue();renderRecent();renderMonthly();renderHealth(c);renderActivity()}
-async function load(force){
+var dashboardInflight=null, dashboardInflightPeriod='';
+async function load(force) {
+  // Login, sidebar activation and auto-refresh may ask for the same data together.
+  // Share the pending request; a month change still starts its own new request.
+  const key=selectedPeriod;
+  if(dashboardInflight && dashboardInflightPeriod===key) return dashboardInflight;
+  const job=loadInternal(force);
+  dashboardInflight=job;
+  dashboardInflightPeriod=key;
+  try{return await job}
+  finally{
+    if(dashboardInflight===job){dashboardInflight=null;dashboardInflightPeriod=''}
+  }
+}
+async function loadInternal(force){
   if(!install())return;
   if(!force&&dashboardLoadedAt&&dashboardLoadedKey===selectedPeriod&&Date.now()-dashboardLoadedAt<15000){renderAll();return}
   var c=db();if(!c)return;
