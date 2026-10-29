@@ -11,7 +11,7 @@ test('Both admin routes ship interactive status/product filters and staff grant 
   const html=read(name);
   for(const asset of ['admin-eai-review-v498.css?v=20261029-v498',
                       'admin-eai-staff-access-v498.js?v=20261029-v498',
-                      'admin-ea-indicator-enterprise-v374.js?v=20261029-v498-filters']){
+                      'admin-ea-indicator-enterprise-v374.js?v=20261029-v500-filter-sort']){
    assert.equal(html.split(asset).length-1,1,asset+' missing on '+name);
   }
   assert.ok(html.indexOf('admin-eai-review-v498.css')<html.indexOf('admin-eai-staff-access-v498.js'));
