@@ -47,7 +47,7 @@ function approveAndDeliver(){
  const verification=verificationFor(r);
  if(verification.state!=='ok'){requestError('This broker and exact MT5 account is not approved or has insufficient verified funding. Correct the verification before issuing a file.');return}
  const input=document.getElementById('eaiALicensedFile');
- if(!input?.files?.length){requestError('First choose the individual compiled EX5/EX4 file for this student.');input?.focus();return}
+ if(!input?.files?.length){requestError('First choose the individual compiled EX5/EX4 file for this student.');input?.focus?.();return}
  const account=String(document.getElementById('eaiALicenseAccount')?.value||'').trim();
  if(account!==String(r.trading_account_id||'').trim()){requestError('Licensed MT5 account must match the verified trading account on this request.');return}
  const note=document.getElementById('eaiURequestError');if(note){note.hidden=true;note.textContent=''}
