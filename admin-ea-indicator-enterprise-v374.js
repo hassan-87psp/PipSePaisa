@@ -150,7 +150,8 @@ function statusMatch(r,key){
  const st=String(r.status||'').toLowerCase();
  if(key==='total')return true;
  if(key==='new')return st==='pending';
- if(key==='ready')return st==='ready'||st==='license_preparing';
+ if(key==='approved')return st==='approved'||st==='license_preparing';
+ if(key==='ready')return st==='ready';
  if(key==='attention')return r._priority==='attention';
  if(key==='verified')return r._priority==='verified';
  if(key==='issued')return issuedStatuses.has(st);
