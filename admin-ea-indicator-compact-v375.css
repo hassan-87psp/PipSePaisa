@@ -14,10 +14,10 @@
 /* Hide redundant legacy blocks before the UI scripts have finished booting. */
 #page-eaindicator #eaiUHero,
 #page-eaindicator #eaiAPanel,
-#page-eaindicator #eaiASSupportBar:not(#eaiV375Insights *),
-#page-eaindicator #eaiASIssues:not(#eaiV375Insights *),
-#page-eaindicator #eaiOOperations:not(#eaiV375Insights *),
-#page-eaindicator #eaiUAdvanced:not(#eaiV375Insights *){
+#page-eaindicator:not(.eaiV375-insights) #eaiASSupportBar,
+#page-eaindicator:not(.eaiV375-insights) #eaiASIssues,
+#page-eaindicator:not(.eaiV375-insights) #eaiOOperations,
+#page-eaindicator:not(.eaiV375-insights) #eaiUAdvanced{
  display:none!important
 }
 #page-eaindicator.eaiV375-ready{
