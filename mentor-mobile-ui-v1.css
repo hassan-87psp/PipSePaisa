@@ -1,0 +1,232 @@
+/*
+ * PSP Mentor native-style mobile shell v1.
+ * Strictly mobile: desktop Mentor UI remains untouched.
+ * Overrides older legacy mobile nav implementations only at <=700px.
+ */
+#mentorMobileBottomNav { display:none; }
+
+@media screen and (max-width:700px) {
+  :root {
+    --pspm-nav-height:70px;
+    --pspm-paper:#f5f1e9;
+    --pspm-surface:#fffefa;
+    --pspm-ink:#172033;
+    --pspm-muted:#637187;
+    --pspm-border:#e9dfcf;
+    --pspm-orange:#d97706;
+  }
+  html,body { max-width:100%!important;overflow-x:clip!important;overscroll-behavior-x:none; }
+  body { background:var(--pspm-paper)!important;-webkit-tap-highlight-color:transparent; }
+  body.pspm-sheet-open { overflow:hidden!important;touch-action:pan-x; }
+  .app.show { display:block!important;min-height:100dvh!important;background:var(--pspm-paper)!important; }
+  .app.show > #sidebar { display:none!important; }
+  .app.show .main {
+    display:block!important;margin:0!important;width:100%!important;max-width:100%!important;
+    min-height:100dvh!important;overflow:visible!important;
+    padding:0 0 calc(var(--pspm-nav-height) + env(safe-area-inset-bottom,0px) + 24px)!important;
+    background:var(--pspm-paper)!important;
+  }
+  .app.show .content {
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    padding:14px 12px 22px!important;margin:0!important;overflow:visible!important;
+    background:var(--pspm-paper)!important;
+  }
+  .app.show .page { min-width:0!important;max-width:100%!important; }
+  .app.show .page > * { max-width:100%;min-width:0; }
+
+  /* Lightweight app header with working More/menu and notifications. */
+  .app.show .topbar {
+    position:sticky!important;top:0!important;z-index:600!important;
+    min-height:calc(66px + env(safe-area-inset-top,0px))!important;height:auto!important;
+    padding:calc(8px + env(safe-area-inset-top,0px)) 14px 9px!important;
+    display:flex!important;align-items:center!important;gap:11px!important;
+    background:rgba(255,253,248,.97)!important;border-bottom:1px solid var(--pspm-border)!important;
+    box-shadow:0 3px 16px rgba(30,40,60,.055)!important;
+    backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;
+  }
+  .app.show .topbar > div:first-child { min-width:0!important;flex:1 1 auto!important;gap:11px!important; }
+  .app.show .topbar > div:first-child > div:last-child { min-width:0; }
+  .app.show .topbar .menu-toggle {
+    display:grid!important;place-items:center!important;flex:0 0 42px!important;
+    width:42px!important;height:42px!important;border-radius:14px!important;
+    border:1px solid #edddc7!important;background:#fff7eb!important;
+    box-shadow:none!important;color:var(--pspm-orange)!important;
+    font-size:23px!important;line-height:1!important;cursor:pointer;
+    padding:0!important;
+  }
+  .app.show .topbar h1 {
+    font-size:18px!important;font-weight:850!important;letter-spacing:-.025em!important;
+    line-height:1.17!important;color:var(--pspm-ink)!important;margin:0!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+  }
+  .app.show .topbar .sub {
+    margin-top:3px!important;font-size:10px!important;line-height:1.25!important;
+    color:var(--pspm-muted)!important;max-width:230px!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+  }
+  .app.show .topbar > div:last-child { flex:0 0 auto!important;gap:7px!important; }
+  .app.show #mktSession,.app.show #whoami { display:none!important; }
+  .app.show .topbar .bell {
+    margin:0!important;min-width:42px!important;width:42px!important;height:42px!important;
+    border-radius:14px!important;background:var(--pspm-surface)!important;
+    border:1px solid var(--pspm-border)!important;color:var(--pspm-orange)!important;
+    box-shadow:none!important;transform:none!important;
+  }
+  .app.show #bellMenu { right:-3px!important;width:min(330px,calc(100vw - 28px))!important;max-height:65dvh!important; }
+  .app.show .topbar #mThemeBtn { width:38px!important;height:38px!important;min-width:38px!important;padding:0!important; }
+  
+  /* Dedicated bottom nav: readable on narrow screens, no sideways scrolling. */
+  .app.show #mentorMobileBottomNav {
+    position:fixed;bottom:0;left:0;right:0;z-index:950;
+    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;
+    width:100%;height:calc(var(--pspm-nav-height) + env(safe-area-inset-bottom,0px));
+    margin:0;padding:7px 8px calc(6px + env(safe-area-inset-bottom,0px));
+    border-top:1px solid var(--pspm-border);background:rgba(255,254,250,.98);
+    box-shadow:0 -5px 20px rgba(18,31,48,.10);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    touch-action:manipulation;
+  }
+  #mentorMobileBottomNav .pspm-tab {
+    appearance:none;border:1px solid transparent;border-radius:14px;
+    background:transparent;color:var(--pspm-muted);cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:3px;min-width:0;min-height:52px;padding:4px 2px;
+    font-family:inherit;font-size:10px;font-weight:750;line-height:1.2;
+    white-space:nowrap;overflow:hidden;
+  }
+  #mentorMobileBottomNav .pspm-icon { font-size:20px;line-height:1.15; }
+  #mentorMobileBottomNav .pspm-label { max-width:100%;overflow:hidden;text-overflow:ellipsis; }
+  #mentorMobileBottomNav .pspm-tab.active {
+    color:var(--pspm-orange);background:#fff3e3;border-color:#f4d8b3;
+  }
+  #mentorMobileBottomNav .pspm-tab:focus-visible,
+  .app.show .topbar .menu-toggle:focus-visible {
+    outline:3px solid #f6bb68;outline-offset:1px;
+  }
+  body.pspm-keyboard-open .app.show #mentorMobileBottomNav { display:none!important; }
+  body.pspm-keyboard-open .app.show .main { padding-bottom:16px!important; }
+
+  /* Mobile content cards and dashboard. */
+  .app.show .content .card,.app.show .content .price,.app.show .content .sigc {
+    width:100%;max-width:100%;min-width:0;
+    border-radius:17px!important;padding:14px!important;
+    background:var(--pspm-surface)!important;border:1px solid var(--pspm-border)!important;
+    box-shadow:0 3px 13px rgba(18,31,48,.045)!important;
+  }
+  .app.show .content .grid { gap:11px!important; }
+  #pg-performance #perfHero {
+    padding:17px!important;border-radius:17px!important;margin-bottom:13px!important;
+    background:linear-gradient(120deg,#fff1df,#fffbf4)!important;
+    border-color:#eed5b0!important;
+  }
+  #pg-performance #perfHello { font-size:22px!important;line-height:1.18!important; }
+  #pg-performance #perfResults .sigdash {
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:9px!important;
+  }
+  #pg-performance #perfResults .sigdash .tile {
+    min-width:0!important;padding:13px 12px!important;border-radius:15px!important;
+    background:var(--pspm-surface)!important;border:1px solid var(--pspm-border)!important;
+  }
+  #pg-performance #perfResults .sigdash .tile:first-child { grid-column:1/-1; }
+  #pg-performance #perfResults .sigdash .tile .lab {
+    font-size:10px!important;line-height:1.25!important;overflow-wrap:anywhere;
+  }
+  #pg-performance #perfResults .sigdash .tile .val {
+    font-size:clamp(18px,5.3vw,25px)!important;overflow-wrap:anywhere;line-height:1.2!important;
+  }
+  #pg-performance .perf-rowA,#pg-performance .perf-rowB {
+    display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:11px!important;
+  }
+  .app.show .content .row { min-width:0;gap:9px!important; }
+  .app.show .content .row > * { min-width:0;overflow-wrap:anywhere; }
+  .app.show .content img,.app.show .content canvas { max-width:100%!important;height:auto; }
+  .app.show .content .stats { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+  .app.show .content .price-grid,.app.show .content .three-col,.app.show .content .two-col {
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  /* Do not let wide signal editors or analysis grids create horizontal overflow. */
+  #pg-signals > div,#pg-charts > div,#pg-articles > div,#pg-banners > div {
+    min-width:0!important;max-width:100%!important;
+  }
+  #pg-signals > div { display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important; }
+  #pg-signals button { touch-action:manipulation; }
+  #pg-signals .card:first-child > div[style*="display:grid"] { gap:10px!important; }
+  #pg-charts .psp-rh-toolbar,#pg-articles .psp-rh-toolbar {
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;
+  }
+  #pg-charts .psp-rh-search,#pg-articles .psp-rh-search { grid-column:1/-1!important; }
+  #pg-charts .psp-rh-hero-row,#pg-articles .psp-rh-hero-row { flex-direction:column!important;align-items:stretch!important; }
+  #pg-charts .psp-rh-grid,#pg-articles .psp-rh-grid,#pg-banners .psp-rh-grid {
+    grid-template-columns:minmax(0,1fr)!important;gap:12px!important;
+  }
+  .app.show .content .psp-rh-shell { min-width:0!important;max-width:100%!important; }
+  .app.show .content .psp-rh-dialog {
+    width:100%!important;max-width:100%!important;
+    max-height:calc(100dvh - 20px)!important;overflow:auto!important;
+    border-radius:17px!important;
+  }
+  .app.show .content .psp-rh-modal.open { z-index:12000!important;padding:8px!important; }
+  .app.show .content .psp-rh-modal-foot {
+    padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;
+    flex-wrap:wrap!important;
+  }
+  .app.show .content .psp-rh-form-grid { grid-template-columns:minmax(0,1fr)!important; }
+  /* Legacy global input rule can enlarge checkboxes to full width on mobile. */
+  .app.show input[type="checkbox"],.app.show input[type="radio"] {
+    width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;
+    padding:0!important;margin:0!important;flex:0 0 18px!important;border-radius:4px!important;
+    box-shadow:none!important;
+  }
+  .app.show input[type="file"] { max-width:100%!important;height:auto!important;min-width:0!important; }
+  .app.show .tick-chip { min-width:0!important; }
+  .app.show .content button:not(.del) { max-width:100%; }
+  .app.show .content input:not([type="checkbox"]):not([type="radio"]),
+  .app.show .content select,.app.show .content textarea {
+    max-width:100%!important;min-width:0!important;font-size:16px!important;
+  }
+  .pspm-table-scroll {
+    width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;border-radius:10px;
+  }
+  .pspm-table-scroll > table { min-width:max-content; }
+  .pspm-table-scroll:focus-visible { outline:2px solid #d97706;outline-offset:1px; }
+
+  /* Turn existing Mentor More drawer into a native-style bottom sheet. */
+  #mDrawerOv {
+    z-index:10800!important;background:rgba(15,23,42,.48)!important;
+    backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+  }
+  #mDrawer {
+    position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;
+    width:100%!important;max-width:100%!important;height:min(84dvh,720px)!important;
+    padding:18px 13px calc(20px + env(safe-area-inset-bottom,0px))!important;
+    border-radius:22px 22px 0 0!important;background:#fffefa!important;
+    border:1px solid var(--pspm-border)!important;box-shadow:0 -18px 60px rgba(15,23,42,.23)!important;
+    transform:translateY(110%)!important;transition:transform .23s ease!important;
+    overflow-y:auto!important;overscroll-behavior:contain!important;z-index:10999!important;
+  }
+  #mDrawer.open { left:0!important;transform:translateY(0)!important; }
+  #mDrawer::before {
+    content:"";position:sticky;display:block;top:0;width:38px;height:4px;
+    border-radius:10px;margin:-6px auto 15px;background:#cdd2da;
+  }
+  #mDrawer .drw-item {
+    min-height:47px!important;border-radius:12px!important;font-size:14px!important;
+    padding:10px 13px!important;color:#334155!important;touch-action:manipulation;
+  }
+  #mDrawer .drw-item:active { background:#fff3e3!important; }
+  #mDrawer .drw-item.psp-portal-install { background:#fff5e9!important;color:#a65e07!important; }
+  #mDrawer .drw-sep { padding-top:12px!important; }
+  .psp-portal-install-dialog { z-index:20000!important; }
+}
+@media screen and (max-width:370px) {
+  #mentorMobileBottomNav .pspm-tab { font-size:9.5px;gap:2px; }
+  #mentorMobileBottomNav .pspm-icon { font-size:18px; }
+  .app.show .topbar h1 { font-size:16px!important; }
+  .app.show .topbar .sub { max-width:160px!important; }
+  .app.show .content { padding:12px 10px 18px!important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  #mDrawer { transition:none!important; }
+}
