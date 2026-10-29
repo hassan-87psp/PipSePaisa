@@ -74,3 +74,33 @@ test('Logging out in any portal revokes only its own session, never the other in
   assert.ok(!src.includes('await sb.auth.signOut();'),file+' must not do global signout');
  }
 });
+
+test('Admin and Mentor sidebars expose Install App with the correct action',()=>{
+ for(const page of ['admin/index.html','admin-panel.html','psp-mentor.html']){
+  const html=read(page);
+  assert.ok(html.includes('id="pspPortalInstallNav"'),page+' installs from sidebar');
+  assert.ok(html.includes('onclick="pspPortalInstall()"'),page+' activates installer');
+  assert.ok(html.includes('data-psp-install-label'),page+' has install state label');
+  assert.ok(html.includes('data-psp-install-badge'),page+' has install badge');
+  assert.ok(html.includes('src="/portal-install-v1.js?v=20261030-v1"'),page+' loads installer');
+  assert.equal(html.split('id="pspPortalInstallNav"').length-1,1,page+' has one sidebar install item');
+ }
+ const mentor=read('psp-mentor.html');
+ assert.ok(mentor.includes('id="pspPortalInstallDrawerNav"'),'Mentor mobile More drawer exposes install item');
+ assert.ok(mentor.includes('mDrawerClose();pspPortalInstall()'),'Mentor mobile installer closes More drawer before install');
+ assert.ok(mentor.includes('window.pspPortalInstallSync?.()'),'Mentor mobile drawer refreshes install status');
+});
+
+test('Sidebar installer safely prompts or explains browser-specific installation',()=>{
+ const js=read('portal-install-v1.js');
+ assert.doesNotThrow(()=>new Function(js),'installer is valid JavaScript');
+ assert.ok(js.includes("'beforeinstallprompt'"),'captures the Android native install prompt');
+ assert.ok(js.includes('await prompt.prompt()'),'uses browser install prompt when available');
+ assert.ok(js.includes('await prompt.userChoice'),'awaits actual browser choice');
+ assert.ok(js.includes("'appinstalled'"),'updates installed status only after native event');
+ assert.ok(js.includes("guide('browser')"),'provides Chrome manual instructions when prompt unavailable');
+ assert.ok(js.includes("guide('ios')"),'provides Safari Add to Home Screen instructions');
+ assert.ok(js.includes("guide('installed')"),'shows installed status when in standalone app');
+ assert.ok(js.includes('window.pspPortalInstallSync=sync'),'supports late-rendered Mentor mobile More menu');
+ assert.ok(!/localStorage\.clear\(|sessionStorage\.clear\(|auth\.signOut/.test(js),'installer must not touch existing logins');
+});
