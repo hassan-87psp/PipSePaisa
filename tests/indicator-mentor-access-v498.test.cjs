@@ -64,6 +64,9 @@ test('Mentor new navigation, permissions and active UI use Website Access Approv
  assert.match(mentor,/s503Verification/);
  assert.match(mentor,/s503Date/);
  assert.match(mentor,/manualFilter=true/);
+ // Guard Mentor refresh against changing the default Pending status when unrelated filters hide its rows.
+ assert.match(mentor,/!st\.rows\.some\(r=>\['pending','submitted'\]\.includes\(status\(kind,r\)\)\)/);
+ assert.doesNotMatch(mentor,/st\.filter==='pending'&&!visible\(kind\)\.length/);
   assert.match(mentor,/psp_staff_queue_v498/);
  assert.match(mentor,/psp_staff_my_v498/);
  assert.match(mentor,/indicator_issue/);
