@@ -1,0 +1,277 @@
+/* PipSePaisa V375 | Executive Compact Workspace
+   Reference palette & hierarchy: Finance v179 + Admin Command Center v181.
+   Intent: actions above the fold, no duplicated counters, full clarity. */
+#page-eaindicator{
+ --eaiV375-paper:#fffdf9;--eaiV375-warm:#f9f4eb;
+ --eaiV375-line:#e9ddcb;--eaiV375-ink:#152033;
+ --eaiV375-muted:#7f8da1;--eaiV375-accent:#fb9201;
+}
+[data-theme="dark"] #page-eaindicator{
+ --eaiV375-paper:#111a27;--eaiV375-warm:#182335;
+ --eaiV375-line:#263448;--eaiV375-ink:#f4f7fb;
+ --eaiV375-muted:#9ba8b9;--eaiV375-accent:#ffaa40;
+}
+/* Hide redundant legacy blocks before the UI scripts have finished booting. */
+#page-eaindicator #eaiUHero,
+#page-eaindicator #eaiAPanel,
+#page-eaindicator #eaiASSupportBar:not(#eaiV375Insights *),
+#page-eaindicator #eaiASIssues:not(#eaiV375Insights *),
+#page-eaindicator #eaiOOperations:not(#eaiV375Insights *),
+#page-eaindicator #eaiUAdvanced:not(#eaiV375Insights *){
+ display:none!important
+}
+#page-eaindicator.eaiV375-ready{
+ --eaiU-surface:var(--eaiV375-paper);--eaiU-surface2:var(--eaiV375-warm);
+ --eaiU-subtle:var(--eaiV375-warm);--eaiU-text:var(--eaiV375-ink);
+ --eaiU-muted:var(--eaiV375-muted);--eaiU-border:var(--eaiV375-line);
+ min-width:0;padding:0!important;background:transparent!important
+}
+#page-eaindicator.eaiV375-ready .eaiA-head,
+#page-eaindicator.eaiV375-ready .eaiA-tabs,
+#page-eaindicator.eaiV375-ready #eaiUGuide,
+#page-eaindicator.eaiV375-ready #eaiAPFilter{
+ display:none!important
+}
+/* Slim header replaces both previous oversized hero + duplicate overview. */
+#page-eaindicator .eaiV375-compactHeader{
+ display:flex;align-items:center;justify-content:space-between;gap:18px;
+ margin:0 0 12px;padding:13px 18px!important;
+ background:linear-gradient(113deg,var(--eaiV375-paper) 0%,var(--eaiV375-paper) 62%,#fff0d9 100%);
+ border:1px solid var(--eaiV375-line);border-radius:13px;
+ box-shadow:0 5px 18px rgba(49,37,20,.035)
+}
+[data-theme="dark"] #page-eaindicator .eaiV375-compactHeader{
+ background:linear-gradient(113deg,#111a27,#172236)
+}
+#page-eaindicator .eaiV375-title{min-width:0}
+#page-eaindicator .eaiV375-kicker{
+ display:block;color:#db7800;font-weight:900;letter-spacing:.14em;
+ font-size:8.5px;line-height:1.3;margin-bottom:4px
+}
+#page-eaindicator .eaiV375-kicker span{color:var(--eaiV375-muted);padding:0 3px}
+#page-eaindicator .eaiV375-compactHeader h3{
+ font-size:19px;font-weight:910;letter-spacing:-.035em;line-height:1.18;
+ color:var(--eaiV375-ink)!important;margin:0 0 4px
+}
+#page-eaindicator .eaiV375-compactHeader h3 span{color:#c96e06}
+#page-eaindicator .eaiV375-compactHeader p{
+ font-size:10.5px;line-height:1.55;color:var(--eaiV375-muted);margin:0
+}
+#page-eaindicator .eaiV375-addBtn{
+ min-height:38px;border-radius:9px;padding:10px 16px;
+ background:linear-gradient(180deg,#ff9f16,#fb8500);border:1px solid #f08e0c;
+ color:#261506;font:inherit;font-size:11px;font-weight:900;
+ white-space:nowrap;cursor:pointer;box-shadow:0 5px 12px rgba(251,146,1,.12)
+}
+#page-eaindicator .eaiV375-addBtn:hover{background:#ffad38}
+#page-eaindicator .eaiV375-addBtn:focus-visible{outline:2px solid #fb9201;outline-offset:3px}
+/* Four small KPIs: the job queue must be visible without scrolling. */
+#page-eaindicator .eaiV374-metrics{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:9px;margin:0 0 12px!important
+}
+#page-eaindicator .eaiV374-metric{
+ display:flex;flex-direction:column;justify-content:center;position:relative;
+ min-height:83px!important;padding:12px 15px 12px!important;
+ background:var(--eaiV375-paper)!important;border:1px solid var(--eaiV375-line)!important;
+ border-radius:12px!important;box-shadow:0 3px 11px rgba(45,32,15,.024)!important;
+ transition:border-color .14s,transform .14s;cursor:pointer
+}
+#page-eaindicator .eaiV374-metric:after{display:none!important}
+#page-eaindicator .eaiV374-metric:hover{
+ transform:translateY(-1px);border-color:var(--metric-color)!important
+}
+#page-eaindicator .eaiV374-metricTop{align-items:center}
+#page-eaindicator .eaiV374-metricTop>span:first-child{
+ font-size:10.5px!important;line-height:1.3;color:var(--eaiV375-muted);font-weight:820
+}
+#page-eaindicator .eaiV374-metricIcon{
+ width:24px;height:24px;flex:0 0 24px;border-radius:7px;
+ font-size:11px;background:var(--metric-soft)
+}
+#page-eaindicator .eaiV374-value{
+ font-size:23px!important;font-weight:920;letter-spacing:-.03em;
+ margin:5px 0 0!important;line-height:1.1;color:var(--eaiV375-ink)
+}
+#page-eaindicator .eaiV374-metric small{display:none!important}
+#page-eaindicator .eaiV374-metricLine{height:2px!important;opacity:.75}
+/* Only one clear navigation. */
+#page-eaindicator .eaiV375-nav{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:16px;margin:0 0 11px;min-height:40px
+}
+#page-eaindicator .eaiV375-navInner{
+ display:inline-flex;align-items:center;gap:4px;padding:4px;
+ background:var(--eaiV375-paper);border:1px solid var(--eaiV375-line);
+ border-radius:11px;max-width:100%
+}
+#page-eaindicator .eaiV375-tab{
+ min-height:36px;padding:9px 15px;border:1px solid transparent;border-radius:8px;
+ background:transparent;color:var(--eaiV375-muted);
+ font-size:11px;font-weight:860;font-family:inherit;white-space:nowrap;cursor:pointer
+}
+#page-eaindicator .eaiV375-tab:hover{background:var(--eaiV375-warm);color:var(--eaiV375-ink)}
+#page-eaindicator .eaiV375-tab.active{
+ color:#231505;background:#fb9201;border-color:#f28a00;
+ box-shadow:0 2px 7px rgba(251,146,1,.15)
+}
+#page-eaindicator .eaiV375-tab:focus-visible{outline:2px solid #fb9201;outline-offset:3px}
+#page-eaindicator .eaiV375-navMeta{
+ color:var(--eaiV375-muted);font-size:10px;font-weight:700;
+ text-align:right;line-height:1.45
+}
+/* Application cards start immediately after navigation. */
+#page-eaindicator.eaiV375-ready.eaiV375-applications .eaiA-card{
+ padding:0!important;background:transparent!important;border:0!important;
+ box-shadow:none!important;margin:0!important;overflow:visible
+}
+#page-eaindicator.eaiV375-ready.eaiV375-applications #eaiAContent{
+ display:none!important
+}
+#page-eaindicator.eaiV375-ready.eaiV375-products #eaiV374Queue,
+#page-eaindicator.eaiV375-ready.eaiV375-products #eaiV375Insights,
+#page-eaindicator.eaiV375-ready.eaiV375-applications #eaiV375Insights,
+#page-eaindicator.eaiV375-ready.eaiV375-insights .eaiA-card,
+#page-eaindicator.eaiV375-ready.eaiV375-insights #eaiUProductFilters,
+#page-eaindicator.eaiV375-ready.eaiV375-insights #eaiV374Queue{
+ display:none!important
+}
+#page-eaindicator.eaiV375-ready.eaiV375-products #eaiUProductFilters{
+ display:flex!important;margin-bottom:9px;padding:10px!important
+}
+#page-eaindicator.eaiV375-ready.eaiV375-applications #eaiUProductFilters{
+ display:none!important
+}
+#page-eaindicator.eaiV375-ready .eaiV374-queue{
+ border:1px solid var(--eaiV375-line);border-radius:13px;
+ background:var(--eaiV375-paper);margin:0 0 14px;
+ box-shadow:0 4px 20px rgba(33,35,39,.03)
+}
+#page-eaindicator .eaiV374-queueHead{
+ padding:12px 15px!important;min-height:53px;gap:12px
+}
+#page-eaindicator .eaiV374-queueHead h3{
+ font-size:13px!important;font-weight:900;letter-spacing:-.02em
+}
+#page-eaindicator .eaiV374-queueHead p{
+ font-size:10px!important;line-height:1.4;margin:3px 0 0!important
+}
+#page-eaindicator .eaiV374-refresh{
+ min-height:33px!important;border-radius:8px;font-size:10px;
+ padding:7px 11px!important
+}
+#page-eaindicator .eaiV374-toolbar{
+ padding:9px 12px!important;gap:11px;min-height:51px;
+ background:var(--eaiV375-warm)
+}
+#page-eaindicator .eaiV374-pills{gap:5px}
+#page-eaindicator .eaiV374-pills button{
+ min-height:31px!important;border-radius:7px!important;padding:6px 9px!important;
+ font-size:10px!important
+}
+#page-eaindicator .eaiV374-pills button.active{background:#fb9201;color:#241605}
+#page-eaindicator .eaiV374-search{min-width:220px}
+#page-eaindicator .eaiV374-search input{
+ height:33px!important;font-size:10.5px!important
+}
+#page-eaindicator .eaiV374-list{display:grid}
+#page-eaindicator .eaiV374-item{
+ padding:12px 15px!important;min-height:76px;gap:14px;
+ grid-template-columns:minmax(160px,1.15fr) minmax(220px,1.65fr) minmax(168px,.95fr) 124px;
+ border-bottom:1px solid var(--eaiV375-line)
+}
+#page-eaindicator .eaiV374-item:last-child{border-bottom:0}
+#page-eaindicator .eaiV374-item:hover{background:var(--eaiV375-warm)}
+#page-eaindicator .eaiV374-avatar{
+ flex:0 0 34px;width:34px;height:34px;border-radius:10px;font-size:13px
+}
+#page-eaindicator .eaiV374-person{gap:9px}
+#page-eaindicator .eaiV374-personText strong{font-size:11px}
+#page-eaindicator .eaiV374-personText span{font-size:9.5px}
+#page-eaindicator .eaiV374-personText small{font-size:9px}
+#page-eaindicator .eaiV374-product strong{font-size:11px}
+#page-eaindicator .eaiV374-product span{font-size:9.5px;line-height:1.4}
+#page-eaindicator .eaiV374-flags{gap:5px}
+#page-eaindicator .eaiV374-broker,
+#page-eaindicator .eaiV374-stage{font-size:9px;padding:4px 7px}
+#page-eaindicator .eaiV374-actions button{
+ min-width:115px!important;min-height:36px!important;padding:9px 10px;
+ font-size:10px;border-radius:8px
+}
+#page-eaindicator .eaiV374-empty{padding:34px 16px}
+/* Advanced tools are never mixed with the daily queue. */
+#page-eaindicator #eaiV375Insights[hidden]{display:none!important}
+#page-eaindicator.eaiV375-ready.eaiV375-insights #eaiV375Insights{display:grid!important;gap:12px}
+#page-eaindicator .eaiV375-insightsHead{
+ background:var(--eaiV375-paper);border:1px solid var(--eaiV375-line);
+ border-radius:12px;padding:16px 18px
+}
+#page-eaindicator .eaiV375-insightsHead h3{
+ font-weight:900;font-size:14px;color:var(--eaiV375-ink);margin:0 0 4px
+}
+#page-eaindicator .eaiV375-insightsHead p{
+ color:var(--eaiV375-muted);margin:0;font-size:10.5px;line-height:1.5
+}
+#page-eaindicator.eaiV375-insights #eaiUAdvanced,
+#page-eaindicator.eaiV375-insights #eaiOOperations,
+#page-eaindicator.eaiV375-insights #eaiASSupportBar{
+ display:block!important
+}
+#page-eaindicator.eaiV375-insights #eaiASIssues:not([style*="display: none"]){
+ display:grid!important
+}
+#page-eaindicator.eaiV375-insights #eaiUAdvanced{
+ border:0!important;background:transparent!important;border-radius:0!important;margin:0!important
+}
+#page-eaindicator.eaiV375-insights #eaiUAdvanced>summary{display:none!important}
+#page-eaindicator.eaiV375-insights #eaiOOperations{
+ border:1px solid var(--eaiV375-line)!important;border-radius:13px!important;
+ background:var(--eaiV375-paper)!important;padding:18px!important
+}
+#page-eaindicator.eaiV375-insights .eaiAS-supportBar{
+ margin:0!important;border-radius:12px;padding:14px 16px
+}
+#page-eaindicator.eaiV375-insights .eaiAS-list{margin:0}
+/* Product catalog keeps original editing capabilities in the same visual language. */
+#page-eaindicator.eaiV375-products .eaiA-card{
+ border:1px solid var(--eaiV375-line)!important;background:var(--eaiV375-paper)!important;
+ border-radius:13px!important;padding:8px!important
+}
+#page-eaindicator.eaiV375-products .eaiA-table th{background:var(--eaiV375-warm)}
+#page-eaindicator.eaiV375-products .eaiA-table td{font-size:11.5px!important;padding:13px!important}
+@media(max-width:1100px){
+ #page-eaindicator .eaiV374-toolbar{flex-wrap:wrap}
+ #page-eaindicator .eaiV374-search{max-width:100%;width:100%}
+ #page-eaindicator .eaiV374-item{grid-template-columns:minmax(140px,1fr) minmax(190px,1.4fr) minmax(135px,1fr) 115px;gap:8px}
+}
+@media(max-width:850px){
+ #page-eaindicator .eaiV374-item{grid-template-columns:1fr 1fr;gap:10px}
+ #page-eaindicator .eaiV374-actions{justify-content:flex-end}
+ #page-eaindicator .eaiV374-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #page-eaindicator .eaiV374-metric{min-height:75px!important}
+ #page-eaindicator .eaiV375-navMeta{display:none}
+}
+@media(max-width:580px){
+ #page-eaindicator .eaiV375-compactHeader{padding:13px!important}
+ #page-eaindicator .eaiV375-compactHeader h3{font-size:17px}
+ #page-eaindicator .eaiV375-compactHeader p{font-size:10px}
+ #page-eaindicator .eaiV375-addBtn{padding:8px 10px;font-size:10px}
+ #page-eaindicator .eaiV374-metric{padding:10px 12px!important;min-height:72px!important}
+ #page-eaindicator .eaiV374-value{font-size:21px!important}
+ #page-eaindicator .eaiV374-metricTop>span:first-child{font-size:10px!important}
+ #page-eaindicator .eaiV375-navInner{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+ #page-eaindicator .eaiV375-nav{width:100%}
+ #page-eaindicator .eaiV375-tab{padding:9px 6px;font-size:10px!important;white-space:normal}
+ #page-eaindicator .eaiV374-queueHead{padding:10px 12px!important}
+ #page-eaindicator .eaiV374-item{grid-template-columns:1fr;padding:12px!important;gap:9px}
+ #page-eaindicator .eaiV374-product,#page-eaindicator .eaiV374-flags{padding-left:43px}
+ #page-eaindicator .eaiV374-actions{justify-content:stretch}
+ #page-eaindicator .eaiV374-actions button{width:100%}
+ #page-eaindicator .eaiV374-toolbar{padding:9px!important}
+ #page-eaindicator .eaiV374-pills{width:100%;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
+ #page-eaindicator .eaiV374-pills button{flex:0 0 auto}
+}
+@media(prefers-reduced-motion:reduce){
+ #page-eaindicator .eaiV375-addBtn,#page-eaindicator .eaiV374-metric,
+ #page-eaindicator .eaiV374-item{animation:none!important;transition:none!important}
+}
