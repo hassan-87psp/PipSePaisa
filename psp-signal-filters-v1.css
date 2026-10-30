@@ -86,3 +86,15 @@
  }
  #page-signals #sigTimeFilters .sig-fbtn{min-width:0;padding:8px 2px!important;white-space:nowrap}
 }
+
+/* Keep Reset Filters accessible without adding another bulky header. */
+@media (min-width:761px){
+ #page-signals .psp-signal-filters .psp-sf-head{
+  display:flex!important;justify-content:flex-end;align-items:center;
+  gap:0;margin:-7px 0 5px;
+ }
+ #page-signals .psp-signal-filters .psp-sf-head>div{display:none!important}
+ #page-signals .psp-signal-filters .psp-sf-reset{
+  min-height:28px;padding:5px 10px;font-size:10px;border-radius:8px;
+ }
+}
