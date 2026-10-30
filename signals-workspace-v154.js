@@ -160,7 +160,7 @@ function renderWorkspace(mode){
 async function load(mode){
  const c=db(),box=document.getElementById('psp154-list-'+mode);if(!box)return;
  if(!c){box.innerHTML='<div class="psp154-empty">Unable to connect to signals database. Please refresh and try again.</div>';return;}
- let q=c.from('signals').select('*').order('created_at',{ascending:false}).limit(100);
+ let q=c.from('signals').select('*').order('created_at',{ascending:false}).limit(500);
  if(mode==='mentor'){
    const oid=await resolveOwnerId(mode);
    if(!oid){box.innerHTML='<div class="psp154-empty">Mentor session is not ready. Please refresh the page.</div>';return;}
@@ -171,7 +171,10 @@ async function load(mode){
 }
 function drawTable(mode){
  const box=document.getElementById('psp154-list-'+mode);if(!box)return;
- const list=rows(mode).filter(s=>currentView(mode)==='active'?!isFinished(s):isFinished(s));
+ const all=rows(mode).filter(s=>currentView(mode)==='active'?!isFinished(s):isFinished(s));
+ const filters=window.PSPSignalFilters;
+ const list=filters?filters.filter(mode,all):all;
+ if(filters)filters.mount(mode,box,all,()=>drawTable(mode));
  if(!list.length){box.innerHTML='<div class="psp154-empty">'+(currentView(mode)==='active'?'No active signals right now. Check History for past results.':'No closed signals yet.')+'</div>';return;}
  box.innerHTML='<table class="psp154-table"><thead><tr><th>Date</th><th>Pair</th><th>Type</th><th>Entry</th><th>SL</th><th>TP1</th><th>TP2</th><th>TP3</th><th>TP4</th><th>Status</th><th>Pips</th><th>Note</th><th>Manage</th></tr></thead><tbody>'+list.map(s=>{
    const type=orderLabel(s),sell=type.startsWith('SELL');const pv=s.result_pips;
