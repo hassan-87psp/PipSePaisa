@@ -1741,11 +1741,22 @@ function renderSignals(){
 
   function inTime(s){return sigView!=='history'||pspSigHistoryInTime(s,sigTimeF);}
 
-  var list=SIGNALS.filter(function(s){
+  var viewRows=SIGNALS.filter(function(s){
     var finished=pspSigIsFinished(s);
     var viewOk=(sigView==='active')?(!finished):finished;
     var catOk=(sigF==='all')?true:(s.cat===sigF);
     return viewOk&&catOk&&inTime(s);
+  });
+  var filters=window.PSPSignalFilters;
+  var list=filters?filters.filter('user',viewRows):viewRows;
+  if(filters)filters.mount('user',document.getElementById('sigResultDash')||g,viewRows,function(state){
+    // Avoid intersecting legacy History-only date filters with premium presets.
+    sigTimeF='all';
+    if(['tp3','sl','be','closed'].includes(state.status))sigView='history';
+    else if(['active','pending','tp1','tp2'].includes(state.status))sigView='active';
+    document.getElementById('sigViewActive')?.classList.toggle('active',sigView==='active');
+    document.getElementById('sigViewHistory')?.classList.toggle('active',sigView==='history');
+    renderSignals();
   });
 
   if(sigView==='history')pspSigHistoryShowTotal(list);
