@@ -45,7 +45,7 @@ test('Public articles responsive layout, safe content and shareable URLs',()=>{
  assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,1fr))'));
  assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));
  assert.ok(css.includes('.article-grid{grid-template-columns:1fr'));
- assert.ok(src.includes("return BASE+'?id='+encodeURIComponent(a.id)"));
+ assert.ok(src.includes("return BASE+'read/'+encodeURIComponent(a.id)+'/'"));
  assert.ok(src.includes("textContent=(state.lang==='ur'"));
  assert.ok(src.includes("z.protocol==='https:'"));
  assert.ok(src.includes('Roman Urdu'));
@@ -166,4 +166,20 @@ test('V531 Articles keeps shared topbar structure and Home-matched design',()=>{
  assert.ok(css.includes('padding:7px 9px'));
  assert.ok(!css.includes('.article-hero'),'hero should not be affected');
  assert.ok(!css.includes('.article-card'),'cards should not be affected');
+});
+
+test('Static published articles are individually indexable and included in the sitemap',()=>{
+ const base=path.join(root,'articles','read');
+ const folders=fs.readdirSync(base,{withFileTypes:true}).filter(x=>x.isDirectory()).map(x=>x.name);
+ assert.ok(folders.length>=1,'published SEO article pages exist');
+ const sitemap=read('sitemap.xml');
+ for(const id of folders){
+  const canonical='https://www.pipsepaisa.com/articles/read/'+id+'/';
+  const article=read('articles/read/'+id+'/index.html');
+  assert.ok(article.includes('<link rel="canonical" href="'+canonical+'">'),id+' has its own canonical');
+  assert.ok(article.includes('content="index,follow'),id+' is indexable');
+  assert.ok(article.includes('"@type":"Article"'),id+' has Article schema');
+  assert.ok(article.includes('<h1 '),id+' has primary heading');
+  assert.ok(sitemap.includes('<loc>'+canonical+'</loc>'),id+' appears in XML sitemap');
+ }
 });

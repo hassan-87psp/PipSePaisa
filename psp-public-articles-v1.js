@@ -35,7 +35,7 @@ function matches(a){
  const q=state.search.toLowerCase();
  return category&&(!q||[a.title,a.category,a.pair].some(v=>String(v||'').toLowerCase().includes(q)));
 }
-function articleUrl(a){return BASE+'?id='+encodeURIComponent(a.id)}
+function articleUrl(a){return BASE+'read/'+encodeURIComponent(a.id)+'/'}
 function makeLink(a){let link=elem('a');link.href=articleUrl(a);link.setAttribute('aria-label','Read '+(a.title||'article'));return link;}
 function smallCard(a){
  let article=elem('article','article-card'),link=makeLink(a);link.appendChild(imageWrap(a,'card-media'));
