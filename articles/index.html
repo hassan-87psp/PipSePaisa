@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="description" content="Read free Forex trading education, technical analysis, fundamental insights and market research from PipSePaisa. No login required.">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://www.pipsepaisa.com/articles/">
+<meta property="og:type" content="website"><meta property="og:site_name" content="PipSePaisa">
+<meta property="og:title" content="Forex Trading Articles & Market Research | PipSePaisa">
+<meta property="og:description" content="Explore free Forex education, technical and fundamental research articles from PipSePaisa. No sign-in required.">
+<meta property="og:url" content="https://www.pipsepaisa.com/articles/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<title>Forex Trading Articles &amp; Market Research | PipSePaisa</title>
+<link rel="stylesheet" href="/psp-public-articles-v1.css?v=20261030-v1">
+<script id="pspArticleSchema" type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"PipSePaisa Forex Articles","url":"https://www.pipsepaisa.com/articles/","description":"Public Forex education, technical analysis and fundamental research articles"}</script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="/psp-public-articles-v1.js?v=20261030-v1"></script>
+</head>
+<body>
+<header class="site-header">
+ <div class="site-wrap head-row">
+  <a class="brand" href="/" aria-label="PipSePaisa Home"><img src="/favicon.png" alt="" width="42" height="42"><span>PipSePaisa</span></a>
+  <nav class="site-menu" id="articlePublicNav" aria-label="Public website navigation">
+   <a href="/">Home</a><a href="/courses/">Courses</a><a class="active" href="/articles/" aria-current="page">Articles</a>
+   <a href="/broker-reviews/">Broker Reviews</a><a href="/becomepartner/">Become Partner</a><a href="/tradingtools/">Trading Tools &amp; Services</a>
+  </nav>
+  <div class="head-actions"><a class="head-login" href="/sign-in/">Login</a><button type="button" id="mobileMenuBtn" class="mobile-menu-btn" aria-expanded="false" aria-controls="articlePublicNav" aria-label="Open menu">☰</button></div>
+ </div>
+</header>
+<main id="pageContent">
+ <section class="article-hero site-wrap" id="listingHero">
+  <div class="hero-top"><span class="eyebrow"><span class="eyebrow-dot"></span> PIPSEPAISA RESEARCH DESK</span><span class="free-label">FREE TO READ • NO LOGIN</span></div>
+  <h1>Knowledge that powers <span>smarter trading.</span></h1>
+  <p>Explore insightful articles about Forex markets, technical analysis, economic data and responsible trading — all in one place.</p>
+  <div class="hero-actions"><div class="hero-mini"><strong id="articleCount">—</strong><span>Published Articles</span></div><div class="hero-mini"><strong>03</strong><span>Research Categories</span></div><a class="hero-course-link" href="/courses/">Explore Forex Courses <span aria-hidden="true">↗</span></a></div>
+ </section>
+ <section class="article-library site-wrap" id="articleLibrary" aria-labelledby="articlesHeading">
+   <div class="lib-head"><div><span class="section-eyebrow">KNOWLEDGE HUB</span><h2 id="articlesHeading">Latest Articles</h2></div><p id="articleViewCount" aria-live="polite">Loading articles...</p></div>
+   <div class="filters-row"><div class="category-tabs" aria-label="Article categories" role="group">
+      <button type="button" class="category-btn active" data-category="all" aria-pressed="true">All Articles</button>
+      <button type="button" class="category-btn" data-category="technical" aria-pressed="false">Technical</button>
+      <button type="button" class="category-btn" data-category="fundamental" aria-pressed="false">Fundamental</button>
+      <button type="button" class="category-btn" data-category="market" aria-pressed="false">Market Analysis</button>
+    </div><label class="article-search"><span class="visually-hidden">Search articles</span><svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input type="search" id="articleSearch" placeholder="Search articles, topics, pairs..." autocomplete="off"></label></div>
+   <div id="articleError" class="article-status" role="status" hidden></div>
+   <div class="featured-article" id="featuredArticle" hidden></div>
+   <div class="article-grid" id="articleGrid" aria-live="polite"><div class="article-loading">Loading the PipSePaisa article library...</div></div>
+   <div class="library-bottom"><button type="button" id="showMoreArticles" class="more-button" hidden>Load More Articles</button></div>
+ </section>
+ <section class="reader-section site-wrap" id="articleReader" hidden aria-labelledby="readerTitle">
+  <div class="reader-top"><button type="button" class="back-link" id="articleBack">← All Articles</button><button type="button" class="share-button" id="articleShare">Share Article ↗</button></div>
+  <div class="reader-main"><div class="reader-meta"><span id="readerCategory"></span><span id="readerDate"></span><span id="readerPair"></span></div>
+   <h1 id="readerTitle"></h1><p class="reader-subtitle">PipSePaisa • Forex Education &amp; Research</p>
+   <div id="readerHeroImage" class="reader-cover" hidden></div><div id="readerLanguage" class="language-switch" hidden></div>
+   <div class="reader-body" id="readerBody"></div>
+   <div class="reader-warning">Educational content only. Market conditions can change rapidly; always use independent analysis and appropriate risk management.</div>
+  </div>
+  <div class="reader-bottom"><button type="button" class="back-link" id="articleBackBottom">← Explore More Articles</button><a href="/courses/">Explore Forex Courses ↗</a></div>
+ </section>
+</main>
+<footer class="article-footer"><div class="site-wrap footer-inner"><div><a href="/" class="footer-brand">PipSePaisa</a><p>Forex education, practical market knowledge and disciplined trading.</p></div><div class="footer-links"><a href="/">Home</a><a href="/courses/">Courses</a><a href="/articles/">Articles</a><a href="/broker-reviews/">Broker Reviews</a><a href="/becomepartner/">Our Partners</a><a href="/tradingtools/">Trading Tools</a></div><p class="legal">© 2026 PipSePaisa • Trading involves risk. All articles are educational and are not financial advice.</p></div></footer>
+</body></html>
