@@ -100,7 +100,7 @@ test('Every User Panel route alias and admin workspace uses fresh signal script 
   assert.ok(read(file).includes('user-signals-core-v29.js?v=20261030-v523-compact-history'),file+' cache bust');
  }
  for(const file of ['admin/index.html','admin-panel.html']){
-  assert.ok(read(file).includes('admin-core-v406.js?v=20261030-v522-premium-filters'),file+' Admin cache bust');
+  assert.ok(read(file).includes('admin-core-v406.js?v=20261030-v524-youtube-links'),file+' Admin cache bust');
  }
  for(const file of ['psp-mentor.html','admin-panel.html']){
   assert.ok(read(file).includes('signals-workspace-v154.js?v=20261030-v522-premium-filters'),file+' workspace cache bust');
