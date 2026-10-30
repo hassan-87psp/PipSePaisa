@@ -192,7 +192,7 @@ test('V536 Sajid Khan Ghori appears in relevant article education links, never f
  const landing=read('articles/index.html');
  const mentor=read('mentors/sajid-khan-ghori/index.html');
  const generator=read('scripts/generate-public-articles.mjs');
- assert.ok(landing.includes('Sajid Khan Ghori Forex mentor profile'));
+ assert.ok(landing.includes('Sajid Khan Ghori Forex Articles &amp; Guides'));
  assert.ok(landing.includes('Articles are published by PipSePaisa.'));
  assert.ok(mentor.includes('href="/articles/"'), 'Mentor profile connects to article library');
  assert.ok(generator.includes('sajidReference'), 'Only link a related mentor where already referenced');
@@ -208,4 +208,29 @@ test('V536 article search may query published full text without downloading the 
  assert.ok(script.includes("API+'?select=id&'+PUBLIC_FILTER"),'Only query public article IDs');
  assert.ok(script.includes('seq!==state.searchSeq'),'Ignore stale search responses');
  assert.ok(script.includes('clearTimeout(articleSearchTimer)'),'Debounce full-text search');
+});
+
+test('V537 Sajid Khan Ghori technical topic hub is indexable, truthful and links to 12 published articles',()=>{
+ const landing=read('mentors/sajid-khan-ghori/forex-articles/index.html');
+ const mentor=read('mentors/sajid-khan-ghori/index.html');
+ const articles=read('articles/index.html');
+ const generator=read('scripts/generate-public-articles.mjs');
+ const url='https://www.pipsepaisa.com/mentors/sajid-khan-ghori/forex-articles/';
+ assert.ok(landing.includes('<link rel="canonical" href="'+url+'">'));
+ assert.ok(landing.includes('content="index,follow'));
+ assert.equal((landing.match(/<h1\b/g)||[]).length,1);
+ assert.ok(landing.includes('"@type":"CollectionPage"'));
+ assert.ok(landing.includes('"@type":"BreadcrumbList"'));
+ assert.ok(landing.includes('"@type":"ItemList"'));
+ assert.ok(landing.includes('These educational articles are published by PipSePaisa.'));
+ assert.ok(landing.includes('does not mean Sajid Khan Ghori personally wrote or approved every article'));
+ const links=[...landing.matchAll(/href="(\/articles\/read\/[a-f0-9-]+\/)"/g)].map(m=>m[1]);
+ assert.equal(new Set(links).size,12);
+ for(const link of links){
+  assert.ok(fs.existsSync(path.join(root,link.slice(1),'index.html')),link+' target exists');
+ }
+ assert.ok(mentor.includes('href="/mentors/sajid-khan-ghori/forex-articles/"'));
+ assert.ok(articles.includes('href="/mentors/sajid-khan-ghori/forex-articles/"'));
+ assert.ok(generator.includes('relatedTopicIds'),'Only curated technical topics get specific hub links');
+ assert.ok(generator.includes('related Forex articles and technical guides'));
 });
