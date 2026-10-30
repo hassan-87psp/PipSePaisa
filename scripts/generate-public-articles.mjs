@@ -20,6 +20,7 @@ function render(a){
  const title=String(a.title||'Forex Article').trim(),body=String(a.content||a.content_ur||'').trim();
  const seoTitle=(title.length>46?title.slice(0,46).replace(/\s+\S*$/,'').trim():title)+' | PipSePaisa';
  const roman=a.content&&a.content_ur?String(a.content_ur).trim():'';
+ const sajidReference=/\bsajid khan ghori\b/i.test(body);
  const desc=body.replace(/\s+/g,' ').slice(0,155)||'Forex education and market research from PipSePaisa';
  const d=new Date(a.created_at),validDate=Number.isFinite(+d);
  const iso=validDate?d.toISOString():'',date=validDate?d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}):'';
@@ -38,7 +39,7 @@ function render(a){
  '<meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/favicon.png">',
  '<link rel="stylesheet" href="/psp-public-articles-v1.css?v=20261030-v527">',
  '<link rel="stylesheet" href="/psp-articles-header-exact-v530.css?v=20261030-v531">',
- '<style>.reader-section{display:block}.psp-roman{margin:26px 0;padding:16px;border-radius:11px;border:1px solid #ead6b6;background:#fff8e9}.psp-roman summary{cursor:pointer;font-weight:800;color:#a5690f}.psp-roman .reader-body{margin-top:15px}.reader-body{white-space:pre-wrap}body.dark-theme .psp-roman{background:#16243a;border-color:#3b4a61}</style>',
+ '<style>.psp-mentor-related{margin:26px 0 0;padding:18px 20px;background:#fff8eb;border:1px solid #efd9b5;border-radius:13px}.psp-mentor-related h2{margin:0 0 7px;font-size:18px}.psp-mentor-related p{margin:0;font-size:13px;line-height:1.65}.psp-mentor-related a{color:#a3630e;font-weight:800}body.dark-theme .psp-mentor-related{background:#15283b;border-color:#3b526a}.reader-section{display:block}.psp-roman{margin:26px 0;padding:16px;border-radius:11px;border:1px solid #ead6b6;background:#fff8e9}.psp-roman summary{cursor:pointer;font-weight:800;color:#a5690f}.psp-roman .reader-body{margin-top:15px}.reader-body{white-space:pre-wrap}body.dark-theme .psp-roman{background:#16243a;border-color:#3b4a61}</style>',
  '<script type="application/ld+json">'+JSON.stringify(schema).replaceAll('<','\\u003c').replaceAll('>','\\u003e')+'</script>',
  '</head><body class="page-articles">',
  '<header class="topbar" aria-label="PipSePaisa public header"><div class="container nav">',
@@ -51,6 +52,7 @@ function render(a){
  '<p class="reader-subtitle">PipSePaisa • Forex Education &amp; Research</p>',
  image?'<div class="reader-cover"><img src="'+esc(image)+'" alt="'+esc(title)+'" decoding="async" loading="lazy"></div>':'',
  '<div class="reader-body">'+esc(body)+'</div>',
+ sajidReference?'<aside class="psp-mentor-related" aria-label="Related Forex education"><h2>Learn Forex technical analysis with Sajid Khan Ghori</h2><p>For related market-structure and technical-analysis courses, explore the <a href="/mentors/sajid-khan-ghori/">Sajid Khan Ghori mentor profile</a>. This article is published by PipSePaisa.</p></aside>':'',
  roman?'<details class="psp-roman"><summary>Read in Roman Urdu</summary><div class="reader-body" lang="ur-Latn">'+esc(roman)+'</div></details>':'',
  '<div class="reader-warning">Educational content only. Trading involves risk. Always use independent analysis and appropriate risk management.</div>',
  '</article><div class="reader-bottom"><a href="/articles/" class="back-link">← Explore More Articles</a><a href="/courses/">Explore Forex Courses ↗</a></div></main>',

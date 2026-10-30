@@ -17,7 +17,7 @@ test('Restore original Home and marketing page headers without shared V528 typog
 });
 test('Articles has its own non-invasive premium page stylesheet',()=>{
  const page=read('articles/index.html'),css=read('psp-public-articles-premium-v529.css');
- assert.ok(page.includes('psp-public-articles-premium-v529.css?v=20261030-v529'));
+ assert.ok(page.includes('psp-public-articles-premium-v529.css?v=20261030-v536'));
  assert.ok(css.includes('.site-header .site-menu a'),'Articles header styling scoped to page');
  assert.ok(!css.includes('.topbar .menu a'),'does not override Home navigation');
  assert.ok(!css.includes('html.psp-app-page'),'private panels unaffected');

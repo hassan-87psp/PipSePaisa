@@ -187,3 +187,25 @@ test('Static published articles are individually indexable and included in the s
   assert.ok(sitemap.includes('<loc>'+canonical+'</loc>'),id+' appears in XML sitemap');
  }
 });
+
+test('V536 Sajid Khan Ghori appears in relevant article education links, never falsely credited as article author',()=>{
+ const landing=read('articles/index.html');
+ const mentor=read('mentors/sajid-khan-ghori/index.html');
+ const generator=read('scripts/generate-public-articles.mjs');
+ assert.ok(landing.includes('Sajid Khan Ghori Forex mentor profile'));
+ assert.ok(landing.includes('Articles are published by PipSePaisa.'));
+ assert.ok(mentor.includes('href="/articles/"'), 'Mentor profile connects to article library');
+ assert.ok(generator.includes('sajidReference'), 'Only link a related mentor where already referenced');
+ assert.ok(generator.includes('/mentors/sajid-khan-ghori/'), 'Static articles link to mentor profile');
+ assert.ok(generator.includes("author:{'@type':'Organization',name:'PipSePaisa'}"), 'Retain truthful organizational authorship');
+});
+test('V536 article search may query published full text without downloading the bodies',()=>{
+ const script=read('psp-public-articles-v1.js');
+ assert.doesNotThrow(()=>new vm.Script(script));
+ assert.ok(script.includes('async function searchPublishedArticleText(query,seq)'));
+ assert.ok(script.includes("or='+encodeURIComponent(or)"),'Server-side full-text OR filter');
+ assert.ok(script.includes('content.ilike.*')&&script.includes('content_ur.ilike.*'));
+ assert.ok(script.includes("API+'?select=id&'+PUBLIC_FILTER"),'Only query public article IDs');
+ assert.ok(script.includes('seq!==state.searchSeq'),'Ignore stale search responses');
+ assert.ok(script.includes('clearTimeout(articleSearchTimer)'),'Debounce full-text search');
+});
