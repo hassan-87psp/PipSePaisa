@@ -21,8 +21,10 @@ test('Shared public navigation exposes Articles from Home, Courses, Broker Revie
  for(const f of ['index.html','courses/index.html','broker-reviews/index.html','becomepartner/index.html','tradingtools/index.html','about-us/index.html','contact/index.html','mentors/index.html']){
   const text=read(f);const nav=text.match(/<nav class="menu">([\s\S]*?)<\/nav>/)?.[1];
   assert.ok(nav&&nav.includes('href="/articles/"'),f+' public nav');
-  assert.ok(nav.indexOf('href="/courses/"')<nav.indexOf('href="/articles/"'),f+' Articles follows Courses');
-  if(nav.includes('href="/broker-reviews/"'))assert.ok(nav.indexOf('href="/articles/"')<nav.indexOf('href="/broker-reviews/"'),f+' Articles precedes Broker Reviews');
+  assert.equal(nav.split('>Articles</a>').length-1,1,f+' single visible Articles link');
+  assert.ok(nav.indexOf('href="/tradingtools/"')<nav.indexOf('href="/articles/"'),f+' Articles after Trading Tools');
+  assert.ok(nav.trimEnd().endsWith('>Articles</a>'),f+' Articles is final menu item');
+  assert.ok(text.includes('psp-public-articles-nav-v2.css?v=20261030-v525'),f+' fresh visible Articles style');
  }
 });
 test('Public guest data fetch only selects published and allowed audience; never fetches charts or private user data',()=>{
@@ -43,4 +45,25 @@ test('Public articles responsive layout, safe content and shareable URLs',()=>{
  assert.ok(src.includes("textContent=(state.lang==='ur'"));
  assert.ok(src.includes("z.protocol==='https:'"));
  assert.ok(src.includes('Roman Urdu'));
+});
+
+test('Articles button is visible and links directly to guest hub',()=>{
+ const home=read('index.html');
+ const nav=home.split('<nav class="menu">')[1].split('</nav>')[0];
+ assert.ok(nav.lastIndexOf('href="/articles/"')>nav.lastIndexOf('href="/tradingtools/"'));
+ const style=read('psp-public-articles-nav-v2.css');
+ assert.ok(style.includes('display:inline-flex!important'));
+ assert.ok(style.includes('visibility:visible!important'));
+ assert.ok(style.includes('opacity:1!important'));
+ assert.ok(read('tradingtools/index.html').includes('href="/articles/" target="_top">Read Articles'));
+ const page=read('articles/index.html');
+ const articleNav=page.split('id="articlePublicNav"')[1].split('</nav>')[0];
+ assert.ok(articleNav.lastIndexOf('href="/articles/"')>articleNav.lastIndexOf('href="/tradingtools/"'));
+});
+test('Admin Mentor and member site use same articles source as public hub',()=>{
+ const admin=read('admin/index.html'),mentor=read('psp-mentor.html'),member=read('user-signals-core-v29.js');
+ assert.ok(admin.includes("sb.from('articles').insert(articleObj)")&&admin.includes("const is_published=true;"));
+ assert.ok(mentor.includes("sb.from('articles').insert({...payload")&&mentor.includes("is_published:document.getElementById('maStatus').value==='published'"));
+ assert.ok(member.includes("sb.from('articles').select('*').eq('is_published',true)"));
+ assert.ok(src.includes("client.from('articles')"));
 });
