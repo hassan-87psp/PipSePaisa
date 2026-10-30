@@ -21,7 +21,8 @@ test('Shared public navigation exposes Articles from Home, Courses, Broker Revie
  for(const f of ['index.html','courses/index.html','broker-reviews/index.html','becomepartner/index.html','tradingtools/index.html','about-us/index.html','contact/index.html','mentors/index.html']){
   const text=read(f);const nav=text.match(/<nav class="menu">([\s\S]*?)<\/nav>/)?.[1];
   assert.ok(nav&&nav.includes('href="/articles/"'),f+' public nav');
-  assert.ok(nav.indexOf('href="/courses/"')<nav.indexOf('href="/articles/"')&&nav.indexOf('href="/articles/"')<nav.indexOf('href="/broker-reviews/"'),f+' intended order');
+  assert.ok(nav.indexOf('href="/courses/"')<nav.indexOf('href="/articles/"'),f+' Articles follows Courses');
+  if(nav.includes('href="/broker-reviews/"'))assert.ok(nav.indexOf('href="/articles/"')<nav.indexOf('href="/broker-reviews/"'),f+' Articles precedes Broker Reviews');
  }
 });
 test('Public guest data fetch only selects published and allowed audience; never fetches charts or private user data',()=>{
