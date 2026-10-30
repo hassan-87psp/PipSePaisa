@@ -205,3 +205,29 @@
   #page-verification .av186-kpi-grid .av185-kpi small{display:none!important}
   #page-verification .av186-table-wrap{height:calc(100vh - 292px)!important;min-height:360px!important}
 }
+
+/* V187 — Access applicant identity must be readable in the approvals queue. */
+#page-verification .av49-contact-warning{
+  margin:8px 12px 5px;padding:9px 12px;border-radius:9px;
+  border:1px solid #f6c681;background:#fff6e9;color:#975400;
+  font-size:11px;font-weight:700;line-height:1.4;
+}
+#page-verification .av185-user{min-width:240px!important;align-items:flex-start!important;}
+#page-verification .av185-contact{flex:1;min-width:0;max-width:310px;}
+#page-verification .av185-contact .av49-contact-name{
+  display:block;font-size:12px!important;line-height:1.3!important;
+  color:#16223a!important;font-weight:850!important;overflow-wrap:anywhere;
+}
+#page-verification .av185-contact .av116-user-sub{
+  display:flex;flex-direction:column;gap:3px;margin-top:4px!important;
+  font-size:10px!important;line-height:1.45!important;
+  color:#55677f!important;
+}
+#page-verification .av185-contact .av49-contact-line{
+  display:block;min-width:0;overflow-wrap:anywhere;user-select:text;
+}
+@media(max-width:760px){
+  #page-verification .av185-user{min-width:225px!important;}
+  #page-verification .av185-contact .av49-contact-name{font-size:12px!important;}
+  #page-verification .av185-contact .av116-user-sub{font-size:10px!important;}
+}
