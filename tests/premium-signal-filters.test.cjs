@@ -18,8 +18,8 @@ const signal=(pair,dir,status,date,pips,extra={})=>({pair,direction:dir,status,
 test('One shared premium filter layer is installed on all User, Mentor and Admin portals',()=>{
  assert.doesNotThrow(()=>new vm.Script(src));
  for(const file of ["dashboard/index.html","signals/index.html","journal/index.html","performance/index.html","my-courses/index.html","profile/index.html","member-chats/index.html","ai-tools/index.html","ai-report/index.html","world-news/index.html","charts-articles/index.html","my-trades/index.html","support/index.html","currency-strength/index.html","economic-news/index.html","live-charts/index.html","trades-analysis/index.html","eaindicator/index.html","announcements/index.html","tools/index.html","about/index.html","psp-mentor.html","admin/index.html","admin-panel.html"]){
-  assert.ok(read(file).includes('psp-signal-filters-v1.js?v=20261030-v1'),file+' JS');
-  assert.ok(read(file).includes('psp-signal-filters-v1.css?v=20261030-v1'),file+' CSS');
+  assert.ok(read(file).includes('psp-signal-filters-v1.js?v=20261030-v523-compact'),file+' JS');
+  assert.ok(read(file).includes('psp-signal-filters-v1.css?v=20261030-v523-compact'),file+' CSS');
  }
  assert.ok(read('signals-workspace-v154.js').includes("filters.filter(mode,all)"));
  assert.ok(read('psp-mentor.html').includes("filters.filter('mentor',viewRows)"));
@@ -97,7 +97,7 @@ test('User normalized active signals are never treated as closed because closedT
 
 test('Every User Panel route alias and admin workspace uses fresh signal script versions',()=>{
  for(const file of ["dashboard/index.html","signals/index.html","journal/index.html","performance/index.html","my-courses/index.html","profile/index.html","member-chats/index.html","ai-tools/index.html","ai-report/index.html","world-news/index.html","charts-articles/index.html","my-trades/index.html","support/index.html","currency-strength/index.html","economic-news/index.html","live-charts/index.html","trades-analysis/index.html","eaindicator/index.html","announcements/index.html","tools/index.html","about/index.html"]){
-  assert.ok(read(file).includes('user-signals-core-v29.js?v=20261030-v522-premium-filters'),file+' cache bust');
+  assert.ok(read(file).includes('user-signals-core-v29.js?v=20261030-v523-compact-history'),file+' cache bust');
  }
  for(const file of ['admin/index.html','admin-panel.html']){
   assert.ok(read(file).includes('admin-core-v406.js?v=20261030-v522-premium-filters'),file+' Admin cache bust');
@@ -105,4 +105,20 @@ test('Every User Panel route alias and admin workspace uses fresh signal script 
  for(const file of ['psp-mentor.html','admin-panel.html']){
   assert.ok(read(file).includes('signals-workspace-v154.js?v=20261030-v522-premium-filters'),file+' workspace cache bust');
  }
+});
+
+test('Desktop uses one Trading Signals card and mobile restores original History controls',()=>{
+ assert.ok(src.includes("if(mobile())return (items||[]).slice()"),'mobile premium filtering is bypassed');
+ assert.ok(src.includes("if(userCard)userCard.appendChild(section)"),'desktop controls sit inside the original Signals card');
+ const css=read('psp-signal-filters-v1.css');
+ assert.ok(css.includes('#page-signals #sigFilters,#page-signals #sigTimeFilters{display:none!important}'),'desktop duplicate legacy filters hidden');
+ assert.ok(css.includes('#page-signals .psp-signal-filters .psp-sf-metrics'),'desktop does not repeat results KPI cards');
+ assert.ok(css.includes('#page-signals #sigTimeFilters[style*="display: flex"]'),'History period chips remain visible on mobile');
+ const mobileWindow={matchMedia:()=>({matches:true})};
+ const sandbox={window:mobileWindow};vm.runInNewContext(src,sandbox);
+ const api=sandbox.window.PSPSignalFilters,s=api.getState('user');
+ s.period='today';s.pair='gold';s.status='closed';
+ const rows=[signal('EUR/USD','BUY','active','2026-10-29T08:00:00Z',null)];
+ assert.equal(api.filter('user',rows).length,1,'old mobile controls decide what is visible');
+ assert.ok(read('user-signals-core-v29.js').includes('premiumDesktop||sigF'), 'hidden legacy desktop category buttons no longer filter results');
 });

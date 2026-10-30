@@ -10,6 +10,15 @@ function sigFilter(f,el){sigF=f;document.querySelectorAll('#sigFilters .sig-fbtn
 let sigView='active';let sigTimeF='all';
 function sigSetView(v,el){
   sigView=v;
+  // Switching Active/History must not keep an invisible desktop status constraint.
+  if(window.PSPSignalFilters&&(!window.matchMedia||window.matchMedia('(min-width: 761px)').matches)){
+    var sfState=window.PSPSignalFilters.getState('user');
+    if(sfState.status!=='all'){
+      sfState.status='all';
+      var statusSelect=document.querySelector('#psp-signal-filter-user [data-psp-sf="status"]');
+      if(statusSelect)statusSelect.value='all';
+    }
+  }
   var a=document.getElementById('sigViewActive'),h=document.getElementById('sigViewHistory');
   if(a)a.classList.toggle('active',v==='active');if(h)h.classList.toggle('active',v==='history');
   var tf=document.getElementById('sigTimeFilters');if(tf)tf.style.display=(v==='history')?'flex':'none';
@@ -1740,12 +1749,15 @@ function renderSignals(){
   const g=document.getElementById('signalsGrid');if(!g)return;
 
   function inTime(s){return sigView!=='history'||pspSigHistoryInTime(s,sigTimeF);}
+  // Desktop advanced controls replace the hidden legacy category/date filters;
+  // mobile still uses those original buttons without stacking another panel.
+  var premiumDesktop=!!(window.PSPSignalFilters&&(!window.matchMedia||window.matchMedia('(min-width: 761px)').matches));
 
   var viewRows=SIGNALS.filter(function(s){
     var finished=pspSigIsFinished(s);
     var viewOk=(sigView==='active')?(!finished):finished;
-    var catOk=(sigF==='all')?true:(s.cat===sigF);
-    return viewOk&&catOk&&inTime(s);
+    var catOk=premiumDesktop||sigF==='all'||s.cat===sigF;
+    return viewOk&&catOk&&(premiumDesktop||inTime(s));
   });
   var filters=window.PSPSignalFilters;
   var list=filters?filters.filter('user',viewRows):viewRows;

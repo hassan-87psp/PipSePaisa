@@ -3,6 +3,8 @@
 'use strict';
 if(root.PSPSignalFilters)return;
 const states=new Map();
+// Preserve the original, space-efficient mobile Signals/History experience.
+const mobile=()=>typeof root.matchMedia==='function'&&root.matchMedia('(max-width: 760px)').matches;
 const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const formatPips=v=>Number.isFinite(v)?(v>0?'+':'')+v.toLocaleString('en-US',{maximumFractionDigits:1}):'—';
 const str=v=>String(v??'').trim();
@@ -66,6 +68,8 @@ function statusMatches(s,value){
  return s.status===value;
 }
 function filter(mode,items,now=new Date()){
+ // Mobile keeps its established market, Active/History, and period controls.
+ if(mobile())return (items||[]).slice();
  const state=getState(mode);
  const r=range(state,now);
  return (items||[]).filter(raw=>{
@@ -148,12 +152,19 @@ function mount(mode,host,rows,onChange){
  const state=getState(mode);
  const id='psp-signal-filter-'+mode;
  let section=document.getElementById(id);
+ if(mobile()){
+  if(section)section.remove();
+  return;
+ }
+ // User desktop has one card with Active/History and advanced filters together.
+ const userCard=mode==='user'?document.querySelector('#page-signals > .card'):null;
  if(!section){
   section=document.createElement('section');
   section.id=id;section.className='psp-signal-filters';
   section.setAttribute('aria-label','Advanced signal filters');
   section.innerHTML=markup(mode,state,rows);
-  host.parentNode.insertBefore(section,host);
+  if(userCard)userCard.appendChild(section);
+  else host.parentNode.insertBefore(section,host);
   section.addEventListener('change',e=>{
    const key=e.target.dataset.pspSf;if(!key)return;
    getState(mode)[key]=e.target.value;
@@ -176,6 +187,7 @@ function mount(mode,host,rows,onChange){
    section.remove();onChange?.(getState(mode));
   });
  }
+ if(userCard&&section.parentNode!==userCard)userCard.appendChild(section);
  callbacks.set(mode,onChange);
  latestRows.set(mode,rows||[]);
  // Pair options can expand when new data arrives, but never remove the current selection.
