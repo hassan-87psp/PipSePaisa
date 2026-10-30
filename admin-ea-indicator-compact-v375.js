@@ -126,7 +126,7 @@ function render(){
   const snap=api.getSnapshot?.();
   const count=snap?.loaded?snap.requests?.length:null;
   meta.textContent=view==='applications'?
-   (count!=null?count+' applications · Personal file delivery':'Loading private requests…'):
+   (snap?.loadError&&!snap.loaded?'Applications failed to load · Refresh to retry':count!=null?count+' applications · Personal file delivery':'Loading private requests…'):
    view==='products'?'Catalog, screenshots & versions':'Analytics, releases & support';
  }
 }

@@ -1374,6 +1374,10 @@ function showPage(page, el) {
   if (page === 'users') loadAdminUsers();
   if (page === 'trades') loadAdminTrades();
   if (page === 'courses') loadAdminCourses();
+  if (page === 'eaindicator' && typeof window.PSPEAIAdmin?.load === 'function') {
+    // Use the wrapped admin loader so the executive queue and metrics receive the snapshot.
+    Promise.resolve(window.PSPEAIAdmin.load()).catch(error=>console.warn('Indicator manager navigation load:',error));
+  }
   if (page === 'news') loadAdminNewsPosts();
   if (page === 'quiz') loadAdminQuiz();
   if (page === 'adsignals') loadAdSignals();

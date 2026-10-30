@@ -120,6 +120,7 @@ function rowsFromSnapshot(){
 function updateData(){
  const page=setupLayout();if(!page)return;
  const rows=rowsFromSnapshot();
+ if(!rows&&source()?.loadError){state.rows=[];state.stats={};state.loaded=false}
  if(rows){
   state.rows=rows;state.stats=summary(rows);state.loaded=true;
   if(!state.initialFilterChosen){
@@ -239,9 +240,14 @@ function render(){
    String(v||'').toLocaleLowerCase().includes(needle));
  });
  const list=q('eaiV374List');
- if(list)list.innerHTML=matches.length?matches.map(card).join(''):'<div class="eaiV374-empty">'+escape(emptyText())+'</div>';
+ const errorText=snap?.loadError;
+ if(list)list.innerHTML=errorText&&!state.loaded?
+  '<div class="eaiV374-empty" role="alert">'+escape(errorText)+' <button type="button" class="eaiV374-refresh" data-e374-refresh="1">Try Again</button></div>':
+  matches.length?matches.map(card).join(''):'<div class="eaiV374-empty">'+escape(emptyText())+'</div>';
  const info=q('eaiV374QueueInfo');
- if(info)info.textContent=state.loaded?matches.length+' applications · Sorted by verification and action priority':'Loading secure application records…';
+ if(info)info.textContent=state.loaded?
+  (matches.length+' applications · Sorted by verification and action priority'+(errorText?' · '+errorText:'')):
+  (errorText?'Applications could not be loaded — use Refresh':'Loading secure application records…');
 }
 function fileValid(file,platform){
  if(!file)return false;
