@@ -1,0 +1,68 @@
+/* PipSePaisa six services showcase, premium responsive cards. */
+.services-banner-section .psp-services-six-grid{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:18px!important;align-items:stretch!important;
+}
+.services-banner-section .psp-six-card{
+ --psc-ink:#182335;--psc-muted:#657184;
+ display:block!important;position:relative!important;isolation:isolate;
+ box-sizing:border-box;width:100%!important;max-width:none!important;
+ min-width:0;min-height:184px!important;margin:0!important;
+ padding:18px 16px!important;overflow:hidden!important;
+ border:1px solid #eac68b!important;border-radius:19px!important;
+ background:radial-gradient(ellipse at 94% 8%,rgba(250,175,62,.19),transparent 58%),linear-gradient(132deg,#fffdfa,#f8f0e5)!important;
+ box-shadow:0 10px 27px rgba(40,30,13,.075)!important;
+ text-align:left;text-decoration:none!important;color:var(--psc-ink)!important;
+ transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease!important;
+}
+.services-banner-section .psp-six-card:hover{
+ transform:translateY(-4px)!important;border-color:#F39522!important;
+ box-shadow:0 17px 36px rgba(55,35,5,.14)!important;
+}
+.services-banner-section .psp-six-card:focus-visible{outline:3px solid #F39522!important;outline-offset:3px}
+.services-banner-section .psp-six-copy{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;width:64%;min-height:146px}
+.services-banner-section .psp-six-eyebrow{font-size:8px;font-weight:850;letter-spacing:.115em;color:#cf7807;line-height:1.3;margin-bottom:6px}
+.services-banner-section .psp-six-service-icon{display:inline-flex;align-items:center;justify-content:center;
+ width:24px;height:24px;margin:0 0 6px;border-radius:8px;
+ background:rgba(243,149,34,.14);color:#c67506;font-weight:900;font-size:12px}
+.services-banner-section .psp-six-title{font-size:clamp(16px,1.42vw,21px)!important;line-height:1.12!important;letter-spacing:-.035em;
+ font-weight:900!important;color:var(--psc-ink)!important;margin:0 0 6px}
+.services-banner-section .psp-six-description{font-size:10.5px;line-height:1.42;color:var(--psc-muted);font-weight:540}
+.services-banner-section .psp-six-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:9px}
+.services-banner-section .psp-six-tags span{font-size:8px;line-height:1.25;font-weight:800;color:#956224;
+ border:1px solid #f0d7b4;background:rgba(255,250,239,.86);padding:4px 6px;border-radius:6px;white-space:nowrap}
+.services-banner-section .psp-six-art{position:absolute;right:2px;bottom:7px;width:43%;height:89%;z-index:1;display:grid;place-items:end center;pointer-events:none}
+.services-banner-section .psp-six-art svg{width:100%;height:100%;max-height:166px;display:block;filter:drop-shadow(0 7px 10px rgba(63,43,15,.06))}
+.services-banner-section .psp-six-arrow{position:absolute;z-index:3;right:13px;top:10px;font-size:14px;font-weight:900;color:#cf7807;opacity:0;transform:translate(-3px,3px);transition:opacity .2s,transform .2s}
+.services-banner-section .psp-six-card:hover .psp-six-arrow,
+.services-banner-section .psp-six-card:focus-visible .psp-six-arrow{opacity:1;transform:none}
+body.dark-theme .services-banner-section .psp-six-card{
+ --psc-ink:#f6eee4;--psc-muted:#b6c0d0;
+ background:radial-gradient(ellipse at 94% 0,rgba(245,150,32,.17),transparent 56%),linear-gradient(135deg,#15243b,#0d192a)!important;
+ border-color:rgba(245,169,65,.39)!important;box-shadow:0 11px 30px rgba(0,0,0,.27)!important;
+}
+body.dark-theme .services-banner-section .psp-six-eyebrow{color:#f5b65c}
+body.dark-theme .services-banner-section .psp-six-service-icon{background:rgba(245,153,31,.17);color:#ffc270}
+body.dark-theme .services-banner-section .psp-six-tags span{background:#192941;border-color:#3e4857;color:#f3bb6a}
+@media(max-width:1100px) and (min-width:721px){
+ .services-banner-section .psp-services-six-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .services-banner-section .psp-six-title{font-size:19px!important}
+}
+@media(max-width:720px){
+ .services-banner-section .psp-services-six-grid{grid-template-columns:1fr!important;gap:12px!important}
+ .services-banner-section .psp-six-card{min-height:174px!important;max-width:620px!important;margin:0 auto!important;padding:16px!important;border-radius:16px!important}
+ .services-banner-section .psp-six-copy{min-height:140px;width:65%}
+ .services-banner-section .psp-six-title{font-size:19px!important}
+ .services-banner-section .psp-six-art{width:40%;max-width:205px;right:4px;bottom:4px}
+ .services-banner-section .psp-six-description{font-size:10px}
+ .services-banner-section .psp-six-tags span{font-size:7.7px}
+}
+@media(max-width:360px){
+ .services-banner-section .psp-six-card{padding:13px!important}
+ .services-banner-section .psp-six-title{font-size:17px!important}
+ .services-banner-section .psp-six-description{font-size:9px}
+ .services-banner-section .psp-six-tags span{font-size:7px;padding:3px 4px}
+}
+@media(prefers-reduced-motion:reduce){
+ .services-banner-section .psp-six-card,.services-banner-section .psp-six-arrow{transition:none!important}
+}

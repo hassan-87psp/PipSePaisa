@@ -56,6 +56,8 @@ jobs:
           node --check admin-core-v406.js
           node --check user-signals-core-v29.js
           node --test tests/premium-signal-filters.test.cjs
+      - name: Verify six premium Home services across screen sizes and link routes
+        run: node --test tests/home-six-services.test.cjs
       - name: Verify PipSePaisa YouTube links, navigation isolation and admin configuration
         run: |
           node --check psp-youtube-links-v1.js
