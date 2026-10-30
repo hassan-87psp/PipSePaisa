@@ -56,6 +56,8 @@ jobs:
           node --check admin-core-v406.js
           node --check user-signals-core-v29.js
           node --test tests/premium-signal-filters.test.cjs
+      - name: Verify unified Home-style public header across marketing pages
+        run: node --test tests/public-header-unified.test.cjs
       - name: Verify public read-only Articles Hub and navigation
         run: |
           node --check psp-public-articles-v1.js
