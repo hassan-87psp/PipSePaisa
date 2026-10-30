@@ -4,7 +4,7 @@ const BASE='https://www.pipsepaisa.com/articles/';
 const SUPABASE_ENDPOINT='https://etfolhinohgmskbfjoyh.supabase.co';
 const KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw'; // Public client key, never a secret-role key.
 const LIMIT=12;
-const state={rows:[],category:'all',search:'',visible:LIMIT,selected:null,lang:'en',readerToken:0,detailCache:new Map()};
+const state={rows:[],category:'all',search:'',visible:LIMIT,selected:null,lang:'en',readerToken:0,detailCache:new Map(),searchSeq:0,remoteQuery:'',remoteMatches:new Set(),remoteLoading:false};
 const LIST_CACHE_KEY='psp_public_articles_metadata_v531';
 const LIST_CACHE_TTL=120000;
 const API=SUPABASE_ENDPOINT+'/rest/v1/articles';
@@ -33,7 +33,9 @@ function imageWrap(a,cl){
 function matches(a){
  const category=state.category==='all'||a.subject===state.category;
  const q=state.search.toLowerCase();
- return category&&(!q||[a.title,a.category,a.pair].some(v=>String(v||'').toLowerCase().includes(q)));
+ const inMetadata=[a.title,a.category,a.pair].some(v=>String(v||'').toLowerCase().includes(q));
+ const inPublishedBody=state.remoteQuery===q&&state.remoteMatches.has(String(a.id));
+ return category&&(!q||inMetadata||inPublishedBody);
 }
 function articleUrl(a){return BASE+'read/'+encodeURIComponent(a.id)+'/'}
 function makeLink(a){let link=elem('a');link.href=articleUrl(a);link.setAttribute('aria-label','Read '+(a.title||'article'));return link;}
@@ -51,10 +53,31 @@ function render(){
  $('articleViewCount').textContent=rows.length+' articles'+(searching?' matching your filters':' available');
  // Latest article is the first regular card. Never render an oversized featured block.
  let grid=$('articleGrid');grid.replaceChildren();
- if(!rows.length)grid.appendChild(elem('div','article-status','No articles match your search. Try another keyword or category.'));
+ if(!rows.length)grid.appendChild(elem('div','article-status',state.remoteLoading?'Searching article text...':'No articles match your search. Try another keyword or category.'));
  else rows.slice(0,state.visible).forEach(a=>grid.appendChild(smallCard(a)));
  $('showMoreArticles').hidden=rows.length<=state.visible;
  document.querySelectorAll('.category-btn').forEach(b=>{let on=b.dataset.category===state.category;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
+}
+// Search full published article text on demand without downloading article bodies.
+// Return IDs only; merge matches with cached article card metadata.
+async function searchPublishedArticleText(query,seq){
+ const safe=query.replace(/[,()*]/g,' ').replace(/\s+/g,' ').trim().slice(0,80);
+ if(!safe)return;
+ const or='(content.ilike.*'+safe+'*,content_ur.ilike.*'+safe+'*)';
+ const url=API+'?select=id&'+PUBLIC_FILTER+'&or='+encodeURIComponent(or)+'&limit=1000';
+ try{
+  const response=await fetch(url,{headers:API_HEADERS,cache:'no-store'});
+  if(!response.ok)throw Error('Search unavailable');
+  const rows=await response.json();
+  if(seq!==state.searchSeq)return;
+  state.remoteMatches=new Set((Array.isArray(rows)?rows:[]).map(r=>String(r.id)));
+  state.remoteQuery=query.toLowerCase();
+ }catch(e){
+  if(seq!==state.searchSeq)return;
+  state.remoteMatches=new Set();state.remoteQuery=query.toLowerCase();
+ }finally{
+  if(seq===state.searchSeq){state.remoteLoading=false;render();}
+ }
 }
 function updateSeo(a){
  document.title=a?a.title+' | PipSePaisa Articles':'Forex Trading Articles & Market Research | PipSePaisa';
@@ -164,7 +187,16 @@ function init(){
  });
  $('mobileMenuBtn').addEventListener('click',()=>{const nav=$('articlePublicNav'),open=nav.classList.toggle('open');$('mobileMenuBtn').setAttribute('aria-expanded',String(open));});
  document.querySelectorAll('.category-btn').forEach(b=>b.addEventListener('click',()=>{state.category=b.dataset.category;state.visible=LIMIT;render();}));
- $('articleSearch').addEventListener('input',e=>{state.search=e.target.value.trim();state.visible=LIMIT;render();});
+ let articleSearchTimer=null;
+ $('articleSearch').addEventListener('input',e=>{
+  state.search=e.target.value.trim();state.visible=LIMIT;
+  const seq=++state.searchSeq;
+  if(articleSearchTimer)clearTimeout(articleSearchTimer);
+  state.remoteQuery='';state.remoteMatches=new Set();
+  state.remoteLoading=state.search.length>=3;
+  render();
+  if(state.remoteLoading)articleSearchTimer=setTimeout(()=>searchPublishedArticleText(state.search,seq),320);
+ });
  $('showMoreArticles').addEventListener('click',()=>{state.visible+=LIMIT;render();});
  document.addEventListener('click',e=>{let link=e.target.closest('a[href]');if(!link||!link.href.startsWith(BASE+'?id='))return;e.preventDefault();let dest=new URL(link.href);history.pushState({article:true},'',dest.pathname+dest.search);route();});
  $('articleBack').addEventListener('click',()=>{history.pushState({},'',BASE);closeReader();});
