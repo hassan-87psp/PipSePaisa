@@ -18,6 +18,7 @@ const imageUrl=x=>{try{const u=new URL(String(x||''));return u.protocol==='https
 function render(a){
  const id=String(a.id).toLowerCase(),url=origin+'/articles/read/'+id+'/';
  const title=String(a.title||'Forex Article').trim(),body=String(a.content||a.content_ur||'').trim();
+ const seoTitle=(title.length>46?title.slice(0,46).replace(/\s+\S*$/,'').trim():title)+' | PipSePaisa';
  const roman=a.content&&a.content_ur?String(a.content_ur).trim():'';
  const desc=body.replace(/\s+/g,' ').slice(0,155)||'Forex education and market research from PipSePaisa';
  const d=new Date(a.created_at),validDate=Number.isFinite(+d);
@@ -30,7 +31,7 @@ function render(a){
  '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">',
  '<meta name="robots" content="index,follow,max-image-preview:large">',
  '<meta name="description" content="'+esc(desc)+'">',
- '<title>'+esc(title)+' | PipSePaisa</title>',
+ '<title>'+esc(seoTitle)+'</title>',
  '<link rel="canonical" href="'+url+'">',
  meta('og:type','article'),meta('og:site_name','PipSePaisa'),meta('og:title',title),meta('og:description',desc),meta('og:url',url),
  image?meta('og:image',image):'',iso?meta('article:published_time',iso):'',
