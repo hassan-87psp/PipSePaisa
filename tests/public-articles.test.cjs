@@ -24,7 +24,7 @@ test('Shared public navigation exposes Articles from Home, Courses, Broker Revie
   assert.equal(nav.split('>Articles</a>').length-1,1,f+' single visible Articles link');
   assert.ok(nav.indexOf('href="/tradingtools/"')<nav.indexOf('href="/articles/"'),f+' Articles after Trading Tools');
   assert.ok(nav.trimEnd().endsWith('>Articles</a>'),f+' Articles is final menu item');
-  assert.ok(text.includes('psp-public-articles-nav-v2.css?v=20261030-v525'),f+' fresh visible Articles style');
+  assert.ok(text.includes('psp-public-articles-nav-v2.css?v=20261030-v527'),f+' fresh visible Articles style');
  }
 });
 test('Public guest data fetch only selects published and allowed audience; never fetches charts or private user data',()=>{

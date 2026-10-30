@@ -1,7 +1,7 @@
 (function(){
 'use strict';
 const BASE='https://www.pipsepaisa.com/articles/';
-const URL='https://etfolhinohgmskbfjoyh.supabase.co';
+const SUPABASE_ENDPOINT='https://etfolhinohgmskbfjoyh.supabase.co';
 const KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw'; // Public client key, never a secret-role key.
 const LIMIT=12;
 const state={rows:[],category:'all',search:'',visible:LIMIT,selected:null,lang:'en'};
@@ -88,8 +88,15 @@ function route(scroll=true){
 }
 async function load(){
  try{
-  if(!window.supabase?.createClient)throw Error('Articles service is temporarily unavailable. Please refresh.');
-  const client=window.supabase.createClient(URL,KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},global:{headers:{'X-Client-Info':'pipsepaisa-public-articles'}}});
+  if(!window.supabase?.createClient) {
+   const endpoint=SUPABASE_ENDPOINT+'/rest/v1/articles?select=id,title,category,pair,image_url,created_at,content,content_ur&is_published=eq.true&audience=in.(all,public,free)&type=neq.chart&order=created_at.desc&limit=1000';
+   const response=await fetch(endpoint,{headers:{apikey:KEY,Accept:'application/json'},cache:'no-store'});
+   if(!response.ok)throw Error('Article service unavailable ('+response.status+').');
+   const data=await response.json();
+   state.rows=(Array.isArray(data)?data:[]).map(a=>({...a,subject:classify(a)}));
+   $('articleError').hidden=true;route(false);return;
+  }
+  const client=window.supabase.createClient(SUPABASE_ENDPOINT,KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},global:{headers:{'X-Client-Info':'pipsepaisa-public-articles'}}});
   const {data,error}=await client.from('articles')
    .select('id,title,category,pair,image_url,created_at,content,content_ur')
    .eq('is_published',true).in('audience',['all','public','free'])
@@ -104,6 +111,19 @@ async function load(){
  }
 }
 function init(){
+ const themeBtn=$('articleThemeBtn');
+ function applyTheme(mode){
+  const dark=mode==='dark';
+  document.body.classList.toggle('dark-theme',dark);
+  if(themeBtn){themeBtn.textContent=dark?'☀️':'🌙';themeBtn.setAttribute('aria-label',dark?'Switch to light theme':'Switch to dark theme');}
+ }
+ let theme='light';try{theme=localStorage.getItem('psp-theme')||localStorage.getItem('psp_theme')||'light';}catch(e){}
+ applyTheme(theme);
+ if(themeBtn)themeBtn.addEventListener('click',()=>{
+  const next=document.body.classList.contains('dark-theme')?'light':'dark';
+  applyTheme(next);
+  try{localStorage.setItem('psp-theme',next);localStorage.setItem('psp_theme',next);}catch(e){}
+ });
  $('mobileMenuBtn').addEventListener('click',()=>{const nav=$('articlePublicNav'),open=nav.classList.toggle('open');$('mobileMenuBtn').setAttribute('aria-expanded',String(open));});
  document.querySelectorAll('.category-btn').forEach(b=>b.addEventListener('click',()=>{state.category=b.dataset.category;state.visible=LIMIT;render();}));
  $('articleSearch').addEventListener('input',e=>{state.search=e.target.value.trim();state.visible=LIMIT;render();});

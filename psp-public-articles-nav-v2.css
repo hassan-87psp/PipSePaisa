@@ -1,32 +1,12 @@
-/* PipSePaisa V525 — visible public Articles action in the exact last menu slot. */
-@media (min-width:851px){
- .topbar .menu{min-width:0!important;gap:4px!important;align-items:center!important;flex-wrap:nowrap!important}
- .topbar .menu a{white-space:nowrap!important}
- .topbar .menu a.psp-public-articles-link{
-   display:inline-flex!important;visibility:visible!important;opacity:1!important;
-   position:relative!important;flex:0 0 auto!important;align-items:center!important;justify-content:center!important;
-   color:#b76b00!important;background:#fff4df!important;border:1px solid #f0c88c!important;
-   border-radius:9px!important;min-width:70px!important;min-height:33px!important;
-   font-size:12px!important;font-weight:850!important;padding:7px 10px!important;line-height:1.2!important;
-   box-shadow:none!important;text-indent:0!important;letter-spacing:0!important;
- }
- .topbar .menu a.psp-public-articles-link:hover,.topbar .menu a.psp-public-articles-link:focus-visible{
-   color:#8a4a00!important;background:#ffe9c4!important;border-color:#F39522!important;
- }
- .topbar .nav{gap:10px!important}
- .topbar .nav-actions{flex-shrink:0!important}
+/* V527: Articles is an ordinary PipSePaisa nav item, with no extra pill styling. */
+.topbar .menu a.psp-public-articles-link{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  white-space:nowrap!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
 }
-@media (min-width:851px) and (max-width:1190px){
- .topbar .menu{gap:2px!important}
- .topbar .menu a{font-size:11px!important;padding:8px 5px!important}
- .topbar .menu a.psp-public-articles-link{font-size:11px!important;padding:7px 7px!important;min-width:64px!important}
-}
-@media (max-width:850px){
- .topbar .menu a.psp-public-articles-link{
-   display:inline-flex!important;visibility:visible!important;opacity:1!important;
-   color:#db7b00!important;font-weight:900!important;
- }
-}
-body.dark-theme .topbar .menu a.psp-public-articles-link{
- color:#ffc26d!important;background:rgba(243,149,34,.12)!important;border-color:rgba(243,149,34,.48)!important
-}
+.topbar .menu a.psp-public-articles-link:hover,
+.topbar .menu a.psp-public-articles-link.active{color:#F88702!important}
