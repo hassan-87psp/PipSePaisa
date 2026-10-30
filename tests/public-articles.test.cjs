@@ -27,15 +27,19 @@ test('Shared public navigation exposes Articles from Home, Courses, Broker Revie
   assert.ok(text.includes('psp-public-articles-nav-v2.css?v=20261030-v527'),f+' fresh visible Articles style');
  }
 });
-test('Public guest data fetch only selects published and allowed audience; never fetches charts or private user data',()=>{
+test('Public guest data fetch is lightweight and only accesses published public articles',()=>{
  assert.doesNotThrow(()=>new vm.Script(src));
- assert.ok(src.includes("persistSession:false"));
- assert.ok(src.includes(".eq('is_published',true)"));
- assert.ok(src.includes(".in('audience',['all','public','free'])"));
- assert.ok(src.includes(".neq('type','chart')"));
- assert.ok(src.includes("'id,title,category,pair,image_url,created_at,content,content_ur'"));
+ assert.ok(src.includes("const API=SUPABASE_ENDPOINT+'/rest/v1/articles'"));
+ assert.ok(src.includes("is_published=eq.true&audience=in.(all,public,free)&type=neq.chart"));
+ assert.ok(src.includes('select=id,title,category,pair,image_url,created_at&'));
+ assert.ok(src.includes('select=id,content,content_ur&id=eq.'));
+ assert.ok(src.includes("cache:'no-store'"));
+ assert.ok(src.includes('sessionStorage.setItem(LIST_CACHE_KEY'));
+ assert.ok(!src.includes('window.supabase.createClient'));
  assert.ok(!src.includes("service_role"));
  assert.ok(!src.includes(".from('charts')"));
+ const html=read('articles/index.html');
+ assert.ok(!html.includes('@supabase/supabase-js'), 'No third-party SDK on public Articles page');
 });
 test('Public articles responsive layout, safe content and shareable URLs',()=>{
  assert.ok(css.includes('grid-template-columns:repeat(3,minmax(0,1fr))'));
@@ -65,7 +69,7 @@ test('Admin Mentor and member site use same articles source as public hub',()=>{
  assert.ok(admin.includes("sb.from('articles').insert(articleObj)")&&admin.includes("const is_published=true;"));
  assert.ok(mentor.includes("sb.from('articles').insert({...payload")&&mentor.includes("is_published:document.getElementById('maStatus').value==='published'"));
  assert.ok(member.includes("sb.from('articles').select('*').eq('is_published',true)"));
- assert.ok(src.includes("client.from('articles')"));
+ assert.ok(src.includes("const API=SUPABASE_ENDPOINT+'/rest/v1/articles'"));
 });
 
 test('Public navigation runtime keeps Articles after rebuilding the menu (root-cause regression)',()=>{
@@ -130,7 +134,7 @@ test('V529 compact hero and premium 3 / 2 / 1 cards layout at desktop/tablet/mob
  assert.ok(c.includes('prefers-reduced-motion'));
 });
 
-test('V530 Articles uses the identical Courses public header structure rather than independent header',()=>{
+test('V531 Articles keeps shared topbar structure and Home-matched design',()=>{
  const article=read('articles/index.html'),course=read('courses/index.html');
  const a=article.match(/<header class="topbar"[\s\S]*?<\/header>/)?.[0]||'';
  const b=course.match(/<header class="topbar"[\s\S]*?<\/header>/)?.[0]||'';
@@ -141,7 +145,7 @@ test('V530 Articles uses the identical Courses public header structure rather th
  }
  assert.ok(!a.includes('site-header')&&!a.includes('site-menu')&&!a.includes('head-row'),'legacy Articles header removed');
  assert.ok(article.includes('body class="page-articles"'));
- assert.ok(article.includes('psp-articles-header-exact-v530.css?v=20261030-v530'));
+ assert.ok(article.includes('psp-articles-header-exact-v530.css?v=20261030-v531'));
  assert.ok(article.includes('id="articleThemeBtn"'));
  assert.ok(a.includes('class="psp-public-articles-link active"'));
  const routes=['/','/courses/','/broker-reviews/','/becomepartner/','/tradingtools/','/articles/'];
@@ -155,7 +159,11 @@ test('V530 Articles uses the identical Courses public header structure rather th
  assert.ok(css.includes('body.page-articles .topbar .container.nav'));
  assert.ok(css.includes('body.page-articles .topbar .menu a'));
  assert.ok(css.includes('body.page-articles .topbar .actions'));
- assert.ok(css.includes('@media(max-width:850px)'));
+ assert.ok(css.includes('@media(max-width:768px)'));
+ assert.ok(css.includes('font-size:23px'));
+ assert.ok(css.includes('padding:11px 15px'));
+ assert.ok(css.includes('width:min(1180px'));
+ assert.ok(css.includes('padding:7px 9px'));
  assert.ok(!css.includes('.article-hero'),'hero should not be affected');
  assert.ok(!css.includes('.article-card'),'cards should not be affected');
 });
