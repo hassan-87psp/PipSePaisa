@@ -4,7 +4,12 @@ const BASE='https://www.pipsepaisa.com/articles/';
 const SUPABASE_ENDPOINT='https://etfolhinohgmskbfjoyh.supabase.co';
 const KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw'; // Public client key, never a secret-role key.
 const LIMIT=12;
-const state={rows:[],category:'all',search:'',visible:LIMIT,selected:null,lang:'en'};
+const state={rows:[],category:'all',search:'',visible:LIMIT,selected:null,lang:'en',readerToken:0,detailCache:new Map()};
+const LIST_CACHE_KEY='psp_public_articles_metadata_v531';
+const LIST_CACHE_TTL=120000;
+const API=SUPABASE_ENDPOINT+'/rest/v1/articles';
+const PUBLIC_FILTER='is_published=eq.true&audience=in.(all,public,free)&type=neq.chart';
+const API_HEADERS={apikey:KEY,Accept:'application/json'};
 const $=id=>document.getElementById(id);
 const elem=(tag,cls,txt)=>{let e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;};
 const formatDate=value=>{const d=new Date(value);return Number.isFinite(+d)?d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):''};
@@ -28,7 +33,7 @@ function imageWrap(a,cl){
 function matches(a){
  const category=state.category==='all'||a.subject===state.category;
  const q=state.search.toLowerCase();
- return category&&(!q||[a.title,a.category,a.pair,a.content,a.content_ur].some(v=>String(v||'').toLowerCase().includes(q)));
+ return category&&(!q||[a.title,a.category,a.pair].some(v=>String(v||'').toLowerCase().includes(q)));
 }
 function articleUrl(a){return BASE+'?id='+encodeURIComponent(a.id)}
 function makeLink(a){let link=elem('a');link.href=articleUrl(a);link.setAttribute('aria-label','Read '+(a.title||'article'));return link;}
@@ -55,15 +60,50 @@ function updateSeo(a){
  document.title=a?a.title+' | PipSePaisa Articles':'Forex Trading Articles & Market Research | PipSePaisa';
  let desc=document.querySelector('meta[name="description"]');if(desc)desc.content=a?String(a.content||a.content_ur||'Forex research article').slice(0,155):'Read free Forex education, technical analysis and market research from PipSePaisa. No login required.';
 }
+function showReaderContent(a){
+ state.lang=a.content?'en':'ur';
+ const lang=$('readerLanguage');lang.replaceChildren();lang.hidden=!(a.content&&a.content_ur);
+ if(!lang.hidden){
+  [['en','English'],['ur','Roman Urdu']].forEach(([key,label])=>{
+   const b=elem('button',key===state.lang?'selected':'',label);b.type='button';
+   b.addEventListener('click',()=>{state.lang=key;showLanguage();});lang.appendChild(b);
+  });
+ }
+ showLanguage();updateSeo(a);
+}
 function openReader(a,scroll=true){
  if(!a)return;
- state.selected=a;$('listingHero').hidden=true;$('articleLibrary').hidden=true;$('articleReader').hidden=false;
- $('readerTitle').textContent=a.title||'Forex Article';$('readerCategory').textContent=categories[a.subject];$('readerDate').textContent=formatDate(a.created_at);$('readerPair').textContent=a.pair||'';
- let image=$('readerHeroImage');image.replaceChildren();let url=imageUrl(a.image_url);image.hidden=!url;
- if(url){let im=elem('img');im.src=url;im.alt=a.title||'Article illustration';im.onerror=()=>{image.hidden=true;};image.appendChild(im);}
- state.lang=a.content?'en':'ur';let lang=$('readerLanguage');lang.replaceChildren();lang.hidden=!(a.content&&a.content_ur);
- if(!lang.hidden){[['en','English'],['ur','Roman Urdu']].forEach(([key,label])=>{let b=elem('button',key===state.lang?'selected':'',label);b.type='button';b.addEventListener('click',()=>{state.lang=key;showLanguage();});lang.appendChild(b);});}
- showLanguage();updateSeo(a);if(scroll)window.scrollTo({top:0,behavior:'instant'});
+ const token=++state.readerToken;
+ state.selected=a;
+ $('listingHero').hidden=true;$('articleLibrary').hidden=true;$('articleReader').hidden=false;
+ $('readerTitle').textContent=a.title||'Forex Article';
+ $('readerCategory').textContent=categories[a.subject];
+ $('readerDate').textContent=formatDate(a.created_at);
+ $('readerPair').textContent=a.pair||'';
+ const image=$('readerHeroImage');image.replaceChildren();const url=imageUrl(a.image_url);image.hidden=!url;
+ if(url){const im=elem('img');im.src=url;im.alt=a.title||'Article illustration';im.decoding='async';im.onerror=()=>{image.hidden=true;};image.appendChild(im);}
+ $('readerLanguage').hidden=true;$('readerLanguage').replaceChildren();
+ $('readerBody').textContent='Loading article...';
+ document.title=(a.title||'Forex Article')+' | PipSePaisa Articles';
+ if(scroll)window.scrollTo({top:0,behavior:'instant'});
+ const id=String(a.id);
+ const cached=state.detailCache.get(id);
+ if(cached){state.selected={...a,...cached};showReaderContent(state.selected);return;}
+ const urlDetail=API+'?select=id,content,content_ur&id=eq.'+encodeURIComponent(id)+'&'+PUBLIC_FILTER+'&limit=1';
+ fetch(urlDetail,{headers:API_HEADERS,cache:'no-store'}).then(async response=>{
+  if(!response.ok)throw Error('Article service unavailable ('+response.status+').');
+  const data=await response.json();
+  if(!Array.isArray(data)||!data.length)throw Error('Article not found.');
+  return data[0];
+ }).then(detail=>{
+  if(token!==state.readerToken||!state.selected||String(state.selected.id)!==id)return;
+  state.detailCache.set(id,detail);
+  state.selected={...a,...detail};showReaderContent(state.selected);
+ }).catch(()=>{
+  if(token===state.readerToken&&state.selected&&String(state.selected.id)===id){
+   $('readerBody').textContent='Could not load this article. Please return to the article list and try again.';
+  }
+ });
 }
 function showLanguage(){
  let a=state.selected;if(!a)return;
@@ -71,7 +111,7 @@ function showLanguage(){
  $('readerLanguage').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('selected',(i===0?'en':'ur')===state.lang));
 }
 function closeReader(scroll=true){
- state.selected=null;$('articleReader').hidden=true;$('listingHero').hidden=false;$('articleLibrary').hidden=false;updateSeo(null);render();if(scroll)window.scrollTo({top:0,behavior:'instant'});
+ ++state.readerToken;state.selected=null;$('articleReader').hidden=true;$('listingHero').hidden=false;$('articleLibrary').hidden=false;updateSeo(null);render();if(scroll)window.scrollTo({top:0,behavior:'instant'});
 }
 function route(scroll=true){
  const raw=new URL(location.href).searchParams.get('id');
@@ -79,24 +119,30 @@ function route(scroll=true){
  if(a)openReader(a,scroll);else if(state.selected)closeReader(scroll);else render();
 }
 async function load(){
+ // Restore only small public metadata. Always revalidate so newly published articles appear.
  try{
-  if(!window.supabase?.createClient) {
-   const endpoint=SUPABASE_ENDPOINT+'/rest/v1/articles?select=id,title,category,pair,image_url,created_at,content,content_ur&is_published=eq.true&audience=in.(all,public,free)&type=neq.chart&order=created_at.desc&limit=1000';
-   const response=await fetch(endpoint,{headers:{apikey:KEY,Accept:'application/json'},cache:'no-store'});
-   if(!response.ok)throw Error('Article service unavailable ('+response.status+').');
-   const data=await response.json();
-   state.rows=(Array.isArray(data)?data:[]).map(a=>({...a,subject:classify(a)}));
-   $('articleError').hidden=true;route(false);return;
+  const raw=sessionStorage.getItem(LIST_CACHE_KEY);
+  if(raw){
+   const entry=JSON.parse(raw);
+   if(entry&&Date.now()-entry.time<LIST_CACHE_TTL&&Array.isArray(entry.rows)){
+    state.rows=entry.rows.map(a=>({...a,subject:classify(a)}));
+    $('articleError').hidden=true;route(false);
+   }
   }
-  const client=window.supabase.createClient(SUPABASE_ENDPOINT,KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},global:{headers:{'X-Client-Info':'pipsepaisa-public-articles'}}});
-  const {data,error}=await client.from('articles')
-   .select('id,title,category,pair,image_url,created_at,content,content_ur')
-   .eq('is_published',true).in('audience',['all','public','free'])
-   .neq('type','chart').order('created_at',{ascending:false}).limit(1000);
-  if(error)throw error;
-  state.rows=(data||[]).map(a=>({...a,subject:classify(a)}));
-  $('articleError').hidden=true;route(false);
+ }catch(_){}
+ try{
+  const endpoint=API+'?select=id,title,category,pair,image_url,created_at&'+PUBLIC_FILTER+'&order=created_at.desc&limit=1000';
+  const response=await fetch(endpoint,{headers:API_HEADERS,cache:'no-store'});
+  if(!response.ok)throw Error('Article service unavailable ('+response.status+').');
+  const data=await response.json();
+  if(!Array.isArray(data))throw Error('Unexpected article response.');
+  state.rows=data.map(a=>({...a,subject:classify(a)}));
+  try{sessionStorage.setItem(LIST_CACHE_KEY,JSON.stringify({time:Date.now(),rows:data}));}catch(_){}
+  $('articleError').hidden=true;
+  if(!state.selected)route(false);
+  else $('articleCount').textContent=state.rows.length.toLocaleString('en-US');
  }catch(err){
+  if(state.rows.length)return; // Keep a usable cached list if refresh fails.
   $('articleGrid').replaceChildren();
   $('articleError').textContent='Could not load articles right now. Please try again. '+(err?.message||'');
   $('articleError').hidden=false;$('articleViewCount').textContent='Articles unavailable';
