@@ -1,0 +1,55 @@
+/* PipSePaisa premium shared filter UI. Scoped to Signals only. */
+.psp-signal-filters{
+ --sf-surface:var(--bg-card,var(--card,#fffdf8));--sf-border:var(--border,#e8dbc7);
+ --sf-ink:var(--text-primary,var(--text,#19253b));--sf-muted:var(--text-muted,var(--muted,#738198));
+ box-sizing:border-box;max-width:100%;min-width:0;margin:0 0 15px;
+ border:1px solid var(--sf-border);border-radius:18px;
+ background:linear-gradient(115deg,rgba(243,149,34,.085),transparent 46%),var(--sf-surface);
+ box-shadow:0 9px 26px rgba(36,43,51,.055);padding:18px;color:var(--sf-ink);
+ font-family:'Plus Jakarta Sans',Inter,Arial,sans-serif;
+}
+.psp-signal-filters *, .psp-signal-filters *::before,.psp-signal-filters *::after{box-sizing:border-box}
+.psp-signal-filters .psp-sf-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px}
+.psp-signal-filters .psp-sf-kicker{font-size:9px;font-weight:900;letter-spacing:1.6px;color:#d97706;margin-bottom:5px}
+.psp-signal-filters h3{font-size:18px;line-height:1.25;font-weight:900;letter-spacing:-.025em;margin:0;color:var(--sf-ink)}
+.psp-signal-filters .psp-sf-premium{display:inline-block;vertical-align:middle;border-radius:6px;background:#f39522;color:#211400;font-size:9px;padding:4px 7px;margin-left:4px;letter-spacing:.6px}
+.psp-signal-filters .psp-sf-head p{font-size:11px;color:var(--sf-muted);margin:6px 0 0;line-height:1.45}
+.psp-signal-filters .psp-sf-reset{border:1px solid var(--sf-border);border-radius:10px;padding:9px 11px;white-space:nowrap;cursor:pointer;min-height:38px;font-size:11px;font-weight:800;color:#b66e08;background:var(--sf-surface)}
+.psp-signal-filters .psp-sf-reset:hover{background:rgba(243,149,34,.14)}
+.psp-signal-filters .psp-sf-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) minmax(155px,1.3fr);gap:10px}
+.psp-signal-filters label{display:block!important;min-width:0!important;font-size:inherit!important;line-height:normal!important}
+.psp-signal-filters label>span{display:block;font-size:10px;font-weight:800;color:var(--sf-muted);letter-spacing:.2px;margin:0 0 6px}
+.psp-signal-filters select,.psp-signal-filters input[type="search"],.psp-signal-filters input[type="date"]{
+ appearance:auto;width:100%!important;max-width:100%;height:41px!important;min-height:41px!important;
+ min-width:0!important;margin:0!important;padding:8px 10px!important;
+ border:1px solid var(--sf-border)!important;border-radius:10px!important;
+ background:var(--sf-surface)!important;color:var(--sf-ink)!important;
+ box-shadow:none!important;font:700 12px/1.2 'Plus Jakarta Sans',Inter,Arial,sans-serif!important;
+}
+.psp-signal-filters select:focus-visible,.psp-signal-filters input:focus-visible,.psp-signal-filters button:focus-visible{outline:2px solid #f39522;outline-offset:2px}
+.psp-signal-filters .psp-sf-custom{display:grid;grid-template-columns:repeat(2,minmax(0,190px));gap:10px;margin-top:10px;align-items:end}
+.psp-signal-filters .psp-sf-custom[hidden]{display:none!important}
+.psp-signal-filters .psp-sf-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:15px}
+.psp-signal-filters .psp-sf-metrics>div{min-width:0;background:rgba(243,149,34,.055);border:1px solid var(--sf-border);border-radius:12px;padding:11px 13px}
+.psp-signal-filters .psp-sf-metrics span{font-size:10px;line-height:1.3;color:var(--sf-muted);display:block;font-weight:750}
+.psp-signal-filters .psp-sf-metrics strong{display:block;color:var(--sf-ink);font-size:22px;line-height:1.2;margin-top:5px;font-weight:900;white-space:nowrap;font-variant-numeric:tabular-nums}
+.psp-signal-filters .psp-sf-metrics strong.positive{color:#07885e}
+.psp-signal-filters .psp-sf-metrics strong.negative{color:#dc4444}
+.psp-signal-filters .psp-sf-footnote{font-size:10px;color:var(--sf-muted);line-height:1.5;margin-top:10px}
+@media(max-width:1120px){.psp-signal-filters .psp-sf-controls{grid-template-columns:repeat(3,minmax(0,1fr))}.psp-signal-filters .psp-sf-search{grid-column:span 2}}
+@media(max-width:760px){
+ .psp-signal-filters{padding:14px 12px;border-radius:16px;margin-bottom:13px}
+ .psp-signal-filters h3{font-size:16px}
+ .psp-signal-filters .psp-sf-kicker{font-size:8px;letter-spacing:1px}
+ .psp-signal-filters .psp-sf-head{gap:7px}
+ .psp-signal-filters .psp-sf-head p{font-size:10px}
+ .psp-signal-filters .psp-sf-reset{font-size:10px;padding:7px 9px;min-height:35px}
+ .psp-signal-filters .psp-sf-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .psp-signal-filters .psp-sf-search{grid-column:1/-1}
+ .psp-signal-filters .psp-sf-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+ .psp-signal-filters .psp-sf-metrics>div{padding:10px}
+ .psp-signal-filters .psp-sf-metrics strong{font-size:19px}
+ .psp-signal-filters select,.psp-signal-filters input[type="search"],.psp-signal-filters input[type="date"]{font-size:14px!important;height:44px!important;min-height:44px!important}
+ .psp-signal-filters .psp-sf-custom{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+}
+@media(max-width:360px){.psp-signal-filters .psp-sf-head{flex-wrap:wrap}.psp-signal-filters .psp-sf-metrics strong{font-size:17px}}
