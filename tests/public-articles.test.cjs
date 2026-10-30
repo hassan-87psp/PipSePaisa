@@ -180,6 +180,10 @@ test('Static published articles are individually indexable and included in the s
   assert.ok(article.includes('content="index,follow'),id+' is indexable');
   assert.ok(article.includes('"@type":"Article"'),id+' has Article schema');
   assert.ok(article.includes('<h1 '),id+' has primary heading');
+  const seoTitle=(article.match(/<title>([\s\S]*?)<\/title>/i)?.[1]||'').trim();
+  assert.ok(seoTitle.length>=30&&seoTitle.length<=65,id+' search title within 30-65 chars');
+  const description=article.match(/<meta name="description" content="([^"]+)"/i)?.[1]||'';
+  assert.ok(description.length>=100&&description.length<=170,id+' search description within 100-170 chars');
   assert.ok(sitemap.includes('<loc>'+canonical+'</loc>'),id+' appears in XML sitemap');
  }
 });
