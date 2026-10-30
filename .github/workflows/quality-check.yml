@@ -39,6 +39,10 @@ jobs:
           node --check mentor-staff-review-v498.js
           node --check mentor-staff-review-v503.js
           node --test tests/indicator-mentor-access-v498.test.cjs
+      - name: Verify Access Approval applicant names, emails and WhatsApp
+        run: |
+          node --check admin-account-verification-v49.js
+          node --test tests/admin-access-approval-contacts.test.cjs
       - name: Verify team referral course signup and enrollment routing
         run: node tests/team-referral-enrollment.test.mjs
       - name: Verify three distinct installable portals and independent logins
