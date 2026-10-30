@@ -1588,18 +1588,23 @@ function mSigSetView(v){
   }
   loadSignals();
 }
-async function loadSignals(){
+async function loadSignals(filterOnly){
   const box=document.getElementById('sigList');if(!box)return;
-  const {data,error}=await sb.from('signals').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false}).limit(60);
-  window._mSigCache=data||[];
+  const {data,error}=filterOnly==='filters'&&Array.isArray(window._mSigCache)
+    ?{data:window._mSigCache,error:null}
+    :await sb.from('signals').select('*').eq('owner_id',ME.id).order('created_at',{ascending:false}).limit(500);
   if(error){box.innerHTML='<div style="color:#ef4444">'+esc(error.message)+'</div>';return;}
+  window._mSigCache=data||[];
   // user panel jaisa rule: finished = SL / Closed / TP3
-  const list=(data||[]).filter(s=>{
+  const viewRows=(data||[]).filter(s=>{
     const st=(s.status||'active');
     const finished=(st==='sl'||st==='sl_hit'||st==='closed'||st==='tp3'||st==='be');
     return (mSigView==='active')?(!finished):finished;
   });
-  if(!list.length){box.innerHTML='<div style="color:#94a0b8">'+(mSigView==='active'?'No active signals right now. Check History for past results.':'No closed signals yet.')+'</div>';return;}
+  const filters=window.PSPSignalFilters;
+  const list=filters?filters.filter('mentor',viewRows):viewRows;
+  if(filters)filters.mount('mentor',box,viewRows,()=>loadSignals('filters'));
+  if(!list.length){box.innerHTML='<div style="color:#94a0b8">'+(mSigView==='active'?'No matching active signals. Check filters or History.':'No matching closed signals. Try clearing filters.')+'</div>';return;}
   box.innerHTML=list.map(mentorSignalRowHTML).join('');
 }
 let editingSigId=null;
@@ -1698,14 +1703,20 @@ function renderAdminSignals(){
   loadAdminSignals();
 }
 function setAdF(f){adF=f;document.querySelectorAll('#pg-adminsignals .seg button').forEach(b=>b.classList.remove('on'));event.target.classList.add('on');loadAdminSignals();}
-async function loadAdminSignals(){
+async function loadAdminSignals(filterOnly){
   const box=document.getElementById('adList');if(!box)return;
-  const {data,error}=await sb.from('signals').select('*').eq('is_official',true).order('created_at',{ascending:false});
+  const {data,error}=filterOnly==='filters'&&Array.isArray(window._mAdminSigCache)
+    ?{data:window._mAdminSigCache,error:null}
+    :await sb.from('signals').select('*').eq('is_official',true).order('created_at',{ascending:false}).limit(500);
   if(error){box.innerHTML=`<div class="list-empty" style="color:var(--red)">${esc(error.message)}</div>`;return;}
+  window._mAdminSigCache=data||[];
   let list=data||[];
   if(adF==='active')list=list.filter(s=>s.status==='active');
   else if(adF==='closed')list=list.filter(s=>s.status==='closed'||s.status==='sl_hit'||s.status==='tp_hit');
   else if(adF==='profit')list=list.filter(s=>s.status==='tp_hit');
+  const filters=window.PSPSignalFilters;
+  const viewRows=list;
+  if(filters){filters.mount('mentor-official',box,viewRows,()=>loadAdminSignals('filters'));list=filters.filter('mentor-official',viewRows);}
   if(!list.length){box.innerHTML='<div class="list-empty">No official signals for this filter.</div>';return;}
   box.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">'+list.map(s=>sigCardHTML(s,false)).join('')+'</div>';
 }
@@ -2722,5 +2733,7 @@ window.addEventListener('load',function(){
 <!-- Mobile-only PSP Mentor app shell; existing desktop layout is unchanged. -->
 <link rel="stylesheet" href="/mentor-mobile-ui-v1.css?v=20261030-v1">
 <script defer src="/mentor-mobile-ui-v1.js?v=20261030-v1"></script>
+<link rel="stylesheet" href="/psp-signal-filters-v1.css?v=20261030-v1">
+<script defer src="/psp-signal-filters-v1.js?v=20261030-v1"></script>
 </body>
 </html>

@@ -503,12 +503,18 @@ var aSigView='active';
 function aSigSetView(v){aSigView=v;var A=document.getElementById('aSigTabA'),H=document.getElementById('aSigTabH');
   if(A&&H){A.style.background=(v==='active')?'#f59e0b':'transparent';A.style.color=(v==='active')?'#0a0e1a':'inherit';H.style.background=(v==='history')?'#f59e0b':'transparent';H.style.color=(v==='history')?'#0a0e1a':'inherit';}
   loadAdSigList();}
-async function loadAdSigList(){
+async function loadAdSigList(filterOnly){
   var box=document.getElementById('asList');if(!box)return;
-  var r=await sb.from('signals').select('*').eq('is_official',true).order('created_at',{ascending:false}).limit(60);
+  var r=filterOnly==='filters'&&Array.isArray(window._pspAdminSigCache)
+    ?{data:window._pspAdminSigCache,error:null}
+    :await sb.from('signals').select('*').eq('is_official',true).order('created_at',{ascending:false}).limit(500);
   if(r.error){box.innerHTML='<div style="color:#ef4444">'+aEsc(r.error.message)+'</div>';return;}
-  var data=(r.data||[]).filter(function(s){var st=(s.status||'active');var fin=(st==='sl'||st==='sl_hit'||st==='closed'||st==='tp3'||st==='be');return (aSigView==='active')?(!fin):fin;});
-  if(!data.length){box.innerHTML='<div style="color:#94a0b8">'+(aSigView==='active'?'No active signals right now. Check History for past results.':'No closed signals yet.')+'</div>';return;}
+  window._pspAdminSigCache=r.data||[];
+  var viewRows=(r.data||[]).filter(function(s){var st=(s.status||'active');var fin=(st==='sl'||st==='sl_hit'||st==='closed'||st==='tp3'||st==='be');return (aSigView==='active')?(!fin):fin;});
+  var filters=window.PSPSignalFilters;
+  var data=filters?filters.filter('admin',viewRows):viewRows;
+  if(filters)filters.mount('admin',box,viewRows,function(){loadAdSigList('filters')});
+  if(!data.length){box.innerHTML='<div style="color:#94a0b8">No signals match these filters. Try History or Reset Filters.</div>';return;}
   box.innerHTML=data.map(function(s){
     var buy=(s.direction||'').toUpperCase()!=='SELL';var aud=(s.audience||(s.access_level==='vip'?'premium,vip':'free'));
     var parts=aud.split(',').map(function(x){return x.trim();}).filter(Boolean);var lbl={free:'🆓',premium:'💎',vip:'👑'};

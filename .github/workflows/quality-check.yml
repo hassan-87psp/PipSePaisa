@@ -49,6 +49,13 @@ jobs:
         run: node --test tests/portal-pwa-install.test.cjs
       - name: Verify Mentor native-style mobile app UI without desktop regression
         run: node --test tests/mentor-mobile-app-ui.test.cjs
+      - name: Verify premium Signals filters across User Mentor Admin and mobile
+        run: |
+          node --check psp-signal-filters-v1.js
+          node --check signals-workspace-v154.js
+          node --check admin-core-v406.js
+          node --check user-signals-core-v29.js
+          node --test tests/premium-signal-filters.test.cjs
       - name: Verify OneSignal subscription behavior
         run: node tests/notification-subscription-state.mjs
       - name: Verify EA & Indicator marketplace JavaScript and P+ eligibility
