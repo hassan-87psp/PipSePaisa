@@ -78,3 +78,19 @@ test('Backend permissions, signal publish/management actions and dates are not m
  assert.ok(css.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));
  assert.ok(css.includes('.psp-signal-filters .psp-sf-metrics'));
 });
+
+test('User normalized active signals are never treated as closed because closedTs has a fallback',()=>{
+ const api=run(),s=api.getState('user');
+ const rows=[
+  {pair:'XAU/USD',dir:'buy',status:'active',rawStatus:'active',ts:'2026-10-30T08:00:00Z',closedTs:'2026-10-30T08:00:00Z',pips:null},
+  {pair:'XAU/USD',dir:'sell',status:'active',rawStatus:'pending',ts:'2026-10-30T08:00:00Z',closedTs:'2026-10-30T08:00:00Z',pips:null},
+  {pair:'XAU/USD',dir:'buy',status:'tp',rawStatus:'tp1',ts:'2026-10-29T08:00:00Z',closedTs:'2026-10-29T08:00:00Z',pips:50},
+  {pair:'XAU/USD',dir:'sell',status:'closed',rawStatus:'sl',ts:'2026-10-29T08:00:00Z',closedTs:'2026-10-30T08:00:00Z',pips:-40}
+ ];
+ assert.equal(api.stats(rows).finished,1,'Only SL is finished, not live, pending or TP1');
+ s.status='pending';assert.equal(api.filter('user',rows).length,1);
+ s.status='tp1';assert.equal(api.filter('user',rows).length,1);
+ s.status='closed';assert.equal(api.filter('user',rows).length,1);
+ s.status='all';s.period='today';
+ assert.equal(api.filter('user',rows,new Date(2026,9,30,12)).length,3,'uses close date for SL and creation date for live signals');
+});
