@@ -17,7 +17,7 @@ const signal=(pair,dir,status,date,pips,extra={})=>({pair,direction:dir,status,
 
 test('One shared premium filter layer is installed on all User, Mentor and Admin portals',()=>{
  assert.doesNotThrow(()=>new vm.Script(src));
- for(const file of ['dashboard/index.html','psp-mentor.html','admin/index.html','admin-panel.html']){
+ for(const file of ["dashboard/index.html","signals/index.html","journal/index.html","performance/index.html","my-courses/index.html","profile/index.html","member-chats/index.html","ai-tools/index.html","ai-report/index.html","world-news/index.html","charts-articles/index.html","my-trades/index.html","support/index.html","currency-strength/index.html","economic-news/index.html","live-charts/index.html","trades-analysis/index.html","eaindicator/index.html","announcements/index.html","tools/index.html","about/index.html","psp-mentor.html","admin/index.html","admin-panel.html"]){
   assert.ok(read(file).includes('psp-signal-filters-v1.js?v=20261030-v1'),file+' JS');
   assert.ok(read(file).includes('psp-signal-filters-v1.css?v=20261030-v1'),file+' CSS');
  }
@@ -93,4 +93,16 @@ test('User normalized active signals are never treated as closed because closedT
  s.status='closed';assert.equal(api.filter('user',rows).length,1);
  s.status='all';s.period='today';
  assert.equal(api.filter('user',rows,new Date(2026,9,30,12)).length,3,'uses close date for SL and creation date for live signals');
+});
+
+test('Every User Panel route alias and admin workspace uses fresh signal script versions',()=>{
+ for(const file of ["dashboard/index.html","signals/index.html","journal/index.html","performance/index.html","my-courses/index.html","profile/index.html","member-chats/index.html","ai-tools/index.html","ai-report/index.html","world-news/index.html","charts-articles/index.html","my-trades/index.html","support/index.html","currency-strength/index.html","economic-news/index.html","live-charts/index.html","trades-analysis/index.html","eaindicator/index.html","announcements/index.html","tools/index.html","about/index.html"]){
+  assert.ok(read(file).includes('user-signals-core-v29.js?v=20261030-v522-premium-filters'),file+' cache bust');
+ }
+ for(const file of ['admin/index.html','admin-panel.html']){
+  assert.ok(read(file).includes('admin-core-v406.js?v=20261030-v522-premium-filters'),file+' Admin cache bust');
+ }
+ for(const file of ['psp-mentor.html','admin-panel.html']){
+  assert.ok(read(file).includes('signals-workspace-v154.js?v=20261030-v522-premium-filters'),file+' workspace cache bust');
+ }
 });
