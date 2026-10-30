@@ -1,0 +1,111 @@
+/* V530: Articles header uses the identical Course/Home public topbar structure.
+   Only applies to /articles. No resets for article hero, cards or private apps. */
+body.page-articles .topbar{
+ position:sticky;top:0;z-index:1000;
+ background:rgba(255,250,242,.97);backdrop-filter:blur(14px);
+ border-bottom:1px solid #ead6b6;color:#181e2c;
+}
+body.page-articles .topbar .container.nav{
+ box-sizing:border-box;width:min(1180px,calc(100% - 32px));
+ margin:0 auto;max-width:1180px;height:76px;min-height:76px;
+ padding:0;display:flex;flex-direction:row;align-items:center;justify-content:space-between;
+ gap:18px;
+}
+body.page-articles .topbar .brand{
+ flex:0 0 auto;display:inline-flex;align-items:center;gap:10px;
+ font-family:Inter,Arial,sans-serif;font-size:20px;font-weight:900;
+ letter-spacing:-.035em;line-height:1;color:#172035;white-space:nowrap;
+ text-decoration:none;
+}
+body.page-articles .topbar .brand img{
+ display:block;flex:0 0 auto;width:44px;height:44px;
+ min-width:44px;max-width:44px;border-radius:11px;object-fit:cover;
+}
+body.page-articles .topbar .brand .brand-accent{color:#F88702}
+body.page-articles .topbar .menu{
+ display:flex;flex:0 1 auto;min-width:0;align-items:center;justify-content:center;
+ flex-direction:row;flex-wrap:nowrap;gap:5px;margin:0;
+ padding:0;position:static;visibility:visible;opacity:1;
+ background:none;box-shadow:none;border:0;transform:none;
+}
+body.page-articles .topbar .menu a,
+body.page-articles .topbar .menu a.psp-public-articles-link{
+ display:inline-flex;align-items:center;justify-content:center;
+ flex:0 0 auto;min-width:0;white-space:nowrap;
+ font-family:Inter,Arial,sans-serif!important;
+ color:#3f3b35!important;font-size:14px;font-weight:650!important;
+ line-height:1.2;letter-spacing:0;padding:10px 9px;
+ text-decoration:none;background:transparent!important;border:0!important;
+ box-shadow:none!important;border-radius:9px;min-height:36px;
+}
+body.page-articles .topbar .menu a.active,
+body.page-articles .topbar .menu a.active.psp-public-articles-link,
+body.page-articles .topbar .menu a:hover,
+body.page-articles .topbar .menu a:focus-visible{
+ color:#F88702!important;background:transparent!important;
+}
+body.page-articles .topbar .actions{
+ display:flex;flex:0 0 auto;align-items:center;justify-content:flex-end;
+ gap:10px;margin:0;
+}
+body.page-articles .topbar .theme-btn{
+ display:grid;place-items:center;cursor:pointer;
+ width:42px;height:42px;min-width:42px;
+ border-radius:50%;padding:0;border:1px solid #f0d6ac;
+ background:#fff7eb;color:#8c5200;font-size:19px;line-height:1;
+}
+body.page-articles .topbar .login{
+ display:inline-flex;align-items:center;justify-content:center;
+ padding:10px 16px;min-height:42px;min-width:69px;border:0;border-radius:11px;
+ background:#ef8200;color:#121216;font-size:14px;font-weight:850;line-height:1;
+ box-shadow:0 10px 22px rgba(223,126,0,.12);white-space:nowrap;
+}
+body.page-articles .topbar .mobile-menu{display:none}
+body.dark-theme.page-articles .topbar{background:#0b1728;border-color:#29394e}
+body.dark-theme.page-articles .topbar .brand,
+body.dark-theme.page-articles .topbar .menu a,
+body.dark-theme.page-articles .topbar .menu a.psp-public-articles-link{color:#f1f3f6!important}
+body.dark-theme.page-articles .topbar .menu a.active,
+body.dark-theme.page-articles .topbar .menu a.active.psp-public-articles-link,
+body.dark-theme.page-articles .topbar .menu a:hover{color:#F88702!important}
+body.dark-theme.page-articles .topbar .theme-btn{background:#18283c;color:#ffb449;border-color:#37465d}
+@media(min-width:851px) and (max-width:1160px){
+ body.page-articles .topbar .container.nav{gap:8px}
+ body.page-articles .topbar .brand{font-size:18px;gap:7px}
+ body.page-articles .topbar .brand img{width:38px;height:38px;min-width:38px}
+ body.page-articles .topbar .menu{gap:2px}
+ body.page-articles .topbar .menu a,
+ body.page-articles .topbar .menu a.psp-public-articles-link{font-size:12px;padding:8px 5px}
+ body.page-articles .topbar .actions{gap:6px}
+}
+@media(max-width:850px){
+ body.page-articles .topbar .container.nav{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;gap:6px 10px;width:calc(100% - 24px);max-width:none;
+  height:auto;min-height:0;padding:8px 0;
+ }
+ body.page-articles .topbar .brand{
+  grid-column:1;grid-row:1;font-size:17px;gap:6px;
+ }
+ body.page-articles .topbar .brand img{width:35px;height:35px;min-width:35px}
+ body.page-articles .topbar .actions{
+  grid-column:3;grid-row:1;gap:6px;justify-content:flex-end
+ }
+ body.page-articles .topbar .theme-btn{width:35px;height:35px;min-width:35px;font-size:16px}
+ body.page-articles .topbar .login{min-height:35px;min-width:0;padding:8px 12px;font-size:12px}
+ body.page-articles .topbar .mobile-menu{display:none}
+ body.page-articles .topbar .menu{
+  grid-column:1/-1;grid-row:2;display:flex!important;width:100%;
+  flex-direction:row;justify-content:flex-start;align-items:center;
+  flex-wrap:nowrap;gap:4px;position:static!important;
+  padding:3px 0 2px;margin:0;overflow-x:auto;overflow-y:hidden;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+  background:transparent!important;box-shadow:none!important;
+ }
+ body.page-articles .topbar .menu::-webkit-scrollbar{display:none}
+ body.page-articles .topbar .menu a,
+ body.page-articles .topbar .menu a.psp-public-articles-link{
+  font-size:12px!important;padding:7px 9px;
+  min-height:31px;border-radius:7px;
+ }
+}

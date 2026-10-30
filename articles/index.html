@@ -21,16 +21,25 @@
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="/psp-public-articles-v1.js?v=20261030-v529"></script>
 <link rel="stylesheet" href="/psp-public-articles-premium-v529.css?v=20261030-v529">
+<link rel="stylesheet" href="/psp-articles-header-exact-v530.css?v=20261030-v530">
 </head>
-<body>
-<header class="site-header">
- <div class="site-wrap head-row">
-  <a class="brand" href="/" aria-label="PipSePaisa Home"><img src="/favicon.png" alt="" width="42" height="42"><span>Pip<span class="brand-accent">Se</span>Paisa</span></a>
-  <nav class="site-menu" id="articlePublicNav" aria-label="Public website navigation">
-   <a href="/">Home</a><a href="/courses/">Courses</a>
-   <a href="/broker-reviews/">Broker Reviews</a><a href="/becomepartner/">Become Partner</a><a href="/tradingtools/">Trading Tools &amp; Services</a>
-  <a class="active" href="/articles/" aria-current="page">Articles</a></nav>
-  <div class="head-actions"><button type="button" class="head-theme" id="articleThemeBtn" aria-label="Switch theme">🌙</button><a class="head-login" href="/sign-in/">Login</a><button type="button" id="mobileMenuBtn" class="mobile-menu-btn" aria-expanded="false" aria-controls="articlePublicNav" aria-label="Open menu">☰</button></div>
+<body class="page-articles">
+<header class="topbar" aria-label="PipSePaisa public header">
+ <div class="container nav">
+  <a class="brand" href="/" target="_top" aria-label="PipSePaisa Home"><img alt="PipSePaisa logo" decoding="async" src="/favicon.png" width="44" height="44"><span>Pip<span class="brand-accent">Se</span>Paisa</span></a>
+  <nav class="menu" id="articlePublicNav" aria-label="Public website navigation">
+   <a href="/" target="_top">Home</a>
+   <a href="/courses/" target="_top">Courses</a>
+   <a class="broker-reviews-link" href="/broker-reviews/" target="_top">Broker Reviews</a>
+   <a href="/becomepartner/" target="_top">Become Partner</a>
+   <a href="/tradingtools/" target="_top">Trading Tools &amp; Services</a>
+   <a class="psp-public-articles-link active" href="/articles/" target="_top" aria-current="page">Articles</a>
+  </nav>
+  <div class="actions">
+   <button type="button" class="theme-btn" id="articleThemeBtn" aria-label="Switch theme">🌙</button>
+   <a class="login" href="/sign-in/" target="_top">Login</a>
+   <button type="button" class="mobile-menu" id="mobileMenuBtn" aria-expanded="false" aria-controls="articlePublicNav" aria-label="Open navigation">☰</button>
+  </div>
  </div>
 </header>
 <main id="pageContent">

@@ -129,3 +129,33 @@ test('V529 compact hero and premium 3 / 2 / 1 cards layout at desktop/tablet/mob
  assert.ok(c.includes('body.dark-theme .article-hero'));
  assert.ok(c.includes('prefers-reduced-motion'));
 });
+
+test('V530 Articles uses the identical Courses public header structure rather than independent header',()=>{
+ const article=read('articles/index.html'),course=read('courses/index.html');
+ const a=article.match(/<header class="topbar"[\s\S]*?<\/header>/)?.[0]||'';
+ const b=course.match(/<header class="topbar"[\s\S]*?<\/header>/)?.[0]||'';
+ assert.ok(a&&b,'both use topbar');
+ for(const className of ['container nav','brand','menu','actions','theme-btn','login']){
+  assert.ok(a.includes('class="'+className+'"'),className+' missing from Articles');
+  assert.ok(b.includes('class="'+className+'"'),className+' missing from Courses');
+ }
+ assert.ok(!a.includes('site-header')&&!a.includes('site-menu')&&!a.includes('head-row'),'legacy Articles header removed');
+ assert.ok(article.includes('body class="page-articles"'));
+ assert.ok(article.includes('psp-articles-header-exact-v530.css?v=20261030-v530'));
+ assert.ok(article.includes('id="articleThemeBtn"'));
+ assert.ok(a.includes('class="psp-public-articles-link active"'));
+ const routes=['/','/courses/','/broker-reviews/','/becomepartner/','/tradingtools/','/articles/'];
+ for(const route of routes){
+  assert.ok(a.includes('href="'+route+'"'),route+' missing Articles');
+  assert.ok(b.includes('href="'+route+'"'),route+' missing Courses');
+ }
+ const linksOf=h=>[...h.matchAll(/<nav class="menu"[^>]*>([\s\S]*?)<\/nav>/g)][0][1].match(/href="([^"]+)"/g);
+ assert.deepEqual(linksOf(a),linksOf(b),'same nav link destinations and order');
+ const css=read('psp-articles-header-exact-v530.css');
+ assert.ok(css.includes('body.page-articles .topbar .container.nav'));
+ assert.ok(css.includes('body.page-articles .topbar .menu a'));
+ assert.ok(css.includes('body.page-articles .topbar .actions'));
+ assert.ok(css.includes('@media(max-width:850px)'));
+ assert.ok(!css.includes('.article-hero'),'hero should not be affected');
+ assert.ok(!css.includes('.article-card'),'cards should not be affected');
+});
