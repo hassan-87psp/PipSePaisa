@@ -113,3 +113,9 @@ body.dark-theme .article-card .card-meta{border-color:#33445c}
  .article-hero h1{font-size:27px!important}
 }
 @media(prefers-reduced-motion:reduce){.article-card,.article-card .card-media img{transition:none}}
+
+/* V536: restrained educational mentor cross-link, not an author byline. */
+.article-library .article-mentor-note{margin:0 0 16px;color:#657086;font-size:12px;line-height:1.6}
+.article-library .article-mentor-note a{color:#a6640b;font-weight:800;text-decoration:underline;text-decoration-color:#e9be85;text-underline-offset:3px}
+body.dark-theme .article-library .article-mentor-note{color:#b6c3d3}
+body.dark-theme .article-library .article-mentor-note a{color:#fbbb63}
