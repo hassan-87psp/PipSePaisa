@@ -1430,10 +1430,12 @@ async function loadLandingBrokers(){
 }
 async function deleteLandingBroker(id){if(!(await window.pspConfirm('Delete this landing broker card?')))return;await sb.from('banners').delete().eq('id',id);loadLandingBrokers()}
 async function saveLandingSocialLinks(){
-  var vals={facebook:document.getElementById('lsFacebook').value.trim(),instagram:document.getElementById('lsInstagram').value.trim(),whatsapp:document.getElementById('lsWhatsapp').value.trim()};var msg=document.getElementById('lsMsg');
+  var youtube=(document.getElementById('lsYoutube')?.value||'').trim();
+  if(youtube&&!/^https:\/\/(www\.|m\.)?youtube\.com\/(?:@[\w.-]+|channel\/[\w-]+|c\/[\w.-]+|user\/[\w.-]+)\/?$/i.test(youtube)){var err=document.getElementById('lsMsg');err.style.color='var(--red)';err.textContent='Enter a valid YouTube channel link (not a video URL).';return;}
+  var vals={facebook:document.getElementById('lsFacebook').value.trim(),instagram:document.getElementById('lsInstagram').value.trim(),whatsapp:document.getElementById('lsWhatsapp').value.trim(),youtube:youtube};var msg=document.getElementById('lsMsg');
   try{for(const k of Object.keys(vals)){await sb.from('banners').delete().eq('title','LANDING_SOCIAL|'+k);if(vals[k]){var r=await sb.from('banners').insert({title:'LANDING_SOCIAL|'+k,description:vals[k],image_url:'social-link'});if(r.error)throw r.error}}msg.style.color='var(--green)';msg.textContent='✅ Social links saved.';}catch(e){msg.style.color='var(--red)';msg.textContent='Failed: '+(e.message||e)}
 }
-async function loadLandingSocialLinks(){var r=await sb.from('banners').select('title,description').like('title','LANDING_SOCIAL|%');(r.data||[]).forEach(x=>{var k=x.title.split('|')[1];var id=k==='facebook'?'lsFacebook':k==='instagram'?'lsInstagram':'lsWhatsapp';var el=document.getElementById(id);if(el)el.value=x.description||''})}
+async function loadLandingSocialLinks(){var r=await sb.from('banners').select('title,description').like('title','LANDING_SOCIAL|%');(r.data||[]).forEach(x=>{var k=x.title.split('|')[1];var id=k==='facebook'?'lsFacebook':k==='instagram'?'lsInstagram':k==='youtube'?'lsYoutube':'lsWhatsapp';var el=document.getElementById(id);if(el)el.value=x.description||''})}
 
 async function uploadBanner(){
   var f=document.getElementById('bnFile');var t=document.getElementById('bnTitle');var d=document.getElementById('bnDesc');var msg=document.getElementById('bnMsg');var btn=document.getElementById('bnBtn');

@@ -56,6 +56,10 @@ jobs:
           node --check admin-core-v406.js
           node --check user-signals-core-v29.js
           node --test tests/premium-signal-filters.test.cjs
+      - name: Verify PipSePaisa YouTube links, navigation isolation and admin configuration
+        run: |
+          node --check psp-youtube-links-v1.js
+          node --test tests/youtube-links.test.cjs
       - name: Verify OneSignal subscription behavior
         run: node tests/notification-subscription-state.mjs
       - name: Verify EA & Indicator marketplace JavaScript and P+ eligibility
