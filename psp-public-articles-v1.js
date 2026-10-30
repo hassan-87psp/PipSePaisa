@@ -32,14 +32,6 @@ function matches(a){
 }
 function articleUrl(a){return BASE+'?id='+encodeURIComponent(a.id)}
 function makeLink(a){let link=elem('a');link.href=articleUrl(a);link.setAttribute('aria-label','Read '+(a.title||'article'));return link;}
-function featured(a){
- const host=$('featuredArticle');host.replaceChildren();if(!a){host.hidden=true;return;}host.hidden=false;
- let card=elem('a','featured-card');card.href=articleUrl(a);card.appendChild(imageWrap(a,'featured-art'));
- let copy=elem('div','featured-copy');copy.appendChild(elem('span','featured-label','LATEST RESEARCH • '+categories[a.subject].toUpperCase()));
- copy.appendChild(elem('h3',null,a.title||'Forex Research'));copy.appendChild(elem('p',null,((a.content||a.content_ur||'').trim().replace(/\s+/g,' ').slice(0,175)||'Explore our latest educational research.')+'…'));
- copy.appendChild(elem('span','featured-date',formatDate(a.created_at)));copy.appendChild(elem('span','featured-action','Read Full Article ↗'));
- card.appendChild(copy);host.appendChild(card);
-}
 function smallCard(a){
  let article=elem('article','article-card'),link=makeLink(a);link.appendChild(imageWrap(a,'card-media'));
  let content=elem('div','card-content');content.appendChild(elem('span','article-category',categories[a.subject]));
@@ -52,11 +44,11 @@ function render(){
  const rows=state.rows.filter(matches),searching=!!state.search||state.category!=='all';
  $('articleCount').textContent=state.rows.length.toLocaleString('en-US');
  $('articleViewCount').textContent=rows.length+' articles'+(searching?' matching your filters':' available');
- let promoted=searching?null:rows[0];featured(promoted);
- let rest=promoted?rows.slice(1):rows;let grid=$('articleGrid');grid.replaceChildren();
+ // Latest article is the first regular card. Never render an oversized featured block.
+ let grid=$('articleGrid');grid.replaceChildren();
  if(!rows.length)grid.appendChild(elem('div','article-status','No articles match your search. Try another keyword or category.'));
- else rest.slice(0,state.visible).forEach(a=>grid.appendChild(smallCard(a)));
- $('showMoreArticles').hidden=rest.length<=state.visible;
+ else rows.slice(0,state.visible).forEach(a=>grid.appendChild(smallCard(a)));
+ $('showMoreArticles').hidden=rows.length<=state.visible;
  document.querySelectorAll('.category-btn').forEach(b=>{let on=b.dataset.category===state.category;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
 }
 function updateSeo(a){
@@ -105,7 +97,7 @@ async function load(){
   state.rows=(data||[]).map(a=>({...a,subject:classify(a)}));
   $('articleError').hidden=true;route(false);
  }catch(err){
-  $('articleGrid').replaceChildren();$('featuredArticle').hidden=true;
+  $('articleGrid').replaceChildren();
   $('articleError').textContent='Could not load articles right now. Please try again. '+(err?.message||'');
   $('articleError').hidden=false;$('articleViewCount').textContent='Articles unavailable';
  }

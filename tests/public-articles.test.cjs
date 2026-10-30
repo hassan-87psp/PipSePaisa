@@ -104,3 +104,28 @@ test('All public marketing pages force new navigation script and footer links ar
    assert.ok(read(path).includes('/public-upgrades.js?v=20261030-v526-articles-nav'),path);
  }
 });
+
+test('V529 eliminates oversized featured card; first published article stays first in grid',()=>{
+ const h=read('articles/index.html'),s=read('psp-public-articles-v1.js');
+ assert.ok(!h.includes('id="featuredArticle"'));
+ assert.ok(!h.includes('class="featured-card"'));
+ assert.ok(!s.includes('function featured(a)'));
+ assert.ok(!s.includes("let promoted=searching?null:rows[0]"));
+ assert.ok(s.includes("rows.slice(0,state.visible).forEach(a=>grid.appendChild(smallCard(a)))"));
+ assert.ok(s.includes("$('showMoreArticles').hidden=rows.length<=state.visible"));
+ assert.ok(h.includes('id="articleGrid"'));
+ assert.ok(h.includes('id="articleCount"'));
+});
+test('V529 compact hero and premium 3 / 2 / 1 cards layout at desktop/tablet/mobile',()=>{
+ const h=read('articles/index.html'),c=read('psp-public-articles-premium-v529.css');
+ assert.ok(h.includes('Forex Education &amp; <span>Market Insights</span>'));
+ assert.ok(h.includes('hero-research-art'));
+ assert.ok(h.includes('<svg viewBox="0 0 500 286"'));
+ assert.ok(h.includes('href="#articleLibrary"'));
+ assert.ok(c.includes('grid-template-columns:repeat(3,minmax(0,1fr))'));
+ assert.ok(c.includes('grid-template-columns:repeat(2,minmax(0,1fr))'));
+ assert.ok(c.includes('.article-grid{grid-template-columns:1fr'));
+ assert.ok(c.includes('max-height:248px'));
+ assert.ok(c.includes('body.dark-theme .article-hero'));
+ assert.ok(c.includes('prefers-reduced-motion'));
+});
