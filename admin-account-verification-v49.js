@@ -1,7 +1,7 @@
 /* PipSePaisa V85 — Access Approvals + themed Trial/Reject modals */
 (function(){
 'use strict';
-let settings=null, rows=[], profiles=new Map(), enabled=true, installed=false, rowsLoadSeq=0, settingsLoadSeq=0;
+let settings=null, rows=[], profiles=new Map(), enabled=true, installed=false, rowsLoadSeq=0, settingsLoadSeq=0, contactsLoadError=false;
 let av85ModalState={type:null,uid:null};
 let av116Filter={status:'pending',broker:'all',access:'all',search:''};
 let av116CountdownTimer=null; let avAccessRealtime=null;
@@ -76,6 +76,7 @@ function approvalPage(){
         <button class="av116-reset av186-reset" type="button" onclick="PSPAdminVerification.resetFilters()">Clear Filters</button>
       </div>
 
+      <div class="av49-contact-warning" id="av49ContactWarning" role="status" style="display:none">⚠ Contact details could not be fully loaded. Please use Refresh to retry before reviewing a request.</div>
       <div class="av185-table-caption av186-table-caption"><span><b id="av185VisibleCount">0</b> requests shown</span><span class="av185-legend"><i class="p"></i>Pending <i class="a"></i>Active <i class="r"></i>Rejected</span></div>
       <div class="av49-table-wrap av116-table-wrap av185-table-wrap av186-table-wrap">
         <table class="av49-table av116-table av185-table av186-table">
@@ -264,7 +265,7 @@ function av116Match(x,p){
   if(av116Filter.access==='expired'&&st!=='expired')return false;
 
   const hay=[
-    p.full_name,p.email,p.whatsapp,p.phone,x.trading_account_id,x.broker,x.email_subject
+    p.full_name,p.email,p.whatsapp,p.phone,x.user_id,x.trading_account_id,x.broker,x.email_subject
   ].join(' ').toLowerCase();
   if(av116Filter.search&&!hay.includes(av116Filter.search))return false;
   return true;
@@ -316,19 +317,38 @@ async function loadRows(){
   const nextRows=r.data||[];
   const ids=[...new Set(nextRows.map(x=>x.user_id).filter(Boolean))];
   const nextProfiles=new Map();
+  let lookupFailed=false;
   if(ids.length){
-    // profiles can exceed 1000 globally; only current verification users are needed here.
-    const p=await c.from('profiles').select('id,full_name,email,phone,whatsapp').in('id',ids);
+    // Keep each PostgREST URL short. Passing 50+ UUIDs in one .in() request can
+    // exceed browser/proxy URL limits and silently leave the User column as UUIDs.
+    const chunks=[];
+    for(let i=0;i<ids.length;i+=10)chunks.push(ids.slice(i,i+10));
+    const results=await Promise.allSettled(chunks.map(chunk=>
+      c.from('profiles').select('id,full_name,email,phone,whatsapp').in('id',chunk)
+    ));
     if(seq!==rowsLoadSeq)return;
-    if(!p.error)(p.data||[]).forEach(x=>nextProfiles.set(x.id,x))
+    results.forEach((result,i)=>{
+      if(result.status!=='fulfilled'||result.value.error){
+        lookupFailed=true;
+        console.warn('[Access Approvals] Could not load profile contacts for batch '+(i+1),
+          result.status==='fulfilled'?result.value.error?.message:result.reason?.message||'network error');
+        return;
+      }
+      (result.value.data||[]).forEach(p=>nextProfiles.set(p.id,p));
+    });
+    // A completed query that returns zero contacts for known verification users
+    // can indicate a session/permissions issue; do not mask that as missing data.
+    if(!nextProfiles.size)lookupFailed=true;
   }
   if(seq!==rowsLoadSeq)return;
-  rows=nextRows;profiles=nextProfiles;
+  rows=nextRows;profiles=nextProfiles;contactsLoadError=lookupFailed;
   renderRows();
 }
 
 function renderRows(){
   const b=q('#av49Body');if(!b)return;
+  const warning=q('#av49ContactWarning');
+  if(warning)warning.style.display=contactsLoadError?'block':'none';
   const submitted=rows.filter(x=>x.submission_status!=='not_submitted');
 
   const counts={pending:0,approved:0,rejected:0,expired:0};
@@ -358,7 +378,11 @@ function renderRows(){
   const initials=s=>String(s||'?').trim().split(/\s+/).slice(0,2).map(v=>v[0]||'').join('').toUpperCase()||'?';
   b.innerHTML=visible.map(x=>{
     const p=profiles.get(x.user_id)||{};
-    const name=p.full_name||p.email||x.user_id, wa=p.whatsapp||p.phone||'', st=av116DerivedStatus(x);
+    const name=(p.full_name||'').trim()||'Name unavailable';
+    const email=(p.email||'').trim();
+    const wa=(p.whatsapp||p.phone||'').trim();
+    const phoneLabel=p.whatsapp?'WhatsApp':'Phone';
+    const st=av116DerivedStatus(x);
     const proofButtons='<div class="av49-actions av116-proof-actions">'+
       (x.deposit_proof_path?'<button class="av49-proof" onclick="PSPAdminVerification.openProof(\''+esc(x.deposit_proof_path)+'\')">🧾 Deposit</button>':'')+
       (x.proof_path?'<button class="av49-proof" onclick="PSPAdminVerification.openProof(\''+esc(x.proof_path)+'\')">✉ Broker Email</button>':'')+
@@ -371,7 +395,7 @@ function renderRows(){
 
     const detailsId='av116-details-'+x.user_id;
     return `<tr class="av116-main-row av185-row av185-${esc(st)}">
-      <td><div class="av185-user"><div class="av185-avatar">${esc(initials(name))}</div><div><strong>${esc(name)}</strong><div class="av116-user-sub">${esc(p.email||'')}${wa?'<br>'+esc(wa):''}</div></div></div></td>
+      <td><div class="av185-user"><div class="av185-avatar">${esc(initials(name))}</div><div class="av185-contact"><strong class="av49-contact-name">${esc(name)}</strong><div class="av116-user-sub"><span class="av49-contact-line">✉ ${esc(email||'Email unavailable')}</span><span class="av49-contact-line">📱 ${esc(phoneLabel)}: ${esc(wa||'Not provided')}</span></div></div></div></td>
       <td><div class="av185-broker"><b>${esc((x.broker||'—').toUpperCase())}</b><span>${x.existing_account?'Existing shift':'New account'}</span></div></td>
       <td><code class="av185-account-id">${esc(x.trading_account_id||'—')}</code></td>
       <td><strong class="av185-deposit">$${Number(x.available_deposit||0).toLocaleString(undefined,{maximumFractionDigits:2})}</strong></td>
@@ -379,7 +403,7 @@ function renderRows(){
       <td><div class="av49-actions av116-actions av185-actions"><button class="av55-trial-btn" onclick="PSPAdminVerification.grantTrial('${x.user_id}')">＋ Trial</button>${action}<button class="av116-details-btn" onclick="PSPAdminVerification.toggleDetails('${x.user_id}')">Details ▾</button></div></td>
     </tr>
     <tr id="${detailsId}" class="av116-details-row"><td colspan="8"><div class="av116-details-grid av185-details-grid">
-      <div><span>Submitted</span><b>${esc(fmt(x.submitted_at))}</b></div><div><span>Email Subject</span><b>${esc(x.email_subject||'—')}</b></div><div><span>Reason / Admin Note</span><b>${esc(x.rejection_reason||'—')}</b></div><div><span>Approval Expires</span><b>${esc(x.approved_expires_at?fmt(x.approved_expires_at):'—')}</b></div>
+      <div><span>User ID</span><b>${esc(x.user_id)}</b></div><div><span>Submitted</span><b>${esc(fmt(x.submitted_at))}</b></div><div><span>Email Subject</span><b>${esc(x.email_subject||'—')}</b></div><div><span>Reason / Admin Note</span><b>${esc(x.rejection_reason||'—')}</b></div><div><span>Approval Expires</span><b>${esc(x.approved_expires_at?fmt(x.approved_expires_at):'—')}</b></div>
     </div></td></tr>`;
   }).join('');
   av116StartCountdown();
