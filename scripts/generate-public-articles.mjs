@@ -21,6 +21,8 @@ function render(a){
  const seoTitle=(title.length>46?title.slice(0,46).replace(/\s+\S*$/,'').trim():title)+' | PipSePaisa';
  const roman=a.content&&a.content_ur?String(a.content_ur).trim():'';
  const sajidReference=/\bsajid khan ghori\b/i.test(body);
+ const relatedTopicIds=new Set(["b373a039-153d-4125-9e46-fdff545052fe","0b7b1cce-948a-44d4-94cc-c997909920e4","600ce9de-f2be-4f31-bd92-24b95107d5d1","ba1aa10a-de83-400d-962f-a94823bb823b","d25686df-1dcc-4c3b-84a2-4df3766c50d5","5b9a841b-d09d-4444-b3e1-798dd918af47","2125d4e4-5510-4925-b908-c7544f6b97af","3cb6a1cc-39bc-461a-8d21-dac0e8fbd8de","ed9d0597-6446-40b5-829a-00e04bda82cb","f3515693-4e6d-4454-9027-c1b361ab4c6a","a1e86f29-f72e-47e2-b654-751ef2c3a35b","fb5243ff-6919-4ca4-8f12-d6ef3db51344"]);
+ const relatedTopic=relatedTopicIds.has(id);
  const desc=body.replace(/\s+/g,' ').slice(0,155)||'Forex education and market research from PipSePaisa';
  const d=new Date(a.created_at),validDate=Number.isFinite(+d);
  const iso=validDate?d.toISOString():'',date=validDate?d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'}):'';
@@ -52,7 +54,7 @@ function render(a){
  '<p class="reader-subtitle">PipSePaisa • Forex Education &amp; Research</p>',
  image?'<div class="reader-cover"><img src="'+esc(image)+'" alt="'+esc(title)+'" decoding="async" loading="lazy"></div>':'',
  '<div class="reader-body">'+esc(body)+'</div>',
- sajidReference?'<aside class="psp-mentor-related" aria-label="Related Forex education"><h2>Learn Forex technical analysis with Sajid Khan Ghori</h2><p>For related market-structure and technical-analysis courses, explore the <a href="/mentors/sajid-khan-ghori/">Sajid Khan Ghori mentor profile</a>. This article is published by PipSePaisa.</p></aside>':'',
+ sajidReference?'<aside class="psp-mentor-related" aria-label="Related Forex education"><h2>Learn Forex technical analysis with Sajid Khan Ghori</h2><p>For related technical-analysis learning, explore the <a href="/mentors/sajid-khan-ghori/">Sajid Khan Ghori mentor profile</a>'+(relatedTopic?' and the <a href="/mentors/sajid-khan-ghori/forex-articles/">related Forex articles and technical guides</a>':'')+'. This article is published by PipSePaisa.</p></aside>':'',
  roman?'<details class="psp-roman"><summary>Read in Roman Urdu</summary><div class="reader-body" lang="ur-Latn">'+esc(roman)+'</div></details>':'',
  '<div class="reader-warning">Educational content only. Trading involves risk. Always use independent analysis and appropriate risk management.</div>',
  '</article><div class="reader-bottom"><a href="/articles/" class="back-link">← Explore More Articles</a><a href="/courses/">Explore Forex Courses ↗</a></div></main>',
