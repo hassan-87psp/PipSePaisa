@@ -67,3 +67,40 @@ test('Admin Mentor and member site use same articles source as public hub',()=>{
  assert.ok(member.includes("sb.from('articles').select('*').eq('is_published',true)"));
  assert.ok(src.includes("client.from('articles')"));
 });
+
+test('Public navigation runtime keeps Articles after rebuilding the menu (root-cause regression)',()=>{
+ const full=read('public-upgrades.js');
+ assert.doesNotThrow(()=>new vm.Script(full));
+ const begin=full.indexOf('  function setupNavigation(){');
+ const end=full.indexOf('  function brandifyVisibleText()',begin);
+ assert.ok(begin>=0&&end>begin,'extract exact production menu builder');
+ const snippet=full.slice(begin,end)+'\nsetupNavigation();';
+ for(const pathname of ['/', '/courses/', '/articles/']){
+   const nodes=[];
+   const menu={replaceChildren(...items){nodes.splice(0,nodes.length,...items)},classList:{remove(){}}};
+   const document={
+     querySelector(s){return s==='.menu'?menu:null},
+     querySelectorAll(){return []},
+     createElement(tag){
+       assert.equal(tag,'a');
+       const classes=[];
+       return {classList:{add(s){classes.push(s)},contains(s){return classes.includes(s)}},setAttribute(k,v){this[k]=v}};
+     }
+   };
+   vm.runInNewContext(snippet,{document,location:{pathname}},{timeout:1000});
+   assert.deepEqual(nodes.map(x=>x.textContent),['Home','Courses','Broker Reviews','Become Partner','Trading Tools & Services','Articles'],pathname);
+   assert.equal(nodes[5].href,'/articles/');
+   assert.equal(nodes[5].target,'_top');
+   assert.ok(nodes[5].classList.contains('psp-public-articles-link'));
+   assert.equal(nodes.filter(x=>x.classList.contains('active')).length,1);
+   assert.ok(nodes[pathname==='/articles/'?5:pathname==='/courses/'?1:0].classList.contains('active'));
+ }
+});
+test('All public marketing pages force new navigation script and footer links article hub',()=>{
+ const full=read('public-upgrades.js');
+ assert.ok(full.includes('href="/articles/">Articles</a></li>'));
+ assert.ok(full.includes("pathname!=='/articles/'"),'Trading Tools resource articles link no longer overwritten');
+ for(const path of ['index.html','courses/index.html','broker-reviews/index.html','becomepartner/index.html','tradingtools/index.html']){
+   assert.ok(read(path).includes('/public-upgrades.js?v=20261030-v526-articles-nav'),path);
+ }
+});
