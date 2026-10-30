@@ -8,8 +8,10 @@ const formatPips=v=>Number.isFinite(v)?(v>0?'+':'')+v.toLocaleString('en-US',{ma
 const str=v=>String(v??'').trim();
 const FINISHED=new Set(['closed','tp3','tp_hit','sl','sl_hit','be','be_hit','cancelled','canceled']);
 function norm(s){
- const status=str(s.status||'active').toLowerCase();
- const finished=FINISHED.has(status)||Boolean(s.closed_at||s.closedTs);
+ // User Portal normalizes status for display but preserves the real DB status in rawStatus.
+ // Its closedTs always has a created_at fallback — that alone must NOT mark a live signal closed.
+ const status=str(s.rawStatus||s.status||'active').toLowerCase();
+ const finished=FINISHED.has(status)||Boolean(s.closed_at);
  const result=s.result_pips??s.pips;
  const amount=result!==null&&result!==undefined&&result!==''&&Number.isFinite(Number(result))?Number(result):null;
  const pair=str(s.pair).toUpperCase();
