@@ -83,7 +83,11 @@
        sending.add(k);
        try{
          const title='🔴 High Impact · '+String(e.country||'')+' · '+label+' left';
-         const body=String(e.title||'Economic news')+' — '+new Date(time).toLocaleTimeString('en-US',{timeZone:'Asia/Karachi',hour:'2-digit',minute:'2-digit',hour12:true})+' PKT';
+         const tz=typeof window.pspEconomicCalendarTimezone==='string'?window.pspEconomicCalendarTimezone:'Asia/Karachi';
+         let displayTime;
+         try{displayTime=new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:true,timeZoneName:'short'}).format(new Date(time));}
+         catch(_){displayTime=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Karachi',hour:'2-digit',minute:'2-digit',hour12:true,timeZoneName:'short'}).format(new Date(time));}
+         const body=String(e.title||'Economic news')+' — '+displayTime;
          if(await deliverOnce(k,title,body,'psp-ec-'+k.slice(-100)))map[k]=Date.now();
        }catch(err){console.warn('PipSePaisa calendar reminder retry available:',err&&err.message||err);
        }finally{sending.delete(k);}
