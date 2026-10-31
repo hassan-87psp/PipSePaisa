@@ -14,7 +14,11 @@ if(!response.ok)throw Error('Public article fetch failed HTTP '+response.status)
 const data=await response.json();
 if(!Array.isArray(data)||!data.length)throw Error('No public articles returned; refusing to clear pages');
 const esc=x=>String(x??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;");
-const imageUrl=x=>{try{const u=new URL(String(x||''));return u.protocol==='https:'?u.href:null;}catch{return null;}};
+const imageUrl=x=>{try{const u=new URL(String(x||''));if(u.protocol!=='https:')return null;
+  // Serve our own article thumbnails from PipSePaisa instead of third-party raw GitHub.
+  const local=u.hostname==='raw.githubusercontent.com'&&/^\/hassan-87psp\/PipSePaisa\/(?:main|master)\/assets\/article-thumbnails\/[a-z0-9._-]+\.svg$/i.test(u.pathname);
+  if(local){const file='/assets/article-thumbnails/'+u.pathname.split('/').pop();if(fs.existsSync(path.join(root,file.slice(1))))return origin+file;}
+  return u.href;}catch{return null;}};
 function render(a){
  const id=String(a.id).toLowerCase(),url=origin+'/articles/read/'+id+'/';
  const title=String(a.title||'Forex Article').trim(),body=String(a.content||a.content_ur||'').trim();
