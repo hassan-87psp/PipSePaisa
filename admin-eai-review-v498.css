@@ -194,3 +194,96 @@
 #eaiAModal.eaiS-simple .eaiS-inlineMissing{line-height:1.5}
 @media(max-width:1000px){#page-eaindicator .eaiV374-item{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,.7fr)!important}#page-eaindicator .eaiS-timeCol{grid-column:2}#page-eaindicator .eaiV374-actions{grid-column:3}}
 @media(max-width:620px){#page-eaindicator .eaiV374-item{grid-template-columns:1fr!important}#page-eaindicator .eaiV374-product,#page-eaindicator .eaiV374-flags,#page-eaindicator .eaiS-timeCol,#page-eaindicator .eaiV374-actions{grid-column:1!important;padding-left:0!important}#page-eaindicator .eaiS-timeCol{padding-left:48px!important}#eaiAModal.eaiS-simple .eaiS-brokerCorrection{grid-template-columns:1fr}}
+
+
+/* v516: minimal issue modal — account, approval, file chooser, complete. */
+#eaiAModal.eaiS-minimal516.eaiA-modalback{
+ align-items:center!important;justify-content:center!important;
+}
+#eaiAModal.eaiS-minimal516.eaiA-modalback .eaiA-modal{
+ width:min(480px,calc(100vw - 20px))!important;
+ max-height:min(90dvh,650px)!important;
+ height:auto!important;
+ border-radius:16px!important;
+}
+#eaiAModal.eaiS-minimal516 .eaiA-mhead{padding:15px 20px!important}
+#eaiAModal.eaiS-minimal516 .eaiA-mhead b{font-size:17px!important}
+#eaiAModal.eaiS-minimal516 #eaiAReqForm{
+ gap:12px!important;
+ padding:16px 20px 20px!important;
+ grid-template-columns:minmax(0,1fr)!important;
+}
+#eaiAModal.eaiS-minimal516 .eaiS-student{
+ border-radius:12px!important;
+ background:#faf8f5!important;
+ padding:14px!important;
+}
+#eaiAModal.eaiS-minimal516 .eaiS-studentTop{gap:0!important}
+#eaiAModal.eaiS-minimal516 .eaiS-studentDetail strong{font-size:13px!important}
+#eaiAModal.eaiS-minimal516 .eaiS-avatar,
+#eaiAModal.eaiS-minimal516 .eaiS-status,
+#eaiAModal.eaiS-minimal516 .eaiS-studentDetail small,
+#eaiAModal.eaiS-minimal516 .eaiS-hint,
+#eaiAModal.eaiS-minimal516 .eaiS-advanced,
+#eaiAModal.eaiS-minimal516 .eaiS-licenseSettings,
+#eaiAModal.eaiS-minimal516 .eaiU-fileNote,
+#eaiAModal.eaiS-minimal516 .eaiU-reviewBadge,
+#eaiAModal.eaiS-minimal516 .eaiU-modalTip,
+#eaiAModal.eaiS-minimal516 #eaiV374Checks{display:none!important}
+#eaiAModal.eaiS-minimal516 .eaiS-account{
+ margin-top:8px!important;padding-top:8px!important;
+ font-size:12px!important;
+}
+#eaiAModal.eaiS-minimal516 .eaiS-account b{font-size:14px!important}
+#eaiAModal.eaiS-minimal516 .eaiS-quickApprove{
+ display:grid!important;
+ gap:8px!important;
+ padding:0!important;
+ margin:0!important;
+ background:transparent!important;
+ border:0!important;
+}
+#eaiAModal.eaiS-minimal516 .eaiS-approveOne{
+ width:100%;min-height:45px;
+ border:0;border-radius:10px;
+ background:#f39522;color:#211606;
+ font:inherit;font-size:13px;font-weight:900;
+ cursor:pointer;
+}
+#eaiAModal.eaiS-minimal516 .eaiS-approveOne:disabled{
+ background:#eaf5ee;color:#16734d;cursor:default;
+}
+#eaiAModal.eaiS-minimal516 .eaiS-quickError{
+ color:#bd4037;font-size:11px;line-height:1.5;
+ padding:8px 9px;margin:0;
+ background:#fff5f2;border-radius:8px;
+}
+#eaiAModal.eaiS-minimal516 .eaiS-quickError[hidden]{display:none!important}
+#eaiAModal.eaiS-minimal516 .eaiU-formSection{
+ padding:0!important;background:transparent!important;border:0!important;
+}
+#eaiAModal.eaiS-minimal516 .eaiU-fieldGrid{
+ display:block!important;padding:0!important;border:0!important;background:transparent!important;
+}
+#eaiAModal.eaiS-minimal516 .eaiU-fieldGrid>.eaiA-f{
+ padding:12px!important;margin:0!important;
+ border:1px dashed #e9cb9d!important;border-radius:12px!important;
+ background:#fffaf4!important;
+}
+#eaiAModal.eaiS-minimal516 .eaiU-fieldGrid>.eaiA-f>label{
+ color:#48556a!important;font-size:11px!important;margin-bottom:8px!important;
+}
+#eaiAModal.eaiS-minimal516 .eaiU-issueAction{
+ border:0!important;margin:0!important;padding:0!important;background:transparent!important;
+}
+#eaiAModal.eaiS-minimal516 .eaiU-deliverBtn{
+ width:100%!important;min-height:45px!important;
+ border-radius:10px!important;font-size:13px!important;font-weight:900!important;
+}
+@media(max-width:560px){
+ #eaiAModal.eaiS-minimal516.eaiA-modalback .eaiA-modal{
+  width:calc(100vw - 16px)!important;
+  max-height:92dvh!important;
+ }
+ #eaiAModal.eaiS-minimal516 #eaiAReqForm{padding:12px 14px 16px!important;}
+}
