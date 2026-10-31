@@ -142,7 +142,7 @@ async function loadInternal(force){
 }
 
 window.addEventListener('psp-admin-charts-ready',function(){if(cache.dashboard&&document.getElementById('page-dashboard')?.classList.contains('active'))renderAll()});
-window.loadDashboardStats=load;window.PSPExecutiveDashboard181={load:load,cache:cache,render:renderAll,setPeriod:window.pspDashboardSetPeriod,getPeriod:function(){return selectedPeriod},isLoaded:function(){return !!dashboardLoadedAt}};
+window.loadDashboardStats=load;window.PSPExecutiveDashboard181={install:install,load:load,cache:cache,render:renderAll,setPeriod:window.pspDashboardSetPeriod,getPeriod:function(){return selectedPeriod},isLoaded:function(){return !!dashboardLoadedAt}};
 function watchTheme(){try{new MutationObserver(function(ms){if(ms.some(function(m){return m.attributeName==='data-theme'}))setTimeout(function(){renderGrowth();renderEnrollment(calc());renderPayments(calc());renderRevenue()},80)}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']})}catch(_){}}
 function init(){install();watchTheme()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
