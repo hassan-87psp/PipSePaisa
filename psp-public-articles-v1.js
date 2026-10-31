@@ -22,7 +22,11 @@ function classify(a){
 }
 const categories={technical:'Technical Analysis',fundamental:'Fundamental Analysis',market:'Market Analysis'};
 function imageUrl(u){
- try{let z=new URL(String(u||''));return z.protocol==='https:'?z.href:'';}catch{return '';}
+ try{let z=new URL(String(u||''));if(z.protocol!=='https:')return '';
+  if(z.hostname==='raw.githubusercontent.com'&&/^\/hassan-87psp\/PipSePaisa\/(?:main|master)\/assets\/article-thumbnails\/[a-z0-9._-]+\.svg$/i.test(z.pathname))
+   return location.origin+'/assets/article-thumbnails/'+z.pathname.split('/').pop();
+  return z.href;
+ }catch{return '';}
 }
 function imageWrap(a,cl){
  let wrap=elem('div',cl);let url=imageUrl(a.image_url);
