@@ -19,7 +19,7 @@ test('Both admin routes load the same refreshed indicator-management interface',
   for(const name of ['admin/index.html','admin-panel.html']){
     const html=read(name);
     assert.match(html,/admin-ea-indicator-ultra-v371\.js\?v=20261031-v506-simple-issue/);
-    assert.match(html,/admin-eai-inline-correction-v512\\.js\\?v=20261031-v525-reject-presets/);
+    assert.match(html,/admin-eai-inline-correction-v512\.js\?v=20261031-v525-reject-presets/);
     assert.match(html,/<link id="eaiUStyle" rel="stylesheet" href="\/admin-ea-indicator-ultra-v371\.css\?v=20261029-v373-one-step">/);
   }
 });
@@ -138,7 +138,7 @@ test('Minimal admin license popup shows only approval and file completion action
  assert.match(js,/\^\[0-9\]\{5,20\}\$/);
  for(const page of ['admin/index.html','admin-panel.html']){
   const html=read(page);
-  assert.match(html,/admin-eai-inline-correction-v512\\.js\\?v=20261031-v525-reject-presets/);
+  assert.match(html,/admin-eai-inline-correction-v512\.js\?v=20261031-v525-reject-presets/);
   assert.doesNotMatch(html,/admin-eai-inline-access-v508\.js\?/);
  }
  const css=read('admin-eai-review-v498.css');
