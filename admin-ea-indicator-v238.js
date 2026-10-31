@@ -30,15 +30,19 @@ async function load(force){
  state.loadError=null;
  state.loadPromise=(async()=>{
   try{
-   const [p,r,v]=await indicatorTimed(Promise.all([
+   const [p,r,v,ia]=await indicatorTimed(Promise.all([
     c.from('ea_indicator_products').select('*').order('display_order').order('created_at',{ascending:false}),
     c.from('ea_indicator_requests').select('*,ea_indicator_products(title,product_type,platform,access_type)').order('created_at',{ascending:false}),
-    c.from('account_verifications').select('user_id,submission_status,broker,trading_account_id,rejection_reason,updated_at,approved_expires_at,available_deposit')
+    c.from('account_verifications').select('user_id,submission_status,broker,trading_account_id,rejection_reason,updated_at,approved_expires_at,available_deposit'),
+    c.from('psp_indicator_account_approvals_v518').select('user_id,broker,trading_account_id,available_deposit,approved_expires_at')
    ]),18000);
    if(p.error||r.error)throw p.error||r.error;
    state.products=p.data||[];
    state.requests=r.data||[];
-   state.verifications=v.error?[]:(v.data||[]);
+   state.verifications=[
+    ...(v.error?[]:(v.data||[])),
+    ...(ia.error?[]:(ia.data||[]).map(row=>({...row,submission_status:'approved'})))
+   ];
    state.loaded=true;
    state.lastLoadedAt=Date.now();
    state.loadError=v.error?'Account verification temporarily unavailable. Approval and issuance remain blocked until verification can be checked.':null;
