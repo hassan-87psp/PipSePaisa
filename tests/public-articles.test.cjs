@@ -47,7 +47,8 @@ test('Public articles responsive layout, safe content and shareable URLs',()=>{
  assert.ok(css.includes('.article-grid{grid-template-columns:1fr'));
  assert.ok(src.includes("return BASE+'read/'+encodeURIComponent(a.id)+'/'"));
  assert.ok(src.includes("textContent=(state.lang==='ur'"));
- assert.ok(src.includes("z.protocol==='https:'"));
+ assert.ok(src.includes("z.protocol!=='https:'"),'Reject non-HTTPS article image links');
+ assert.ok(src.includes("location.origin+'/assets/article-thumbnails/'"),'Serve PipSePaisa-owned thumbnails locally');
  assert.ok(src.includes('Roman Urdu'));
 });
 
