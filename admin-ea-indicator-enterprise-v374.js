@@ -279,6 +279,17 @@ function attachDrawer(requestId){
   '<div id="eaiV374CheckRows" class="eaiV374-checkRows"></div>'+
   '<label class="eaiV374-confirm"><input id="eaiV374Confirm" type="checkbox"><span>I confirm this compiled file was prepared for the displayed MT4/MT5 account.</span></label>';
  container.insertAdjacentElement('afterend',checklist);
+ // Keep the four underlying checks, but show one short, actionable message instead of a 4/4 form.
+ checklist.style.display='none';
+ const brokerOk=verification(r).state==='ok';
+ const quickHint=document.createElement('div');
+ quickHint.className='eaiV506-simpleHint eaiA-wide';
+ quickHint.setAttribute('role','status');
+ quickHint.textContent=brokerOk
+  ?'✓ Account verified. Choose the personal compiled file and click Complete & Deliver.'
+  :'⚠ This broker/account has no approved verification. You can select the file, but delivery needs approval in Access Approvals.';
+ quickHint.style.cssText='padding:10px 12px;border:1px solid '+(brokerOk?'#afdfcc':'#f2c789')+';border-radius:10px;background:'+(brokerOk?'#effbf5':'#fff8ed')+';color:#5f4429;font-size:12px;line-height:1.5;';
+ checklist.insertAdjacentElement('afterend',quickHint);
  const file=q('eaiALicensedFile'),version=q('eaiALicenseVersion'),account=q('eaiALicenseAccount');
  const expiry=q('eaiALicenseExpiry'),confirm=q('eaiV374Confirm'),button=q('eaiUApproveDeliver');
  const platform=String(r._platform||typeOf(r,source())).toUpperCase();
@@ -300,8 +311,8 @@ function attachDrawer(requestId){
    '<span class="eaiV374-checkIcon" aria-hidden="true">'+(x.ok?'✓':'!')+'</span><span><strong>'+escape(x.label)+'</strong>'+
    '<small>'+escape(x.sub)+'</small></span></div>').join('');
   if(button){
-   button.disabled=passed!==4||!confirm.checked||form.dataset.eaiBusy==='1';
-   button.textContent=passed!==4?'Complete Required Checks':!confirm.checked?'Confirm Account Binding':'Approve & Deliver File';
+   button.disabled=!goodFile||!same||!goodVersion||form.dataset.eaiBusy==='1';
+   button.textContent=goodFile?'Complete & Deliver File':'Choose a Valid Compiled File';
   }
  }
  [file,version,account,expiry,confirm].filter(Boolean).forEach(input=>{
@@ -315,10 +326,10 @@ function attachDrawer(requestId){
   const verified=verification(r).state==='ok';
   const same=String(account?.value||'').trim()===String(r.trading_account_id||'').trim();
   const versionOk=!!String(version?.value||'').trim()&&(!expiry?.value||new Date(expiry.value+'T23:59:59Z').getTime()>Date.now());
-  if(verified&&same&&fileValid(file.files[0],platform)&&versionOk&&confirm.checked)return;
+  if(verified&&same&&fileValid(file.files[0],platform)&&versionOk)return;
   e.preventDefault();e.stopImmediatePropagation();
   const error=q('eaiURequestError');
-  if(error){error.hidden=false;error.textContent='Review all checklist items and confirm this is the account-locked build before delivering.'}
+  if(error){error.hidden=false;error.textContent=!verified?'Delivery blocked: verify this exact broker and trading account in Access Approvals first. Your selected file has not been lost.':'Check that the licensed account ID, version, expiry and compiled file are valid.'}
   drawChecks();
  },true);
  let dirty=false;
