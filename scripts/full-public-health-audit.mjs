@@ -4,7 +4,7 @@ import puppeteer from 'puppeteer-core';
 
 const ORIGIN = 'https://www.pipsepaisa.com';
 const extraPaths = [
-  '/admin/','/psp-mentor.html','/team/','/sign-in/','/sign-up/','/verify-account/',
+  '/admin/','/admin-panel.html','/psp-mentor.html','/team/','/sign-in/','/sign-up/','/verify-account/',
   '/dashboard/','/profile/','/my-courses/','/vip-plans/','/free-access/',
   '/signals/','/live-charts/','/journal/','/support/',
   '/freecourse2/','/ad/technical/','/ad/fundamental/',
@@ -99,6 +99,20 @@ async function pageCheck(target,mode,fromSitemap){
     if(fromSitemap){
       if(!state.h1)fail(name,'missing H1');
       if(state.canonical!==target)fail(name,'wrong canonical '+state.canonical);
+    }
+    if(path==='/admin/'||path==='/admin-panel.html'){
+      const boot=await page.evaluate(()=>{
+        const app=document.querySelector('body > .app'),overlay=document.getElementById('loginOverlay');
+        return {
+          appHidden:!!app&&getComputedStyle(app).visibility==='hidden',
+          overlayVisible:!!overlay&&getComputedStyle(overlay).display!=='none',
+          ready:document.documentElement.classList.contains('psp-admin-view-ready'),
+          guardedCSS:!!document.getElementById('pspAdminAtomicStartupV528')
+        };
+      });
+      if(!boot.guardedCSS||!boot.appHidden||!boot.overlayVisible||boot.ready){
+        fail(name,'admin auth startup revealed a partial workspace: '+JSON.stringify(boot));
+      }else console.log('FULL_AUDIT_ADMIN_BOOT '+name+' '+JSON.stringify(boot));
     }
     if(path==='/courses/'){
       if(!state.vsa||!state.vsaButton||!state.vsaHandler)fail(name,'VSA enrollment CTA or handler missing');
