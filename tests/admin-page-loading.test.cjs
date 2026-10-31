@@ -150,51 +150,56 @@ test('Preparing Finance is a write; read-only Finance and paged Users reuse the 
   assert.equal(h.c.pspAdminReadRevision,4);await call('psp_admin_users_page_v439',{p_limit:100});assert.equal(calls,5);
 });
 
-test('Admin restore runs on DOM readiness and fires the dashboard only after modules are ready',async()=>{
-  const h=harness();let dashboardLoads=0,sessionReads=0,events=0;
-  const client={auth:{getSession:async()=>{++sessionReads;return {data:{session:{user:{id:'admin'}}}};}},
-    from:()=>({select(){return this;},eq(){return this;},single:async()=>({data:{id:'admin',role:'admin'}})})};
-  Object.assign(h.c,{supabase:{createClient:()=>client},queueMicrotask,dispatchEvent(){++events},PSPExecutiveDashboard181:{},loadDashboardStats:()=>++dashboardLoads});
-  let removed=false;h.element('loginOverlay').classList.remove=()=>{removed=true};
-  const sourceText=source('admin-core-v406.js');
-  vm.runInContext(sourceText.slice(0,sourceText.indexOf('async function loginAdmin')),h.c);
-  assert.equal(h.listeners.load,undefined);
-  assert.equal(sessionReads,0);
+test('Admin startup retains its cover until the first dashboard request resolves',async()=>{
+  const h=harness(),slow=deferred();let loads=0,sessionReads=0,events=0,removed=0;
+  h.element('loginOverlay').classList.remove=()=>{removed++};
+  const client={auth:{getSession:async()=>{++sessionReads;return{data:{session:{user:{id:'admin'}}}}}},
+    from:()=>({select(){return this},eq(){return this},single:async()=>({data:{id:'admin',role:'admin'}})})};
+  Object.assign(h.c,{supabase:{createClient:()=>client},queueMicrotask,dispatchEvent(){events++},
+    PSPExecutiveDashboard181:{load(){loads++;return slow.promise;}}});
+  const src=source('admin-core-v406.js');
+  vm.runInContext(src.slice(0,src.indexOf('async function loginAdmin')),h.c);
   h.c.document.readyState='interactive';
-  for(const listener of [...h.listeners.DOMContentLoaded]) await listener();
+  for(const listener of [...h.listeners.DOMContentLoaded])await listener();
   await tick();
-  assert.equal(sessionReads,1);assert.equal(dashboardLoads,1);assert.equal(events,1);assert.equal(removed,true);
+  assert.equal(sessionReads,1);assert.equal(loads,1);assert.equal(events,1);
+  assert.equal(removed,0,'the dashboard cover cannot disappear before its first data fetch');
+  slow.resolve();await tick();
+  assert.equal(removed,1,'reveal exactly once after the dashboard settles');
 });
-test('Admin startup shows login on missing session and skips redundant getUser call',async()=>{
-  const h=harness();let shown=false,userReads=0;
-  h.element('loginOverlay').classList.add=()=>{shown=true};
-  const client={auth:{getSession:async()=>({data:{session:null}}),getUser:async()=>{++userReads;return {data:{user:null}}}}};
-  h.c.supabase={createClient:()=>client};
-  const sourceText=source('admin-core-v406.js');
-  vm.runInContext(sourceText.slice(0,sourceText.indexOf('async function loginAdmin')),h.c);
+test('Early restored session cannot uncover an uninitialized Admin panel',async()=>{
+  const h=harness();let reads=0,started=0,events=0,removed=0;
   h.c.document.readyState='interactive';
-  for(const listener of [...h.listeners.DOMContentLoaded]) await listener();
-  assert.equal(shown,true);assert.equal(userReads,0);
-});
-test('Early restored session removes login barrier even before optional deferred modules finish',async()=>{
-  const h=harness();let reads=0,started=0,events=0,removed=false;
-  h.c.document.readyState='interactive';
-  const client={auth:{getSession:async()=>{++reads;return {data:{session:{user:{id:'admin'}}}};}},
-    from:()=>({select(){return this;},eq(){return this;},single:async()=>({data:{id:'admin',role:'super_admin'}})})};
-  Object.assign(h.c,{supabase:{createClient:()=>client},queueMicrotask,dispatchEvent(){++events},loadDashboardStats:()=>++started});
-  h.element('loginOverlay').classList.remove=()=>{removed=true};
+  const client={auth:{getSession:async()=>{reads++;return{data:{session:{user:{id:'admin'}}}}}},
+    from:()=>({select(){return this},eq(){return this},single:async()=>({data:{id:'admin',role:'super_admin'}})})};
+  Object.assign(h.c,{supabase:{createClient:()=>client},queueMicrotask,dispatchEvent(){events++},
+    loadDashboardStats:()=>{started++;return Promise.resolve()}});
+  h.element('loginOverlay').classList.remove=()=>{removed++};
   const src=source('admin-core-v406.js');
   vm.runInContext(src.slice(0,src.indexOf('async function loginAdmin')),h.c);
   await tick();
-  assert.equal(reads,1);assert.equal(removed,true);assert.equal(started,0);
-  for(const listener of [...h.listeners.DOMContentLoaded]) await listener();
+  assert.equal(reads,1);assert.equal(removed,0);assert.equal(started,0);
+  for(const listener of [...h.listeners.DOMContentLoaded])await listener();
   await tick();
-  assert.equal(started,1);assert.equal(events,1);
+  assert.equal(started,1);assert.equal(events,1);assert.equal(removed,1);
+});
+test('Admin startup cover remains when session is unavailable',async()=>{
+  const h=harness();let removed=0,loginVisible=false;
+  h.element('loginOverlay').classList.remove=()=>{removed++};
+  h.element('loginOverlay').classList.add=()=>{loginVisible=true};
+  h.c.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:null}})}})};
+  const src=source('admin-core-v406.js');
+  vm.runInContext(src.slice(0,src.indexOf('async function loginAdmin')),h.c);
+  h.c.document.readyState='interactive';
+  for(const listener of [...h.listeners.DOMContentLoaded])await listener();
+  assert.equal(removed,0);assert.equal(loginVisible,true);
 });
 test('Admin dashboard never flashes legacy markup or empty cards before first data render',()=>{
  const dash=source('admin-dashboard-v181.js');
  for(const filename of ['admin/index.html','admin-panel.html']){
   const html=source(filename);
+  assert.match(html,/html:not\(\.psp-admin-view-ready\) body > \.app\{visibility:hidden!important;pointer-events:none!important\}/);
+  assert.match(html,/admin-core-v406\.js\?v=20261031-v528-atomic-startup/);
   assert.match(html,/<div class="page active" id="page-dashboard"[^>]*><\/div>/,filename+' must not ship the old dashboard layout');
   assert.match(html,/#page-dashboard:not\(\.ad181-ready\)>\*\{display:none!important\}/);
   assert.match(html,/#page-dashboard\.active:not\(\.ad181-ready\)::before/);
