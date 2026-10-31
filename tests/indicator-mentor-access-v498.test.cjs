@@ -11,9 +11,9 @@ test('Both Admin routes preload critical first paint CSS and V503 modules',()=>{
   const h=read(p);
   for(const name of [
    'pspAdminNoLegacyPaintV503',
-   'admin-eai-review-v498.css?v=20261029-v503-reapprove',
+   'admin-eai-review-v498.css?v=20261031-v515-queue',
    'admin-eai-staff-access-v498.js?v=20261029-v503-grant-issue',
-   'admin-ea-indicator-enterprise-v374.js?v=20261029-v503-reapprove',
+   'admin-ea-indicator-enterprise-v374.js?v=20261031-v515-queue',
    'admin-dashboard-v181.js?v=20261029-v503-first-paint'
   ])assert.equal(h.split(name).length-1,1,name+' in '+p);
   assert.ok(h.indexOf('pspAdminNoLegacyPaintV503')<h.indexOf('admin-dashboard-v181.css'));
@@ -29,19 +29,19 @@ test('Admin queue filters include unchecked, approved, rejected, all three indic
  assert.doesNotThrow(()=>new Function(js));
  const from=js.indexOf('function statusMatch('),to=js.indexOf('function setOptions(',from);
  assert.ok(from>0&&to>from);
- const c={issuedStatuses:new Set(['ready','downloaded']),activeStatuses:new Set(['pending','under_review','approved','license_preparing'])};
+ const c={issuedStatuses:new Set(['ready','downloaded']),isExpired:r=>r._expiry===0};
  vm.createContext(c);vm.runInContext(js.slice(from,to),c);
  const match=(s,key)=>vm.runInContext('statusMatch({status:'+JSON.stringify(s)+'},'+JSON.stringify(key)+')',c);
  assert.equal(match('pending','new'),true);
- assert.equal(match('approved','approved'),true);
+ assert.equal(match('approved','approved'),false);
  assert.equal(match('rejected','rejected'),true);
- assert.equal(match('ready','ready'),true);
- assert.equal(match('downloaded','downloaded'),true);
- assert.equal(match('ready','approved'),false);
+ assert.equal(match('ready','approved'),true);
+ assert.equal(match('downloaded','approved'),true);
+ assert.equal(match('ready','expired'),false);
  assert.match(js,/Reapprove \/ Issue/);
  assert.match(js,/Reapprove Request/);
- assert.match(js,/if\(v\.state!=='ok'\)/);
- for(const selector of ['eaiV498Product','eaiV498Broker','eaiV498Verification','eaiV498Date'])
+ assert.match(js,/verification\(r\)\.state!=='ok'/);
+ for(const selector of ['eaiV498Product','eaiV374Search'])
   assert.ok(js.includes(selector));
  const admin=read('admin-ea-indicator-v238.js');
  assert.match(admin,/status==='ready'&&!file&&!r\.licensed_file_path/);
