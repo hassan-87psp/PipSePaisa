@@ -9,13 +9,13 @@ const routes=['dashboard/index.html','eaindicator/index.html','economic-news/ind
 test('Every user portal has the actual selected This Week filter and the same foreground reminder controls',()=>{
  for(const route of routes){
   const html=read(route);
-  assert.match(html,/class="filter-btn active" onclick="setNewsTime\('week', this\)">This Week<\/button>/,route);
-  assert.doesNotMatch(html,/class="filter-btn active" onclick="setNewsTime\('all', this\)">All<\/button>/,route);
+  assert.match(html,/class="filter-btn active" onclick="setNewsTime\('today', this\)">Today<\/button>/,route);
+  assert.doesNotMatch(html,/class="filter-btn active" onclick="setNewsTime\('week', this\)">This Week<\/button>/,route);
   assert.match(html,/id="pspEconomicAlertsBtn"/,route);
  assert.ok(html.includes("setNewsTime('nextweek', this)"),route);
  assert.ok(html.includes("setNewsTime('upcoming', this)"),route);
   assert.match(html,/economic-calendar-alerts-v1\.js\?v=20261031-v533-timezone-reminders/,route);
-  assert.match(html,/user-app-core-v29\.js\?v=20261031-v535-actual-labels/,route);
+  assert.match(html,/user-app-core-v29\.js\?v=20261031-v536-today-refresh/,route);
  }
 });
 test('Calendar runtime uses DST-aware zone labels and authenticated source age',()=>{
@@ -90,5 +90,12 @@ test('Released statements are not mislabeled as missing numerical Actual',()=>{
  for(const label of ['CPI m/m','Federal Funds Rate','Unemployment Claims'])
   assert.equal(needsActual(label),true,label);
  assert.match(js,/pspCalendarHasNumericActual\(n\.title\) \? 'Not reported'/);
+});
+test('Today is initial date filter and reopening Economic News triggers a fresh-source check',()=>{
+ const js=read('user-app-core-v29.js');
+ assert.match(js,/time: 'today',\s*\/\/ today/);
+ assert.match(js,/page === 'news'/);
+ assert.match(js,/pspNewsLastAttemptAtV536/);
+ assert.match(js,/Date\.now\(\)-pspNewsLastAttemptAtV536>120000/);
 });
 console.log('ECONOMIC_CALENDAR_UI_TESTS: four routes; cumulative impact tiers; filter default; reminders; DST; source timestamp; release status');
