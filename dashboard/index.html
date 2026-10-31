@@ -1696,6 +1696,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
               <div class="card-meta" style="margin-top: 4px;">Track high-impact economic events and news that move the markets</div>
             </div>
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <button id="pspEconomicAlertsBtn" type="button" onclick="pspCalendarAlertsToggle()" title="High-impact reminders while this site is open" aria-pressed="false" style="background:var(--gold-bg);border:1px solid var(--border);border-radius:8px;padding:7px 9px;color:var(--text-secondary);font-size:11px;font-weight:700;cursor:pointer">🔕 News Reminders</button>
               <span style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 20px; font-size: 11px; color: var(--text-secondary);">
                 🌏 Times in <strong id="newsTimezoneLabel" style="color: var(--gold);">PKT</strong>
               </span>
@@ -1711,8 +1712,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
               
               <button class="filter-btn" onclick="setNewsTime('today', this)">Today</button>
               <button class="filter-btn" onclick="setNewsTime('tomorrow', this)">Tomorrow</button>
-              <button class="filter-btn" onclick="setNewsTime('week', this)">This Week</button>
-              <button class="filter-btn active" onclick="setNewsTime('all', this)">All</button>
+              <button class="filter-btn active" onclick="setNewsTime('week', this)">This Week</button>
+              <button class="filter-btn" onclick="setNewsTime('all', this)">All</button>
               <button class="filter-btn" id="customDateBtn" onclick="openDatePicker()" title="Pick custom date range">📅 Custom</button>
             </div>
             <div class="news-filter-group">
@@ -3125,7 +3126,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="/user-app-core-v29.js?v=20261031-v521-direct-download"></script>
+<script src="/user-app-core-v29.js?v=20261031-v530-calendar-data-freshness"></script>
+<script src="/economic-calendar-alerts-v1.js?v=20261031-v530-unified-reminders"></script>
 
 <script id="mentorPortalAiJs">
 (function(){
