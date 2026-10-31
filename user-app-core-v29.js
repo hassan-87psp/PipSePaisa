@@ -1762,6 +1762,12 @@
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
+  // Cumulative impact thresholds: Low includes Medium + High; Medium includes High.
+  function pspCalendarMatchesImpact(eventImpact, selectedImpact) {
+    if (selectedImpact === 'all') return true;
+    const impactRank = { Low: 1, Medium: 2, High: 3 };
+    return (impactRank[eventImpact] || 0) >= (impactRank[selectedImpact] || Infinity);
+  }
   function renderNews(isLive) {
     pspNewsRefreshZoneLabel();
     const container = document.getElementById('newsListContainer');
@@ -1840,7 +1846,7 @@
           (evKey < newsState.customFrom || evKey > newsState.customTo)) return false;
       
       // Impact filter
-      if (newsState.impact !== 'all' && n.impact !== newsState.impact) return false;
+      if (!pspCalendarMatchesImpact(n.impact, newsState.impact)) return false;
       
       // Currency filter
       if (newsState.currency !== 'all' && n.country !== newsState.currency) return false;
