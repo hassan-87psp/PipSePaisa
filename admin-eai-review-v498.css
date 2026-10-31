@@ -175,3 +175,22 @@
  #eaiAModal.eaiS-simple .eaiS-status{font-size:9px;padding:5px}
  #eaiAModal.eaiS-simple .eaiS-licenseFields{grid-template-columns:1fr}
 }
+
+/* v512 — five-tab queue, remaining license time and broker correction */
+#page-eaindicator .eaiV498-filterRow{display:flex;gap:9px;align-items:end}
+#page-eaindicator .eaiV498-filterRow>label:first-child{flex:0 1 180px}
+#page-eaindicator .eaiV498-filterRow .eaiV374-search{flex:1 1 300px}
+#page-eaindicator .eaiV374-item{grid-template-columns:minmax(155px,1.05fr) minmax(205px,1.45fr) minmax(126px,.73fr) minmax(110px,.65fr) minmax(110px,.65fr)!important;gap:10px!important}
+#page-eaindicator .eaiS-timeCol{display:grid;gap:5px;min-width:0}
+#page-eaindicator .eaiS-timeCol small{color:var(--eaiU-muted);font-size:9px;font-weight:750}
+#page-eaindicator .eaiS-timer{font-size:12px;font-variant-numeric:tabular-nums;font-weight:900;color:#16845d;white-space:nowrap}
+#page-eaindicator .eaiS-timer[data-exp=""]{color:var(--eaiU-muted)}
+#page-eaindicator .eaiS-emptyTime{font-size:11px;color:var(--eaiU-muted)}
+#page-eaindicator .eaiV374-stage.warning+#page-eaindicator .eaiS-timeCol .eaiS-timer{color:#c14538}
+#eaiAModal.eaiS-simple .eaiS-brokerCorrection{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;background:#fff8ef;border:1px solid #f4dab6;border-radius:9px}
+#eaiAModal.eaiS-simple .eaiS-brokerCorrection label{display:grid;gap:5px;font-size:10px;font-weight:850;color:#765328}
+#eaiAModal.eaiS-simple .eaiS-brokerCorrection select,
+#eaiAModal.eaiS-simple .eaiS-brokerCorrection input{width:100%;box-sizing:border-box;min-height:39px;background:#fff;color:#213047;border:1px solid #e5cda9;border-radius:8px;padding:8px;font-size:11px}
+#eaiAModal.eaiS-simple .eaiS-inlineMissing{line-height:1.5}
+@media(max-width:1000px){#page-eaindicator .eaiV374-item{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,.7fr)!important}#page-eaindicator .eaiS-timeCol{grid-column:2}#page-eaindicator .eaiV374-actions{grid-column:3}}
+@media(max-width:620px){#page-eaindicator .eaiV374-item{grid-template-columns:1fr!important}#page-eaindicator .eaiV374-product,#page-eaindicator .eaiV374-flags,#page-eaindicator .eaiS-timeCol,#page-eaindicator .eaiV374-actions{grid-column:1!important;padding-left:0!important}#page-eaindicator .eaiS-timeCol{padding-left:48px!important}#eaiAModal.eaiS-simple .eaiS-brokerCorrection{grid-template-columns:1fr}}
