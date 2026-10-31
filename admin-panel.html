@@ -25,6 +25,11 @@
    The login overlay remains available. Unhide in the same turn as completing the
    verified first dashboard render, so no partial shell/cards can flash. */
 html:not(.psp-admin-view-ready) body > .app{visibility:hidden!important;pointer-events:none!important}
+/* Brand-matched, lightweight progress state while verified data initializes. */
+.login-overlay.is-checking::before{content:"";position:absolute;top:calc(50% - 39px);left:calc(50% - 18px);width:36px;height:36px;border:3px solid rgba(243,149,34,.18);border-top-color:#F39522;border-radius:50%;animation:pspAdminStartupSpin .75s linear infinite}
+.login-overlay.is-checking::after{content:"Opening PipSePaisa Admin";position:absolute;top:calc(50% + 18px);left:0;right:0;text-align:center;color:#e8edf6;font:700 13px/1.5 "Plus Jakarta Sans",Arial,sans-serif;letter-spacing:.03em}
+@keyframes pspAdminStartupSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.login-overlay.is-checking::before{animation:none}}
 </style>
 <style id="pspAdminNoLegacyPaintV503">
 /* First paint: old static dashboard must NEVER be visible before the executive UI mounts. */
