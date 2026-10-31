@@ -16,6 +16,12 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PSP ADMIN">
 <link rel="apple-touch-icon" href="/icon-192.png">
+<style id="pspAdminAtomicStartupV528">
+/* Hide the entire admin application during the initial paint and authorization.
+   The login overlay remains available. Unhide in the same turn as completing the
+   verified first dashboard render, so no partial shell/cards can flash. */
+html:not(.psp-admin-view-ready) body > .app{visibility:hidden!important;pointer-events:none!important}
+</style>
 <style id="pspAdminNoLegacyPaintV503">
 /* First paint: old static dashboard must NEVER be visible before the executive UI mounts. */
 /* Never release the dashboard during mount, only after the first complete render. */
@@ -511,7 +517,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 @media(max-width:760px){#page-courses>.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}#page-courses .psp-system-course-grid{grid-template-columns:1fr!important}#modal-courseForm{padding:7px!important}#modal-courseForm .v129-course-modal{width:100%!important;max-height:94vh!important}.v129-learning-grid{grid-template-columns:1fr!important}.v129-grid-2,.v129-grid-3{grid-template-columns:1fr!important}.v129-span-2{grid-column:auto!important}.v129-course-modal .psp-v20-module-body{grid-template-columns:1fr!important}}
 </style>
 
-<link rel="preload" href="/admin-core-v406.js?v=20261030-v524-youtube-links" as="script">
+<link rel="preload" href="/admin-core-v406.js?v=20261031-v528-atomic-startup" as="script">
 <link rel="stylesheet" href="/admin-mobile-v441.css?v=20261002-v441-mobile-app">
 <link id="eaiUStyle" rel="stylesheet" href="/admin-ea-indicator-ultra-v371.css?v=20261029-v373-one-step">
 <link rel="stylesheet" href="/admin-ea-indicator-enterprise-v374.css?v=20261029-v374-executive">
