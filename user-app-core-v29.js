@@ -1789,6 +1789,9 @@
     });
   }
   // Cumulative impact thresholds: Low includes Medium + High; Medium includes High.
+  function pspCalendarHasNumericActual(title) {
+    return !/\b(?:press conference|rate statement|monetary policy statement|monetary policy report|fomc statement|annual budget release|outlook report)\b/i.test(String(title||''));
+  }
   function pspCalendarMatchesImpact(eventImpact, selectedImpact) {
     if (selectedImpact === 'all') return true;
     const impactRank = { Low: 1, Medium: 2, High: 3 };
@@ -1912,13 +1915,13 @@
           </div>
           <div class="news-value" ${n.forecastSnapshot ? 'title="Snapshot 27 Oct 2026 — market forecast may change before release"' : ''}><div class="news-value-label">Forecast${n.forecastSnapshot ? '*' : ''}</div><div class="news-value-num" title="${n.forecast ? 'Forecast reported by the source' : 'Forecast not supplied by free data provider'}">${pspCalendarEscapeV519(n.forecast || '—')}</div></div>
           <div class="news-value" ${n.forecastSnapshot ? 'title="Snapshot 27 Oct 2026 — previous figures may be revised"' : ''}><div class="news-value-label">Previous${n.forecastSnapshot ? '*' : ''}</div><div class="news-value-num" title="${n.previous ? 'Previous figure reported by the source' : 'Previous figure not supplied by free data provider'}">${pspCalendarEscapeV519(n.previous || '—')}</div></div>
-          <div class="news-value"><div class="news-value-label">Actual</div><div class="news-value-num" title="${n.actual ? 'Recorded actual: '+pspCalendarEscapeV519(n.actualSource||n.source||'data source') : (eventTime.getTime()<=Date.now() ? 'Actual not recorded by free provider' : 'Release not yet due')}" style="color: ${n.actual ? 'var(--gold)' : 'var(--text-muted)'};">${pspCalendarEscapeV519(n.actual || (eventTime.getTime()<=Date.now() ? 'Not reported' : '—'))}</div></div>
+          <div class="news-value"><div class="news-value-label">Actual</div><div class="news-value-num" title="${n.actual ? 'Recorded actual: '+pspCalendarEscapeV519(n.actualSource||n.source||'data source') : (eventTime.getTime()<=Date.now() ? 'Actual not recorded by free provider' : 'Release not yet due')}" style="color: ${n.actual ? 'var(--gold)' : 'var(--text-muted)'};">${pspCalendarEscapeV519(n.actual || (eventTime.getTime()<=Date.now() ? (pspCalendarHasNumericActual(n.title) ? 'Not reported' : '—') : '—'))}</div></div>
           ${(n.forecast || n.impact === 'High' || n.impact === 'Medium') ? `<button onclick="aiEventAnalyze(${newsRawData.indexOf(n)})" style="background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;border:none;border-radius:8px;padding:6px 11px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap;">🤖 AI</button>` : '<div></div>'}
         </div>`;
       });
     });
     
-    const missingActual=filtered.filter(n=>Date.parse(n.date)<Date.now()&&!n.actual).length;
+    const missingActual=filtered.filter(n=>Date.parse(n.date)<Date.now()&&!n.actual&&pspCalendarHasNumericActual(n.title)).length;
     if(missingActual) html += '<div style="margin-top:10px;font-size:10px;color:var(--text-muted)">Not reported = the free data provider has not published this result. This does not mean the release was cancelled.</div>';
     if(filtered.some(n=>n.forecastSnapshot)){
       html += '<div style="margin-top:10px;font-size:10px;color:var(--text-muted)">* Forecast / Previous from 27 Oct 2026 screenshot; snapshot, not live consensus. Figures can change.</div>';
