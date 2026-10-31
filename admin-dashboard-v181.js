@@ -111,7 +111,7 @@ async function load(force) {
 }
 async function loadInternal(force){
   if(!install())return;
-  if(!force&&dashboardLoadedAt&&dashboardLoadedKey===selectedPeriod&&Date.now()-dashboardLoadedAt<15000){renderAll();return}
+  if(!force&&dashboardLoadedAt&&dashboardLoadedKey===selectedPeriod&&Date.now()-dashboardLoadedAt<15000){renderAll();var cachedPage=document.getElementById('page-dashboard');if(cachedPage)cachedPage.classList.add('ad181-ready');return}
   var c=db();if(!c)return;
   var requestPeriod=selectedPeriod,seq=++dashboardRequestSeq;
   var p=document.getElementById('page-dashboard'),btn=document.getElementById('ad181Refresh'),err=document.getElementById('ad181Error');
@@ -125,10 +125,14 @@ async function loadInternal(force){
     cache.logs=Array.isArray(cache.dashboard.logs)?cache.dashboard.logs:[];
     dashboardLoadedAt=Date.now();dashboardLoadedKey=requestPeriod;
     populatePeriods();renderAll();
+    // No first-paint flash: only reveal after live dashboard data has rendered.
+    if(p)p.classList.add('ad181-ready');
   }catch(e){
     if(seq!==dashboardRequestSeq||requestPeriod!==selectedPeriod)return;
     console.error('[V433 dashboard]',e);
     if(err){err.style.display='block';err.textContent='Dashboard loaded with limited data: '+(e.message||e)}
+    // On an API error, reveal existing error/retry controls rather than waiting forever.
+    if(p)p.classList.add('ad181-ready');
   }finally{
     if(seq===dashboardRequestSeq){
       if(p)p.classList.remove('ad181-loading');
