@@ -6,6 +6,14 @@ const path=require('node:path');
 const vm=require('node:vm');
 const root=path.join(__dirname,'..'),read=x=>fs.readFileSync(path.join(root,x),'utf8');
 const html=read('articles/index.html'),css=read('psp-public-articles-v1.css'),src=read('psp-public-articles-v1.js');
+test('All PipSePaisa article thumbnail SVGs have correctly escaped XML entities',()=>{
+ const dir=path.join(root,'assets','article-thumbnails');
+ for(const name of fs.readdirSync(dir).filter(x=>x.endsWith('.svg'))){
+  const xml=fs.readFileSync(path.join(dir,name),'utf8');
+  assert.ok(xml.startsWith('<svg xmlns="http://www.w3.org/2000/svg"'),name+' valid SVG root');
+  assert.doesNotMatch(xml,/&(?!amp;|quot;|apos;|lt;|gt;|#(?:x[0-9a-fA-F]+|\d+);)/g,name+' contains unescaped &');
+ }
+});
 test('Public Articles page has direct route, navigation, SEO metadata and is open without sign-in',()=>{
  assert.match(html,/name="robots" content="index,follow/);
  assert.match(html,/rel="canonical" href="https:\/\/www.pipsepaisa.com\/articles\/"/);
