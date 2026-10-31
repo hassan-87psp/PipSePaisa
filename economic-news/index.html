@@ -1897,6 +1897,8 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
               <button class="filter-btn" onclick="setNewsTime('today', this)">Today</button>
               <button class="filter-btn" onclick="setNewsTime('tomorrow', this)">Tomorrow</button>
               <button class="filter-btn active" onclick="setNewsTime('week', this)">This Week</button>
+              <button class="filter-btn" onclick="setNewsTime('nextweek', this)">Next Week</button>
+              <button class="filter-btn" onclick="setNewsTime('upcoming', this)">Upcoming</button>
               <button class="filter-btn" onclick="setNewsTime('all', this)">All</button>
               <button class="filter-btn" id="customDateBtn" onclick="openDatePicker()" title="Pick custom date range">📅 Custom</button>
             </div>
@@ -3287,7 +3289,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20261031-v531-cumulative-impact"></script>
+<script src="user-app-core-v29.js?v=20261031-v532-calendar-navigation"></script>
 <script src="economic-calendar-alerts-v1.js?v=20261031-v530-unified-reminders"></script>
 
 <script id="mentorPortalAiJs">
