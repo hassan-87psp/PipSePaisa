@@ -14,13 +14,14 @@ test('Both Admin routes preload critical first paint CSS and V503 modules',()=>{
    'admin-eai-review-v498.css?v=20261031-v516-minimal',
    'admin-eai-staff-access-v498.js?v=20261029-v503-grant-issue',
    'admin-ea-indicator-enterprise-v374.js?v=20261031-v515-queue',
-   'admin-dashboard-v181.js?v=20261029-v503-first-paint'
+   'admin-dashboard-v181.js?v=20261031-v527-no-dashboard-flash'
   ])assert.equal(h.split(name).length-1,1,name+' in '+p);
   assert.ok(h.indexOf('pspAdminNoLegacyPaintV503')<h.indexOf('admin-dashboard-v181.css'));
-  assert.match(h,/#page-dashboard:not\(\.ad181-mounted\)>\*\{display:none!important\}/);
+  assert.match(h,/#page-dashboard:not\(\.ad181-ready\)>\*\{display:none!important\}/);
  }
  const dash=read('admin-dashboard-v181.js');
  assert.match(dash,/p\.classList\.add\('ad181-mounted'\)/);
+ assert.match(dash,/p\.classList\.add\('ad181-ready'\)/);
  assert.match(dash,/if\(!p\.querySelector\('\.ad181-shell'\)\)p\.innerHTML=markup\(\)/);
 });
 
