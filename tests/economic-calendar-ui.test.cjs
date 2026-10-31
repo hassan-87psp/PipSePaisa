@@ -16,7 +16,7 @@ test('Every user portal initially shows Today and matching foreground reminder c
  assert.ok(html.includes("setNewsTime('nextweek', this)"),route);
  assert.ok(html.includes("setNewsTime('upcoming', this)"),route);
   assert.match(html,/economic-calendar-alerts-v1\.js\?v=20261031-v533-timezone-reminders/,route);
-  assert.match(html,/user-app-core-v29\.js\?v=20261031-v536-today-refresh/,route);
+  assert.match(html,/user-app-core-v29\.js\?v=20261101-v537-nextweek-source-status/,route);
  }
 });
 test('Calendar runtime uses DST-aware zone labels and authenticated source age',()=>{
@@ -98,5 +98,12 @@ test('Today is initial date filter and reopening Economic News triggers a fresh-
  assert.match(js,/page === 'news'/);
  assert.match(js,/pspNewsLastAttemptAtV536/);
  assert.match(js,/Date\.now\(\)-pspNewsLastAttemptAtV536>120000/);
+});
+test('Next Week warns clearly if Forex Factory source is not verified, not a fake parity pass',()=>{
+ const js=read('user-app-core-v29.js');
+ assert.match(js,/X-Calendar-FF-ThisWeek-Status/);
+ assert.match(js,/X-Calendar-FF-NextWeek-Status/);
+ assert.match(js,/pspCalendarWeekSources\.nextweek!=='available'/);
+ assert.match(js,/some names, Forecast or Previous figures may update/);
 });
 console.log('ECONOMIC_CALENDAR_UI_TESTS: four routes; cumulative impact tiers; filter default; reminders; DST; source timestamp; release status');
