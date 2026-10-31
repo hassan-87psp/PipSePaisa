@@ -1,0 +1,22 @@
+/* PipSePaisa v508 — Inline proof-reviewed 30-day access in compact indicator modal */
+#eaiAModal.eaiS-simple .eaiS-inlineAccess{grid-column:1/-1;min-width:0;border:1px solid #e8d9c3;background:#fffdfa;border-radius:12px;padding:13px;display:grid;gap:10px}
+#eaiAModal .eaiS-inlineHead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#eaiAModal .eaiS-inlineHead strong{font-size:13px;color:#19243a;font-weight:900}
+#eaiAModal .eaiS-inlineHead small{display:block;font-size:10.5px;margin-top:3px;color:#738199}
+#eaiAModal .eaiS-inlineDays{font-size:10px;font-weight:900;color:#a65d09;background:#fff0d8;padding:7px 9px;border-radius:8px;white-space:nowrap}
+#eaiAModal .eaiS-inlineSummary{font-size:11px;color:#54657b;line-height:1.55}
+#eaiAModal .eaiS-inlineSummary b{color:#202d3d}
+#eaiAModal .eaiS-inlineTools{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
+#eaiAModal .eaiS-inlineTools button{min-height:40px;padding:10px;border:1px solid #e3c9a6;background:#fff8ee;border-radius:9px;color:#8f5409;font-size:11px;font-weight:850;cursor:pointer}
+#eaiAModal .eaiS-inlineTools button:disabled{opacity:.45;cursor:not-allowed}
+#eaiAModal .eaiS-inlineTools label{display:grid;gap:5px;color:#66748a;font-size:10px;font-weight:750}
+#eaiAModal .eaiS-inlineTools input{min-height:39px;border:1px solid #ded5c8;background:#fff;border-radius:8px;padding:9px;font-size:12px;color:#1d2b3e;width:100%;box-sizing:border-box}
+#eaiAModal .eaiS-inlineConfirm{display:flex;align-items:flex-start;gap:9px;color:#3d4a5e;font-size:10.5px;line-height:1.55;cursor:pointer;font-weight:680}
+#eaiAModal .eaiS-inlineConfirm input{appearance:auto!important;flex:0 0 16px;width:16px!important;height:16px!important;min-height:0!important;margin:1px 0 0;accent-color:#f39522}
+#eaiAModal .eaiS-inlineApprove{min-height:42px;padding:11px;border:0;border-radius:9px;color:#261806;background:#f39522;font:inherit;font-size:12px;font-weight:900;cursor:pointer}
+#eaiAModal .eaiS-inlineApprove:disabled{background:#efece6;color:#9da4ae;cursor:not-allowed}
+#eaiAModal .eaiS-inlineFeedback{font-size:11px;line-height:1.5;color:#14744f}
+#eaiAModal .eaiS-inlineFeedback.error{color:#c54136}
+#eaiAModal .eaiS-inlineFeedback:empty{display:none}
+#eaiAModal .eaiS-inlineMissing{color:#b73d31;font-size:10px}
+@media(max-width:520px){#eaiAModal .eaiS-inlineTools{grid-template-columns:1fr}}
