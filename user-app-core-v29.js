@@ -6156,17 +6156,12 @@
   
   // ============ AUTO REFRESH (every 5 minutes during market hours) ============
   setInterval(() => {
+    if(document.hidden||!currentUser||!sb)return;
     const day = new Date().getDay();
     const isWeekend = day === 0 || day === 6;
     if (isWeekend) return; // Don't refresh on weekends
     
-    // Refresh news if on news page
-    const newsPage = document.getElementById('page-news');
-    if (newsPage && newsPage.classList.contains('active')) {
-      console.log('🔄 Auto-refreshing news...');
-      loadNews();
-    }
-    
+    // News has a separate high-impact release-aware refresh scheduler.
     // Refresh strength if on strength page
     const strengthPage = document.getElementById('page-strength');
     if (strengthPage && strengthPage.classList.contains('active')) {
