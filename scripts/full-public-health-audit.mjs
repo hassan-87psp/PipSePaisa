@@ -118,8 +118,8 @@ async function pageCheck(target,mode,fromSitemap){
       const calendar=await page.evaluate(()=>{
         const page=document.getElementById('page-news');
         const btn=document.getElementById('pspEconomicAlertsBtn');
-        const filter=page?.querySelector('.news-filter-group button[onclick*="setNewsTime(\\'week\\'"]');
-        const actualFilter=page?.querySelector('.news-filter-group button.active[onclick*="setNewsTime(\\'week\\'"]');
+        const filter=[...(page?.querySelectorAll('.news-filter-group button')||[])].find(btn=>(btn.getAttribute('onclick')||'').includes("setNewsTime('week'"));
+        const actualFilter=filter?.classList.contains('active');
         return {page:!!page,reminder:!!btn,weekButton:!!filter,weekActive:!!actualFilter,
           reminderRuntime:typeof window.pspCalendarAlertsToggle==='function',
           newsRuntime:typeof window.setNewsTime==='function'};
