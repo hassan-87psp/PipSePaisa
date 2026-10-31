@@ -36,6 +36,7 @@ function adminAuthChecking(on, text) {
   if (status) status.textContent = text || 'Checking secure admin session…';
 }
 function adminPresentLogin(message) {
+  document.documentElement?.classList?.remove('psp-admin-view-ready');
   const overlay = document.getElementById('loginOverlay');
   if (overlay) overlay.classList.add('active');
   adminAuthChecking(false);
@@ -55,11 +56,38 @@ function adminFireReady() {
   if (!adminReadyScheduled || adminReadyDispatched || !adminDOMReady || !isLoggedIn) return;
   adminReadyScheduled = false;
   adminReadyDispatched = true;
-  // Wait until deferred modules are installed before starting the optimized dashboard.
+  // A verified session is not a rendered dashboard. Keep the secure loading
+  // overlay in place until the executive data has finished its first render.
+  const sequence = adminAuthSequence;
+  let dashboardJob;
   try {
-    if (typeof window.loadDashboardStats === 'function') window.loadDashboardStats();
-  } catch (error) { console.warn('Dashboard boot deferred:', error); }
+    const executive = window.PSPExecutiveDashboard181;
+    dashboardJob = executive && typeof executive.load === 'function'
+      ? executive.load(false)
+      : (typeof window.loadDashboardStats === 'function' ? window.loadDashboardStats() : null);
+  } catch (error) { console.warn('Admin dashboard boot failed:', error); dashboardJob = Promise.reject(error); }
   window.dispatchEvent(new Event('psp-admin-auth-ready'));
+  let released = false;
+  let timer;
+  function reveal() {
+    if (released || !isLoggedIn || sequence !== adminAuthSequence) return;
+    released = true;
+    if (timer) clearTimeout(timer);
+    const page = document.getElementById('page-dashboard');
+    if (page && !page.classList.contains('ad181-ready')) {
+      // The existing executive shell includes the error panel and a retry button.
+      // Keep it usable even if the dashboard RPC timed out or was unavailable.
+      page.classList.add('ad181-ready');
+      const message = document.getElementById('ad181Error');
+      if (message) { message.style.display = 'block'; message.textContent = 'Dashboard is taking longer than expected. Use Refresh to retry.'; }
+    }
+    document.documentElement?.classList?.add('psp-admin-view-ready');
+    document.getElementById('loginOverlay')?.classList.remove('active');
+    adminAuthChecking(false);
+  }
+  // Prevent a stalled request from locking an authenticated admin out of other pages.
+  timer = setTimeout(reveal, 12000);
+  Promise.resolve(dashboardJob).then(reveal, error => { console.warn('Dashboard first load:', error); reveal(); });
 }
 function adminScheduleReady() {
   if (adminReadyScheduled || adminReadyDispatched) return;
@@ -69,9 +97,9 @@ function adminScheduleReady() {
 function adminCompleteSignIn(profile) {
   currentAdmin = profile;
   isLoggedIn = true;
-  adminAuthChecking(false);
-  const overlay = document.getElementById('loginOverlay');
-  if (overlay) overlay.classList.remove('active');
+  // Deliberately retain the full-screen cover: removing it here reveals a
+  // partially initialized dashboard for one or more animation frames.
+  adminAuthChecking(true, 'Preparing Admin Command Center…');
   const password = document.getElementById('adminPassword');
   if (password) password.value = '';
   adminScheduleReady();
@@ -157,6 +185,9 @@ async function loginAdmin() {
 async function logoutAdmin() {
   if (!(await window.pspConfirm('Are you sure you want to logout?'))) return;
   ++adminAuthSequence; // Ignore a stale, earlier session/profile response.
+  document.documentElement?.classList?.remove('psp-admin-view-ready');
+  document.getElementById('loginOverlay')?.classList.add('active');
+  adminAuthChecking(true, 'Signing out…');
   await sb.auth.signOut({scope:'local'});
   currentAdmin = null;
   isLoggedIn = false;
