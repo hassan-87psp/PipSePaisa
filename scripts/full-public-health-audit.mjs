@@ -72,7 +72,8 @@ async function pageCheck(target,mode,fromSitemap){
         vsaHandler:typeof window.pspPublicCourseCTA==='function',
         sections:document.querySelectorAll('main section').length,
         domReadyMs:Math.round(performance.getEntriesByType('navigation')[0]?.domContentLoadedEventEnd||0),
-        loadedAssets:performance.getEntriesByType('resource').length
+        loadedAssets:performance.getEntriesByType('resource').length,
+        firstContentfulPaintMs:Math.round(performance.getEntriesByType('paint').find(p=>p.name==='first-contentful-paint')?.startTime||0)
       };
     });
     for(const href of state.links){
@@ -105,11 +106,12 @@ async function pageCheck(target,mode,fromSitemap){
     if(path==='/sign-in/'&&(!state.hasPassword||!state.hasEmail))warn(name,'login inputs not found at page load');
     if(state.badImages.length)warn(name,'visible broken images: '+state.badImages.join(', ').slice(0,300));
     if(state.domReadyMs>4500)warn(name,'slow DOM ready: '+state.domReadyMs+'ms');
+    if(state.firstContentfulPaintMs>3000)warn(name,'slow first contentful paint: '+state.firstContentfulPaintMs+'ms');
     if(jsErrors.length)warn(name,'JS errors: '+[...new Set(jsErrors)].slice(0,2).join(' | '));
     if(assetErrors.length)warn(name,'failed local assets: '+JSON.stringify([...new Map(assetErrors.map(x=>[x.path,x])).values()].slice(0,5)));
     console.log('FULL_AUDIT_PAGE '+JSON.stringify({mode,path,status:response.status(),resolved:new URL(page.url()).pathname,
       title:state.title.slice(0,48),h1:!!state.h1,overflow:state.scrollWidth-state.viewport,jsErrorCount:jsErrors.length,
-      brokenViewportImages:state.badImages.length,localAssetFailures:assetErrors.length,sections:state.sections,domReadyMs:state.domReadyMs,resources:state.loadedAssets}));
+      brokenViewportImages:state.badImages.length,localAssetFailures:assetErrors.length,sections:state.sections,domReadyMs:state.domReadyMs,fcpMs:state.firstContentfulPaintMs,resources:state.loadedAssets}));
     cases.push({mode,path});
   }catch(e){fail(name,String(e.message||e).slice(0,220))}
   finally{await page.close()}
