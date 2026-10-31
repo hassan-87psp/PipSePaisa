@@ -39,12 +39,59 @@ test('File extension and indicator label remain correct across products',()=>{
  }),'Sessions_Bundle_778899.zip');
 });
 
-test('All private signed download actions use custom Content-Disposition filename',()=>{
- const signed=source.match(/createSignedUrl\(r\.licensed_file_path,120,\{download:window\.PSPEAILicensedDownloadName\(r\)\}\)/g)||[];
- assert.equal(signed.length,2,'Both legacy and premium downloads should use the friendly name');
+
+test('Direct Blob downloads use friendly filename without creating a blank tab',async()=>{
+ assert.doesNotMatch(source,/window\.open\('about:blank'/);
+ assert.equal((source.match(/await saveLicensedFile\(c,r\)/g)||[]).length,2);
+ assert.doesNotMatch(source,/if\(tab\)tab\.location\.href/);
+ const a=source.indexOf('async function saveLicensedFile(c,r){');
+ const b=source.indexOf('function licenseRemaining(',a);
+ assert.ok(a>=0&&b>a);
+ const downloads=[];
+ const url={createObjectURL:()=> 'blob:licensed',revokeObjectURL:()=>{}};
+ const doc={
+  body:{appendChild(node){downloads.push(node)}},
+  createElement:()=>({style:{},click(){this.clicked=true},remove(){this.removed=true}})
+ };
+ const save=new Function('licensedDownloadName','URL','document','setTimeout',
+  source.slice(a,b)+';return saveLicensedFile;')(nameFor,url,doc,()=>{});
+ const req={
+  ea_indicator_products:{title:'PipSePaisa P+ MATRIX PRO — MT5 Indicator',platform:'MT5'},
+  trading_account_id:'31231835',licensed_file_path:'private/request/file.ex5',licensed_file_name:'FINAL 2.ex5'
+ };
+ let fetchCount=0;
+ const client={storage:{from(bucket){
+  assert.equal(bucket,'ea-indicator-licensed');
+  return {download:async path=>{fetchCount++;assert.equal(path,req.licensed_file_path);return {data:{size:6310000},error:null}}}
+ }}};
+ assert.equal(await save(client,req),true);
+ assert.equal(fetchCount,1);
+ assert.equal(downloads.length,1);
+ assert.equal(downloads[0].download,'PipSePaisa_P+_MATRIX_PRO_31231835.ex5');
+ assert.equal(downloads[0].clicked,true);
+ assert.equal(downloads[0].removed,true);
+});
+
+test('License time remaining uses actual issued expiry and updates every second',()=>{
+ const start=source.indexOf('function licenseRemaining(');
+ const end=source.indexOf('function refreshLicenseClocks(',start);
+ assert.ok(start>=0&&end>start);
+ const remaining=new Function(source.slice(start,end)+';return licenseRemaining;')();
+ const startTime=Date.parse('2026-10-31T07:15:06Z');
+ const expiry='2026-11-30T07:15:06Z';
+ assert.equal(remaining(expiry,startTime),'30d 00h 00m 00s');
+ assert.equal(remaining(expiry,startTime+1000),'29d 23h 59m 59s');
+ assert.equal(remaining(expiry,startTime+30*86400000),'Expired');
+ assert.equal(remaining(null,startTime),'Expiry date unavailable');
+ assert.match(source,/LICENSE TIME REMAINING/);
+ assert.match(source,/data-eai-license-expiry/);
+ assert.match(source,/setInterval\(refreshLicenseClocks,1000\)/);
+});
+
+test('All user panel entries load the updated direct-download handler',()=>{
  const loader=read('user-app-core-v29.js');
- assert.match(loader,/ea-indicator-user-v215\.js\?v=20261031-v520-friendly-file-name/);
+ assert.match(loader,/ea-indicator-user-v215\.js\?v=20261031-v521-blob-countdown/);
  for(const page of ['dashboard/index.html','eaindicator/index.html','profile/index.html']){
-  assert.match(read(page),/user-app-core-v29\.js\?v=20261031-v520-friendly-license/);
+  assert.match(read(page),/user-app-core-v29\.js\?v=20261031-v521-direct-download/);
  }
 });
