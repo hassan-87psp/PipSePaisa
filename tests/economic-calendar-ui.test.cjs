@@ -15,7 +15,7 @@ test('Every user portal has the actual selected This Week filter and the same fo
  assert.ok(html.includes("setNewsTime('nextweek', this)"),route);
  assert.ok(html.includes("setNewsTime('upcoming', this)"),route);
   assert.match(html,/economic-calendar-alerts-v1\.js\?v=20261031-v533-timezone-reminders/,route);
-  assert.match(html,/user-app-core-v29\.js\?v=20261031-v532-calendar-navigation/,route);
+  assert.match(html,/user-app-core-v29\.js\?v=20261031-v535-actual-labels/,route);
  }
 });
 test('Calendar runtime uses DST-aware zone labels and authenticated source age',()=>{
@@ -78,5 +78,17 @@ test('Foreground high-impact reminders display user-selected timezone, never har
  assert.match(js,/window\.pspEconomicCalendarTimezone/);
  assert.match(js,/timeZone:tz/);
  assert.doesNotMatch(js,/toLocaleTimeString\('en-US',\{timeZone:'Asia\/Karachi'/);
+});
+test('Released statements are not mislabeled as missing numerical Actual',()=>{
+ const js=read('user-app-core-v29.js');
+ const start=js.indexOf('  function pspCalendarHasNumericActual(');
+ const end=js.indexOf('\n  }\n',start);
+ assert.ok(start>0&&end>start);
+ const needsActual=new Function(js.slice(start,end+4)+'\nreturn pspCalendarHasNumericActual;')();
+ for(const label of ['RBNZ Press Conference','FOMC Statement','BOC Monetary Policy Report'])
+  assert.equal(needsActual(label),false,label);
+ for(const label of ['CPI m/m','Federal Funds Rate','Unemployment Claims'])
+  assert.equal(needsActual(label),true,label);
+ assert.match(js,/pspCalendarHasNumericActual\(n\.title\) \? 'Not reported'/);
 });
 console.log('ECONOMIC_CALENDAR_UI_TESTS: four routes; cumulative impact tiers; filter default; reminders; DST; source timestamp; release status');
