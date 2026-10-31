@@ -19,7 +19,7 @@ test('Both admin routes load the same refreshed indicator-management interface',
   for(const name of ['admin/index.html','admin-panel.html']){
     const html=read(name);
     assert.match(html,/admin-ea-indicator-ultra-v371\.js\?v=20261031-v506-simple-issue/);
-    assert.match(html,/admin-eai-inline-correction-v512\.js\?v=20261031-v515-correction/);
+    assert.match(html,/admin-eai-inline-correction-v512\.js\?v=20261031-v516-minimal/);
     assert.match(html,/<link id="eaiUStyle" rel="stylesheet" href="\/admin-ea-indicator-ultra-v371\.css\?v=20261029-v373-one-step">/);
   }
 });
@@ -123,6 +123,25 @@ test('Simplified indicator queue has five states and licensed time remaining',()
  const ui=read('admin-eai-inline-correction-v512.js');
  assert.doesNotThrow(()=>new Function(ui));
  assert.match(ui,/psp_admin_verify_indicator_access_v515/);
- assert.match(ui,/Select approved broker/);
- assert.match(ui,/data-correct-account/);
+ assert.match(ui,/Approve — 30 Days/);
+ assert.match(ui,/complete.textContent='Complete'/);
+ assert.doesNotMatch(ui,/data-correct-account|data-proof-confirm|data-deposit|data-correct-broker/);
+});
+
+test('Minimal admin license popup shows only approval and file completion actions',()=>{
+ const js=read('admin-eai-inline-correction-v512.js');
+ assert.match(js,/eaiS-quickApprove/);
+ assert.match(js,/eaiUApproveDeliver/);
+ assert.match(js,/eaiALicensedFile/);
+ assert.match(js,/psp_admin_verify_indicator_access_v515/);
+ assert.match(js,/request\.deposit_proof_path/);
+ assert.match(js,/\^\[0-9\]\{5,20\}\$/);
+ for(const page of ['admin/index.html','admin-panel.html']){
+  const html=read(page);
+  assert.match(html,/admin-eai-inline-correction-v512\.js\?v=20261031-v516-minimal/);
+  assert.doesNotMatch(html,/admin-eai-inline-access-v508\.js\?/);
+ }
+ const css=read('admin-eai-review-v498.css');
+ assert.match(css,/eaiS-minimal516/);
+ assert.match(css,/\.eaiS-licenseSettings/);
 });
