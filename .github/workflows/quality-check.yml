@@ -68,6 +68,10 @@ jobs:
         run: |
           node --check psp-youtube-links-v1.js
           node --test tests/youtube-links.test.cjs
+      - name: Verify Economic Calendar DST, source freshness, reminders and matching UI filters
+        run: |
+          node --check user-app-core-v29.js
+          node --test tests/economic-calendar-ui.test.cjs
       - name: Verify OneSignal subscription behavior
         run: node tests/notification-subscription-state.mjs
       - name: Verify EA & Indicator marketplace JavaScript and P+ eligibility
