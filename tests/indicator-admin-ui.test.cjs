@@ -19,7 +19,7 @@ test('Both admin routes load the same refreshed indicator-management interface',
   for(const name of ['admin/index.html','admin-panel.html']){
     const html=read(name);
     assert.match(html,/admin-ea-indicator-ultra-v371\.js\?v=20261031-v506-simple-issue/);
-    assert.match(html,/admin-eai-inline-correction-v512\.js\?v=20261031-v517-safe-switch/);
+    assert.match(html,/admin-eai-inline-correction-v512\.js\?v=20261031-v518-multi-account/);
     assert.match(html,/<link id="eaiUStyle" rel="stylesheet" href="\/admin-ea-indicator-ultra-v371\.css\?v=20261029-v373-one-step">/);
   }
 });
@@ -122,7 +122,7 @@ test('Simplified indicator queue has five states and licensed time remaining',()
  assert.match(js,/function isExpired/);
  const ui=read('admin-eai-inline-correction-v512.js');
  assert.doesNotThrow(()=>new Function(ui));
- assert.match(ui,/psp_admin_verify_indicator_access_v517/);
+ assert.match(ui,/psp_admin_verify_indicator_access_v518/);
  assert.match(ui,/Approve — 30 Days/);
  assert.match(ui,/complete.textContent='Complete'/);
  assert.doesNotMatch(ui,/data-correct-account|data-proof-confirm|data-deposit|data-correct-broker/);
@@ -133,15 +133,23 @@ test('Minimal admin license popup shows only approval and file completion action
  assert.match(js,/eaiS-quickApprove/);
  assert.match(js,/eaiUApproveDeliver/);
  assert.match(js,/eaiALicensedFile/);
- assert.match(js,/psp_admin_verify_indicator_access_v517/);
+ assert.match(js,/psp_admin_verify_indicator_access_v518/);
  assert.match(js,/request\.deposit_proof_path/);
  assert.match(js,/\^\[0-9\]\{5,20\}\$/);
  for(const page of ['admin/index.html','admin-panel.html']){
   const html=read(page);
-  assert.match(html,/admin-eai-inline-correction-v512\.js\?v=20261031-v517-safe-switch/);
+  assert.match(html,/admin-eai-inline-correction-v512\.js\?v=20261031-v518-multi-account/);
   assert.doesNotMatch(html,/admin-eai-inline-access-v508\.js\?/);
  }
  const css=read('admin-eai-review-v498.css');
  assert.match(css,/eaiS-minimal516/);
  assert.match(css,/\.eaiS-licenseSettings/);
+});
+
+test('Admin verifies independent approved accounts without replacing an old indicator license',()=>{
+ const base=read('admin-ea-indicator-v238.js');
+ assert.match(base,/psp_indicator_account_approvals_v518/);
+ assert.match(base,/submission_status:'approved'/);
+ const controller=read('admin-eai-inline-correction-v512.js');
+ assert.match(controller,/psp_admin_verify_indicator_access_v518/);
 });
