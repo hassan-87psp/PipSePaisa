@@ -4,7 +4,7 @@ import puppeteer from 'puppeteer-core';
 
 const ORIGIN = 'https://www.pipsepaisa.com';
 const extraPaths = [
-  '/admin/','/team/','/sign-in/','/sign-up/','/verify-account/',
+  '/admin/','/psp-mentor.html','/team/','/sign-in/','/sign-up/','/verify-account/',
   '/dashboard/','/profile/','/my-courses/','/vip-plans/','/free-access/',
   '/signals/','/live-charts/','/journal/','/support/',
   '/freecourse2/','/ad/technical/','/ad/fundamental/',
@@ -70,7 +70,9 @@ async function pageCheck(target,mode,fromSitemap){
         links, badImages, hasPassword:!!signin, hasEmail:!!lastLogin,
         vsa:!!vsa, vsaButton:visible(vsa?.querySelector('button[onclick*="pspPublicCourseCTA"]')),
         vsaHandler:typeof window.pspPublicCourseCTA==='function',
-        sections:document.querySelectorAll('main section').length
+        sections:document.querySelectorAll('main section').length,
+        domReadyMs:Math.round(performance.getEntriesByType('navigation')[0]?.domContentLoadedEventEnd||0),
+        loadedAssets:performance.getEntriesByType('resource').length
       };
     });
     for(const href of state.links){
@@ -102,11 +104,12 @@ async function pageCheck(target,mode,fromSitemap){
     }
     if(path==='/sign-in/'&&(!state.hasPassword||!state.hasEmail))warn(name,'login inputs not found at page load');
     if(state.badImages.length)warn(name,'visible broken images: '+state.badImages.join(', ').slice(0,300));
+    if(state.domReadyMs>4500)warn(name,'slow DOM ready: '+state.domReadyMs+'ms');
     if(jsErrors.length)warn(name,'JS errors: '+[...new Set(jsErrors)].slice(0,2).join(' | '));
     if(assetErrors.length)warn(name,'failed local assets: '+JSON.stringify([...new Map(assetErrors.map(x=>[x.path,x])).values()].slice(0,5)));
     console.log('FULL_AUDIT_PAGE '+JSON.stringify({mode,path,status:response.status(),resolved:new URL(page.url()).pathname,
       title:state.title.slice(0,48),h1:!!state.h1,overflow:state.scrollWidth-state.viewport,jsErrorCount:jsErrors.length,
-      brokenViewportImages:state.badImages.length,localAssetFailures:assetErrors.length,sections:state.sections}));
+      brokenViewportImages:state.badImages.length,localAssetFailures:assetErrors.length,sections:state.sections,domReadyMs:state.domReadyMs,resources:state.loadedAssets}));
     cases.push({mode,path});
   }catch(e){fail(name,String(e.message||e).slice(0,220))}
   finally{await page.close()}
