@@ -11,7 +11,7 @@ test('Both Admin routes preload critical first paint CSS and V503 modules',()=>{
   const h=read(p);
   for(const name of [
    'pspAdminNoLegacyPaintV503',
-   'admin-eai-review-v498.css?v=20261031-v515-queue',
+   'admin-eai-review-v498.css?v=20261031-v516-minimal',
    'admin-eai-staff-access-v498.js?v=20261029-v503-grant-issue',
    'admin-ea-indicator-enterprise-v374.js?v=20261031-v515-queue',
    'admin-dashboard-v181.js?v=20261029-v503-first-paint'
