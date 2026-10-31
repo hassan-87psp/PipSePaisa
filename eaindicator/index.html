@@ -3083,7 +3083,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
   </div>
 </div>
 
-<script src="user-app-core-v29.js?v=20261031-v521-direct-download"></script>
+<script src="user-app-core-v29.js?v=20261031-v526-smooth-polling"></script>
 
 <script id="mentorPortalAiJs">
 (function(){
@@ -3950,7 +3950,7 @@ function toast(msg,type){mount();var t=document.createElement('div');t.className
 window.pipToast=toast;window.alert=function(m){m=String(m);var err=/error|fail|invalid|wrong|required|not found|denied/i.test(m);toast(m,err?'err':'ok');};
 function animateNum(el){if(el.dataset.cu)return;var raw=(el.textContent||'').trim();var m=raw.match(/^([^0-9-]*)(-?[\d,]+\.?\d*)(.*)$/);if(!m)return;var pre=m[1],num=parseFloat(m[2].replace(/,/g,'')),suf=m[3];if(isNaN(num)||num===0)return;el.dataset.cu='1';var dur=900,t0=performance.now();function step(t){var p=Math.min(1,(t-t0)/dur);var v=Math.round(num*(0.5-Math.cos(p*Math.PI)/2));el.textContent=pre+v.toLocaleString()+suf;if(p<1)requestAnimationFrame(step);else el.textContent=pre+num.toLocaleString()+suf;}requestAnimationFrame(step);}
 function scan(){document.querySelectorAll('.stat .n, .stat-value').forEach(function(el){var x=(el.textContent||'').trim();if(/\d/.test(x)&&x!=='...')animateNum(el);});}
-var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=setTimeout(scan,150)});document.addEventListener('DOMContentLoaded',function(){try{mo.observe(document.body,{subtree:true,childList:true,characterData:true});}catch(e){}setTimeout(scan,500)});})();
+window.pspAnimatePortalStats=scan;document.addEventListener('DOMContentLoaded',function(){if(!document.hidden)setTimeout(scan,500);},{once:true});})();
 </script>
 <script>(function(){var b=document.createElement('div');b.id='announceBanner';b.style.cssText='display:none;position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:9998;width:min(560px,92vw);';function mount(){if(document.body&&!document.getElementById('announceBanner'))document.body.appendChild(b);}if(document.body)mount();else document.addEventListener('DOMContentLoaded',mount);function active(id){var p=document.getElementById(id);return p&&p.classList.contains('active');}function tick(){if(document.hidden)return;try{if(typeof checkAnnounceBanner==='function')checkAnnounceBanner();}catch(e){}}function refreshActive(){if(document.hidden)return;try{if(active('page-support')&&typeof loadSupport==='function')loadSupport(true);if(active('page-announce')&&typeof loadAnnouncements==='function')loadAnnouncements();}catch(e){}}setTimeout(tick,4500);window.addEventListener('focus',function(){tick();refreshActive();});document.addEventListener('visibilitychange',function(){if(!document.hidden){tick();refreshActive();}});window.addEventListener('psp-page-change',function(){tick();refreshActive();});setInterval(tick,5*60*1000);})();</script>
 
