@@ -409,7 +409,7 @@ function renderRows(){
   av116StartCountdown();
 }
 
-async function openProof(path){if(!path)return alert('No proof screenshot uploaded.');const pop=window.open('about:blank','_blank'),c=db(),r=await c.storage.from('verification-proofs').createSignedUrl(path,300);if(r.error){try{pop?.close()}catch(_){}return alert('Could not open proof: '+r.error.message)}if(pop){pop.opener=null;pop.location=r.data.signedUrl}else location.href=r.data.signedUrl}
+async function openProof(path){if(!path)return alert('No proof screenshot uploaded.');const pop=window.open('about:blank','_blank'),c=db();let r=await c.storage.from('verification-proofs').createSignedUrl(path,300);if(r.error){r=await c.storage.from('ea-indicator-proofs').createSignedUrl(path,300);}if(r.error){try{pop?.close()}catch(_){}return alert('Could not open proof: '+r.error.message)}if(pop){pop.opener=null;pop.location=r.data.signedUrl}else location.href=r.data.signedUrl}
 async function review(uid,action){
   if(action==='reject'){openRejectModal(uid);return;}
   const ok=typeof window.pspConfirm==='function'
