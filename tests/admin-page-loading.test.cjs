@@ -150,27 +150,29 @@ test('Preparing Finance is a write; read-only Finance and paged Users reuse the 
   assert.equal(h.c.pspAdminReadRevision,4);await call('psp_admin_users_page_v439',{p_limit:100});assert.equal(calls,5);
 });
 
-test('Admin startup retains its cover until the first dashboard request resolves',async()=>{
-  const h=harness(),slow=deferred();let loads=0,sessionReads=0,events=0,removed=0;
+test('Admin reveals the executive shell immediately after authentication, without awaiting KPI requests',async()=>{
+  const h=harness(),slow=deferred();let loads=0,installs=0,sessionReads=0,events=0,removed=0;
+  h.element('page-dashboard').querySelector=()=>node('exec-shell');
   h.element('loginOverlay').classList.remove=()=>{removed++};
-  const client={auth:{getSession:async()=>{++sessionReads;return{data:{session:{user:{id:'admin'}}}}}},
+  const client={auth:{getSession:async()=>{++sessionReads;return {data:{session:{user:{id:'admin'}}}}}},
     from:()=>({select(){return this},eq(){return this},single:async()=>({data:{id:'admin',role:'admin'}})})};
   Object.assign(h.c,{supabase:{createClient:()=>client},queueMicrotask,dispatchEvent(){events++},
-    PSPExecutiveDashboard181:{load(){loads++;return slow.promise;}}});
+    PSPExecutiveDashboard181:{install(){installs++;return true}},
+    loadDashboardStats:()=>{loads++;return slow.promise;}});
   const src=source('admin-core-v406.js');
   vm.runInContext(src.slice(0,src.indexOf('async function loginAdmin')),h.c);
   h.c.document.readyState='interactive';
   for(const listener of [...h.listeners.DOMContentLoaded])await listener();
   await tick();
-  assert.equal(sessionReads,1);assert.equal(loads,1);assert.equal(events,1);
-  assert.equal(removed,0,'the dashboard cover cannot disappear before its first data fetch');
+  assert.equal(sessionReads,1);assert.equal(loads,1);assert.equal(installs,1);assert.equal(events,1);
+  assert.equal(removed,1,'authentication opens the current shell without waiting for database');
   slow.resolve();await tick();
-  assert.equal(removed,1,'reveal exactly once after the dashboard settles');
+  assert.equal(removed,1,'background response does not toggle UI/trigger a new flash');
 });
-test('Early restored session cannot uncover an uninitialized Admin panel',async()=>{
+test('Early authorized session opens on DOM readiness, never before authentication',async()=>{
   const h=harness();let reads=0,started=0,events=0,removed=0;
   h.c.document.readyState='interactive';
-  const client={auth:{getSession:async()=>{reads++;return{data:{session:{user:{id:'admin'}}}}}},
+  const client={auth:{getSession:async()=>{reads++;return {data:{session:{user:{id:'admin'}}}}}},
     from:()=>({select(){return this},eq(){return this},single:async()=>({data:{id:'admin',role:'super_admin'}})})};
   Object.assign(h.c,{supabase:{createClient:()=>client},queueMicrotask,dispatchEvent(){events++},
     loadDashboardStats:()=>{started++;return Promise.resolve()}});
@@ -199,7 +201,7 @@ test('Admin dashboard never flashes legacy markup or empty cards before first da
  for(const filename of ['admin/index.html','admin-panel.html']){
   const html=source(filename);
   assert.match(html,/html:not\(\.psp-admin-view-ready\) body > \.app\{visibility:hidden!important;pointer-events:none!important\}/);
-  assert.match(html,/admin-core-v406\.js\?v=20261031-v528-atomic-startup/);
+  assert.match(html,/admin-core-v406\.js\?v=20261031-v529-fast-admin-ready/);
   assert.match(html,/<div class="page active" id="page-dashboard"[^>]*><\/div>/,filename+' must not ship the old dashboard layout');
   assert.match(html,/#page-dashboard:not\(\.ad181-ready\)>\*\{display:none!important\}/);
   assert.match(html,/#page-dashboard\.active:not\(\.ad181-ready\)::before/);
@@ -209,6 +211,7 @@ test('Admin dashboard never flashes legacy markup or empty cards before first da
  const revealed=dash.indexOf("if(p)p.classList.add('ad181-ready');",rendered);
  assert.ok(rendered>=0&&revealed>rendered&&revealed-rendered<250,'dashboard must render data before first reveal');
  assert.match(dash,/if\(p\)p\.classList\.add\('ad181-ready'\)/);
+ assert.match(dash,/PSPExecutiveDashboard181=\{install:install/);
  assert.doesNotThrow(()=>new Function(dash));
 });
 test('Both admin entrypoints render an initial auth barrier and avoid blocking external scripts',()=>{
