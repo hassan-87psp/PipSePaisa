@@ -56,38 +56,33 @@ function adminFireReady() {
   if (!adminReadyScheduled || adminReadyDispatched || !adminDOMReady || !isLoggedIn) return;
   adminReadyScheduled = false;
   adminReadyDispatched = true;
-  // A verified session is not a rendered dashboard. Keep the secure loading
-  // overlay in place until the executive data has finished its first render.
   const sequence = adminAuthSequence;
-  let dashboardJob;
+  // A verified admin must not wait on the dashboard RPC. Synchronously mount
+  // only the CURRENT executive shell and load its data asynchronously.
+  const executive = window.PSPExecutiveDashboard181;
+  let mounted = false;
   try {
-    const executive = window.PSPExecutiveDashboard181;
-    dashboardJob = executive && typeof executive.load === 'function'
-      ? executive.load(false)
-      : (typeof window.loadDashboardStats === 'function' ? window.loadDashboardStats() : null);
-  } catch (error) { console.warn('Admin dashboard boot failed:', error); dashboardJob = Promise.reject(error); }
-  window.dispatchEvent(new Event('psp-admin-auth-ready'));
-  let released = false;
-  let timer;
-  function reveal() {
-    if (released || !isLoggedIn || sequence !== adminAuthSequence) return;
-    released = true;
-    if (timer) clearTimeout(timer);
-    const page = document.getElementById('page-dashboard');
-    if (page && !page.classList.contains('ad181-ready')) {
-      // The existing executive shell includes the error panel and a retry button.
-      // Keep it usable even if the dashboard RPC timed out or was unavailable.
-      page.classList.add('ad181-ready');
-      const message = document.getElementById('ad181Error');
-      if (message) { message.style.display = 'block'; message.textContent = 'Dashboard is taking longer than expected. Use Refresh to retry.'; }
+    if (executive && typeof executive.install === 'function') mounted = executive.install() === true;
+    if (typeof window.loadDashboardStats === 'function') {
+      Promise.resolve(window.loadDashboardStats()).catch(error => {
+        console.warn('Admin dashboard data is still unavailable:', error);
+      });
     }
-    document.documentElement?.classList?.add('psp-admin-view-ready');
-    document.getElementById('loginOverlay')?.classList.remove('active');
-    adminAuthChecking(false);
+  } catch (error) { console.warn('Admin dashboard startup:', error); }
+  const page = document.getElementById('page-dashboard');
+  if (page && !mounted) mounted = !!page.querySelector?.('.ad181-shell');
+  if (page) {
+    // Hide legacy cards forever: the source HTML ships no old Dashboard markup.
+    if (!mounted) {
+      page.innerHTML = '<section role="status" style="padding:24px;border-radius:14px;background:var(--bg-card,#fff);border:1px solid var(--border,#eadfcf)">Dashboard is temporarily unavailable. Please refresh to retry.</section>';
+    }
+    page.classList.add('ad181-ready');
   }
-  // Prevent a stalled request from locking an authenticated admin out of other pages.
-  timer = setTimeout(reveal, 12000);
-  Promise.resolve(dashboardJob).then(reveal, error => { console.warn('Dashboard first load:', error); reveal(); });
+  if (sequence !== adminAuthSequence || !isLoggedIn) return;
+  document.documentElement?.classList?.add('psp-admin-view-ready');
+  document.getElementById('loginOverlay')?.classList.remove('active');
+  adminAuthChecking(false);
+  window.dispatchEvent(new Event('psp-admin-auth-ready'));
 }
 function adminScheduleReady() {
   if (adminReadyScheduled || adminReadyDispatched) return;
