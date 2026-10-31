@@ -22,11 +22,12 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <style id="pspAdminNoLegacyPaintV503">
 /* First paint: old static dashboard must NEVER be visible before the executive UI mounts. */
-#page-dashboard:not(.ad181-mounted)>*{display:none!important}
-#page-dashboard:not(.ad181-mounted)::before{content:"Opening secure Admin Command Center…";display:block;
+/* Never release the dashboard during mount, only after the first complete render. */
+#page-dashboard:not(.ad181-ready)>*{display:none!important}
+#page-dashboard.active:not(.ad181-ready)::before{content:"Opening secure Admin Command Center…";display:block;
  padding:24px;margin:20px auto;max-width:1100px;background:#fffdf8;border:1px solid #e8ddca;
  border-radius:13px;color:#77879a;font:600 13px/1.6 "Plus Jakarta Sans",Arial,sans-serif}
-@media(prefers-reduced-motion:no-preference){#page-dashboard:not(.ad181-mounted)::before{animation:pspAdmLoadPulse 1.5s ease-in-out infinite}}
+@media(prefers-reduced-motion:no-preference){#page-dashboard.active:not(.ad181-ready)::before{animation:pspAdmLoadPulse 1.5s ease-in-out infinite}}
 @keyframes pspAdmLoadPulse{50%{opacity:.7}}
 </style>
 <meta name="robots" content="noindex,nofollow">
@@ -640,140 +641,7 @@ select option{background:#0f1729;color:#e8eaf0}
     <div class="content" id="content">
       
       <!-- ========== DASHBOARD ========== -->
-      <div class="page active" id="page-dashboard">
-        <div class="stats-grid">
-          <div class="stat-card" onclick="showPage('users', document.querySelector('[data-page=users]'))">
-            <div class="stat-header">
-              <div class="stat-icon blue">👥</div>
-              <span class="stat-tag">Total</span>
-            </div>
-            <div class="stat-label">Total Users</div>
-            <div class="stat-value">1,247</div>
-            <div class="stat-meta">All registered users</div>
-          </div>
-          
-          <div class="stat-card" onclick="showPage('trades', document.querySelector('[data-page=trades]'))">
-            <div class="stat-header">
-              <div class="stat-icon green">📈</div>
-              <span class="stat-tag">Total</span>
-            </div>
-            <div class="stat-label">Total Trades</div>
-            <div class="stat-value">15,843</div>
-            <div class="stat-meta">Trades by all users</div>
-          </div>
-          
-          <div class="stat-card" onclick="showPage('subscriptions', document.querySelector('[data-page=subscriptions]'))">
-            <div class="stat-header">
-              <div class="stat-icon gold">💎</div>
-              <span class="stat-tag">Total</span>
-            </div>
-            <div class="stat-label">Premium Members</div>
-            <div class="stat-value">189</div>
-            <div class="stat-meta">Premium subscribers</div>
-          </div>
-          
-          <div class="stat-card" onclick="showPage('courses', document.querySelector('[data-page=courses]'))">
-            <div class="stat-header">
-              <div class="stat-icon purple">🎓</div>
-              <span class="stat-tag">12 active</span>
-            </div>
-            <div class="stat-label">Active Courses</div>
-            <div class="stat-value">12</div>
-            <div class="stat-meta">Published courses</div>
-          </div>
-        </div>
-        
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-header">
-              <div class="stat-icon green">💰</div>
-              <span class="stat-tag">MRR</span>
-            </div>
-            <div class="stat-label">Monthly Revenue</div>
-            <div class="stat-value" id="statRevenue">$0</div>
-            <div class="stat-meta">From premium subscriptions</div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-header">
-              <div class="stat-icon pink">🎯</div>
-              <span class="stat-tag">Today</span>
-            </div>
-            <div class="stat-label">Quiz Plays</div>
-            <div class="stat-value" id="statQuizPlays">0</div>
-            <div class="stat-meta">Total quiz attempts</div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-header">
-              <div class="stat-icon blue">📰</div>
-              <span class="stat-tag">Live</span>
-            </div>
-            <div class="stat-label">News Posts</div>
-            <div class="stat-value" id="statNewsCount">0</div>
-            <div class="stat-meta">Published news</div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-header">
-              <div class="stat-icon red">🎯</div>
-              <span class="stat-tag">Bank</span>
-            </div>
-            <div class="stat-label">Quiz Questions</div>
-            <div class="stat-value" id="statQuizCount">0</div>
-            <div class="stat-meta">In question bank</div>
-          </div>
-        </div>
-        
-        <div class="two-col">
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">📊 User Growth (Last 30 Days)</div>
-              <div class="tabs" style="margin-bottom: 0;">
-                <button class="tab">Daily</button>
-                <button class="tab active">Weekly</button>
-                <button class="tab">Monthly</button>
-              </div>
-            </div>
-            <div class="chart-container">
-              <canvas id="growthChart"></canvas>
-            </div>
-          </div>
-          
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">🔔 Recent Signups</div>
-              <span class="card-meta">Latest registered users</span>
-            </div>
-            <div id="recentSignupsList">
-              <div class="empty-state" style="height: 150px;"><div class="empty-icon">👥</div><div style="font-size: 12px;">Loading...</div></div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="three-col">
-          <div class="card">
-            <div class="card-title">🥇 Top Traded Pairs</div>
-            <div id="topPairsList" style="margin-top: 12px;">
-              <div class="empty-state" style="height: 120px;"><div style="font-size: 12px;">Loading...</div></div>
-            </div>
-          </div>
-          
-          <div class="card">
-            <div class="card-title">🏆 Top Users by Profit</div>
-            <div id="topUsersList" style="margin-top: 12px;">
-              <div class="empty-state" style="height: 120px;"><div style="font-size: 12px;">Loading...</div></div>
-            </div>
-          </div>
-          
-          <div class="card">
-            <div class="card-title">📈 Platform Stats</div>
-            <div id="platformStatsList" style="margin-top: 12px;">
-              <div class="empty-state" style="height: 120px;"><div style="font-size: 12px;">Loading...</div></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class="page active" id="page-dashboard" aria-label="Admin Command Center"></div>
       
       <!-- ========== USERS ========== -->
       <div class="page" id="page-users">
