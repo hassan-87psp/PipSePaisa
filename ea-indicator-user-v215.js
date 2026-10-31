@@ -314,7 +314,7 @@ api.download=async function(id){
   else{
    r.status='downloaded';r.downloaded_at=now;r.updated_at=now;
    // Rehydrate both the marketplace and premium license views without cross-scope access.
-   await api.load();
+   try{await api.load()}catch(refreshErr){console.warn('License downloaded; workspace refresh pending:',refreshErr)}
   }
   return true;
  }catch(e){toast('File download failed: '+(e.message||'Please retry.'),'error');return false}
