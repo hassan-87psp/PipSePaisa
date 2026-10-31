@@ -10,13 +10,13 @@ test('Both admin entrypoints preload executive styles before enhanced script',()
  for(const p of ['admin/index.html','admin-panel.html']){
   const html=read(p);
   const css='/admin-ea-indicator-enterprise-v374.css?v=20261029-v374-executive';
-  const js='/admin-ea-indicator-enterprise-v374.js?v=20261029-v503-reapprove';
-  const old='/admin-ea-indicator-ultra-v371.js?v=20261029-v374-immediate-drawer';
+  const js='/admin-ea-indicator-enterprise-v374.js?v=20261031-v515-queue';
+  const old='/admin-ea-indicator-ultra-v371.js?v=20261031-v506-simple-issue';
   assert.equal(html.split(css).length-1,1);
   assert.equal(html.split(js).length-1,1);
   assert.ok(html.indexOf(css)<html.indexOf(js));
   assert.ok(html.indexOf(old)<html.indexOf(js));
-  assert.match(html,/admin-ea-indicator-v238\.js\?v=20261029-v375-support/);
+  assert.match(html,/admin-ea-indicator-v238\.js\?v=20261031-v515-performance-expiry/);
  }
 });
 
@@ -32,10 +32,10 @@ test('Enterprise script and base admin compile, preserve audited license operati
  assert.match(admin,/function approveAndDeliver\(/);
  assert.match(enterprise,/prevRequest\.apply\(api,arguments\)/);
  assert.match(enterprise,/attachDrawer\(id\)/);
- assert.match(enterprise,/File &amp; Account Checklist/);
- assert.match(enterprise,/approved broker/i);
+ assert.match(enterprise,/eaiS-student/);
+ assert.match(enterprise,/brokerStatus/);
  assert.match(enterprise,/data-e374-request/);
- assert.match(enterprise,/Discard unsaved license changes/);
+ assert.match(enterprise,/Discard unsaved changes/);
 });
 
 test('Enterprise module delegates real load, tab, request APIs',async()=>{
@@ -48,7 +48,7 @@ test('Enterprise module delegates real load, tab, request APIs',async()=>{
   requestForm:async x=>{calls.push(['request',x]);return 'opened'}
  };
  const document={readyState:'loading',getElementById:()=>null,addEventListener:()=>{}};
- const ctx={PSPEAIAdmin:admin,document,window:null,setTimeout,console};
+ const ctx={PSPEAIAdmin:admin,document,window:null,setTimeout,setInterval:()=>0,console};
  ctx.window=ctx;vm.createContext(ctx);
  vm.runInContext(read('admin-ea-indicator-enterprise-v374.js'),ctx);
  assert.equal(await admin.load('refresh'),'loaded');
