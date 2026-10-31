@@ -6,12 +6,13 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const routes=['dashboard/index.html','eaindicator/index.html','economic-news/index.html','world-news/index.html'];
-test('Every user portal has the actual selected This Week filter and the same foreground reminder controls',()=>{
+test('Every user portal initially shows Today and matching foreground reminder controls',()=>{
  for(const route of routes){
   const html=read(route);
   assert.match(html,/class="filter-btn active" onclick="setNewsTime\('today', this\)">Today<\/button>/,route);
   assert.doesNotMatch(html,/class="filter-btn active" onclick="setNewsTime\('week', this\)">This Week<\/button>/,route);
   assert.match(html,/id="pspEconomicAlertsBtn"/,route);
+  assert.ok(html.includes('Checking source…'),'Initial calendar status must not claim LIVE before API check');
  assert.ok(html.includes("setNewsTime('nextweek', this)"),route);
  assert.ok(html.includes("setNewsTime('upcoming', this)"),route);
   assert.match(html,/economic-calendar-alerts-v1\.js\?v=20261031-v533-timezone-reminders/,route);
