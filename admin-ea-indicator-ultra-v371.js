@@ -216,7 +216,7 @@ function decorateModal(kind){
   note.setAttribute('aria-live','polite');file?.insertAdjacentElement('afterend',note);
   const updateFile=()=>{
    const selected=file?.files?.[0];
-   if(approve){approve.disabled=!verified||!selected;approve.textContent=!verified?'Verification Required':selected?'Approve & Deliver File':'Choose File to Approve'}
+   if(approve){approve.disabled=!selected;approve.textContent=selected?'Complete & Deliver File':'Choose File to Continue'}
    if(save)save.hidden=!!selected;
    note.textContent=selected?'Selected: '+selected.name+' — this file will be issued only for this student.':
     'Choose a compiled EX5 (MT5), EX4 (MT4), or compatible ZIP. Never upload MQ source code.';
