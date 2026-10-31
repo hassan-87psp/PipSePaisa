@@ -86,7 +86,7 @@ test('Partial contact failure is visible to admin without losing verified rows o
 test('Admin links refresh both assets and contact text remains legible',()=>{
   for(const file of ['admin/index.html','admin-panel.html']){
     const html=fs.readFileSync(path.join(root,file),'utf8');
-    assert.ok(html.includes('admin-account-verification-v49.js?v=20261030-v187-contacts'),file+' script version');
+    assert.ok(html.includes('admin-account-verification-v49.js?v=20261031-v508-indicator-proof'),file+' script version');
     assert.ok(html.includes('admin-account-verification-v49.css?v=20261030-v187-contacts'),file+' style version');
   }
   assert.ok(css.includes('.av49-contact-line'));
