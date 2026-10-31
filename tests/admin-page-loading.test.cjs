@@ -191,6 +191,21 @@ test('Early restored session removes login barrier even before optional deferred
   await tick();
   assert.equal(started,1);assert.equal(events,1);
 });
+test('Admin dashboard never flashes legacy markup or empty cards before first data render',()=>{
+ const dash=source('admin-dashboard-v181.js');
+ for(const filename of ['admin/index.html','admin-panel.html']){
+  const html=source(filename);
+  assert.match(html,/<div class="page active" id="page-dashboard"[^>]*><\/div>/,filename+' must not ship the old dashboard layout');
+  assert.match(html,/#page-dashboard:not\(\.ad181-ready\)>\*\{display:none!important\}/);
+  assert.match(html,/#page-dashboard\.active:not\(\.ad181-ready\)::before/);
+  assert.ok(!html.includes('#page-dashboard:not(.ad181-mounted)>*'));
+ }
+ const rendered=dash.indexOf('populatePeriods();renderAll();');
+ const revealed=dash.indexOf("if(p)p.classList.add('ad181-ready');",rendered);
+ assert.ok(rendered>=0&&revealed>rendered&&revealed-rendered<250,'dashboard must render data before first reveal');
+ assert.match(dash,/if\(p\)p\.classList\.add\('ad181-ready'\)/);
+ assert.doesNotThrow(()=>new Function(dash));
+});
 test('Both admin entrypoints render an initial auth barrier and avoid blocking external scripts',()=>{
   for(const filename of ['admin/index.html','admin-panel.html']){
     const html=source(filename);
