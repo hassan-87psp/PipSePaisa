@@ -18,6 +18,7 @@
  '#eaiAModal .eaiS-rejectArea{margin-top:12px;padding:12px;border:1px solid #eda7a7;background:rgba(220,38,38,.04);border-radius:11px}'+
  '#eaiAModal .eaiS-rejectArea[hidden]{display:none!important}'+
  '#eaiAModal .eaiS-rejectArea label{display:block;font-size:12px;font-weight:850;margin-bottom:7px;color:var(--text-primary,#18202b)}'+
+ '#eaiAModal .eaiS-rejectArea select{width:100%;box-sizing:border-box;min-height:41px;padding:9px 11px;border:1px solid #e0b0b0;border-radius:9px;background:var(--bg-card,#fff);color:var(--text-primary,#18202b);font:inherit;font-size:13px;cursor:pointer;margin-bottom:10px}'+
  '#eaiAModal .eaiS-rejectArea textarea{width:100%;box-sizing:border-box;min-height:80px;resize:vertical;padding:10px;border:1px solid #e0b0b0;border-radius:9px;background:var(--bg-card,#fff);color:var(--text-primary,#18202b);font:inherit;font-size:13px}'+
  '#eaiAModal .eaiS-rejectControls{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:9px;margin-top:10px}'+
  '#eaiAModal .eaiS-rejectControls button{padding:9px 13px;min-height:39px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer}'+
@@ -44,14 +45,28 @@
   bar.innerHTML='<div class="eaiS-decisionRow"><button type="button" class="eaiS-approveOne" data-eai-quick-approve'+(verified?' disabled':'')+'>'+
    (verified?'✓ Approved — 30 Days':'Approve — 30 Days')+'</button>'+
    (canReject?'<button type="button" class="eaiS-rejectOne" data-eai-quick-reject>Reject</button>':'')+'</div>'+
-   (canReject?'<div class="eaiS-rejectArea" data-eai-reject-area hidden><label for="eaiSRejectReason">Rejection reason *</label>'+
-   '<textarea id="eaiSRejectReason" maxlength="800" data-eai-reject-reason placeholder="Explain what the client needs to correct."></textarea>'+
+   (canReject?'<div class="eaiS-rejectArea" data-eai-reject-area hidden><label for="eaiSReasonPreset">Select rejection reason *</label>'+
+   '<select id="eaiSReasonPreset" data-eai-reject-preset aria-label="Select rejection reason">'+
+   '<option value="">Choose a reason...</option>'+
+   '<option value="The trading account ID provided is incorrect. Please check your MT4/MT5 account number and resubmit.">Trading account ID is incorrect</option>'+
+   '<option value="The submitted broker account is not eligible for this indicator. Please submit an eligible broker account.">Broker account is not eligible</option>'+
+   '<option value="The submitted trading account could not be verified under PipSePaisa. Please correct your account details and resubmit.">Account is not verified</option>'+
+   '<option value="The available broker deposit is below the required minimum. Please meet the deposit requirement and resubmit proof.">Deposit below minimum</option>'+
+   '<option value="The required deposit proof was not provided. Please upload your deposit proof and resubmit.">Deposit proof missing</option>'+
+   '<option value="The deposit proof is blurry or unreadable. Please upload a clear screenshot or document and resubmit.">Deposit proof unclear</option>'+
+   '<option value="The broker or trading account number does not match the verification details. Please correct the information and resubmit.">Broker/account mismatch</option>'+
+   '<option value="The submitted deposit proof does not match the trading account ID. Please submit proof for the same account.">Proof does not match account</option>'+
+   '<option value="The application details are incomplete. Please review the required information and resubmit.">Incomplete information</option>'+
+   '<option value="custom">Other / Write custom reason</option></select>'+
+   '<label for="eaiSRejectReason">Reason sent to client (editable)</label>'+
+   '<textarea id="eaiSRejectReason" maxlength="800" data-eai-reject-reason placeholder="Select a reason above or write your own."></textarea>'+
    '<div class="eaiS-rejectControls"><button type="button" data-eai-cancel-reject>Cancel</button><button type="button" data-eai-confirm-reject>Confirm Reject</button></div></div>':'')+
    '<p class="eaiS-quickError" data-eai-quick-error role="status" aria-live="polite" hidden></p>';
   header.insertAdjacentElement('afterend',bar);
   const approve=bar.querySelector('[data-eai-quick-approve]');
   const reject=bar.querySelector('[data-eai-quick-reject]');
   const rejectArea=bar.querySelector('[data-eai-reject-area]');
+  const reasonPreset=bar.querySelector('[data-eai-reject-preset]');
   const rejectReason=bar.querySelector('[data-eai-reject-reason]');
   const confirmReject=bar.querySelector('[data-eai-confirm-reject]');
   const error=bar.querySelector('[data-eai-quick-error]');
@@ -77,8 +92,15 @@
      !(fileValidForRequest(file.files?.[0])||saved&&!alreadyIssued);
    complete.setAttribute('aria-label','Complete indicator file delivery');
   };
-  reject?.addEventListener('click',()=>{setMessage('');rejectArea.hidden=false;rejectReason.focus()});
-  bar.querySelector('[data-eai-cancel-reject]')?.addEventListener('click',()=>{rejectArea.hidden=true;rejectReason.value='';setMessage('')});
+  reject?.addEventListener('click',()=>{setMessage('');rejectArea.hidden=false;reasonPreset.focus()});
+  reasonPreset?.addEventListener('change',()=>{
+   rejectReason.value=reasonPreset.value==='custom'?'':reasonPreset.value;
+   setMessage('');
+   if(reasonPreset.value==='custom')rejectReason.focus();
+  });
+  bar.querySelector('[data-eai-cancel-reject]')?.addEventListener('click',()=>{
+   rejectArea.hidden=true;reasonPreset.value='';rejectReason.value='';setMessage('');
+  });
   confirmReject?.addEventListener('click',async()=>{
    if(confirmReject.disabled)return;
    const reason=String(rejectReason.value||'').trim();
