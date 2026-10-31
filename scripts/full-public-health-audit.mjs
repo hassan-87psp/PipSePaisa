@@ -104,7 +104,11 @@ async function pageCheck(target,mode,fromSitemap){
       if(!state.vsa||!state.vsaButton||!state.vsaHandler)fail(name,'VSA enrollment CTA or handler missing');
     }
     if(path==='/sign-in/'&&(!state.hasPassword||!state.hasEmail))warn(name,'login inputs not found at page load');
-    if(state.badImages.length)warn(name,'visible broken images: '+state.badImages.join(', ').slice(0,300));
+    if(state.badImages.length){
+      const detail='visible broken images: '+state.badImages.join(', ').slice(0,300);
+      if(path.startsWith('/articles/read/'))fail(name,detail);
+      else warn(name,detail);
+    }
     if(state.domReadyMs>4500)warn(name,'slow DOM ready: '+state.domReadyMs+'ms');
     if(state.firstContentfulPaintMs>3000)warn(name,'slow first contentful paint: '+state.firstContentfulPaintMs+'ms');
     if(jsErrors.length)warn(name,'JS errors: '+[...new Set(jsErrors)].slice(0,2).join(' | '));
