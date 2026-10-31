@@ -46,11 +46,7 @@ function enhance(requestId){
  confirm.addEventListener('change',draw);
  approve.addEventListener('click',async()=>{
   if(approve.disabled)return;
-  if(file?.files?.length){
-   feedback.className='eaiS-inlineFeedback error';
-   feedback.textContent='Save the selected EX5 file privately first, then reopen this request to approve access.';
-   return;
-  }
+  const selectedFile=file?.files?.[0]||null;
   busy=true;draw();approve.textContent='Approving…';
   feedback.textContent='';feedback.className='eaiS-inlineFeedback';
   try{
@@ -65,6 +61,12 @@ function enhance(requestId){
    modal.remove();
    await api.load();
    await api.requestForm(r.id);
+   // Preserve a locally selected compiled file when approving before delivery.
+   if(selectedFile&&typeof DataTransfer!=='undefined'){
+    const next=document.getElementById('eaiALicensedFile');
+    if(next){const dt=new DataTransfer();dt.items.add(selectedFile);next.files=dt.files;
+      next.dispatchEvent(new Event('change',{bubbles:true}));}
+   }
   }catch(error){
    feedback.className='eaiS-inlineFeedback error';
    feedback.textContent=error?.message||'Approval failed. Check account and proof.';
