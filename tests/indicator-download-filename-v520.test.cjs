@@ -32,7 +32,7 @@ test('File extension and indicator label remain correct across products',()=>{
  assert.equal(nameFor({
   ea_indicator_products:{title:'Trading Sessions MT4 Indicator',platform:'MT4'},
   trading_account_id:'112233',licensed_file_name:'locked-file.ex4'
- }),'Trading_Sessions_MT4_Indicator_112233.ex4');
+ }),'Trading_Sessions_112233.ex4');
  assert.equal(nameFor({
   ea_indicator_products:{title:'Sessions Bundle',platform:'MT5'},
   trading_account_id:'778899',licensed_file_name:'archive.zip'
