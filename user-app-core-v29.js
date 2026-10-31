@@ -1707,6 +1707,7 @@
   // Verified free calendar events. Never substitute fabricated demo release data.
   let pspNewsInFlightV519=false, pspNewsLastCheckV519=0, pspNewsLastAttemptAtV536=0, pspNewsSourceCheckedAt=0;
   let pspCalendarRenderedDateKey='',pspCalendarAutoScrollPending=true;
+  let pspCalendarWeekSources={thisweek:'not-verified',nextweek:'not-verified'};
   function pspCalendarDayKey(date,zone) {
     try {
       const parts=new Intl.DateTimeFormat('en-US',{timeZone:zone||'Asia/Karachi',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);
@@ -1737,6 +1738,10 @@
       try{res=await fetch('https://pipsepaisa-api.vercel.app/api/calendar',{signal:ctrl.signal,cache:'no-store'});}
       finally{clearTimeout(timeout);}
       if(!res.ok)throw new Error('Calendar HTTP '+res.status);
+      pspCalendarWeekSources={
+        thisweek:res.headers.get('X-Calendar-FF-ThisWeek-Status')||'not-verified',
+        nextweek:res.headers.get('X-Calendar-FF-NextWeek-Status')||'not-verified'
+      };
       const checked=res.headers.get('X-Calendar-Feed-Checked-At');
       const parsed=checked?Date.parse(checked):NaN;
       pspNewsSourceCheckedAt=Number.isFinite(parsed)?parsed:0;
@@ -1882,6 +1887,10 @@
       <span>Times shown in ${pspNewsTimeZoneLabel(newsState.timezone)}</span>
     </div>`;
     
+    if((newsState.time==='nextweek'&&pspCalendarWeekSources.nextweek!=='available')||
+       (newsState.time==='week'&&pspCalendarWeekSources.thisweek!=='available')){
+      html+='<div style="font-size:11px;color:var(--gold);padding:7px 9px;margin-bottom:8px;background:var(--bg-elevated);border-radius:6px">⚠ Forex Factory weekly export not verified yet. Available source events are shown; some names, Forecast or Previous figures may update when the export becomes available.</div>';
+    }
     if (filtered.length === 0) {
       const emptyHeading=newsState.time==='today'?'No Economic Events Today':newsState.time==='tomorrow'?'No Economic Events Tomorrow':'No events match your filters';
       html += '<div class="empty-state" style="height: 200px;"><div class="empty-icon">📭</div><div>'+emptyHeading+'</div><div style="font-size: 11px; margin-top: 6px; color: var(--text-muted);">No matching verified events for these filters. Try another impact level or date.</div></div>';
