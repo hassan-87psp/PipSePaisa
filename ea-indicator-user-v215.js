@@ -17,6 +17,45 @@ function licensedDownloadName(r){
  return indicator+'_'+account+'.'+extension;
 }
 window.PSPEAILicensedDownloadName=licensedDownloadName;
+// Download inside the same page using an authenticated private Storage Blob.
+async function saveLicensedFile(c,r){
+ const result=await c.storage.from('ea-indicator-licensed').download(r.licensed_file_path);
+ if(result.error)throw result.error;
+ if(!result.data)throw new Error('Private licensed file was not returned.');
+ const blobUrl=URL.createObjectURL(result.data);
+ const link=document.createElement('a');
+ link.href=blobUrl;
+ link.download=licensedDownloadName(r);
+ link.style.display='none';
+ document.body.appendChild(link);
+ try{link.click()}finally{
+  link.remove();
+  setTimeout(()=>URL.revokeObjectURL(blobUrl),60000);
+ }
+ return true;
+}
+function licenseRemaining(expires,at=Date.now()){
+ const time=Date.parse(expires||'');
+ if(!Number.isFinite(time))return 'Expiry date unavailable';
+ const delta=time-at;
+ if(delta<=0)return 'Expired';
+ const days=Math.floor(delta/86400000),hours=Math.floor((delta%86400000)/3600000);
+ const minutes=Math.floor((delta%3600000)/60000),seconds=Math.floor((delta%60000)/1000);
+ return days+'d '+String(hours).padStart(2,'0')+'h '+String(minutes).padStart(2,'0')+'m '+String(seconds).padStart(2,'0')+'s';
+}
+function refreshLicenseClocks(){
+ const root=document.getElementById('eaiModalBack');
+ if(!root)return;
+ root.querySelectorAll('[data-eai-license-expiry]').forEach(el=>{
+  el.textContent=licenseRemaining(el.dataset.eaiLicenseExpiry);
+  el.classList.toggle('expired',el.textContent==='Expired');
+ });
+}
+if(!window.__PSP_EAI_LIVE_CLOCK_V521__){
+ window.__PSP_EAI_LIVE_CLOCK_V521__=true;
+ window.setInterval(refreshLicenseClocks,1000);
+}
+
 
 const slug=s=>String(s||'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,90);
 function toast(msg,type='ok'){try{window.pipToast?.(msg,type)}catch(_){alert(msg)}}
@@ -83,7 +122,19 @@ function detail(id){const p=state.products.find(x=>x.id===id);if(!p)return;const
 async function request(id){const p=state.products.find(x=>x.id===id);if(!p)return;const minDeposit=Math.max(0,Number(p.requirements?.min_deposit_usd)||0);const existing=state.requests.find(r=>r.product_id===id);if(existing&&existing.status!=='rejected'){toast('You already have a request for this product.');return}const brokerOptions=['Exness','XM','DPrime','HFM','Other'];modal(`<div class="eai-mhead"><div><b>Request Access — ${esc(p.title)}</b><div style="font-size:9px;color:var(--text-muted);margin-top:3px">Free access requires verification.${minDeposit?` Minimum USD $${esc(minDeposit)} broker-account deposit required; indicator fee $0.`:''} Your final file will be licensed to the submitted trading account.</div></div><button class="eai-x" onclick="document.getElementById('eaiModalBack').remove()">×</button></div><form class="eai-form" id="eaiRequestForm"><div class="eai-field"><label>Trading Account ID *</label><input id="eaiAccount" placeholder="e.g. 12345678" required></div><div class="eai-field"><label>Broker *</label><select id="eaiBroker" required><option value="">Select broker</option>${brokerOptions.map(x=>`<option value="${x}">${x}</option>`).join('')}</select></div><div class="eai-field"><label>${minDeposit?`Broker Deposit (USD) — Minimum $${esc(minDeposit)} *`:'Available Deposit (USD)'}</label><input id="eaiDeposit" type="number" min="${minDeposit||0}" step="0.01" placeholder="${minDeposit?`Minimum $${esc(minDeposit)}`:'Optional amount'}" ${minDeposit?'required':''}></div><div class="eai-field"><label>Deposit Proof *</label><input id="eaiDepositProof" type="file" accept="image/*,.pdf" required></div>${p.access_type==='paid'?'<div class="eai-field eai-wide"><label>Payment / Purchase Proof *</label><input id="eaiPaymentProof" type="file" accept="image/*,.pdf" required></div>':''}<div class="eai-field eai-wide"><label>Note (optional)</label><textarea id="eaiNote" rows="3" placeholder="Any account or verification note"></textarea></div><div class="eai-wide eai-callout">${minDeposit?`The USD $${esc(minDeposit)} is deposited with your broker, not paid to PipSePaisa. Verification is required.<div style="height:6px"></div>`:''}After approval: Pending Review → License Preparing → Ready to Download. The licensed file is private to your account.</div><div class="eai-actions"><button type="button" class="eai-secondary" onclick="document.getElementById('eaiModalBack').remove()">Cancel</button><button type="submit" class="eai-primary">Submit Request</button></div></form>`);document.getElementById('eaiRequestForm').onsubmit=e=>submitRequest(e,p,existing)}
 async function upload(bucket,path,file){if(!file)return null;const c=db();const clean=(file.name||'proof').replace(/[^a-zA-Z0-9._-]/g,'_');const full=path+'/'+Date.now()+'-'+clean;const r=await c.storage.from(bucket).upload(full,file,{upsert:false});if(r.error)throw r.error;return full}
 async function submitRequest(e,p,existing){e.preventDefault();const c=db(),u=await user();if(!c||!u)return;const btn=e.target.querySelector('[type=submit]');btn.disabled=true;btn.textContent='Submitting…';try{const id=existing?.id||crypto.randomUUID();const base=u.id+'/'+id;const depFile=document.getElementById('eaiDepositProof')?.files?.[0]||null,payFile=document.getElementById('eaiPaymentProof')?.files?.[0]||null;if(p.access_type==='free'&&!depFile&&!existing?.deposit_proof_path)throw new Error('Deposit proof is required for this free tool request.');if(p.access_type==='paid'&&!payFile&&!existing?.payment_proof_path)throw new Error('Payment proof is required for this paid tool request.');const depositAmount=Number(document.getElementById('eaiDeposit').value||0),minimumDeposit=Math.max(0,Number(p.requirements?.min_deposit_usd)||0);if(minimumDeposit>0&&(!Number.isFinite(depositAmount)||depositAmount<minimumDeposit))throw new Error('A minimum USD $'+minimumDeposit+' broker deposit is required for this indicator.');const dep=depFile?await upload('ea-indicator-proofs',base,depFile):existing?.deposit_proof_path||null;const pay=payFile?await upload('ea-indicator-proofs',base,payFile):existing?.payment_proof_path||null;const row={id,product_id:p.id,user_id:u.id,trading_account_id:document.getElementById('eaiAccount').value.trim(),broker:document.getElementById('eaiBroker').value.trim(),deposit_amount:depositAmount,deposit_proof_path:dep,payment_proof_path:pay,user_note:document.getElementById('eaiNote').value.trim(),status:'pending',updated_at:new Date().toISOString()};let r;if(existing)r=await c.from('ea_indicator_requests').update(row).eq('id',id);else r=await c.from('ea_indicator_requests').insert(row);if(r.error)throw r.error;document.getElementById('eaiModalBack')?.remove();toast('Request submitted. Admin will verify and prepare your licensed file.');await load()}catch(err){alert(err.message||'Request failed.');btn.disabled=false;btn.textContent='Submit Request'}}
-async function download(id){const c=db();const r=state.requests.find(x=>x.id===id);if(!c||!r?.licensed_file_path)return;const s=await c.storage.from('ea-indicator-licensed').createSignedUrl(r.licensed_file_path,120,{download:window.PSPEAILicensedDownloadName(r)});if(s.error){alert('Download could not be prepared: '+s.error.message);return}window.open(s.data.signedUrl,'_blank');await c.from('ea_indicator_requests').update({downloaded_at:new Date().toISOString(),status:'downloaded'}).eq('id',id);await load()}
+async function download(id){
+ const c=db(),r=state.requests.find(x=>x.id===id);
+ if(!c||!r?.licensed_file_path)return false;
+ if(r.license_expires_at&&Date.parse(r.license_expires_at)<=Date.now()){toast('This license has expired. Please contact support.','error');return false}
+ try{
+  await saveLicensedFile(c,r);
+  const now=new Date().toISOString();
+  const upd=await c.from('ea_indicator_requests').update({downloaded_at:now,status:'downloaded'}).eq('id',id);
+  if(upd.error)console.warn('File saved, but tracking failed:',upd.error.message);
+  else{r.status='downloaded';r.downloaded_at=now}
+  return true;
+ }catch(err){toast('Download failed: '+(err.message||'Please retry.'),'error');return false}
+}
 window.PSPEAIndicator={load,detail,request,download,switchTab,selectShot,_getCatalog:()=>state.products};
 function init(){installPage();[80,300,800,1600,2800].forEach(ms=>setTimeout(ensureEaNav,ms));}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
@@ -228,14 +279,20 @@ if(q.error)throw q.error;d('eaiModalBack')?.remove();P.wizard=null;toast('Applic
 };
 api._getPremiumState=function(){return P};
 api.download=async function(id){
-var c=client(),r=P.requests.find(function(x){return x.id===id});if(!c||!r||!r.licensed_file_path||!['ready','downloaded'].includes(r.status)){toast('Your licensed file is not ready.','error');return}
-var tab=window.open('about:blank','_blank');try{
-var s=await c.storage.from('ea-indicator-licensed').createSignedUrl(r.licensed_file_path,120,{download:window.PSPEAILicensedDownloadName(r)});
-if(s.error)throw s.error;
-if(tab)tab.location.href=s.data.signedUrl;else window.location.href=s.data.signedUrl;
-var upd=await c.from('ea_indicator_requests').update({status:'downloaded',downloaded_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('id',id);
-if(upd.error){console.warn('Licensed download opened, activity update failed:',upd.error.message)}
-await api.load();
-}catch(e){if(tab)tab.close();toast('File download could not start: '+(e.message||'Please try again.'),'error')}
+ var c=client(),r=P.requests.find(function(x){return x.id===id});
+ if(!c||!r||!r.licensed_file_path||!['ready','downloaded'].includes(r.status)){toast('Your licensed file is not ready.','error');return false}
+ if(r.license_expires_at&&Date.parse(r.license_expires_at)<=Date.now()){toast('License expired. Please request renewal.','error');return false}
+ try{
+  await saveLicensedFile(c,r);
+  var now=new Date().toISOString();
+  var upd=await c.from('ea_indicator_requests').update({status:'downloaded',downloaded_at:now,updated_at:now}).eq('id',id);
+  if(upd.error)console.warn('File saved, but activity tracking failed:',upd.error.message);
+  else{
+   r.status='downloaded';r.downloaded_at=now;r.updated_at=now;
+   var base=state.requests.find(function(v){return v.id===id});
+   if(base){base.status='downloaded';base.downloaded_at=now}
+  }
+  return true;
+ }catch(e){toast('File download failed: '+(e.message||'Please retry.'),'error');return false}
 };
 })();
