@@ -565,7 +565,7 @@
     if (typeof newsState !== 'undefined') {
       newsState.timezone = tz;
       const labelEl = document.getElementById('newsTimezoneLabel');
-      if (labelEl) labelEl.textContent = TZ_SHORT_LABELS[tz] || tz;
+      if (labelEl) labelEl.textContent = pspNewsTimeZoneLabel(tz);
       if (typeof renderNews === 'function' && typeof newsRawData !== 'undefined' && newsRawData.length > 0) {
         renderNews(typeof isUsingSample === 'function' ? !isUsingSample() : true);
       }
@@ -1672,18 +1672,29 @@
     'UTC': 'UTC',
     'Europe/London': 'GMT/BST (London)',
     'Europe/Berlin': 'CET (Berlin)',
-    'America/New_York': 'EST (New York)',
-    'America/Los_Angeles': 'PST (LA)',
-    'Australia/Sydney': 'AEDT (Sydney)'
+    'America/New_York': 'New York',
+    'America/Los_Angeles': 'Los Angeles',
+    'Australia/Sydney': 'Sydney'
   };
   
+  function pspNewsTimeZoneLabel(zone){
+    const names={'Asia/Karachi':'Pakistan','Asia/Singapore':'Singapore','Asia/Dubai':'Dubai','Asia/Kolkata':'India','Europe/London':'London','Europe/Berlin':'Berlin','America/New_York':'New York','America/Los_Angeles':'Los Angeles','Australia/Sydney':'Sydney'};
+    try {
+      const short=new Intl.DateTimeFormat('en-US',{timeZone:zone,timeZoneName:'short'}).formatToParts(new Date()).find(x=>x.type==='timeZoneName')?.value||zone;
+      return short+(names[zone]?' ('+names[zone]+')':'');
+    }catch(_){return TIMEZONE_LABELS[zone]||zone;}
+  }
+  function pspNewsRefreshZoneLabel(){
+    const label=document.getElementById('newsTimezoneLabel');
+    if(label)label.textContent=pspNewsTimeZoneLabel(newsState.timezone);
+  }
   const FLAG_MAP = {
     USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', JPY: '🇯🇵',
     AUD: '🇦🇺', CAD: '🇨🇦', CHF: '🇨🇭', NZD: '🇳🇿', CNY: '🇨🇳'
   };
   
   // Verified free calendar events. Never substitute fabricated demo release data.
-  let pspNewsInFlightV519=false, pspNewsLastCheckV519=0;
+  let pspNewsInFlightV519=false, pspNewsLastCheckV519=0, pspNewsSourceCheckedAt=0;
   async function loadNews(isBackground=false) {
     const container=document.getElementById('newsListContainer');
     if(!container||pspNewsInFlightV519)return;
@@ -1698,6 +1709,9 @@
       try{res=await fetch('https://pipsepaisa-api.vercel.app/api/calendar',{signal:ctrl.signal,cache:'no-store'});}
       finally{clearTimeout(timeout);}
       if(!res.ok)throw new Error('Calendar HTTP '+res.status);
+      const checked=res.headers.get('X-Calendar-Feed-Checked-At');
+      const parsed=checked?Date.parse(checked):NaN;
+      if(Number.isFinite(parsed))pspNewsSourceCheckedAt=parsed;
       const rows=await res.json();
       if(!Array.isArray(rows))throw new Error('Invalid calendar data');
       newsRawData=rows.filter(n=>n&&n.title&&n.country&&n.date&&Number.isFinite(Date.parse(n.date))).map(n=>({
@@ -1721,7 +1735,12 @@
     const badge=document.getElementById('newsBadge');
     if(badge&&!ok){badge.innerHTML='⚠️ Data unavailable';badge.className='badge';badge.style.cssText='background:rgba(245,158,11,.15);color:var(--gold)';}
     const last=document.getElementById('newsUpdated');
-    if(last&&ok)last.textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+    if(last&&ok){
+      const time=pspNewsSourceCheckedAt||pspNewsLastCheckV519;
+      const minutes=Math.max(0,Math.floor((Date.now()-time)/60000));
+      last.textContent=minutes<1?'just now':minutes<60?minutes+'m ago':Math.floor(minutes/60)+'h ago';
+      last.title=(pspNewsSourceCheckedAt?'Finance Calendar feed checked: ':'API checked: ')+new Date(time).toLocaleString();
+    }
     if(ok||newsRawData.length){renderNews(ok);if(ok&&typeof window.pspCalendarAlertsUpdate==='function')window.pspCalendarAlertsUpdate(newsRawData);}
   }
 
@@ -1744,6 +1763,7 @@
     });
   }
   function renderNews(isLive) {
+    pspNewsRefreshZoneLabel();
     const container = document.getElementById('newsListContainer');
     if (!container) return;
 
@@ -1752,7 +1772,7 @@
       const dayOfWeek = new Date().getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
       if (isLive) {
-        badge.innerHTML = '<span style="width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;"></span>SYNCED';
+        badge.innerHTML = '<span style="width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;"></span>FEED ONLINE';
         badge.className = 'badge low';
         badge.style.cssText = '';
       } else {
@@ -1839,7 +1859,7 @@
     // Count line — always shown, no banner regardless of data source
     html += `<div style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;">
       <span>📊 <strong>${filtered.length}</strong> events ${newsState.time === 'custom' && newsState.customFrom ? '(' + newsState.customFrom + ' to ' + newsState.customTo + ')' : (newsState.time !== 'all' ? '(' + newsState.time + ')' : '')}</span>
-      <span>Times shown in ${TIMEZONE_LABELS[newsState.timezone] || newsState.timezone} timezone</span>
+      <span>Times shown in ${pspNewsTimeZoneLabel(newsState.timezone)}</span>
     </div>`;
     
     if (filtered.length === 0) {
@@ -1893,12 +1913,12 @@
     }
     container.innerHTML = html;
     updateNewsCountdowns();
-    if(!window._newsCdTimer) window._newsCdTimer=setInterval(updateNewsCountdowns,30000);
+    if(!window._newsCdTimer) window._newsCdTimer=setInterval(function(){if(!document.hidden&&document.getElementById('page-news')?.classList.contains('active'))updateNewsCountdowns();},30000);
   }
   function fmtNewsCd(ms,hasActual){
-    if(hasActual)return ['✓ Out','var(--green)'];
-    if(ms<=-3600000)return ['',''];
-    if(ms<=0)return ['● LIVE','#ef4444'];
+    if(hasActual)return ['✓ Released','var(--green)'];
+    if(ms<=-3600000)return ['Released','var(--text-muted)'];
+    if(ms<=0)return ['● Awaiting result','#ef4444'];
     if(ms<60000)return ['<1m','#ef4444'];
     if(ms<1800000)return [Math.round(ms/60000)+'m','#ef4444'];
     if(ms<3600000)return [Math.round(ms/60000)+'m','var(--gold)'];
@@ -1935,7 +1955,7 @@
   // ============ DATE RANGE PICKER ============
   function openDatePicker() {
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
+    const todayStr = new Intl.DateTimeFormat('en-CA',{timeZone:newsState.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).format(today);
     
     // Pre-fill with current selection or today
     document.getElementById('dateFromInput').value = newsState.customFrom || todayStr;
@@ -2005,6 +2025,7 @@
   
   function setNewsTimezone(tz) {
     newsState.timezone = tz;
+    pspNewsRefreshZoneLabel();
     renderNews(newsRawData.length > 0 && !isUsingSample());
   }
   
