@@ -45,3 +45,133 @@
 /* V503 — Explicit, safe reapproval after an earlier rejection. */
 #page-eaindicator .eaiV503-reapprove{background:#f39522!important;border-color:#ef8c14!important;color:#281706!important;font-size:11px!important;font-weight:900!important;border-radius:9px!important;min-height:38px!important}
 #page-eaindicator .eaiV503-reapprove:hover{background:#ffa833!important}
+
+
+/* v507 simple license modal — one student, one file, one action. */
+#eaiAModal.eaiS-simple.eaiA-modalback{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ padding:12px!important;background:rgba(9,17,27,.54)!important
+}
+#eaiAModal.eaiS-simple.eaiV374-drawer .eaiA-modal,
+#eaiAModal.eaiS-simple.eaiA-modalback:has(#eaiAReqForm) .eaiA-modal{
+ width:min(560px,calc(100vw - 24px))!important;height:auto!important;max-height:min(88dvh,780px)!important;
+ min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;
+ border-radius:18px!important;box-shadow:0 28px 80px rgba(0,0,0,.25)!important;
+ animation:none!important;transform:none!important;scrollbar-width:thin
+}
+#eaiAModal.eaiS-simple .eaiA-mhead{padding:17px 20px!important;position:sticky;top:0;z-index:5}
+#eaiAModal.eaiS-simple .eaiA-mhead b{font-size:17px!important;letter-spacing:-.025em}
+#eaiAModal.eaiS-simple .eaiA-mhead .eaiA-btn{min-width:34px!important;min-height:34px!important}
+#eaiAModal.eaiS-simple .eaiU-modalIntro,
+#eaiAModal.eaiS-simple .eaiA-verify,
+#eaiAModal.eaiS-simple .eaiU-reviewBadge,
+#eaiAModal.eaiS-simple .eaiAP-verified-note,
+#eaiAModal.eaiS-simple .eaiU-modalTip,
+#eaiAModal.eaiS-simple #eaiV374Checks{display:none!important}
+#eaiAModal.eaiS-simple.eaiV374-drawer .eaiA-form,
+#eaiAModal.eaiS-simple.eaiA-modalback:has(#eaiAReqForm) .eaiA-form{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ gap:12px!important;padding:15px 20px 20px!important
+}
+#eaiAModal.eaiS-simple .eaiA-wide{grid-column:1/-1!important}
+#eaiAModal.eaiS-simple .eaiS-student{
+ border:1px solid #e8e2d9;border-radius:12px;background:#faf8f5;padding:13px 14px;min-width:0
+}
+#eaiAModal.eaiS-simple .eaiS-studentTop{display:flex;align-items:center;gap:10px;min-width:0}
+#eaiAModal.eaiS-simple .eaiS-avatar{
+ width:38px;height:38px;flex:0 0 38px;display:grid;place-items:center;border-radius:11px;
+ color:#a75a03;background:#fce9c8;font-size:17px;font-weight:900
+}
+#eaiAModal.eaiS-simple .eaiS-studentDetail{display:grid;gap:3px;min-width:0;flex:1}
+#eaiAModal.eaiS-simple .eaiS-studentDetail strong{
+ font-size:13px;font-weight:900;color:#18233a;overflow-wrap:anywhere
+}
+#eaiAModal.eaiS-simple .eaiS-studentDetail small{font-size:10px;color:#718093;overflow-wrap:anywhere}
+#eaiAModal.eaiS-simple .eaiS-status{
+ font-size:10px;font-weight:850;border-radius:99px;padding:6px 9px;white-space:nowrap
+}
+#eaiAModal.eaiS-simple .eaiS-status.verified{background:#e8f6ef;color:#137c4f}
+#eaiAModal.eaiS-simple .eaiS-status.unverified{background:#fff0db;color:#ad640a}
+#eaiAModal.eaiS-simple .eaiS-account{
+ margin:11px 0 0;padding-top:10px;border-top:1px solid #e9e1d8;
+ color:#516079;font-size:11px;line-height:1.5
+}
+#eaiAModal.eaiS-simple .eaiS-account b{color:#162033}
+#eaiAModal.eaiS-simple .eaiS-account span{margin:0 5px;color:#aa9a84}
+#eaiAModal.eaiS-simple .eaiS-hint{
+ margin-top:10px;padding:8px 10px;background:#fff8ee;border:1px solid #f3dcba;
+ border-radius:8px;color:#8e590d;font-size:10.5px;line-height:1.6
+}
+#eaiAModal.eaiS-simple #eaiSGoVerify{
+ background:transparent;border:0;padding:0;text-decoration:underline;
+ color:#9b5100;font:inherit;font-weight:900;cursor:pointer
+}
+#eaiAModal.eaiS-simple .eaiU-formSection{
+ margin:0!important;padding:0!important;border:0!important;background:transparent!important
+}
+#eaiAModal.eaiS-simple .eaiU-formSection>header{display:none!important}
+#eaiAModal.eaiS-simple .eaiU-fieldGrid{
+ padding:0!important;border:0!important;background:transparent!important;
+ display:grid!important;grid-template-columns:1fr!important;gap:10px!important
+}
+#eaiAModal.eaiS-simple .eaiU-fieldGrid>.eaiA-f{
+ padding:12px!important;border:1px dashed #e7c396!important;border-radius:12px!important;
+ background:#fffbf5!important
+}
+#eaiAModal.eaiS-simple #eaiALicensedFile{
+ min-height:44px!important;cursor:pointer;background:#fff!important;padding:10px!important;
+ border:1px solid #e5dacf!important;border-radius:9px!important;font-size:12px!important
+}
+#eaiAModal.eaiS-simple .eaiU-fileNote{
+ font-size:10.5px!important;color:#758298!important;line-height:1.5!important;
+ margin:6px 0 0!important;overflow-wrap:anywhere
+}
+#eaiAModal.eaiS-simple .eaiS-licenseSettings,
+#eaiAModal.eaiS-simple .eaiS-advanced{
+ border:1px solid #e8e2d9;border-radius:10px;background:#fffdfa;overflow:hidden
+}
+#eaiAModal.eaiS-simple .eaiS-licenseSettings>summary,
+#eaiAModal.eaiS-simple .eaiS-advanced>summary{
+ cursor:pointer;padding:10px 12px;list-style:none;font-size:11px;font-weight:800;color:#526078
+}
+#eaiAModal.eaiS-simple .eaiS-licenseSettings summary::-webkit-details-marker,
+#eaiAModal.eaiS-simple .eaiS-advanced summary::-webkit-details-marker{display:none}
+#eaiAModal.eaiS-simple .eaiS-licenseSettings summary span{font-size:10px;color:#9da4ac;font-weight:600}
+#eaiAModal.eaiS-simple .eaiS-licenseSettings[open]>summary,
+#eaiAModal.eaiS-simple .eaiS-advanced[open]>summary{border-bottom:1px solid #ede4da}
+#eaiAModal.eaiS-simple .eaiS-licenseFields{
+ display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px
+}
+#eaiAModal.eaiS-simple .eaiS-licenseFields .eaiA-f:first-child{grid-column:1/-1}
+#eaiAModal.eaiS-simple .eaiS-licenseFields .eaiA-f input{min-height:37px!important}
+#eaiAModal.eaiS-simple .eaiU-issueAction{
+ display:block!important;margin:0!important;padding:0!important;background:transparent!important;
+ border:0!important;box-shadow:none!important
+}
+#eaiAModal.eaiS-simple .eaiU-deliverBtn{
+ display:block!important;width:100%!important;min-width:0!important;min-height:47px!important;
+ border-radius:10px!important;font-size:13px!important;font-weight:900!important
+}
+#eaiAModal.eaiS-simple .eaiU-error{font-size:11px!important;padding:9px 10px!important}
+#eaiAModal.eaiS-simple .eaiS-moreBody{padding:11px;display:grid;gap:10px}
+#eaiAModal.eaiS-simple .eaiU-otherActions{border:0!important}
+#eaiAModal.eaiS-simple .eaiU-otherActions>summary{display:none!important}
+#eaiAModal.eaiS-simple .eaiU-otherFields{padding:0!important;border:0!important}
+#eaiAModal.eaiS-simple .eaiA-actions{
+ position:static!important;bottom:auto!important;padding:0!important;margin:0!important;
+ display:flex!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:8px!important;
+ border:0!important;background:transparent!important;box-shadow:none!important
+}
+#eaiAModal.eaiS-simple .eaiA-actions .eaiA-btn{min-height:35px!important;font-size:10px!important}
+#eaiAModal.eaiS-simple .eaiAP-audit{margin:0!important}
+@media(max-width:600px){
+ #eaiAModal.eaiS-simple.eaiA-modalback{padding:8px!important}
+ #eaiAModal.eaiS-simple.eaiV374-drawer .eaiA-modal,
+ #eaiAModal.eaiS-simple.eaiA-modalback:has(#eaiAReqForm) .eaiA-modal{
+  width:calc(100vw - 16px)!important;max-height:92dvh!important;border-radius:14px!important
+ }
+ #eaiAModal.eaiS-simple .eaiA-mhead{padding:12px 14px!important}
+ #eaiAModal.eaiS-simple .eaiA-form{padding:12px 14px 16px!important}
+ #eaiAModal.eaiS-simple .eaiS-status{font-size:9px;padding:5px}
+ #eaiAModal.eaiS-simple .eaiS-licenseFields{grid-template-columns:1fr}
+}
