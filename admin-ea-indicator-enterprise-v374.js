@@ -8,7 +8,7 @@ window.__PSP_EAI_ENTERPRISE_V374__=true;
 const api=window.PSPEAIAdmin;
 const q=id=>document.getElementById(id);
 const escape=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const state={filter:'new',product:'all',broker:'all',verification:'all',date:'all',search:'',loaded:false,rows:[],stats:{},currentRequest:null,observer:null,timer:0,bound:false,initialTab:false,initialFilterChosen:false};
+const state={filter:'new',product:'all',search:'',loaded:false,rows:[],stats:{},currentRequest:null,observer:null,timer:0,bound:false,initialTab:false,initialFilterChosen:false};
 const activeStatuses=new Set(['pending','under_review','approved','license_preparing']);
 const issuedStatuses=new Set(['ready','downloaded']);
 const labelStatus={pending:'New Request',under_review:'Under Review',approved:'Approved · File Pending',license_preparing:'Preparing Build',ready:'File Ready',downloaded:'Downloaded',rejected:'Rejected'};
@@ -17,6 +17,18 @@ function verification(r){try{return api.verificationFor(r)}catch(e){return{state
 function typeOf(r,snap){
  const prod=(snap?.products||[]).find(p=>p.id===r.product_id);
  return String(prod?.platform||r.ea_indicator_products?.platform||'MT5').toUpperCase();
+}
+function expiryOf(r){
+ const times=[r.license_expires_at,r._approvalExpires].map(v=>Date.parse(v||'')).filter(Number.isFinite);
+ if(!times.length&&issuedStatuses.has(String(r.status||'').toLowerCase())){const start=Date.parse(r.ready_at||r.approved_at||'');if(Number.isFinite(start))times.push(start+30*86400000);}
+ return times.length?Math.min(...times):null;
+}
+function isExpired(r){return issuedStatuses.has(String(r.status||'').toLowerCase())&&r._expiry!=null&&r._expiry<=Date.now();}
+function remainingText(exp){
+ if(exp==null)return 'No expiry set';
+ const time=exp-Date.now();if(time<=0)return 'Expired';
+ const days=Math.floor(time/86400000);if(days>0)return days+'d '+Math.floor(time%86400000/3600000)+'h left';
+ const hours=Math.floor(time/3600000);return hours>0?hours+'h '+Math.floor(time%3600000/60000)+'m left':Math.max(1,Math.ceil(time/60000))+'m left';
 }
 function priority(r){
  const v=r._verification,st=r.status;
@@ -36,10 +48,7 @@ function timeLabel(s){
  return new Date(s).toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'});
 }
 function summary(rows){
- return {total:rows.length,action:rows.filter(r=>activeStatuses.has(r.status)).length,
- verified:rows.filter(r=>r._priority==='verified').length,
- attention:rows.filter(r=>r._priority==='attention').length,
- issued:rows.filter(r=>issuedStatuses.has(r.status)).length};
+ return {total:rows.length,new:rows.filter(r=>statusMatch(r,'new')).length,approved:rows.filter(r=>statusMatch(r,'approved')).length,rejected:rows.filter(r=>statusMatch(r,'rejected')).length,expired:rows.filter(r=>statusMatch(r,'expired')).length};
 }
 function setupLayout(){
  const page=q('page-eaindicator');if(!page)return null;
@@ -65,9 +74,6 @@ function setupLayout(){
    '<button type="button" class="eaiV374-refresh" data-e374-refresh="1">↻ Refresh</button></div>'+
    '<div class="eaiV374-toolbar"><div class="eaiV374-pills" id="eaiV374Pills" role="group" aria-label="Application status"></div>'+
    '<div class="eaiV498-filterRow"><label>Indicator<select id="eaiV498Product" aria-label="Filter by indicator"><option value="all">All Indicators</option></select></label>'+
-   '<label>Broker<select id="eaiV498Broker" aria-label="Filter by broker"><option value="all">All Brokers</option></select></label>'+
-   '<label>Verification<select id="eaiV498Verification" aria-label="Filter by verification"><option value="all">Any</option><option value="ok">Verified</option><option value="needs">Not Verified</option></select></label>'+
-   '<label>Date<select id="eaiV498Date" aria-label="Filter by date"><option value="all">All Dates</option><option value="today">Today</option><option value="week">This Week</option></select></label>'+
    '<label class="eaiV374-search"><span aria-hidden="true">⌕</span><input id="eaiV374Search" type="search" placeholder="Search student / account" aria-label="Search applications"></label></div></div>'+
    '<div class="eaiV374-list" id="eaiV374List" aria-live="polite"><div class="eaiV374-empty">Loading applications…</div></div></section>';
   const existing=q('eaiAContent');
@@ -85,8 +91,7 @@ function setupLayout(){
    if(event.target.closest('[data-e374-refresh]')){refresh();return}
   });
   q('eaiV374Search')?.addEventListener('input',e=>{state.search=e.target.value;render()});
-  [['eaiV498Product','product'],['eaiV498Broker','broker'],['eaiV498Verification','verification'],['eaiV498Date','date']].forEach(([id,key])=>
-   q(id)?.addEventListener('change',e=>{state[key]=e.target.value;render()}));
+  q('eaiV498Product')?.addEventListener('change',e=>{state.product=e.target.value;render()});
  }
  const content=q('eaiAContent');
  if(content && !state.observer){
@@ -107,7 +112,8 @@ function rowsFromSnapshot(){
  const snap=source();if(!snap||!snap.loaded)return null;
  const rows=(snap.requests||[]).map(r=>{
   const vf=verification(r),flag=vf.state||'none';
-  const copy=Object.assign({},r,{_verification:flag,_verificationLabel:vf.label||'Not verified',_platform:typeOf(r,snap)});
+  const copy=Object.assign({},r,{_verification:flag,_verificationLabel:vf.label||'Not verified',_platform:typeOf(r,snap),_approvalExpires:vf.row?.approved_expires_at||null});
+  copy._expiry=expiryOf(copy);
   copy._priority=priority(copy);
   return copy;
  });
@@ -125,7 +131,7 @@ function updateData(){
   state.rows=rows;state.stats=summary(rows);state.loaded=true;
   if(!state.initialFilterChosen){
    state.initialFilterChosen=true;
-   const order=['new','under_review','approved','rejected','ready','downloaded','total'];
+   const order=['new','approved','rejected','expired','total'];
    state.filter=order.find(key=>key==='total'||rows.some(r=>statusMatch(r,key)))||'total';
   }
  }
@@ -140,26 +146,19 @@ function metricCard(item){
   '<span class="eaiV374-metricLine"></span></button>';
 }
 const metrics=[
- {key:'action',label:'Awaiting Processing',help:'New / in-progress requests',kind:'orange',icon:'↗'},
- {key:'verified',label:'Ready for Issuance',help:'Verified, private file pending',kind:'green',icon:'✓'},
- {key:'attention',label:'Needs Attention',help:'Mismatch / failed verification',kind:'red',icon:'!'},
- {key:'issued',label:'Issued Licenses',help:'Ready or downloaded',kind:'blue',icon:'⬡'}];
-const filters=[
- {key:'new',name:'Unchecked'},{key:'under_review',name:'Under Review'},
- {key:'approved',name:'Approved'},{key:'rejected',name:'Rejected'},
- {key:'ready',name:'Ready'},{key:'downloaded',name:'Downloaded'},
- {key:'total',name:'All'}];
+ {key:'new',label:'Unchecked',help:'Needs a decision',kind:'orange',icon:'↗'},
+ {key:'approved',label:'Approved',help:'Files delivered',kind:'green',icon:'✓'},
+ {key:'rejected',label:'Rejected',help:'Applications rejected',kind:'red',icon:'!'},
+ {key:'expired',label:'Expired',help:'Licenses expired',kind:'blue',icon:'⌛'}];
+const filters=[{key:'new',name:'Unchecked'},{key:'approved',name:'Approved'},{key:'rejected',name:'Rejected'},{key:'expired',name:'Expired'},{key:'total',name:'All'}];
 function statusMatch(r,key){
  const st=String(r.status||'').toLowerCase();
  if(key==='total')return true;
- if(key==='new')return st==='pending';
- if(key==='approved')return st==='approved'||st==='license_preparing';
- if(key==='ready')return st==='ready';
- if(key==='attention')return r._priority==='attention';
- if(key==='verified')return r._priority==='verified';
- if(key==='issued')return issuedStatuses.has(st);
- if(key==='action')return activeStatuses.has(st);
- return st===key;
+ if(key==='rejected')return st==='rejected';
+ if(key==='expired')return isExpired(r);
+ if(key==='approved')return issuedStatuses.has(st)&&!isExpired(r);
+ if(key==='new')return !issuedStatuses.has(st)&&st!=='rejected';
+ return false;
 }
 function setOptions(id,pairs,value,label){
  const el=q(id);if(!el)return;
@@ -168,18 +167,11 @@ function setOptions(id,pairs,value,label){
  if(el.innerHTML!==html)el.innerHTML=html;
  el.value=pairs.some(p=>p[0]===prior)?prior:'all';
 }
-function recent(date,kind){
- if(kind==='all')return true;
- const d=new Date(date),now=new Date();
- if(!Number.isFinite(d.getTime()))return false;
- const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
- return kind==='today'?d>=today:d>=new Date(today.getTime()-6*86400000);
-}
 function statusClass(r){
- if(r._verification!=='ok')return 'warning';
- if(issuedStatuses.has(r.status))return 'issued';
- if(activeStatuses.has(r.status))return 'pending';
- return 'neutral';
+ if(isExpired(r))return 'warning';
+ if(issuedStatuses.has(String(r.status||'').toLowerCase()))return 'issued';
+ if(r.status==='rejected')return 'warning';
+ return 'pending';
 }
 function card(r){
  const name=String(r.profiles?.full_name||r.profiles?.email||'Student');
@@ -223,8 +215,6 @@ function render(){
  const allProducts=new Map((snap?.products||[]).map(p=>[p.id,p.title]));
  for(const r of state.rows)if(!allProducts.has(r.product_id))allProducts.set(r.product_id,r.ea_indicator_products?.title||'Software');
  setOptions('eaiV498Product',[...allProducts].sort((a,b)=>String(a[1]).localeCompare(String(b[1]))),state.product,'All Indicators');
- const brokers=[...new Set(state.rows.map(r=>String(r.broker||'').trim()).filter(Boolean))].sort().map(b=>[b,b]);
- setOptions('eaiV498Broker',brokers,state.broker,'All Brokers');
  const pills=q('eaiV374Pills');
  if(pills)pills.innerHTML=filters.map(f=>'<button type="button" data-e374-filter="'+f.key+'" class="'+(state.filter===f.key?'active':'')+'" aria-pressed="'+(state.filter===f.key)+'">'+
    escape(f.name)+' <b>'+(state.loaded?(counts[f.key]||0):'—')+'</b></button>').join('');
@@ -232,10 +222,6 @@ function render(){
  const matches=state.rows.filter(r=>{
   if(!statusMatch(r,state.filter))return false;
   if(state.product!=='all'&&r.product_id!==state.product)return false;
-  if(state.broker!=='all'&&String(r.broker||'')!==state.broker)return false;
-  if(state.verification==='ok'&&r._verification!=='ok')return false;
-  if(state.verification==='needs'&&r._verification==='ok')return false;
-  if(!recent(r.created_at,state.date))return false;
   return !needle||[r.profiles?.full_name,r.profiles?.email,r.ea_indicator_products?.title,r.trading_account_id,r.broker,r.licensed_file_name].some(v=>
    String(v||'').toLocaleLowerCase().includes(needle));
  });
@@ -246,7 +232,7 @@ function render(){
   matches.length?matches.map(card).join(''):'<div class="eaiV374-empty">'+escape(emptyText())+'</div>';
  const info=q('eaiV374QueueInfo');
  if(info)info.textContent=state.loaded?
-  (matches.length+' applications · Sorted by verification and action priority'+(errorText?' · '+errorText:'')):
+  (matches.length+' applications · 30-day license tracking'+(errorText?' · '+errorText:'')):
   (errorText?'Applications could not be loaded — use Refresh':'Loading secure application records…');
 }
 function fileValid(file,platform){
