@@ -34,6 +34,8 @@ async function saveLicensedFile(c,r){
  }
  return true;
 }
+// Expose the authenticated same-page downloader to the premium wrapper below.
+window.PSPEAISaveLicensedFile=saveLicensedFile;
 function licenseRemaining(expires,at=Date.now()){
  const time=Date.parse(expires||'');
  if(!Number.isFinite(time))return 'Expiry date unavailable';
@@ -305,14 +307,14 @@ api.download=async function(id){
  if(!c||!r||!r.licensed_file_path||!['ready','downloaded'].includes(r.status)){toast('Your licensed file is not ready.','error');return false}
  if(r.license_expires_at&&Date.parse(r.license_expires_at)<=Date.now()){toast('License expired. Please request renewal.','error');return false}
  try{
-  await saveLicensedFile(c,r);
+  await window.PSPEAISaveLicensedFile(c,r);
   var now=new Date().toISOString();
   var upd=await c.from('ea_indicator_requests').update({status:'downloaded',downloaded_at:now,updated_at:now}).eq('id',id);
   if(upd.error)console.warn('File saved, but activity tracking failed:',upd.error.message);
   else{
    r.status='downloaded';r.downloaded_at=now;r.updated_at=now;
-   var base=state.requests.find(function(v){return v.id===id});
-   if(base){base.status='downloaded';base.downloaded_at=now}
+   // Rehydrate both the marketplace and premium license views without cross-scope access.
+   await api.load();
   }
   return true;
  }catch(e){toast('File download failed: '+(e.message||'Please retry.'),'error');return false}
