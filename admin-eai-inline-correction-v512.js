@@ -74,7 +74,7 @@
     if(!window.sb)throw new Error('Admin connection is unavailable. Refresh and retry.');
     // The click is the admin's affirmative approval. The backend independently
     // validates the broker, evidence, amount, permissions and 30-day access.
-    const result=await window.sb.rpc('psp_admin_verify_indicator_access_v515',{
+    const result=await window.sb.rpc('psp_admin_verify_indicator_access_v517',{
      p_request_id:request.id,p_verified_broker:broker,p_verified_account:account,
      p_verified_deposit:deposit,p_confirmed:true
     });
