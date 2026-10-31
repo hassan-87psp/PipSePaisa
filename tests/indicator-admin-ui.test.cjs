@@ -18,7 +18,8 @@ test('Admin does not show the session-checking popup or literal escaped newline'
 test('Both admin routes load the same refreshed indicator-management interface',()=>{
   for(const name of ['admin/index.html','admin-panel.html']){
     const html=read(name);
-    assert.match(html,/admin-ea-indicator-ultra-v371\.js\?v=20261029-v374-immediate-drawer/);
+    assert.match(html,/admin-ea-indicator-ultra-v371\.js\?v=20261031-v506-simple-issue/);
+    assert.match(html,/admin-eai-inline-correction-v512\.js\?v=20261031-v515-correction/);
     assert.match(html,/<link id="eaiUStyle" rel="stylesheet" href="\/admin-ea-indicator-ultra-v371\.css\?v=20261029-v373-one-step">/);
   }
 });
@@ -75,7 +76,7 @@ test('One-click approval validates account and requires a private compiled file'
   assert.doesNotThrow(()=>new Function(core));
   assert.match(core,/function approveAndDeliver\(\)/);
   assert.match(core,/form\.requestSubmit\(\)/);
-  assert.match(core,/status='ready'/);
+  assert.match(core,/status=verified\.state==='ok'\?'ready':'under_review'/);
   assert.match(core,/licensed_file_path:filePath/);
   assert.match(core,/verificationFor\(r\)/);
   assert.match(core,/if\(uploaded\)/);
@@ -95,15 +96,33 @@ test('Approve & Deliver refuses a mismatched account or missing EX5 file',()=>{
   registry.set('eaiURequestError',{hidden:true,textContent:''});
   const ctx={document:{getElementById:id=>registry.get(id)||null},state:{requests:[r]},verificationFor:()=>({state:'different'}),alert:m=>errors.push(m),window:{},console};
   vm.createContext(ctx);vm.runInContext(block,ctx);
-  // Show inline error rather than submitting a false approval.
-  ctx.approveAndDeliver();assert.equal(submissions,0);assert.match(registry.get('eaiURequestError').textContent,/not approved/);
+  // Unverified files can be staged privately but cannot be marked ready for download.
+  ctx.approveAndDeliver();assert.equal(submissions,1);assert.equal(registry.get('eaiAReqStatus').value,'under_review');
   ctx.verificationFor=()=>({state:'ok'});
   registry.get('eaiALicensedFile').files=[];
-  ctx.approveAndDeliver();assert.equal(submissions,0);assert.match(registry.get('eaiURequestError').textContent,/First choose/);
+  ctx.approveAndDeliver();assert.equal(submissions,1);assert.match(registry.get('eaiURequestError').textContent,/Choose/);
   registry.get('eaiALicensedFile').files=[{name:'personal.ex5'}];
   registry.get('eaiALicenseAccount').value='654321';
-  ctx.approveAndDeliver();assert.equal(submissions,0);assert.match(registry.get('eaiURequestError').textContent,/must match/);
+  ctx.approveAndDeliver();assert.equal(submissions,1);assert.match(registry.get('eaiURequestError').textContent,/must match/);
   registry.get('eaiALicenseAccount').value='123456';
   ctx.approveAndDeliver();
-  assert.equal(submissions,1);assert.equal(registry.get('eaiAReqStatus').value,'ready');
+  assert.equal(submissions,2);assert.equal(registry.get('eaiAReqStatus').value,'ready');
+});
+
+test('Simplified indicator queue has five states and licensed time remaining',()=>{
+ const js=read('admin-ea-indicator-enterprise-v374.js');
+ assert.doesNotThrow(()=>new Function(js));
+ for(const status of ["new","approved","rejected","expired","total"]){
+  assert.match(js,new RegExp("key:'"+status+"',name:"));
+ }
+ for(const removed of ["name:'Under Review'","name:'Ready'","name:'Downloaded'"]){
+  assert.ok(!js.includes(removed),"Extra tab: "+removed);
+ }
+ assert.match(js,/Time remaining/);
+ assert.match(js,/function isExpired/);
+ const ui=read('admin-eai-inline-correction-v512.js');
+ assert.doesNotThrow(()=>new Function(ui));
+ assert.match(ui,/psp_admin_verify_indicator_access_v515/);
+ assert.match(ui,/Select approved broker/);
+ assert.match(ui,/data-correct-account/);
 });
