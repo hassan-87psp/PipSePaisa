@@ -90,4 +90,19 @@ api.requestForm=async function(id){
  const task=previous.apply(api,arguments);enhance(id);
  const value=await task;enhance(id);return value;
 };
+// Sync older issued licenses to their existing approved broker expiry, once per admin session.
+let expirySyncAttempted=false;
+const loadBase=api.load;
+api.load=async function(){
+ const result=await loadBase.apply(api,arguments);
+ if(!expirySyncAttempted&&result&&window.sb){
+  expirySyncAttempted=true;
+  try{
+   const out=await window.sb.rpc('psp_admin_sync_indicator_license_expiry_v515');
+   if(out.error)throw out.error;
+   if(Number(out.data)>0)await loadBase.call(api,true);
+  }catch(error){console.warn('License expiry sync could not complete:',error?.message||error);}
+ }
+ return result;
+};
 })();
