@@ -177,24 +177,24 @@ function card(r){
  const name=String(r.profiles?.full_name||r.profiles?.email||'Student');
  const email=String(r.profiles?.email||'');
  const title=String(r.ea_indicator_products?.title||'Trading Software');
- const account=String(r.trading_account_id||'—');
- const verified=r._verification==='ok';
- const oldIssued=issuedStatuses.has(r.status);
- const status=labelStatus[r.status]||String(r.status||'Pending');
- const warning=oldIssued&&!verified;
- const badge=warning?'⚠ Existing License · Recheck':verified?'✓ Broker Verified':'⚠ Verification Needed';
- const action=oldIssued?'View License':String(r.status).toLowerCase()==='rejected'?'Reapprove / Issue':'Review & Issue';
+ const issued=issuedStatuses.has(String(r.status||'').toLowerCase());
+ const expired=isExpired(r);
+ const status=expired?'Expired':issued?'Approved':r.status==='rejected'?'Rejected':'Unchecked';
+ const brokerValid=['exness','dprime','xm'].includes(String(r.broker||'').trim().toLowerCase());
+ const badge=expired?'License expired':issued?'File delivered':r.status==='rejected'?'Rejected':brokerValid?'Awaiting review':'Correct broker';
+ const action=expired?'Renew / Review':issued?'View License':r.status==='rejected'?'Reapprove / Issue':'Review & Issue';
+ const time=issued?'<strong class="eaiS-timer" data-exp="'+escape(String(r._expiry||''))+'" title="'+escape(r._expiry?new Date(r._expiry).toLocaleString():'No expiry set')+'">'+escape(remainingText(r._expiry))+'</strong>':'<span class="eaiS-emptyTime">—</span>';
  return '<article class="eaiV374-item" data-id="'+escape(r.id)+'">'+
-   '<div class="eaiV374-person"><div class="eaiV374-avatar" aria-hidden="true">'+escape(name.trim().charAt(0).toUpperCase()||'P')+'</div>'+
-   '<div class="eaiV374-personText"><strong title="'+escape(name)+'">'+escape(name)+'</strong><span title="'+escape(email)+'">'+escape(email||title)+'</span>'+
-   '<small>Submitted '+escape(timeLabel(r.created_at))+'</small></div></div>'+
-   '<div class="eaiV374-product"><strong title="'+escape(title)+'">'+escape(title)+'</strong>'+
-   '<span>'+escape(r.broker||'—')+' <b>•</b> '+escape(r._platform)+' <b>•</b> Account '+escape(account)+'</span>'+
-   '<span class="eaiV374-productFile">'+(r.licensed_file_name?'File: '+escape(r.licensed_file_name):'Personal build not yet issued')+'</span></div>'+
-   '<div class="eaiV374-flags"><span class="eaiV374-broker '+(verified?'ok':'needs')+'">'+badge+'</span>'+
-   '<span class="eaiV374-stage '+statusClass(r)+'">'+escape(status)+'</span></div>'+
-   '<div class="eaiV374-actions"><button type="button" data-e374-request="'+escape(r.id)+'">'+action+' <span aria-hidden="true">→</span></button>'+
-   '</div></article>';
+  '<div class="eaiV374-person"><div class="eaiV374-avatar">'+escape(name.trim().charAt(0).toUpperCase()||'P')+'</div>'+
+  '<div class="eaiV374-personText"><strong title="'+escape(name)+'">'+escape(name)+'</strong><span title="'+escape(email)+'">'+escape(email||title)+'</span>'+
+  '<small>Submitted '+escape(timeLabel(r.created_at))+'</small></div></div>'+
+  '<div class="eaiV374-product"><strong title="'+escape(title)+'">'+escape(title)+'</strong>'+
+  '<span>'+escape(r.broker||'—')+' <b>•</b> '+escape(r._platform)+' <b>•</b> Account '+escape(r.trading_account_id||'—')+'</span>'+
+  '<span class="eaiV374-productFile">'+(r.licensed_file_name?'File: '+escape(r.licensed_file_name):'File not delivered')+'</span></div>'+
+  '<div class="eaiV374-flags"><span class="eaiV374-stage '+statusClass(r)+'">'+escape(status)+'</span>'+
+  '<span class="eaiV374-broker '+(issued&&!expired?'ok':'needs')+'">'+escape(badge)+'</span></div>'+
+  '<div class="eaiS-timeCol"><small>Time remaining</small>'+time+'</div>'+
+  '<div class="eaiV374-actions"><button type="button" data-e374-request="'+escape(r.id)+'">'+action+' <span aria-hidden="true">→</span></button></div></article>';
 }
 function emptyText(){
  if(!state.loaded)return 'Loading secure applications…';
@@ -234,6 +234,22 @@ function render(){
  if(info)info.textContent=state.loaded?
   (matches.length+' applications · 30-day license tracking'+(errorText?' · '+errorText:'')):
   (errorText?'Applications could not be loaded — use Refresh':'Loading secure application records…');
+}
+// Refresh countdown text without repeatedly rebuilding the admin application table.
+if(!window.__PSP_EAI_COUNTDOWN_V510__){
+ window.__PSP_EAI_COUNTDOWN_V510__=true;
+ setInterval(()=>{
+  const root=q('eaiV374List');
+  if(!root||root.offsetParent===null)return;
+  let hasCrossedExpiry=false;
+  root.querySelectorAll('.eaiS-timer[data-exp]').forEach(node=>{
+   const exp=Number(node.dataset.exp);
+   if(!Number.isFinite(exp)||exp<=0)return;
+   node.textContent=remainingText(exp);
+   if(exp<=Date.now())hasCrossedExpiry=true;
+  });
+  if(hasCrossedExpiry&&state.filter!=='total')render();
+ },60000);
 }
 function fileValid(file,platform){
  if(!file)return false;
