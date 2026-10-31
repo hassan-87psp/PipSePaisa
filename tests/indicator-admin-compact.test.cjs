@@ -11,8 +11,8 @@ test('Both admin routes preload compact stylesheet and launch compact script las
   const html=read(p);
   const css='/admin-ea-indicator-compact-v375.css?v=20261029-v375-compact';
   const js='/admin-ea-indicator-compact-v375.js?v=20261029-v375-compact';
-  const base='admin-ea-indicator-v238.js?v=20261029-v375-support';
-  const prev='/admin-ea-indicator-enterprise-v374.js?v=20261029-v503-reapprove';
+  const base='admin-ea-indicator-v238.js?v=20261031-v515-performance-expiry';
+  const prev='/admin-ea-indicator-enterprise-v374.js?v=20261031-v515-queue';
   assert.equal(html.split(css).length-1,1);
   assert.equal(html.split(js).length-1,1);
   assert.equal(html.split(base).length-1,1);
@@ -58,7 +58,7 @@ test('Compact UI delegates tab, product editor and existing private review logic
 test('No false empty queue on first login, and mismatched requests are prioritized',()=>{
  const s=read('admin-ea-indicator-enterprise-v374.js');
  assert.match(s,/if\(!snap\|\|!snap\.loaded\)return null/);
-  assert.match(s,/const order=\['new','under_review','approved','rejected','ready','downloaded','total'\]/);
+  assert.match(s,/const order=\['new','approved','rejected','expired','total'\]/);
   assert.match(s,/state\.filter=order\.find/);
  const base=read('admin-ea-indicator-v238.js');
  assert.match(base,/state\.loaded=true/);
