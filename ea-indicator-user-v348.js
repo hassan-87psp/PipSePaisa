@@ -347,7 +347,7 @@ function showInstall(id){
  var back=modal('Installation — '+(p?.title||r.ea_indicator_products?.title||'Indicator'),html);
  back.addEventListener('click',e=>{var button=e.target.closest('[data-eail-modal-action]');if(!button)return;
  var action=button.dataset.eailModalAction;
- if(action==='download')Promise.resolve(api.download(id)).then(()=>{if(d('eaiModalBack'))showInstall(id)});
+ if(action==='download')Promise.resolve(api.download(id)).then(ok=>{if(ok&&d('eaiModalBack'))showInstall(id)});
  if(action==='copy'){navigator.clipboard?.writeText('MQL5/Indicators').then(()=>{if(window.pipToast)window.pipToast('MT5 indicator folder path copied.','ok')}).catch(()=>alert('Folder path: MQL5/Indicators'))}
  if(action==='confirm')confirmInstall(id);
  if(action==='support')showSupport(id);
