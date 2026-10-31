@@ -261,128 +261,148 @@ function fileValid(file,platform){
 }
 function attachDrawer(requestId){
  const modal=q('eaiAModal'),form=q('eaiAReqForm');
- if(!modal||!form)return;
- if(modal.dataset.eai374==='ready')return;
- modal.dataset.eai374='ready';
- modal.classList.add('eaiV374-drawer');
- modal.querySelector('.eaiA-modal')?.classList.add('eaiV374-drawerInner');
+ if(!modal||!form||modal.dataset.eaiSimple==='ready')return;
  const r=state.rows.find(v=>v.id===requestId)||source()?.requests?.find(v=>v.id===requestId);
  if(!r)return;
+ const section=form.querySelector('.eaiU-formSection');
+ const file=q('eaiALicensedFile'),account=q('eaiALicenseAccount'),version=q('eaiALicenseVersion'),expiry=q('eaiALicenseExpiry');
+ const button=q('eaiUApproveDeliver'),issue=q('eaiUIssueAction');
+ if(!section||!file||!button||!issue)return;
+ modal.dataset.eaiSimple='ready';
+ modal.classList.add('eaiV374-drawer','eaiS-simple');
+ modal.querySelector('.eaiA-modal')?.classList.add('eaiV374-drawerInner');
  state.currentRequest=requestId;
- const container=form.querySelector('.eaiU-formSection');
- if(!container)return;
- const checklist=document.createElement('section');
- checklist.className='eaiV374-checks eaiA-wide';
- checklist.id='eaiV374Checks';
- checklist.innerHTML='<header><div><strong>File &amp; Account Checklist</strong><small>All required checks must pass before final delivery.</small></div>'+
-  '<span class="eaiV374-checkScore" id="eaiV374CheckScore">0 / 4</span></header>'+
-  '<div id="eaiV374CheckRows" class="eaiV374-checkRows"></div>'+
-  '<label class="eaiV374-confirm"><input id="eaiV374Confirm" type="checkbox"><span>I confirm this compiled file was prepared for the displayed MT4/MT5 account.</span></label>';
- container.insertAdjacentElement('afterend',checklist);
- // Keep the four underlying checks, but show one short, actionable message instead of a 4/4 form.
- checklist.style.display='none';
- const brokerOk=verification(r).state==='ok';
- const quickHint=document.createElement('div');
- quickHint.className='eaiV506-simpleHint eaiA-wide';
- quickHint.setAttribute('role','status');
- quickHint.textContent=brokerOk
-  ?'✓ Account verified. Choose the personal compiled file and click Complete & Deliver.'
-  :'⚠ This broker/account has no approved verification. You can select the file, but delivery needs approval in Access Approvals.';
- quickHint.style.cssText='padding:10px 12px;border:1px solid '+(brokerOk?'#afdfcc':'#f2c789')+';border-radius:10px;background:'+(brokerOk?'#effbf5':'#fff8ed')+';color:#5f4429;font-size:12px;line-height:1.5;';
- checklist.insertAdjacentElement('afterend',quickHint);
- const file=q('eaiALicensedFile'),version=q('eaiALicenseVersion'),account=q('eaiALicenseAccount');
- const expiry=q('eaiALicenseExpiry'),confirm=q('eaiV374Confirm'),button=q('eaiUApproveDeliver');
+ const brokerStatus=verification(r);
+ const verified=brokerStatus.state==='ok';
+ const alreadyIssued=['ready','downloaded'].includes(String(r.status||'').toLowerCase());
  const platform=String(r._platform||typeOf(r,source())).toUpperCase();
- function drawChecks(){
-  const verified=verification(r).state==='ok';
-  const same=String(account?.value||'').trim()===String(r.trading_account_id||'').trim();
-  const f=file?.files?.[0];
-  const goodFile=fileValid(f,platform);
-  const goodVersion=!!String(version?.value||'').trim() && (!expiry?.value||new Date(expiry.value+'T23:59:59Z').getTime()>Date.now());
-  const checks=[
-   {ok:verified,label:'Approved broker & sufficient deposit',sub:verified?'Exact account verified':'Resolve mismatch, expiry or deposit requirement'},
-   {ok:same,label:'Trading account matches request',sub:'Account '+String(r.trading_account_id||'—')+' · '+String(r.broker||'—')},
-   {ok:goodFile,label:'Valid private '+platform+' file',sub:f?f.name+' · '+Math.round((f.size||0)/1024)+' KB':'Choose a compiled EX5 / EX4 / ZIP (≤ 15 MB)'},
-   {ok:goodVersion,label:'Version & license dates are valid',sub:goodVersion?'Version '+String(version?.value||''):'Enter version and a valid expiry date'}];
-  const passed=checks.filter(x=>x.ok).length;
-  q('eaiV374CheckScore').textContent=passed+' / '+checks.length;
-  q('eaiV374CheckScore').classList.toggle('all',passed===checks.length);
-  q('eaiV374CheckRows').innerHTML=checks.map(x=>'<div class="eaiV374-check '+(x.ok?'pass':'wait')+'">'+
-   '<span class="eaiV374-checkIcon" aria-hidden="true">'+(x.ok?'✓':'!')+'</span><span><strong>'+escape(x.label)+'</strong>'+
-   '<small>'+escape(x.sub)+'</small></span></div>').join('');
-  if(button){
-   button.disabled=!goodFile||!same||!goodVersion||form.dataset.eaiBusy==='1';
-   button.textContent=goodFile?'Complete & Deliver File':'Choose a Valid Compiled File';
+ const student=String(r.profiles?.full_name||r.profiles?.email||'Student');
+ const email=String(r.profiles?.email||'');
+ const accountId=String(r.trading_account_id||'—');
+ const safeName=escape(student),safeAccount=escape(accountId),safeBroker=escape(r.broker||'—');
+ const head=modal.querySelector('.eaiA-mhead b');
+ if(head)head.textContent='Issue Indicator File';
+ const header=document.createElement('div');
+ header.className='eaiS-student eaiA-wide';
+ header.innerHTML='<div class="eaiS-studentTop"><div class="eaiS-avatar">'+escape(student.trim().charAt(0).toUpperCase()||'P')+'</div>'+
+  '<div class="eaiS-studentDetail"><strong>'+safeName+'</strong>'+(email?'<small>'+escape(email)+'</small>':'')+'</div>'+
+  '<span class="eaiS-status '+(verified?'verified':'unverified')+'">'+(verified?'✓ Verified':'! Verification needed')+'</span></div>'+
+  '<div class="eaiS-account">'+safeBroker+' <span>•</span> '+escape(platform)+' <span>•</span> Account <b>'+safeAccount+'</b></div>'+
+  (!verified?'<div class="eaiS-hint">You can save this private file now. Delivery requires broker account verification. <button type="button" id="eaiSGoVerify">Open Access Approvals</button></div>':'');
+ form.prepend(header);
+ const grid=section.querySelector('.eaiU-fieldGrid');
+ const fileRow=file.closest('.eaiA-f');
+ if(grid&&fileRow)grid.prepend(fileRow);
+ const fileLabel=fileRow?.querySelector('label');
+ if(fileLabel)fileLabel.textContent='Student-specific compiled file';
+ const licenseSettings=document.createElement('details');
+ licenseSettings.className='eaiS-licenseSettings eaiA-wide';
+ licenseSettings.innerHTML='<summary>License settings <span>(optional)</span></summary><div class="eaiS-licenseFields"></div>';
+ for(const input of [account,version,expiry]){
+  const field=input?.closest('.eaiA-f');
+  if(field)licenseSettings.querySelector('.eaiS-licenseFields').appendChild(field);
+ }
+ grid?.appendChild(licenseSettings);
+ section.querySelector('header')?.remove();
+ const issueIntro=issue.querySelector('div');
+ if(issueIntro)issueIntro.remove();
+ const fileNote=modal.querySelector('.eaiU-fileNote');
+ const error=q('eaiURequestError');
+ const oldTip=modal.querySelector('.eaiU-modalTip');if(oldTip)oldTip.remove();
+ const oldKicker=modal.querySelector('.eaiV374-drawerKicker');if(oldKicker)oldKicker.remove();
+ const oldChecklist=modal.querySelector('#eaiV374Checks');if(oldChecklist)oldChecklist.remove();
+ const more=document.createElement('details');
+ more.className='eaiS-advanced eaiA-wide';
+ more.innerHTML='<summary>More options &amp; history</summary><div class="eaiS-moreBody"></div>';
+ const body=more.querySelector('.eaiS-moreBody');
+ const other=form.querySelector('.eaiU-otherActions');
+ if(other){other.open=true;body.appendChild(other);}
+ for(const item of [...form.children]){
+  if(item.classList?.contains('eaiAP-audit')||item.classList?.contains('eaiAS-support')||item.classList?.contains('eaiA-support')||item.classList?.contains('eaiU-installation')){
+   body.appendChild(item);
   }
  }
- [file,version,account,expiry,confirm].filter(Boolean).forEach(input=>{
-  input.addEventListener(input===file||input===confirm?'change':'input',drawChecks);
-  input.addEventListener('change',drawChecks);
- });
- drawChecks();
- // Even keyboard Enter must respect the visible file/account confirmation gate.
- form.addEventListener('submit',e=>{
-  if(!file?.files?.length)return; // Save-only notes/status remains available.
-  const verified=verification(r).state==='ok';
+ const actions=form.querySelector('.eaiA-actions');
+ const save=actions?.querySelector('[type="submit"]');
+ if(save)save.textContent='Save Status / Notes';
+ if(actions)body.appendChild(actions);
+ form.appendChild(more);
+ function validation(){
+  const f=file.files?.[0]||null;
+  const fileOk=fileValid(f,platform);
   const same=String(account?.value||'').trim()===String(r.trading_account_id||'').trim();
   const versionOk=!!String(version?.value||'').trim()&&(!expiry?.value||new Date(expiry.value+'T23:59:59Z').getTime()>Date.now());
-  if(verified&&same&&fileValid(file.files[0],platform)&&versionOk)return;
-  e.preventDefault();e.stopImmediatePropagation();
-  const error=q('eaiURequestError');
-  if(error){error.hidden=false;error.textContent=!verified?'Delivery blocked: verify this exact broker and trading account in Access Approvals first. Your selected file has not been lost.':'Check that the licensed account ID, version, expiry and compiled file are valid.'}
-  drawChecks();
- },true);
- let dirty=false;
- [file,version,expiry,confirm,q('eaiAReqStatus'),q('eaiAAdminNote')].filter(Boolean).forEach(el=>{
-  const mark=()=>{dirty=true};el.addEventListener('input',mark);el.addEventListener('change',mark);
- });
- // Previously rejected requests can be approved again after verification.
- // saveRequest remains authoritative for account matching, funding and file issuance.
- if(String(r.status||'').toLowerCase()==='rejected'){
-  const actions=form.querySelector('.eaiA-actions');
-  const reopen=document.createElement('button');
-  reopen.type='button';reopen.className='eaiA-btn eaiV503-reapprove';
-  reopen.textContent='Reapprove Request';
-  reopen.title='Reapprove verified request; issuing a file remains a separate validated action';
-  reopen.addEventListener('click',()=>{
-   const v=verification(r);
-   if(v.state!=='ok'){
-    const box=q('eaiURequestError');
-    if(box){box.hidden=false;box.textContent='Cannot reapprove: exact broker, trading account and required deposit must be verified.'}
-    return;
-   }
-   if(!window.confirm('Reapprove this rejected indicator request? The student receives a file only after you upload and issue a personal build.'))return;
-   const stage=q('eaiAReqStatus');if(stage)stage.value='approved';
-   if(typeof form.requestSubmit==='function')form.requestSubmit();
-   else form.querySelector('button[type="submit"]')?.click();
-  });
-  actions?.prepend(reopen);
+  return {f,fileOk,same,versionOk};
  }
- // Capture close attempts while preserving successful save's programmatic remove.
+ function draw(){
+  const a=validation();
+  const staged=!!r.licensed_file_path;
+  const savedCanIssue=!a.f&&staged&&verified&&!alreadyIssued;
+  const canSave=!!a.f&&a.fileOk&&a.same&&a.versionOk&&!(alreadyIssued&&!verified);
+  button.disabled=form.dataset.eaiBusy==='1'||!(canSave||savedCanIssue);
+  if(a.f)button.textContent=verified?'Complete & Deliver':'Upload & Save Privately';
+  else if(savedCanIssue)button.textContent='Deliver Saved File';
+  else if(staged&&alreadyIssued)button.textContent='Already Delivered';
+  else if(staged)button.textContent='File Saved — Verify Account';
+  else button.textContent='Choose File to Continue';
+  if(fileNote){
+   fileNote.textContent=a.f?(a.fileOk?'Selected: '+a.f.name:'Please select a valid compiled EX4, EX5 or ZIP file (max 15 MB).'):
+    staged?(alreadyIssued?'This file has already been delivered. Select a new file to update it.':'A private build is already saved for this student.'):
+    'Use the compiled EX5 (MT5), EX4 (MT4), or ZIP file prepared for this account.';
+  }
+  if(save)save.hidden=false;
+  if(error){error.hidden=true;error.textContent='';}
+ }
+ [file,version,expiry].filter(Boolean).forEach(input=>{
+  input.addEventListener('change',draw);
+  input.addEventListener('input',draw);
+ });
+ draw();
+ // The core save function remains authoritative. Never issue unverified files.
+ form.addEventListener('submit',event=>{
+  const {f,fileOk,same,versionOk}=validation();
+  if((f&&!fileOk)||!same||!versionOk){
+   event.preventDefault();event.stopImmediatePropagation();
+   if(error){error.hidden=false;error.textContent='Please check the file, MT4/MT5 account, version and license expiry.';}
+  }
+ },true);
+ modal.querySelector('#eaiSGoVerify')?.addEventListener('click',()=>{
+  if(file.files?.length){if(error){error.hidden=false;error.textContent='Click Upload & Save Privately first so you do not lose the selected file.';}return;}
+  const menu=document.querySelector('#sidebar [data-page="verification"]');
+  modal.remove();
+  if(menu)menu.click();
+  else if(typeof window.showPage==='function')window.showPage('verification');
+ });
+ // Existing rejection actions and audit history remain under More options.
+ if(String(r.status||'').toLowerCase()==='rejected'&&actions){
+  const reopen=document.createElement('button');
+  reopen.type='button';reopen.className='eaiA-btn eaiV503-reapprove';reopen.textContent='Reapprove Request';
+  reopen.addEventListener('click',()=>{
+   if(verification(r).state!=='ok'){if(error){error.hidden=false;error.textContent='Verify this broker account before reapproving.';}return;}
+   q('eaiAReqStatus').value='approved';
+   if(typeof form.requestSubmit==='function')form.requestSubmit();
+  });
+  actions.prepend(reopen);
+ }
+ let dirty=false;
+ [file,version,expiry,q('eaiAReqStatus'),q('eaiAAdminNote')].filter(Boolean).forEach(el=>{
+  const mark=()=>{dirty=true;};el.addEventListener('input',mark);el.addEventListener('change',mark);
+ });
  modal.addEventListener('click',e=>{
-  const backdrop=e.target===modal;
-  const close=e.target.closest?.('.eaiA-mhead button');
-  if(!backdrop&&!close)return;
+  if(e.target!==modal&&!e.target.closest?.('.eaiA-mhead button'))return;
   if(!dirty)return;
   e.preventDefault();e.stopImmediatePropagation();
-  if(window.confirm('Discard unsaved license changes?'))modal.remove();
+  if(window.confirm('Discard unsaved changes?'))modal.remove();
  },true);
- function keydown(e){
-  if(!modal.isConnected){document.removeEventListener('keydown',keydown,true);return}
+ function escapeKey(e){
+  if(!modal.isConnected){document.removeEventListener('keydown',escapeKey,true);return;}
   if(e.key==='Escape'){
    e.preventDefault();e.stopImmediatePropagation();
-   if(!dirty||window.confirm('Discard unsaved license changes?'))modal.remove();
-   document.removeEventListener('keydown',keydown,true);
+   if(!dirty||window.confirm('Discard unsaved changes?'))modal.remove();
+   document.removeEventListener('keydown',escapeKey,true);
   }
  }
- document.addEventListener('keydown',keydown,true);
- const head=modal.querySelector('.eaiA-mhead b');
- if(head)head.textContent='Review & Issue License';
- const note=document.createElement('div');note.className='eaiV374-drawerKicker';
- note.textContent=String(r.profiles?.full_name||r.profiles?.email||'Student')+'  ·  '+String(r.broker||'')+'  ·  '+String(r.trading_account_id||'');
- modal.querySelector('.eaiU-modalIntro')?.insertAdjacentElement('afterend',note);
- const pending=modal.querySelector('.eaiAP-verified-note');
- if(pending&&pending.textContent.includes('License approval checklist'))pending.remove(); // redundant with live checklist
+ document.addEventListener('keydown',escapeKey,true);
 }
 function refresh(){
  if(typeof api.load==='function')return api.load();
