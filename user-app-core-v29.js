@@ -564,6 +564,8 @@
     // Sync news timezone too if it exists
     if (typeof newsState !== 'undefined') {
       newsState.timezone = tz;
+      window.pspEconomicCalendarTimezone=tz;
+      pspCalendarAutoScrollPending=true;
       const labelEl = document.getElementById('newsTimezoneLabel');
       if (labelEl) labelEl.textContent = pspNewsTimeZoneLabel(tz);
       if (typeof renderNews === 'function' && typeof newsRawData !== 'undefined' && newsRawData.length > 0) {
@@ -1654,7 +1656,7 @@
   let newsState = {
     impact: 'all',     // all | High | Medium | Low
     currency: 'all',   // all | USD | EUR | GBP | JPY | AUD | CAD | CHF | NZD | CNY
-    time: 'week',     // today | tomorrow | week | all | custom
+    time: 'week',     // today | tomorrow | week | nextweek | upcoming | all | custom
     search: '',
     timezone: 'Asia/Karachi',  // user-selected timezone
     customFrom: null,  // ISO date string (yyyy-mm-dd)
@@ -1695,6 +1697,22 @@
   
   // Verified free calendar events. Never substitute fabricated demo release data.
   let pspNewsInFlightV519=false, pspNewsLastCheckV519=0, pspNewsSourceCheckedAt=0;
+  let pspCalendarRenderedDateKey='',pspCalendarAutoScrollPending=true;
+  function pspCalendarDayKey(date,zone) {
+    try {
+      const parts=new Intl.DateTimeFormat('en-US',{timeZone:zone||'Asia/Karachi',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);
+      const value=type=>parts.find(p=>p.type===type)?.value||'';
+      return value('year')+'-'+value('month')+'-'+value('day');
+    } catch(_) { return date.toISOString().slice(0,10); }
+  }
+  function pspCalendarAddDay(key,days) {
+    return new Date(Date.parse(key+'T12:00:00Z')+days*86400000).toISOString().slice(0,10);
+  }
+  function pspCalendarRangeLabel(from,to) {
+    const fmt=key=>new Date(key+'T12:00:00Z').toLocaleDateString('en-GB',{timeZone:'UTC',month:'short',day:'numeric'});
+    return fmt(from)+' – '+fmt(to);
+  }
+  window.pspEconomicCalendarTimezone=newsState.timezone;
   async function loadNews(isBackground=false) {
     const container=document.getElementById('newsListContainer');
     if(!container||pspNewsInFlightV519)return;
@@ -1711,7 +1729,7 @@
       if(!res.ok)throw new Error('Calendar HTTP '+res.status);
       const checked=res.headers.get('X-Calendar-Feed-Checked-At');
       const parsed=checked?Date.parse(checked):NaN;
-      if(Number.isFinite(parsed))pspNewsSourceCheckedAt=parsed;
+      pspNewsSourceCheckedAt=Number.isFinite(parsed)?parsed:0;
       const rows=await res.json();
       if(!Array.isArray(rows))throw new Error('Invalid calendar data');
       newsRawData=rows.filter(n=>n&&n.title&&n.country&&n.date&&Number.isFinite(Date.parse(n.date))).map(n=>({
@@ -1747,7 +1765,15 @@
   // Poll faster around high-priority releases; idle/off-page users make no calls.
   setInterval(function(){
     const page=document.getElementById('page-news');
-    if(!page||!page.classList.contains('active')||document.hidden||pspNewsInFlightV519)return;
+    if(!page||!page.classList.contains('active')||document.hidden)return;
+    const currentDateKey=pspCalendarDayKey(new Date(),newsState.timezone);
+    if(currentDateKey!==pspCalendarRenderedDateKey){
+      pspCalendarAutoScrollPending=true;
+      renderNews(!isUsingSample());
+      loadNews(true);
+      return;
+    }
+    if(pspNewsInFlightV519)return;
     const now=Date.now();
     const nearRelease=newsRawData.some(n=>n.impact==='High'&&
       Math.abs(Date.parse(n.date)-now)<90*60000);
@@ -1774,63 +1800,36 @@
     if (!container) return;
 
     const badge = document.getElementById('newsBadge');
-    if (badge) {
-      const dayOfWeek = new Date().getDay();
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-      if (isLive) {
-        badge.innerHTML = '<span style="width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;"></span>FEED ONLINE';
-        badge.className = 'badge low';
-        badge.style.cssText = '';
-      } else {
-        badge.innerHTML = '⚠️ Data unavailable';
-        badge.className = 'badge';
-        badge.style.cssText = 'background:rgba(245,158,11,0.15);color:var(--gold);display:flex;align-items:center;gap:5px;';
+    const sourceAge=pspNewsSourceCheckedAt?Date.now()-pspNewsSourceCheckedAt:Infinity;
+    const verifiedFresh=isLive&&sourceAge>=0&&sourceAge<=20*60000;
+    if(badge){
+      if(verifiedFresh){
+        badge.innerHTML='<span style="width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block;margin-right:5px"></span>FEED VERIFIED';
+        badge.className='badge low';badge.style.cssText='';
+      }else{
+        badge.textContent=isLive?'⚠️ Feed delayed':'⚠️ Data unavailable';
+        badge.className='badge';
+        badge.style.cssText='background:rgba(245,158,11,.15);color:var(--gold);display:flex;align-items:center;gap:5px;';
       }
     }
+    window.pspEconomicCalendarTimezone=newsState.timezone;
     
     const now = new Date();
     const TZ = newsState.timezone || 'Asia/Karachi';
-    const nzKey = (dt)=>{ try{ return new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(dt); }catch(e){ return dt.toISOString().slice(0,10); } };
-    const todayKey = nzKey(now);
-    const tomorrowKey = nzKey(new Date(now.getTime()+86400000));
-    const todayStr = now.toDateString();
-    const tomorrow = new Date(now.getTime() + 86400000);
-    const tomorrowStr = tomorrow.toDateString();
-    
-    // Get dates from newsRawData to figure out next week range dynamically
-    // Since FF API returns a specific week's data, just show all data from nextweek API
-    
-    // This week: Monday to Sunday
-    const currentDay = now.getDay();
-    const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
-    const thisWeekMonday = new Date(now); thisWeekMonday.setDate(now.getDate() + mondayOffset); thisWeekMonday.setHours(0,0,0,0);
-    const thisWeekSunday = new Date(thisWeekMonday); thisWeekSunday.setDate(thisWeekMonday.getDate() + 6); thisWeekSunday.setHours(23,59,59,999);
-    
-    // Next week: 7 days after this week monday
-    const nextWeekMonday = new Date(thisWeekMonday); nextWeekMonday.setDate(thisWeekMonday.getDate() + 7); nextWeekMonday.setHours(0,0,0,0);
-    const nextWeekSunday = new Date(nextWeekMonday); nextWeekSunday.setDate(nextWeekMonday.getDate() + 6); nextWeekSunday.setHours(23,59,59,999);
-    
-    // All includes history intentionally. The default This Week view avoids starting 30 days in the past.
-    const allEnd = nextWeekSunday;
-    
-    // For nextweek: find the date range of nextweek data dynamically
-    // Get all unique dates from data that are after thisWeekSunday
-    const nextWeekDates = newsRawData
-      .map(n => new Date(n.date))
-      .filter(d => d > thisWeekSunday);
-    const hasNextWeekData = nextWeekDates.length > 0;
-    // Use actual data dates for next week range
-    const actualNextStart = hasNextWeekData ? new Date(Math.min(...nextWeekDates)) : nextWeekMonday;
-    const actualNextEnd = hasNextWeekData ? new Date(Math.max(...nextWeekDates)) : nextWeekSunday;
-    actualNextStart.setHours(0,0,0,0);
-    actualNextEnd.setHours(23,59,59,999);
-    
-    // Today's start (00:00) - hide all events before today
-    const todayStart = new Date(now); todayStart.setHours(0,0,0,0);
-    
-    const calendarWeekDay=(new Date(todayKey+'T12:00:00Z')).getUTCDay();
-    const mondayISO=new Date(Date.parse(todayKey+'T00:00:00Z')-(calendarWeekDay===0?6:calendarWeekDay-1)*86400000).toISOString().slice(0,10);
-    const sundayISO=new Date(Date.parse(mondayISO+'T00:00:00Z')+6*86400000).toISOString().slice(0,10);
+    const nzKey=dt=>pspCalendarDayKey(dt,TZ);
+    const todayKey=nzKey(now);
+    const tomorrowKey=pspCalendarAddDay(todayKey,1);
+    const weekday=new Date(todayKey+'T12:00:00Z').getUTCDay();
+    const mondayISO=pspCalendarAddDay(todayKey,-(weekday===0?6:weekday-1));
+    const sundayISO=pspCalendarAddDay(mondayISO,6);
+    const nextMondayISO=pspCalendarAddDay(mondayISO,7);
+    const nextSundayISO=pspCalendarAddDay(mondayISO,13);
+    pspCalendarRenderedDateKey=todayKey;
+    const rangeCaption=newsState.time==='week'?'This Week: '+pspCalendarRangeLabel(mondayISO,sundayISO):
+      newsState.time==='nextweek'?'Next Week: '+pspCalendarRangeLabel(nextMondayISO,nextSundayISO):
+      newsState.time==='today'?'Today: '+pspCalendarRangeLabel(todayKey,todayKey):
+      newsState.time==='tomorrow'?'Tomorrow: '+pspCalendarRangeLabel(tomorrowKey,tomorrowKey):
+      newsState.time==='upcoming'?'Upcoming releases only':'';
 
     let filtered = newsRawData.filter(n => {
       const eventDate = new Date(n.date);
@@ -1841,6 +1840,8 @@
       if (newsState.time === 'today' && evKey !== todayKey) return false;
       if (newsState.time === 'tomorrow' && evKey !== tomorrowKey) return false;
       if (newsState.time === 'week' && (evKey < mondayISO || evKey > sundayISO)) return false;
+      if (newsState.time === 'nextweek' && (evKey < nextMondayISO || evKey > nextSundayISO)) return false;
+      if (newsState.time === 'upcoming' && eventDate.getTime() <= now.getTime()) return false;
       // Compare YYYY-MM-DD calendar keys in the user's chosen timezone.
       if (newsState.time === 'custom' && newsState.customFrom && newsState.customTo &&
           (evKey < newsState.customFrom || evKey > newsState.customTo)) return false;
@@ -1864,16 +1865,21 @@
     
     // Count line — always shown, no banner regardless of data source
     html += `<div style="margin-bottom: 12px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center;">
-      <span>📊 <strong>${filtered.length}</strong> events ${newsState.time === 'custom' && newsState.customFrom ? '(' + newsState.customFrom + ' to ' + newsState.customTo + ')' : (newsState.time !== 'all' ? '(' + newsState.time + ')' : '')}</span>
+      <span>📊 <strong>${filtered.length}</strong> events ${rangeCaption ? ' · '+rangeCaption : (newsState.time==='custom' && newsState.customFrom ? '('+pspCalendarEscapeV519(newsState.customFrom)+' to '+pspCalendarEscapeV519(newsState.customTo)+')' : '')}</span>
       <span>Times shown in ${pspNewsTimeZoneLabel(newsState.timezone)}</span>
     </div>`;
     
     if (filtered.length === 0) {
-      html += '<div class="empty-state" style="height: 200px;"><div class="empty-icon">📭</div><div>No events match your filters</div><div style="font-size: 11px; margin-top: 6px; color: var(--text-muted);">Try changing the time range or impact level</div></div>';
+      const emptyHeading=newsState.time==='today'?'No Economic Events Today':newsState.time==='tomorrow'?'No Economic Events Tomorrow':'No events match your filters';
+      html += '<div class="empty-state" style="height: 200px;"><div class="empty-icon">📭</div><div>'+emptyHeading+'</div><div style="font-size: 11px; margin-top: 6px; color: var(--text-muted);">No matching verified events for these filters. Try another impact level or date.</div></div>';
       container.innerHTML = html;
       return;
     }
     
+    if(newsState.time==='week'){
+      const upcomingCount=filtered.filter(e=>Date.parse(e.date)>now.getTime()).length;
+      if(!upcomingCount)html+='<div style="font-size:11px;color:var(--text-muted);margin:3px 0 9px">No more matching releases scheduled this week. Earlier results are shown below; use Next Week or Upcoming for future news.</div>';
+    }
     // Group by date
     const grouped = {};
     filtered.forEach(n => {
@@ -1888,7 +1894,7 @@
       const d = new Date(dateKey + 'T12:00:00');
       const dateLabel = isToday ? '📅 Today' : (isTomorrow ? '📅 Tomorrow' : '📅 ' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }));
       
-      html += `<div style="margin-top: 16px; margin-bottom: 8px; padding: 8px 12px; background: var(--bg-elevated); border-left: 3px solid var(--gold); border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--gold);">${dateLabel}</div>`;
+      html += `<div data-calendar-date="${dateKey}" style="margin-top: 16px; margin-bottom: 8px; padding: 8px 12px; background: var(--bg-elevated); border-left: 3px solid var(--gold); border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--gold);">${dateLabel}</div>`;
       
       grouped[dateKey].forEach(n => {
         const eventTime = new Date(n.date);
@@ -1918,6 +1924,14 @@
       html += '<div style="margin-top:10px;font-size:10px;color:var(--text-muted)">* Forecast / Previous from 27 Oct 2026 screenshot; snapshot, not live consensus. Figures can change.</div>';
     }
     container.innerHTML = html;
+    if(pspCalendarAutoScrollPending&&newsState.time==='week'&&document.getElementById('page-news')?.classList.contains('active')){
+      const nextDate=Object.keys(grouped).sort().find(key=>key>=todayKey);
+      if(nextDate){
+        const heading=[...container.querySelectorAll('[data-calendar-date]')].find(el=>el.getAttribute('data-calendar-date')===nextDate);
+        if(heading)requestAnimationFrame(()=>heading.scrollIntoView({behavior:'instant',block:'start'}));
+      }
+      pspCalendarAutoScrollPending=false;
+    }
     updateNewsCountdowns();
     if(!window._newsCdTimer) window._newsCdTimer=setInterval(function(){if(!document.hidden&&document.getElementById('page-news')?.classList.contains('active'))updateNewsCountdowns();},30000);
   }
@@ -1948,6 +1962,7 @@
     document.querySelectorAll('#page-news .news-filter-group:first-of-type .filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     newsState.time = time;
+    pspCalendarAutoScrollPending=(time==='week');
     // Clear custom date range when picking a preset
     if (time !== 'custom') {
       newsState.customFrom = null;
@@ -2031,6 +2046,8 @@
   
   function setNewsTimezone(tz) {
     newsState.timezone = tz;
+    window.pspEconomicCalendarTimezone=tz;
+    pspCalendarAutoScrollPending=true;
     pspNewsRefreshZoneLabel();
     renderNews(newsRawData.length > 0 && !isUsingSample());
   }
