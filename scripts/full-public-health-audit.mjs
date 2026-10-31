@@ -8,7 +8,7 @@ const extraPaths = [
   '/dashboard/','/profile/','/my-courses/','/vip-plans/','/free-access/',
   '/signals/','/live-charts/','/journal/','/support/',
   '/freecourse2/','/ad/technical/','/ad/fundamental/',
-  '/eaindicator/','/performance/','/my-trades/','/sajid-live/'
+  '/eaindicator/','/economic-news/','/world-news/','/performance/','/my-trades/','/sajid-live/'
 ];
 const warnings=[], failures=[], cases=[];
 const now=Date.now();
@@ -113,6 +113,20 @@ async function pageCheck(target,mode,fromSitemap){
       if(!boot.guardedCSS||!boot.appHidden||!boot.overlayVisible||boot.ready){
         fail(name,'admin auth startup revealed a partial workspace: '+JSON.stringify(boot));
       }else console.log('FULL_AUDIT_ADMIN_BOOT '+name+' '+JSON.stringify(boot));
+    }
+    if(['/dashboard/','/eaindicator/','/economic-news/','/world-news/'].includes(path)){
+      const calendar=await page.evaluate(()=>{
+        const page=document.getElementById('page-news');
+        const btn=document.getElementById('pspEconomicAlertsBtn');
+        const filter=page?.querySelector('.news-filter-group button[onclick*="setNewsTime(\\'week\\'"]');
+        const actualFilter=page?.querySelector('.news-filter-group button.active[onclick*="setNewsTime(\\'week\\'"]');
+        return {page:!!page,reminder:!!btn,weekButton:!!filter,weekActive:!!actualFilter,
+          reminderRuntime:typeof window.pspCalendarAlertsToggle==='function',
+          newsRuntime:typeof window.setNewsTime==='function'};
+      });
+      if(!calendar.page||!calendar.reminder||!calendar.weekActive||!calendar.reminderRuntime||!calendar.newsRuntime)
+        fail(name,'economic calendar route not fully initialized: '+JSON.stringify(calendar));
+      else console.log('FULL_AUDIT_ECONOMIC_CALENDAR '+name+' '+JSON.stringify(calendar));
     }
     if(path==='/courses/'){
       if(!state.vsa||!state.vsaButton||!state.vsaHandler)fail(name,'VSA enrollment CTA or handler missing');
