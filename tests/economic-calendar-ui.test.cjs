@@ -14,7 +14,7 @@ test('Every user portal has the actual selected This Week filter and the same fo
   assert.match(html,/id="pspEconomicAlertsBtn"/,route);
  assert.ok(html.includes("setNewsTime('nextweek', this)"),route);
  assert.ok(html.includes("setNewsTime('upcoming', this)"),route);
-  assert.match(html,/economic-calendar-alerts-v1\.js\?v=20261031-v530-unified-reminders/,route);
+  assert.match(html,/economic-calendar-alerts-v1\.js\?v=20261031-v533-timezone-reminders/,route);
   assert.match(html,/user-app-core-v29\.js\?v=20261031-v532-calendar-navigation/,route);
  }
 });
