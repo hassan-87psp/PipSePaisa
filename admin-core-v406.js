@@ -770,7 +770,7 @@ async function aLiveOpen(id,silent){
   }catch(e){if(seq===_aLiveOpenSeq&&aChatCurrent(epoch,'live',body)&&!silent)body.innerHTML='<div style="margin:auto;color:#ef4444">'+aEsc(e&&e.message||String(e))+'</div>';}
 }
 function aLiveOpenActive(){if(_aLiveActive)return aLiveOpen(_aLiveActive.id,true);}
-setInterval(function(){if(aChatCurrent(_aChatEpoch,'live')){aLiveLoad(false,true);aLiveOpenActive();}},30000);
+setInterval(function(){if(!document.hidden&&aChatCurrent(_aChatEpoch,'live')){aLiveLoad(false,true);aLiveOpenActive();}},30000);
 
 var _acLoaded=false,_acGid=null,_acGroups=[],_acOpenC={},_acFeedSeq=0,_acInitSeq=0,_acPosting=false;
 async function aCommInit(){
