@@ -12,8 +12,10 @@ test('Every user portal has the actual selected This Week filter and the same fo
   assert.match(html,/class="filter-btn active" onclick="setNewsTime\('week', this\)">This Week<\/button>/,route);
   assert.doesNotMatch(html,/class="filter-btn active" onclick="setNewsTime\('all', this\)">All<\/button>/,route);
   assert.match(html,/id="pspEconomicAlertsBtn"/,route);
+ assert.ok(html.includes("setNewsTime('nextweek', this)"),route);
+ assert.ok(html.includes("setNewsTime('upcoming', this)"),route);
   assert.match(html,/economic-calendar-alerts-v1\.js\?v=20261031-v530-unified-reminders/,route);
-  assert.match(html,/user-app-core-v29\.js\?v=20261031-v531-cumulative-impact/,route);
+  assert.match(html,/user-app-core-v29\.js\?v=20261031-v532-calendar-navigation/,route);
  }
 });
 test('Calendar runtime uses DST-aware zone labels and authenticated source age',()=>{
@@ -21,7 +23,8 @@ test('Calendar runtime uses DST-aware zone labels and authenticated source age',
  assert.match(js,/Intl\.DateTimeFormat\('en-US',\{timeZone:zone,timeZoneName:'short'\}\)/);
  assert.match(js,/X-Calendar-Feed-Checked-At/);
  assert.match(js,/pspNewsSourceCheckedAt/);
- assert.match(js,/FEED ONLINE/);
+ assert.match(js,/FEED VERIFIED/);
+ assert.match(js,/Feed delayed/);
  assert.match(js,/Awaiting result/);
  assert.doesNotMatch(js,/if\(ms<=0\)return \['● LIVE'/);
  assert.doesNotThrow(()=>new Function(js));
@@ -44,5 +47,36 @@ test('Low, Medium and High filters include all equal-or-higher impact tiers',()=
  for(const [selected,results] of Object.entries(expected)){
   assert.deepEqual(events.map(impact=>matches(impact,selected)),results,selected);
  }
+});
+test('Selected timezone controls Today, Tomorrow, weekly rollover and DST',()=>{
+ const js=read('user-app-core-v29.js');
+ const from=js.indexOf('  function pspCalendarDayKey(');
+ const to=js.indexOf('  window.pspEconomicCalendarTimezone=',from);
+ assert.ok(from>0&&to>from,'calendar date helpers are installed');
+ const functions=new Function(js.slice(from,to)+
+   '\nreturn {dayKey:pspCalendarDayKey,addDay:pspCalendarAddDay};')();
+ const utc=new Date('2026-10-31T20:30:00.000Z');
+ assert.equal(functions.dayKey(utc,'Asia/Karachi'),'2026-11-01');
+ assert.equal(functions.dayKey(utc,'America/New_York'),'2026-10-31');
+ assert.equal(functions.addDay('2026-10-31',1),'2026-11-01');
+ assert.equal(functions.addDay('2026-12-31',1),'2027-01-01');
+ const saturday='2026-10-31';
+ const weekday=new Date(saturday+'T12:00:00Z').getUTCDay();
+ const monday=functions.addDay(saturday,-(weekday===0?6:weekday-1));
+ assert.equal(monday,'2026-10-26');
+ assert.equal(functions.addDay(monday,6),'2026-11-01');
+ assert.equal(functions.addDay(monday,7),'2026-11-02');
+ assert.equal(functions.addDay(monday,13),'2026-11-08');
+ assert.match(js,/newsState\.time === 'nextweek'/);
+ assert.match(js,/newsState\.time === 'upcoming'/);
+ assert.match(js,/pspCalendarRenderedDateKey/);
+ assert.match(js,/No Economic Events Today/);
+ assert.match(js,/No more matching releases scheduled this week/);
+});
+test('Foreground high-impact reminders display user-selected timezone, never hardcoded PKT',()=>{
+ const js=read('economic-calendar-alerts-v1.js');
+ assert.match(js,/window\.pspEconomicCalendarTimezone/);
+ assert.match(js,/timeZone:tz/);
+ assert.doesNotMatch(js,/toLocaleTimeString\('en-US',\{timeZone:'Asia\/Karachi'/);
 });
 console.log('ECONOMIC_CALENDAR_UI_TESTS: four routes; cumulative impact tiers; filter default; reminders; DST; source timestamp; release status');
