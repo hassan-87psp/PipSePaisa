@@ -64,7 +64,7 @@ function enhance(id){
   busy=true;redraw();btn.textContent='Approving…';feedback.textContent='';feedback.className='eaiS-inlineFeedback';
   try{
    const client=window.sb;if(!client)throw new Error('Secure admin connection unavailable.');
-   const res=await client.rpc('psp_admin_verify_indicator_access_v511',{
+   const res=await client.rpc('psp_admin_verify_indicator_access_v515',{
     p_request_id:id,p_verified_broker:selectedBroker,p_verified_account:selectedAccount,
     p_verified_deposit:Number(dep.value),p_confirmed:confirm.checked
    });
@@ -73,7 +73,8 @@ function enhance(id){
    modal.remove();
    await api.load(true);
    await api.requestForm(id);
-   if(selectedFile&&typeof DataTransfer!=='undefined'){
+   if(selectedAccount!==initialAccount){window.pipToast?.('Account corrected. Upload a newly compiled EX5 for this verified MT5 ID.','info');}
+   if(selectedFile&&selectedAccount===initialAccount&&typeof DataTransfer!=='undefined'){
     const next=document.getElementById('eaiALicensedFile');
     if(next){const dt=new DataTransfer();dt.items.add(selectedFile);next.files=dt.files;next.dispatchEvent(new Event('change',{bubbles:true}))}
    }
