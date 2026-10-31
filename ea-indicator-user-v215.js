@@ -8,7 +8,7 @@ const db=()=>{try{return window.sb||null}catch(_){return null}};
 
 function licensedDownloadName(r){
  const title=String(r?.ea_indicator_products?.title||'PipSePaisa Indicator')
-  .replace(/\s*[-–—|]?\s*MT[45]\s+Indicator\s*$/i,'').trim();
+  .replace(/\s*[-–—|]?\s*MT[45](?:\s+Indicator)?\s*$/i,'').trim();
  const indicator=title.replace(/[^A-Za-z0-9+_-]+/g,'_').replace(/_+/g,'_').replace(/^_+|_+$/g,'').slice(0,90)||'PipSePaisa_Indicator';
  const account=String(r?.licensed_account_id||r?.trading_account_id||'').replace(/[^0-9]/g,'')||'Account';
  const stored=String(r?.licensed_file_name||r?.licensed_file_path||'');
