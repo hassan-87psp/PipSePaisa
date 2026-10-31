@@ -393,7 +393,16 @@
       if (page === 'analysis') {
         Promise.all([Promise.resolve(pspEnsureTradesLoaded()),pspEnsureChartJsV218()]).then(function(){try{ updateAnalysis(); }catch(e){}});
       }
-      if (page === 'news' && newsRawData.length === 0) loadNews();
+      if (page === 'news') {
+        // Re-check the calendar whenever the user returns, instead of keeping
+        // a stale weekly response in the tab indefinitely.
+        const dateKey=pspCalendarDayKey(new Date(),newsState.timezone);
+        if(newsRawData.length && dateKey!==pspCalendarRenderedDateKey)
+          pspCalendarAutoScrollPending=true;
+        if(newsRawData.length)renderNews(!isUsingSample());
+        if(!newsRawData.length || Date.now()-pspNewsLastAttemptAtV536>120000)
+          loadNews(newsRawData.length>0);
+      }
       if (page === 'news') loadAdminNews();
       if (page === 'learn') { loadCourses(); pspEnsureQuizQuestionsLoaded(); }
       if (page === 'mycourses' && typeof window.loadMyCourses==='function') { window.loadMyCourses(); pspEnsureQuizQuestionsLoaded(); }
@@ -1656,7 +1665,7 @@
   let newsState = {
     impact: 'all',     // all | High | Medium | Low
     currency: 'all',   // all | USD | EUR | GBP | JPY | AUD | CAD | CHF | NZD | CNY
-    time: 'week',     // today | tomorrow | week | nextweek | upcoming | all | custom
+    time: 'today',     // today | tomorrow | week | nextweek | upcoming | all | custom
     search: '',
     timezone: 'Asia/Karachi',  // user-selected timezone
     customFrom: null,  // ISO date string (yyyy-mm-dd)
@@ -1696,7 +1705,7 @@
   };
   
   // Verified free calendar events. Never substitute fabricated demo release data.
-  let pspNewsInFlightV519=false, pspNewsLastCheckV519=0, pspNewsSourceCheckedAt=0;
+  let pspNewsInFlightV519=false, pspNewsLastCheckV519=0, pspNewsLastAttemptAtV536=0, pspNewsSourceCheckedAt=0;
   let pspCalendarRenderedDateKey='',pspCalendarAutoScrollPending=true;
   function pspCalendarDayKey(date,zone) {
     try {
@@ -1717,6 +1726,7 @@
     const container=document.getElementById('newsListContainer');
     if(!container||pspNewsInFlightV519)return;
     pspNewsInFlightV519=true;
+    pspNewsLastAttemptAtV536=Date.now();
     if(!isBackground&&!newsRawData.length)
       container.innerHTML='<div class="empty-state" style="height:200px;"><div class="empty-icon">📰</div><div>Loading verified economic events...</div></div>';
     let ok=false;
