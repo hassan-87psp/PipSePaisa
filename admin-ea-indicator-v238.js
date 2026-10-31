@@ -107,13 +107,14 @@ function approveAndDeliver(){
  const r=state.requests.find(x=>x.id===form.dataset.eaiRequest);
  if(!r){requestError('Request is not available. Refresh applications and reopen it.');return}
  const verification=verificationFor(r);
- if(verification.state!=='ok'){requestError('This broker and exact MT5 account is not approved or has insufficient verified funding. Correct the verification before issuing a file.');return}
+ // Without verification, the compiled file can be stored privately, not issued to the student.
  const input=document.getElementById('eaiALicensedFile');
- if(!input?.files?.length){requestError('First choose the individual compiled EX5/EX4 file for this student.');input?.focus?.();return}
+ if(!input?.files?.length&&!r.licensed_file_path){requestError('Choose this student’s compiled EX5/EX4 file first.');input?.focus?.();return}
+ if(!input?.files?.length&&verification.state!=='ok'){requestError('Your file is already saved privately. Verify the account in Access Approvals to deliver it.');return}
  const account=String(document.getElementById('eaiALicenseAccount')?.value||'').trim();
  if(account!==String(r.trading_account_id||'').trim()){requestError('Licensed MT5 account must match the verified trading account on this request.');return}
  const note=document.getElementById('eaiURequestError');if(note){note.hidden=true;note.textContent=''}
- document.getElementById('eaiAReqStatus').value='ready';
+ document.getElementById('eaiAReqStatus').value=verification.state==='ok'?'ready':'under_review';
  if(typeof form.requestSubmit==='function')form.requestSubmit();
  else form.querySelector('button[type="submit"]')?.click();
 }
@@ -140,7 +141,8 @@ async function saveRequest(e,r){
   const expiryDate=document.getElementById('eaiALicenseExpiry')?.value||'';
   const version=document.getElementById('eaiALicenseVersion')?.value.trim()||null;
   const oldStatus=norm(r.status);
-  if(file)status='ready'; // A single submission approves and delivers the uploaded personal file.
+  if(file)status=verified.state==='ok'?'ready':'under_review'; // Private staging never exposes an unverified download.
+  if(file&&account!==requestAccount)throw new Error('Licensed account ID must match the student request.');
   const issuing=!!file || (finalStages.includes(status)&&!finalStages.includes(oldStatus)) || (status==='ready'&&oldStatus!=='ready'&&oldStatus!=='downloaded');
   if(finalStages.includes(status)&&issuing&&verified.state!=='ok'){
     throw new Error('Cannot approve: the exact broker/account or eligible deposit is not verified. Resolve verification first.');
@@ -151,7 +153,7 @@ async function saveRequest(e,r){
   if(status==='ready'&&!file&&!r.licensed_file_path){
     throw new Error('Upload this student’s compiled EX5/EX4 file before marking Ready.');
   }
-  if(file && product?.access_type==='paid'&&!r.payment_proof_path){
+  if(status==='ready' && product?.access_type==='paid'&&!r.payment_proof_path){
     throw new Error('Payment proof is required for this paid product before issuing a licensed file.');
   }
   if(file){
@@ -188,7 +190,7 @@ async function saveRequest(e,r){
   if(!result.data || result.data.id!==r.id)throw new Error('License update could not be verified. Please refresh the request.');
   uploaded=null; // Committed: do not delete the successfully issued file.
   document.getElementById('eaiAModal')?.remove();
-  toast(status==='ready'?'Approved & delivered — the student can now download their private file.':'Application changes saved.');
+  toast(status==='ready'?'Approved & delivered — the student can now download their private file.':file?'File saved privately. Verify the broker account before final delivery.':'Application changes saved.');
   await load();
   try{window.loadDashboardStats?.(true)}catch(_){}
  }catch(error){
