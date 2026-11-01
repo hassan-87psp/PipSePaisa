@@ -1707,7 +1707,7 @@
   // Verified free calendar events. Never substitute fabricated demo release data.
   let pspNewsInFlightV519=false, pspNewsLastCheckV519=0, pspNewsLastAttemptAtV536=0, pspNewsSourceCheckedAt=0;
   let pspCalendarRenderedDateKey='',pspCalendarAutoScrollPending=true;
-  let pspCalendarWeekSources={thisweek:'not-verified',nextweek:'not-verified'};
+  let pspCalendarWeekSources={thisweek:'not-verified',nextweek:'not-verified',backup:'financecalendar',teStatus:'not-configured'};
   function pspCalendarDayKey(date,zone) {
     try {
       const parts=new Intl.DateTimeFormat('en-US',{timeZone:zone||'Asia/Karachi',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);
@@ -1740,7 +1740,9 @@
       if(!res.ok)throw new Error('Calendar HTTP '+res.status);
       pspCalendarWeekSources={
         thisweek:res.headers.get('X-Calendar-FF-ThisWeek-Status')||'not-verified',
-        nextweek:res.headers.get('X-Calendar-FF-NextWeek-Status')||'not-verified'
+        nextweek:res.headers.get('X-Calendar-FF-NextWeek-Status')||'not-verified',
+        backup:res.headers.get('X-Calendar-NextWeek-Backup')||'financecalendar',
+        teStatus:res.headers.get('X-Calendar-TE-Status')||'not-configured'
       };
       const checked=res.headers.get('X-Calendar-Feed-Checked-At');
       const parsed=checked?Date.parse(checked):NaN;
@@ -1889,7 +1891,10 @@
     
     if((newsState.time==='nextweek'&&pspCalendarWeekSources.nextweek!=='available')||
        (newsState.time==='week'&&pspCalendarWeekSources.thisweek!=='available')){
-      html+='<div style="font-size:11px;color:var(--gold);padding:7px 9px;margin-bottom:8px;background:var(--bg-elevated);border-radius:6px">⚠ Forex Factory weekly export not verified yet. Available source events are shown; some names, Forecast or Previous figures may update when the export becomes available.</div>';
+      const fallbackText=newsState.time==='nextweek'&&pspCalendarWeekSources.backup==='tradingeconomics'?
+        'Forex Factory next-week feed unavailable. Licensed Trading Economics figures are shown where matched; names may differ from Forex Factory.':
+        'Forex Factory weekly export not verified yet. Available source events are shown; names, Forecast or Previous may differ from Forex Factory.';
+      html+='<div style="font-size:11px;color:var(--gold);padding:7px 9px;margin-bottom:8px;background:var(--bg-elevated);border-radius:6px">⚠ '+fallbackText+'</div>';
     }
     if (filtered.length === 0) {
       const emptyHeading=newsState.time==='today'?'No Economic Events Today':newsState.time==='tomorrow'?'No Economic Events Tomorrow':'No events match your filters';
