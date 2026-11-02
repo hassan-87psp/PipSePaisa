@@ -104,7 +104,7 @@ test('Next Week warns clearly if Forex Factory source is not verified, not a fak
  assert.match(js,/X-Calendar-FF-ThisWeek-Status/);
  assert.match(js,/X-Calendar-FF-NextWeek-Status/);
  assert.match(js,/pspCalendarWeekSources\.nextweek!=='available'/);
- assert.match(js,/some names, Forecast or Previous figures may update/);
+ assert.match(js,/names, Forecast or Previous may differ from Forex Factory/);
 });
 test('Next Week distinguishes licensed backup figures from unverified Forex Factory parity',()=>{
  const js=read('user-app-core-v29.js');
