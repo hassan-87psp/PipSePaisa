@@ -79,3 +79,22 @@ test('Delayed identity synchronization repeats after a sign-out event',async()=>
  assert.equal(h.linked,null,'signed-out browser must not retain targeted user identity');
  assert.deepEqual(h.operations.map(x=>x[0]),['login','logout']);
 });
+
+test('All user PWA routes use fresh serialized identity binding and same app scope',()=>{
+ const pages=['dashboard','signals','charts-articles','live-charts','world-news','economic-news','profile',
+  'my-courses','journal','performance','my-trades','trades-analysis','member-chats','ai-tools',
+  'about','ai-report','announcements','currency-strength','eaindicator','support','tools'];
+ for(const page of pages){
+  const html=fs.readFileSync(path.join(__dirname,'..',page,'index.html'),'utf8');
+  assert.ok(html.includes('push-subscribe-prompt.js?v=20261102-v545-serialized'),
+   page+' must not cache the old OneSignal identity script');
+ }
+ const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,'../manifest.json'),'utf8'));
+ assert.equal(manifest.scope,'/');
+ assert.equal(manifest.start_url,'/dashboard/');
+ assert.equal(manifest.display,'standalone');
+ const worker=fs.readFileSync(path.join(__dirname,'../OneSignalSDKWorker.js'),'utf8');
+ assert.match(worker,/OneSignalSDK\\.sw\\.js/);
+ assert.match(source,/notificationClickHandlerMatch:"origin"/);
+ assert.match(source,/notificationClickHandlerAction:"navigate"/);
+});
