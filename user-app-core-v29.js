@@ -189,7 +189,9 @@
   function pspPreservePushRouteV516(){
     try{
       const q=new URLSearchParams(location.search);
-      return q.get('page')==='newshub' && Boolean(q.get('news_url')||q.get('news_title'));
+      return (q.get('page')==='newshub' && Boolean(q.get('news_url')||q.get('news_title')))
+          || (q.get('page')==='signals' && Boolean(q.get('signal_id')))
+          || (q.get('page')==='articles' && Boolean(q.get('article_id')||q.get('chart_id')));
     }catch(_){return false;}
   }
 
