@@ -114,6 +114,18 @@ async function pageCheck(target,mode,fromSitemap){
         fail(name,'admin auth startup revealed a partial workspace: '+JSON.stringify(boot));
       }else console.log('FULL_AUDIT_ADMIN_BOOT '+name+' '+JSON.stringify(boot));
     }
+    if(path==='/psp-mentor.html'){
+      const guest=await page.evaluate(()=>{
+        const app=document.getElementById('app'),overlay=document.getElementById('authOverlay');
+        const btn=document.getElementById('authBtn');
+        return {loginVisible:!!overlay&&!overlay.classList.contains('hidden')&&getComputedStyle(overlay).display!=='none',
+          workspaceVisible:!!app&&app.classList.contains('show'),
+          loginButton:!!btn,authFields:!!document.getElementById('auEmail')&&!!document.getElementById('auPass')};
+      });
+      if(!guest.loginVisible||guest.workspaceVisible||!guest.loginButton||!guest.authFields)
+        fail(name,'Mentor guest auth barrier failed: '+JSON.stringify(guest));
+      else console.log('FULL_AUDIT_MENTOR_GUEST '+name+' '+JSON.stringify(guest));
+    }
     if(['/dashboard/','/eaindicator/','/economic-news/','/world-news/'].includes(path)){
       const calendar=await page.evaluate(()=>{
         const page=document.getElementById('page-news');
