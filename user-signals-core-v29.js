@@ -359,12 +359,62 @@ async function loadSignalsFromDB(options){
       __pspSigRenderedOnce=true;
       renderSignals();
     }
+    pspOpenPushSignalRouteV543();
   })();
 
   try{return await __pspSigLoadPromise;}
   finally{__pspSigLoadPromise=null;}
 }
 
+let pspPushSignalRouteHandledV543=false;
+function pspOpenPushSignalRouteV543(){
+  if(pspPushSignalRouteHandledV543)return false;
+  let q;try{q=new URLSearchParams(location.search)}catch(_){return false}
+  const id=String(q.get('signal_id')||'');
+  if(!/^[0-9a-f-]{36}$/i.test(id))return false;
+  const row=SIGNALS.find(x=>String(x.id)===id);
+  if(!row)return false; // Never guess or load a signal outside the permitted feed.
+  pspPushSignalRouteHandledV543=true;
+  let overlay=document.getElementById('pspPushSignalDetailV543');
+  if(!overlay){
+    overlay=document.createElement('div');
+    overlay.id='pspPushSignalDetailV543';
+    overlay.setAttribute('role','dialog');
+    overlay.setAttribute('aria-modal','true');
+    overlay.setAttribute('aria-label','Notification signal details');
+    overlay.style.cssText='position:fixed;inset:0;z-index:2147482000;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px';
+    const card=document.createElement('div');
+    card.style.cssText='width:min(520px,100%);max-height:90vh;overflow:auto;background:var(--bg-card,#121a28);color:var(--text-primary,#fff);border:1px solid var(--border,#394150);border-radius:16px;padding:22px;box-shadow:0 24px 75px rgba(0,0,0,.35)';
+    const head=document.createElement('div');
+    head.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:12px';
+    const title=document.createElement('h3');
+    title.id='pspPushSignalTitleV543';title.style.margin='0';
+    const close=document.createElement('button');
+    close.type='button';close.textContent='✕';close.setAttribute('aria-label','Close signal');
+    close.style.cssText='border:1px solid var(--border,#394150);border-radius:8px;padding:8px 12px;color:inherit;background:transparent;cursor:pointer';
+    close.onclick=()=>overlay.remove();
+    head.append(title,close);
+    const details=document.createElement('div');
+    details.id='pspPushSignalBodyV543';
+    details.style.cssText='white-space:pre-line;margin-top:16px;line-height:1.85;font-size:14px';
+    card.append(head,details);overlay.appendChild(card);
+    overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});
+    document.body.appendChild(overlay);
+  }
+  document.getElementById('pspPushSignalTitleV543').textContent=
+    String(row.pair||'Signal')+' · '+String(row.dir||'').toUpperCase();
+  const fields=['Status: '+String(row.rawStatus||'active')];
+  if(row.locked){fields.push('🔒 VIP signal details require active access.');}
+  else{
+    for(const [label,value] of [['Entry',row.entry],['SL',row.sl],['TP1',row.tp1],['TP2',row.tp2],['TP3',row.tp3]]){
+      if(value!==undefined&&value!==null&&String(value)!=='-')fields.push(label+': '+value);
+    }
+    if(row.pips!=null)fields.push('Result: '+row.pips+' pips');
+  }
+  document.getElementById('pspPushSignalBodyV543').textContent=fields.join('\n');
+  overlay.style.display='flex';
+  return true;
+}
 function renderSigResultDash(rows,elId){
   var el=document.getElementById(elId||'sigResultDash');if(!el)return;
   var now=new Date();
@@ -901,7 +951,7 @@ async function loadArticlesFromDB(){
   if(ares.error){g.innerHTML='<div style="color:var(--red);padding:30px;text-align:center;grid-column:1/-1;">'+ares.error.message+'</div>';return;}
   const grad='linear-gradient(135deg,#3a2f1e,#1f0f33)';
   ARTICLE_ITEMS=(ares.data||[]).filter(a=>a.type!=='chart').map(a=>({
-    kind:'article', cat:(a.category||'education'), subject:pspArticleSubject(a), tag:(a.category||'Article'), ico:'📝', grad:grad,
+    id:a.id, kind:'article', cat:(a.category||'education'), subject:pspArticleSubject(a), tag:(a.category||'Article'), ico:'📝', grad:grad,
     title:a.title||'(untitled)', pair:a.pair||'', ex:(a.content||'').slice(0,140), content:a.content||'', contentUr:a.content_ur||'',
     image:a.image_url||'', date:pspFmtDateTime(a.created_at), ts:new Date(a.created_at).getTime()
   }));
@@ -909,7 +959,7 @@ async function loadArticlesFromDB(){
     const audStr=c.audience||'all';
     const locked=!canAccessContent('chart',audStr);
     return {
-      kind:'chart', cat:'chart', tag:'Chart', ico:'📈', grad:grad,
+      id:c.id, kind:'chart', cat:'chart', tag:'Chart', ico:'📈', grad:grad,
       title:c.title||'Chart Analysis', pair:c.pair||'',
       ex:locked?('🔒 Members-only chart — unlock to view'):(c.notes||'').slice(0,140),
       content:locked?('🔒 This chart is shared with selected members only.\n\nUpgrade from the VIP Plans page to unlock mentor charts & analysis.'):(c.notes||''),
@@ -919,6 +969,23 @@ async function loadArticlesFromDB(){
   });
   ARTICLES=CHART_ITEMS.concat(ARTICLE_ITEMS).sort((a,b)=>b.ts-a.ts);
   setArtMode(artMode, document.getElementById(artMode==='articles'?'artModeArticles':'artModeCharts'));
+  pspOpenPushContentRouteV543();
+}
+let pspPushContentRouteHandledV543=false;
+function pspOpenPushContentRouteV543(){
+  if(pspPushContentRouteHandledV543)return false;
+  let q;try{q=new URLSearchParams(location.search)}catch(_){return false}
+  const id=String(q.get('chart_id')||q.get('article_id')||'');
+  const kind=q.has('chart_id')?'chart':'article';
+  if(!/^[0-9a-f-]{36}$/i.test(id)||!ARTICLES.length)return false;
+  const idx=ARTICLES.findIndex(item=>item.id===id&&item.kind===kind);
+  if(idx<0)return false; // No access or content removed: never show other content.
+  pspPushContentRouteHandledV543=true;
+  artF='all';
+  setArtMode(kind==='chart'?'charts':'articles',
+    document.getElementById(kind==='chart'?'artModeCharts':'artModeArticles'));
+  openArt(idx); // Existing inside-app modal enforces locked-chart content.
+  return true;
 }
 function artDateKey(ts){
   const d=new Date(ts); d.setHours(0,0,0,0); return d.getTime();
