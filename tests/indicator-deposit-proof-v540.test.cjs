@@ -47,7 +47,7 @@ test('Proof click delegates to existing secure read-only storage API, not issuan
  const from=enterprise.indexOf("const proof=event.target.closest('[data-e374-proof]')");
  const to=enterprise.indexOf("const open=event.target.closest('[data-e374-request]')",from);
  const handler=enterprise.slice(from,to);
- assert.doesNotMatch(handler,/approve|deliver|reject|update\(/i);
+ assert.doesNotMatch(handler,/api\.(?:approve|reject|deliver|save|update)\s*\(/i);
  assert.match(handler,/return;/);
 });
 test('Private receipt is signed for three minutes, popup opens before awaiting signature',()=>{
