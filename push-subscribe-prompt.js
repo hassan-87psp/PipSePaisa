@@ -595,12 +595,13 @@ if(document.readyState==="loading"){
 "use strict";
 if(window.__PSP_PUSH_IDENTITY_V544__)return;
 window.__PSP_PUSH_IDENTITY_V544__=true;
-let syncing=false, dirty=false, authListenerAttached=false;
-async function syncAlias(){
- if(!window.__PIPSEPAISA_ONESIGNAL_READY__||!window.sb?.auth)return;
- if(syncing){dirty=true;return;}
- syncing=true;
- try{
+let syncTask=null, dirty=false, authListenerAttached=false;
+function syncAlias(){
+ if(!window.__PIPSEPAISA_ONESIGNAL_READY__||!window.sb?.auth)return Promise.resolve();
+ // Callers must await an already-running sync; a second event requests a
+ // fresh auth check after the first OneSignal operation finishes.
+ if(syncTask){dirty=true;return syncTask;}
+ syncTask=(async function(){
   do{
    dirty=false;
    let uid=null;
@@ -635,10 +636,11 @@ async function syncAlias(){
     });
    });
   }while(dirty);
- }finally{
-  syncing=false;
+ })().finally(function(){
+  syncTask=null;
   if(dirty)queueMicrotask(syncAlias);
- }
+ });
+ return syncTask;
 }
 window.pspPushBindUser=syncAlias;
 window.addEventListener("psp:push-subscribed",syncAlias);
