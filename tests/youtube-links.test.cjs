@@ -39,7 +39,7 @@ test('User Mentor Admin support YouTube access without taking over compact mobil
 test('Admin can save official YouTube channel and front-end uses configured URL',()=>{
  for(const page of ['admin/index.html','admin-panel.html']){
   assert.ok(read(page).includes('id="lsYoutube"'));
-  assert.ok(read(page).includes('admin-core-v406.js?v=20261030-v524-youtube-links'));
+  assert.match(read(page),/<script defer src="\/admin-core-v406\.js\?v=[^"]+"/);
  }
  const core=read('admin-core-v406.js');
  assert.ok(core.includes("youtube:youtube"));
