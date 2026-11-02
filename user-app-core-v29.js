@@ -3810,8 +3810,24 @@
       return;
     }
     let user = explicitUser || null;
-    if (!user) try { const sres = await sb.auth.getSession(); user = (sres && sres.data && sres.data.session) ? sres.data.session.user : null; } catch(e) {}
-    if (!user) { try { const ur = await sb.auth.getUser(); user = (ur && ur.data) ? ur.data.user : null; } catch(e) {} }
+    let sessionChecked = false;
+    if (!user) {
+      try {
+        const sres = await sb.auth.getSession();
+        if (sres?.error) throw sres.error;
+        sessionChecked = true;
+        user = sres?.data?.session?.user || null;
+      } catch(e) { console.warn('User session lookup unavailable:', e?.message||e); }
+    }
+    // A normal signed-out visit already has a confirmed empty session: skip an
+    // unnecessary remote /auth/v1/user call on every User Panel route.
+    // Preserve the remote fallback when a saved PWA session may be restoring.
+    if (!user && (!sessionChecked || pspHasSavedSessionV513())) {
+      try {
+        const ur = await sb.auth.getUser();
+        user = ur?.data?.user || null;
+      } catch(e) {}
+    }
 
     if (!user) {
       currentUser = null;
