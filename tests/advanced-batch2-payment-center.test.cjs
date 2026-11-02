@@ -41,13 +41,14 @@ function item(id,user,amount,batch,segment='advanced'){
 test('Paid Advanced Batch 2 is created only for explicit advanced_b2 tag',()=>{
  const run=harness();
  assert.equal(run("courseSegmentV205({course_key:'advanced',course_segment:'advanced',psp_batch_key:null})"),'advanced');
+ assert.equal(run("courseSegmentV205({course_key:'advanced',course_segment:'advanced',psp_batch_key:'advanced_b1'})"),'advanced');
  assert.equal(run("courseSegmentV205({course_key:'advanced',course_segment:'advanced',psp_batch_key:'advanced_b2'})"),'advanced_b2');
  assert.equal(run("courseSegmentV205({course_key:'advance-fundamental',course_segment:'advance_fundamental'})"),'advance_fundamental');
  assert.equal(run("courseSegmentV205({course_key:'basic-b2',psp_batch_key:'basic_b2'})"),'batch2');
  assert.equal(run("paymentItemLabelV209({kind:'course',raw:{course_key:'advanced',psp_batch_key:'advanced_b2'}})"),'Advanced Forex Course — Batch 2');
 });
 test('Advanced Batch 2 card selects only tagged students, and old records remain in existing Advanced card',()=>{
- const old=item('e1','student-old',150,null),b2=item('e2','student-new',175,'advanced_b2');
+ const old=item('e1','student-old',150,'advanced_b1'),b2=item('e2','student-new',175,'advanced_b2');
  const run=harness([old,b2]);
  assert.equal(run("paymentScopeMatchV232(paymentItems()[0],'advanced')"),true);
  assert.equal(run("paymentScopeMatchV232(paymentItems()[0],'advanced_b2')"),false);
@@ -58,7 +59,7 @@ test('Advanced Batch 2 card selects only tagged students, and old records remain
  assert.equal(run("paidScopeItemsV232('paid').length"),2);
 });
 test('All Paid Courses retains BOTH Advanced batches in revenue and separate per-batch totals',()=>{
- const old=item('e1','student-old',150,null),b2=item('e2','student-new',175,'advanced_b2');
+ const old=item('e1','student-old',150,'advanced_b1'),b2=item('e2','student-new',175,'advanced_b2');
  const run=harness([old,b2]);
  assert.equal(run('paymentCourseRevenueV222().advanced'),150);
  assert.equal(run('paymentCourseRevenueV222().advancedB2'),175);
@@ -75,6 +76,23 @@ test('No explicitly tagged Batch 2 payments results in a zero card, not fake rea
  assert.equal(run("paidScopeMetricsV232('advanced_b2').revenue"),0);
  assert.equal(run("paidScopeMetricsV232('advanced').users"),1);
 });
+test('Batch 1 is marked closed for new enrollments; Batch 2 remains selectable',()=>{
+ assert.match(source,/card\('advanced','Advanced Forex — Batch 1','Sir Sajid Khan Ghori · Closed to new enrollments'/);
+ assert.match(source,/card\('advanced_b2','Advanced Forex — Batch 2'/);
+ const run=harness();
+ assert.equal(run("paidScopeLabelV233('advanced')"),'Advanced Forex Course — Batch 1');
+ assert.equal(run("paidScopeLabelV233('advanced_b2')"),'Advanced Forex Course — Batch 2');
+ assert.equal(run("paymentItemLabelV209({kind:'course',raw:{course_key:'advanced',psp_batch_key:'advanced_b1'}})"),'Advanced Forex Course — Batch 1');
+});
+test('Database migration fixes cohort boundary without touching paid price or course access',()=>{
+ const sql=fs.readFileSync(path.join(__dirname,'../supabase/sql/512_advanced_course_october_cohorts.sql'),'utf8');
+ assert.match(sql,/2026-10-01 00:00:00\+05/g);
+ assert.match(sql,/CREATE TRIGGER zzz_psp_assign_advanced_batch_v542/);
+ assert.match(sql,/SET LOCAL session_replication_role = 'replica'/);
+ assert.doesNotMatch(sql,/SET\s+payment_status\s*=|SET\s+price\s*=|SET\s+enrollment_status\s*=/i);
+ const manual=fs.readFileSync(path.join(__dirname,'../admin-manual-paid-course-v221.js'),'utf8');
+ assert.match(manual,/Advanced Forex Course — Batch 2 \(New Enrollments\)/);
+});
 test('Payment Review Center exposes clickable Batch 2 card, status filters and scope label',()=>{
  assert.match(source,/card\('advanced_b2','Advanced Forex — Batch 2'/);
  assert.match(source,/if\(scope==='advanced_b2'\)return 'Advanced Forex Course — Batch 2'/);
@@ -83,6 +101,6 @@ test('Payment Review Center exposes clickable Batch 2 card, status filters and s
  assert.equal(run("paidScopeLabelV233('advanced_b2')"),'Advanced Forex Course — Batch 2');
  for(const path of ['admin/index.html','admin-panel.html']){
   const html=fs.readFileSync(require('node:path').join(__dirname,'..',path),'utf8');
-  assert.match(html,/admin-payments-ux-v222\.js\?v=20261102-v541-advance-b2/);
+  assert.match(html,/admin-payments-ux-v222\.js\?v=20261102-v542-batch-cutoff/);
  }
 });
