@@ -49,6 +49,8 @@ jobs:
         run: node --test tests/portal-pwa-install.test.cjs
       - name: Verify Mentor native-style mobile app UI without desktop regression
         run: node --test tests/mentor-mobile-app-ui.test.cjs
+      - name: Verify Mentor auth and permission safety without live credentials
+        run: node --test tests/mentor-session-security.test.cjs
       - name: Verify premium Signals filters across User Mentor Admin and mobile
         run: |
           node --check psp-signal-filters-v1.js
