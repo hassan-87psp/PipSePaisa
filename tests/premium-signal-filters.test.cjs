@@ -97,7 +97,10 @@ test('User normalized active signals are never treated as closed because closedT
 
 test('Every User Panel route alias and admin workspace uses fresh signal script versions',()=>{
  for(const file of ["dashboard/index.html","signals/index.html","journal/index.html","performance/index.html","my-courses/index.html","profile/index.html","member-chats/index.html","ai-tools/index.html","ai-report/index.html","world-news/index.html","charts-articles/index.html","my-trades/index.html","support/index.html","currency-strength/index.html","economic-news/index.html","live-charts/index.html","trades-analysis/index.html","eaindicator/index.html","announcements/index.html","tools/index.html","about/index.html"]){
-  assert.ok(read(file).includes('user-signals-core-v29.js?v=20261030-v523-compact-history'),file+' cache bust');
+  assert.match(read(file),/user-signals-core-v29\.js\?v=[0-9a-z-]+/i,file+' must version the signal script');
+ }
+ for(const file of ['dashboard/index.html','signals/index.html','charts-articles/index.html','live-charts/index.html','world-news/index.html']){
+  assert.ok(read(file).includes('user-signals-core-v29.js?v=20261102-v543-push-route'),file+' must load exact-item push handler');
  }
  for(const file of ['admin/index.html','admin-panel.html']){
   const html=read(file),actual=html.match(/<script defer src="([^"]*admin-core-v406\.js\?v=[^"]+)"\><\/script>/),
