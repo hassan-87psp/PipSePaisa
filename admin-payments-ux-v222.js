@@ -58,6 +58,7 @@ function courseSegmentV205(r){
   if(saved==='fundamental_b1')return 'fundamental_b1';
   if(saved==='fundamental_b2')return 'fundamental_b2';
   // Explicitly tagged Advanced Batch 2; legacy paid enrollments retain their existing scope.
+  if(saved==='advanced_b1')return 'advanced';
   if(saved==='advanced_b2')return 'advanced_b2';
   const explicit=low(r.course_segment),key=low(r.course_key),name=low(r.course_name),text=[explicit,key,name].join(' ');
   if(explicit==='vsa'||key==='vsa'||/volume spread analysis|vsa course/.test(text))return 'vsa';
@@ -83,7 +84,7 @@ function paymentItemLabelV209(i){
   if(seg==='fundamental_b1')return 'Fundamental Forex Course — Batch 1';
   if(seg==='fundamental_b2')return 'Fundamental Forex Course — Batch 2';
   if(seg==='vsa')return 'VSA — Volume Spread Analysis';
-  if(seg==='advanced')return 'Advanced Forex Course';
+  if(seg==='advanced')return 'Advanced Forex Course — Batch 1';
   if(seg==='advanced_b2')return 'Advanced Forex Course — Batch 2';
   if(seg==='advance_fundamental')return 'Advance Fundamental';
   return i.item||'Course';
@@ -448,7 +449,7 @@ function paidScopeMetricsV232(scope){
   return {rows:rows.length,users:active.length,approved:approved.length,processing:processing.length,needs:needs.length,rejected:rejected.length,expired:expired.length,revenue};
 }
 function paidScopeLabelV233(scope){
-  if(scope==='advanced')return 'Advanced Forex Course';
+  if(scope==='advanced')return 'Advanced Forex Course — Batch 1';
   if(scope==='advanced_b2')return 'Advanced Forex Course — Batch 2';
   if(scope==='advance_fundamental')return 'Advance Fundamental';
   if(scope==='vsa')return 'VSA — Volume Spread Analysis';
@@ -484,7 +485,7 @@ function paidCourseOverviewV232(){
   };
   return `<section class="v232-section v233-course-section">
     <div class="v233-section-title"><div><span class="v233-step">2</span><div><h3>Choose a paid course</h3><p>View each course separately, or choose All Paid Courses for the combined picture.</p></div></div></div>
-    <div class="v232-paid-grid">${card('paid','All Paid Courses','Advanced Forex + Fundamental + VSA','▤')}${card('advanced','Advanced Forex Course','Sir Sajid Khan Ghori · Existing','📈')}${card('advanced_b2','Advanced Forex — Batch 2','Sir Sajid Khan Ghori','📈')}${card('advance_fundamental','Advance Fundamental','Sir Malik Ghulam Abbas','🌐')}${card('vsa','VSA Course','Sir Sajid Khan Ghori','📊')}</div>
+    <div class="v232-paid-grid">${card('paid','All Paid Courses','Advanced B1 + B2 + Fundamental + VSA','▤')}${card('advanced','Advanced Forex — Batch 1','Sir Sajid Khan Ghori · Closed to new enrollments','📈')}${card('advanced_b2','Advanced Forex — Batch 2','Sir Sajid Khan Ghori','📈')}${card('advance_fundamental','Advance Fundamental','Sir Malik Ghulam Abbas','🌐')}${card('vsa','VSA Course','Sir Sajid Khan Ghori','📊')}</div>
   </section>`;
 }
 function paymentOperationsSummaryV232(){const st=paymentStats(),users=Number.isFinite(Number(S.totalWebsiteUsers))?Number(S.totalWebsiteUsers).toLocaleString():'—';return `<div class="v172-kpis v233-top-kpis"><div class="v172-kpi warn"><small>Needs Review</small><strong>${st.needs}</strong><span>Admin action required</span></div><div class="v172-kpi"><small>Processing Now</small><strong>${st.processing}</strong><span>Infinity automatic</span></div><div class="v172-kpi"><small>Approved Today</small><strong>${st.approvedToday}</strong><span>Access activated today</span></div><div class="v172-kpi bad"><small>Rejected</small><strong>${st.rejected}</strong><span>Final declined payments</span></div><div class="v172-kpi"><small>Expired</small><strong>${st.expired}</strong><span>Timed-out payments</span></div><div class="v172-kpi"><small>Manual Review Amount</small><strong>$${st.amount.toFixed(0)}</strong><span>Admin-managed only</span></div><div class="v172-kpi"><small>Total Website Users</small><strong>${users}</strong><span>Unique registered profiles</span></div></div>`}
