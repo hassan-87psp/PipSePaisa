@@ -94,7 +94,7 @@ test('All user PWA routes use fresh serialized identity binding and same app sco
  assert.equal(manifest.start_url,'/dashboard/');
  assert.equal(manifest.display,'standalone');
  const worker=fs.readFileSync(path.join(__dirname,'../OneSignalSDKWorker.js'),'utf8');
- assert.match(worker,/OneSignalSDK\\.sw\\.js/);
+ assert.ok(worker.includes('OneSignalSDK.sw.js'),'OneSignal worker must import the SDK');
  assert.match(source,/notificationClickHandlerMatch:"origin"/);
  assert.match(source,/notificationClickHandlerAction:"navigate"/);
 });
