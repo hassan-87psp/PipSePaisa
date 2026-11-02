@@ -169,21 +169,27 @@ test('Admin reveals the executive shell immediately after authentication, withou
   slow.resolve();await tick();
   assert.equal(removed,1,'background response does not toggle UI/trigger a new flash');
 });
-test('Early authorized session opens on DOM readiness, never before authentication',async()=>{
-  const h=harness();let reads=0,started=0,events=0,removed=0;
+test('Early authorized session starts immediately but waits for executive dashboard readiness, not DOMContentLoaded',async()=>{
+  const h=harness();let reads=0,started=0,events=0,removed=0,mounted=0;
   h.c.document.readyState='interactive';
   const client={auth:{getSession:async()=>{reads++;return {data:{session:{user:{id:'admin'}}}}}},
     from:()=>({select(){return this},eq(){return this},single:async()=>({data:{id:'admin',role:'super_admin'}})})};
   Object.assign(h.c,{supabase:{createClient:()=>client},queueMicrotask,dispatchEvent(){events++},
     loadDashboardStats:()=>{started++;return Promise.resolve()}});
   h.element('loginOverlay').classList.remove=()=>{removed++};
+  h.element('page-dashboard');
   const src=source('admin-core-v406.js');
   vm.runInContext(src.slice(0,src.indexOf('async function loginAdmin')),h.c);
   await tick();
-  assert.equal(reads,1);assert.equal(removed,0);assert.equal(started,0);
-  for(const listener of [...h.listeners.DOMContentLoaded])await listener();
+  assert.equal(reads,1,'auth starts during deferred script evaluation');
+  assert.equal(removed,0,'never show the workspace before executive module is ready');
+  assert.equal(started,0);
+  h.c.PSPExecutiveDashboard181={install(){mounted++;return true}};
+  for(const listener of [...h.listeners['psp-admin-executive-ready']])listener();
   await tick();
-  assert.equal(started,1);assert.equal(events,1);assert.equal(removed,1);
+  assert.equal(mounted,1);assert.equal(started,1);
+  assert.equal(events,1);assert.equal(removed,1);
+  assert.equal(h.listeners.DOMContentLoaded?.length||0,1,'DOMContentLoaded remains a fallback, not a startup gate');
 });
 test('Admin startup cover remains when session is unavailable',async()=>{
   const h=harness();let removed=0,loginVisible=false;
@@ -201,7 +207,7 @@ test('Admin dashboard never flashes legacy markup or empty cards before first da
  for(const filename of ['admin/index.html','admin-panel.html']){
   const html=source(filename);
   assert.match(html,/html:not\(\.psp-admin-view-ready\) body > \.app\{visibility:hidden!important;pointer-events:none!important\}/);
-  assert.match(html,/admin-core-v406\.js\?v=20261031-v529-fast-admin-ready/);
+  assert.match(html,/admin-core-v406\.js\?v=20261102-v539-startup/);
   assert.match(html,/<div class="page active" id="page-dashboard"[^>]*><\/div>/,filename+' must not ship the old dashboard layout');
   assert.match(html,/#page-dashboard:not\(\.ad181-ready\)>\*\{display:none!important\}/);
   assert.match(html,/#page-dashboard\.active:not\(\.ad181-ready\)::before/);
