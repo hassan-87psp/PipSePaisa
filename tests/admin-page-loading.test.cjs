@@ -226,6 +226,14 @@ test('Both admin entrypoints render an initial auth barrier and avoid blocking e
     assert.match(html,/class="login-overlay active is-checking" id="loginOverlay"/);
     assert.match(html,/id="adminAuthStatus"/);
     assert.match(html,/id="pspAdminChartLazyV447"/);
+    // Every preloaded admin script must match the actual defer URL exactly.
+    const preloads=[...html.matchAll(/<link\b[^>]*rel="preload"[^>]*href="([^"]+)"[^>]*as="script"/g)]
+      .map(m=>m[1]);
+    const deferUrls=[...html.matchAll(/<script\b[^>]*defer[^>]*src="([^"]+)"[^>]*>/g)]
+      .map(m=>m[1]);
+    assert.ok(preloads.some(p=>p.includes('admin-core-v406.js')));
+    assert.ok(preloads.some(p=>p.includes('admin-dashboard-v181.js')));
+    for(const url of preloads)assert.ok(deferUrls.includes(url),filename+' wasted preload: '+url);
     const scripts=[...html.matchAll(/<script\b([^>]*)>/g)].filter(m=>/\bsrc=/.test(m[1]));
     assert.ok(scripts.length>20);
     assert.equal(scripts.filter(m=>!/(?:\bdefer\b|\basync\b)/.test(m[1])).length,0);
