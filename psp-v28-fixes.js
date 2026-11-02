@@ -6,7 +6,15 @@ const PATH_TO_PAGE={};Object.keys(PAGE_TO_PATH).forEach(k=>PATH_TO_PAGE[PAGE_TO_
 Object.assign(PATH_TO_PAGE,{'/home':'dashboard','/courses-panel':'mycourses','/mycourses':'mycourses','/settings':'settings','/charts':'charts','/articles':'articles','/news-hub':'newshub','/strength-meter':'strength','/trades':'trades','/analysis':'analysis','/ea-indicator':'eaindicator','/ea-indicators':'eaindicator'});
 function normalizePath(){let p=(location.pathname||'/').replace(/\/index\.html$/i,'').replace(/\/+$/,'')||'/';return p;}
 function cleanUrl(){try{if(/\/index\.html$/i.test(location.pathname))history.replaceState(history.state,'',normalizePath()+location.search+location.hash)}catch(_){}}
-function intended(){let target='';try{const path=normalizePath();if(PATH_TO_PAGE[path])target=PATH_TO_PAGE[path];const q=new URLSearchParams(location.search);if(!target)target=(q.get('open')||q.get('page')||'').toLowerCase();const hash=(location.hash||'').replace(/^#/,'').toLowerCase();if(!target&&hash)target=hash;if(target==='course-basic'||target==='basic-course')target='basic';if(target==='course-advanced'||target==='advanced-course')target='advanced';if(target==='login'||target==='auth-login')target='auth-login'}catch(_){}return target;}
+function intended(){let target='';try{const path=normalizePath();if(PATH_TO_PAGE[path])target=PATH_TO_PAGE[path];const q=new URLSearchParams(location.search);
+ const pushPage=(q.get('page')||'').toLowerCase();
+ const exactPush=(pushPage==='newshub'&&(q.has('news_url')||q.has('news_title')))||
+   (pushPage==='signals'&&q.has('signal_id'))||
+   (pushPage==='articles'&&(q.has('article_id')||q.has('chart_id')));
+ // Deep link item requested by notification takes priority over /dashboard path.
+ // Ordinary navigation continues to prefer its existing path behaviour.
+ if(exactPush)target=pushPage;
+ if(!target)target=(q.get('open')||q.get('page')||'').toLowerCase();const hash=(location.hash||'').replace(/^#/,'').toLowerCase();if(!target&&hash)target=hash;if(target==='course-basic'||target==='basic-course')target='basic';if(target==='course-advanced'||target==='advanced-course')target='advanced';if(target==='login'||target==='auth-login')target='auth-login'}catch(_){}return target;}
 function rememberTarget(value){try{if(value&&value!=='auth-login')sessionStorage.setItem('psp_intended_route',value)}catch(_){}}
 function consumeTarget(){let value=intended();try{if(!value||value==='auth-login')value=sessionStorage.getItem('psp_intended_route')||value;if(value&&value!=='auth-login')sessionStorage.removeItem('psp_intended_route')}catch(_){}return value;}
 function appVisible(){const app=document.getElementById('mainApp');return !!(app&&getComputedStyle(app).display!=='none');}
