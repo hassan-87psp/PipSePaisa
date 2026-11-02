@@ -13,9 +13,12 @@ test('Both Admin routes preload critical first paint CSS and V503 modules',()=>{
    'pspAdminNoLegacyPaintV503',
    'admin-eai-review-v498.css?v=20261031-v516-minimal',
    'admin-eai-staff-access-v498.js?v=20261029-v503-grant-issue',
-   'admin-ea-indicator-enterprise-v374.js?v=20261031-v515-queue',
-   'admin-dashboard-v181.js?v=20261031-v529-fast-admin-ready'
+   'admin-ea-indicator-enterprise-v374.js?v=20261031-v515-queue'
   ])assert.equal(h.split(name).length-1,1,name+' in '+p);
+  const dashboardPreload=h.match(/<link rel="preload" href="([^"]*admin-dashboard-v181\.js[^"]*)" as="script">/);
+  const dashboardScript=h.match(/<script defer src="([^"]*admin-dashboard-v181\.js[^"]*)"><\/script>/);
+  assert.ok(dashboardPreload&&dashboardScript,'Executive dashboard must preload on '+p);
+  assert.equal(dashboardPreload[1],dashboardScript[1],'Preload and actual dashboard URL must match');
   assert.ok(h.indexOf('pspAdminNoLegacyPaintV503')<h.indexOf('admin-dashboard-v181.css'));
   assert.match(h,/#page-dashboard:not\(\.ad181-ready\)>\*\{display:none!important\}/);
  }
