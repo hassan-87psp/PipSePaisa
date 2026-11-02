@@ -55,6 +55,8 @@ jobs:
         run: node --test tests/portal-pwa-install.test.cjs
       - name: Verify Mentor native-style mobile app UI without desktop regression
         run: node --test tests/mentor-mobile-app-ui.test.cjs
+      - name: Verify exact push notification links and post-login routing
+        run: node --test tests/push-exact-content-v543.test.cjs
       - name: Verify Mentor auth and permission safety without live credentials
         run: node --test tests/mentor-session-security.test.cjs
       - name: Verify premium Signals filters across User Mentor Admin and mobile
