@@ -10,7 +10,7 @@ test('Both admin entrypoints preload executive styles before enhanced script',()
  for(const p of ['admin/index.html','admin-panel.html']){
   const html=read(p);
   const css='/admin-ea-indicator-enterprise-v374.css?v=20261029-v374-executive';
-  const js='/admin-ea-indicator-enterprise-v374.js?v=20261031-v515-queue';
+  const js='/admin-ea-indicator-enterprise-v374.js?v=20261102-v540-proof-visible';
   const old='/admin-ea-indicator-ultra-v371.js?v=20261031-v506-simple-issue';
   assert.equal(html.split(css).length-1,1);
   assert.equal(html.split(js).length-1,1);
