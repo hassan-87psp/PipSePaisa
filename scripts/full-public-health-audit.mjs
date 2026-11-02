@@ -118,13 +118,16 @@ async function pageCheck(target,mode,fromSitemap){
       const calendar=await page.evaluate(()=>{
         const page=document.getElementById('page-news');
         const btn=document.getElementById('pspEconomicAlertsBtn');
-        const filter=[...(page?.querySelectorAll('.news-filter-group button')||[])].find(btn=>(btn.getAttribute('onclick')||'').includes("setNewsTime('week'"));
-        const actualFilter=filter?.classList.contains('active');
-        return {page:!!page,reminder:!!btn,weekButton:!!filter,weekActive:!!actualFilter,
+        const filters=[...(page?.querySelectorAll('.news-filter-group button')||[])];
+        const find=t=>filters.find(btn=>(btn.getAttribute('onclick')||'').includes("setNewsTime('"+t+"'"));
+        const today=find('today'),week=find('week');
+        return {page:!!page,reminder:!!btn,todayButton:!!today,todayActive:!!today?.classList.contains('active'),
+          weekButton:!!week,weekActive:!!week?.classList.contains('active'),
           reminderRuntime:typeof window.pspCalendarAlertsToggle==='function',
           newsRuntime:typeof window.setNewsTime==='function'};
       });
-      if(!calendar.page||!calendar.reminder||!calendar.weekActive||!calendar.reminderRuntime||!calendar.newsRuntime)
+      // Today is the documented initial filter; This Week is available, not selected.
+      if(!calendar.page||!calendar.reminder||!calendar.todayButton||!calendar.todayActive||!calendar.weekButton||calendar.weekActive||!calendar.reminderRuntime||!calendar.newsRuntime)
         fail(name,'economic calendar route not fully initialized: '+JSON.stringify(calendar));
       else console.log('FULL_AUDIT_ECONOMIC_CALENDAR '+name+' '+JSON.stringify(calendar));
     }
