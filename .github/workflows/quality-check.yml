@@ -49,6 +49,8 @@ jobs:
         run: node --test tests/advanced-batch2-payment-center.test.cjs
       - name: Verify team referral course signup and enrollment routing
         run: node tests/team-referral-enrollment.test.mjs
+      - name: Verify OneSignal identity recovery on PWA reopen and account changes
+        run: node --test tests/notification-identity-v544.test.cjs
       - name: Verify User Panel fast guest boot and saved PWA recovery
         run: node --test tests/user-session-cold-start.test.cjs
       - name: Verify three distinct installable portals and independent logins
