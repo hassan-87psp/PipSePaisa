@@ -13,7 +13,7 @@ test('Both Admin routes preload critical first paint CSS and V503 modules',()=>{
    'pspAdminNoLegacyPaintV503',
    'admin-eai-review-v498.css?v=20261031-v516-minimal',
    'admin-eai-staff-access-v498.js?v=20261029-v503-grant-issue',
-   'admin-ea-indicator-enterprise-v374.js?v=20261031-v515-queue'
+   'admin-ea-indicator-enterprise-v374.js?v=20261102-v540-proof-visible'
   ])assert.equal(h.split(name).length-1,1,name+' in '+p);
   const dashboardPreload=h.match(/<link rel="preload" href="([^"]*admin-dashboard-v181\.js[^"]*)" as="script">/);
   const dashboardScript=h.match(/<script defer src="([^"]*admin-dashboard-v181\.js[^"]*)"><\/script>/);
