@@ -1152,21 +1152,18 @@ async function afterLogin(){
   const ur=await sb.auth.getUser();const user=ur&&ur.data?ur.data.user:null;
   if(!user){showErr('Session error. Please log in again.');resetBtn();return;}
   let pr=await sb.from('profiles').select('*').eq('id',user.id).maybeSingle();
-  let prof=pr.data||null;
-  const requestedRole=(user.user_metadata&&user.user_metadata.role)||'';
-  if(!prof){
-    const fallback={id:user.id,email:user.email,full_name:(user.user_metadata&&user.user_metadata.full_name)||user.email.split('@')[0],username:(user.user_metadata&&user.user_metadata.username)||(user.email.split('@')[0]+'_'+user.id.slice(0,6)),phone:(user.user_metadata&&user.user_metadata.phone)||null,role:requestedRole==='mentor'?'mentor':'user'};
-    const cr=await sb.from('profiles').upsert(fallback,{onConflict:'id'}).select('*').maybeSingle();
-    prof=cr.data||fallback;
-  }
-  if(requestedRole==='mentor' && prof.role!=='mentor' && !(prof.role==='admin'||prof.is_admin)){
-    showErr('This account is not approved as a PSP Mentor. Ask Super Admin to set role = mentor.');
-    await sb.auth.signOut({scope:'local'});
+  const prof=pr.data||null;
+  // Never grant Mentor access from editable Supabase user_metadata or an
+  // optimistic fallback object when the server profile is missing.
+  if(pr.error||!prof){
+    showErr('Your mentor profile could not be verified. Please contact the administrator.');
     resetBtn();
     return;
   }
-  if(prof.role!=='mentor' && !(prof.role==='admin'||prof.is_admin)){
-    showErr('This account is not a mentor. Please use "Sign Up as PSP Mentor".');resetBtn();return;
+  if(prof.role!=='mentor' && prof.role!=='admin' && prof.role!=='super_admin' && prof.is_admin!==true){
+    showErr('Mentor access is pending administrator approval. Please contact the administrator.');
+    resetBtn();
+    return;
   }
   if(!prof.mentor_code){
     const code=(user.id.replace(/[^a-z0-9]/gi,'').slice(0,7)).toUpperCase();
@@ -2598,9 +2595,18 @@ async function bootMentorAuth(){
       console.warn('Supabase SDK not ready on boot');
       return;
     }
-    let user=null;
-    try{const sr=await sb.auth.getSession();user=(sr&&sr.data&&sr.data.session)?sr.data.session.user:null;}catch(e){}
-    if(!user){try{const ur=await sb.auth.getUser();user=(ur&&ur.data)?ur.data.user:null;}catch(e){}}
+    let user=null,sessionCheckCompleted=false;
+    try{
+      const sr=await sb.auth.getSession();
+      if(sr?.error)throw sr.error;
+      sessionCheckCompleted=true;
+      user=sr?.data?.session?.user||null;
+    }catch(e){console.warn('Mentor session restoration:',e?.message||e)}
+    // A guest has no session. Do not make a second network request for /auth/v1/user.
+    // Fallback remote verification is reserved for a failed local session check.
+    if(!sessionCheckCompleted){
+      try{const ur=await sb.auth.getUser();user=ur?.data?.user||null;}catch(e){}
+    }
     if(user) await afterLogin();
   }catch(e){
     console.warn('Mentor boot auth skipped:', e && e.message ? e.message : e);
