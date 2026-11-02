@@ -588,36 +588,59 @@ if(document.readyState==="loading"){
 })();
 
 
-/* V362 — Bind each opted-in OneSignal subscription to the authenticated account.
-   Licensing alerts are targeted by external_id, never the entire subscriber segment. */
+/* V544 — Keep the OneSignal external_id bound to the verified Supabase
+   account, including after PWA cold launches and sign-outs on shared devices.
+   Keep general opted-in push subscriptions; only the account alias changes. */
 (function(){
 "use strict";
-if(window.__PSP_PUSH_IDENTITY_V362__)return;
-window.__PSP_PUSH_IDENTITY_V362__=true;
-let knownId=null,busy=false,authListenerAttached=false;
+if(window.__PSP_PUSH_IDENTITY_V544__)return;
+window.__PSP_PUSH_IDENTITY_V544__=true;
+let syncing=false, dirty=false, authListenerAttached=false;
 async function syncAlias(){
- if(busy||!window.__PIPSEPAISA_ONESIGNAL_READY__||!window.sb?.auth||!("Notification" in window)||Notification.permission!=="granted")return;
- busy=true;
+ if(!window.__PIPSEPAISA_ONESIGNAL_READY__||!window.sb?.auth)return;
+ if(syncing){dirty=true;return;}
+ syncing=true;
  try{
-   const result=await window.sb.auth.getUser();
-   const uid=result.data?.user?.id||null;
-   if(uid===knownId)return;
-   window.OneSignalDeferred=window.OneSignalDeferred||[];
-   window.OneSignalDeferred.push(async function(os){
-      try{
-        if(uid){
-          await os.login(uid);
-          knownId=uid;
-        } else if(knownId) {
-          await os.logout();
-          knownId=null;
-        }
-      }catch(e){console.warn("Targeted push identity binding deferred",e?.message||e)}
+  do{
+   dirty=false;
+   let uid=null;
+   try{
+    // A cached OneSignal identity is NOT evidence of a current login.
+    const session=await window.sb.auth.getSession();
+    if(session.error)throw session.error;
+    if(session.data?.session?.user){
+     const verified=await window.sb.auth.getUser();
+     if(verified.error)throw verified.error;
+     uid=verified.data?.user?.id||null;
+    }
+   }catch(e){
+    // Don't unlink on transient auth/network errors; retry on the next
+    // auth/visibility event once identity can be verified safely.
+    console.warn("Push account verification deferred",e?.message||e);
+    return;
+   }
+   await new Promise(function(resolve){
+    window.OneSignalDeferred=window.OneSignalDeferred||[];
+    window.OneSignalDeferred.push(async function(os){
+     try{
+      // OneSignal persists externalId between page loads; an in-memory
+      // knownId starts empty and cannot detect an old account.
+      const linked=String(os.User?.externalId||"").trim()||null;
+      if(uid!==linked){
+       if(uid)await os.login(uid);
+       else if(linked)await os.logout();
+      }
+     }catch(e){console.warn("Push identity synchronization deferred",e?.message||e)}
+     finally{resolve()}
+    });
    });
- }catch(e){console.warn("Push identity check deferred",e?.message||e)}
- finally{busy=false}
+  }while(dirty);
+ }finally{
+  syncing=false;
+  if(dirty)queueMicrotask(syncAlias);
+ }
 }
-window.pspPushBindUser=function(){return syncAlias()};
+window.pspPushBindUser=syncAlias;
 window.addEventListener("psp:push-subscribed",syncAlias);
 window.addEventListener("focus",syncAlias);
 window.addEventListener("pageshow",syncAlias);
@@ -627,8 +650,9 @@ function attachAuth(){
  window.sb.auth.onAuthStateChange(function(){setTimeout(syncAlias,100)});
  syncAlias();
 }
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",attachAuth,{once:true});else attachAuth();
-window.addEventListener('pageshow',attachAuth);
-window.addEventListener('focus',attachAuth);
-document.addEventListener('visibilitychange',function(){if(!document.hidden)attachAuth()});
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",attachAuth,{once:true});
+else attachAuth();
+window.addEventListener("pageshow",attachAuth);
+window.addEventListener("focus",attachAuth);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)attachAuth()});
 })();
