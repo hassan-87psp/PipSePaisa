@@ -86,6 +86,12 @@ function setupLayout(){
    if(filter){state.filter=filter.dataset.e374Filter;state.initialFilterChosen=true;render();return}
    const m=event.target.closest('[data-e374-metric]');
    if(m){state.filter=m.dataset.e374Metric;state.initialFilterChosen=true;api.tab('requests');render();q('eaiV374Queue')?.scrollIntoView?.({block:'start',behavior:'smooth'});return}
+   const proof=event.target.closest('[data-e374-proof]');
+   if(proof){
+    // Opening the receipt must not approve, reject or issue any indicator file.
+    api.proof(proof.dataset.e374Proof,proof.dataset.e374Kind==='payment'?'payment':'deposit');
+    return;
+   }
    const open=event.target.closest('[data-e374-request]');
    if(open){api.requestForm(open.dataset.e374Request);return}
    if(event.target.closest('[data-e374-refresh]')){refresh();return}
@@ -183,6 +189,10 @@ function card(r){
  const brokerValid=['exness','dprime','xm'].includes(String(r.broker||'').trim().toLowerCase());
  const badge=expired?'License expired':issued?'File delivered':r.status==='rejected'?'Rejected':brokerValid?'Awaiting review':'Correct broker';
  const action=expired?'Renew / Review':issued?'View License':r.status==='rejected'?'Reapprove / Issue':'Review & Issue';
+ const proofButtons=[
+   r.deposit_proof_path?'<button type="button" class="eaiV374-proofBtn" data-e374-proof="'+escape(r.id)+'" data-e374-kind="deposit" aria-label="View deposit proof for account '+escape(r.trading_account_id||'')+'">📎 View Deposit Proof</button>':'<small class="eaiV374-noProof">Deposit proof not uploaded</small>',
+   r.payment_proof_path?'<button type="button" class="eaiV374-proofBtn" data-e374-proof="'+escape(r.id)+'" data-e374-kind="payment">View Payment Proof</button>':''
+ ].filter(Boolean).join('');
  const time=issued?'<strong class="eaiS-timer" data-exp="'+escape(String(r._expiry||''))+'" title="'+escape(r._expiry?new Date(r._expiry).toLocaleString():'No expiry set')+'">'+escape(remainingText(r._expiry))+'</strong>':'<span class="eaiS-emptyTime">—</span>';
  return '<article class="eaiV374-item" data-id="'+escape(r.id)+'">'+
   '<div class="eaiV374-person"><div class="eaiV374-avatar">'+escape(name.trim().charAt(0).toUpperCase()||'P')+'</div>'+
@@ -190,7 +200,8 @@ function card(r){
   '<small>Submitted '+escape(timeLabel(r.created_at))+'</small></div></div>'+
   '<div class="eaiV374-product"><strong title="'+escape(title)+'">'+escape(title)+'</strong>'+
   '<span>'+escape(r.broker||'—')+' <b>•</b> '+escape(r._platform)+' <b>•</b> Account '+escape(r.trading_account_id||'—')+'</span>'+
-  '<span class="eaiV374-productFile">'+(r.licensed_file_name?'File: '+escape(r.licensed_file_name):'File not delivered')+'</span></div>'+
+  '<span class="eaiV374-productFile">'+(r.licensed_file_name?'File: '+escape(r.licensed_file_name):'File not delivered')+'</span>'+
+  '<div class="eaiV374-proofs">'+proofButtons+'</div></div>'+
   '<div class="eaiV374-flags"><span class="eaiV374-stage '+statusClass(r)+'">'+escape(status)+'</span>'+
   '<span class="eaiV374-broker '+(issued&&!expired?'ok':'needs')+'">'+escape(badge)+'</span></div>'+
   '<div class="eaiS-timeCol"><small>Time remaining</small>'+time+'</div>'+
