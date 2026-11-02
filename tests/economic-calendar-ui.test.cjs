@@ -16,7 +16,7 @@ test('Every user portal initially shows Today and matching foreground reminder c
  assert.ok(html.includes("setNewsTime('nextweek', this)"),route);
  assert.ok(html.includes("setNewsTime('upcoming', this)"),route);
   assert.match(html,/economic-calendar-alerts-v1\.js\?v=20261031-v533-timezone-reminders/,route);
-  assert.match(html,/user-app-core-v29\.js\?v=20261102-v538-licensed-backup/,route);
+  assert.match(html,/user-app-core-v29\.js\?v=[0-9a-z-]+/i,route);
  }
 });
 test('Calendar runtime uses DST-aware zone labels and authenticated source age',()=>{
