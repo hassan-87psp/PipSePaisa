@@ -45,6 +45,8 @@ jobs:
         run: |
           node --check admin-account-verification-v49.js
           node --test tests/admin-access-approval-contacts.test.cjs
+      - name: Verify Advanced Forex Batch 2 paid course card and filters
+        run: node --test tests/advanced-batch2-payment-center.test.cjs
       - name: Verify team referral course signup and enrollment routing
         run: node tests/team-referral-enrollment.test.mjs
       - name: Verify User Panel fast guest boot and saved PWA recovery
