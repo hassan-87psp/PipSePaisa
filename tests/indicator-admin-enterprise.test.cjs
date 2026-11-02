@@ -16,7 +16,7 @@ test('Both admin entrypoints preload executive styles before enhanced script',()
   assert.equal(html.split(js).length-1,1);
   assert.ok(html.indexOf(css)<html.indexOf(js));
   assert.ok(html.indexOf(old)<html.indexOf(js));
-  assert.match(html,/admin-ea-indicator-v238\.js\?v=20261031-v518-multi-account/);
+  assert.match(html,/admin-ea-indicator-v238\.js\?v=20261102-v540-proof-visible/);
  }
 });
 
