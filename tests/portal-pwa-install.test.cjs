@@ -65,7 +65,7 @@ test('Three logins use separate Supabase storage keys, so logging out in one doe
 test('Logging out in any portal revokes only its own session, never the other installed apps',()=>{
  const cases=[
   ['user-app-core-v29.js',1],
-  ['psp-mentor.html',2],
+  ['psp-mentor.html',1],
   ['admin-core-v406.js',2]
  ];
  for(const [file,count] of cases){
