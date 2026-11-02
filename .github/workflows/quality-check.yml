@@ -45,6 +45,8 @@ jobs:
           node --test tests/admin-access-approval-contacts.test.cjs
       - name: Verify team referral course signup and enrollment routing
         run: node tests/team-referral-enrollment.test.mjs
+      - name: Verify User Panel fast guest boot and saved PWA recovery
+        run: node --test tests/user-session-cold-start.test.cjs
       - name: Verify three distinct installable portals and independent logins
         run: node --test tests/portal-pwa-install.test.cjs
       - name: Verify Mentor native-style mobile app UI without desktop regression
