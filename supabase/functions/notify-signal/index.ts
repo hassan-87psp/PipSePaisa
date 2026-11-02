@@ -26,7 +26,8 @@ const ONESIGNAL_REST_API_KEY =
 const HOOK_SECRET =
   Deno.env.get("HOOK_SECRET") ?? "";
 
-const SITE_URL = "https://www.pipsepaisa.com";
+const SITE_ORIGIN = "https://pipsepaisa.com";
+const SITE_URL = SITE_ORIGIN + "/dashboard";
 
 type DatabaseRecord = Record<string, unknown>;
 
@@ -68,6 +69,17 @@ function getText(value: unknown): string {
   }
 
   return String(value).trim();
+}
+
+function contentDeepLink(page: string, idParam: string, record: DatabaseRecord): string {
+  const id = getText(record.id);
+  const destination = new URL(SITE_URL + "/");
+  destination.searchParams.set("page",page);
+  // Include only a real record identifier; never interpolate webhook text into a URL.
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    destination.searchParams.set(idParam,id);
+  }
+  return destination.toString();
 }
 
 // ------------------------------------------------------------
@@ -237,7 +249,7 @@ function buildNewSignalMessage(
         : `A new ${pair} ${direction} signal is available.`.trim(),
 
     launchUrl:
-      `${SITE_URL}/?page=signals`,
+      contentDeepLink("signals", "signal_id", record),
   };
 }
 
@@ -274,7 +286,7 @@ function buildSignalStatusMessage(
       content:
         `${pair} ${direction} has hit Take Profit 1!${pipsText}`.trim(),
       launchUrl:
-        `${SITE_URL}/?page=signals`,
+        contentDeepLink("signals", "signal_id", record),
     };
   }
 
@@ -296,7 +308,7 @@ function buildSignalStatusMessage(
       content:
         `${pair} ${direction} has hit Take Profit 2!${pipsText}`.trim(),
       launchUrl:
-        `${SITE_URL}/?page=signals`,
+        contentDeepLink("signals", "signal_id", record),
     };
   }
 
@@ -318,7 +330,7 @@ function buildSignalStatusMessage(
       content:
         `${pair} ${direction} full target reached!${pipsText}`.trim(),
       launchUrl:
-        `${SITE_URL}/?page=signals`,
+        contentDeepLink("signals", "signal_id", record),
     };
   }
 
@@ -339,7 +351,7 @@ function buildSignalStatusMessage(
       content:
         `${pair} ${direction} closed at Stop Loss.${pipsText}`.trim(),
       launchUrl:
-        `${SITE_URL}/?page=signals`,
+        contentDeepLink("signals", "signal_id", record),
     };
   }
 
@@ -359,7 +371,7 @@ function buildSignalStatusMessage(
       content:
         `${pair} ${direction} closed at breakeven.${pipsText}`.trim(),
       launchUrl:
-        `${SITE_URL}/?page=signals`,
+        contentDeepLink("signals", "signal_id", record),
     };
   }
 
@@ -379,7 +391,7 @@ function buildSignalStatusMessage(
       content:
         `${pair} ${direction} trade has been closed.${pipsText}`.trim(),
       launchUrl:
-        `${SITE_URL}/?page=signals`,
+        contentDeepLink("signals", "signal_id", record),
     };
   }
 
@@ -432,7 +444,7 @@ function buildBreakevenMoveMessage(
       `${pair} ${direction}: Move Stop Loss to entry${entryText} to secure the trade.`.trim(),
 
     launchUrl:
-      `${SITE_URL}/?page=signals`,
+      contentDeepLink("signals", "signal_id", record),
   };
 }
 
@@ -456,7 +468,7 @@ function buildContentMessage(
         title ||
         "A new article has been published on PipSePaisa.",
       launchUrl:
-        `${SITE_URL}/?page=articles`,
+        contentDeepLink("articles", "article_id", record),
     };
   }
 
@@ -472,7 +484,7 @@ function buildContentMessage(
         pair ||
         "A new market chart has been posted.",
       launchUrl:
-        `${SITE_URL}/?page=charts`,
+        contentDeepLink("articles", "chart_id", record),
     };
   }
 
@@ -547,14 +559,21 @@ function buildNotification(
     return null;
   }
 
-  // New Article, Chart or Banner
-  if (
-    eventType === "INSERT"
-  ) {
-    return buildContentMessage(
-      table,
-      record,
-    );
+  // Only published charts and articles notify subscribers.
+  // Publishing a saved draft is an UPDATE, not an INSERT.
+  if (table === "charts" || table === "articles") {
+    if (record.is_published !== true) return null;
+    if (table === "articles" && record.suppress_notifications === true) return null;
+    if (eventType === "INSERT") return buildContentMessage(table, record);
+    if (eventType === "UPDATE" && oldRecord?.is_published !== true) {
+      return buildContentMessage(table, record);
+    }
+    return null;
+  }
+
+  // Banners are not controlled by is_published.
+  if (table === "banners" && eventType === "INSERT") {
+    return buildContentMessage(table, record);
   }
 
   return null;
@@ -589,10 +608,10 @@ async function sendOneSignalNotification(
     url: message.launchUrl,
 
     chrome_web_icon:
-      `${SITE_URL}/icon-192.png`,
+      `${SITE_ORIGIN}/icon-192.png`,
 
     chrome_web_badge:
-      `${SITE_URL}/icon-192.png`,
+      `${SITE_ORIGIN}/icon-192.png`,
 
     web_push_topic:
       `${table}-${eventType}-${Date.now()}-${Math.random()
@@ -738,6 +757,29 @@ Deno.serve(async (request) => {
         },
         400,
       );
+    }
+
+    // Internal delivery diagnostics. Requires the same trusted webhook secret.
+    // Never exposes OneSignal keys, subscriber identities or push tokens.
+    if (payload.action === "diagnose_delivery") {
+      const notificationId = getText(payload.notification_id);
+      if (!/^[0-9a-f-]{36}$/i.test(notificationId)) {
+        return jsonResponse({ok:false,error:"Invalid notification id"},400);
+      }
+      const r=await fetch(
+        "https://api.onesignal.com/notifications/"+encodeURIComponent(notificationId)+
+          "?app_id="+encodeURIComponent(ONESIGNAL_APP_ID),
+        {headers:{"Authorization":"Key "+ONESIGNAL_REST_API_KEY,
+                  "Accept":"application/json"},signal:AbortSignal.timeout(10000)}
+      );
+      if(!r.ok)return jsonResponse({ok:false,providerStatus:r.status},502);
+      const d=await r.json();
+      return jsonResponse({ok:true,metrics:{
+        successful:d.successful??null,failed:d.failed??null,
+        errored:d.errored??null,remaining:d.remaining??null,
+        received:d.received??null,queued_at:d.queued_at??null,
+        completed_at:d.completed_at??null,targeted:d.included_segments??null
+      }});
     }
 
     const table =
