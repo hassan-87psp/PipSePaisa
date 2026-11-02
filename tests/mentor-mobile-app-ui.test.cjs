@@ -12,6 +12,10 @@ const js=read('mentor-mobile-ui-v1.js');
 
 test('Mobile shell files are linked on Mentor only and keep desktop invisible',()=>{
  assert.match(html,/href="\/mentor-mobile-ui-v1\.css\?v=20261030-v1"/);
+ assert.match(html,/<script defer src="https:\/\/cdn\.jsdelivr\.net\/npm\/@supabase\/supabase-js@2"/,
+   'Mentor SDK should not block initial HTML rendering');
+ assert.ok(html.includes("document.addEventListener('DOMContentLoaded', bootMentorAuth)"),
+   'Auth restoration must begin after the deferred SDK has loaded');
  assert.match(html,/src="\/mentor-mobile-ui-v1\.js\?v=20261030-v1"/);
  assert.ok(html.includes('id="sidebar"'));
  assert.ok(html.includes('id="navMenu"'));
