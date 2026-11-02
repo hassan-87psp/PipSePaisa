@@ -9,10 +9,10 @@ const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 test('Both admin routes preload compact stylesheet and launch compact script last',()=>{
  for(const p of ['admin/index.html','admin-panel.html']){
   const html=read(p);
-  const css='/admin-ea-indicator-compact-v375.css?v=20261029-v375-compact';
+  const css='/admin-ea-indicator-compact-v375.css?v=20261102-v540-proof-visible';
   const js='/admin-ea-indicator-compact-v375.js?v=20261029-v375-compact';
-  const base='admin-ea-indicator-v238.js?v=20261031-v518-multi-account';
-  const prev='/admin-ea-indicator-enterprise-v374.js?v=20261031-v515-queue';
+  const base='admin-ea-indicator-v238.js?v=20261102-v540-proof-visible';
+  const prev='/admin-ea-indicator-enterprise-v374.js?v=20261102-v540-proof-visible';
   assert.equal(html.split(css).length-1,1);
   assert.equal(html.split(js).length-1,1);
   assert.equal(html.split(base).length-1,1);
