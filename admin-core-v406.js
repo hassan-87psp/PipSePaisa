@@ -20,7 +20,7 @@ let isLoggedIn = false;
 let adminAuthSequence = 0;
 let adminReadyScheduled = false;
 let adminReadyDispatched = false;
-let adminDOMReady = document.readyState === 'complete';
+let adminDOMReady = document.readyState !== 'loading';
 document.addEventListener('DOMContentLoaded', function(){
   adminDOMReady = true;
   if (adminReadyScheduled) adminFireReady();
@@ -52,14 +52,17 @@ function adminAuthorized(profile) {
   const role = String(profile && profile.role || '').trim().toLowerCase();
   return !!(profile && (profile.is_admin === true || ['admin','super_admin','superadmin'].includes(role)));
 }
-function adminFireReady() {
+function adminFireReady(forceFallback) {
   if (!adminReadyScheduled || adminReadyDispatched || !adminDOMReady || !isLoggedIn) return;
+  // Auth may complete before the optional dashboard script executes. Keep the
+  // secure overlay until the executive module is mounted (never reveal legacy UI).
+  const executive = window.PSPExecutiveDashboard181;
+  if ((!executive || typeof executive.install !== 'function') && !forceFallback) return;
   adminReadyScheduled = false;
   adminReadyDispatched = true;
   const sequence = adminAuthSequence;
-  // A verified admin must not wait on the dashboard RPC. Synchronously mount
-  // only the CURRENT executive shell and load its data asynchronously.
-  const executive = window.PSPExecutiveDashboard181;
+  // Release the shell immediately when the executive module exists; the live
+  // dashboard RPC still loads in parallel without blocking navigation.
   let mounted = false;
   try {
     if (executive && typeof executive.install === 'function') mounted = executive.install() === true;
@@ -87,8 +90,13 @@ function adminFireReady() {
 function adminScheduleReady() {
   if (adminReadyScheduled || adminReadyDispatched) return;
   adminReadyScheduled = true;
-  if (adminDOMReady) queueMicrotask(adminFireReady);
+  if (adminDOMReady) queueMicrotask(function(){adminFireReady(false)});
+  // Fail visibly after a bounded delay if the dashboard script fails to load.
+  setTimeout(function(){if (adminReadyScheduled && isLoggedIn) adminFireReady(true)}, 4500);
 }
+window.addEventListener('psp-admin-executive-ready', function(){
+  if (adminReadyScheduled) adminFireReady(false);
+});
 function adminCompleteSignIn(profile) {
   currentAdmin = profile;
   isLoggedIn = true;
