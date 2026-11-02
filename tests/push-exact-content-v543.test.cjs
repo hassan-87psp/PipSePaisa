@@ -15,7 +15,7 @@ const UUID='fded30a2-1333-4dab-a201-111111111111';
 test('Notifications carry a real item ID to the correct protected dashboard page',()=>{
  assert.match(push,/function contentDeepLink\(page: string, idParam: string, record: DatabaseRecord\)/);
  assert.match(push,/destination\.searchParams\.set\(idParam,id\)/);
- assert.match(push,/\^[0-9a-f]\{8\}/i); // UUID validation is not unconstrained input
+ assert.ok(push.includes('^[0-9a-f]{8}-[0-9a-f]{4}'), 'UUID validation must be explicit');
  for(const link of [
   'contentDeepLink("signals", "signal_id", record)',
   'contentDeepLink("articles", "chart_id", record)',
@@ -25,6 +25,11 @@ test('Notifications carry a real item ID to the correct protected dashboard page
  assert.match(push,/const SITE_URL = SITE_ORIGIN \+ "\/dashboard"/);
  assert.match(push,/const HOOK_SECRET/);
  assert.match(push,/receivedSecret !== HOOK_SECRET/);
+});
+test('Exact push target has priority over generic dashboard path',()=>{
+ assert.ok(router.includes('if(exactPush)target=pushPage;'));
+ assert.ok(router.includes("pushPage==='signals'&&q.has('signal_id')"));
+ assert.ok(router.includes("pushPage==='articles'&&(q.has('article_id')||q.has('chart_id'))"));
 });
 test('SPA route keeps the exact notification query through the first protected navigation',()=>{
  const a=router.indexOf('function installPageAnimation(){'),b=router.indexOf('function installAuthBackdrop(){',a);
