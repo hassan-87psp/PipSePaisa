@@ -18,7 +18,7 @@
   function remainingText(seconds){let s=Math.max(0,Math.floor(Number(seconds)||0));const d=Math.floor(s/86400);s%=86400;const h=Math.floor(s/3600);s%=3600;const m=Math.floor(s/60),sec=s%60;const pad=n=>String(n).padStart(2,'0');return (d?d+'d ':'')+pad(h)+':'+pad(m)+':'+pad(sec)+' remaining'}
   function fmtDate(v){if(!v)return'';try{return new Date(v).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'})}catch{return String(v)}}
   function ensureMini(){const brand=q('#sidebar .brand .brand-text');if(!brand)return null;let el=q('#pspAccountVerifyMini');if(!el){el=document.createElement('div');el.id='pspAccountVerifyMini';el.className='psp-av-mini pending';el.setAttribute('role','button');el.tabIndex=0;el.onclick=e=>{e.stopPropagation();goProfile()};el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();goProfile()}};brand.appendChild(el)}return el}
-  function label(){if(!state)return['Checking Account…','pending'];if(approvedActive())return['✓ Account Verified','ok'];if(trialActive())return['🎁 Free Trial Active','ok'];if(approvedExpired())return['⚠ Access Expired','bad'];if(state.submission_status==='pending')return['⏳ Verification Pending','review'];if(state.submission_status==='rejected')return['⚠ Action Required','bad'];if(!state.email_verified)return[trialActive()?'Verify Account • Free Access':'Verify Account','pending'];return['Get Free All Access','pending']}
+  function label(){if(!state)return['Checking Account…','pending'];if(paidAccess())return['👑 VIP Access Active','ok'];if(approvedActive())return['✓ Account Verified','ok'];if(trialActive())return['🎁 Free Trial Active','ok'];if(approvedExpired())return['⚠ Access Expired','bad'];if(state.submission_status==='pending')return['⏳ Verification Pending','review'];if(state.submission_status==='rejected')return['⚠ Action Required','bad'];if(!state.email_verified)return[trialActive()?'Verify Account • Free Access':'Verify Account','pending'];return['Get Free All Access','pending']}
   function renderMini(){const el=ensureMini();if(!el)return;const[t,c]=label();el.textContent=t;el.className='psp-av-mini '+c;el.style.display=loggedIn()?'inline-flex':'none'}
   function ensureModal(){let m=q('#pspAvLockModal');if(m)return m;m=document.createElement('div');m.id='pspAvLockModal';m.innerHTML='<div class="psp-av-modal-card"><button type="button" class="psp-av-modal-x" aria-label="Close">×</button><div class="psp-av-modal-icon">🔐</div><h2 id="pspAvLockTitle">Account Verification Required</h2><p id="pspAvLockText"></p><div class="psp-av-actions"><button type="button" class="psp-av-primary" id="pspAvLockAction">Open Profile</button><button type="button" class="psp-av-secondary" id="pspAvLockClose">Not Now</button></div></div>';document.body.appendChild(m);q('.psp-av-modal-x',m).onclick=()=>m.classList.remove('open');q('#pspAvLockClose',m).onclick=()=>m.classList.remove('open');m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});return m}
   function showLock(){const m=ensureModal();let title='Verify Your Account',text='Email verification is required. Open Profile to verify your email and continue to Free All Access.',action='Open Profile',fn=goProfile;if(state?.email_verified&&state?.submission_status==='not_submitted'){title='Get Free All Access';text='Your email is verified. Complete the broker account step to unlock Signals, Charts, Articles and other protected services for 30 days after approval.';action='Get Free All Access';fn=()=>location.href='/free-access/'}if(approvedExpired()){title='30-Day Access Expired';text='Your approved access period has ended. Please contact Admin for renewal.';action='Open Profile';fn=goProfile}if(state?.submission_status==='rejected'){title='Verification Needs Attention';text='Your previous submission was rejected. Open Profile to see the reason, then upload corrected proof.';action='Open Profile';fn=goProfile}q('#pspAvLockTitle',m).textContent=title;q('#pspAvLockText',m).textContent=text;const b=q('#pspAvLockAction',m);b.textContent=action;b.onclick=()=>{m.classList.remove('open');fn()};m.classList.add('open')}
@@ -27,7 +27,7 @@
   function openVipPayment(){if(typeof window.pspOpenVipPlansForPayment==='function'){window.pspOpenVipPlansForPayment();return}const item=q('#sidebar .menu-item[data-page="vipplans"],#userBottomNav [data-page="vipplans"],[data-page="vipplans"]');if(typeof window.showPage==='function'){window.showPage('vipplans',item||undefined);setTimeout(()=>q('#vipPlansGrid')?.scrollIntoView({behavior:'smooth',block:'start'}),120)}else{location.href='/?tab=vipplans&paid=1'}}
   function ensureCard(){const base=q('#settings-profile');if(!base)return null;let c=q('#pspAccountVerificationCard');if(!c){c=document.createElement('div');c.id='pspAccountVerificationCard';c.className='card psp-av-card';base.insertAdjacentElement('afterend',c)}return c}
   function trialBanner(){
-    if(approvedActive()||state?.submission_status==='pending')return'';
+    if(paidAccess()||approvedActive()||state?.submission_status==='pending')return'';
     if(trialActive()){
       const admin=!!state?.admin_trial_active,until=trialExpiry();
       return '<div class="psp-av-trial active"><div class="psp-av-trial-icon">🎁</div><div><strong>'+(admin?'Free Trial Active':'Free Access Active')+'</strong><span>'+
@@ -51,7 +51,12 @@
         desc='Create or shift your trading account through PipSePaisa, submit your proof, and unlock protected services for 30 days after Admin approval.',
         action='';
 
-    if(approvedActive()){
+    if(paidAccess()){
+      const p=profile(),until=p?.premium_until?fmtDate(p.premium_until):'your membership expiry';
+      cls='approved';badge='VIP ACTIVE';title='VIP Access Active';
+      desc='Your VIP access is active until '+esc(until)+'. No broker verification or free access PIN is required during this period.';
+      action='<div class="psp-av-access-ok">✓ VIP Full Access Active</div>';
+    }else if(approvedActive()){
       cls='approved';badge='APPROVED';title='30-Day Free All Access';
       desc='Your broker verification is approved. Protected services are unlocked until the approval expiry date.';
       action='<div class="psp-av-access-ok">✓ Full Access Active <span id="pspAvApprovedTime" style="margin-left:8px;font-variant-numeric:tabular-nums"></span></div>';
