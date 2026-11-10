@@ -263,7 +263,7 @@ Deno.serve(async (req) => {
     const teamName = teamDisplayName(result.team_member_name);
     const teamWhatsapp = digits(result.team_member_whatsapp);
     const clientId = clean(result.client_id, 80) || profileClientId || "Pending";
-    const courseName = course === "technical" ? "Sir Sajid Khan Ghori Free Course — Batch 3" : "Sir Malik Ghulam Abbas Free Course — Batch 2";
+    const courseName = course === "technical" ? "Basic Forex Course — Batch 4" : "Fundamental Forex Course — Batch 3";
 
     const submissionId = clean(result.submission_id, 80);
     const whatsappRouted = teamWhatsapp.length >= 8;
@@ -273,6 +273,7 @@ Deno.serve(async (req) => {
         whatsapp_routed: whatsappRouted,
         source_path: clean(body.source_path,260) || null,
         course_name: courseName,
+        course_batch_key: course === "technical" ? "basic_b4" : "fundamental_b3",
       };
       if (ensuredEnrollmentId) submissionPatch.enrollment_id = ensuredEnrollmentId;
       if (result.assignment_id) submissionPatch.assignment_id = result.assignment_id;
@@ -294,8 +295,8 @@ Deno.serve(async (req) => {
     else { credentialsEmailSent = await Promise.race([emailTask, new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 1800))]); credentialsEmailQueued = !credentialsEmailSent; }
 
     const enrollmentMessage = course === "technical"
-      ? `I have enrolled in Sir Sajid’s Batch 3 (Client ID ${clientId}). Kindly verify and share next steps.`
-      : `I have enrolled in Sir Malik Ghulam Abbas’s Batch 2 (Client ID ${clientId}). Kindly verify and share next steps.`;
+      ? `I have enrolled in Sir Sajid’s Batch 4 (Client ID ${clientId}). Kindly verify and share next steps.`
+      : `I have enrolled in Sir Malik Ghulam Abbas’s Batch 3 (Client ID ${clientId}). Kindly verify and share next steps.`;
     const message = teamName
       ? `Hello ${teamName}, ${enrollmentMessage}`
       : `Hello PipSePaisa Team, ${enrollmentMessage}`;
