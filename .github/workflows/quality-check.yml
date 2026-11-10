@@ -47,6 +47,8 @@ jobs:
           node --test tests/admin-access-approval-contacts.test.cjs
       - name: Verify Advanced Forex Batch 2 paid course card and filters
         run: node --test tests/advanced-batch2-payment-center.test.cjs
+      - name: Verify active free-course Ad Link cohorts
+        run: node --test tests/ad-current-cohort-routing.test.cjs
       - name: Verify team referral course signup and enrollment routing
         run: node tests/team-referral-enrollment.test.mjs
       - name: Verify OneSignal identity recovery on PWA reopen and account changes
