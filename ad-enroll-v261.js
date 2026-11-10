@@ -6,7 +6,7 @@ const body=document.body,course=String(body.dataset.course||'').toLowerCase();
 const openedAt=Date.now();
 const $=id=>document.getElementById(id);
 const VISITOR_KEY='psp-ad-visitor-v262';
-function info(){return course==='fundamental'?{title:'Sir Malik Ghulam Abbas Free Course',batch:'Batch 2'}:{title:'Sir Sajid Khan Ghori Free Course',batch:'Batch 3'};}
+function info(){return course==='fundamental'?{title:'Sir Malik Ghulam Abbas Free Course',batch:'Batch 3'}:{title:'Sir Sajid Khan Ghori Free Course',batch:'Batch 4'};}
 function setError(message){const el=$('adError');if(!el)return;el.textContent=message||'';el.classList.toggle('show',!!message);}
 function cleanPhone(v){return String(v||'').replace(/[^0-9+]/g,'');}
 function uuid(){try{return crypto.randomUUID()}catch(_){return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2)}}
