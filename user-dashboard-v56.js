@@ -87,11 +87,16 @@ function statusInfo(s){
 }
 function isLiveSignal(s){const x=statusInfo(s);return !x.final}
 function accessHTML(){
+  const p=typeof currentProfile!=='undefined'?currentProfile:null;
+  const vipExpiry=p?.is_premium&&p?.premium_until?new Date(p.premium_until).getTime():0;
+  if(Number.isFinite(vipExpiry)&&vipExpiry>Date.now()){
+    return '<div class="psp58-access verified"><span class="psp58-access-icon">👑</span><div><b>VIP Access Active</b><span>Active until '+esc(new Date(vipExpiry).toLocaleDateString())+'</span></div></div>';
+  }
   const st=window.PSPAccountVerification?.getState?.();
   if(!st)return '<div class="psp58-access checking"><span class="psp58-access-icon">◌</span><div><b>Checking Account</b><span>Loading access status…</span></div></div>';
   if(st.submission_status==='approved')return '<div class="psp58-access verified"><span class="psp58-access-icon">✓</span><div><b>Account Verified</b><span>Permanent Full Access</span></div></div>';
   if(st.submission_status==='pending')return '<div class="psp58-access pending"><span class="psp58-access-icon">⏳</span><div><b>Verification Pending</b><span>Temporary access while Admin reviews your proof</span></div></div>';
-  if(st.direct_access_active){const exp=st.direct_access_expires_at?esc(st.direct_access_expires_at):'';return '<div class="psp58-access trial" data-access-expires="'+exp+'"><span class="psp58-access-icon">⚡</span><div><b>Free Access Active</b><span class="psp58-access-count">'+esc(remaining(st.direct_access_remaining_seconds))+' remaining</span></div><button onclick="PSPAccountVerification.goProfile()">Verify</button></div>'}
+  if(st.direct_access_active){const exp=st.direct_access_expires_at?esc(st.direct_access_expires_at):'';return '<div class="psp58-access trial" data-access-expires="'+exp+'"><span class="psp58-access-icon">⚡</span><div><b>Full Access Active</b><span class="psp58-access-count">'+esc(remaining(st.direct_access_remaining_seconds))+' remaining</span></div><button onclick="PSPAccountVerification.goProfile()">Verify</button></div>'}
   return '<div class="psp58-access locked"><span class="psp58-access-icon">🔒</span><div><b>Verification Required</b><span>Complete verification to unlock services</span></div><button onclick="PSPAccountVerification.goProfile()">Verify Account</button></div>';
 }
 
