@@ -5,7 +5,7 @@ const SB_KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const body=document.body,course=String(body.dataset.course||'').toLowerCase();
 const openedAt=Date.now();
 const $=id=>document.getElementById(id);
-function info(){return course==='fundamental'?{title:'Sir Malik Ghulam Abbas Free Course',batch:'Batch 2'}:{title:'Sir Sajid Khan Free Course',batch:'Batch 3'};}
+function info(){return course==='fundamental'?{title:'Sir Malik Ghulam Abbas Free Course',batch:'Batch 3'}:{title:'Sir Sajid Khan Free Course',batch:'Batch 4'};}
 function setError(message){const el=$('adError');if(!el)return;el.textContent=message||'';el.classList.toggle('show',!!message);}
 function cleanPhone(v){return String(v||'').replace(/[^0-9+]/g,'');}
 function params(){const q=new URLSearchParams(location.search);return {utm_source:q.get('utm_source')||'',utm_medium:q.get('utm_medium')||'',utm_campaign:q.get('utm_campaign')||'',utm_content:q.get('utm_content')||'',fbclid:q.get('fbclid')||''};}
