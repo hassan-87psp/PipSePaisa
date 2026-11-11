@@ -8,60 +8,130 @@
 <link rel="icon" href="/favicon.png">
 <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co">
 <link rel="stylesheet" href="/content-studio/studio.css?v=20261112-v3">
+<link rel="stylesheet" href="/content-studio/premium-v2.css?v=20261112-premium-01">
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8"></script>
-<script defer src="/content-studio/studio.js?v=20261112-v4"></script>
+<script defer src="/content-studio/studio.js?v=20261112-premium-01"></script>
 </head>
 <body>
 <div id="authGate" class="gate"><div class="mark">P+</div><h2>Opening Private Content Studio</h2><p>Verifying your account permissions…</p></div>
 <div id="studioApp" class="studio" hidden>
   <aside class="rail" id="studioRail">
-    <a class="brand" href="/dashboard"><img src="/icon-192.png" alt="PipSePaisa"><span><strong>PipSePaisa</strong><small>PRIVATE CONTENT STUDIO</small></span></a>
-    <div class="navlabel">WORKSPACE</div>
-    <button type="button" class="navbtn active" data-view="news">🔥 <span>Hot News</span></button>
-    <button type="button" class="navbtn" data-view="editor">✍️ <span>Script Editor</span></button>
-    <button type="button" class="navbtn" data-view="saved">📚 <span>Saved Scripts</span></button>
-    <button type="button" class="navbtn" data-view="calendar">🗓️ <span>Content Planner</span></button>
-    <div class="navlabel" id="manageLabel" hidden>MANAGEMENT</div>
-    <button type="button" class="navbtn" id="manageNav" data-view="manage" hidden>🔐 <span>User Permissions</span></button>
-    <div class="railbottom"><span class="privatepill">🔒 Invite-only</span><a id="backLink" href="/dashboard">← Back to Panel</a></div>
+    <a class="brand" href="/dashboard"><img src="/icon-192.png" alt="PipSePaisa"><span><strong>PipSe<span class="brand-gold">Paisa</span></strong><small>AI CONTENT STUDIO</small></span></a>
+    <div class="navlabel">YOUR STUDIO</div>
+    <button type="button" class="navbtn active" data-view="home">⌂ <span>Home</span></button>
+    <button type="button" class="navbtn" data-view="news">✦ <span>Create Video</span></button>
+    <button type="button" class="navbtn" data-view="editor">✎ <span>Script Editor</span></button>
+    <button type="button" class="navbtn" data-view="saved">▤ <span>My Scripts</span></button>
+    <button type="button" class="navbtn" data-view="calendar">▦ <span>Content Planner</span></button>
+    <button type="button" class="navbtn" data-view="profile">◉ <span>My Profile</span></button>
+    <div class="navlabel" id="manageLabel" hidden>ADMIN SETTINGS</div>
+    <button type="button" class="navbtn" id="manageNav" data-view="manage" hidden>⚙ <span>User Permissions</span></button>
+    <div class="railbottom"><span class="privatepill">◆ Invite-only workspace</span><a id="backLink" href="/dashboard">← Back to PipSePaisa</a></div>
   </aside>
   <div class="shell">
-    <header class="topbar"><button type="button" id="mobileNav" aria-label="Open navigation">☰</button><div><strong>AI Content Studio</strong><small id="whoLabel">PipSePaisa / Content</small></div><div class="topactions"><span id="accessBadge" class="pill">Authorized</span><button type="button" id="refreshNews" class="outline">↻ Refresh</button></div></header>
+    <header class="topbar">
+      <button type="button" id="mobileNav" aria-label="Open side navigation">☰</button>
+      <div class="topbrand"><span class="toplogo">P<span>+</span></span><div><strong>AI Content Studio</strong><small id="whoLabel">PipSePaisa / Content</small></div></div>
+      <div class="topactions"><span id="accessBadge" class="pill">PRIVATE</span><button type="button" id="refreshNews" class="outline" hidden>↻ Refresh</button></div>
+    </header>
     <main>
-      <section class="hero"><div><span class="eyebrow">PIPSEPAISA • PRIVATE WORKSPACE</span><h1>Turn breaking news into <em>brilliant content.</em></h1><p>Use your existing Hot News Hub to create engaging, fact-conscious scripts with a powerful hook, market context and a strong closing.</p></div><div class="heroicon">▶</div></section>
-      <div class="stats"><article><small>Live Headlines</small><strong id="newsTotal">—</strong><span>From News Hub</span></article><article><small>Hot Stories</small><strong id="newsHot">—</strong><span>High-priority filter</span></article><article><small>Saved Scripts</small><strong id="scriptTotal">—</strong><span>Private team library</span></article><article><small>Needs Review</small><strong id="reviewTotal">—</strong><span>Editorial queue</span></article></div>
-      <section data-panel="news">
+      <section data-panel="home" class="homepage">
+        <div class="homehero">
+          <div class="eyebrow">✦ YOUR PRIVATE AI CREATION SPACE</div>
+          <h1>Welcome, <span id="welcomeName">Creator</span> 👋</h1>
+          <p>Turn the latest market news into engaging, ready-to-record videos in just a few taps.</p>
+          <button type="button" class="heroaction" data-go="news">✦ Create Your Next Video <span>→</span></button>
+          <div class="hero-orb" aria-hidden="true">✧</div>
+        </div>
+        <div class="homeheading"><div><span class="eyebrow">YOUR WORKSPACE</span><h2>What would you like to do?</h2></div></div>
+        <div class="homecards">
+          <button type="button" class="homecard featured" data-go="news"><span class="homecard-icon">▣</span><strong>Create Video</strong><small>From latest market news</small><span class="corner-arrow">↗</span></button>
+          <button type="button" class="homecard" data-go="news"><span class="homecard-icon">🔥</span><strong>Hot News</strong><small>Gold, Forex & Bitcoin</small><span class="corner-arrow">↗</span></button>
+          <button type="button" class="homecard" data-go="saved"><span class="homecard-icon">▤</span><strong>My Scripts</strong><small>View & edit drafts</small><span class="corner-arrow">↗</span></button>
+          <button type="button" class="homecard" data-go="calendar"><span class="homecard-icon">▦</span><strong>Content Planner</strong><small>Your upcoming posts</small><span class="corner-arrow">↗</span></button>
+        </div>
+        <div class="homeheading statsheading"><h2>Studio Overview</h2></div>
+        <div class="stats">
+          <article><small>Live Headlines</small><strong id="newsTotal">—</strong><span>Market news</span></article>
+          <article><small>Hot Stories</small><strong id="newsHot">—</strong><span>Trending now</span></article>
+          <article><small>Saved Scripts</small><strong id="scriptTotal">—</strong><span>Your library</span></article>
+          <article><small>Needs Review</small><strong id="reviewTotal">—</strong><span>Editorial queue</span></article>
+        </div>
+        <div class="news-cta"><div><span class="eyebrow">LIVE NEWS HUB</span><h3>Stay ahead of the market</h3><p>Pick a news story and AI will help craft your next video.</p></div><button type="button" class="outline" data-go="news">Explore News →</button></div>
+      </section>
+      <section data-panel="news" class="news-screen">
+        <div class="screen-breadcrumb">CREATE VIDEO <span>›</span> STEP 1 OF 3</div>
+        <div class="stepper"><div class="stepon active"><span>1</span><small>Select News</small></div><div class="stepon"><span>2</span><small>Customize</small></div><div class="stepon"><span>3</span><small>Ready Script</small></div></div>
         <div class="sectiontop"><div><h2>Hot News Feed</h2><p>Latest market headlines. Review original source before recording.</p></div><div class="filters"><input id="newsSearch" type="search" placeholder="Search news..." aria-label="Search news"><select id="newsCategory" aria-label="News category"><option value="all">All Categories</option><option value="Gold">Gold</option><option value="Forex">Forex</option><option value="Bitcoin">Bitcoin / Crypto</option><option value="Macro">Economy</option><option value="Geopolitics">Geopolitics</option><option value="Central Banks">Central Banks</option></select><select id="newsHeat" aria-label="Priority"><option value="all">All Impact</option><option value="hot">🔥 Hot News</option><option value="warm">Relevant</option></select></div></div>
         <div id="newsList" class="newsgrid"><div class="empty">Loading Hot News…</div></div>
       </section>
-      <section data-panel="editor" hidden>
-        <div class="sectiontop"><div><h2>AI Script Generator & Editor</h2><p>Professional spoken scripts with customizable format and length.</p></div><button type="button" id="newScript" class="outline">+ New Script</button></div>
-        <div class="editorgrid"><div class="panel">
-          <h3>Story & Settings</h3>
-          <label>News Headline<input id="storyTitle" maxlength="300" placeholder="Select a news story or enter a headline"></label>
-          <label>Short Summary<textarea id="storyDesc" rows="3" maxlength="1500" placeholder="Add the confirmed facts about this news..."></textarea></label>
-          <div class="cols2"><label>Source<input id="storySource" maxlength="150" placeholder="Publisher"></label><label>Category<input id="storyCat" maxlength="70" placeholder="Gold"></label></div>
-          <label>Original Article URL<input id="storyUrl" type="url" maxlength="1000" placeholder="https://..."></label>
-          <div class="cols2"><label>Duration<select id="duration"><option value="30">30 seconds</option><option value="60" selected>60 seconds</option><option value="180">3 minutes</option><option value="480">8 minutes</option></select></label><label>Language<select id="language"><option>Roman Urdu + English</option><option>Urdu</option><option>English</option></select></label></div>
-          <div class="cols2"><label>Tone<select id="tone"><option>Professional & Engaging</option><option>Breaking News</option><option>Educational</option></select></label><label>Platform<select id="platform"><option>Facebook Reels</option><option>YouTube Shorts</option><option>YouTube Long Video</option></select></label></div>
-          <button type="button" id="generate" class="primary wide">✦ Generate Video Script</button><p id="generateNote" class="hint">AI uses the supplied source details. Editorial fact-checking is required before publishing.</p>
-        </div><div class="panel scriptpanel">
-          <div class="scripthead"><div><h3>Ready-to-Record Script</h3><p id="scriptStatus" class="hint">No script selected</p></div><button type="button" id="teleprompterBtn" class="outline">▣ Teleprompter</button></div>
-          <label>01 — Powerful Hook<textarea id="hook" rows="3" placeholder="Strong opening 3–5 seconds"></textarea></label>
-          <label>02 — News Explanation<textarea id="explanation" rows="5" placeholder="Explain the facts clearly"></textarea></label>
-          <label>03 — Gold / Forex / BTC Impact<textarea id="market_impact" rows="4" placeholder="Conditional market scenarios"></textarea></label>
-          <label>04 — Strong Closing<textarea id="closing" rows="3" placeholder="Professional conclusion"></textarea></label>
-          <label>05 — Call to Action<textarea id="cta" rows="2" placeholder="Follow PipSePaisa"></textarea></label>
-          <div class="divider"></div><h3>Social Media SEO Pack</h3>
-          <label>Video Title<input id="seo_title" placeholder="SEO friendly title"></label><label>Caption<textarea id="caption" rows="3"></textarea></label><label>Hashtags<input id="hashtags" placeholder="#Gold #XAUUSD #PipSePaisa"></label>
-          <div class="cols2"><label>Planned Publish Date &amp; Time<input id="scheduledFor" type="datetime-local" aria-label="Scheduled publishing time"></label><label>Published Video URL<input id="publishedUrl" type="url" maxlength="1000" placeholder="https://youtube.com/..."></label></div>
-          <div class="actions"><button type="button" id="copyScript" class="outline">Copy Script</button><button type="button" id="saveScript" class="primary">Save Draft</button><button type="button" id="sendReview" class="outline">Send for Review</button><button type="button" id="approveScript" class="outline" hidden>Approve</button><button type="button" id="markPublished" class="outline" hidden>Mark Published</button></div>
-        </div></div>
+      <section data-panel="editor" id="editorScreen" data-step="2" hidden>
+        <div class="screen-breadcrumb">CREATE VIDEO <span>›</span> <span id="stepBreadcrumb">STEP 2 OF 3</span></div>
+        <div class="stepper" id="wizardStepper"><div class="stepon complete"><span>✓</span><small>Select News</small></div><div class="stepon active" data-wstep="2"><span>2</span><small>Customize</small></div><div class="stepon" data-wstep="3"><span>3</span><small>Ready Script</small></div></div>
+        <div class="sectiontop"><div><h2 id="editorHeading">Customize Your Video</h2><p id="editorSubheading">Choose your settings. AI handles the writing.</p></div><button type="button" id="newScript" class="outline">+ New Script</button></div>
+        <div class="editorgrid">
+          <div class="panel configpanel" id="configPanel">
+            <h3>Selected Story</h3>
+            <label class="field-label">News Headline<input id="storyTitle" maxlength="300" placeholder="Select a story or enter your own topic"></label>
+            <label class="field-label">Short Summary<textarea id="storyDesc" rows="3" maxlength="1500" placeholder="Add verified news facts for better accuracy"></textarea></label>
+            <details class="advanced-box"><summary>Additional news details <span>⌄</span></summary>
+              <div class="cols2"><label>Source<input id="storySource" maxlength="150" placeholder="Publisher"></label><label>Category<input id="storyCat" maxlength="70" placeholder="Gold"></label></div>
+              <label>Original article URL<input id="storyUrl" type="url" maxlength="1000" placeholder="https://..."></label>
+            </details>
+            <div class="field-group"><h3>◷ Video Duration</h3><p>How long should the video be?</p>
+              <div class="choice-list" data-select-id="duration"><button type="button" data-choice="30">30s</button><button type="button" class="selected" data-choice="60">60s</button><button type="button" data-choice="180">3 min</button><button type="button" data-choice="480">8 min</button></div>
+              <select id="duration" class="underlying-select" aria-label="Video duration"><option value="30">30 seconds</option><option value="60" selected>60 seconds</option><option value="180">3 minutes</option><option value="480">8 minutes</option></select>
+            </div>
+            <div class="field-group"><h3>文 Language</h3><p>How should your video sound?</p>
+              <div class="choice-list" data-select-id="language"><button type="button" class="selected" data-choice="Roman Urdu + English">Roman Urdu</button><button type="button" data-choice="Urdu">Urdu</button><button type="button" data-choice="English">English</button></div>
+              <select id="language" class="underlying-select" aria-label="Script language"><option>Roman Urdu + English</option><option>Urdu</option><option>English</option></select>
+            </div>
+            <div class="field-group"><h3>▣ Platform</h3><p>Where will you publish?</p>
+              <div class="choice-list" data-select-id="platform"><button type="button" class="selected" data-choice="Facebook Reels">Facebook</button><button type="button" data-choice="YouTube Shorts">YouTube Shorts</button><button type="button" data-choice="YouTube Long Video">YouTube Video</button></div>
+              <select id="platform" class="underlying-select" aria-label="Video platform"><option>Facebook Reels</option><option>YouTube Shorts</option><option>YouTube Long Video</option></select>
+            </div>
+            <details class="advanced-box"><summary>Advanced writing options <span>⌄</span></summary>
+              <label>Video Tone<select id="tone"><option>Professional & Engaging</option><option>Breaking News</option><option>Educational</option></select></label>
+            </details>
+            <button type="button" id="generate" class="primary wide generate-action">✦ Generate My Video Script →</button>
+            <p id="generateNote" class="hint">AI-assisted draft • Verify the facts before publishing.</p>
+            <button type="button" id="changeNews" class="text-action">← Choose a Different News Story</button>
+          </div>
+          <div id="aiStage" class="ai-stage" hidden aria-live="polite"><div class="ai-halo"><span>✦</span></div><h2>Creating your video script…</h2><p>Turning market news into a professional story</p><div class="ai-progress"><span></span></div><ul><li>✓ Understanding the news</li><li>✓ Preparing the script structure</li><li>✦ Writing your video script and SEO pack</li></ul></div>
+          <div class="panel scriptpanel" id="resultPanel">
+            <div class="scripthead"><div><span class="result-pill">✓ AI SCRIPT READY</span><h3>Your Video Script</h3><p id="scriptStatus" class="hint">No script selected</p></div><button type="button" id="teleprompterBtn" class="outline">▣ Teleprompter</button></div>
+            <div class="script-story-heading" id="scriptStoryHeading"></div>
+            <div class="script-accordion">
+              <details open><summary>🎯 Hook <span>First 3–5 seconds</span></summary><label class="sr-label" for="hook">Opening hook</label><textarea id="hook" rows="3" placeholder="An engaging opening"></textarea></details>
+              <details open><summary>✦ News Explanation <span>Main story</span></summary><label class="sr-label" for="explanation">News explanation</label><textarea id="explanation" rows="5" placeholder="Explain the confirmed facts"></textarea></details>
+              <details open><summary>↗ Market Impact <span>Gold / Forex / BTC</span></summary><label class="sr-label" for="market_impact">Market impact</label><textarea id="market_impact" rows="4" placeholder="Conditional market scenarios"></textarea></details>
+              <details><summary>⚑ Closing & Call to Action <span>Finish strong</span></summary><label class="sr-label" for="closing">Closing</label><textarea id="closing" rows="3"></textarea><label class="sr-label" for="cta">Call to action</label><textarea id="cta" rows="2"></textarea></details>
+            </div>
+            <details class="advanced-box seo-box" id="seoPack"><summary>▣ SEO Pack — Title, Caption & Hashtags <span>⌄</span></summary>
+              <label>Video Title<input id="seo_title" placeholder="SEO-friendly video title"></label>
+              <label>Caption<textarea id="caption" rows="3"></textarea></label>
+              <label>Hashtags<input id="hashtags" placeholder="#Gold #XAUUSD #PipSePaisa"></label>
+            </details>
+            <details class="advanced-box" id="schedulingBox"><summary>▦ Schedule & Publishing <span>⌄</span></summary>
+              <div class="cols2"><label>Planned Publish Date & Time<input id="scheduledFor" type="datetime-local" aria-label="Scheduled publishing time"></label><label>Published Video URL<input id="publishedUrl" type="url" maxlength="1000" placeholder="https://youtube.com/..."></label></div>
+            </details>
+            <div class="actions result-actions"><button type="button" id="copyScript" class="outline">▤ Copy Script</button><button type="button" id="saveScript" class="primary">▣ Save Script</button><button type="button" id="sendReview" class="outline">Send for Review</button><button type="button" id="approveScript" class="outline" hidden>Approve</button><button type="button" id="markPublished" class="outline" hidden>Mark Published</button></div>
+            <button type="button" id="editSettings" class="text-action">← Change Video Settings</button>
+          </div>
+        </div>
       </section>
       <section data-panel="saved" hidden><div class="sectiontop"><div><h2>Saved Scripts</h2><p>Drafts, review queue, approved and published content.</p></div><select id="statusFilter" aria-label="Script status"><option value="all">All Statuses</option><option value="draft">Draft</option><option value="review">Review</option><option value="approved">Approved</option><option value="published">Published</option></select></div><div id="savedList" class="savedgrid"><div class="empty">Loading scripts…</div></div></section>
       <section data-panel="calendar" hidden><div class="sectiontop"><div><h2>Content Planner</h2><p>Approved videos ready for your content publishing workflow.</p></div></div><div id="plannerList" class="savedgrid"><div class="empty">Approved scripts will appear here.</div></div></section>
+      <section data-panel="profile" class="profile-screen" hidden><div class="sectiontop"><div><h2>My Studio</h2><p>Your private content workspace.</p></div></div><div class="profile-card"><div class="profile-avatar">P+</div><h2 id="profileName">PipSePaisa Creator</h2><p id="profileEmail">Signed in to your account</p><span class="privatepill">🔒 Protected workspace</span></div><div class="profile-links"><button type="button" class="outline" data-go="saved">▤ My Saved Scripts <span>›</span></button><button type="button" class="outline" data-go="calendar">▦ Content Planner <span>›</span></button><button type="button" class="outline" id="openManageBtn" data-go="manage" hidden>⚙ Manage User Access <span>›</span></button><a class="outline" id="profileBack" href="/dashboard">← Return to PipSePaisa Dashboard</a></div></section>
       <section data-panel="manage" hidden><div class="sectiontop"><div><h2>Content Studio Access</h2><p>Choose exactly which registered users may see and use this private workspace.</p></div></div><div class="panel"><div class="managefilter"><input type="search" id="memberSearch" placeholder="Search by name or email" aria-label="Search registered users"><button type="button" class="primary" id="searchMembers">Search Users</button></div><p class="hint">No user receives access automatically, including VIP, course or verified members. Revoke access at any time.</p><div id="memberList" class="memberlist"><div class="empty">Search for a registered user.</div></div></div></section>
     </main>
+    <nav id="bottomNav" class="bottom-nav" aria-label="Studio navigation">
+      <button type="button" data-bottom="home" class="active" aria-label="Home"><span>⌂</span><small>Home</small></button>
+      <button type="button" data-bottom="news" aria-label="Create Video"><span>⊕</span><small>Create</small></button>
+      <button type="button" data-bottom="saved" aria-label="My Scripts"><span>▤</span><small>Scripts</small></button>
+      <button type="button" data-bottom="calendar" aria-label="Content Planner"><span>▦</span><small>Planner</small></button>
+      <button type="button" data-bottom="profile" aria-label="Profile"><span>◉</span><small>Profile</small></button>
+    </nav>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
 </div>
