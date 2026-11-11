@@ -1,3 +1,9 @@
+<div class="pro-quick-nav" role="navigation" aria-label="Creator tool categories">
+ <button type="button" class="pro-quick active" data-pro-category="ai">✦ AI Tools</button>
+ <button type="button" class="pro-quick" data-pro-category="record">◉ Recording</button>
+ <button type="button" class="pro-quick" data-pro-category="planning">▦ Planning</button>
+ <button type="button" class="pro-quick" data-pro-category="manage">☷ Workspace</button>
+</div>
 <div class="pro-hero">
   <div class="pro-hero-orb">✦</div>
   <span class="pro-eyebrow">PIPSEPAISA • PRIVATE AI SUITE</span>
@@ -31,13 +37,21 @@
   <article class="pro-card pro-wide">
     <div class="pro-card-top"><span class="pro-icon purple">◉</span><span class="pro-smalltag">LOCAL</span></div>
     <h2>Voice & Recording Studio</h2><p>Listen to the script using supported device voices, or record your microphone. Recordings stay on your device until you download them.</p>
-    <div class="pro-actions"><button type="button" class="pro-button secondary" id="proSpeak">▶ Read Script</button><button type="button" class="pro-button secondary" id="proStopSpeak">■ Stop Voice</button><button type="button" class="pro-button primary" id="proStartRecording">● Record Audio</button><button type="button" class="pro-button secondary" id="proStopRecording" disabled>■ Stop Recording</button></div>
+    <div class="pro-actions"><button type="button" class="pro-button secondary" id="proSpeak">▶ Read Script</button><button type="button" class="pro-button secondary" id="proStopSpeak">■ Stop Voice</button><button type="button" class="pro-button primary" id="proStartRecording">● Record Audio</button><button type="button" class="pro-button primary" id="proStartVideo">◉ Record Video</button><button type="button" class="pro-button secondary" id="proStopRecording" disabled>■ Stop Recording</button></div>
     <div class="pro-output" id="proRecordingOutput">Microphone recording requires browser permission and a supported device.</div>
+    <div class="pro-cloud-actions"><button type="button" class="pro-button primary" id="proCloudSave" disabled>☁ Save Recording Privately</button><button type="button" class="pro-button secondary" id="proCloudReload">↻ My Cloud Recordings</button></div>
+    <p id="proCloudSync" class="pro-mini-note" role="status">Files are never uploaded automatically. Private uploads require your action. Maximum 20 MB per file.</p>
+    <div id="proCloudList" class="pro-output">Sign in with Studio access to view private cloud recordings.</div>
   </article>
   <article class="pro-card pro-wide">
     <div class="pro-card-top"><span class="pro-icon orange">↧</span><span class="pro-smalltag">EXPORT</span></div>
     <h2>Subtitles & Script Export</h2><p>Export TXT, use Print / Save as PDF, or create an estimated script-based SRT subtitle file. Audio transcription and precise subtitle syncing require separate processing.</p>
     <div class="pro-actions"><button type="button" class="pro-button secondary" id="proSrt">⇩ Export SRT</button><button type="button" class="pro-button secondary" id="proTxt">⇩ Export TXT</button><button type="button" class="pro-button secondary" id="proPrint">⎙ Print / Save PDF</button></div>
+    <div class="pro-caption-panel"><strong>Live Speech-to-Text Captions (Beta)</strong>
+      <p>Record speech as you talk to create a transcript and approximately timed SRT. Requires Chrome or another browser with SpeechRecognition. Some browsers process voice using their speech service; do not use for private conversations.</p>
+      <div class="pro-actions"><button type="button" class="pro-button secondary" id="proTranscribeStart">◉ Start Live Captions</button><button type="button" class="pro-button secondary" id="proTranscribeStop" disabled>■ Stop</button><button type="button" class="pro-button secondary" id="proTranscriptExport" disabled>⇩ Export Spoken SRT</button></div>
+      <div id="proTranscriptOutput" class="pro-output" aria-live="polite">No live transcription yet. Script-based SRT remains available above.</div>
+    </div>
   </article>
   <article class="pro-card pro-wide">
     <div class="pro-card-top"><span class="pro-icon blue">↶</span><span class="pro-smalltag">HISTORY</span></div>
@@ -47,15 +61,15 @@
   </article>
   <article class="pro-card pro-wide">
     <div class="pro-card-top"><span class="pro-icon gold">★</span><span class="pro-smalltag">IN-APP</span></div>
-    <h2>Favorite News & Keyword Watch</h2><p>Star important headlines and follow Gold, CPI, NFP or BTC topics. Matching stories appear while this app is open; no background push notifications.</p>
+    <h2>Favorite News & Keyword Watch</h2><p>Star important headlines and follow Gold, CPI, NFP or BTC topics. Preferences sync across your devices. Alerts check only while this app is open.</p>
     <form class="pro-keyword-form" id="proKeywordForm"><input id="proKeyword" maxlength="50" placeholder="e.g. Gold, CPI, Bitcoin"><button type="submit" class="pro-button secondary">+ Add Watch</button></form>
-    <div id="proWatchTerms" class="pro-tags"></div><div id="proWatchResults" class="pro-output">No watched news yet.</div>
+    <div id="proWatchTerms" class="pro-tags"></div><div id="proWatchResults" class="pro-output">No watched news yet.</div><div class="pro-alert-row"><button type="button" class="pro-button secondary" id="proAlertsOptIn">♧ Enable Alerts While App Is Open</button><small id="proAlertNote">No background push notifications. Browser permission is requested only if you enable alerts.</small></div>
     <h3 class="pro-subheading">★ Saved Headlines</h3><div id="proFavorites" class="pro-output">Tap ★ on a news card to save it here.</div>
   </article>
   <article class="pro-card pro-wide">
     <div class="pro-card-top"><span class="pro-icon orange">◆</span><span class="pro-smalltag">PERSONALIZE</span></div>
     <h2>PipSePaisa Brand Voice</h2>
-    <p>Keep your preferred writing tone and CTA consistent. These preferences are saved on this browser only.</p>
+    <p>Keep your preferred writing tone and CTA consistent. Preferences sync privately to your Studio account when online, and stay available locally on this device.</p>
     <div class="pro-selects"><label>Brand Tone<select id="proBrandStyle"><option value="Natural professional Roman Urdu">Natural Professional</option><option value="Educational clear and balanced">Educational</option><option value="Engaging breaking news tone">Breaking News</option><option value="Concise no hype">Short & Direct</option></select></label><label>Default CTA<input id="proBrandCTA" maxlength="150" placeholder="Follow PipSePaisa for market updates"></label><label>Avoid phrases<input id="proBrandAvoid" maxlength="150" placeholder="e.g. guaranteed profit"></label></div>
     <button type="button" class="pro-button secondary" id="proBrandSave">✓ Save My Brand Voice</button>
   </article>
@@ -68,7 +82,7 @@
   <article class="pro-card pro-wide">
     <div class="pro-card-top"><span class="pro-icon green">▥</span><span class="pro-smalltag">INSIGHTS</span></div>
     <h2>Content Analytics</h2><p>Track saved scripts, pending reviews, approvals, published posts and the topics you have favorited.</p>
-    <div id="proAnalytics" class="pro-statgrid"></div>
+    <div id="proAnalytics" class="pro-statgrid"></div><div class="pro-mini-note">Counts are from your authorized Studio library. They do not represent social-media reach, views, or revenue.</div>
   </article>
 </div>
 <div id="proResult" class="pro-result" hidden>
