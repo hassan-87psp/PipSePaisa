@@ -119,3 +119,14 @@
 .pro-alert-row{flex-direction:column;align-items:stretch}.pro-alert-row>*{width:100%}
 .pro-caption-panel{padding:13px}.pro-caption-panel .pro-actions{grid-template-columns:1fr}
 }
+
+/* Consent-based AI transcription results */
+#proAiCaptionPanel{margin-top:10px;border-color:#7e532e}
+#proAiCaptionPanel .pro-card-top{margin-bottom:3px}
+#proAiCaptionPanel .pro-selects{grid-template-columns:minmax(0,2fr) minmax(150px,1fr)}
+#proAiMediaUpload{width:100%;max-width:100%;min-width:0;min-height:47px;padding:10px;font-size:12px;border-radius:11px;background:#1e1a20;border:1px solid #684733;color:#ead8ca}
+#proAiMediaUpload::file-selector-button{border-radius:9px;background:#3d2923;color:#ffcb91;border:1px solid #8c603b;padding:8px 12px;margin-right:10px;cursor:pointer}
+#proAiTranscriptText{width:100%;resize:vertical;min-height:150px;background:#1d1a20;border:1px solid #5d4a49;border-radius:12px;padding:15px;color:#eee3dd;line-height:1.7;font-size:12px}
+#proAiTranscriptText[hidden]{display:none!important}
+#proAiStatus{white-space:normal;overflow-wrap:anywhere}
+@media(max-width:700px){#proAiCaptionPanel .pro-selects{grid-template-columns:1fr}}
