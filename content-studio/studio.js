@@ -77,7 +77,7 @@ function bind(){
   select.value=el.dataset.choice;select.dispatchEvent(new Event('change',{bubbles:true}));syncChoices();
  }));
  $('changeNews').addEventListener('click',()=>showPanel('news'));
- $('customTopic').addEventListener('click',()=>{clearEditor();wizardStep('2');showPanel('editor');$('storyTitle').focus();});
+ $('customTopic').addEventListener('click',()=>{const tab=$('sourceTopic');if(tab){tab.click();return;}clearEditor();wizardStep('2');showPanel('editor');$('storyTitle').focus();});
  $('editSettings').addEventListener('click',()=>{wizardStep('2');showPanel('editor');});
 
  $('mobileNav').addEventListener('click',()=>$('studioRail').classList.toggle('open'));
@@ -166,7 +166,7 @@ async function generateScript(){
   const resp=await fetch(SUPABASE_URL+'/functions/v1/content-studio-ai',{
    method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+sr.data.session.access_token},
    body:JSON.stringify({title:story.source_title,description:story.source_description,source:story.source_name,url:story.source_url,
-    duration:story.duration_seconds,language:story.language,tone:story.tone,platform:story.platform,brand_voice:window.PSPStudioCreatorBrandVoice?.()||''}),
+    duration:story.duration_seconds,language:story.language,tone:story.tone,platform:story.platform,content_type:story.source_name==='Custom Topic'?'topic':'news',brand_voice:window.PSPStudioCreatorBrandVoice?.()||''}),
    signal:AbortSignal.timeout(32000)
   });
   const result=await resp.json();
@@ -284,6 +284,7 @@ window.PSPStudioBridge={
  getStories:()=>stories,
  getData:()=>scriptData(),
  navigate:(p)=>showPanel(p),
+ chooseStory:(story)=>selectStory(story),
  openEditor:()=>{wizardStep('3');showPanel('editor');},
  startNewScript:()=>{clearEditor();showPanel('editor');},
  reloadScripts:()=>loadScripts(),
