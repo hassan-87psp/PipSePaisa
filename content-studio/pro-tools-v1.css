@@ -130,3 +130,8 @@
 #proAiTranscriptText[hidden]{display:none!important}
 #proAiStatus{white-space:normal;overflow-wrap:anywhere}
 @media(max-width:700px){#proAiCaptionPanel .pro-selects{grid-template-columns:1fr}}
+
+/* Home shortcuts for the premium Creator Toolkit */
+.home-cta-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.home-cta-actions .outline{white-space:nowrap}
+@media(max-width:700px){.home-cta-actions{width:100%;flex-direction:column;align-items:stretch}.home-cta-actions .outline{width:100%}}
