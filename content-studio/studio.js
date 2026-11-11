@@ -35,8 +35,7 @@ async function boot(){
  if(permissionResp.error){deny('Unable to verify Content Studio permission.');return;}
  permission=permissionResp.data||'';
  role=profileResp.data?.role||'';
- const manager=['admin','mentor','super_admin'].includes(role);
- if(!permission&&!manager){deny('Content Studio is private. Ask your Admin or Mentor to grant your account access.');return;}
+ if(!permission){deny('Content Studio is private. Ask your Admin to grant your account access.');return;}
  gatePassed=true;
  const displayName=profileResp.data?.full_name||user.email?.split('@')[0]||'Creator';
  $('whoLabel').textContent=displayName+' / Your Private Studio';
@@ -44,23 +43,18 @@ async function boot(){
  $('profileName').textContent=displayName;
  $('profileEmail').textContent=user.email||'PipSePaisa member';
  $('profileBack').href=$('backLink').href;
- $('openManageBtn').hidden=!manager;
- $('accessBadge').textContent=permission?permission.toUpperCase():'MANAGEMENT ONLY';
- $('manageNav').hidden=!manager;$('manageLabel').hidden=!manager;
- if(!permission){document.querySelectorAll('.navbtn:not([data-view="manage"])').forEach(x=>x.hidden=true);$('bottomNav').hidden=true;}
+ $('accessBadge').textContent=permission.toUpperCase();
  if(!canWrite()){$('generate').disabled=true;$('saveScript').disabled=true;$('sendReview').disabled=true;$('newScript').hidden=true;FIELDS.forEach(k=>$(k).readOnly=true);$('scheduledFor').disabled=true;$('publishedUrl').readOnly=true;}
  $('approveScript').hidden=!isApprover();$('markPublished').hidden=!isApprover();
  $('authGate').hidden=true;$('studioApp').hidden=false;
  bind();syncChoices();wizardStep('2');
- showPanel((new URLSearchParams(location.search).get('manage')==='1'||!permission)&&manager?'manage':'home');
- if(permission){await Promise.all([loadNews(),loadScripts()]);}
- if(manager)loadMembers();
+ showPanel('home');
+ await Promise.all([loadNews(),loadScripts()]);
 }
 function deny(note){$('authGate').innerHTML='<div class="mark">🔒</div><h2>Private Content Studio</h2><p id="denyNote"></p><a href="/dashboard" class="outline">Back to PipSePaisa</a>';$('denyNote').textContent=note;}
 function showPanel(name){
  if(!gatePassed)return;
- if(name!=='manage'&&!permission)return;
- if(name==='manage'&&!['admin','mentor','super_admin'].includes(role))return;
+ if(!permission||!['home','news','editor','saved','calendar','profile'].includes(name))return;
  view=name;
  document.querySelectorAll('[data-panel]').forEach(el=>el.hidden=el.dataset.panel!==name);
  document.querySelectorAll('.navbtn').forEach(el=>el.classList.toggle('active',el.dataset.view===name));
@@ -95,8 +89,6 @@ function bind(){
  $('copyScript').addEventListener('click',copyScript);
  $('newScript').addEventListener('click',()=>{clearEditor();wizardStep('2');showPanel('editor');});
  $('statusFilter').addEventListener('change',renderSaved);
- $('searchMembers').addEventListener('click',loadMembers);
- $('memberSearch').addEventListener('keydown',e=>{if(e.key==='Enter')loadMembers();});
  $('teleprompterBtn').addEventListener('click',openPrompter);
  $('prompterClose').addEventListener('click',()=>$('teleprompter').hidden=true);
  $('prompterSizeDown').addEventListener('click',()=>resizePrompter(-3));
@@ -252,28 +244,6 @@ function loadIntoEditor(s){
  $('scriptStoryHeading').textContent=s.source_title||'';
  syncChoices();wizardStep('3');showPanel('editor');window.scrollTo({top:0,behavior:'smooth'});
 }
-async function loadMembers(){
- if(!['admin','mentor','super_admin'].includes(role))return;
- const box=$('memberList');box.innerHTML='<div class="empty">Searching accounts…</div>';
- const sr=await client.rpc('psp_content_search_users_v1',{p_search:$('memberSearch').value.trim(),p_limit:30});
- if(sr.error){box.textContent='Could not load users: '+sr.error.message;return;}
- box.replaceChildren();
- if(!sr.data?.length){box.innerHTML='<div class="empty">No matching registered users.</div>';return;}
- for(const p of sr.data){
-  const row=document.createElement('div');row.className='memberrow';
-  const details=document.createElement('div');const strong=document.createElement('strong');strong.textContent=p.full_name||'User';const small=document.createElement('small');small.textContent=p.email||p.user_id;details.append(strong,small);
-  const select=document.createElement('select');for(const name of ['viewer','creator','editor','approver']){const op=document.createElement('option');op.value=name;op.textContent=name[0].toUpperCase()+name.slice(1);select.appendChild(op);}select.value=p.permission||'creator';
-  const toggle=document.createElement('label');toggle.className='toggle';const cb=document.createElement('input');cb.type='checkbox';cb.checked=!!p.enabled;const span=document.createElement('span');span.textContent='Enabled';toggle.append(cb,span);
-  const save=document.createElement('button');save.className='outline';save.textContent='Save Access';
-  save.addEventListener('click',async()=>{setLoading(save,true);try{
-   const r=await client.rpc('psp_content_set_access_v1',{p_user_id:p.user_id,p_permission:select.value,p_enabled:cb.checked});
-   if(r.error)throw r.error;msg('Permission updated successfully.');if(p.user_id===user.id){location.reload();return;}await loadMembers();
-  }catch(e){msg(e.message||'Unable to update access.');}finally{setLoading(save,false);}});
-  const actions=document.createElement('div');actions.style.display='flex';actions.style.gap='8px';actions.style.alignItems='center';actions.style.flexWrap='wrap';actions.append(toggle,save);
-  row.append(details,select,actions);box.appendChild(row);
- }
-}
-
 // Guided three-step creation flow. AI and database calls remain in this module
 // and use the same server-validated permissions as before.
 function wizardStep(stage){
