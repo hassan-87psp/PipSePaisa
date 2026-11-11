@@ -9,7 +9,13 @@ const $=id=>document.getElementById(id);
 function msg(t){const x=$('toast');x.textContent=String(t);x.classList.add('show');setTimeout(()=>x.classList.remove('show'),3600);}
 function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function validUrl(u){try{const v=new URL(String(u));return /^https?:$/.test(v.protocol)?v.href:'';}catch{return '';}}
-function ago(x){const ms=Date.parse(x||'');if(!Number.isFinite(ms))return 'Date unavailable';const d=Math.max(0,Date.now()-ms),h=Math.floor(d/3600000);return h<1?'Recently':h<24?h+'h ago':Math.floor(h/24)+'d ago';}
+function ago(x){
+ const ms=Date.parse(x||'');if(!Number.isFinite(ms))return 'Publish time unavailable';
+ const minutes=Math.max(0,Math.floor((Date.now()-ms)/60000));
+ if(minutes<2)return 'Just now';
+ if(minutes<60)return minutes+'m ago';
+ const h=Math.floor(minutes/60);return h<24?h+'h ago':Math.floor(h/24)+'d ago';
+}
 function canWrite(){return ['creator','editor','approver'].includes(permission);}
 function isApprover(){return permission==='approver';}
 function setLoading(b,on,text){if(!b)return;b.disabled=on;b.dataset.original=b.dataset.original||b.textContent;b.textContent=on?(text||'Working…'):b.dataset.original;}
@@ -107,31 +113,73 @@ async function loadNews(){
   renderNews();document.dispatchEvent(new Event('psp-studio-news-loaded'));
  }catch(e){$('newsList').innerHTML='<div class="empty">Hot News could not load. Try Refresh.<p>'+safe(e.message)+'</p></div>';}
 }
+
+function plainNews(v,max=1000){
+ const entities={'nbsp':' ','amp':'&','quot':'"','apos':"'",'lt':'<','gt':'>','rsquo':'’','lsquo':'‘','mdash':'—','ndash':'–','hellip':'…'};
+ return String(v??'').replace(/&(?:#(\d+)|#x([0-9a-f]+)|([a-z]+));/gi,(whole,dec,hex,name)=>{
+  if(dec||hex){const n=parseInt(dec||hex,hex?16:10);return n>0&&n<1114112?String.fromCodePoint(n):' '}
+  return entities[String(name).toLowerCase()]??' ';
+ }).replace(/<[^>]+>/g,' ').replace(/[\u00a0\u200b]/g,' ').replace(/\s+/g,' ').trim().slice(0,max);
+}
+function newsRelevance(story){
+ const title=plainNews(story.title,450).toLowerCase(),cat=plainNews(story.category,100).toLowerCase();
+ let score=0;
+ if(/\b(gold|xauusd|xau|silver|metals|bullion)\b/.test(title))score+=12;
+ if(/\b(forex|fx market|eurusd|eur\/usd|gbpusd|gbp\/usd|usd\/jpy|usdjpy|dxy|dollar index|currency|currencies)\b/.test(title))score+=11;
+ if(/\b(bitcoin|btc|ethereum|ethusd|cryptocurrency|crypto)\b/.test(title))score+=10;
+ if(/\b(cpi|ppi|nfp|nonfarm|fomc|federal reserve|fed rates|fed decision|inflation|interest rates?|rate (?:hike|cut|decision)|treasury yields?|central bank|monetary policy)\b/.test(title))score+=9;
+ if(/\b(oil|crude|opec|brent|natural gas)\b/.test(title))score+=7;
+ if(/\b(gold|forex|crypto|bitcoin|central banks)\b/.test(cat))score+=5;
+ if(/\b(economy|macro|commodities)\b/.test(cat))score+=3;
+ if(/\b(tariffs?|sanctions?|trade war|bond yields?|us dollar|market volatility|recession)\b/.test(title))score+=5;
+ if(story.heat==='hot')score+=1;
+ return score;
+}
+window.PSPStudioNews={score:newsRelevance,plain:plainNews,isTrading:s=>newsRelevance(s)>=4};
 function renderNews(){
  const root=$('newsList'),q=$('newsSearch').value.trim().toLowerCase(),cat=$('newsCategory').value.toLowerCase(),heat=$('newsHeat').value;
- const list=stories.filter(x=>{
-  const txt=(x.title+' '+(x.desc||'')+' '+(x.category||'')).toLowerCase();
-  return (!q||txt.includes(q))&&(cat==='all'||txt.includes(cat)||cat==='bitcoin / crypto'&&(/bitcoin|crypto|btc/.test(txt)))&&(heat==='all'||x.heat===heat);
- }).slice(0,100);
+ const list=stories.filter(story=>{
+  const title=plainNews(story.title,700),desc=plainNews(story.desc,1000),category=plainNews(story.category,100);
+  const txt=(title+' '+desc+' '+category).toLowerCase();
+  let categoryMatches=cat==='all'||cat==='trading'&&newsRelevance(story)>=4||
+   cat==='bitcoin / crypto'&&/\b(bitcoin|crypto|btc|ethereum)\b/.test(txt)||
+   (cat!=='trading'&&cat!=='bitcoin / crypto'&&txt.includes(cat));
+  // A headline search should work across the full feed, even outside the default Trading Focus view.
+  if(q&&cat==='trading')categoryMatches=true;
+  return (!q||txt.includes(q))&&categoryMatches&&(heat==='all'||story.heat===heat);
+ }).sort((a,b)=>newsRelevance(b)-newsRelevance(a)||
+  (Date.parse(b.date||'')||0)-(Date.parse(a.date||'')||0)).slice(0,100);
  root.replaceChildren();
- if(!list.length){root.innerHTML='<div class="empty">No matching headlines.</div>';return;}
+ if(!list.length){
+  const d=document.createElement('div');d.className='empty';
+  d.textContent=cat==='trading'?'No relevant Gold, Forex, BTC or macro headlines right now. Choose All News for the full feed.':'No matching headlines. Try a different search.';
+  root.appendChild(d);return;
+ }
  for(const story of list){
   const article=document.createElement('article');article.className='story';
-  const link=validUrl(story.link||story.url);
-  article.innerHTML='<div class="storytop"><span class="tag '+(story.heat==='hot'?'hot':story.heat==='warm'?'warm':'')+'">'+safe(story.heat==='hot'?'🔥 Hot':story.heat==='warm'?'Relevant':'News')+'</span><span class="tag">'+safe(story.category||'Market')+'</span></div>'+
-   '<h3>'+safe(story.title)+'</h3><p>'+safe((story.desc||'').slice(0,220))+'</p>'+
-   '<div class="storyfooter"><div><div class="meta">'+safe(story.source||'News source')+' · '+safe(ago(story.date))+'</div>'+
-   (link?'<a rel="noopener noreferrer" target="_blank" href="'+safe(link)+'">Check source ↗</a>':'<span class="meta">Source link unavailable</span>')+'</div></div>';
-  const b=document.createElement('button');b.className='primary';b.textContent='Create Script';b.disabled=!canWrite();
+  const link=validUrl(story.link||story.url),title=plainNews(story.title,300);
+  let desc=plainNews(story.desc,600);
+  if(desc.toLowerCase().startsWith(title.toLowerCase().slice(0,48)))desc=desc.slice(Math.min(desc.length,title.length)).replace(/^[\s.,;:—–|-]+/,'').trim();
+  if(!desc||desc.toLowerCase()===title.toLowerCase())desc='Read the original source before using this headline for a video.';
+  const category=plainNews(story.category,60)||'Market',heatLabel=story.heat==='hot'?'High Impact':story.heat==='warm'?'Relevant':'News';
+  article.innerHTML='<div class="storytop"><span class="tag '+(story.heat==='hot'?'hot':story.heat==='warm'?'warm':'')+'">'+safe(heatLabel)+'</span><span class="tag">'+safe(category)+'</span></div>'+
+   '<h3>'+safe(title)+'</h3><p>'+safe(desc.slice(0,165))+'</p>'+
+   '<div class="storyfooter"><div><div class="meta">'+safe(plainNews(story.source,100)||'News source')+' · '+safe(ago(story.date))+'</div>'+
+   (link?'<a rel="noopener noreferrer" target="_blank" href="'+safe(link)+'">View original source ↗</a>':'<span class="meta">No source link</span>')+'</div></div>';
+  if(story.date&&Number.isFinite(Date.parse(story.date)))article.querySelector('.meta').title='Published '+new Date(story.date).toLocaleString();
+  const b=document.createElement('button');b.type='button';b.className='primary';
+  b.textContent='Create Script';b.disabled=!canWrite();
   b.addEventListener('click',()=>selectStory(story));
-  article.querySelector('.storyfooter').appendChild(b);root.appendChild(article);
+  article.querySelector('.storyfooter').appendChild(b);
+  root.appendChild(article);
  }
+ document.dispatchEvent(new Event('psp-studio-news-rendered'));
 }
 function clearEditor(){
  currentId=null;currentStatus='draft';chosen=null;
  ['storyTitle','storyDesc','storySource','storyCat','storyUrl','scheduledFor','publishedUrl',...FIELDS].forEach(k=>$(k).value='');
  $('scriptStatus').textContent='New draft / not saved';
- $('duration').value='60';$('language').value='Roman Urdu + English';$('platform').value='Facebook Reels';$('tone').value='Professional & Engaging';syncChoices();wizardStep('2');
+ $('duration').value='60';$('language').value='Roman Urdu + English';$('platform').value='Facebook Reels';$('tone').value='Professional & Engaging';syncChoices();wizardStep('2');document.dispatchEvent(new Event('psp-studio-script-cleared'));
 }
 function selectStory(s){
  if(!canWrite()){msg('Your access is view-only.');return;}
@@ -247,7 +295,7 @@ function loadIntoEditor(s){
  $('saveScript').disabled=!canWrite();
  $('sendReview').disabled=!canWrite()||['approved','published'].includes(s.status);
  $('scriptStoryHeading').textContent=s.source_title||'';
- syncChoices();wizardStep('3');showPanel('editor');window.scrollTo({top:0,behavior:'smooth'});
+ syncChoices();wizardStep('3');showPanel('editor');document.dispatchEvent(new Event('psp-studio-script-loaded'));window.scrollTo({top:0,behavior:'smooth'});
 }
 // Guided three-step creation flow. AI and database calls remain in this module
 // and use the same server-validated permissions as before.
