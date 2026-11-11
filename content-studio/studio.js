@@ -275,10 +275,15 @@ function renderPlanner(){
 }
 function renderScriptCards(root,items){
  root.replaceChildren();
- if(!items.length){root.innerHTML='<div class="empty">No scripts in this category yet.</div>';return;}
+ if(!items.length){
+  root.innerHTML='<div class="empty executive-empty-state"><span aria-hidden="true">▤</span><strong>Nothing here yet</strong><small>Start creating a script and your projects will appear here.</small></div>';
+  return;
+ }
  for(const script of items){
   const el=document.createElement('article');el.className='saved';
-  el.innerHTML='<div class="storytop"><span class="tag">'+safe(script.status)+'</span><small class="meta">'+safe(ago(script.updated_at))+'</small></div><h3>'+safe(script.source_title)+'</h3><p>'+safe(script.hook.slice(0,170))+'</p><div class="meta">'+safe(script.platform)+' • '+safe(String(script.duration_seconds))+' sec • '+safe(script.language)+(script.scheduled_for?' • Planned: '+safe(new Date(script.scheduled_for).toLocaleString()):'')+(script.published_url?' • Video link saved':'')+'</div>';
+  const scriptStatus=['draft','review','approved','published'].includes(script.status)?script.status:'draft';
+  el.classList.add('executive-project-card');
+  el.innerHTML='<div class="storytop"><span class="tag exec-status exec-status-'+scriptStatus+'">'+safe(scriptStatus.toUpperCase())+'</span><small class="meta">'+safe(ago(script.updated_at))+'</small></div><h3>'+safe(script.source_title||'Untitled Script')+'</h3><p>'+safe(String(script.hook||'').slice(0,160))+'</p><div class="meta">'+safe(script.platform||'')+' • '+safe(String(script.duration_seconds||60))+' sec • '+safe(script.language||'')+(script.scheduled_for?' • Planned: '+safe(new Date(script.scheduled_for).toLocaleString()):'')+(script.published_url?' • Video link saved':'')+'</div>';
   const b=document.createElement('button');b.className='outline';b.textContent='Open Script';b.addEventListener('click',()=>loadIntoEditor(script));el.appendChild(b);root.appendChild(el);
  }
 }
