@@ -14,6 +14,8 @@
 <script defer src="/content-studio/studio.js?v=20261112-v9"></script>
 <script defer src="/content-studio/pro-tools-v1.js?v=20261112-v8"></script>
 <script defer src="/content-studio/cloud-v2.js?v=20261112-v9"></script>
+<link rel="stylesheet" href="/content-studio/studio-refresh-v4.css?v=20261112-r1">
+<script defer src="/content-studio/studio-refresh-v4.js?v=20261112-r1"></script>
 </head>
 <body>
 <div id="authGate" class="gate"><div class="mark">P+</div><h2>Opening Private Content Studio</h2><p>Verifying your account permissions…</p></div>
@@ -33,40 +35,66 @@
   <div class="shell">
     <header class="topbar">
       <button type="button" id="mobileNav" aria-label="Open side navigation">☰</button>
-      <div class="topbrand"><span class="toplogo">P<span>+</span></span><div><strong>AI Content Studio</strong><small id="whoLabel">PipSePaisa / Content</small></div></div>
-      <div class="topactions"><span id="accessBadge" class="pill">PRIVATE</span><button type="button" id="refreshNews" class="outline" hidden>↻ Refresh</button></div>
+      <div class="topbrand"><img class="studio-header-logo" src="/icon-192.png" alt="" width="40" height="40"><div><strong>AI Content Studio</strong><small id="whoLabel">PipSePaisa / Content</small></div></div>
+      <div class="topactions"><button type="button" id="themeToggle" class="studio-theme-toggle" aria-label="Switch to light theme" title="Switch theme"><span id="themeIcon" aria-hidden="true">☀</span><span id="themeToggleLabel">Light</span></button><span id="accessBadge" class="pill">PRIVATE</span><button type="button" id="refreshNews" class="outline" hidden>↻ Refresh</button></div>
     </header>
     <main>
-      <section data-panel="home" class="homepage">
-        <div class="homehero">
-          <div class="eyebrow">✦ YOUR PRIVATE AI CREATION SPACE</div>
-          <h1>Welcome, <span id="welcomeName">Creator</span> 👋</h1>
-          <p>Turn the latest market news into engaging, ready-to-record videos in just a few taps.</p>
-          <button type="button" class="heroaction" data-go="news">✦ Create Your Next Video <span>→</span></button>
-          <div class="hero-orb" aria-hidden="true">✧</div>
+      <section data-panel="home" class="homepage studio-home-v4">
+        <div class="studio-welcome">
+          <span class="studio-eyebrow">PIPSEPAISA • AI CONTENT STUDIO</span>
+          <h1>Welcome, <span id="welcomeName">Creator</span> <span aria-hidden="true">👋</span></h1>
+          <p>Create market news videos, scripts and content with AI.</p>
         </div>
-        <div class="homeheading"><div><span class="eyebrow">YOUR WORKSPACE</span><h2>What would you like to do?</h2></div></div>
-        <div class="homecards">
-          <button type="button" class="homecard featured" data-go="news"><span class="homecard-icon">▣</span><strong>Create Video</strong><small>From latest market news</small><span class="corner-arrow">↗</span></button>
-          <button type="button" class="homecard" data-go="news"><span class="homecard-icon">🔥</span><strong>Hot News</strong><small>Gold, Forex & Bitcoin</small><span class="corner-arrow">↗</span></button>
-          <button type="button" class="homecard" data-go="saved"><span class="homecard-icon">▤</span><strong>My Scripts</strong><small>View & edit drafts</small><span class="corner-arrow">↗</span></button>
-          <button type="button" class="homecard" data-go="calendar"><span class="homecard-icon">▦</span><strong>Content Planner</strong><small>Your upcoming posts</small><span class="corner-arrow">↗</span></button>
+        <button type="button" class="studio-create-cta" data-go="news"><span class="studio-cta-icon" aria-hidden="true">＋</span><strong>Create Video with AI</strong><span aria-hidden="true">→</span></button>
+        <div class="studio-quick-grid" aria-label="Quick actions">
+          <button type="button" class="studio-quick-card" data-open-topic><span class="studio-quick-icon" data-studio-icon="file-pen-line"></span><strong>AI Script</strong><small>Any topic</small></button>
+          <button type="button" class="studio-quick-card" data-studio-tool="record"><span class="studio-quick-icon" data-studio-icon="mic"></span><strong>Recording Studio</strong><small>Voice & video</small></button>
+          <button type="button" class="studio-quick-card" data-studio-tool="ai"><span class="studio-quick-icon" data-studio-icon="wand-sparkles"></span><strong>AI Tools</strong><small>Rewrite & SEO</small></button>
+          <button type="button" class="studio-quick-card" data-go="saved"><span class="studio-quick-icon" data-studio-icon="folder-open"></span><strong>My Scripts</strong><small>Saved drafts</small></button>
         </div>
-        <button type="button" class="toolpromo" data-go="tools"><span>✦</span><div><strong>Pro Creator Toolkit</strong><small>Rewrite, content packs, recording and more</small></div><span>↗</span></button><div class="homeheading statsheading"><h2>Studio Overview</h2></div>
-        <div class="stats">
-          <article><small>Live Headlines</small><strong id="newsTotal">—</strong><span>Market news</span></article>
-          <article><small>Hot Stories</small><strong id="newsHot">—</strong><span>Trending now</span></article>
-          <article><small>Saved Scripts</small><strong id="scriptTotal">—</strong><span>Your library</span></article>
-          <article><small>Needs Review</small><strong id="reviewTotal">—</strong><span>Editorial queue</span></article>
+        <div class="studio-small-guide">
+          <strong>Make your next video in 3 steps</strong>
+          <div><span>1. Choose news or topic</span><span>›</span><span>2. Generate script</span><span>›</span><span>3. Record & share</span></div>
         </div>
-        <div class="news-cta"><div><span class="eyebrow">LIVE NEWS HUB</span><h3>Stay ahead of the market</h3><p>Pick a news story and AI will help craft your next video.</p></div><div class="home-cta-actions"><button type="button" class="outline" data-go="news">Explore News →</button><button type="button" class="outline" data-go="tools">✦ Creator Toolkit</button></div></div>
+        <div class="studio-home-sections">
+          <div class="studio-dashboard-list">
+            <div class="studio-list-heading"><h2>Recent Projects</h2><button type="button" data-go="saved">View All <span aria-hidden="true">→</span></button></div>
+            <div id="homeRecentProjects" class="studio-item-list"><p class="studio-list-placeholder">Your saved scripts will appear here.</p></div>
+          </div>
+          <div class="studio-dashboard-list">
+            <div class="studio-list-heading"><h2>Latest Market News</h2><button type="button" data-go="news">View All <span aria-hidden="true">→</span></button></div>
+            <div id="homeLatestNews" class="studio-item-list"><p class="studio-list-placeholder">Loading live headlines…</p></div>
+          </div>
+        </div>
+        <div class="studio-stats-v4" aria-label="Studio overview">
+          <div><span>Headlines</span><strong id="newsTotal">—</strong></div>
+          <div><span>Trending</span><strong id="newsHot">—</strong></div>
+          <div><span>Scripts</span><strong id="scriptTotal">—</strong></div>
+          <div><span>In Review</span><strong id="reviewTotal">—</strong></div>
+        </div>
       </section>
       <section data-panel="news" class="news-screen">
         <div class="screen-breadcrumb">CREATE VIDEO <span>›</span> STEP 1 OF 3</div>
         <div class="stepper"><div class="stepon active"><span>1</span><small>Select News</small></div><div class="stepon"><span>2</span><small>Customize</small></div><div class="stepon"><span>3</span><small>Ready Script</small></div></div>
-        <div class="custom-topic"><div><strong>Already have a topic in mind?</strong><small>Skip the news feed and write your own.</small></div><button type="button" class="outline" id="customTopic">+ Custom Topic</button></div>
+        <div class="studio-source-selector" role="group" aria-label="Choose what to create from">
+          <button type="button" class="studio-source-tab active" id="sourceNews" aria-pressed="true">◉ Market News</button>
+          <button type="button" class="studio-source-tab" id="sourceTopic" aria-pressed="false">✎ My Own Topic</button>
+        </div>
+        <div id="topicCreator" class="studio-topic-creator" hidden>
+          <div class="studio-section-heading"><h2>Create Video on Any Topic</h2><p>News ki zaroorat nahi. Apna topic likhein, AI video script prepare karega.</p></div>
+          <form id="topicForm">
+            <label for="topicInput">What is your video about?</label>
+            <input id="topicInput" maxlength="300" minlength="10" required placeholder="e.g. What is Forex trading for beginners?" autocomplete="off">
+            <label for="topicDetails">Key points or instructions <span>(optional)</span></label>
+            <textarea id="topicDetails" maxlength="1400" rows="4" placeholder="e.g. Simple Roman Urdu, 3 examples, beginner friendly. Don't add unverified facts."></textarea>
+            <div class="studio-topic-examples"><span>Try:</span><button type="button" data-example-topic="What is inflation and how does it affect Gold?">Gold & Inflation</button><button type="button" data-example-topic="What is the difference between a pip and a lot in Forex trading?">Pips & Lots</button><button type="button" data-example-topic="How does Bitcoin work for beginners?">Bitcoin Basics</button></div>
+            <button type="submit" class="primary studio-topic-submit">Continue to Video Settings <span aria-hidden="true">→</span></button>
+          </form>
+          <p class="studio-topic-note">AI educational draft hai, verified breaking news nahi. Financial claims publish karne se pehle check karein.</p>
+        </div>
+        <div id="newsSourcePanel"><div class="custom-topic"><div><strong>Have your own idea?</strong><small>Write a topic instead of choosing a headline.</small></div><button type="button" class="outline" id="customTopic">+ Custom Topic</button></div>
         <div class="sectiontop"><div><h2>Select Your News</h2><p>Choose a news story below to create your video script.</p></div><div class="filters"><input id="newsSearch" type="search" placeholder="Search news..." aria-label="Search news"><select id="newsCategory" aria-label="News category"><option value="all">All Categories</option><option value="Gold">Gold</option><option value="Forex">Forex</option><option value="Bitcoin">Bitcoin / Crypto</option><option value="Macro">Economy</option><option value="Geopolitics">Geopolitics</option><option value="Central Banks">Central Banks</option></select><select id="newsHeat" aria-label="Priority"><option value="all">All Impact</option><option value="hot">🔥 Hot News</option><option value="warm">Relevant</option></select></div></div>
-        <div id="newsList" class="newsgrid"><div class="empty">Loading Hot News…</div></div>
+        <div id="newsList" class="newsgrid"><div class="empty">Loading Hot News…</div></div></div>
       </section>
       <section data-panel="editor" id="editorScreen" data-step="2" hidden>
         <div class="screen-breadcrumb">CREATE VIDEO <span>›</span> <span id="stepBreadcrumb">STEP 2 OF 3</span></div>
@@ -74,9 +102,9 @@
         <div class="sectiontop"><div><h2 id="editorHeading">Customize Your Video</h2><p id="editorSubheading">Choose your settings. AI handles the writing.</p></div><button type="button" id="newScript" class="outline">+ New Script</button></div>
         <div class="editorgrid">
           <div class="panel configpanel" id="configPanel">
-            <h3>Selected Story</h3>
-            <label class="field-label">News Headline<input id="storyTitle" maxlength="300" placeholder="Select a story or enter your own topic"></label>
-            <label class="field-label">Short Summary<textarea id="storyDesc" rows="3" maxlength="1500" placeholder="Add verified news facts for better accuracy"></textarea></label>
+            <h3>Video Topic & Details</h3>
+            <label class="field-label">News Headline / Video Topic<input id="storyTitle" maxlength="300" placeholder="Select a story or enter your own topic"></label>
+            <label class="field-label">Key Points / Summary<textarea id="storyDesc" rows="3" maxlength="1500" placeholder="Add verified news facts for better accuracy"></textarea></label>
             <details class="advanced-box"><summary>Additional news details <span>⌄</span></summary>
               <div class="cols2"><label>Source<input id="storySource" maxlength="150" placeholder="Publisher"></label><label>Category<input id="storyCat" maxlength="70" placeholder="Gold"></label></div>
               <label>Original article URL<input id="storyUrl" type="url" maxlength="1000" placeholder="https://..."></label>
@@ -104,6 +132,16 @@
           <div class="panel scriptpanel" id="resultPanel">
             <div class="scripthead"><div><span class="result-pill">✓ AI SCRIPT READY</span><h3>Your Video Script</h3><p id="scriptStatus" class="hint">No script selected</p></div><button type="button" id="teleprompterBtn" class="outline">▣ Teleprompter</button></div>
             <div class="script-story-heading" id="scriptStoryHeading"></div>
+            <div class="studio-listen-panel" aria-label="Listen to generated video script">
+              <div class="studio-listen-heading"><span class="studio-speaker-icon" data-studio-icon="volume-2"></span><div><strong>Listen to Your Script</strong><small>Hear it with your phone's available voices</small></div></div>
+              <div class="studio-listen-controls">
+                <button type="button" class="studio-listen-primary" id="listenScript"><span data-studio-icon="play"></span> Listen</button>
+                <button type="button" class="outline" id="pauseScript" disabled>Pause</button>
+                <button type="button" class="outline" id="stopScript" disabled>Stop</button>
+                <label>Speed <select id="voiceSpeed" aria-label="Voice playback speed"><option value="0.8">0.8×</option><option value="1" selected>1×</option><option value="1.2">1.2×</option></select></label>
+              </div>
+              <p id="voiceStatus" role="status">Tap Listen after generating or opening a script. Pronunciation depends on installed voices.</p>
+            </div>
             <div class="script-accordion">
               <details open><summary>🎯 Hook <span>First 3–5 seconds</span></summary><label class="sr-label" for="hook">Opening hook</label><textarea id="hook" rows="3" placeholder="An engaging opening"></textarea></details>
               <details open><summary>✦ News Explanation <span>Main story</span></summary><label class="sr-label" for="explanation">News explanation</label><textarea id="explanation" rows="5" placeholder="Explain the confirmed facts"></textarea></details>
@@ -126,7 +164,7 @@
       <section data-panel="saved" hidden><div class="sectiontop"><div><h2>Saved Scripts</h2><p>Drafts, review queue, approved and published content.</p></div><select id="statusFilter" aria-label="Script status"><option value="all">All Statuses</option><option value="draft">Draft</option><option value="review">Review</option><option value="approved">Approved</option><option value="published">Published</option></select></div><div id="savedList" class="savedgrid"><div class="empty">Loading scripts…</div></div></section>
       <section data-panel="calendar" hidden><div class="sectiontop"><div><h2>Content Planner</h2><p>Approved videos ready for your content publishing workflow.</p></div></div><div id="plannerList" class="savedgrid"><div class="empty">Approved scripts will appear here.</div></div></section>
       <section data-panel="tools" class="pro-screen" id="proToolsScreen" hidden><div id="proToolsRoot" class="pro-loading">Loading private Creator Toolkit…</div></section>
-      <section data-panel="profile" class="profile-screen" hidden><div class="sectiontop"><div><h2>My Studio</h2><p>Your private content workspace.</p></div></div><div class="profile-card"><div class="profile-avatar">P+</div><h2 id="profileName">PipSePaisa Creator</h2><p id="profileEmail">Signed in to your account</p><span class="privatepill">🔒 Protected workspace</span></div><div class="profile-links"><button type="button" class="outline" data-go="saved">▤ My Saved Scripts <span>›</span></button><button type="button" class="outline" data-go="calendar">▦ Content Planner <span>›</span></button><button type="button" class="outline" data-go="tools">✦ Pro Creator Toolkit <span>›</span></button><a class="outline" id="profileBack" href="/dashboard">← Return to PipSePaisa Dashboard</a></div></section>
+      <section data-panel="profile" class="profile-screen" hidden><div class="sectiontop"><div><h2>My Studio</h2><p>Your private content workspace.</p></div></div><div class="profile-card"><div class="profile-avatar">P+</div><h2 id="profileName">PipSePaisa Creator</h2><p id="profileEmail">Signed in to your account</p><span class="privatepill">🔒 Protected workspace</span></div><div class="studio-profile-theme"><h3>Appearance</h3><p>Choose your preferred Studio theme.</p><div class="studio-theme-options" role="group" aria-label="Studio theme"><button type="button" data-set-studio-theme="dark">☾ Dark Classic</button><button type="button" data-set-studio-theme="light">☀ Light Classic</button></div></div><div class="profile-links"><button type="button" class="outline" data-go="saved">▤ My Saved Scripts <span>›</span></button><button type="button" class="outline" data-go="calendar">▦ Content Planner <span>›</span></button><button type="button" class="outline" data-go="tools">✦ Pro Creator Toolkit <span>›</span></button><a class="outline" id="profileBack" href="/dashboard">← Return to PipSePaisa Dashboard</a></div></section>
     </main>
     <nav id="bottomNav" class="bottom-nav" aria-label="Studio navigation">
       <button type="button" data-bottom="home" class="active" aria-label="Home"><span>⌂</span><small>Home</small></button>
