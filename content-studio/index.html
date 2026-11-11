@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'">
-<title>Private Content Studio — PipSePaisa</title>
+<title>PipSePaisa Studio — Executive Edition</title>
 <link rel="icon" href="/favicon.png">
 <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co">
 <link rel="stylesheet" href="/content-studio/studio.css?v=20261112-v3">
@@ -17,6 +17,7 @@
 <link rel="stylesheet" href="/content-studio/studio-refresh-v4.css?v=20261112-r2">
 <link rel="stylesheet" href="/content-studio/mobile-polish-v5.css?v=20261112-v2">
 <link rel="stylesheet" href="/content-studio/executive-v6.css?v=20261112-exec-v6">
+<link rel="stylesheet" href="/content-studio/signature-v7.css?v=20261112-signature-1">
 <script defer src="/content-studio/studio-refresh-v4.js?v=20261112-r3"></script>
 <script defer src="/content-studio/mobile-polish-v5.js?v=20261112-v1"></script>
 <script defer src="/content-studio/executive-v6.js?v=20261112-exec-v6-2"></script>
@@ -30,16 +31,16 @@
     <button type="button" class="navbtn active" data-view="home">⌂ <span>Home</span></button>
     <button type="button" class="navbtn" data-view="news">✦ <span>Create Video</span></button>
     <button type="button" class="navbtn" data-view="editor">✎ <span>Script Editor</span></button>
-    <button type="button" class="navbtn" data-view="saved">▤ <span>My Scripts</span></button>
+    <button type="button" class="navbtn" data-view="saved">▤ <span>Projects</span></button>
     <button type="button" class="navbtn" data-view="calendar">▦ <span>Content Planner</span></button>
-    <button type="button" class="navbtn" data-view="tools">✦ <span>Pro Creator Toolkit</span></button>
-    <button type="button" class="navbtn" data-view="profile">◉ <span>My Profile</span></button>
+    <button type="button" class="navbtn" data-view="tools">✦ <span>Creator Tools</span></button>
+    <button type="button" class="navbtn" data-view="profile">◉ <span>Profile</span></button>
     <div class="railbottom"><span class="privatepill">◆ Invite-only workspace</span><a id="backLink" href="/dashboard">← Back to PipSePaisa</a></div>
   </aside>
   <div class="shell">
     <header class="topbar">
       <button type="button" id="mobileNav" aria-label="Open side navigation">☰</button>
-      <div class="topbrand"><img class="studio-header-logo" src="/icon-192.png" alt="" width="40" height="40"><div><strong>AI Content Studio</strong><small id="whoLabel">PipSePaisa / Content</small></div></div>
+      <div class="topbrand"><img class="studio-header-logo" src="/icon-192.png" alt="" width="40" height="40"><div><strong>PipSePaisa Studio</strong><small id="whoLabel">PipSePaisa / Content</small></div></div>
       <div class="topactions"><button type="button" id="themeToggle" class="studio-theme-toggle" aria-label="Switch to light theme" title="Switch theme"><span id="themeIcon" aria-hidden="true">☀</span><span id="themeToggleLabel">Light</span></button><span id="accessBadge" class="pill">PRIVATE</span><button type="button" id="refreshNews" class="outline" hidden>↻ Refresh</button></div>
     </header>
     <main>
@@ -54,7 +55,7 @@
           <button type="button" class="studio-quick-card" data-open-topic><span class="studio-quick-icon" data-studio-icon="file-pen-line"></span><strong>AI Script</strong><small>Any topic</small></button>
           <button type="button" class="studio-quick-card" data-studio-tool="record"><span class="studio-quick-icon" data-studio-icon="mic"></span><strong>Recording Studio</strong><small>Voice & video</small></button>
           <button type="button" class="studio-quick-card" data-studio-tool="ai"><span class="studio-quick-icon" data-studio-icon="wand-sparkles"></span><strong>AI Tools</strong><small>Rewrite & SEO</small></button>
-          <button type="button" class="studio-quick-card" data-go="saved"><span class="studio-quick-icon" data-studio-icon="folder-open"></span><strong>My Scripts</strong><small>Saved drafts</small></button>
+          <button type="button" class="studio-quick-card" data-go="saved"><span class="studio-quick-icon" data-studio-icon="folder-open"></span><strong>Projects</strong><small>Scripts &amp; drafts</small></button>
         </div>
         <div class="studio-small-guide" aria-label="Simple creation workflow">
           <span class="exec-guide-head"><span class="exec-guide-dot"></span> YOUR WORKFLOW</span>
@@ -194,7 +195,7 @@
       <section data-panel="saved" hidden><div class="sectiontop"><div><h2>Saved Scripts</h2><p>Drafts, review queue, approved and published content.</p></div><select id="statusFilter" aria-label="Script status"><option value="all">All Statuses</option><option value="draft">Draft</option><option value="review">Review</option><option value="approved">Approved</option><option value="published">Published</option></select></div><div id="savedList" class="savedgrid"><div class="empty">Loading scripts…</div></div></section>
       <section data-panel="calendar" hidden><div class="sectiontop"><div><h2>Content Planner</h2><p>Approved videos ready for your content publishing workflow.</p></div></div><div id="plannerList" class="savedgrid"><div class="empty">Approved scripts will appear here.</div></div></section>
       <section data-panel="tools" class="pro-screen" id="proToolsScreen" hidden><div id="proToolsRoot" class="pro-loading">Loading private Creator Toolkit…</div></section>
-      <section data-panel="profile" class="profile-screen" hidden><div class="sectiontop"><div><h2>My Studio</h2><p>Your private content workspace.</p></div></div><div class="profile-card"><div class="profile-avatar"><img src="/icon-192.png" alt="PipSePaisa" loading="lazy" width="52" height="52"></div><h2 id="profileName">PipSePaisa Creator</h2><p id="profileEmail">Signed in to your account</p><span class="privatepill">🔒 Protected workspace</span></div><div class="studio-profile-theme"><h3>Appearance</h3><p>Choose your preferred Studio theme.</p><div class="studio-theme-options" role="group" aria-label="Studio theme"><button type="button" data-set-studio-theme="dark">☾ Dark Classic</button><button type="button" data-set-studio-theme="light">☀ Light Classic</button></div></div><div class="profile-links"><button type="button" class="outline" data-go="saved">▤ My Saved Scripts <span>›</span></button><button type="button" class="outline" data-go="calendar">▦ Content Planner <span>›</span></button><button type="button" class="outline" data-go="tools">✦ Pro Creator Toolkit <span>›</span></button><a class="outline" id="profileBack" href="/dashboard">← Return to PipSePaisa Dashboard</a></div></section>
+      <section data-panel="profile" class="profile-screen" hidden><div class="sectiontop"><div><h2>My Studio</h2><p>Your private content workspace.</p></div></div><div class="profile-card"><div class="profile-avatar"><img src="/icon-192.png" alt="PipSePaisa" loading="lazy" width="52" height="52"></div><h2 id="profileName">PipSePaisa Creator</h2><p id="profileEmail">Signed in to your account</p><span class="privatepill">🔒 Protected workspace</span></div><div class="studio-profile-theme"><h3>Appearance</h3><p>Choose your preferred Studio theme.</p><div class="studio-theme-options" role="group" aria-label="Studio theme"><button type="button" data-set-studio-theme="dark">☾ Dark Executive</button><button type="button" data-set-studio-theme="light">☀ Light Executive</button></div></div><div class="profile-links"><button type="button" class="outline" data-go="saved">▤ My Saved Scripts <span>›</span></button><button type="button" class="outline" data-go="calendar">▦ Content Planner <span>›</span></button><button type="button" class="outline" data-go="tools">✦ Creator Tools <span>›</span></button><a class="outline" id="profileBack" href="/dashboard">← Return to PipSePaisa Dashboard</a></div></section>
     </main>
     <nav id="bottomNav" class="bottom-nav" aria-label="Studio navigation">
       <button type="button" data-bottom="home" class="active" aria-label="Home"><span data-studio-icon="house"></span><small>Home</small></button>
