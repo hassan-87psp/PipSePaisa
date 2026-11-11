@@ -218,6 +218,7 @@ async function uploadAndTranscribe(){
 
 function useTranscriptInEditor(){
  if(!canWrite()||!transcriptText)return aiStatus('A completed transcript and Creator access are required.');
+ B()?.startNewScript?.();
  const headline=$('storyTitle');if(headline&&!headline.value.trim())headline.value='Video Recording Transcript';
  const source=$('storySource');if(source&&!source.value.trim())source.value='User recording — verify before publishing';
  const desc=$('storyDesc');if(desc&&!desc.value.trim())desc.value=transcriptText.slice(0,1500);
@@ -263,7 +264,7 @@ function setup(){
  if(!$('proCloudSave')||!$('proAlertsOptIn')||!$('proCloudReload')||!$('proAiTranscribe'))return;
  const u=usr();if(!u||!B()?.getPermission())return;
  started=true;activeId=u.id;
- alertOpt=localStorage.getItem(key('alerts'))==='1';
+ try{alertOpt=localStorage.getItem(key('alerts'))==='1'}catch(_){alertOpt=false}
  const b=$('proAlertsOptIn');if(b){b.textContent=alertOpt?'✓ Notifications Enabled':'♧ Enable Alerts While App Is Open';b.addEventListener('click',optIntoAlerts);}
  $('proCloudSave')?.addEventListener('click',saveMedia);
  $('proCloudReload')?.addEventListener('click',listMedia);
