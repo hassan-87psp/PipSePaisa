@@ -48,19 +48,21 @@ async function boot(){
  $('approveScript').hidden=!isApprover();$('markPublished').hidden=!isApprover();
  $('authGate').hidden=true;$('studioApp').hidden=false;
  bind();syncChoices();wizardStep('2');
+ document.dispatchEvent(new CustomEvent('psp-studio-ready'));
  showPanel('home');
  await Promise.all([loadNews(),loadScripts()]);
 }
 function deny(note){$('authGate').innerHTML='<div class="mark">🔒</div><h2>Private Content Studio</h2><p id="denyNote"></p><a href="/dashboard" class="outline">Back to PipSePaisa</a>';$('denyNote').textContent=note;}
 function showPanel(name){
  if(!gatePassed)return;
- if(!permission||!['home','news','editor','saved','calendar','profile'].includes(name))return;
+ if(!permission||!['home','news','editor','saved','calendar','profile','tools'].includes(name))return;
  view=name;
  document.querySelectorAll('[data-panel]').forEach(el=>el.hidden=el.dataset.panel!==name);
  document.querySelectorAll('.navbtn').forEach(el=>el.classList.toggle('active',el.dataset.view===name));
  const bottomName=name==='editor'?'news':name;
  document.querySelectorAll('#bottomNav [data-bottom]').forEach(el=>{const active=el.dataset.bottom===bottomName;el.classList.toggle('active',active);if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
  $('studioRail').classList.remove('open');
+ document.dispatchEvent(new CustomEvent('psp-studio-page',{detail:{page:name}}));
  $('refreshNews').hidden=name!=='news';
  if(name==='saved')renderSaved();
  if(name==='calendar')renderPlanner();
@@ -102,7 +104,7 @@ async function loadNews(){
   const d=await r.json();
   if(!Array.isArray(d.items)||!d.items.length)throw Error('News feed temporarily unavailable.');
   stories=d.items;$('newsTotal').textContent=stories.length;$('newsHot').textContent=stories.filter(s=>s.heat==='hot').length;
-  renderNews();
+  renderNews();document.dispatchEvent(new Event('psp-studio-news-loaded'));
  }catch(e){$('newsList').innerHTML='<div class="empty">Hot News could not load. Try Refresh.<p>'+safe(e.message)+'</p></div>';}
 }
 function renderNews(){
@@ -173,6 +175,7 @@ async function generateScript(){
   $('scriptStatus').textContent='AI draft · Fact-check required · '+(result.provider||'AI');
   $('scriptStoryHeading').textContent=story.source_title;
   wizardStep('3');window.scrollTo({top:0,behavior:'smooth'});
+  document.dispatchEvent(new Event('psp-studio-script-generated'));
   msg('AI draft generated. Review all facts before recording.');
  }catch(e){wizardStep('2');msg(e.message||'Generation failed.');}finally{setLoading(b,false);}
 }
@@ -212,6 +215,8 @@ async function loadScripts(){
  saved=r.data||[];$('scriptTotal').textContent=saved.length;
  $('reviewTotal').textContent=saved.filter(x=>x.status==='review').length;
  if(view==='saved')renderSaved();if(view==='calendar')renderPlanner();
+ document.dispatchEvent(new Event('psp-studio-scripts-loaded'));
+
 }
 function renderSaved(){
  const f=$('statusFilter').value;
@@ -270,6 +275,19 @@ function syncChoices(){
  });
 }
 
+window.PSPStudioBridge={
+ getClient:()=>client,
+ getUser:()=>user,
+ getPermission:()=>permission,
+ getCurrentId:()=>currentId,
+ getSaved:()=>saved,
+ getStories:()=>stories,
+ getData:()=>scriptData(),
+ navigate:(p)=>showPanel(p),
+ openEditor:()=>{wizardStep('3');showPanel('editor');},
+ reloadScripts:()=>loadScripts(),
+ fields:[...FIELDS]
+};
 async function verifyContinuingAccess(){
  if(!gatePassed||!client||!user)return;
  try{
