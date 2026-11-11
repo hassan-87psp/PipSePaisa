@@ -8,9 +8,9 @@
 <link rel="icon" href="/favicon.png">
 <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co">
 <link rel="stylesheet" href="/content-studio/studio.css?v=20261112-v3">
-<link rel="stylesheet" href="/content-studio/premium-v2.css?v=20261112-premium-02">
+<link rel="stylesheet" href="/content-studio/premium-v2.css?v=20261112-premium-03">
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8"></script>
-<script defer src="/content-studio/studio.js?v=20261112-premium-02"></script>
+<script defer src="/content-studio/studio.js?v=20261112-premium-03"></script>
 </head>
 <body>
 <div id="authGate" class="gate"><div class="mark">P+</div><h2>Opening Private Content Studio</h2><p>Verifying your account permissions…</p></div>
@@ -24,8 +24,6 @@
     <button type="button" class="navbtn" data-view="saved">▤ <span>My Scripts</span></button>
     <button type="button" class="navbtn" data-view="calendar">▦ <span>Content Planner</span></button>
     <button type="button" class="navbtn" data-view="profile">◉ <span>My Profile</span></button>
-    <div class="navlabel" id="manageLabel" hidden>ADMIN SETTINGS</div>
-    <button type="button" class="navbtn" id="manageNav" data-view="manage" hidden>⚙ <span>User Permissions</span></button>
     <div class="railbottom"><span class="privatepill">◆ Invite-only workspace</span><a id="backLink" href="/dashboard">← Back to PipSePaisa</a></div>
   </aside>
   <div class="shell">
@@ -123,8 +121,7 @@
       </section>
       <section data-panel="saved" hidden><div class="sectiontop"><div><h2>Saved Scripts</h2><p>Drafts, review queue, approved and published content.</p></div><select id="statusFilter" aria-label="Script status"><option value="all">All Statuses</option><option value="draft">Draft</option><option value="review">Review</option><option value="approved">Approved</option><option value="published">Published</option></select></div><div id="savedList" class="savedgrid"><div class="empty">Loading scripts…</div></div></section>
       <section data-panel="calendar" hidden><div class="sectiontop"><div><h2>Content Planner</h2><p>Approved videos ready for your content publishing workflow.</p></div></div><div id="plannerList" class="savedgrid"><div class="empty">Approved scripts will appear here.</div></div></section>
-      <section data-panel="profile" class="profile-screen" hidden><div class="sectiontop"><div><h2>My Studio</h2><p>Your private content workspace.</p></div></div><div class="profile-card"><div class="profile-avatar">P+</div><h2 id="profileName">PipSePaisa Creator</h2><p id="profileEmail">Signed in to your account</p><span class="privatepill">🔒 Protected workspace</span></div><div class="profile-links"><button type="button" class="outline" data-go="saved">▤ My Saved Scripts <span>›</span></button><button type="button" class="outline" data-go="calendar">▦ Content Planner <span>›</span></button><button type="button" class="outline" id="openManageBtn" data-go="manage" hidden>⚙ Manage User Access <span>›</span></button><a class="outline" id="profileBack" href="/dashboard">← Return to PipSePaisa Dashboard</a></div></section>
-      <section data-panel="manage" hidden><div class="sectiontop"><div><h2>Content Studio Access</h2><p>Choose exactly which registered users may see and use this private workspace.</p></div></div><div class="panel"><div class="managefilter"><input type="search" id="memberSearch" placeholder="Search by name or email" aria-label="Search registered users"><button type="button" class="primary" id="searchMembers">Search Users</button></div><p class="hint">No user receives access automatically, including VIP, course or verified members. Revoke access at any time.</p><div id="memberList" class="memberlist"><div class="empty">Search for a registered user.</div></div></div></section>
+      <section data-panel="profile" class="profile-screen" hidden><div class="sectiontop"><div><h2>My Studio</h2><p>Your private content workspace.</p></div></div><div class="profile-card"><div class="profile-avatar">P+</div><h2 id="profileName">PipSePaisa Creator</h2><p id="profileEmail">Signed in to your account</p><span class="privatepill">🔒 Protected workspace</span></div><div class="profile-links"><button type="button" class="outline" data-go="saved">▤ My Saved Scripts <span>›</span></button><button type="button" class="outline" data-go="calendar">▦ Content Planner <span>›</span></button><a class="outline" id="profileBack" href="/dashboard">← Return to PipSePaisa Dashboard</a></div></section>
     </main>
     <nav id="bottomNav" class="bottom-nav" aria-label="Studio navigation">
       <button type="button" data-bottom="home" class="active" aria-label="Home"><span>⌂</span><small>Home</small></button>
