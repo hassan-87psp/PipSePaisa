@@ -148,7 +148,7 @@ async function generateScript(){
  try{
   const sr=await client.auth.getSession();
   if(!sr.data?.session?.access_token)throw Error('Please sign in again.');
-  const resp=await fetch(URL+'/functions/v1/content-studio-ai',{
+  const resp=await fetch(SUPABASE_URL+'/functions/v1/content-studio-ai',{
    method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+sr.data.session.access_token},
    body:JSON.stringify({title:story.source_title,description:story.source_description,source:story.source_name,url:story.source_url,
     duration:story.duration_seconds,language:story.language,tone:story.tone,platform:story.platform}),
