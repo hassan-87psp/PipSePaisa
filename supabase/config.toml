@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.freecourse2-ai]
 verify_jwt = false
+
+[functions.content-studio-ai]
+verify_jwt = true
