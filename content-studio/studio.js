@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const URL='https://etfolhinohgmskbfjoyh.supabase.co',KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
+const SUPABASE_URL='https://etfolhinohgmskbfjoyh.supabase.co',KEY='sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw';
 const NEWS='https://pipsepaisa-api.vercel.app/api/news';
 const FIELDS=['hook','explanation','market_impact','closing','cta','seo_title','caption','hashtags'];
 const KEYS={user:'pipsepaisa-user-auth-v2',admin:'pipsepaisa-admin-auth-v2',mentor:'pipsepaisa-mentor-auth-v2'};
@@ -21,7 +21,7 @@ function pickPortal(){
 async function boot(){
  if(!window.supabase?.createClient){deny('Unable to load secure sign-in. Please reload.');return;}
  const portal=pickPortal();
- client=window.supabase.createClient(URL,KEY,{auth:{storageKey:KEYS[portal],persistSession:true,autoRefreshToken:true}});
+ client=window.supabase.createClient(SUPABASE_URL,KEY,{auth:{storageKey:KEYS[portal],persistSession:true,autoRefreshToken:true}});
  $('backLink').href=portal==='admin'?'/admin-panel.html':portal==='mentor'?'/psp-mentor.html':'/dashboard';
  const session=await client.auth.getSession();
  if(session.error||!session.data?.session){deny('Please sign in to your PipSePaisa account first.');return;}
@@ -148,7 +148,7 @@ async function generateScript(){
  try{
   const sr=await client.auth.getSession();
   if(!sr.data?.session?.access_token)throw Error('Please sign in again.');
-  const resp=await fetch(URL+'/functions/v1/content-studio-ai',{
+  const resp=await fetch(SUPABASE_URL+'/functions/v1/content-studio-ai',{
    method:'POST',headers:{'Content-Type':'application/json','apikey':KEY,'Authorization':'Bearer '+sr.data.session.access_token},
    body:JSON.stringify({title:story.source_title,description:story.source_description,source:story.source_name,url:story.source_url,
     duration:story.duration_seconds,language:story.language,tone:story.tone,platform:story.platform}),
