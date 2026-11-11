@@ -132,7 +132,9 @@ function selectStory(s){
 function scriptData(){
  const obj={source_title:$('storyTitle').value.trim(),source_description:$('storyDesc').value.trim(),source_name:$('storySource').value.trim(),source_url:validUrl($('storyUrl').value),category:$('storyCat').value.trim()||'Market News',heat:chosen?.heat||'warm',
  duration_seconds:Number($('duration').value),language:$('language').value,tone:$('tone').value,platform:$('platform').value};
- const date=Date.parse(chosen?.date||'');obj.source_date=Number.isFinite(date)?new Date(date).toISOString():null;
+ const prior=saved.find(x=>x.id===currentId);
+ obj.heat=chosen?.heat||prior?.heat||'warm';
+ const date=Date.parse(chosen?.date||prior?.source_date||'');obj.source_date=Number.isFinite(date)?new Date(date).toISOString():null;
  FIELDS.forEach(k=>obj[k]=$(k).value.trim());
  const when=$('scheduledFor').value;obj.scheduled_for=when?new Date(when).toISOString():null;
  obj.published_url=validUrl($('publishedUrl').value);
