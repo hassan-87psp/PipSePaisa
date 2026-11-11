@@ -81,6 +81,7 @@ function bind(){
   select.value=el.dataset.choice;select.dispatchEvent(new Event('change',{bubbles:true}));syncChoices();
  }));
  $('changeNews').addEventListener('click',()=>showPanel('news'));
+ $('customTopic').addEventListener('click',()=>{clearEditor();wizardStep('2');showPanel('editor');$('storyTitle').focus();});
  $('editSettings').addEventListener('click',()=>{wizardStep('2');showPanel('editor');});
 
  $('mobileNav').addEventListener('click',()=>$('studioRail').classList.toggle('open'));
