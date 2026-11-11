@@ -249,5 +249,19 @@ async function loadMembers(){
   row.append(details,select,actions);box.appendChild(row);
  }
 }
+async function verifyContinuingAccess(){
+ if(!gatePassed||!client||!user)return;
+ try{
+  const result=await client.rpc('psp_content_permission_v1');
+  if(result.error)return;
+  if((result.data||'')!==permission){
+   // Changing a role or revoking access requires a fresh, server-verified UI.
+   saved=[];stories=[];$('studioApp').hidden=true;gatePassed=false;
+   deny('Your Content Studio permission has changed. Reopen the panel to verify access.');
+  }
+ }catch(_){}
+}
+window.addEventListener('focus',verifyContinuingAccess);
+setInterval(verifyContinuingAccess,60000);
 document.addEventListener('DOMContentLoaded',()=>boot().catch(e=>deny('Unable to verify access. '+(e.message||''))));
 })();
