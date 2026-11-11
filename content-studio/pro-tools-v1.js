@@ -112,8 +112,9 @@ async function postComment(e){
 }
 
 function refreshStats(){
- const text=fullText(),n=words(text).length;
- const s=$('scriptInsights');if(s)s.textContent=n+' spoken words • approximately '+Math.max(1,Math.round(n/2.2))+' sec reading time • '+(n?'Review facts before recording':'Start by generating a script');
+ const text=fullText(),n=words(text).length,estimate=n?Math.round(n/2.2):0,target=Number($('duration')?.value)||60;
+ const warning=n&&estimate>target*1.15?' • Exceeds selected '+target+'s duration':'';
+ const s=$('scriptInsights');if(s)s.textContent=n?n+' spoken words • about '+estimate+' sec read time'+warning+' • Verify facts before publishing':'No script words yet. Generate or open a script first.';
  const status=$('proEditorStatus');if(status)status.textContent=n?'Current script: '+n+' spoken words • ~'+Math.max(1,Math.round(n/2.2))+' seconds • Ready for creator tools':'Choose a story and generate a script to unlock creator tools.';
  const data=B()?.getSaved()||[];
  const metrics=[['Saved',data.length],['Drafts',data.filter(s=>s.status==='draft').length],['Review',data.filter(s=>s.status==='review').length],['Approved',data.filter(s=>s.status==='approved').length],['Published',data.filter(s=>s.status==='published').length],['Favorites',stored('favorites',[]).length]];
@@ -336,24 +337,36 @@ async function start(){
   const r=await fetch('/content-studio/pro-tools-ui-v1.html?v=20261112-v8',{cache:'no-store'});
   if(!r.ok)throw Error('Creator Toolkit UI could not load');
   root.innerHTML=await r.text();
+  root.classList.remove('pro-loading');root.classList.add('pro-loaded');
  }catch(e){root.textContent='Creator Toolkit unavailable. Please reload this page.';return;}
 
- const categories={ai:['AI Rewrite & Translate','One Script → All Platforms','Editorial Quality Review','Thumbnail & Banner Ideas'],
-  record:['Voice & Recording Studio','Subtitles & Script Export'],
-  planning:['Favorite News & Keyword Watch','Content Analytics'],
-  manage:['Script Version History','PipSePaisa Brand Voice','Editorial Comments']};
+ const categories={ai:['AI Rewrite & Translate','One Script → All Platforms','Editorial Quality Review','Thumbnail & Banner Ideas'],record:['Voice & Recording Studio','Subtitles & Script Export'],planning:['Favorite News & Keyword Watch','Content Analytics'],manage:['Script Version History','PipSePaisa Brand Voice','Editorial Comments']};
+ let activeCategory='ai',recordMode='record';
  root.querySelectorAll('.pro-card').forEach(card=>{
   const title=card.querySelector('h2')?.textContent?.trim()||'';
   card.dataset.category=Object.keys(categories).find(k=>categories[k].includes(title))||'ai';
+  if(title==='Voice & Recording Studio')card.dataset.recordMode='record';
+  if(title==='Subtitles & Script Export')card.dataset.recordMode='captions';
  });
- function setCategory(name){
-  root.querySelectorAll('.pro-card').forEach(card=>{card.hidden=card.dataset.category!==name});
-  root.querySelectorAll('[data-pro-category]').forEach(btn=>{
-   const active=btn.dataset.proCategory===name;
-   btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',active?'true':'false');
+ function setRecordMode(mode){
+  recordMode=mode==='captions'?'captions':'record';
+  root.querySelectorAll('[data-record-mode]').forEach(card=>{card.hidden=activeCategory!=='record'||card.dataset.recordMode!==recordMode;});
+  root.querySelectorAll('[data-pro-record-tab]').forEach(btn=>{
+   const yes=btn.dataset.proRecordTab===recordMode;
+   btn.classList.toggle('active',yes);btn.setAttribute('aria-pressed',yes?'true':'false');
   });
  }
- root.querySelectorAll('[data-pro-category]').forEach(button=>button.addEventListener('click',()=>setCategory(button.dataset.proCategory)));
+ function setCategory(name){
+  activeCategory=name;
+  root.querySelectorAll('.pro-card').forEach(card=>{card.hidden=card.dataset.category!==name||(name==='record'&&card.dataset.recordMode!==recordMode);});
+  const tabs=$('proRecordingTabs');if(tabs)tabs.hidden=name!=='record';
+  root.querySelectorAll('[data-pro-category]').forEach(btn=>{
+   const yes=btn.dataset.proCategory===name;
+   btn.classList.toggle('active',yes);btn.setAttribute('aria-pressed',yes?'true':'false');
+  });
+ }
+ root.querySelectorAll('[data-pro-record-tab]').forEach(btn=>btn.addEventListener('click',()=>setRecordMode(btn.dataset.proRecordTab)));
+ root.querySelectorAll('[data-pro-category]').forEach(btn=>btn.addEventListener('click',()=>{setCategory(btn.dataset.proCategory);if(activeCategory==='record')setRecordMode(recordMode);}));
  setCategory('ai');
  const wire=(id,fn)=>$(id)?.addEventListener('click',fn);
  wire('proRewrite',()=>{const style=$('rewriteStyle').value,part=$('rewritePart').value,language=$('rewriteLanguage').value;ai(style==='translate'?'translate':'rewrite',$('proRewrite'),{style,part,language})});
@@ -372,6 +385,8 @@ async function start(){
  inputIds.forEach(k=>$(k)?.addEventListener('input',()=>{refreshStats();clearTimeout(autoTimer);autoTimer=setTimeout(saveDraft,900)}));
  document.addEventListener('psp-studio-cloud-preferences-loaded',()=>{loadBrandPrefs();renderWatch();markFavorites();});
  document.addEventListener('psp-studio-scripts-loaded',refreshStats);
+ ['psp-studio-script-generated','psp-studio-script-loaded','psp-studio-script-cleared'].forEach(name=>document.addEventListener(name,refreshStats));
+ document.addEventListener('psp-studio-news-rendered',markFavorites);
  document.addEventListener('psp-studio-news-loaded',()=>{markFavorites();renderWatch()});
  document.addEventListener('psp-studio-script-generated',()=>{refreshStats();saveDraft()});
  document.addEventListener('psp-studio-page',e=>{if(e.detail?.page==='tools'){refreshStats();renderWatch();draftStatus();loadComments()}});
