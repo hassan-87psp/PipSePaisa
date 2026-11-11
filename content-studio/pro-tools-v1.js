@@ -280,5 +280,6 @@ async function start(){
  teleprompterPro();refreshStats();renderWatch();markFavorites();
  if(!canAI())['proRewrite','proContentPack','proQuality','proThumbnail'].forEach(id=>{if($(id))$(id).disabled=true;});
 }
+window.PSPStudioCreatorBrandVoice=brandVoice;
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
