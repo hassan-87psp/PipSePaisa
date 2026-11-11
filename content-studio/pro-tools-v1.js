@@ -278,7 +278,15 @@ async function start(){
  document.addEventListener('psp-studio-page',e=>{if(e.detail?.page==='tools'){refreshStats();renderWatch();draftStatus();loadComments()}});
  const news=$('newsList');if(news){new MutationObserver(()=>markFavorites()).observe(news,{childList:true,subtree:false});}
  teleprompterPro();refreshStats();renderWatch();markFavorites();
- if(!canAI())['proRewrite','proContentPack','proQuality','proThumbnail'].forEach(id=>{if($(id))$(id).disabled=true;});
+ function syncPermissions(){
+  const allowed=canAI();
+  ['proRewrite','proContentPack','proQuality','proThumbnail','proBrandSave'].forEach(id=>{if($(id))$(id).disabled=!allowed;});
+ }
+ syncPermissions();
+ document.addEventListener('psp-studio-ready',()=>{
+  syncPermissions();loadBrandPrefs();refreshStats();renderWatch();markFavorites();draftStatus();
+ });
+
 }
 window.PSPStudioCreatorBrandVoice=brandVoice;
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
