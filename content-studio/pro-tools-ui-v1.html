@@ -52,6 +52,16 @@
       <div class="pro-actions"><button type="button" class="pro-button secondary" id="proTranscribeStart">◉ Start Live Captions</button><button type="button" class="pro-button secondary" id="proTranscribeStop" disabled>■ Stop</button><button type="button" class="pro-button secondary" id="proTranscriptExport" disabled>⇩ Export Spoken SRT</button></div>
       <div id="proTranscriptOutput" class="pro-output" aria-live="polite">No live transcription yet. Script-based SRT remains available above.</div>
     </div>
+    <div class="pro-caption-panel" id="proAiCaptionPanel">
+      <div class="pro-card-top"><strong>✦ AI Captions From Recording</strong><span class="pro-smalltag">WHISPER AI</span></div>
+      <p>Upload a recorded audio/video file or choose an existing private cloud recording. The file is sent to our AI transcription provider only when you press Transcribe. AI can make spelling and timing errors; review the SRT before publishing.</p>
+      <div class="pro-selects"><label>Audio or Video File (max 20 MB)<input type="file" id="proAiMediaUpload" accept=".webm,.mp4,.m4a,.mp3,audio/webm,audio/mp4,video/webm,video/mp4,audio/mpeg"></label>
+      <label>Spoken Language<select id="proAiLanguage"><option value="">Auto Detect</option><option value="en">English</option><option value="ur">Urdu</option></select></label></div>
+      <button type="button" class="pro-button primary" id="proAiTranscribe">✦ Upload Privately & Transcribe</button>
+      <div id="proAiStatus" class="pro-output" role="status">Requires the server AI transcription service. You can also transcribe a saved cloud recording above.</div>
+      <textarea id="proAiTranscriptText" rows="5" placeholder="AI transcript appears here after successful transcription" aria-label="AI transcription text" readonly hidden></textarea>
+      <div class="pro-actions"><button type="button" class="pro-button secondary" id="proAiSrt" disabled>⇩ Download Timed SRT</button><button type="button" class="pro-button secondary" id="proAiTxt" disabled>⇩ Download Transcript</button></div>
+    </div>
   </article>
   <article class="pro-card pro-wide">
     <div class="pro-card-top"><span class="pro-icon blue">↶</span><span class="pro-smalltag">HISTORY</span></div>
