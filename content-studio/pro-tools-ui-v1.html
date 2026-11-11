@@ -1,0 +1,64 @@
+<div class="pro-hero">
+  <div class="pro-hero-orb">✦</div>
+  <span class="pro-eyebrow">PIPSEPAISA • PRIVATE AI SUITE</span>
+  <h1>Pro Creator Toolkit</h1>
+  <p>Smart tools to transform a verified market story into professional content. Choose a tool to get started.</p>
+  <span class="pro-private">✧ Just for authorized creators</span>
+</div>
+<div class="pro-status" id="proEditorStatus" role="status">Create a script in the Editor first, then use the AI tools below.</div>
+<div class="pro-grid">
+  <article class="pro-card">
+    <div class="pro-card-top"><span class="pro-icon purple">✎</span><span class="pro-smalltag">AI</span></div>
+    <h2>AI Rewrite & Translate</h2><p>Rewrite the entire script or improve just a hook, explanation or closing.</p>
+    <div class="pro-selects"><label>Style<select id="rewriteStyle"><option value="engaging">More Engaging</option><option value="shorter">Shorter</option><option value="simpler">Simpler</option><option value="professional">More Professional</option><option value="detailed">More Detailed</option><option value="breaking">Breaking News</option><option value="translate">Translate</option></select></label><label>Section<select id="rewritePart"><option value="all">Full Script</option><option value="hook">Hook Only</option><option value="explanation">Explanation</option><option value="market_impact">Market Impact</option><option value="closing">Closing</option><option value="cta">Call to Action</option></select></label><label>Output Language<select id="rewriteLanguage"><option value="Roman Urdu + English">Roman Urdu</option><option value="Urdu">Urdu</option><option value="English">English</option></select></label></div>
+    <button type="button" class="pro-button primary" id="proRewrite">✦ Rewrite Script</button>
+  </article>
+  <article class="pro-card">
+    <div class="pro-card-top"><span class="pro-icon orange">▤</span><span class="pro-smalltag">AI</span></div>
+    <h2>One Script → All Platforms</h2><p>Generate ready-to-post Facebook, YouTube Shorts, long video, WhatsApp and website versions.</p>
+    <button type="button" class="pro-button primary" id="proContentPack">✦ Generate Content Pack</button>
+  </article>
+  <article class="pro-card">
+    <div class="pro-card-top"><span class="pro-icon green">✓</span><span class="pro-smalltag">AI</span></div>
+    <h2>Editorial Quality Review</h2><p>Identify unsupported claims, unclear impact statements and missing source verification. Not an independent fact check.</p>
+    <button type="button" class="pro-button secondary" id="proQuality">✓ Review Risks</button>
+  </article>
+  <article class="pro-card">
+    <div class="pro-card-top"><span class="pro-icon blue">▣</span><span class="pro-smalltag">AI</span></div>
+    <h2>Thumbnail & Banner Ideas</h2><p>Get click-worthy factual titles, visual concepts and image-generation prompts in the PipSePaisa theme.</p>
+    <button type="button" class="pro-button secondary" id="proThumbnail">▣ Create Design Concept</button>
+  </article>
+  <article class="pro-card pro-wide">
+    <div class="pro-card-top"><span class="pro-icon purple">◉</span><span class="pro-smalltag">LOCAL</span></div>
+    <h2>Voice & Recording Studio</h2><p>Listen to the script using supported device voices, or record your microphone. Recordings stay on your device until you download them.</p>
+    <div class="pro-actions"><button type="button" class="pro-button secondary" id="proSpeak">▶ Read Script</button><button type="button" class="pro-button secondary" id="proStopSpeak">■ Stop Voice</button><button type="button" class="pro-button primary" id="proStartRecording">● Record Audio</button><button type="button" class="pro-button secondary" id="proStopRecording" disabled>■ Stop Recording</button></div>
+    <div class="pro-output" id="proRecordingOutput">Microphone recording requires browser permission and a supported device.</div>
+  </article>
+  <article class="pro-card pro-wide">
+    <div class="pro-card-top"><span class="pro-icon orange">↧</span><span class="pro-smalltag">EXPORT</span></div>
+    <h2>Subtitles & Script Export</h2><p>Export TXT, use Print / Save as PDF, or create an estimated script-based SRT subtitle file. Audio transcription and precise subtitle syncing require separate processing.</p>
+    <div class="pro-actions"><button type="button" class="pro-button secondary" id="proSrt">⇩ Export SRT</button><button type="button" class="pro-button secondary" id="proTxt">⇩ Export TXT</button><button type="button" class="pro-button secondary" id="proPrint">⎙ Print / Save PDF</button></div>
+  </article>
+  <article class="pro-card pro-wide">
+    <div class="pro-card-top"><span class="pro-icon blue">↶</span><span class="pro-smalltag">HISTORY</span></div>
+    <h2>Script Version History</h2><p>View earlier saved revisions and restore any version to the Editor before saving again.</p>
+    <button type="button" class="pro-button secondary" id="proHistory">↶ Load Revisions</button>
+    <div id="proHistoryList" class="pro-output">Save a script to start tracking revisions.</div>
+  </article>
+  <article class="pro-card pro-wide">
+    <div class="pro-card-top"><span class="pro-icon gold">★</span><span class="pro-smalltag">IN-APP</span></div>
+    <h2>Favorite News & Keyword Watch</h2><p>Star important headlines and follow Gold, CPI, NFP or BTC topics. Matching stories appear while this app is open; no background push notifications.</p>
+    <form class="pro-keyword-form" id="proKeywordForm"><input id="proKeyword" maxlength="50" placeholder="e.g. Gold, CPI, Bitcoin"><button type="submit" class="pro-button secondary">+ Add Watch</button></form>
+    <div id="proWatchTerms" class="pro-tags"></div><div id="proWatchResults" class="pro-output">No watched news yet.</div>
+    <h3 class="pro-subheading">★ Saved Headlines</h3><div id="proFavorites" class="pro-output">Tap ★ on a news card to save it here.</div>
+  </article>
+  <article class="pro-card pro-wide">
+    <div class="pro-card-top"><span class="pro-icon green">▥</span><span class="pro-smalltag">INSIGHTS</span></div>
+    <h2>Content Analytics</h2><p>Track saved scripts, pending reviews, approvals, published posts and the topics you have favorited.</p>
+    <div id="proAnalytics" class="pro-statgrid"></div>
+  </article>
+</div>
+<div id="proResult" class="pro-result" hidden>
+  <div class="pro-result-heading"><div><span class="pro-eyebrow">AI-GENERATED OUTPUT</span><h2 id="proResultTitle">Your Content</h2></div><button type="button" class="pro-button secondary" id="proResultClose">✕ Close</button></div>
+  <p id="proResultNote">Review the output before publishing.</p><div id="proResultBody" class="pro-result-body"></div>
+</div>
