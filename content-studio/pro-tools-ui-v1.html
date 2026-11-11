@@ -4,11 +4,15 @@
  <button type="button" class="pro-quick" data-pro-category="planning">▦ Planning</button>
  <button type="button" class="pro-quick" data-pro-category="manage">☷ Workspace</button>
 </div>
+<div id="proRecordingTabs" class="pro-record-tabs" hidden role="group" aria-label="Recording tools">
+  <button type="button" class="pro-record-tab active" data-pro-record-tab="record" aria-pressed="true">🎙 Recording Studio</button>
+  <button type="button" class="pro-record-tab" data-pro-record-tab="captions" aria-pressed="false">▤ Subtitles &amp; Export</button>
+</div>
 <div class="pro-hero">
   <div class="pro-hero-orb">✦</div>
   <span class="pro-eyebrow">PIPSEPAISA • PRIVATE AI SUITE</span>
-  <h1>Pro Creator Toolkit</h1>
-  <p>Smart tools to transform a verified market story into professional content. Choose a tool to get started.</p>
+  <h1>Creator Tools</h1>
+  <p>Rewrite, record, prepare subtitles and publish confidently.</p>
   <span class="pro-private">✧ Just for authorized creators</span>
 </div>
 <div class="pro-status" id="proEditorStatus" role="status">Create a script in the Editor first, then use the AI tools below.</div>
@@ -36,7 +40,7 @@
   </article>
   <article class="pro-card pro-wide">
     <div class="pro-card-top"><span class="pro-icon purple">◉</span><span class="pro-smalltag">LOCAL</span></div>
-    <h2>Voice & Recording Studio</h2><p>Listen to the script using supported device voices, or record your microphone. Recordings stay on your device until you download them.</p>
+    <h2>Voice & Recording Studio</h2><p>Record your voice or camera video. Preview and download locally, or save privately.</p>
     <div class="pro-actions"><button type="button" class="pro-button secondary" id="proSpeak">▶ Read Script</button><button type="button" class="pro-button secondary" id="proStopSpeak">■ Stop Voice</button><button type="button" class="pro-button primary" id="proStartRecording">● Record Audio</button><button type="button" class="pro-button primary" id="proStartVideo">◉ Record Video</button><button type="button" class="pro-button secondary" id="proStopRecording" disabled>■ Stop Recording</button></div>
     <div class="pro-output" id="proRecordingOutput">Microphone recording requires browser permission and a supported device.</div>
     <div class="pro-cloud-actions"><button type="button" class="pro-button primary" id="proCloudSave" disabled>☁ Save Recording Privately</button><button type="button" class="pro-button secondary" id="proCloudReload">↻ My Cloud Recordings</button></div>
@@ -45,7 +49,7 @@
   </article>
   <article class="pro-card pro-wide">
     <div class="pro-card-top"><span class="pro-icon orange">↧</span><span class="pro-smalltag">EXPORT</span></div>
-    <h2>Subtitles & Script Export</h2><p>Export TXT, use Print / Save as PDF, or create an estimated script-based SRT subtitle file. Audio transcription and precise subtitle syncing require separate processing.</p>
+    <h2>Subtitles & Script Export</h2><p>Export your script as TXT, PDF or estimated subtitles; or generate captions from audio.</p>
     <div class="pro-actions"><button type="button" class="pro-button secondary" id="proSrt">⇩ Export SRT</button><button type="button" class="pro-button secondary" id="proTxt">⇩ Export TXT</button><button type="button" class="pro-button secondary" id="proPrint">⎙ Print / Save PDF</button></div>
     <div class="pro-caption-panel"><strong>Live Speech-to-Text Captions (Beta)</strong>
       <p>Record speech as you talk to create a transcript and approximately timed SRT. Requires Chrome or another browser with SpeechRecognition. Some browsers process voice using their speech service; do not use for private conversations.</p>
