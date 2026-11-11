@@ -1,7 +1,7 @@
 /* Private user-only navigation. Never reveal the tab before the server confirms explicit user permission. */
 (function(){
 'use strict';
-let inflight=false,verifiedId='',attempts=0;
+let inflight=false,verifiedId='',attempts=0,checked=false,subscribed=false;
 const NAV_ID='pspPrivateContentStudioNav';
 function remove(){document.getElementById(NAV_ID)?.remove();verifiedId='';}
 async function refresh(){
@@ -9,12 +9,14 @@ async function refresh(){
  const sidebar=document.getElementById('sidebar');
  const client=window.__PSP_USER_SUPABASE_CLIENT_V217;
  if(!sidebar||!client||!sidebar.querySelector('.menu-item[data-page="news"]'))return;
+ if(!subscribed&&client.auth?.onAuthStateChange){subscribed=true;client.auth.onAuthStateChange(()=>setTimeout(refresh,0));}
  inflight=true;
  try{
   const session=await client.auth.getSession();
   const current=session?.data?.session?.user;
   if(!current){remove();return;}
   const permission=await client.rpc('psp_content_permission_v1');
+  checked=true;
   if(permission.error||!['viewer','creator','editor','approver'].includes(permission.data)){remove();return;}
   verifiedId=current.id;
   if(document.getElementById(NAV_ID))return;
@@ -31,12 +33,11 @@ async function refresh(){
 function boot(){
  if(!document.getElementById('sidebar'))return;
  refresh();
- const check=setInterval(()=>{attempts++;refresh();if(attempts>35)clearInterval(check);},1800);
+ const check=setInterval(()=>{attempts++;if(checked||attempts>35){clearInterval(check);return;}refresh();},1300);
+ setInterval(()=>{if(verifiedId)refresh();},60000);
  document.addEventListener('psp-auth-ready',refresh);
  document.addEventListener('psp-user-profile-ready',refresh);
  window.addEventListener('focus',refresh);
- const client=window.__PSP_USER_SUPABASE_CLIENT_V217;
- if(client?.auth?.onAuthStateChange)client.auth.onAuthStateChange(()=>setTimeout(refresh,0));
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
