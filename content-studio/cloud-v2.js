@@ -161,6 +161,8 @@ async function optIntoAlerts(){
 }
 function setup(){
  if(started)return;
+ // The toolkit is fetched asynchronously; bind only once its controls exist.
+ if(!$('proCloudSave')||!$('proAlertsOptIn')||!$('proCloudReload'))return;
  const u=usr();if(!u||!B()?.getPermission())return;
  started=true;activeId=u.id;
  alertOpt=localStorage.getItem(key('alerts'))==='1';
@@ -177,5 +179,6 @@ function setup(){
 }
 window.PSPStudioCloud={scheduleSave,refresh:()=>{void loadPrefs()},listMedia};
 document.addEventListener('psp-studio-ready',setup);
+document.addEventListener('psp-studio-pro-tools-ui-ready',setup);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup,{once:true});else setup();
 })();
