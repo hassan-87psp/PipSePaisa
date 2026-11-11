@@ -385,6 +385,7 @@ async function start(){
  document.addEventListener('psp-studio-ready',()=>{
   syncPermissions();loadBrandPrefs();refreshStats();renderWatch();markFavorites();draftStatus();
  });
+ document.dispatchEvent(new Event('psp-studio-pro-tools-ui-ready'));
 
 }
 window.PSPStudioCreatorBrandVoice=brandVoice;
