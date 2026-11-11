@@ -58,7 +58,7 @@ async function ai(mode,button,extra={}){
  setBusy(button,true);
  try{
   const session=await c.auth.getSession();const token=session.data?.session?.access_token;if(!token)throw Error('Session expired. Please sign in again.');
-  const body={mode,title:data.source_title,description:data.source_description,source:data.source_name,url:data.source_url,duration:data.duration_seconds,language:data.language,tone:data.tone,platform:data.platform,script:allText().slice(0,10000),...extra};
+  const body={mode,title:data.source_title,description:data.source_description,source:data.source_name,url:data.source_url,duration:data.duration_seconds,language:data.language,tone:data.tone,platform:data.platform,script:allText().slice(0,10000),brand_voice:brandVoice(),...extra};
   const r=await fetch('https://etfolhinohgmskbfjoyh.supabase.co/functions/v1/content-studio-ai',{method:'POST',headers:{'Content-Type':'application/json','apikey':'sb_publishable_LgmfuH2ePiY8fxNGs7nTTA_FSS_oPBw','Authorization':'Bearer '+token},body:JSON.stringify(body),signal:AbortSignal.timeout(35000)});
   const result=await r.json().catch(()=>({}));if(!r.ok||!result.ok)throw Error(result.error||'AI request was unsuccessful.');
   const names={rewrite:'AI Rewrite',translate:'Script Translation',pack:'Multi-Platform Content Pack',quality:'Editorial Risk Review',thumbnail:'Thumbnail Creative Ideas'};
@@ -66,6 +66,49 @@ async function ai(mode,button,extra={}){
  }catch(e){alertText(e.message||'AI tool could not complete the request.');}
  finally{setBusy(button,false);}
 }
+
+function brandVoice(){
+ const s=stored('brand_voice',{});return [
+ s.style||'Natural professional Roman Urdu',
+ s.cta?'Use this CTA when appropriate: '+s.cta:'',
+ s.avoid?'Avoid these phrases: '+s.avoid:''
+ ].filter(Boolean).join(' | ').slice(0,500);
+}
+function loadBrandPrefs(){
+ const s=stored('brand_voice',{});
+ if($('proBrandStyle'))$('proBrandStyle').value=s.style||'Natural professional Roman Urdu';
+ if($('proBrandCTA'))$('proBrandCTA').value=s.cta||'Follow PipSePaisa for market updates';
+ if($('proBrandAvoid'))$('proBrandAvoid').value=s.avoid||'guaranteed profits';
+}
+function saveBrandPrefs(){
+ const item={style:$('proBrandStyle').value,cta:$('proBrandCTA').value.trim().slice(0,150),avoid:$('proBrandAvoid').value.trim().slice(0,150)};
+ save('brand_voice',item);alertText('Brand voice saved on this device. New AI requests will use it.');
+}
+async function loadComments(){
+ const box=$('proComments');if(!box)return;
+ const id=B()?.getCurrentId();if(!id){box.textContent='Save or open a script to add review comments.';return;}
+ box.textContent='Loading review comments…';
+ const c=B()?.getClient();if(!c)return;
+ const r=await c.from('psp_content_script_comments').select('id,author_id,body,created_at').eq('script_id',id).order('created_at',{ascending:false}).limit(40);
+ if(r.error){box.textContent='Unable to load comments: '+r.error.message;return;}
+ box.replaceChildren();
+ if(!r.data?.length){box.textContent='No comments yet. Add the first editorial note.';return;}
+ for(const item of r.data){
+  const row=document.createElement('div');row.className='pro-match';
+  const name=document.createElement('small');name.textContent=(item.author_id===B()?.getUser()?.id?'You':'Team member')+' · '+new Date(item.created_at).toLocaleString();
+  const body=document.createElement('strong');body.textContent=item.body;row.append(name,body);box.append(row);
+ }
+}
+async function postComment(e){
+ e.preventDefault();const box=$('proCommentText'),body=box.value.trim().slice(0,2000),id=B()?.getCurrentId();
+ if(!canAI())return alertText('Creator access is required to add comments.');
+ if(!id)return alertText('Save or open a script before posting a review note.');
+ if(!body)return;
+ const c=B()?.getClient();const r=await c.from('psp_content_script_comments').insert({script_id:id,author_id:B().getUser().id,body});
+ if(r.error)return alertText('Comment failed: '+r.error.message);
+ box.value='';await loadComments();alertText('Editorial note added.');
+}
+
 function refreshStats(){
  const text=fullText(),n=words(text).length;
  const s=$('scriptInsights');if(s)s.textContent=n+' spoken words • approximately '+Math.max(1,Math.round(n/2.2))+' sec reading time • '+(n?'Review facts before recording':'Start by generating a script');
@@ -224,6 +267,7 @@ async function start(){
  wire('proStartRecording',startRecording);wire('proStopRecording',stopRecording);
  wire('proSrt',subtitles);wire('proTxt',()=>{if(!hasScript())return alertText('Write a script first.');toFile('PipSePaisa-video-script.txt',allText())});
  wire('proPrint',printScript);wire('proHistory',history);
+ wire('proBrandSave',saveBrandPrefs);$('proCommentForm')?.addEventListener('submit',postComment);loadBrandPrefs();
  wire('proResultClose',()=>{$('proResult').hidden=true});
  $('proKeywordForm')?.addEventListener('submit',e=>{e.preventDefault();const k=$('proKeyword').value.trim().slice(0,40);if(k.length<2)return;let list=stored('watch',[]);if(!list.some(x=>x.toLowerCase()===k.toLowerCase()))list.push(k);save('watch',list.slice(0,20));$('proKeyword').value='';renderWatch();});
  const inputIds=['storyTitle','storyDesc','storySource','storyCat','storyUrl','duration','language','tone','platform',...ALL];
@@ -231,7 +275,7 @@ async function start(){
  document.addEventListener('psp-studio-scripts-loaded',refreshStats);
  document.addEventListener('psp-studio-news-loaded',()=>{markFavorites();renderWatch()});
  document.addEventListener('psp-studio-script-generated',()=>{refreshStats();saveDraft()});
- document.addEventListener('psp-studio-page',e=>{if(e.detail?.page==='tools'){refreshStats();renderWatch();draftStatus()}});
+ document.addEventListener('psp-studio-page',e=>{if(e.detail?.page==='tools'){refreshStats();renderWatch();draftStatus();loadComments()}});
  const news=$('newsList');if(news){new MutationObserver(()=>markFavorites()).observe(news,{childList:true,subtree:false});}
  teleprompterPro();refreshStats();renderWatch();markFavorites();
  if(!canAI())['proRewrite','proContentPack','proQuality','proThumbnail'].forEach(id=>{if($(id))$(id).disabled=true;});
