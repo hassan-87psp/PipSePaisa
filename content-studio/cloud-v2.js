@@ -72,7 +72,7 @@ async function saveMedia(){
  uploadInProgress=true;b.disabled=true;b.textContent='☁ Uploading privately…';
  try{
   const uid=usr()?.id;if(!uid)throw Error('Sign in again to save your recording.');
-  const path=uid+'/'+new Date().toISOString().replace(/[:.]/g,'-')+'-'+Math.random().toString(36).slice(2,10)+'.'+extOf(lastBlob,lastKind);
+  const path=uid+'/'+lastKind+'-'+new Date().toISOString().replace(/[:.]/g,'-')+'-'+Math.random().toString(36).slice(2,10)+'.'+extOf(lastBlob,lastKind);
   const result=await client().storage.from(BUCKET).upload(path,lastBlob,{upsert:false,contentType:mime,cacheControl:'3600'});
   if(result.error)throw result.error;
   status('✓ Recording uploaded privately. Only your authorized account can access it.');
@@ -112,7 +112,7 @@ async function listMedia(){
   const sub=document.createElement('small');sub.textContent=new Date(entry.created_at||entry.updated_at||Date.now()).toLocaleString()+' · '+(Number(entry.metadata?.size||0)/1048576).toFixed(1)+' MB';
   label.append(t,sub);
   const actions=document.createElement('div');actions.className='pro-cloud-item-actions';
-  const kind=/\.mp4$/.test(entry.name)?'video':'audio';
+  const kind=entry.name.startsWith('video-')?'video':'audio';
   for(const [txt,fn] of [['▶ Preview',()=>previewMedia(path,item,kind)],['⇩ Download',()=>downloadMedia(path,entry.name)]]){
    const b=document.createElement('button');b.type='button';b.textContent=txt;b.className='pro-button secondary';b.addEventListener('click',fn);actions.appendChild(b);
   }
