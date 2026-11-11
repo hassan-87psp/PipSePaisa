@@ -178,8 +178,9 @@ async function recordMedia(kind){
    root.append(note,player,a);stopUI();
    document.dispatchEvent(new CustomEvent('psp-studio-media-captured',{detail:{blob,kind:video?'video':'audio'}}));
   };
-  rec.onerror=()=>{alertText('The recorder stopped unexpectedly. Try again.');stopUI();};
+  rec.onerror=()=>{alertText('The recorder stopped unexpectedly. Try again.');stopUI();document.dispatchEvent(new Event('psp-studio-recording-error'));};
   rec.start(1000);
+  document.dispatchEvent(new CustomEvent('psp-studio-recording-started',{detail:{kind:video?'video':'audio'}}));
   $('proStartRecording').disabled=true;
   $('proStartVideo').disabled=true;
   $('proStopRecording').disabled=false;
