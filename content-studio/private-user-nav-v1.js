@@ -1,6 +1,8 @@
 /* Private user-only navigation. Never reveal the tab before the server confirms explicit user permission. */
 (function(){
 'use strict';
+if(window.__PSP_PRIVATE_CONTENT_NAV_LOADED_V1__)return;
+window.__PSP_PRIVATE_CONTENT_NAV_LOADED_V1__=true;
 let inflight=false,verifiedId='',attempts=0,checked=false,subscribed=false;
 const NAV_ID='pspPrivateContentStudioNav';
 function remove(){document.getElementById(NAV_ID)?.remove();verifiedId='';}
