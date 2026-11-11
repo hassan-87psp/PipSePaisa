@@ -1063,7 +1063,7 @@ const MODS={
     row:r=>`<strong>${esc(r.title)}</strong> <span class="muted">${esc((r.body||'').slice(0,50))}</span>`},
 };
 const NAV=[['MAIN',[['performance','🏆','Performance'],['signals','📊','Signals'],['charts','📈','Charts'],['articles','📖','Articles'],['banners','🖼️','Banners']]],
-  ['CONTENT',[['courses','🎓','Courses'],['contentstudio','🎬','Content Studio Access'],['news','📰','News'],['quiz','❓','Quiz'],['community','👥','Community']]],
+  ['CONTENT',[['courses','🎓','Courses'],['news','📰','News'],['quiz','❓','Quiz'],['community','👥','Community']]],
   ['INSIGHTS',[['analytics','📉','Analytics'],['earnings','💰','Earnings'],['students','👥','Students']]],
   ['SOFTWARE',[['indicator_review','🧩','EA & Indicator'],['ib_review','🛡️','Website Access Approvals']]],
   ['MONETIZE',[['requests','🧾','Requests']]],
@@ -1320,7 +1320,6 @@ async function rejectReq(id){if(!(await mentorConfirm('Reject this request? If i
 
 
 function showPage(k){
-  if(k==='contentstudio'){location.href='/content-studio/?portal=mentor&manage=1';return;}
   if(!mentorCan(k)){k=firstMentorPage();}
   document.querySelectorAll('.menu-item[data-k]').forEach(e=>e.classList.toggle('active',e.dataset.k===k));
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
