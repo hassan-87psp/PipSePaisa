@@ -225,6 +225,7 @@ function init(){
   $('topicInput').value=b.dataset.exampleTopic;$('topicInput').setCustomValidity('');$('topicInput').focus();
  }));
  document.querySelectorAll('[data-studio-tool]').forEach(b=>b.addEventListener('click',()=>startTool(b.dataset.studioTool)));
+ $('openRecordingFromEditor')?.addEventListener('click',()=>startTool('record'));
  $('listenScript')?.addEventListener('click',listen);
  $('pauseScript')?.addEventListener('click',pauseOrResume);
  $('stopScript')?.addEventListener('click',()=>stopSpeech());
