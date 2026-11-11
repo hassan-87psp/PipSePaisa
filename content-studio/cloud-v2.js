@@ -179,6 +179,7 @@ async function transcribeMedia(path,alreadyConsented){
   const out=$('proAiTranscriptText');if(out){out.hidden=false;out.value=transcriptText;}
   if($('proAiSrt'))$('proAiSrt').disabled=!transcriptSegments.length;
   if($('proAiTxt'))$('proAiTxt').disabled=!transcriptText;
+  if($('proAiUseInEditor'))$('proAiUseInEditor').disabled=!transcriptText;
   aiStatus('✓ AI transcript ready. '+transcriptSegments.length+' timed segments available. Review wording and timestamps before publishing.');
   document.querySelector('[data-pro-category="record"]')?.click();
   $('proAiCaptionPanel')?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -215,6 +216,17 @@ async function uploadAndTranscribe(){
  finally{if(btn){btn.disabled=false;btn.textContent='✦ Upload Privately & Transcribe'}}
 }
 
+function useTranscriptInEditor(){
+ if(!canWrite()||!transcriptText)return aiStatus('A completed transcript and Creator access are required.');
+ const headline=$('storyTitle');if(headline&&!headline.value.trim())headline.value='Video Recording Transcript';
+ const source=$('storySource');if(source&&!source.value.trim())source.value='User recording — verify before publishing';
+ const desc=$('storyDesc');if(desc&&!desc.value.trim())desc.value=transcriptText.slice(0,1500);
+ const explanation=$('explanation');if(explanation)explanation.value=transcriptText.slice(0,5000);
+ const badge=$('scriptStatus');if(badge)badge.textContent='Speech transcript loaded • Unsaved draft • Review before publishing';
+ for(const id of ['storyTitle','storyDesc','storySource','explanation'])$(id)?.dispatchEvent(new Event('input',{bubbles:true}));
+ B()?.openEditor?.();
+ aiStatus('Transcript loaded into the editable script. Review the text, then save your draft.');
+}
 function updateWatchSummary(){
  const note=$('proAlertNote');if(!note)return;
  const count=local('watch',[]).length;
@@ -258,6 +270,7 @@ function setup(){
  $('proAiTranscribe')?.addEventListener('click',()=>{void uploadAndTranscribe()});
  $('proAiSrt')?.addEventListener('click',exportTranscriptSrt);
  $('proAiTxt')?.addEventListener('click',exportTranscriptText);
+ $('proAiUseInEditor')?.addEventListener('click',useTranscriptInEditor);
  document.addEventListener('psp-studio-media-captured',captured);
  document.addEventListener('psp-studio-news-loaded',watchNews);
  document.addEventListener('psp-studio-cloud-preferences-loaded',watchNews);
