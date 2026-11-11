@@ -6334,3 +6334,21 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();
 })();
+
+
+// Explicitly allowlisted users get a private Content Studio link across PSP user pages.
+// The loader is only presentational. RLS and the Edge Function enforce authorization.
+(function(){
+ if(window.__PSP_PRIVATE_CONTENT_NAV_LOADER_V1__)return;
+ window.__PSP_PRIVATE_CONTENT_NAV_LOADER_V1__=true;
+ function mount(){
+  if(document.querySelector('script[data-psp-content-nav]'))return;
+  var s=document.createElement('script');
+  s.src='/content-studio/private-user-nav-v1.js?v=20261112-v2';
+  s.defer=true;
+  s.dataset.pspContentNav='1';
+  document.head.appendChild(s);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
+ else mount();
+})();
