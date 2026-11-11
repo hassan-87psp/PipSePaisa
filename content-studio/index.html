@@ -75,7 +75,7 @@
       </section>
       <section data-panel="news" class="news-screen">
         <div class="screen-breadcrumb">CREATE VIDEO <span>›</span> STEP 1 OF 3</div>
-        <div class="stepper"><div class="stepon active"><span>1</span><small>Select News</small></div><div class="stepon"><span>2</span><small>Customize</small></div><div class="stepon"><span>3</span><small>Ready Script</small></div></div>
+        <div class="stepper"><div class="stepon active"><span>1</span><small>Choose Source</small></div><div class="stepon"><span>2</span><small>Customize</small></div><div class="stepon"><span>3</span><small>Ready Script</small></div></div>
         <div class="studio-source-selector" role="group" aria-label="Choose what to create from">
           <button type="button" class="studio-source-tab active" id="sourceNews" aria-pressed="true">◉ Market News</button>
           <button type="button" class="studio-source-tab" id="sourceTopic" aria-pressed="false">✎ My Own Topic</button>
@@ -92,14 +92,14 @@
           </form>
           <p class="studio-topic-note">AI educational draft hai, verified breaking news nahi. Financial claims publish karne se pehle check karein.</p>
         </div>
-        <div id="newsSourcePanel"><div class="custom-topic"><div><strong>Have your own idea?</strong><small>Write a topic instead of choosing a headline.</small></div><button type="button" class="outline" id="customTopic">+ Custom Topic</button></div>
-        <div class="sectiontop"><div><h2>Select Your News</h2><p>Choose a news story below to create your video script.</p></div><div class="filters"><input id="newsSearch" type="search" placeholder="Search news..." aria-label="Search news"><select id="newsCategory" aria-label="News category"><option value="all">All Categories</option><option value="Gold">Gold</option><option value="Forex">Forex</option><option value="Bitcoin">Bitcoin / Crypto</option><option value="Macro">Economy</option><option value="Geopolitics">Geopolitics</option><option value="Central Banks">Central Banks</option></select><select id="newsHeat" aria-label="Priority"><option value="all">All Impact</option><option value="hot">🔥 Hot News</option><option value="warm">Relevant</option></select></div></div>
+        <div id="newsSourcePanel"><button type="button" id="customTopic" hidden aria-hidden="true" tabindex="-1">Custom Topic</button>
+        <div class="sectiontop"><div><h2>Market News</h2><p>Choose a relevant trading headline, or switch to My Own Topic above.</p></div><div class="filters"><input id="newsSearch" type="search" placeholder="Search news..." aria-label="Search news"><select id="newsCategory" aria-label="News category"><option value="trading" selected>Trading Focus</option><option value="all">All News</option><option value="Gold">Gold</option><option value="Forex">Forex</option><option value="Bitcoin">Bitcoin / Crypto</option><option value="Macro">Economy</option><option value="Geopolitics">Geopolitics</option><option value="Central Banks">Central Banks</option></select><select id="newsHeat" aria-label="Priority"><option value="all">All Impact</option><option value="hot">🔥 Hot News</option><option value="warm">Relevant</option></select></div></div>
         <div id="newsList" class="newsgrid"><div class="empty">Loading Hot News…</div></div></div>
       </section>
       <section data-panel="editor" id="editorScreen" data-step="2" hidden>
         <div class="screen-breadcrumb">CREATE VIDEO <span>›</span> <span id="stepBreadcrumb">STEP 2 OF 3</span></div>
-        <div class="stepper" id="wizardStepper"><div class="stepon complete"><span>✓</span><small>Select News</small></div><div class="stepon active" data-wstep="2"><span>2</span><small>Customize</small></div><div class="stepon" data-wstep="3"><span>3</span><small>Ready Script</small></div></div>
-        <div class="sectiontop"><div><h2 id="editorHeading">Customize Your Video</h2><p id="editorSubheading">Choose your settings. AI handles the writing.</p></div><button type="button" id="newScript" class="outline">+ New Script</button></div>
+        <div class="stepper" id="wizardStepper"><div class="stepon complete"><span>✓</span><small>Choose Source</small></div><div class="stepon active" data-wstep="2"><span>2</span><small>Customize</small></div><div class="stepon" data-wstep="3"><span>3</span><small>Ready Script</small></div></div>
+        <div class="sectiontop"><div><h2 id="editorHeading">Customize Your Video</h2><p id="editorSubheading">Choose your settings. AI handles the writing.</p></div><button type="button" id="newScript" class="outline">+ New</button></div>
         <div class="editorgrid">
           <div class="panel configpanel" id="configPanel">
             <h3>Video Topic & Details</h3>
@@ -126,11 +126,11 @@
             </details>
             <button type="button" id="generate" class="primary wide generate-action">✦ Generate My Video Script →</button>
             <p id="generateNote" class="hint">AI-assisted draft • Verify the facts before publishing.</p>
-            <button type="button" id="changeNews" class="text-action">← Choose a Different News Story</button>
+            <button type="button" id="changeNews" class="text-action">← Change News or Topic</button>
           </div>
           <div id="aiStage" class="ai-stage" hidden aria-live="polite"><div class="ai-halo"><span>✦</span></div><h2>Creating your video script…</h2><p>Turning market news into a professional story</p><div class="ai-progress"><span></span></div><ul><li>✓ Understanding the news</li><li>✓ Preparing the script structure</li><li>✦ Writing your video script and SEO pack</li></ul></div>
           <div class="panel scriptpanel" id="resultPanel">
-            <div class="scripthead"><div><span class="result-pill">✓ AI SCRIPT READY</span><h3>Your Video Script</h3><p id="scriptStatus" class="hint">No script selected</p></div><button type="button" id="teleprompterBtn" class="outline">▣ Teleprompter</button></div>
+            <div class="scripthead"><div><span class="result-pill">✓ SCRIPT READY</span><h3>Your Video Script</h3><p id="scriptStatus" class="hint">No script selected</p></div><button type="button" id="teleprompterBtn" class="outline">▣ Teleprompter</button></div>
             <div class="script-story-heading" id="scriptStoryHeading"></div>
             <div class="studio-listen-panel" aria-label="Listen to generated video script">
               <div class="studio-listen-heading"><span class="studio-speaker-icon" data-studio-icon="volume-2"></span><div><strong>Listen to Your Script</strong><small>Hear it with your phone's available voices</small></div></div>
@@ -139,6 +139,7 @@
                 <button type="button" class="outline" id="pauseScript" disabled>Pause</button>
                 <button type="button" class="outline" id="stopScript" disabled>Stop</button>
                 <label>Speed <select id="voiceSpeed" aria-label="Voice playback speed"><option value="0.8">0.8×</option><option value="1" selected>1×</option><option value="1.2">1.2×</option></select></label>
+                <label>Voice <select id="voiceChoice" aria-label="Voice reader voice"><option value="auto">Auto (Device)</option></select></label>
               </div>
               <p id="voiceStatus" role="status">Tap Listen after generating or opening a script. Pronunciation depends on installed voices.</p>
             </div>
