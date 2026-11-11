@@ -108,11 +108,18 @@ function makeHomeRow({title,meta,icon,kind,click}){
 function renderHomeNews(){
  const list=$('homeLatestNews');if(!list)return;
  list.replaceChildren();
- const stories=B()?.getStories?.()||[];
- if(!stories.length){const p=document.createElement('p');p.className='studio-list-placeholder';p.textContent='No live headlines right now. Open Market News to refresh.';list.append(p);return;}
+ const all=B()?.getStories?.()||[];
+ const info=window.PSPStudioNews;
+ const stories=all.filter(story=>info?.isTrading?.(story)??true).sort((a,b)=>(info?.score?.(b)||0)-(info?.score?.(a)||0)||
+  (Date.parse(b.date||'')||0)-(Date.parse(a.date||'')||0));
+ if(!stories.length){
+  const p=document.createElement('p');p.className='studio-list-placeholder';
+  p.textContent=all.length?'No market-focused news in the current feed. Open News to browse other headlines.':'Live market news is temporarily unavailable.';
+  list.append(p);return;
+ }
  for(const story of stories.slice(0,3)){
-  const ic=initialsFor(story);
-  const row=makeHomeRow({title:story.title,meta:(story.category||story.source||'Market News')+' · '+timeAgo(story.date),
+  const ic=initialsFor(story),headline=info?.plain?.(story.title,300)||story.title;
+  const row=makeHomeRow({title:headline,meta:(story.category||story.source||'Market News')+' · '+timeAgo(story.date),
    icon:ic.label,kind:ic.type,click:()=>{if(canCreate())B()?.chooseStory?.(story);else navigate('news')}});
   list.append(row);
  }
@@ -130,9 +137,18 @@ function renderHomeProjects(){
 function refreshVoices(){
  if(!('speechSynthesis' in window))return;
  try{availableVoices=speechSynthesis.getVoices()||[]}catch{availableVoices=[]}
+ const select=$('voiceChoice');if(!select)return;
+ const old=select.value||'auto';
+ select.replaceChildren();
+ const auto=document.createElement('option');auto.value='auto';auto.textContent='Auto (Device)';select.append(auto);
+ availableVoices.forEach((voice,index)=>{
+  const o=document.createElement('option');o.value=String(index);o.textContent=voice.name+' ('+voice.lang+')';select.append(o);
+ });
+ select.value=old==='auto'||!availableVoices[Number(old)]?'auto':old;
 }
 function preferredVoice(language){
- const voices=availableVoices;
+ const voices=availableVoices,chosen=$('voiceChoice')?.value||'auto';
+ if(chosen!=='auto'&&voices[Number(chosen)])return voices[Number(chosen)];
  const target=language==='Urdu'?'ur':language==='Roman Urdu + English'?'en-IN':'en';
  return voices.find(x=>x.lang?.toLowerCase().startsWith(target.toLowerCase()))
      ||voices.find(x=>x.lang?.toLowerCase().startsWith('en'))
@@ -175,7 +191,7 @@ function speakNext(sequence){
  u.pitch=1;
  u.onend=()=>{if(sequence===speechSequence)speakNext(sequence)};
  u.onerror=e=>{if(sequence!==speechSequence)return;stopSpeech(true);voiceStatus('Voice playback could not continue ('+(e?.error||'unsupported')+'). Check device speech settings.')};
- try{window.speechSynthesis.speak(u);voiceStatus('Playing script with '+(v?.name||'device voice')+' · Speed '+u.rate+'×');}
+ try{window.speechSynthesis.speak(u);voiceStatus('Playing with '+(v?.name||'device voice')+' · '+Number(u.rate).toFixed(1).replace(/\.0$/,'')+'×');}
  catch(e){stopSpeech(true);voiceStatus('Voice playback is not available: '+(e.message||'device error'))}
 }
 function listen(){
@@ -212,7 +228,8 @@ function init(){
  $('listenScript')?.addEventListener('click',listen);
  $('pauseScript')?.addEventListener('click',pauseOrResume);
  $('stopScript')?.addEventListener('click',()=>stopSpeech());
- $('voiceSpeed')?.addEventListener('change',()=>{if(speechMode!=='idle')voiceStatus('New speed will apply after restarting playback.');});
+ $('voiceSpeed')?.addEventListener('change',()=>{if(speechMode!=='idle')voiceStatus('Restart playback to use the new speed.');});
+ $('voiceChoice')?.addEventListener('change',()=>{if(speechMode!=='idle')voiceStatus('Restart playback to use the selected voice.');});
  if('speechSynthesis' in window){
   refreshVoices();window.speechSynthesis.addEventListener?.('voiceschanged',refreshVoices);
  }
