@@ -44,7 +44,7 @@ Deno.serve(async(req)=>{
     const mode=['generate','rewrite','pack','quality','thumbnail','translate'].includes(safe(body.mode,32))?safe(body.mode,32):'generate';
     const part=['hook','explanation','market_impact','closing','cta','all'].includes(safe(body.part,32))?safe(body.part,32):'all';
     const style=['shorter','simpler','engaging','professional','detailed','breaking','translate'].includes(safe(body.style,40))?safe(body.style,40):'engaging';
-    const original=safe(body.script,10000);
+    const original=safe(body.script,5800);
     if(mode!=='generate'&&original.length<10)return respond({error:'Write or generate a script first'},400,origin);
     const core=[
       'You are the PipSePaisa creator assistant for Gold, Forex, BTC and macroeconomic education.',
@@ -73,8 +73,10 @@ Deno.serve(async(req)=>{
       keys=['headline','subtitle','visual_concept','image_prompt','color_notes'];
       core.push('Suggest a factual, professional thumbnail design (not an actual image). Use PipSePaisa orange #F39522 and premium dark tones. JSON fields '+keys.join(', ')+'.');
     }
+    const brandVoice=safe(body.brand_voice,500);
+    if(brandVoice)core.push('Preferred brand voice, while keeping all rules above: '+brandVoice+'.');
     if(mode!=='generate')core.push('Original script: '+original);
-    const prompt=core.join(' ');
+    const prompt=core.join(' ').slice(0,7900);
     const upstream=await fetch('https://pipsepaisa-api.vercel.app/api/ai-report',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},body:JSON.stringify({prompt}),signal:AbortSignal.timeout(25000)});
     const result=await upstream.json().catch(()=>({}));
     if(!upstream.ok)return respond({error:String(result.error||'AI temporarily unavailable')},upstream.status>=500?503:upstream.status,origin);
