@@ -8,9 +8,9 @@
 <link rel="icon" href="/favicon.png">
 <link rel="preconnect" href="https://etfolhinohgmskbfjoyh.supabase.co">
 <link rel="stylesheet" href="/content-studio/studio.css?v=20261112-v3">
-<link rel="stylesheet" href="/content-studio/premium-v2.css?v=20261112-premium-01">
+<link rel="stylesheet" href="/content-studio/premium-v2.css?v=20261112-premium-02">
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8"></script>
-<script defer src="/content-studio/studio.js?v=20261112-premium-01"></script>
+<script defer src="/content-studio/studio.js?v=20261112-premium-02"></script>
 </head>
 <body>
 <div id="authGate" class="gate"><div class="mark">P+</div><h2>Opening Private Content Studio</h2><p>Verifying your account permissions…</p></div>
@@ -62,7 +62,8 @@
       <section data-panel="news" class="news-screen">
         <div class="screen-breadcrumb">CREATE VIDEO <span>›</span> STEP 1 OF 3</div>
         <div class="stepper"><div class="stepon active"><span>1</span><small>Select News</small></div><div class="stepon"><span>2</span><small>Customize</small></div><div class="stepon"><span>3</span><small>Ready Script</small></div></div>
-        <div class="sectiontop"><div><h2>Hot News Feed</h2><p>Latest market headlines. Review original source before recording.</p></div><div class="filters"><input id="newsSearch" type="search" placeholder="Search news..." aria-label="Search news"><select id="newsCategory" aria-label="News category"><option value="all">All Categories</option><option value="Gold">Gold</option><option value="Forex">Forex</option><option value="Bitcoin">Bitcoin / Crypto</option><option value="Macro">Economy</option><option value="Geopolitics">Geopolitics</option><option value="Central Banks">Central Banks</option></select><select id="newsHeat" aria-label="Priority"><option value="all">All Impact</option><option value="hot">🔥 Hot News</option><option value="warm">Relevant</option></select></div></div>
+        <div class="custom-topic"><div><strong>Already have a topic in mind?</strong><small>Skip the news feed and write your own.</small></div><button type="button" class="outline" id="customTopic">+ Custom Topic</button></div>
+        <div class="sectiontop"><div><h2>Select Your News</h2><p>Choose a news story below to create your video script.</p></div><div class="filters"><input id="newsSearch" type="search" placeholder="Search news..." aria-label="Search news"><select id="newsCategory" aria-label="News category"><option value="all">All Categories</option><option value="Gold">Gold</option><option value="Forex">Forex</option><option value="Bitcoin">Bitcoin / Crypto</option><option value="Macro">Economy</option><option value="Geopolitics">Geopolitics</option><option value="Central Banks">Central Banks</option></select><select id="newsHeat" aria-label="Priority"><option value="all">All Impact</option><option value="hot">🔥 Hot News</option><option value="warm">Relevant</option></select></div></div>
         <div id="newsList" class="newsgrid"><div class="empty">Loading Hot News…</div></div>
       </section>
       <section data-panel="editor" id="editorScreen" data-step="2" hidden>
