@@ -41,12 +41,15 @@ function updateScriptMeta(){
    badge=document.createElement('span');badge.className='exec-section-words';
    badge.setAttribute('aria-hidden','true');summary.appendChild(badge);
   }
-  if(name!=='cta')badge.textContent=count?count+' words':'Empty';
+  const sectionTotal=[...section.querySelectorAll('textarea')].reduce((sum,field)=>sum+tokenCount(field.value),0);
+  badge.textContent=sectionTotal?sectionTotal+' words':'Empty';
  });
  const meta=$('execScriptWords');
  if(meta)meta.textContent=total?total+' words · ~'+Math.round(total/2.2)+' sec':'No script yet';
 }
 function setReadMode(next){
+ const access=window.PSPStudioBridge?.getPermission?.();
+ if(next==='edit'&&access==='viewer')next='read';
  mode=next==='edit'?'edit':'read';
  const panel=$('resultPanel');if(!panel)return;
  panel.classList.toggle('exec-reading',mode==='read');
@@ -147,7 +150,12 @@ function setup(){
  replaceRailIcons();
  setupScriptEditor();
  setupRecording();
- document.addEventListener('psp-studio-ready',replaceRailIcons);
+ document.addEventListener('psp-studio-ready',()=>{
+  replaceRailIcons();
+  const readonly=window.PSPStudioBridge?.getPermission?.()==='viewer';
+  if($('execEdit'))$('execEdit').hidden=readonly;
+  if(readonly)setReadMode('read');
+ });
  document.addEventListener('psp-studio-pro-tools-ui-ready',setupRecording);
  document.addEventListener('psp-studio-recording-started',recordingStarted);
  document.addEventListener('psp-studio-media-captured',recordingCaptured);
