@@ -101,3 +101,8 @@ jobs:
           node --check user-signals-core-v29.js
           node tests/performance-calendar.test.mjs
           node tests/performance-render.test.mjs
+      - name: Verify private Content Studio access, script editor and AI endpoint integration
+        run: |
+          node --check content-studio/studio.js
+          node --check content-studio/private-user-nav-v1.js
+          node --test tests/content-studio.test.cjs
