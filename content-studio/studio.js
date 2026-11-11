@@ -285,6 +285,7 @@ window.PSPStudioBridge={
  getData:()=>scriptData(),
  navigate:(p)=>showPanel(p),
  openEditor:()=>{wizardStep('3');showPanel('editor');},
+ startNewScript:()=>{clearEditor();showPanel('editor');},
  reloadScripts:()=>loadScripts(),
  fields:[...FIELDS]
 };
