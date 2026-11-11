@@ -124,7 +124,7 @@ function renderHomeProjects(){
  for(const project of saved.slice(0,3)){
   const label=String(project.status||'draft');
   list.append(makeHomeRow({title:project.source_title,meta:label.charAt(0).toUpperCase()+label.slice(1)+' · '+timeAgo(project.updated_at),
-   icon:label==='published'?'✓':'P+',kind:'',click:()=>navigate('saved')}));
+   icon:label==='published'?'✓':'P+',kind:'',click:()=>B()?.openSavedScript?.(project)}));
  }
 }
 function refreshVoices(){
