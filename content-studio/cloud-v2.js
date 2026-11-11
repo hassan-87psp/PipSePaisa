@@ -8,7 +8,7 @@ const B=()=>window.PSPStudioBridge;
 const $=id=>document.getElementById(id);
 const BUCKET='psp-studio-recordings',MAX_FILE=20*1024*1024;
 const PREF_KEYS={brand_voice:'brand_voice',favorites:'favorite_news',watch:'watch_keywords'};
-let activeId='',lastBlob=null,lastKind='audio',prefTimer=null,newsSeen=new Set(),newsBooted=false,uploadInProgress=false,alertOpt=false,started=false;
+let activeId='',lastBlob=null,lastKind='audio',prefTimer=null,newsSeen=new Set(),newsBooted=false,uploadInProgress=false,alertOpt=false,started=false,transcriptText='',transcriptSegments=[];
 function usr(){return B()?.getUser()}
 function client(){return B()?.getClient()}
 function canWrite(){return ['creator','editor','approver'].includes(B()?.getPermission())}
@@ -117,6 +117,9 @@ async function listMedia(){
    const b=document.createElement('button');b.type='button';b.textContent=txt;b.className='pro-button secondary';b.addEventListener('click',fn);actions.appendChild(b);
   }
   if(canWrite()){
+   const transcript=document.createElement('button');transcript.type='button';transcript.className='pro-button primary';transcript.textContent='✦ AI Captions';
+   transcript.addEventListener('click',()=>{void transcribeMedia(path,false)});
+   actions.appendChild(transcript);
    const del=document.createElement('button');del.type='button';del.className='pro-button secondary';del.textContent='Delete';
    del.addEventListener('click',async()=>{
     if(!confirm('Permanently delete this recording from your private cloud?'))return;
@@ -129,6 +132,89 @@ async function listMedia(){
   item.append(label,actions);root.appendChild(item);
  }
 }
+
+// True media transcription: source files are stored privately then sent only on
+// explicit user request through the authenticated Vercel API to Groq Whisper.
+function aiStatus(text){const root=$('proAiStatus');if(root)root.textContent=String(text)}
+function subtitleStamp(num){
+ const ms=Math.max(0,Math.floor(Number(num||0)*1000));
+ const hour=Math.floor(ms/3600000),min=Math.floor(ms/60000)%60,sec=Math.floor(ms/1000)%60;
+ return [hour,min,sec].map(x=>String(x).padStart(2,'0')).join(':')+','+String(ms%1000).padStart(3,'0');
+}
+function deliverFile(name,body){
+ const blob=new Blob(['\ufeff',body],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),30000);
+}
+function exportTranscriptSrt(){
+ if(!transcriptSegments.length){aiStatus('Timed segment data unavailable. Export the text version instead.');return;}
+ const text=transcriptSegments.map((x,i)=>[i+1,subtitleStamp(x.start)+' --> '+subtitleStamp(x.end),x.text,''].join('\n')).join('\n');
+ deliverFile('PipSePaisa-AI-subtitles.srt',text);
+ aiStatus('Timed SRT exported. Review transcript accuracy and subtitle timings before publishing.');
+}
+function exportTranscriptText(){
+ if(!transcriptText)return;
+ deliverFile('PipSePaisa-AI-transcript.txt',transcriptText);
+}
+async function transcribeMedia(path,alreadyConsented){
+ if(!canWrite()||!activeId)return aiStatus('Content Studio creator permission required.');
+ if(!alreadyConsented&&!confirm('Send your private recording to the configured AI transcription provider to produce subtitles? This is optional and may incur API usage.'))return;
+ const start=$('proAiTranscribe');
+ if(start){start.disabled=true;start.textContent='✦ Transcribing…';}
+ aiStatus('Analyzing the recording securely. Your transcript will appear here if transcription succeeds.');
+ try{
+  const session=await client().auth.getSession();
+  const jwt=session.data?.session?.access_token;
+  if(!jwt)throw Error('Please sign in again.');
+  const language=$('proAiLanguage')?.value||'';
+  const res=await fetch('https://pipsepaisa-api.vercel.app/api/studio-transcribe',{
+   method:'POST',
+   headers:{'Content-Type':'application/json','Authorization':'Bearer '+jwt},
+   body:JSON.stringify({path,language}),signal:AbortSignal.timeout(65000)
+  });
+  const data=await res.json().catch(()=>({error:'Invalid transcription service response'}));
+  if(!res.ok||!data.ok)throw Error(data.error||'AI transcription unavailable');
+  transcriptText=String(data.text||'');
+  transcriptSegments=(Array.isArray(data.segments)?data.segments:[]).filter(x=>Number.isFinite(x.start)&&Number.isFinite(x.end)&&x.end>x.start&&x.text);
+  const out=$('proAiTranscriptText');if(out){out.hidden=false;out.value=transcriptText;}
+  if($('proAiSrt'))$('proAiSrt').disabled=!transcriptSegments.length;
+  if($('proAiTxt'))$('proAiTxt').disabled=!transcriptText;
+  aiStatus('✓ AI transcript ready. '+transcriptSegments.length+' timed segments available. Review wording and timestamps before publishing.');
+  document.querySelector('[data-pro-category="record"]')?.click();
+  $('proAiCaptionPanel')?.scrollIntoView({behavior:'smooth',block:'start'});
+ }catch(e){aiStatus('AI transcription failed: '+(e.message||'Please retry.'))}
+ finally{if(start){start.disabled=false;start.textContent='✦ Upload Privately & Transcribe'}}
+}
+async function uploadAndTranscribe(){
+ const input=$('proAiMediaUpload'),file=input?.files?.[0];
+ if(!file)return aiStatus('Choose an audio or video file first.');
+ if(!canWrite())return aiStatus('Creator permission required.');
+ if(file.size===0||file.size>MAX_FILE)return aiStatus('File must be between 1 byte and 20 MB.');
+ const name=String(file.name||'').toLowerCase(),extension=name.split('.').pop();
+ let mime=file.type;
+ if(mime==='audio/x-m4a'||(extension==='m4a'&&!mime))mime='audio/mp4';
+ if(!mime&&extension==='mp3')mime='audio/mpeg';
+ if(!mime&&extension==='webm')mime='audio/webm';
+ if(!mime&&extension==='mp4')mime='video/mp4';
+ if(!['audio/webm','audio/mp4','audio/mpeg','video/webm','video/mp4'].includes(mime)){
+  return aiStatus('Unsupported media format. Please choose WebM, MP4, M4A or MP3.');
+ }
+ if(!confirm('Upload this file to your private Studio recordings, then send it to our AI transcription provider to generate captions?'))return;
+ const kind=mime.startsWith('video/')?'video':'audio';
+ const ext=mime==='audio/mpeg'?'mp3':mime.includes('mp4')?'mp4':'webm';
+ const path=activeId+'/'+kind+'-'+new Date().toISOString().replace(/[:.]/g,'-')+'-'+Math.random().toString(36).slice(2,10)+'.'+ext;
+ const btn=$('proAiTranscribe');
+ if(btn){btn.disabled=true;btn.textContent='☁ Uploading…'}
+ aiStatus('Saving your selected file to private Studio storage…');
+ try{
+  const r=await client().storage.from(BUCKET).upload(path,file,{contentType:mime,upsert:false,cacheControl:'3600'});
+  if(r.error)throw r.error;
+  aiStatus('Private upload complete. Starting AI speech recognition…');
+  await listMedia();await transcribeMedia(path,true);
+ }catch(e){aiStatus('Could not upload for transcription: '+(e.message||'Please try again.'))}
+ finally{if(btn){btn.disabled=false;btn.textContent='✦ Upload Privately & Transcribe'}}
+}
+
 function updateWatchSummary(){
  const note=$('proAlertNote');if(!note)return;
  const count=local('watch',[]).length;
@@ -162,13 +248,16 @@ async function optIntoAlerts(){
 function setup(){
  if(started)return;
  // The toolkit is fetched asynchronously; bind only once its controls exist.
- if(!$('proCloudSave')||!$('proAlertsOptIn')||!$('proCloudReload'))return;
+ if(!$('proCloudSave')||!$('proAlertsOptIn')||!$('proCloudReload')||!$('proAiTranscribe'))return;
  const u=usr();if(!u||!B()?.getPermission())return;
  started=true;activeId=u.id;
  alertOpt=localStorage.getItem(key('alerts'))==='1';
  const b=$('proAlertsOptIn');if(b){b.textContent=alertOpt?'✓ Notifications Enabled':'♧ Enable Alerts While App Is Open';b.addEventListener('click',optIntoAlerts);}
  $('proCloudSave')?.addEventListener('click',saveMedia);
  $('proCloudReload')?.addEventListener('click',listMedia);
+ $('proAiTranscribe')?.addEventListener('click',()=>{void uploadAndTranscribe()});
+ $('proAiSrt')?.addEventListener('click',exportTranscriptSrt);
+ $('proAiTxt')?.addEventListener('click',exportTranscriptText);
  document.addEventListener('psp-studio-media-captured',captured);
  document.addEventListener('psp-studio-news-loaded',watchNews);
  document.addEventListener('psp-studio-cloud-preferences-loaded',watchNews);
