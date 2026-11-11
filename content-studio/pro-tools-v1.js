@@ -335,7 +335,7 @@ async function start(){
  if(ready)return;ready=true;
  const root=$('proToolsRoot');if(!root)return;
  try{
-  const r=await fetch('/content-studio/pro-tools-ui-v1.html?v=20261112-v8',{cache:'no-store'});
+  const r=await fetch('/content-studio/pro-tools-ui-v1.html?v=20261112-exec-v6',{cache:'no-store'});
   if(!r.ok)throw Error('Creator Toolkit UI could not load');
   root.innerHTML=await r.text();
   root.classList.remove('pro-loading');root.classList.add('pro-loaded');
