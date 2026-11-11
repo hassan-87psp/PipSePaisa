@@ -194,3 +194,15 @@ main{max-width:1360px;padding:26px 28px 95px}
 }
 @media(max-width:350px){.homecard{padding:13px 11px}.choice-list button{min-width:49px;font-size:10px}.bottom-nav button small{font-size:9px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.homecard,.navbtn,.rail,.ai-halo,.ai-progress span{transition:none!important;animation:none!important}}
+
+/* Finishing details: readable secure session gate + accessible custom topic path */
+.gate{background:#0c0b10;color:#f7f2ef}
+.gate .mark{color:#21140b;background:linear-gradient(135deg,#f39522,#ffb04e);box-shadow:0 0 45px rgba(243,149,34,.2)}
+.gate h2{font-size:23px;letter-spacing:-.5px;margin:20px 0 8px}
+.gate p{color:#aba1ab;max-width:340px;line-height:1.6}
+.gate a{margin-top:14px;text-decoration:none}
+.custom-topic{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px 18px;margin:0 0 20px;border:1px solid #554130;border-radius:14px;background:linear-gradient(115deg,#2f211c,#1b171b)}
+.custom-topic strong,.custom-topic small{display:block}
+.custom-topic strong{font-size:13px;color:#fff}.custom-topic small{font-size:11px;color:#b5a4ab;margin-top:4px}
+.custom-topic button{white-space:nowrap;border-color:#ae6b31;color:#ffbc76}
+@media(max-width:420px){.custom-topic{align-items:stretch;flex-direction:column;gap:11px}.custom-topic button{width:100%}}
