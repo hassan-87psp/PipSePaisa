@@ -1,0 +1,507 @@
+
+/* PipSePaisa Content Studio — mobile usability correction v5.
+   Corrects the Creator Toolkit's loading-state width, colors, excessive
+   card spacing, inner textarea scroll, and bottom navigation occlusion.
+   Applies to both Dark Classic and Light Classic. */
+html[data-studio-theme] body{
+ --psp-line:var(--v4-border);
+ --psp-card:var(--v4-surface);
+ --psp-subtle:var(--v4-raised);
+ --psp-text:var(--v4-text);
+ --psp-note:var(--v4-muted);
+}
+html[data-studio-theme] body *{scroll-margin-top:84px}
+html[data-studio-theme] body [hidden]{display:none!important}
+html[data-studio-theme] body .pro-screen{
+ max-width:1180px;width:100%;min-width:0;margin:0 auto;
+ padding:0;overflow:visible;color:var(--v4-text)
+}
+html[data-studio-theme] body #proToolsRoot{
+ max-width:100%;min-width:0;
+}
+html[data-studio-theme] body #proToolsRoot.pro-loaded{
+ width:100%;max-width:none;margin:0;padding:0;border:0;border-radius:0;
+ background:transparent;box-shadow:none;text-align:left;
+}
+html[data-studio-theme] body #proToolsRoot.pro-loaded *{min-width:0}
+html[data-studio-theme] body #proToolsRoot.pro-loaded .pro-grid{
+ width:100%;max-width:none;min-width:0;align-items:stretch
+}
+html[data-studio-theme] body .pro-hero{
+ margin:0 0 14px;background:transparent;box-shadow:none;
+ border:0;padding:8px 2px 11px;border-radius:0;text-align:left;
+}
+html[data-studio-theme] body .pro-hero h1{
+ font-size:clamp(18px,2vw,23px);letter-spacing:-.45px;
+ margin:4px 0 5px;color:var(--v4-text)
+}
+html[data-studio-theme] body .pro-hero p{color:var(--v4-muted);margin:0;font-size:12px}
+html[data-studio-theme] body .pro-hero .pro-private,
+html[data-studio-theme] body .pro-hero .pro-hero-orb{display:none}
+html[data-studio-theme] body .pro-quick-nav{
+ display:flex;justify-content:stretch;align-items:center;gap:7px;
+ padding:5px 0 11px;margin:0 0 3px;box-shadow:none;
+ background:var(--v4-bg);overscroll-behavior-x:contain;
+}
+html[data-studio-theme] body .pro-quick{
+ display:flex;align-items:center;justify-content:center;
+ flex:1 0 auto;white-space:nowrap;min-height:43px;
+ font-size:12px;font-weight:750;
+ border-radius:11px;padding:10px 14px;
+}
+html[data-studio-theme] body .pro-record-tabs{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:8px;margin:0 0 16px
+}
+html[data-studio-theme] body .pro-record-tab{
+ border:1px solid var(--v4-border);border-radius:11px;
+ background:var(--v4-surface);color:var(--v4-text);
+ padding:11px 9px;font-size:12px;font-weight:800;min-height:44px
+}
+html[data-studio-theme] body .pro-record-tab.active{
+ border-color:var(--v4-accent);background:var(--v4-soft);color:var(--v4-accent);
+}
+html[data-studio-theme] body .pro-status{
+ background:var(--v4-surface);color:var(--v4-muted);
+ border:1px solid var(--v4-border);text-align:left;
+ padding:11px 13px;border-radius:12px;
+ font-size:11px;font-weight:650;margin:0 0 12px;
+ line-height:1.5;
+}
+html[data-studio-theme] body .pro-card{
+ background:var(--v4-surface);border:1px solid var(--v4-border);
+ color:var(--v4-text);border-radius:15px;box-shadow:var(--v4-shadow);
+ padding:17px;gap:10px;min-width:0;text-align:left;
+}
+html[data-studio-theme] body .pro-card h2{
+ color:var(--v4-text);font-size:16px;letter-spacing:-.35px;
+ line-height:1.35;margin:0
+}
+html[data-studio-theme] body .pro-card>p{
+ color:var(--v4-muted);font-size:12px;line-height:1.58;
+ margin:0 0 4px
+}
+html[data-studio-theme] body .pro-card-top{align-items:center;gap:10px}
+html[data-studio-theme] body .pro-smalltag{
+ background:var(--v4-soft);border:1px solid var(--v4-border);
+ color:var(--v4-accent);font-size:9px;font-weight:850;
+ border-radius:100px;padding:5px 9px;line-height:1
+}
+html[data-studio-theme] body .pro-card .pro-icon{width:40px;height:40px;border-radius:11px}
+html[data-studio-theme] body .pro-card .pro-selects label,
+html[data-studio-theme] body .pro-card .pro-selects label>span,
+html[data-studio-theme] body .pro-card .pro-subheading,
+html[data-studio-theme] body .pro-caption-panel label{
+ color:var(--v4-text);font-weight:750;font-size:12px;
+}
+html[data-studio-theme] body .pro-card .pro-selects input,
+html[data-studio-theme] body .pro-card .pro-selects select,
+html[data-studio-theme] body .pro-card .pro-keyword-form input,
+html[data-studio-theme] body .pro-card textarea{
+ background:var(--v4-input);border-color:var(--v4-border);
+ color:var(--v4-text);max-width:100%;
+}
+html[data-studio-theme] body .pro-card .pro-actions{
+ display:flex;flex-wrap:wrap;align-items:stretch;gap:8px;
+}
+html[data-studio-theme] body .pro-card .pro-actions button{
+ flex:1 1 170px;min-width:0;max-width:none;
+ min-height:44px;border-radius:11px;
+ padding:10px 12px;line-height:1.35;
+ font-size:12px;font-weight:750;overflow-wrap:anywhere
+}
+html[data-studio-theme] body .pro-card .pro-button{
+ font-size:12px;border-radius:11px;
+ color:var(--v4-text);background:var(--v4-raised);
+ border:1px solid var(--v4-border)
+}
+html[data-studio-theme] body .pro-card .pro-button.primary{
+ background:linear-gradient(100deg,#f39522,#ec7d12);
+ border-color:#e58b1f;color:#fff
+}
+html[data-studio-theme] body .pro-card button:disabled{
+ opacity:.42;cursor:not-allowed
+}
+html[data-studio-theme] body .pro-cloud-actions{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+}
+html[data-studio-theme] body .pro-cloud-actions button{
+ width:100%;min-height:45px;font-size:12px;padding:10px;
+}
+html[data-studio-theme] body .pro-output,
+html[data-studio-theme] body .pro-stat,
+html[data-studio-theme] body .pro-history-entry{
+ border-color:var(--v4-border);background:var(--v4-raised);
+ color:var(--v4-muted);border-radius:12px;
+}
+html[data-studio-theme] body .pro-output{
+ font-size:12px;line-height:1.5;
+ padding:12px 13px;max-width:100%;
+ overflow-wrap:anywhere
+}
+html[data-studio-theme] body .pro-caption-panel{
+ background:var(--v4-raised);border:1px solid var(--v4-border);
+ padding:14px;gap:10px;border-radius:13px;
+}
+html[data-studio-theme] body .pro-caption-panel strong,
+html[data-studio-theme] body .pro-caption-panel .pro-card-top strong{
+ color:var(--v4-text);font-size:13px;
+}
+html[data-studio-theme] body .pro-caption-panel>p,
+html[data-studio-theme] body .pro-caption-panel details p{
+ color:var(--v4-muted);font-size:11px;
+ line-height:1.5;margin:0
+}
+html[data-studio-theme] body .pro-caption-panel .pro-actions{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+}
+html[data-studio-theme] body .pro-caption-panel .pro-actions button{
+ min-width:0;max-width:100%;width:100%;
+ font-size:11px;padding:10px 8px;min-height:43px;
+}
+html[data-studio-theme] body .pro-help{
+ background:var(--v4-surface);border:1px solid var(--v4-border);
+ border-radius:10px;padding:8px 12px
+}
+html[data-studio-theme] body .pro-help summary{
+ cursor:pointer;color:var(--v4-accent);font-size:11px;font-weight:750
+}
+html[data-studio-theme] body .pro-help[open] p{margin:10px 0 3px}
+html[data-studio-theme] body #proAiMediaUpload{
+ background:var(--v4-surface);border-color:var(--v4-border);
+ color:var(--v4-text);font-size:11px
+}
+html[data-studio-theme] body #proAiMediaUpload::file-selector-button{
+ background:var(--v4-soft);color:var(--v4-text);border-color:var(--v4-border)
+}
+html[data-studio-theme] body #proAiStatus{
+ color:var(--v4-muted);background:var(--v4-surface);text-align:left
+}
+html[data-studio-theme] body #proTranscriptOutput,
+html[data-studio-theme] body #proCloudList{text-align:left}
+html[data-studio-theme] body .pro-mini-note{font-size:11px;line-height:1.5;color:var(--v4-muted)}
+html[data-studio-theme] body .pro-result{
+ border-color:var(--v4-border);background:var(--v4-surface);
+ box-shadow:var(--v4-shadow);border-radius:14px;
+ padding:17px;margin-top:16px
+}
+html[data-studio-theme] body .pro-result h2,
+html[data-studio-theme] body .pro-result-item h3{color:var(--v4-text)}
+html[data-studio-theme] body .pro-result-item{
+ background:var(--v4-raised);border-color:var(--v4-border);border-radius:11px
+}
+html[data-studio-theme] body .pro-result-item pre{color:var(--v4-text)}
+html[data-studio-theme] body .pro-result>p{color:var(--v4-muted)}
+/* Compact, scannable market news cards */
+html[data-studio-theme] body .news-screen .sectiontop{margin:8px 0 14px}
+html[data-studio-theme] body .news-screen .sectiontop h2{font-size:21px}
+html[data-studio-theme] body .newsgrid{gap:11px}
+html[data-studio-theme] body .story{
+ display:flex;flex-direction:column;min-height:0;gap:8px;
+ padding:16px;background:var(--v4-surface);color:var(--v4-text);
+ border:1px solid var(--v4-border);border-radius:15px
+}
+html[data-studio-theme] body .story .storytop{gap:6px;align-items:center}
+html[data-studio-theme] body .story .tag{
+ background:var(--v4-raised);color:var(--v4-muted);
+ border:1px solid var(--v4-border);border-radius:8px;
+ padding:5px 8px;font-size:10px
+}
+html[data-studio-theme] body .story .tag.hot{
+ background:var(--v4-soft);color:var(--v4-accent);
+ border-color:color-mix(in srgb,var(--v4-accent) 24%,var(--v4-border))
+}
+html[data-studio-theme] body .story .tag.warm{
+ background:var(--v4-soft);color:var(--v4-accent)
+}
+html[data-studio-theme] body .story h3{
+ color:var(--v4-text);font-weight:800;
+ font-size:15px;line-height:1.45;letter-spacing:-.3px;
+ margin:1px 0;overflow-wrap:anywhere
+}
+html[data-studio-theme] body .story p{
+ color:var(--v4-muted);line-height:1.55;font-size:12px;
+ margin:0;display:-webkit-box;-webkit-box-orient:vertical;
+ -webkit-line-clamp:2;line-clamp:2;overflow:hidden
+}
+html[data-studio-theme] body .storyfooter{
+ display:flex;align-items:flex-end;justify-content:space-between;
+ gap:10px;flex-wrap:wrap;margin-top:5px
+}
+html[data-studio-theme] body .storyfooter>div{min-width:0;flex:1}
+html[data-studio-theme] body .storyfooter .meta{font-size:10px;color:var(--v4-muted)}
+html[data-studio-theme] body .storyfooter a{font-size:11px;color:var(--v4-accent);text-decoration:none}
+html[data-studio-theme] body .storyfooter .primary{font-size:11px;min-height:39px;white-space:nowrap;padding:9px 12px}
+html[data-studio-theme] body .pro-favorite{
+ color:var(--v4-accent);background:var(--v4-soft);
+ border-color:var(--v4-border);border-radius:9px;
+ font-size:10px;padding:7px 9px;min-height:31px
+}
+/* Sharper, more efficient 3-step wizard and editor */
+html[data-studio-theme] body .screen-breadcrumb{
+ font-size:10px;letter-spacing:.6px;color:var(--v4-accent);margin:0 0 10px
+}
+html[data-studio-theme] body .stepper{
+ margin:0 0 16px;padding:10px 10px;min-height:66px;border-radius:13px;
+}
+html[data-studio-theme] body .stepon{flex-direction:row;gap:7px}
+html[data-studio-theme] body .stepon span{
+ width:24px;height:24px;flex-basis:24px;
+ font-size:11px;border-radius:50%
+}
+html[data-studio-theme] body .stepon small{font-size:10px;color:var(--v4-muted)}
+html[data-studio-theme] body .stepon.active small,
+html[data-studio-theme] body .stepon.complete small{color:var(--v4-accent)}
+html[data-studio-theme] body #editorScreen>.sectiontop{
+ display:flex;flex-direction:row;align-items:center;
+ justify-content:space-between;gap:9px;margin:12px 0 15px
+}
+html[data-studio-theme] body #editorScreen>.sectiontop>div{flex:1}
+html[data-studio-theme] body #editorScreen>.sectiontop h2{
+ font-size:21px;line-height:1.3;letter-spacing:-.55px
+}
+html[data-studio-theme] body #newScript{
+ flex:0 0 auto;white-space:nowrap;
+ min-height:37px;padding:7px 11px;font-size:11px;
+}
+html[data-studio-theme] body .editorgrid{max-width:850px}
+html[data-studio-theme] body .configpanel,
+html[data-studio-theme] body .scriptpanel{padding:18px}
+html[data-studio-theme] body .field-group{
+ margin:16px 0;padding-top:13px;border-top:1px solid var(--v4-border)
+}
+html[data-studio-theme] body .field-group h3{font-size:14px}
+html[data-studio-theme] body .choice-list{gap:7px}
+html[data-studio-theme] body .choice-list button{
+ border-radius:10px;min-height:42px;
+ font-size:12px;font-weight:750;padding:9px 8px
+}
+html[data-studio-theme] body .advanced-box{
+ margin:12px 0;border:1px solid var(--v4-border);border-radius:11px
+}
+html[data-studio-theme] body .advanced-box summary{
+ padding:11px 13px;min-height:43px;
+ font-size:12px;line-height:1.45;color:var(--v4-text)
+}
+html[data-studio-theme] body .scripthead{
+ display:flex;justify-content:space-between;align-items:center;
+ flex-wrap:wrap;gap:12px;margin:0 0 14px
+}
+html[data-studio-theme] body .scripthead h3{font-size:17px;margin:8px 0 2px}
+html[data-studio-theme] body .result-pill{font-size:9px}
+html[data-studio-theme] body .script-story-heading{font-size:12px;line-height:1.45}
+html[data-studio-theme] body .studio-listen-panel{
+ background:var(--v4-raised);border-color:var(--v4-border);
+ padding:13px;border-radius:12px;margin:12px 0 14px
+}
+html[data-studio-theme] body .studio-listen-heading{margin-bottom:8px}
+html[data-studio-theme] body .studio-listen-heading strong{font-size:13px}
+html[data-studio-theme] body .studio-listen-controls{
+ display:flex;flex-wrap:wrap;gap:7px;align-items:center
+}
+html[data-studio-theme] body .studio-listen-controls button{
+ min-height:38px;padding:8px 11px;font-size:11px
+}
+html[data-studio-theme] body .studio-listen-controls label{
+ margin-left:0;font-size:10px;gap:5px;min-width:0
+}
+html[data-studio-theme] body .studio-listen-controls label:last-child{
+ flex:1 1 145px;min-width:145px
+}
+html[data-studio-theme] body .studio-listen-controls select{
+ min-height:38px;max-width:100%;width:100%;padding:7px 9px;
+ font-size:11px;border-radius:9px
+}
+html[data-studio-theme] body .studio-listen-panel p{
+ color:var(--v4-muted);font-size:11px;overflow-wrap:anywhere
+}
+html[data-studio-theme] body .script-accordion{
+ gap:10px;display:grid
+}
+html[data-studio-theme] body .script-accordion details{
+ overflow:hidden;
+ border:1px solid var(--v4-border);border-radius:12px;
+ background:var(--v4-surface)
+}
+html[data-studio-theme] body .script-accordion details summary{
+ padding:12px 13px;min-height:46px;
+ border:0!important;color:var(--v4-text);
+ font-size:12px;gap:9px
+}
+html[data-studio-theme] body .script-accordion details[open] summary{
+ border-bottom:1px solid var(--v4-border)!important
+}
+html[data-studio-theme] body .script-accordion details summary span{
+ color:var(--v4-muted);font-size:10px
+}
+html[data-studio-theme] body .script-accordion details textarea{
+ display:block;box-sizing:border-box;width:100%;
+ height:auto;min-height:94px;max-width:none;
+ border:0!important;border-radius:0!important;outline:0;
+ margin:0;padding:13px 14px;line-height:1.65;
+ background:var(--v4-surface)!important;color:var(--v4-text);
+ overflow:hidden!important;resize:none;font-size:13px;
+ box-shadow:none!important;
+}
+html[data-studio-theme] body .script-accordion details textarea:focus{
+ background:var(--v4-raised)!important;box-shadow:inset 3px 0 0 var(--v4-accent)!important
+}
+html[data-studio-theme] body .result-actions{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:8px;margin-top:17px
+}
+html[data-studio-theme] body .result-actions>button{
+ min-height:45px;padding:8px 10px;white-space:normal;min-width:0;
+ font-size:11px;border-radius:11px
+}
+html[data-studio-theme] body .result-actions .studio-record-launch{
+ grid-column:1/-1;background:var(--v4-soft);
+ color:var(--v4-accent);border-color:color-mix(in srgb,var(--v4-accent) 30%,var(--v4-border))
+}
+html[data-studio-theme] body .studio-review-details{
+ grid-column:1/-1;background:var(--v4-raised);
+ border:1px solid var(--v4-border);
+ border-radius:11px;overflow:hidden
+}
+html[data-studio-theme] body .studio-review-details summary{
+ list-style:none;cursor:pointer;display:flex;
+ align-items:center;justify-content:space-between;
+ color:var(--v4-text);font-size:12px;font-weight:800;
+ padding:13px 14px;min-height:45px
+}
+html[data-studio-theme] body .studio-review-details summary::-webkit-details-marker{display:none}
+html[data-studio-theme] body .studio-review-details summary>span{color:var(--v4-accent)}
+html[data-studio-theme] body .studio-review-buttons{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:8px;padding:11px;border-top:1px solid var(--v4-border)
+}
+html[data-studio-theme] body .studio-review-buttons button{
+ min-height:42px;font-size:11px;white-space:normal;min-width:0
+}
+/* Profile and shell: no oversized blank regions */
+html[data-studio-theme] body .studio-home-v4 .studio-dashboard-list{padding-bottom:10px}
+html[data-studio-theme] body .studio-home-v4 .studio-item-list{min-height:0}
+html[data-studio-theme] body .studio-home-v4 .studio-home-row:last-child{padding-bottom:8px}
+html[data-studio-theme] body .profile-screen .profile-card{padding:15px 13px;gap:5px}
+html[data-studio-theme] body .profile-screen .profile-avatar{width:46px;height:46px;border-radius:13px}
+html[data-studio-theme] body .profile-screen .profile-card h2{font-size:17px}
+html[data-studio-theme] body .profile-screen .profile-links{gap:8px}
+html[data-studio-theme] body .profile-screen .profile-links>*{
+ min-height:48px;border-radius:11px;font-size:12px;
+ padding:12px 13px
+}
+html[data-studio-theme] body .profile-screen .studio-profile-theme{padding:14px;margin:12px 0}
+html[data-studio-theme] body .profile-screen .studio-theme-options{gap:8px}
+html[data-studio-theme] body .profile-screen .studio-theme-options button{font-size:11px;min-height:42px}
+html[data-studio-theme] body .bottom-nav{
+ border-top:1px solid var(--v4-border);
+ box-shadow:0 -2px 16px rgba(0,0,0,.045)
+}
+html[data-studio-theme] body #studioRail .navbtn{font-size:13px;min-height:46px}
+html[data-studio-theme] body .savedgrid{gap:11px}
+html[data-studio-theme] body .saved{padding:16px}
+html[data-studio-theme] body .saved h3{font-size:14px;line-height:1.45}
+@media(max-width:700px){
+ html[data-studio-theme] body main{
+  width:100%;max-width:590px;margin:0 auto;
+  padding:14px 12px calc(120px + env(safe-area-inset-bottom,0px))!important
+ }
+ html[data-studio-theme] body .pro-screen{
+  width:100%;max-width:none;min-width:0;margin:0;overflow:visible
+ }
+ html[data-studio-theme] body #proToolsRoot.pro-loaded{
+  border:0!important;padding:0!important;margin:0!important;
+  min-width:0;width:100%;max-width:100%;
+ }
+ html[data-studio-theme] body .pro-quick-nav{
+  top:68px;z-index:21;gap:7px;position:sticky;
+  width:100%;min-width:0;overflow-x:auto;scroll-snap-type:x proximity
+ }
+ html[data-studio-theme] body .pro-quick{
+  flex:0 0 auto;min-width:105px;font-size:11px;
+  min-height:42px;padding:9px 11px;scroll-snap-align:start
+ }
+ html[data-studio-theme] body .pro-hero{
+  padding:3px 1px 10px;margin-bottom:9px
+ }
+ html[data-studio-theme] body .pro-hero .pro-eyebrow{display:none}
+ html[data-studio-theme] body .pro-hero h1{font-size:20px;line-height:1.4}
+ html[data-studio-theme] body .pro-hero p{display:none}
+ html[data-studio-theme] body .pro-status{padding:11px 12px;font-size:10px;margin-bottom:11px}
+ html[data-studio-theme] body .pro-record-tabs{gap:7px;margin-bottom:11px}
+ html[data-studio-theme] body .pro-record-tab{
+  font-size:11px;padding:8px 7px;line-height:1.4;
+  min-height:43px
+ }
+ html[data-studio-theme] body .pro-grid{
+  display:grid;grid-template-columns:minmax(0,1fr);
+  gap:11px;padding:0;margin:0;width:100%
+ }
+ html[data-studio-theme] body .pro-grid .pro-card,
+ html[data-studio-theme] body .pro-grid .pro-card.pro-wide{
+  grid-column:1;max-width:none;width:100%;min-width:0;
+  padding:14px 13px;border-radius:13px
+ }
+ html[data-studio-theme] body .pro-card h2{font-size:15px}
+ html[data-studio-theme] body .pro-card>p{font-size:11px}
+ html[data-studio-theme] body .pro-card .pro-actions{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px
+ }
+ html[data-studio-theme] body .pro-card .pro-actions button{
+  min-width:0;width:100%;max-width:100%;
+  padding:9px 7px;min-height:43px;font-size:11px;
+  line-height:1.35
+ }
+ html[data-studio-theme] body .pro-card .pro-actions button:only-child{
+  grid-column:1/-1
+ }
+ html[data-studio-theme] body .pro-cloud-actions{grid-template-columns:1fr}
+ html[data-studio-theme] body .pro-cloud-actions button{width:100%;min-height:42px}
+ html[data-studio-theme] body .pro-card .pro-caption-panel{
+  padding:12px;gap:8px;border-radius:12px
+ }
+ html[data-studio-theme] body .pro-caption-panel .pro-actions{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+ }
+ html[data-studio-theme] body .pro-caption-panel .pro-actions button{
+  min-height:42px;padding:9px 6px;white-space:normal
+ }
+ html[data-studio-theme] body #proAiCaptionPanel .pro-selects{
+  grid-template-columns:minmax(0,1fr);gap:9px
+ }
+ html[data-studio-theme] body .pro-keyword-form input{width:100%}
+ html[data-studio-theme] body #proRecordingOutput{min-height:50px}
+ html[data-studio-theme] body .newsgrid{grid-template-columns:minmax(0,1fr)}
+ html[data-studio-theme] body .story{padding:13px 14px;gap:7px}
+ html[data-studio-theme] body .story h3{font-size:14px}
+ html[data-studio-theme] body .storyfooter .primary{font-size:11px;min-height:38px}
+ html[data-studio-theme] body .news-screen .filters{gap:7px}
+ html[data-studio-theme] body .stepon{gap:5px;flex-direction:column}
+ html[data-studio-theme] body .stepon small{font-size:9px}
+ html[data-studio-theme] body .stepper{padding:10px 5px;min-height:69px}
+ html[data-studio-theme] body #editorScreen>.sectiontop{
+  display:flex;flex-direction:row;align-items:center;gap:9px
+ }
+ html[data-studio-theme] body #editorScreen>.sectiontop h2{font-size:19px}
+ html[data-studio-theme] body #editorScreen>.sectiontop p{font-size:11px}
+ html[data-studio-theme] body .configpanel,
+ html[data-studio-theme] body .scriptpanel{padding:14px}
+ html[data-studio-theme] body .scripthead{flex-wrap:wrap}
+ html[data-studio-theme] body .scripthead h3{font-size:16px}
+ html[data-studio-theme] body .studio-listen-controls label:last-child{flex-basis:100%}
+ html[data-studio-theme] body .script-accordion details textarea{font-size:12px}
+ html[data-studio-theme] body .studio-review-buttons{
+  grid-template-columns:repeat(2,minmax(0,1fr))
+ }
+ html[data-studio-theme] body .savedgrid{grid-template-columns:1fr}
+}
+@media(max-width:370px){
+ html[data-studio-theme] body .studio-listen-controls label{
+  flex:1 1 100%
+ }
+ html[data-studio-theme] body .pro-quick{min-width:96px;font-size:10px}
+ html[data-studio-theme] body .pro-card .pro-actions button{font-size:10.5px}
+}
+@media(prefers-reduced-motion:reduce){
+ html[data-studio-theme] body .pro-quick-nav{scroll-snap-type:none}
+}
