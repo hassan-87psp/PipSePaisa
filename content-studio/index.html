@@ -157,7 +157,19 @@
             <details class="advanced-box" id="schedulingBox"><summary>▦ Schedule & Publishing <span>⌄</span></summary>
               <div class="cols2"><label>Planned Publish Date & Time<input id="scheduledFor" type="datetime-local" aria-label="Scheduled publishing time"></label><label>Published Video URL<input id="publishedUrl" type="url" maxlength="1000" placeholder="https://youtube.com/..."></label></div>
             </details>
-            <div class="actions result-actions"><button type="button" id="copyScript" class="outline">▤ Copy Script</button><button type="button" id="saveScript" class="primary">▣ Save Script</button><button type="button" id="sendReview" class="outline">Send for Review</button><button type="button" id="approveScript" class="outline" hidden>Approve</button><button type="button" id="markPublished" class="outline" hidden>Mark Published</button></div>
+            <div class="actions result-actions">
+              <button type="button" id="copyScript" class="outline">▤ Copy Script</button>
+              <button type="button" id="saveScript" class="primary">▣ Save Script</button>
+              <button type="button" id="openRecordingFromEditor" class="outline studio-record-launch">◉ Recording Studio</button>
+              <details class="studio-review-details">
+                <summary>Review &amp; Publish Options <span>⌄</span></summary>
+                <div class="studio-review-buttons">
+                  <button type="button" id="sendReview" class="outline">Send for Review</button>
+                  <button type="button" id="approveScript" class="outline" hidden>Approve</button>
+                  <button type="button" id="markPublished" class="outline" hidden>Mark Published</button>
+                </div>
+              </details>
+            </div>
             <button type="button" class="tool-launch" data-go="tools">✦ Open Creator Tools ↗</button><div class="script-insights" id="scriptInsights">Words & estimated reading time</div><button type="button" id="editSettings" class="text-action">← Change Video Settings</button>
           </div>
         </div>
