@@ -505,3 +505,18 @@ html[data-studio-theme] body .saved h3{font-size:14px;line-height:1.45}
 @media(prefers-reduced-motion:reduce){
  html[data-studio-theme] body .pro-quick-nav{scroll-snap-type:none}
 }
+
+/* Mobile navigation backdrop: close on outside tap; protect page focus. */
+#studioNavBackdrop[hidden]{display:none!important}
+#studioNavBackdrop{
+ position:fixed;inset:0;z-index:48;
+ border:0;border-radius:0;background:rgba(9,12,19,.53);
+ backdrop-filter:blur(1px);-webkit-backdrop-filter:blur(1px);
+ cursor:pointer;padding:0;width:100%;height:100%;
+}
+html.studio-menu-open{overflow:hidden}
+@media(min-width:701px){#studioNavBackdrop{display:none!important}html.studio-menu-open{overflow:auto}}
+@media(max-width:700px){
+ html[data-studio-theme] body #studioRail{z-index:60}
+ html[data-studio-theme] body #studioNavBackdrop{z-index:55}
+}
