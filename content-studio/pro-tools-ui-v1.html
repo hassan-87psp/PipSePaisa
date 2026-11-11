@@ -42,9 +42,9 @@
     <div class="pro-card-top"><span class="pro-icon purple">◉</span><span class="pro-smalltag">LOCAL</span></div>
     <h2>Voice & Recording Studio</h2><p>Record your voice or camera video. Preview and download locally, or save privately.</p>
     <div class="pro-actions"><button type="button" class="pro-button secondary" id="proSpeak">▶ Read Script</button><button type="button" class="pro-button secondary" id="proStopSpeak">■ Stop Voice</button><button type="button" class="pro-button primary" id="proStartRecording">● Record Audio</button><button type="button" class="pro-button primary" id="proStartVideo">◉ Record Video</button><button type="button" class="pro-button secondary" id="proStopRecording" disabled>■ Stop Recording</button></div>
-    <div class="pro-output" id="proRecordingOutput">Microphone recording requires browser permission and a supported device.</div>
+    <div class="pro-output" id="proRecordingOutput">Choose Record Audio or Record Video to begin. Your browser will ask for permission.</div>
     <div class="pro-cloud-actions"><button type="button" class="pro-button primary" id="proCloudSave" disabled>☁ Save Recording Privately</button><button type="button" class="pro-button secondary" id="proCloudReload">↻ My Cloud Recordings</button></div>
-    <p id="proCloudSync" class="pro-mini-note" role="status">Files are never uploaded automatically. Private uploads require your action. Maximum 20 MB per file.</p>
+    <p id="proCloudSync" class="pro-mini-note" role="status">Recordings stay on your device unless you choose Save Privately. Maximum 20 MB.</p>
     <div id="proCloudList" class="pro-output">Sign in with Studio access to view private cloud recordings.</div>
   </article>
   <article class="pro-card pro-wide">
@@ -52,17 +52,19 @@
     <h2>Subtitles & Script Export</h2><p>Export your script as TXT, PDF or estimated subtitles; or generate captions from audio.</p>
     <div class="pro-actions"><button type="button" class="pro-button secondary" id="proSrt">⇩ Export SRT</button><button type="button" class="pro-button secondary" id="proTxt">⇩ Export TXT</button><button type="button" class="pro-button secondary" id="proPrint">⎙ Print / Save PDF</button></div>
     <div class="pro-caption-panel"><strong>Live Speech-to-Text Captions (Beta)</strong>
-      <p>Record speech as you talk to create a transcript and approximately timed SRT. Requires Chrome or another browser with SpeechRecognition. Some browsers process voice using their speech service; do not use for private conversations.</p>
+      <p>Speak and create captions with approximate timing.</p>
+      <details class="pro-help"><summary>How live captions work</summary><p>Requires browser SpeechRecognition, commonly Chrome. Voice may be processed by your browser vendor's speech service. Avoid confidential audio and review the exported SRT.</p></details>
       <div class="pro-actions"><button type="button" class="pro-button secondary" id="proTranscribeStart">◉ Start Live Captions</button><button type="button" class="pro-button secondary" id="proTranscribeStop" disabled>■ Stop</button><button type="button" class="pro-button secondary" id="proTranscriptExport" disabled>⇩ Export Spoken SRT</button></div>
       <div id="proTranscriptOutput" class="pro-output" aria-live="polite">No live transcription yet. Script-based SRT remains available above.</div>
     </div>
     <div class="pro-caption-panel" id="proAiCaptionPanel">
       <div class="pro-card-top"><strong>✦ AI Captions From Recording</strong><span class="pro-smalltag">WHISPER AI</span></div>
-      <p>Upload a recorded audio/video file or choose an existing private cloud recording. The file is sent to our AI transcription provider only when you press Transcribe. AI can make spelling and timing errors; review the SRT before publishing.</p>
+      <p>Generate timed subtitles from an uploaded voice or video recording.</p>
+      <details class="pro-help"><summary>Privacy and accuracy</summary><p>Your selected file is first saved in private Studio storage and sent to our AI transcription provider only when you explicitly request it. AI captions can have errors; review text and timing before publishing.</p></details>
       <div class="pro-selects"><label>Audio or Video File (max 20 MB)<input type="file" id="proAiMediaUpload" accept=".webm,.mp4,.m4a,.mp3,audio/webm,audio/mp4,video/webm,video/mp4,audio/mpeg"></label>
       <label>Spoken Language<select id="proAiLanguage"><option value="">Auto Detect</option><option value="en">English</option><option value="ur">Urdu</option></select></label></div>
       <button type="button" class="pro-button primary" id="proAiTranscribe">✦ Upload Privately & Transcribe</button>
-      <div id="proAiStatus" class="pro-output" role="status">Requires the server AI transcription service. You can also transcribe a saved cloud recording above.</div>
+      <div id="proAiStatus" class="pro-output" role="status">Choose a file, then press Transcribe. Existing private recordings can also be transcribed.</div>
       <textarea id="proAiTranscriptText" rows="5" placeholder="AI transcript appears here after successful transcription" aria-label="AI transcription text" readonly hidden></textarea>
       <div class="pro-actions"><button type="button" class="pro-button secondary" id="proAiSrt" disabled>⇩ Download Timed SRT</button><button type="button" class="pro-button secondary" id="proAiTxt" disabled>⇩ Download Transcript</button><button type="button" class="pro-button primary" id="proAiUseInEditor" disabled>✎ Use As Script</button></div>
     </div>
