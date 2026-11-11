@@ -520,3 +520,23 @@ html.studio-menu-open{overflow:hidden}
  html[data-studio-theme] body #studioRail{z-index:60}
  html[data-studio-theme] body #studioNavBackdrop{z-index:55}
 }
+
+/* V5.1: All four Creator Toolkit destinations always visible on mobile.
+   Previously horizontal scrolling clipped Planning and Workspace tabs. */
+@media(max-width:700px){
+ html[data-studio-theme] body .pro-quick-nav{
+  position:relative;top:auto;display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:7px;overflow:visible;scroll-snap-type:none;
+  padding:0 0 12px;margin:0;
+ }
+ html[data-studio-theme] body .pro-quick{
+  width:100%;min-width:0;max-width:100%;min-height:44px;
+  flex:auto;white-space:normal;line-height:1.35;
+  padding:10px 7px;text-align:center;
+ }
+ html[data-studio-theme] body .pro-quick:focus-visible,
+ html[data-studio-theme] body .pro-record-tab:focus-visible{
+  outline:2px solid var(--v4-accent);outline-offset:2px;
+ }
+}
