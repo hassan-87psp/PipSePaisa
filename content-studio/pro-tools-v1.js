@@ -8,13 +8,15 @@ const B=()=>window.PSPStudioBridge;
 const $=id=>document.getElementById(id);
 const SECTIONS=['hook','explanation','market_impact','closing','cta'];
 const ALL=['hook','explanation','market_impact','closing','cta','seo_title','caption','hashtags'];
-let ready=false,mediaRecorder=null,mediaStream=null,mediaChunks=[],recordingUrl='',autoTimer=null,scrollFrame=0,scrollRunning=false,lastFrame=0;
+let ready=false,mediaRecorder=null,mediaStream=null,mediaChunks=[],recordingUrl='',autoTimer=null,scrollFrame=0,scrollRunning=false,lastFrame=0,recordLimitTimer=null,recognizer=null,spokenCaptions=[],speechStartedAt=0,recognizedIndexes=new Set();
 function words(x){return String(x||'').trim().split(/\s+/).filter(Boolean)}
 function fullText(){return SECTIONS.map(k=>$(k)?.value||'').filter(Boolean).join('\n\n')}
 function allText(){return ['PIPSEPAISA VIDEO SCRIPT','',($('storyTitle')?.value||''),'',...ALL.flatMap(k=>[(k.replaceAll('_',' ')).toUpperCase(),$(k)?.value||'',''])].join('\n')}
 function pref(k){return 'psp-content-studio-'+k+'-v1-'+(B()?.getUser()?.id||'guest')}
 function stored(k,fallback){try{const d=JSON.parse(localStorage.getItem(pref(k))||'null');return d===null?fallback:d}catch{return fallback}}
-function save(k,v){try{localStorage.setItem(pref(k),JSON.stringify(v))}catch(_){}}
+function save(k,v){try{localStorage.setItem(pref(k),JSON.stringify(v))}catch(_){}
+ if(['brand_voice','watch','favorites'].includes(k))window.PSPStudioCloud?.scheduleSave?.();
+}
 function alertText(s){const x=$('proEditorStatus');if(x){x.textContent=String(s);x.scrollIntoView({behavior:'smooth',block:'nearest'});}}
 function hasScript(){return fullText().trim().length>15}
 function canAI(){return ['creator','editor','approver'].includes(B()?.getPermission())}
@@ -136,30 +138,107 @@ function beginSpeech(){
  if(!('speechSynthesis' in window))return alertText('This browser does not support speech playback.');
  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(fullText());u.rate=.95;u.pitch=1;u.lang=$('language')?.value==='English'?'en-US':$('language')?.value==='Urdu'?'ur-PK':'en-US';speechSynthesis.speak(u);alertText('Device text-to-speech has started.');
 }
-async function startRecording(){
- if(!navigator.mediaDevices?.getUserMedia||typeof MediaRecorder==='undefined')return alertText('Microphone recording is not supported by this browser.');
+
+async function recordMedia(kind){
+ if(!navigator.mediaDevices?.getUserMedia||typeof MediaRecorder==='undefined'){
+  return alertText('This browser cannot record media. Please use a supported HTTPS browser.');
+ }
  if(mediaRecorder?.state==='recording')return;
+ const video=kind==='video';
  try{
-  mediaStream=await navigator.mediaDevices.getUserMedia({audio:true});
-  mediaChunks=[];mediaRecorder=new MediaRecorder(mediaStream);
-  mediaRecorder.ondataavailable=e=>{if(e.data.size)mediaChunks.push(e.data);};
-  mediaRecorder.onstop=()=>{
+  mediaStream=await navigator.mediaDevices.getUserMedia(video?{audio:true,video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}}}:{audio:true});
+  const candidates=video?['video/mp4','video/webm;codecs=vp8,opus','video/webm']:['audio/mp4','audio/webm;codecs=opus','audio/webm'];
+  const supported=candidates.find(x=>MediaRecorder.isTypeSupported?.(x));
+  mediaRecorder=new MediaRecorder(mediaStream,supported?{mimeType:supported}:undefined);
+  mediaChunks=[];
+  const rec=mediaRecorder;
+  const stopUI=()=>{
+   if(recordLimitTimer){clearTimeout(recordLimitTimer);recordLimitTimer=null;}
+   mediaStream?.getTracks().forEach(t=>t.stop());mediaStream=null;
+   if($('proStartRecording'))$('proStartRecording').disabled=false;
+   if($('proStartVideo'))$('proStartVideo').disabled=false;
+   if($('proStopRecording'))$('proStopRecording').disabled=true;
+  };
+  rec.ondataavailable=e=>{if(e.data.size)mediaChunks.push(e.data)};
+  rec.onstop=()=>{
+   const mime=(rec.mimeType||supported||'').split(';')[0]|| (video?'video/webm':'audio/webm');
+   const blob=new Blob(mediaChunks,{type:mime});
    if(recordingUrl)URL.revokeObjectURL(recordingUrl);
-   const blob=new Blob(mediaChunks,{type:mediaRecorder.mimeType||'audio/webm'});
    recordingUrl=URL.createObjectURL(blob);
    const root=$('proRecordingOutput');root.replaceChildren();
-   const note=document.createElement('div');note.textContent='Audio recorded locally. Preview or save the file:';
-   const audio=document.createElement('audio');audio.controls=true;audio.src=recordingUrl;
-   const a=document.createElement('a');a.href=recordingUrl;a.download='PipSePaisa-voice-recording.'+(blob.type.includes('mp4')?'m4a':'webm');a.textContent='⇩ Download Recording';a.style.display='inline-block';a.style.marginTop='12px';
-   root.append(note,audio,a);mediaStream?.getTracks().forEach(t=>t.stop());mediaStream=null;
-   $('proStartRecording').disabled=false;$('proStopRecording').disabled=true;
+   const note=document.createElement('div');
+   note.textContent=(video?'Video':'Audio')+' recorded on your device ('+(blob.size/1048576).toFixed(1)+' MB). Download or choose private cloud save:';
+   const player=document.createElement(video?'video':'audio');
+   player.controls=true;player.preload='metadata';player.src=recordingUrl;player.style.cssText='width:100%;max-height:400px;margin:12px 0;border-radius:12px';
+   const a=document.createElement('a');a.href=recordingUrl;
+   a.download='PipSePaisa-'+(video?'video':'voice')+'-'+new Date().toISOString().slice(0,10)+'.'+(mime.includes('mp4')?'mp4':'webm');
+   a.textContent='⇩ Download '+(video?'Video':'Audio');
+   a.style.cssText='display:inline-block;margin:8px 0;color:#ffb66c;font-weight:800';
+   root.append(note,player,a);stopUI();
+   document.dispatchEvent(new CustomEvent('psp-studio-media-captured',{detail:{blob,kind:video?'video':'audio'}}));
   };
-  mediaRecorder.start(800);$('proStartRecording').disabled=true;$('proStopRecording').disabled=false;
-  $('proRecordingOutput').textContent='● Recording microphone… Press Stop when finished. Audio is not uploaded.';
-  setTimeout(()=>{if(mediaRecorder?.state==='recording')mediaRecorder.stop();},600000);
- }catch(e){alertText(e.name==='NotAllowedError'?'Microphone permission was declined.':(e.message||'Microphone unavailable.'));mediaStream?.getTracks().forEach(t=>t.stop());$('proStartRecording').disabled=false;$('proStopRecording').disabled=true;}
+  rec.onerror=()=>{alertText('The recorder stopped unexpectedly. Try again.');stopUI();};
+  rec.start(1000);
+  $('proStartRecording').disabled=true;
+  $('proStartVideo').disabled=true;
+  $('proStopRecording').disabled=false;
+  $('proRecordingOutput').textContent='● '+(video?'Recording camera + microphone…':'Recording microphone…')+' Press Stop when finished. Nothing uploads automatically.';
+  recordLimitTimer=setTimeout(()=>{if(rec.state==='recording')rec.stop()},600000);
+ }catch(e){
+  mediaStream?.getTracks().forEach(t=>t.stop());mediaStream=null;
+  if($('proStartRecording'))$('proStartRecording').disabled=false;
+  if($('proStartVideo'))$('proStartVideo').disabled=false;
+  if($('proStopRecording'))$('proStopRecording').disabled=true;
+  alertText(e?.name==='NotAllowedError'?'Microphone or camera permission was declined.':(e?.message||'Recording could not start.'));
+ }
 }
-function stopRecording(){if(mediaRecorder?.state==='recording')mediaRecorder.stop();}
+async function startRecording(){return recordMedia('audio')}
+async function startVideoRecording(){return recordMedia('video')}
+function stopRecording(){if(mediaRecorder?.state==='recording')mediaRecorder.stop()}
+function stopLiveTranscription(){
+ if(recognizer){try{recognizer.stop()}catch(_){}}
+}
+function startLiveTranscription(){
+ const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!Recognition)return alertText('Live speech recognition is not supported by this browser. Use Chrome or export script-based SRT instead.');
+ if(recognizer){try{recognizer.abort()}catch(_){}}
+ spokenCaptions=[];recognizedIndexes=new Set();speechStartedAt=Date.now();
+ const out=$('proTranscriptOutput');if(out)out.textContent='Listening for speech. Speak clearly. Recognition may use your browser vendor speech service.';
+ const rec=new Recognition();recognizer=rec;
+ rec.lang=$('language')?.value==='Urdu'?'ur-PK':'en-US';
+ rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;
+ rec.onresult=event=>{
+  let interim='';
+  for(let i=event.resultIndex;i<event.results.length;i++){
+   const row=event.results[i],text=String(row?.[0]?.transcript||'').trim();
+   if(!text)continue;
+   if(row.isFinal){
+    if(recognizedIndexes.has(i))continue;
+    recognizedIndexes.add(i);
+    const end=Math.max(1,(Date.now()-speechStartedAt)/1000);
+    const last=spokenCaptions.at(-1)?.end||0;
+    const start=Math.max(last,end-Math.max(1.2,words(text).length/2.5));
+    spokenCaptions.push({text,start,end:Math.max(end,start+1)});
+   }else interim=text;
+  }
+  if(out)out.textContent=spokenCaptions.map(x=>x.text).join(' ') + (interim?' · '+interim:'');
+  if($('proTranscriptExport'))$('proTranscriptExport').disabled=!spokenCaptions.length;
+ };
+ rec.onerror=event=>{alertText('Speech recognition: '+(event.error||'unavailable')+'. Script SRT export remains available.')};
+ rec.onend=()=>{recognizer=null;if($('proTranscribeStart'))$('proTranscribeStart').disabled=false;if($('proTranscribeStop'))$('proTranscribeStop').disabled=true;};
+ try{
+  rec.start();
+  if($('proTranscribeStart'))$('proTranscribeStart').disabled=true;
+  if($('proTranscribeStop'))$('proTranscribeStop').disabled=false;
+ }catch(e){alertText(e.message||'Unable to start live captions.')}
+}
+function exportLiveSrt(){
+ if(!spokenCaptions.length)return alertText('Speak and capture captions first.');
+ const body=spokenCaptions.map((s,i)=>[i+1,stamp(s.start)+' --> '+stamp(s.end),s.text,''].join('\n')).join('\n');
+ toFile('PipSePaisa-live-caption-estimated.srt',body,'text/plain;charset=utf-8');
+ alertText('Speech-recognized SRT exported with approximate timing. Review spelling and sync before publishing.');
+}
+
 async function history(){
  const id=B()?.getCurrentId();const box=$('proHistoryList');box.replaceChildren();
  if(!id){box.textContent='Save your script first to enable version history.';return;}
@@ -258,13 +337,32 @@ async function start(){
   if(!r.ok)throw Error('Creator Toolkit UI could not load');
   root.innerHTML=await r.text();
  }catch(e){root.textContent='Creator Toolkit unavailable. Please reload this page.';return;}
+
+ const categories={ai:['AI Rewrite & Translate','One Script → All Platforms','Editorial Quality Review','Thumbnail & Banner Ideas'],
+  record:['Voice & Recording Studio','Subtitles & Script Export'],
+  planning:['Favorite News & Keyword Watch','Content Analytics'],
+  manage:['Script Version History','PipSePaisa Brand Voice','Editorial Comments']};
+ root.querySelectorAll('.pro-card').forEach(card=>{
+  const title=card.querySelector('h2')?.textContent?.trim()||'';
+  card.dataset.category=Object.keys(categories).find(k=>categories[k].includes(title))||'ai';
+ });
+ function setCategory(name){
+  root.querySelectorAll('.pro-card').forEach(card=>{card.hidden=card.dataset.category!==name});
+  root.querySelectorAll('[data-pro-category]').forEach(btn=>{
+   const active=btn.dataset.proCategory===name;
+   btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',active?'true':'false');
+  });
+ }
+ root.querySelectorAll('[data-pro-category]').forEach(button=>button.addEventListener('click',()=>setCategory(button.dataset.proCategory)));
+ setCategory('ai');
  const wire=(id,fn)=>$(id)?.addEventListener('click',fn);
  wire('proRewrite',()=>{const style=$('rewriteStyle').value,part=$('rewritePart').value,language=$('rewriteLanguage').value;ai(style==='translate'?'translate':'rewrite',$('proRewrite'),{style,part,language})});
  wire('proContentPack',()=>ai('pack',$('proContentPack')));
  wire('proQuality',()=>ai('quality',$('proQuality')));
  wire('proThumbnail',()=>ai('thumbnail',$('proThumbnail')));
  wire('proSpeak',beginSpeech);wire('proStopSpeak',()=>{if('speechSynthesis' in window)speechSynthesis.cancel()});
- wire('proStartRecording',startRecording);wire('proStopRecording',stopRecording);
+ wire('proStartRecording',startRecording);wire('proStartVideo',startVideoRecording);wire('proStopRecording',stopRecording);
+ wire('proTranscribeStart',startLiveTranscription);wire('proTranscribeStop',stopLiveTranscription);wire('proTranscriptExport',exportLiveSrt);
  wire('proSrt',subtitles);wire('proTxt',()=>{if(!hasScript())return alertText('Write a script first.');toFile('PipSePaisa-video-script.txt',allText())});
  wire('proPrint',printScript);wire('proHistory',history);
  wire('proBrandSave',saveBrandPrefs);$('proCommentForm')?.addEventListener('submit',postComment);loadBrandPrefs();
@@ -272,6 +370,7 @@ async function start(){
  $('proKeywordForm')?.addEventListener('submit',e=>{e.preventDefault();const k=$('proKeyword').value.trim().slice(0,40);if(k.length<2)return;let list=stored('watch',[]);if(!list.some(x=>x.toLowerCase()===k.toLowerCase()))list.push(k);save('watch',list.slice(0,20));$('proKeyword').value='';renderWatch();});
  const inputIds=['storyTitle','storyDesc','storySource','storyCat','storyUrl','duration','language','tone','platform',...ALL];
  inputIds.forEach(k=>$(k)?.addEventListener('input',()=>{refreshStats();clearTimeout(autoTimer);autoTimer=setTimeout(saveDraft,900)}));
+ document.addEventListener('psp-studio-cloud-preferences-loaded',()=>{loadBrandPrefs();renderWatch();markFavorites();});
  document.addEventListener('psp-studio-scripts-loaded',refreshStats);
  document.addEventListener('psp-studio-news-loaded',()=>{markFavorites();renderWatch()});
  document.addEventListener('psp-studio-script-generated',()=>{refreshStats();saveDraft()});
