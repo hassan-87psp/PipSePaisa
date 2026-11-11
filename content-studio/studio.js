@@ -38,14 +38,21 @@ async function boot(){
  const manager=['admin','mentor','super_admin'].includes(role);
  if(!permission&&!manager){deny('Content Studio is private. Ask your Admin or Mentor to grant your account access.');return;}
  gatePassed=true;
- $('whoLabel').textContent=(profileResp.data?.full_name||user.email||'Member')+' / Private Workspace';
+ const displayName=profileResp.data?.full_name||user.email?.split('@')[0]||'Creator';
+ $('whoLabel').textContent=displayName+' / Your Private Studio';
+ $('welcomeName').textContent=displayName.split(/\s+/)[0]||'Creator';
+ $('profileName').textContent=displayName;
+ $('profileEmail').textContent=user.email||'PipSePaisa member';
+ $('profileBack').href=$('backLink').href;
+ $('openManageBtn').hidden=!manager;
  $('accessBadge').textContent=permission?permission.toUpperCase():'MANAGEMENT ONLY';
  $('manageNav').hidden=!manager;$('manageLabel').hidden=!manager;
- if(!permission)document.querySelectorAll('.navbtn:not([data-view="manage"])').forEach(x=>x.hidden=true);
+ if(!permission){document.querySelectorAll('.navbtn:not([data-view="manage"])').forEach(x=>x.hidden=true);$('bottomNav').hidden=true;}
  if(!canWrite()){$('generate').disabled=true;$('saveScript').disabled=true;$('sendReview').disabled=true;$('newScript').hidden=true;FIELDS.forEach(k=>$(k).readOnly=true);$('scheduledFor').disabled=true;$('publishedUrl').readOnly=true;}
  $('approveScript').hidden=!isApprover();$('markPublished').hidden=!isApprover();
  $('authGate').hidden=true;$('studioApp').hidden=false;
- bind();showPanel((new URLSearchParams(location.search).get('manage')==='1'||!permission)&&manager?'manage':'news');
+ bind();syncChoices();wizardStep('2');
+ showPanel((new URLSearchParams(location.search).get('manage')==='1'||!permission)&&manager?'manage':'home');
  if(permission){await Promise.all([loadNews(),loadScripts()]);}
  if(manager)loadMembers();
 }
@@ -57,6 +64,8 @@ function showPanel(name){
  view=name;
  document.querySelectorAll('[data-panel]').forEach(el=>el.hidden=el.dataset.panel!==name);
  document.querySelectorAll('.navbtn').forEach(el=>el.classList.toggle('active',el.dataset.view===name));
+ const bottomName=name==='editor'?'news':name;
+ document.querySelectorAll('#bottomNav [data-bottom]').forEach(el=>{const active=el.dataset.bottom===bottomName;el.classList.toggle('active',active);if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
  $('studioRail').classList.remove('open');
  $('refreshNews').hidden=name!=='news';
  if(name==='saved')renderSaved();
@@ -64,6 +73,16 @@ function showPanel(name){
 }
 function bind(){
  document.querySelectorAll('.navbtn').forEach(el=>el.addEventListener('click',()=>showPanel(el.dataset.view)));
+ document.querySelectorAll('#bottomNav [data-bottom]').forEach(el=>el.addEventListener('click',()=>showPanel(el.dataset.bottom)));
+ document.querySelectorAll('[data-go]').forEach(el=>el.addEventListener('click',()=>showPanel(el.dataset.go)));
+ document.querySelectorAll('.choice-list[data-select-id] button').forEach(el=>el.addEventListener('click',()=>{
+  const group=el.closest('[data-select-id]'),select=$(group.dataset.selectId);
+  if(!select||select.disabled)return;
+  select.value=el.dataset.choice;select.dispatchEvent(new Event('change',{bubbles:true}));syncChoices();
+ }));
+ $('changeNews').addEventListener('click',()=>showPanel('news'));
+ $('editSettings').addEventListener('click',()=>{wizardStep('2');showPanel('editor');});
+
  $('mobileNav').addEventListener('click',()=>$('studioRail').classList.toggle('open'));
  $('refreshNews').addEventListener('click',loadNews);
  ['newsSearch','newsCategory','newsHeat'].forEach(k=>$(k).addEventListener(k==='newsSearch'?'input':'change',renderNews));
@@ -73,7 +92,7 @@ function bind(){
  $('approveScript').addEventListener('click',()=>changeStatus('approved'));
  $('markPublished').addEventListener('click',()=>changeStatus('published'));
  $('copyScript').addEventListener('click',copyScript);
- $('newScript').addEventListener('click',()=>{clearEditor();showPanel('editor');});
+ $('newScript').addEventListener('click',()=>{clearEditor();wizardStep('2');showPanel('editor');});
  $('statusFilter').addEventListener('change',renderSaved);
  $('searchMembers').addEventListener('click',loadMembers);
  $('memberSearch').addEventListener('keydown',e=>{if(e.key==='Enter')loadMembers();});
@@ -117,6 +136,7 @@ function clearEditor(){
  currentId=null;currentStatus='draft';chosen=null;
  ['storyTitle','storyDesc','storySource','storyCat','storyUrl','scheduledFor','publishedUrl',...FIELDS].forEach(k=>$(k).value='');
  $('scriptStatus').textContent='New draft / not saved';
+ $('duration').value='60';$('language').value='Roman Urdu + English';$('platform').value='Facebook Reels';$('tone').value='Professional & Engaging';syncChoices();wizardStep('2');
 }
 function selectStory(s){
  if(!canWrite()){msg('Your access is view-only.');return;}
@@ -127,7 +147,7 @@ function selectStory(s){
  $('storyUrl').value=validUrl(s.link||s.url);
  $('storyCat').value=String(s.category||s.cat||'').slice(0,70);
  $('scriptStatus').textContent='Source selected · Verify details before publishing';
- showPanel('editor');window.scrollTo({top:0,behavior:'smooth'});
+ wizardStep('2');showPanel('editor');window.scrollTo({top:0,behavior:'smooth'});
 }
 function scriptData(){
  const obj={source_title:$('storyTitle').value.trim(),source_description:$('storyDesc').value.trim(),source_name:$('storySource').value.trim(),source_url:validUrl($('storyUrl').value),category:$('storyCat').value.trim()||'Market News',heat:chosen?.heat||'warm',
@@ -144,7 +164,7 @@ async function generateScript(){
  if(!canWrite()){msg('Script creation permission required.');return;}
  const story=scriptData();
  if(story.source_title.length<10){msg('Please select news or enter a valid headline.');return;}
- const b=$('generate');setLoading(b,true,'✦ Generating script…');
+ const b=$('generate');setLoading(b,true,'✦ Generating script…');wizardStep('loading');
  try{
   const sr=await client.auth.getSession();
   if(!sr.data?.session?.access_token)throw Error('Please sign in again.');
@@ -158,8 +178,10 @@ async function generateScript(){
   if(!resp.ok||!result.ok)throw Error(result.error||'Could not generate script.');
   FIELDS.forEach(k=>$(k).value=result.script?.[k]||'');
   $('scriptStatus').textContent='AI draft · Fact-check required · '+(result.provider||'AI');
+  $('scriptStoryHeading').textContent=story.source_title;
+  wizardStep('3');window.scrollTo({top:0,behavior:'smooth'});
   msg('AI draft generated. Review all facts before recording.');
- }catch(e){msg(e.message||'Generation failed.');}finally{setLoading(b,false);}
+ }catch(e){wizardStep('2');msg(e.message||'Generation failed.');}finally{setLoading(b,false);}
 }
 async function saveScript(forReview){
  if(!canWrite()){msg('Editing permission required.');return false;}
@@ -226,7 +248,8 @@ function loadIntoEditor(s){
  $('markPublished').hidden=!isApprover()||s.status==='published';
  $('saveScript').disabled=!canWrite();
  $('sendReview').disabled=!canWrite()||['approved','published'].includes(s.status);
- showPanel('editor');window.scrollTo({top:0,behavior:'smooth'});
+ $('scriptStoryHeading').textContent=s.source_title||'';
+ syncChoices();wizardStep('3');showPanel('editor');window.scrollTo({top:0,behavior:'smooth'});
 }
 async function loadMembers(){
  if(!['admin','mentor','super_admin'].includes(role))return;
@@ -249,6 +272,33 @@ async function loadMembers(){
   row.append(details,select,actions);box.appendChild(row);
  }
 }
+
+// Guided three-step creation flow. AI and database calls remain in this module
+// and use the same server-validated permissions as before.
+function wizardStep(stage){
+ const screen=$('editorScreen');if(!screen)return;
+ screen.dataset.step=String(stage);
+ const loading=stage==='loading',ready=stage==='3';
+ $('aiStage').hidden=!loading;
+ $('stepBreadcrumb').textContent=ready?'STEP 3 OF 3':loading?'GENERATING SCRIPT':'STEP 2 OF 3';
+ $('editorHeading').textContent=ready?'Your Script is Ready':loading?'Preparing your Video':'Customize Your Video';
+ $('editorSubheading').textContent=ready?'Edit, copy, save or open your SEO Pack.':loading?'AI is writing your content.':'Choose a few options and let AI do the rest.';
+ const b2=screen.querySelector('[data-wstep="2"]'),b3=screen.querySelector('[data-wstep="3"]');
+ if(b2)b2.className='stepon '+(ready?'complete':'active');
+ if(b3)b3.className='stepon '+(ready?'active':'');
+ if(b2?.querySelector('span'))b2.querySelector('span').textContent=ready?'✓':'2';
+ if(b3?.querySelector('span'))b3.querySelector('span').textContent='3';
+}
+function syncChoices(){
+ document.querySelectorAll('.choice-list[data-select-id]').forEach(group=>{
+  const select=$(group.dataset.selectId);if(!select)return;
+  group.querySelectorAll('button[data-choice]').forEach(button=>{
+   const selected=button.dataset.choice===select.value;
+   button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',selected?'true':'false');
+  });
+ });
+}
+
 async function verifyContinuingAccess(){
  if(!gatePassed||!client||!user)return;
  try{
