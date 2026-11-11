@@ -254,7 +254,7 @@ async function start(){
  if(ready)return;ready=true;
  const root=$('proToolsRoot');if(!root)return;
  try{
-  const r=await fetch('/content-studio/pro-tools-ui-v1.html?v=20261112-v1',{cache:'no-store'});
+  const r=await fetch('/content-studio/pro-tools-ui-v1.html?v=20261112-v2',{cache:'no-store'});
   if(!r.ok)throw Error('Creator Toolkit UI could not load');
   root.innerHTML=await r.text();
  }catch(e){root.textContent='Creator Toolkit unavailable. Please reload this page.';return;}
