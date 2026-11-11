@@ -243,7 +243,7 @@ async function loadMembers(){
   const save=document.createElement('button');save.className='outline';save.textContent='Save Access';
   save.addEventListener('click',async()=>{setLoading(save,true);try{
    const r=await client.rpc('psp_content_set_access_v1',{p_user_id:p.user_id,p_permission:select.value,p_enabled:cb.checked});
-   if(r.error)throw r.error;msg('Permission updated successfully.');await loadMembers();
+   if(r.error)throw r.error;msg('Permission updated successfully.');if(p.user_id===user.id){location.reload();return;}await loadMembers();
   }catch(e){msg(e.message||'Unable to update access.');}finally{setLoading(save,false);}});
   const actions=document.createElement('div');actions.style.display='flex';actions.style.gap='8px';actions.style.alignItems='center';actions.style.flexWrap='wrap';actions.append(toggle,save);
   row.append(details,select,actions);box.appendChild(row);
