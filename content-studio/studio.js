@@ -42,7 +42,7 @@ async function boot(){
  $('accessBadge').textContent=permission?permission.toUpperCase():'MANAGEMENT ONLY';
  $('manageNav').hidden=!manager;$('manageLabel').hidden=!manager;
  if(!permission)document.querySelectorAll('.navbtn:not([data-view="manage"])').forEach(x=>x.hidden=true);
- if(permission==='viewer'){$('generate').disabled=true;$('saveScript').disabled=true;$('sendReview').disabled=true;$('newScript').hidden=true;FIELDS.forEach(k=>$(k).readOnly=true);}
+ if(permission==='viewer'){$('generate').disabled=true;$('saveScript').disabled=true;$('sendReview').disabled=true;$('newScript').hidden=true;FIELDS.forEach(k=>$(k).readOnly=true);$('scheduledFor').disabled=true;$('publishedUrl').readOnly=true;}
  $('approveScript').hidden=!isApprover();$('markPublished').hidden=!isApprover();
  $('authGate').hidden=true;$('studioApp').hidden=false;
  bind();showPanel((new URLSearchParams(location.search).get('manage')==='1'||!permission)&&manager?'manage':'news');
@@ -115,7 +115,7 @@ function renderNews(){
 }
 function clearEditor(){
  currentId=null;currentStatus='draft';chosen=null;
- ['storyTitle','storyDesc','storySource','storyCat','storyUrl',...FIELDS].forEach(k=>$(k).value='');
+ ['storyTitle','storyDesc','storySource','storyCat','storyUrl','scheduledFor','publishedUrl',...FIELDS].forEach(k=>$(k).value='');
  $('scriptStatus').textContent='New draft / not saved';
 }
 function selectStory(s){
@@ -134,6 +134,8 @@ function scriptData(){
  duration_seconds:Number($('duration').value),language:$('language').value,tone:$('tone').value,platform:$('platform').value};
  const date=Date.parse(chosen?.date||'');obj.source_date=Number.isFinite(date)?new Date(date).toISOString():null;
  FIELDS.forEach(k=>obj[k]=$(k).value.trim());
+ const when=$('scheduledFor').value;obj.scheduled_for=when?new Date(when).toISOString():null;
+ obj.published_url=validUrl($('publishedUrl').value);
  return obj;
 }
 async function generateScript(){
@@ -175,7 +177,7 @@ async function saveScript(forReview){
 }
 async function changeStatus(status){
  if(!isApprover()||!currentId){msg('Approver access and a saved script are required.');return;}
- try{const result=await client.from('psp_content_scripts').update({status}).eq('id',currentId).select('status').single();
+ try{const when=$('scheduledFor').value;const result=await client.from('psp_content_scripts').update({status,scheduled_for:when?new Date(when).toISOString():null,published_url:validUrl($('publishedUrl').value)}).eq('id',currentId).select('status').single();
  if(result.error)throw result.error;currentStatus=status;$('scriptStatus').textContent=status.toUpperCase();
  msg(status==='approved'?'Script approved.':'Script marked published.');await loadScripts();
  }catch(e){msg(e.message||'Status update failed.');}
@@ -199,14 +201,14 @@ function renderSaved(){
  renderScriptCards($('savedList'),saved.filter(x=>f==='all'||x.status===f));
 }
 function renderPlanner(){
- renderScriptCards($('plannerList'),saved.filter(x=>x.status==='approved'||x.status==='published'));
+ renderScriptCards($('plannerList'),saved.filter(x=>x.status==='approved'||x.status==='published').sort((a,b)=>Date.parse(a.scheduled_for||a.updated_at)-Date.parse(b.scheduled_for||b.updated_at)));
 }
 function renderScriptCards(root,items){
  root.replaceChildren();
  if(!items.length){root.innerHTML='<div class="empty">No scripts in this category yet.</div>';return;}
  for(const script of items){
   const el=document.createElement('article');el.className='saved';
-  el.innerHTML='<div class="storytop"><span class="tag">'+safe(script.status)+'</span><small class="meta">'+safe(ago(script.updated_at))+'</small></div><h3>'+safe(script.source_title)+'</h3><p>'+safe(script.hook.slice(0,170))+'</p><div class="meta">'+safe(script.platform)+' • '+safe(String(script.duration_seconds))+' sec • '+safe(script.language)+'</div>';
+  el.innerHTML='<div class="storytop"><span class="tag">'+safe(script.status)+'</span><small class="meta">'+safe(ago(script.updated_at))+'</small></div><h3>'+safe(script.source_title)+'</h3><p>'+safe(script.hook.slice(0,170))+'</p><div class="meta">'+safe(script.platform)+' • '+safe(String(script.duration_seconds))+' sec • '+safe(script.language)+(script.scheduled_for?' • Planned: '+safe(new Date(script.scheduled_for).toLocaleString()):'')+(script.published_url?' • Video link saved':'')+'</div>';
   const b=document.createElement('button');b.className='outline';b.textContent='Open Script';b.addEventListener('click',()=>loadIntoEditor(script));el.appendChild(b);root.appendChild(el);
  }
 }
@@ -214,6 +216,8 @@ function loadIntoEditor(s){
  chosen=null;currentId=s.id;currentStatus=s.status;
  const mapping={storyTitle:'source_title',storyDesc:'source_description',storySource:'source_name',storyCat:'category',storyUrl:'source_url',duration:'duration_seconds',language:'language',tone:'tone',platform:'platform'};
  Object.entries(mapping).forEach(([k,v])=>$(k).value=s[v]??'');
+ $('publishedUrl').value=s.published_url||'';
+ if(s.scheduled_for){const d=new Date(s.scheduled_for);$('scheduledFor').value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}else{$('scheduledFor').value='';}
  FIELDS.forEach(k=>$(k).value=s[k]||'');
  $('scriptStatus').textContent=String(s.status||'draft').toUpperCase()+' · '+ago(s.updated_at);
  $('approveScript').hidden=!isApprover()||s.status==='approved'||s.status==='published';
