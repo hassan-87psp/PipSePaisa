@@ -999,3 +999,63 @@
  html[data-studio-theme] body .story,
  html[data-studio-theme] body .bottom-nav button{transition:none!important}
 }
+
+
+/* Light-mode contrast safety: premium orange treatment remains, text stays legible.
+   Users can still select Light Executive in Profile. */
+@media(max-width:700px){
+ html[data-studio-theme="light"] body .studio-row-title,
+ html[data-studio-theme="light"] body .studio-stats-v4 strong,
+ html[data-studio-theme="light"] body .luxe-project-stats b,
+ html[data-studio-theme="light"] body #savedList .saved h3,
+ html[data-studio-theme="light"] body #plannerList .saved h3{
+  color:#1d2534!important;
+ }
+ html[data-studio-theme="light"] body .studio-row-meta,
+ html[data-studio-theme="light"] body .studio-stats-v4 span:not(.luxe-stat-icon),
+ html[data-studio-theme="light"] body .luxe-project-stats small,
+ html[data-studio-theme="light"] body #savedList .saved p,
+ html[data-studio-theme="light"] body #plannerList .saved p,
+ html[data-studio-theme="light"] body #savedList .saved>.meta,
+ html[data-studio-theme="light"] body #plannerList .saved>.meta{
+  color:#637184!important;
+ }
+ html[data-studio-theme="light"] body .luxe-weekdays span,
+ html[data-studio-theme="light"] body .luxe-cal-day,
+ html[data-studio-theme="light"] body .luxe-calendar-bottom span,
+ html[data-studio-theme="light"] body .luxe-calendar-head>b{
+  color:#263247!important;
+ }
+ html[data-studio-theme="light"] body .luxe-cal-day.today{color:#c47b1b!important}
+ html[data-studio-theme="light"] body .luxe-cal-day.selected{color:#fff!important}
+ html[data-studio-theme="light"] body .luxe-calendar-head button{background:#fff6eb;color:#a85e10}
+ html[data-studio-theme="light"] body .luxe-filter-pill{color:#2a3544}
+ html[data-studio-theme="light"] body .luxe-planner-empty{
+  color:#8c581b;background:#fff5e9
+ }
+ html[data-studio-theme="light"] body #newsList .story .storyfooter .meta{color:#647082}
+ html[data-studio-theme="light"] body .studio-small-guide .exec-guide-head,
+ html[data-studio-theme="light"] body .luxe-steps>span:nth-child(odd){
+  color:#293448!important;
+ }
+ html[data-studio-theme="light"] body .studio-source-tab{color:#2b3341!important}
+ html[data-studio-theme="light"] body .sectiontop h2{color:#202938!important}
+ html[data-studio-theme="light"] body .luxe-page-hero h2{color:#fff!important}
+ html[data-studio-theme="light"] body .configpanel input,
+ html[data-studio-theme="light"] body .configpanel select,
+ html[data-studio-theme="light"] body .configpanel textarea,
+ html[data-studio-theme="light"] body .scriptpanel input,
+ html[data-studio-theme="light"] body .scriptpanel textarea{
+  background:#fff!important;color:#1c2634!important;border-color:#d9bc98!important
+ }
+ html[data-studio-theme="light"] body .script-accordion details,
+ html[data-studio-theme="light"] body .advanced-box{
+  background:#fff7ef!important;color:#1f2b39!important
+ }
+ html[data-studio-theme="light"] body .script-accordion details summary{color:#263347!important}
+ html[data-studio-theme="light"] body #newsList .story p{color:#657184!important}
+ html[data-studio-theme="light"] body .luxe-project-stats>div,
+ html[data-studio-theme="light"] body .studio-stats-v4>div{
+  background:#fff!important
+ }
+}
