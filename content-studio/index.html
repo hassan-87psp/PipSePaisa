@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="/content-studio/premium-v2.css?v=20261112-premium-03">
 <link rel="stylesheet" href="/content-studio/pro-tools-v1.css?v=20261112-v8">
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8"></script>
-<script defer src="/content-studio/studio.js?v=20261112-newsfeed-full-v1"></script>
+<script defer src="/content-studio/studio.js?v=20261112-newsfeed-pro-v2"></script>
 <script defer src="/content-studio/pro-tools-v1.js?v=20261112-exec-v6"></script>
 <script defer src="/content-studio/cloud-v2.js?v=20261112-v9"></script>
 <link rel="stylesheet" href="/content-studio/studio-refresh-v4.css?v=20261112-r2">
@@ -102,7 +102,7 @@
           <p class="studio-topic-note">AI educational draft hai, verified breaking news nahi. Financial claims publish karne se pehle check karein.</p>
         </div>
         <div id="newsSourcePanel"><button type="button" id="customTopic" hidden aria-hidden="true" tabindex="-1">Custom Topic</button>
-        <div class="sectiontop"><div><h2>Market News</h2><p>Choose a relevant trading headline, or switch to My Own Topic above.</p></div><div class="filters"><input id="newsSearch" type="search" placeholder="Search news..." aria-label="Search news"><select id="newsCategory" aria-label="News category"><option value="trading" selected>Trading Focus</option><option value="all">All News</option><option value="Gold">Gold</option><option value="Forex">Forex</option><option value="Bitcoin">Bitcoin / Crypto</option><option value="Macro">Economy</option><option value="Geopolitics">Geopolitics</option><option value="Central Banks">Central Banks</option></select><select id="newsHeat" aria-label="Priority"><option value="all">All Impact</option><option value="hot">🔥 Hot News</option><option value="warm">Relevant</option></select></div></div>
+        <div class="sectiontop"><div><h2>Market News</h2><p>Choose a relevant trading headline, or switch to My Own Topic above.</p></div><div class="filters"><input id="newsSearch" type="search" placeholder="Search news..." aria-label="Search news"><select id="newsCategory" aria-label="News category"><option value="trading" selected>Trading Focus</option><option value="gold-forex">Gold &amp; Forex</option><option value="Gold">Gold (XAUUSD)</option><option value="Forex">Forex Pairs</option><option value="positioning">COT &amp; Gold Flows</option><option value="all">All News</option><option value="Bitcoin">Bitcoin / Crypto</option><option value="Macro">Economy</option><option value="Geopolitics">Geopolitics</option><option value="Central Banks">Central Banks</option></select><select id="newsHeat" aria-label="Priority"><option value="all">All Impact</option><option value="hot">🔥 Hot News</option><option value="warm">Relevant</option></select></div></div>
         <div id="newsList" class="newsgrid"><div class="empty">Loading Hot News…</div></div></div>
       </section>
       <section data-panel="editor" id="editorScreen" data-step="2" hidden>
