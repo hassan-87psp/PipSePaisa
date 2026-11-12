@@ -16,7 +16,7 @@ self.addEventListener('activate',event=>{
   })());
 });
 function isPublicStaticRequest(req){
-  if(!req||req.method!=='GET'||req.mode==='navigate'||req.headers.has('Authorization')||req.cache==='no-store')return false;
+  if(!req||req.method!=='GET'||req.mode==='navigate'||req.headers.has('Authorization')||['no-store','reload','no-cache'].includes(req.cache))return false;
   let url;
   try{url=new URL(req.url)}catch{return false}
   if(url.origin!==self.location.origin)return false;
