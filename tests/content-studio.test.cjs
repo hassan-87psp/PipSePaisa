@@ -18,6 +18,7 @@ const accessJS=read('content-studio-access/access.js');
 const accessEdge=read('supabase/functions/content-studio-access/index.ts');
 const centralEmail=read('supabase/functions/send-course-email/index.ts');
 const luxeCSS=read('content-studio/mobile-luxe-v8.css');
+const bundleCSS=read('content-studio/studio-perf-bundle-v11.css');
 const mentor=read('psp-mentor.html');
 const dashboard=read('dashboard/index.html');
 const edge=read('supabase/functions/content-studio-ai/index.ts');
@@ -29,7 +30,9 @@ test('private premium Studio with normal creator workflow',()=>{
  }
  assert.match(html,/id="studioApp"[^>]*hidden/);
  for(const page of ['home','news','editor','saved','calendar','tools','profile']) assert.ok(html.includes('data-panel="'+page+'"'),page);
- assert.match(html,/pro-tools-v1\.css/);
+ assert.match(html,/studio-perf-bundle-v11\.css/);
+ assert.match(bundleCSS,/PipSePaisa Creator Toolkit v1/);
+ assert.match(bundleCSS,/\.pro-screen/);
  assert.match(html,/pro-tools-v1\.js/);
  assert.doesNotMatch(html,/data-panel="manage"/);
  assert.doesNotMatch(html,/id="manageNav"|id="memberList"|id="openManageBtn"/);
@@ -118,9 +121,11 @@ test('premium toolkit includes functional browser tools and history',()=>{
 });
 
 
-test('mobile luxe layer is linked last and uses safe-area aware premium navigation',()=>{
- assert.match(html,/mobile-luxe-v8\.css/);
- assert.ok(html.indexOf('mobile-luxe-v8.css')>html.indexOf('signature-v7.css'));
+test('bundled Studio CSS retains mobile luxe layer order and safe-area premium navigation',()=>{
+ assert.match(html,/studio-perf-bundle-v11\.css/);
+ assert.ok(bundleCSS.indexOf('mobile-luxe-v8.css')>bundleCSS.indexOf('signature-v7.css'));
+ assert.ok(bundleCSS.indexOf('luxury-desktop-v9.css')>bundleCSS.indexOf('mobile-luxe-v8.css'));
+ assert.ok(bundleCSS.indexOf('mobile-cinematic-v10.css')>bundleCSS.indexOf('luxury-desktop-v9.css'));
  assert.match(luxeCSS,/studio-welcome/);
  assert.match(luxeCSS,/bottom-nav/);
  assert.match(luxeCSS,/env\(safe-area-inset-bottom/);
@@ -139,4 +144,12 @@ test('studio notifications use the same secured Supabase email function as other
  assert.match(centralEmail,/!studioAccess\?\.enabled/);
  assert.match(centralEmail,/"studio_access_granted",/);
  assert.doesNotMatch(accessEdge,/nodemailer|SMTP_PASSWORD/);
+});
+
+test('Studio UI is served by one CSS bundle preserving legacy cascade',()=>{
+ const links=[...html.matchAll(/<link rel="stylesheet" href="\/content-studio\/[^"]+\.css[^"]*"/g)];
+ assert.equal(links.length,1,'only one render-blocking Studio stylesheet');
+ for(const name of ['studio.css','premium-v2.css','pro-tools-v1.css','studio-refresh-v4.css','mobile-polish-v5.css','executive-v6.css','signature-v7.css','mobile-luxe-v8.css','luxury-desktop-v9.css','mobile-cinematic-v10.css']){
+   assert.ok(bundleCSS.includes('/* ----- '+name+' ----- */'),'missing layer '+name);
+ }
 });
