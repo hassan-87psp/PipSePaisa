@@ -1,7 +1,6 @@
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import nodemailer from "npm:nodemailer@6.10.1";
 const SITE="https://www.pipsepaisa.com";
 const config=(name:string)=>Deno.env.get(name)||"";
 function secret(name:string) {
@@ -16,10 +15,6 @@ const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]
 const escape=(v:unknown)=>String(v||"").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"} as Record<string,string>)[c]||c);
 function cors(req:Request){const origin=req.headers.get("origin")||"";return {"Content-Type":"application/json","Vary":"Origin","Access-Control-Allow-Origin":["https://pipsepaisa.com",SITE].includes(origin)?origin:SITE,"Access-Control-Allow-Methods":"POST,OPTIONS","Access-Control-Allow-Headers":"authorization,apikey,content-type,x-client-info","Cache-Control":"no-store"};}
 function reply(req:Request,data:unknown,status=200){return new Response(JSON.stringify(data),{status,headers:cors(req)});}
-function emailHtml(name:string,role:string){
-  const person=escape(name),label=escape(role[0].toUpperCase()+role.slice(1));
-  return '<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#0d1118;padding:28px 12px;font-family:Arial,sans-serif;color:#e7eef7"><table width="100%" role="presentation"><tr><td align="center"><table width="100%" role="presentation" style="max-width:560px;background:#17202b;border:1px solid #374353;border-radius:19px;overflow:hidden"><tr><td style="background:#f39522;height:6px"></td></tr><tr><td style="padding:30px 28px"><div style="font-size:20px;font-weight:800;color:#fff">PipSe<span style="color:#f39522">Paisa</span> <span style="font-size:11px;color:#b7c5d3">AI STUDIO</span></div><div style="margin-top:28px;color:#f6b46b;font-size:11px;letter-spacing:2px;font-weight:700">PRIVATE CREATOR WORKSPACE</div><h1 style="font-size:28px;line-height:1.25;color:#fff">Your Studio is ready.</h1><p style="font-size:15px;line-height:1.8;color:#d3dce6">Hello <b>'+person+'</b>,<br>Your private access to the <b>PipSePaisa AI Content Studio</b> has been approved.</p><table width="100%" style="margin:20px 0;background:#222e3b;border:1px solid #445267;border-radius:12px"><tr><td style="padding:17px;color:#bac5d1">Access</td><td align="right" style="padding:17px;color:#96ecc0;font-weight:700">ACTIVE</td></tr><tr><td style="padding:0 17px 17px;color:#bac5d1">Permission</td><td align="right" style="padding:0 17px 17px;color:#fff;font-weight:700">'+label+'</td></tr></table><p style="font-size:14px;line-height:1.75;color:#c5d0dc">Generate video scripts, explore market news, save projects and use your professional creator tools.</p><a href="'+SITE+'/content-studio/" style="display:inline-block;margin:14px 0;padding:16px 24px;background:#f39522;color:#211609;text-decoration:none;border-radius:12px;font-weight:800">Open My AI Studio →</a><p style="font-size:12px;line-height:1.7;color:#a6b5c6">Use your existing PipSePaisa login. Access remains active until changed by an administrator. Never share your password.</p></td></tr><tr><td style="border-top:1px solid #354455;padding:18px 28px;color:#99aabb;font-size:11px">PipSePaisa · Professional Trading Education<br><a style="color:#f7ae56" href="'+SITE+'">'+SITE+'</a><br>This is an automated access approval notification.</td></tr></table></td></tr></table></body></html>';
-}
 Deno.serve(async(req:Request)=>{
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers:cors(req)});
  if(req.method!=="POST")return reply(req,{error:"Only POST is supported"},405);
@@ -46,21 +41,57 @@ Deno.serve(async(req:Request)=>{
   }
   const emailNeeded=enabled&&(body.action==="resend"||!before.data?.enabled||before.data?.permission!==role);
   if(!emailNeeded)return reply(req,{saved:body.action==="save",email_sent:false,notification_needed:false});
-  const member=await service.from("profiles").select("email,full_name").eq("id",body.user_id).maybeSingle();
-  if(member.error)throw member.error;
-  let email=String(member.data?.email||"").trim();
-  if(!email){const user=await service.auth.admin.getUserById(body.user_id);email=String(user.data?.user?.email||"").trim();}
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return reply(req,{saved:body.action==="save",notification_needed:true,email_sent:false,error:"User has no valid email address."});
-  if(!config("SMTP_HOST")||!config("SMTP_USERNAME")||!config("SMTP_PASSWORD"))return reply(req,{saved:body.action==="save",notification_needed:true,email_sent:false,error:"SMTP email service is not configured."});
-  const port=Number(config("SMTP_PORT")||587);
-  const transporter=nodemailer.createTransport({host:config("SMTP_HOST"),port,secure:port===465,requireTLS:port===587,auth:{user:config("SMTP_USERNAME"),pass:config("SMTP_PASSWORD")},connectionTimeout:15000,greetingTimeout:15000,socketTimeout:25000,tls:{servername:config("SMTP_HOST"),rejectUnauthorized:true}});
-  try{
-    const result=await transporter.sendMail({from:{name:config("SMTP_FROM_NAME")||"PipSePaisa",address:config("SMTP_FROM_EMAIL")||"no-reply@pipsepaisa.com"},to:email,subject:"Your PipSePaisa AI Studio Access Is Ready",html:emailHtml(member.data?.full_name||"Creator",role)});
-    console.info("Studio access email accepted by SMTP",{user_id:body.user_id,message_id:result.messageId});
-    return reply(req,{saved:body.action==="save",notification_needed:true,email_sent:true});
-  }catch(e){
-    console.error("Studio access SMTP failure",e);
-    return reply(req,{saved:body.action==="save",notification_needed:true,email_sent:false,error:"Email failed to send. Use Resend Email."});
-  }finally{transporter.close();}
+  // Deliver via the SAME send-course-email Supabase Edge Function and
+  // SMTP configuration used for other official PipSePaisa notifications.
+  // That function independently verifies admin identity, active access,
+  // recipient email in Auth, and the role in the database.
+  try {
+    const mailResponse = await fetch(url + "/functions/v1/send-course-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + jwt,
+        "apikey": publicKey,
+      },
+      body: JSON.stringify({
+        type: "studio_access_granted",
+        target_user_id: body.user_id,
+      }),
+    });
+    const delivered = await mailResponse.json().catch(() => ({}));
+    if (!mailResponse.ok || delivered.success !== true) {
+      console.error("Supabase central Studio email failed", {
+        user_id: body.user_id,
+        status: mailResponse.status,
+        request_id: delivered.request_id || null,
+        error: delivered.error || "Email not accepted",
+      });
+      return reply(req, {
+        saved:body.action==="save",
+        notification_needed:true,
+        email_sent:false,
+        error:delivered.error || "Email delivery failed. Please use Resend Email.",
+      });
+    }
+    console.info("Studio access email sent through send-course-email",{
+      user_id:body.user_id,
+      request_id:delivered.request_id || null,
+      message_id:delivered.message_id || null,
+    });
+    return reply(req, {
+      saved:body.action==="save",
+      notification_needed:true,
+      email_sent:true,
+      delivery_service:"supabase/send-course-email",
+    });
+  } catch(e) {
+    console.error("Supabase central Studio email request failed",e);
+    return reply(req,{
+      saved:body.action==="save",
+      notification_needed:true,
+      email_sent:false,
+      error:"Supabase email service unavailable. Please use Resend Email.",
+    });
+  }
  }catch(e){console.error("Studio access request error",e);return reply(req,{error:"Unable to process Studio access."},500);}
 });
