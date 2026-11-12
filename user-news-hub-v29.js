@@ -118,7 +118,8 @@
           nhNews=d.items.map(n=>({...n,cat:nhCategoryForItem(n),id:n.title.slice(0,40).replace(/[^a-zA-Z0-9]/g,'').toLowerCase()}));
           nhNews.forEach(n=>{
             if(nhSeen.has(n.id))return;
-            const fresh=!fromCache&&!nhFirstLoad;
+            const publishedAt=Date.parse(n.date||'');
+            const fresh=!fromCache&&!nhFirstLoad&&Number.isFinite(publishedAt)&&Date.now()-publishedAt<10*60*1000;
             nhSeen.add(n.id);
             if(fresh)nhCheckNotif(n);
           });
