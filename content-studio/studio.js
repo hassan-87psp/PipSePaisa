@@ -106,7 +106,7 @@ async function loadNews(){
  if(!permission)return;
  $('newsList').innerHTML='<div class="empty">Loading live Hot News…</div>';
  try{
-  const r=await fetch(NEWS+'?limit=500&compact=1',{signal:AbortSignal.timeout(16000),cache:'no-store'});
+  const r=await fetch(NEWS+'?limit=500&compact=1&focus=trading',{signal:AbortSignal.timeout(16000),cache:'no-store'});
   const d=await r.json();
   if(!Array.isArray(d.items)||!d.items.length)throw Error('News feed temporarily unavailable.');
   stories=d.items;$('newsTotal').textContent=stories.length;$('newsHot').textContent=stories.filter(s=>s.heat==='hot').length;
@@ -125,10 +125,11 @@ function newsRelevance(story){
  const title=plainNews(story.title,450).toLowerCase(),cat=plainNews(story.category,100).toLowerCase();
  let score=0;
  if(/\b(gold|xauusd|xau|silver|metals|bullion)\b/.test(title))score+=12;
- if(/\b(forex|fx market|eurusd|eur\/usd|gbpusd|gbp\/usd|usd\/jpy|usdjpy|dxy|dollar index|currency|currencies)\b/.test(title))score+=11;
+ if(/\b(forex|fx market|eurusd|eur\/usd|gbpusd|gbp\/usd|usd\/jpy|usdjpy|gbpjpy|gbp\/jpy|eurjpy|audusd|nzdusd|usdcad|usdchf|eurgbp|usdcnh|dxy|dollar index|currency|currencies)\b/.test(title))score+=11;
  if(/\b(bitcoin|btc|ethereum|ethusd|cryptocurrency|crypto)\b/.test(title))score+=10;
  if(/\b(cpi|ppi|nfp|nonfarm|fomc|federal reserve|fed rates|fed decision|inflation|interest rates?|rate (?:hike|cut|decision)|treasury yields?|central bank|monetary policy)\b/.test(title))score+=9;
  if(/\b(oil|crude|opec|brent|natural gas)\b/.test(title))score+=7;
+ if(/\b(cftc|commitments of traders|cot report|net long|net short|futures positioning|open interest|gold etf|gold-backed etf|central bank gold buying|world gold council|real yields)\b/.test(title))score+=8;
  if(/\b(gold|forex|crypto|bitcoin|central banks)\b/.test(cat))score+=5;
  if(/\b(economy|macro|commodities)\b/.test(cat))score+=3;
  if(/\b(tariffs?|sanctions?|trade war|bond yields?|us dollar|market volatility|recession)\b/.test(title))score+=5;
@@ -141,14 +142,23 @@ function renderNews(){
  const list=stories.filter(story=>{
   const title=plainNews(story.title,700),desc=plainNews(story.desc,1000),category=plainNews(story.category,100);
   const txt=(title+' '+desc+' '+category).toLowerCase();
-  let categoryMatches=cat==='all'||cat==='trading'&&newsRelevance(story)>=4||
-   cat==='bitcoin / crypto'&&/\b(bitcoin|crypto|btc|ethereum)\b/.test(txt)||
-   (cat!=='trading'&&cat!=='bitcoin / crypto'&&txt.includes(cat));
+  let categoryMatches=cat==='all'||
+   (cat==='trading'&&(story.marketFocus===true||newsRelevance(story)>=4))||
+   (cat==='gold-forex'&&['gold','forex'].includes(category.toLowerCase()))||
+   (cat==='positioning'&&/\b(cftc|commitments of traders|cot report|net long|net short|futures positioning|open interest|gold etf|gold-backed etf|central bank gold (?:buying|purchases)|world gold council)\b/.test(txt))||
+   (cat==='bitcoin / crypto'&&/\b(bitcoin|crypto|btc|ethereum)\b/.test(txt))||
+   (!['trading','gold-forex','positioning','bitcoin / crypto'].includes(cat)&&txt.includes(cat));
   // A headline search should work across the full feed, even outside the default Trading Focus view.
   if(q&&cat==='trading')categoryMatches=true;
   return (!q||txt.includes(q))&&categoryMatches&&(heat==='all'||story.heat===heat);
- }).sort((a,b)=>newsRelevance(b)-newsRelevance(a)||
-  (Date.parse(b.date||'')||0)-(Date.parse(a.date||'')||0)).slice(0,100);
+ }).sort((a,b)=>{
+   const rank=story=> {
+     const ageHours=Math.max(0,(Date.now()-(Date.parse(story.date)||Date.now()))/3600000);
+     return newsRelevance(story)+(story.heat==='hot'?5:story.heat==='warm'?2:0)+
+       Math.max(0,24-ageHours)*0.28;
+   };
+   return rank(b)-rank(a)||(Date.parse(b.date||'')||0)-(Date.parse(a.date||'')||0);
+ }).slice(0,100);
  root.replaceChildren();
  if(!list.length){
   const d=document.createElement('div');d.className='empty';
