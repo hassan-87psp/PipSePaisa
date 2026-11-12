@@ -15,6 +15,8 @@ const toolsCSS=read('content-studio/pro-tools-v1.css');
 const admin=read('admin-panel.html');
 const accessHtml=read('content-studio-access/index.html');
 const accessJS=read('content-studio-access/access.js');
+const accessEdge=read('supabase/functions/content-studio-access/index.ts');
+const luxeCSS=read('content-studio/mobile-luxe-v8.css');
 const mentor=read('psp-mentor.html');
 const dashboard=read('dashboard/index.html');
 const edge=read('supabase/functions/content-studio-ai/index.ts');
@@ -71,7 +73,11 @@ test('permissions are managed from Admin only, not Studio or Mentor',()=>{
  assert.match(accessHtml,/Content Studio Access/);
  assert.match(accessJS,/client\.auth\.getUser\(\)/);
  assert.match(accessJS,/p\.data\?\.role!=='admin'/);
- assert.match(accessJS,/psp_content_set_access_v1/);
+ assert.match(accessJS,/client\.functions\.invoke\('content-studio-access'/);
+ assert.match(accessEdge,/psp_content_set_access_v1/);
+ assert.match(accessEdge,/admin\.data\?\.role!=="admin"/);
+ assert.match(accessEdge,/email_sent:true/);
+ assert.match(accessJS,/Resend Email/);
  assert.match(accessJS,/psp_content_search_users_v1/);
  assert.doesNotMatch(studio,/psp_content_set_access_v1|psp_content_search_users_v1|loadMembers/);
  assert.doesNotMatch(mentor,/content-studio\/\?portal=mentor&manage=1/);
@@ -108,4 +114,14 @@ test('premium toolkit includes functional browser tools and history',()=>{
  assert.match(toolsJS,/MediaRecorder/);
  assert.match(toolsJS,/psp_content_script_versions/);
  assert.match(toolsJS,/psp_content_script_comments/);
+});
+
+
+test('mobile luxe layer is linked last and uses safe-area aware premium navigation',()=>{
+ assert.match(html,/mobile-luxe-v8\.css/);
+ assert.ok(html.indexOf('mobile-luxe-v8.css')>html.indexOf('signature-v7.css'));
+ assert.match(luxeCSS,/studio-welcome/);
+ assert.match(luxeCSS,/bottom-nav/);
+ assert.match(luxeCSS,/env\(safe-area-inset-bottom/);
+ assert.match(accessEdge,/SMTP_HOST/);
 });
