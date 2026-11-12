@@ -894,7 +894,8 @@ type WebsiteEmailType =
   | "payment_approved"
   | "payment_rejected"
   | "payment_revoked"
-  | "pin_access_welcome";
+  | "pin_access_welcome"
+  | "studio_access_granted";
 
 type WebsiteEmailBody = {
   type: WebsiteEmailType;
@@ -908,6 +909,7 @@ type WebsiteEmailBody = {
   rejection_reason?: string;
   target_user_id?: string;
   enrollment_id?: string;
+  permission?: string;
 };
 
 function normalizeWebsiteType(
@@ -960,6 +962,27 @@ function buildWebsiteEmail(
   );
 
   const type = normalizeWebsiteType(body.type);
+
+  if (type === "studio_access_granted") {
+    const studioRole = escapeHtml(String(body.permission || "creator").replace(/^./, (letter) => letter.toUpperCase()));
+    return {
+      subject: "Your PipSePaisa AI Studio Access Is Ready",
+      html: emailLayout(
+        "Welcome to PipSePaisa AI Content Studio",
+        "Your private AI Studio access is now active.",
+        '<p style="font-size:16px;line-height:1.75;margin:0 0 18px">Hello <strong>' + name + '</strong>,</p>' +
+        '<p style="font-size:15px;line-height:1.75;color:#374151">Your private access to <strong>PipSePaisa AI Content Studio</strong> has been approved. Welcome to your professional creator workspace.</p>' +
+        '<div style="padding:18px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;margin:20px 0">' +
+        '<div style="font-size:12px;font-weight:800;letter-spacing:1px;color:#9a3412">ACCESS CONFIRMED</div>' +
+        '<p style="margin:9px 0 0;color:#374151;font-size:14px">Status: <strong style="color:#15803d">Active</strong></p>' +
+        '<p style="margin:9px 0 0;color:#374151;font-size:14px">Studio role: <strong>' + studioRole + '</strong></p>' +
+        '</div>' +
+        '<p style="font-size:15px;line-height:1.75;color:#374151">Explore market news, generate AI video scripts, manage your saved projects, and create content with PipSePaisa Creator Tools.</p>' +
+        actionButton("Open My AI Studio", SITE_URL + "/content-studio/") +
+        '<p style="font-size:12px;line-height:1.75;color:#6b7280">Sign in with your existing PipSePaisa account. Access remains active until changed by the administrator. Never share your password.</p>',
+      ),
+    };
+  }
 
   if (type === "free_course_enrolled") {
     return {
@@ -1289,6 +1312,7 @@ async function handleWebsiteEmail(
     "payment_rejected",
     "payment_revoked",
     "pin_access_welcome",
+    "studio_access_granted",
   ];
 
   if (
@@ -1311,6 +1335,7 @@ async function handleWebsiteEmail(
     "payment_approved",
     "payment_rejected",
     "payment_revoked",
+    "studio_access_granted",
   ].includes(eventType);
 
   console.info(`[${requestId}] website email started`, {
@@ -1495,6 +1520,34 @@ async function handleWebsiteEmail(
       String(
         enrollment.full_name || recipientName,
       ).trim() || "Student";
+  }
+
+  // Never trust the requested recipient or role for Studio approvals.
+  // A live, enabled permission and the Supabase Auth recipient are authoritative.
+  if (eventType === "studio_access_granted") {
+    const targetId = String(body.target_user_id || "").trim();
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetId)) {
+      return jsonResponse({ success:false,error:"A valid Studio user ID is required.",request_id:requestId },400);
+    }
+    const { data:studioAccess, error:studioAccessError } = await admin
+      .from("psp_content_access")
+      .select("permission,enabled")
+      .eq("user_id",targetId)
+      .maybeSingle();
+    if (studioAccessError || !studioAccess?.enabled || !["viewer","creator","editor","approver"].includes(studioAccess.permission)) {
+      return jsonResponse({ success:false,error:"This user does not have active Studio access.",request_id:requestId },403);
+    }
+    const studioAuth = await admin.auth.admin.getUserById(targetId);
+    if (studioAuth.error || !studioAuth.data?.user?.email) {
+      return jsonResponse({ success:false,error:"Studio member email could not be resolved.",request_id:requestId },404);
+    }
+    const studioProfile = await admin.from("profiles").select("full_name").eq("id",targetId).maybeSingle();
+    recipientEmail = normalizeEmail(studioAuth.data.user.email);
+    recipientName = String(studioProfile.data?.full_name ||
+      studioAuth.data.user.user_metadata?.full_name ||
+      studioAuth.data.user.user_metadata?.name ||
+      recipientEmail.split("@")[0] || "Creator").trim();
+    body.permission = studioAccess.permission;
   }
 
   if (
