@@ -106,7 +106,7 @@ async function loadNews(){
  if(!permission)return;
  $('newsList').innerHTML='<div class="empty">Loading live Hot News…</div>';
  try{
-  const r=await fetch(NEWS+'?limit=120',{signal:AbortSignal.timeout(16000),cache:'no-store'});
+  const r=await fetch(NEWS+'?limit=500&compact=1',{signal:AbortSignal.timeout(16000),cache:'no-store'});
   const d=await r.json();
   if(!Array.isArray(d.items)||!d.items.length)throw Error('News feed temporarily unavailable.');
   stories=d.items;$('newsTotal').textContent=stories.length;$('newsHot').textContent=stories.filter(s=>s.heat==='hot').length;
