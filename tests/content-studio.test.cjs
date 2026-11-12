@@ -16,6 +16,7 @@ const admin=read('admin-panel.html');
 const accessHtml=read('content-studio-access/index.html');
 const accessJS=read('content-studio-access/access.js');
 const accessEdge=read('supabase/functions/content-studio-access/index.ts');
+const centralEmail=read('supabase/functions/send-course-email/index.ts');
 const luxeCSS=read('content-studio/mobile-luxe-v8.css');
 const mentor=read('psp-mentor.html');
 const dashboard=read('dashboard/index.html');
@@ -123,5 +124,19 @@ test('mobile luxe layer is linked last and uses safe-area aware premium navigati
  assert.match(luxeCSS,/studio-welcome/);
  assert.match(luxeCSS,/bottom-nav/);
  assert.match(luxeCSS,/env\(safe-area-inset-bottom/);
- assert.match(accessEdge,/SMTP_HOST/);
+ assert.match(accessEdge,/\/functions\/v1\/send-course-email/);
+ assert.match(centralEmail,/studio_access_granted/);
+ assert.match(centralEmail,/psp_content_access/);
+ assert.match(centralEmail,/const messageId = await deliverEmail/);
+});
+
+test('studio notifications use the same secured Supabase email function as other website mail',()=>{
+ assert.match(accessEdge,/type: "studio_access_granted"/);
+ assert.match(accessEdge,/target_user_id: body\.user_id/);
+ assert.match(accessEdge,/delivery_service:"supabase\/send-course-email"/);
+ assert.match(centralEmail,/eventType === "studio_access_granted"/);
+ assert.match(centralEmail,/studioAuth\.data\.user\.email/);
+ assert.match(centralEmail,/!studioAccess\?\.enabled/);
+ assert.match(centralEmail,/"studio_access_granted",/);
+ assert.doesNotMatch(accessEdge,/nodemailer|SMTP_PASSWORD/);
 });
