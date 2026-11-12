@@ -5,6 +5,9 @@ const NEWS='https://pipsepaisa-api.vercel.app/api/news';
 const FIELDS=['hook','explanation','market_impact','closing','cta','seo_title','caption','hashtags'];
 const KEYS={user:'pipsepaisa-user-auth-v2',admin:'pipsepaisa-admin-auth-v2',mentor:'pipsepaisa-mentor-auth-v2'};
 let client,user,role='',permission='',view='',currentId=null,currentStatus='draft',chosen=null,stories=[],saved=[],gatePassed=false;
+const NEWS_CACHE_KEY='psp_public_ai_studio_market_news_v1';
+const NEWS_CACHE_FRESH_MS=2*60*1000, NEWS_CACHE_MAX_STALE_MS=12*60*60*1000;
+let newsRequest=null,newsLastFetchedAt=0,newsVisibleLimit=36,lastNewsFilterKey='';
 const $=id=>document.getElementById(id);
 function msg(t){const x=$('toast');x.textContent=String(t);x.classList.add('show');setTimeout(()=>x.classList.remove('show'),3600);}
 function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -58,6 +61,29 @@ async function boot(){
  showPanel('home');
  await Promise.all([loadNews(),loadScripts()]);
 }
+// Public publisher headlines only. Never cache Supabase auth, private scripts,
+// studio permissions or generated content in this local news cache.
+function readNewsCache(){
+ try{
+  const raw=localStorage.getItem(NEWS_CACHE_KEY);
+  if(!raw)return null;
+  const entry=JSON.parse(raw);
+  const age=Date.now()-Number(entry?.at||0);
+  if(age<0||age>NEWS_CACHE_MAX_STALE_MS||!Array.isArray(entry.items)||!entry.items.length)return null;
+  return entry;
+ }catch{return null}
+}
+function storeNewsCache(items){
+ try{localStorage.setItem(NEWS_CACHE_KEY,JSON.stringify({at:Date.now(),items}));}catch(_){}
+}
+function applyNewsItems(items,updatedAt){
+ if(!Array.isArray(items)||!items.length)return;
+ stories=items;
+ $('newsTotal').textContent=String(items.length);
+ $('newsHot').textContent=String(items.filter(s=>s.heat==='hot').length);
+ if(view==='news')renderNews();
+ document.dispatchEvent(new Event('psp-studio-news-loaded'));
+}
 function deny(note){$('authGate').innerHTML='<div class="mark">🔒</div><h2>Private Content Studio</h2><p id="denyNote"></p><a href="/dashboard" class="outline">Back to PipSePaisa</a>';$('denyNote').textContent=note;}
 function showPanel(name){
  if(!gatePassed)return;
@@ -70,6 +96,7 @@ function showPanel(name){
  $('studioRail').classList.remove('open');
  document.dispatchEvent(new CustomEvent('psp-studio-page',{detail:{page:name}}));
  $('refreshNews').hidden=name!=='news';
+ if(name==='news'&&stories.length)renderNews();
  if(name==='saved')renderSaved();
  if(name==='calendar')renderPlanner();
 }
@@ -87,7 +114,7 @@ function bind(){
  $('editSettings').addEventListener('click',()=>{wizardStep('2');showPanel('editor');});
 
  $('mobileNav').addEventListener('click',()=>$('studioRail').classList.toggle('open'));
- $('refreshNews').addEventListener('click',loadNews);
+ $('refreshNews').addEventListener('click',()=>loadNews(true));
  ['newsSearch','newsCategory','newsHeat'].forEach(k=>$(k).addEventListener(k==='newsSearch'?'input':'change',renderNews));
  $('generate').addEventListener('click',generateScript);
  $('saveScript').addEventListener('click',()=>saveScript(false));
@@ -102,16 +129,39 @@ function bind(){
  $('prompterSizeDown').addEventListener('click',()=>resizePrompter(-3));
  $('prompterSizeUp').addEventListener('click',()=>resizePrompter(3));
 }
-async function loadNews(){
+async function loadNews(force=false){
  if(!permission)return;
- $('newsList').innerHTML='<div class="empty">Loading live Hot News…</div>';
- try{
-  const r=await fetch(NEWS+'?limit=500&compact=1&focus=trading',{signal:AbortSignal.timeout(16000),cache:'no-store'});
-  const d=await r.json();
-  if(!Array.isArray(d.items)||!d.items.length)throw Error('News feed temporarily unavailable.');
-  stories=d.items;$('newsTotal').textContent=stories.length;$('newsHot').textContent=stories.filter(s=>s.heat==='hot').length;
-  renderNews();document.dispatchEvent(new Event('psp-studio-news-loaded'));
- }catch(e){$('newsList').innerHTML='<div class="empty">Hot News could not load. Try Refresh.<p>'+safe(e.message)+'</p></div>';}
+ if(newsRequest)return newsRequest;
+ const cached=readNewsCache();
+ if(!stories.length&&cached){
+  newsLastFetchedAt=cached.at;
+  applyNewsItems(cached.items,cached.updatedAt);
+ }
+ if(!force&&stories.length&&newsLastFetchedAt&&Date.now()-newsLastFetchedAt<NEWS_CACHE_FRESH_MS)return;
+ const refresh=$('refreshNews');
+ if(refresh&&view==='news'){refresh.disabled=true;refresh.dataset.busy='true'}
+ if(!stories.length)$('newsList').innerHTML='<div class="empty">Loading live market headlines…</div>';
+ newsRequest=(async()=>{
+  try{
+   const r=await fetch(NEWS+'?limit=500&compact=1&focus=trading',{signal:AbortSignal.timeout(16000),cache:'default'});
+   if(!r.ok)throw Error('News request returned '+r.status);
+   const d=await r.json();
+   if(!Array.isArray(d.items)||!d.items.length)throw Error('News feed temporarily unavailable.');
+   newsLastFetchedAt=Date.now();
+   storeNewsCache(d.items);
+   applyNewsItems(d.items,d.updatedAt);
+  }catch(e){
+   if(!stories.length){
+    $('newsList').innerHTML='<div class="empty">News feed temporarily unavailable. Try Refresh.</div>';
+   }else if(force){
+    msg('Latest update unavailable. Showing saved public headlines.');
+   }
+  }finally{
+   if(refresh){refresh.disabled=false;delete refresh.dataset.busy}
+   newsRequest=null;
+  }
+ })();
+ return newsRequest;
 }
 
 function plainNews(v,max=1000){
@@ -139,6 +189,8 @@ function newsRelevance(story){
 window.PSPStudioNews={score:newsRelevance,plain:plainNews,isTrading:s=>newsRelevance(s)>=4};
 function renderNews(){
  const root=$('newsList'),q=$('newsSearch').value.trim().toLowerCase(),cat=$('newsCategory').value.toLowerCase(),heat=$('newsHeat').value;
+ const filterKey=[q,cat,heat].join('|');
+ if(filterKey!==lastNewsFilterKey){newsVisibleLimit=36;lastNewsFilterKey=filterKey}
  const list=stories.filter(story=>{
   const title=plainNews(story.title,700),desc=plainNews(story.desc,1000),category=plainNews(story.category,100);
   const txt=(title+' '+desc+' '+category).toLowerCase();
@@ -158,14 +210,16 @@ function renderNews(){
        Math.max(0,24-ageHours)*0.28;
    };
    return rank(b)-rank(a)||(Date.parse(b.date||'')||0)-(Date.parse(a.date||'')||0);
- }).slice(0,100);
+ });
+ const shown=list.slice(0,newsVisibleLimit);
  root.replaceChildren();
  if(!list.length){
   const d=document.createElement('div');d.className='empty';
   d.textContent=cat==='trading'?'No relevant Gold, Forex, BTC or macro headlines right now. Choose All News for the full feed.':'No matching headlines. Try a different search.';
   root.appendChild(d);return;
  }
- for(const story of list){
+ const fragment=document.createDocumentFragment();
+ for(const story of shown){
   const article=document.createElement('article');article.className='story';
   const link=validUrl(story.link||story.url),title=plainNews(story.title,300);
   let desc=plainNews(story.desc,600);
@@ -181,7 +235,16 @@ function renderNews(){
   b.textContent='Create Script';b.disabled=!canWrite();
   b.addEventListener('click',()=>selectStory(story));
   article.querySelector('.storyfooter').appendChild(b);
-  root.appendChild(article);
+  fragment.appendChild(article);
+ }
+ root.appendChild(fragment);
+ if(list.length>shown.length){
+  const more=document.createElement('button');
+  more.type='button';more.className='outline studio-news-show-more';
+  more.textContent='Show More News ('+(list.length-shown.length)+' remaining)';
+  more.style.cssText='display:block;width:100%;min-height:46px;grid-column:1/-1;margin-top:4px;font-weight:800';
+  more.addEventListener('click',()=>{newsVisibleLimit+=36;renderNews()});
+  root.appendChild(more);
  }
  document.dispatchEvent(new Event('psp-studio-news-rendered'));
 }
