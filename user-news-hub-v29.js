@@ -126,7 +126,7 @@
           const el=document.getElementById('nhLastUp');
           if(el){
             const active=Number(d.sources),configured=Number(d.configured);
-            el.textContent=(fromCache?'Saved news · checking updates':'Updated '+now)+
+            el.textContent=(fromCache?(Date.now()-nhLastFetchedAt<NH_PUBLIC_FRESH_MS?'Saved news · recently updated':'Saved news · checking updates'):'Updated '+now)+
               (Number.isFinite(active)&&Number.isFinite(configured)&&configured>0?' · '+active+'/'+configured+' feeds':'');
           }
           nhUpdateStats();nhRender();nhRenderForex();
@@ -429,4 +429,16 @@
 
         let nhLoaded=false;
         window.nhInitLoad=function(){if(!nhLoaded){nhLoaded=true;nhRestorePublicNews();nhLoad();setInterval(function(){if(document.hidden)return;const page=document.getElementById('page-newshub');if(!page||page.classList.contains('active'))nhLoad();},2*60*1000);}};
+        // Defer-safe boot: if a deep-link activated News before this module
+        // finished downloading, initialize after the document becomes ready.
+        function nhStartActivePage(){
+          const page=document.getElementById('page-newshub');
+          if(page&&page.classList.contains('active'))window.nhInitLoad();
+        }
+        if(document.readyState==='loading'){
+          document.addEventListener('DOMContentLoaded',nhStartActivePage,{once:true});
+        }else{
+          nhStartActivePage();
+        }
+
         
