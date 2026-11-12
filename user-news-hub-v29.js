@@ -4,7 +4,7 @@
         const NH_PUBLIC_CACHE_KEY='psp_public_world_news_fast_v1';
         const NH_PUBLIC_FRESH_MS=90*1000;
         const NH_PUBLIC_STALE_MS=12*60*60*1000;
-        let nhLastFetchedAt=0,nhVisibleLimit=72;
+        let nhLastFetchedAt=0,nhCurrentUpdatedAt='',nhVisibleLimit=72;
         function nhReadPublicCache(){
           try{
             const c=JSON.parse(localStorage.getItem(NH_PUBLIC_CACHE_KEY)||'null');
@@ -114,6 +114,7 @@
 
         function nhApplyNewsData(d,fromCache=false){
           if(!Array.isArray(d?.items)||!d.items.length)return false;
+          nhCurrentUpdatedAt=String(d.updatedAt||'');
           nhNews=d.items.map(n=>({...n,cat:nhCategoryForItem(n),id:n.title.slice(0,40).replace(/[^a-zA-Z0-9]/g,'').toLowerCase()}));
           nhNews.forEach(n=>{
             if(nhSeen.has(n.id))return;
@@ -166,9 +167,13 @@
             if(!r.ok)throw Error('News request returned '+r.status);
             const d=await r.json();
             if(!d.success||!Array.isArray(d.items)||!d.items.length)throw Error(d.error||'No data');
+            const unchanged=nhNews.length>0&&!!d.updatedAt&&d.updatedAt===nhCurrentUpdatedAt;
             nhLastFetchedAt=Date.now();
             nhStorePublicCache(d);
-            nhApplyNewsData(d,false);
+            if(unchanged){
+              const status=document.getElementById('nhLastUp');
+              if(status)status.textContent='Checked just now · headlines up to date';
+            }else nhApplyNewsData(d,false);
           }catch(e){
             if(!nhNews.length){
               const el=document.getElementById('nhList');
