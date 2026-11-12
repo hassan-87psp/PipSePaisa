@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light" class="psp-v20-booting">
 <head>
+<link rel="preconnect" href="https://pipsepaisa-api.vercel.app" crossorigin>
+<link rel="dns-prefetch" href="//pipsepaisa-api.vercel.app">
+
   <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
 
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 <meta name="psp-build" content="2026-09-11-v226-final-payment-dashboard-repair">
-<meta http-equiv="Cache-Control" content="no-cache">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 
 <base href="/">
 <script id="pspV29EarlyCleanUrl">
@@ -1823,7 +1823,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
               <span style="font-size:11px;color:var(--text-muted)" id="nhLastUp">-</span>
               <button onclick="nhToggleNotif()" style="background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">🔔 Alerts</button>
-              <button onclick="nhLoad()" id="nhRefBtn" style="background:var(--gold);border:none;color:#0a0e1a;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit">🔄 Refresh</button>
+              <button onclick="nhLoad(true)" id="nhRefBtn" style="background:var(--gold);border:none;color:#0a0e1a;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit">🔄 Refresh</button>
             </div>
           </div>
         </div>
@@ -1904,7 +1904,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
         </div>
         <div id="nhToasts" style="position:fixed;bottom:80px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-width:300px"></div>
 
-        <script src="/user-news-hub-v29.js?v=20261027-v517-hot-news-click-open"></script>
+        <script defer src="/user-news-hub-v29.js?v=20261112-public-fastnews-v1"></script>
       </div>
 
       <!-- ========== CURRENCY STRENGTH ========== -->
