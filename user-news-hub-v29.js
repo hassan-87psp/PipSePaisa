@@ -1,4 +1,26 @@
         const NH_PROXY = 'https://pipsepaisa-api.vercel.app/api/news';
+
+        // Only public RSS headlines are cached. No auth, account or trading data.
+        const NH_PUBLIC_CACHE_KEY='psp_public_world_news_fast_v1';
+        const NH_PUBLIC_FRESH_MS=90*1000;
+        const NH_PUBLIC_STALE_MS=12*60*60*1000;
+        let nhLastFetchedAt=0,nhVisibleLimit=72;
+        function nhReadPublicCache(){
+          try{
+            const c=JSON.parse(localStorage.getItem(NH_PUBLIC_CACHE_KEY)||'null');
+            const age=Date.now()-Number(c?.at||0);
+            return age>=0&&age<NH_PUBLIC_STALE_MS&&Array.isArray(c.items)&&c.items.length?c:null;
+          }catch{return null}
+        }
+        function nhStorePublicCache(d){
+          try{
+            localStorage.setItem(NH_PUBLIC_CACHE_KEY,JSON.stringify({
+              at:Date.now(),items:d.items,sources:d.sources,
+              configured:d.configured,updatedAt:d.updatedAt
+            }));
+          }catch(_){}
+        }
+
         const NH_CATS={conflict:{bg:'rgba(239,68,68,0.12)',c:'var(--red)',l:'⚔️ Conflict',w:['war','strike','attack','military','troops','bomb','missile','killed','wounded','battle','invasion','explosion','coup','rebel','terror','drone','army','shooting','hostage','airstrike','shelling']},geopolitics:{bg:'rgba(139,92,246,0.12)',c:'var(--purple)',l:'🌍 Geopolitics',w:['geopolit','nato','sanction','diplomatic','foreign policy','alliance','treaty','un security','g7','g20','territorial','nuclear deal','peace talks','ceasefire','strait','blockade','embargo']},forex:{bg:'rgba(245,158,11,0.12)',c:'var(--gold)',l:'💹 Forex',w:['forex','xau/usd','xauusd','eurusd','gbpusd','usdjpy','gold price','currency','dollar index','pip','spread','fx market','forexlive','fxstreet','exchange rate']},fundamental:{bg:'rgba(20,184,166,0.12)',c:'#14b8a6',l:'📊 Fundamental',w:['gdp','inflation','cpi','ppi','nonfarm','interest rate','federal reserve','fed rate','central bank','monetary policy','rate hike','rate cut','fomc','ecb','boe','unemployment','jobs report','retail sales']},usnews:{bg:'rgba(236,72,153,0.12)',c:'#ec4899',l:'🇺🇸 US News',w:['trump','biden','white house','congress','senate','us economy','federal','pentagon','wall street','new york','california','washington dc','republican','democrat','tariff']},political:{bg:'rgba(59,130,246,0.12)',c:'var(--blue)',l:'🏛️ Political',w:['president','parliament','election','vote','government','minister','prime minister','summit','policy','political','ruling party','opposition']},disaster:{bg:'rgba(249,115,22,0.12)',c:'var(--orange)',l:'🌪️ Disaster',w:['earthquake','flood','hurricane','cyclone','tsunami','storm','wildfire','drought','eruption','disaster','emergency','rescue','evacuate','death toll','tornado']},economic:{bg:'rgba(16,185,129,0.12)',c:'var(--green)',l:'💰 Economic',w:['economy','market','stock','oil price','crude','opec','budget','fiscal','imf','world bank','trade deal','recession']}};
         let nhNews=[],nhFilter='focus',nhHeatFilter='all',nhFetching=false,nhSelectedStory=null;
         let nhKws=JSON.parse(localStorage.getItem('nhKws')||'["Iran","Gold","Trump","War","Fed"]');
@@ -90,40 +112,85 @@
           return true;
         }
 
-        async function nhLoad(){
-          if(nhFetching)return;nhFetching=true;
-          const btn=document.getElementById('nhRefBtn');if(btn){btn.disabled=true;btn.textContent='⏳';}
+        function nhApplyNewsData(d,fromCache=false){
+          if(!Array.isArray(d?.items)||!d.items.length)return false;
+          nhNews=d.items.map(n=>({...n,cat:nhCategoryForItem(n),id:n.title.slice(0,40).replace(/[^a-zA-Z0-9]/g,'').toLowerCase()}));
+          nhNews.forEach(n=>{
+            if(nhSeen.has(n.id))return;
+            const fresh=!fromCache&&!nhFirstLoad;
+            nhSeen.add(n.id);
+            if(fresh)nhCheckNotif(n);
+          });
+          nhFirstLoad=false;
+          const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+          const el=document.getElementById('nhLastUp');
+          if(el){
+            const active=Number(d.sources),configured=Number(d.configured);
+            el.textContent=(fromCache?'Saved news · checking updates':'Updated '+now)+
+              (Number.isFinite(active)&&Number.isFinite(configured)&&configured>0?' · '+active+'/'+configured+' feeds':'');
+          }
+          nhUpdateStats();nhRender();nhRenderForex();
+          if(nhApplyPushRouteV515())return true;
+          if(nhSelectedStory && !window.matchMedia('(max-width:820px)').matches){
+            const idx=nhNews.findIndex(n=>(n.link||n.url||n.title)===nhSelectedStory);
+            const detail=document.getElementById('nhDetail');
+            if(idx>=0&&detail){
+              const n=nhNews[idx];
+              detail.innerHTML=nhDetailHTML(n,NH_CATS[n.cat]||NH_CATS.political);
+              nhUpdateImpact(n);
+              document.getElementById('nhni'+idx)?.classList.add('active');
+            }else if(detail){
+              nhSelectedStory=null;
+              detail.innerHTML='<div class="nh-loading">Select a headline to view its details.</div>';
+              nhUpdateImpact(null);
+            }
+          }
+          return true;
+        }
+        function nhRestorePublicNews(){
+          if(nhNews.length)return false;
+          const cached=nhReadPublicCache();if(!cached)return false;
+          nhLastFetchedAt=cached.at;
+          return nhApplyNewsData(cached,true);
+        }
+        async function nhLoad(force=false){
+          if(nhFetching)return;
+          if(!nhNews.length)nhRestorePublicNews();
+          if(!force&&nhNews.length&&nhLastFetchedAt&&Date.now()-nhLastFetchedAt<NH_PUBLIC_FRESH_MS)return;
+          nhFetching=true;
+          const btn=document.getElementById('nhRefBtn');
+          if(btn){btn.disabled=true;btn.textContent='⏳';}
           if(!nhNews.length)document.getElementById('nhList').innerHTML='<div class="nh-loading"><div class="nh-spin"></div>Fetching live news...</div>';
           try{
-            const r=await fetch(NH_PROXY,{signal:AbortSignal.timeout(12000)});
+            const r=await fetch(NH_PROXY+'?compact=2&limit=500',{signal:AbortSignal.timeout(14000),cache:'default'});
+            if(!r.ok)throw Error('News request returned '+r.status);
             const d=await r.json();
-            if(!d.success||!d.items?.length)throw new Error(d.error||'No data');
-            nhNews=d.items.map(n=>({...n,cat:nhCategoryForItem(n),id:n.title.slice(0,40).replace(/[^a-zA-Z0-9]/g,'').toLowerCase()}));
-            nhNews.forEach(n=>{if(!nhSeen.has(n.id)){const fresh=!nhFirstLoad;nhSeen.add(n.id);if(fresh)nhCheckNotif(n);}});nhFirstLoad=false;
-            const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-            const el=document.getElementById('nhLastUp');if(el){const active=Number(d.sources), configured=Number(d.configured);el.textContent='Updated '+now+(Number.isFinite(active)&&Number.isFinite(configured)&&configured>0?' · '+active+'/'+configured+' feeds':'');}
-            nhUpdateStats();nhRender();nhRenderForex();
-            if(nhApplyPushRouteV515())return;
-            if(nhSelectedStory && !window.matchMedia('(max-width:820px)').matches){
-              const idx=nhNews.findIndex(n=>(n.link||n.url||n.title)===nhSelectedStory);
-              const detail=document.getElementById('nhDetail');
-              if(idx>=0 && detail){
-                const n=nhNews[idx];detail.innerHTML=nhDetailHTML(n,NH_CATS[n.cat]||NH_CATS.political);nhUpdateImpact(n);
-                const row=document.getElementById('nhni'+idx);if(row)row.classList.add('active');
-              }else if(detail){
-                nhSelectedStory=null;detail.innerHTML='<div class="nh-loading">Select a headline to view its details.</div>';nhUpdateImpact(null);
-              }
-            }
+            if(!d.success||!Array.isArray(d.items)||!d.items.length)throw Error(d.error||'No data');
+            nhLastFetchedAt=Date.now();
+            nhStorePublicCache(d);
+            nhApplyNewsData(d,false);
           }catch(e){
-            if(!nhNews.length)document.getElementById('nhList').innerHTML=`<div class="nh-err" style="margin:12px">❌ Could not load news<br><small style="opacity:.7">${e.message}</small></div>`;
-            else console.warn('News refresh failed; showing previous headlines',e);
+            if(!nhNews.length){
+              const el=document.getElementById('nhList');
+              if(el){
+                el.replaceChildren();
+                const box=document.createElement('div');box.className='nh-err';
+                box.textContent='Could not load news right now. Please retry.';
+                el.appendChild(box);
+              }
+            }else{
+              const status=document.getElementById('nhLastUp');
+              if(status)status.textContent='Saved headlines · latest update unavailable';
+              console.warn('News refresh failed; showing saved public headlines',e);
+            }
             nhApplyPushRouteV515();
           }finally{
-            nhFetching=false;if(btn){btn.disabled=false;btn.textContent='🔄 Refresh';}
+            nhFetching=false;
+            if(btn){btn.disabled=false;btn.textContent='🔄 Refresh';}
           }
         }
 
-        function nhUpdateStats(){
+                function nhUpdateStats(){
           const s=id=>{const el=document.getElementById(id);if(el)el.textContent=nhNews.filter(n=>n.cat===id.replace('nhS','').toLowerCase()).length;};
           const ec=document.getElementById('nhEC');if(ec)ec.textContent=nhNews.length;
           ['nhSC','nhSG','nhSF','nhSU'].forEach(id=>{
@@ -189,7 +256,8 @@
           const el=document.getElementById('nhList');if(!el)return;
           const count=document.getElementById('nhEC');if(count)count.textContent=items.length;
           if(!items.length){el.innerHTML='<div class="nh-loading">'+(nhFilter==='focus'?'No recent trading-related headlines verified. Choose All for other news.':'No news matches these filters')+'</div>';return;}
-          el.innerHTML=items.map((item)=>{
+          const visible=items.slice(0,nhVisibleLimit);
+          el.innerHTML=visible.map((item)=>{
             const idx=nhNews.indexOf(item);const s=NH_CATS[item.cat]||NH_CATS.political;
             return`<div class="nh-nitem${nhSelectedStory===(item.link||item.url||item.title)?' active':''}" onclick="nhDetail(${idx})" id="nhni${idx}">
               <div style="display:flex;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:wrap">
@@ -202,6 +270,14 @@
               <div style="font-size:10px;color:var(--text-muted);display:flex;gap:4px">📰 ${nhEsc(item.source)}</div>
             </div>`;
           }).join('');
+          if(items.length>visible.length){
+            const more=document.createElement('button');
+            more.type='button';more.className='nh-more-news';
+            more.style.cssText='width:100%;min-height:43px;padding:10px 14px;margin:10px 0;border:1px solid var(--gold);background:var(--gold-bg);color:var(--gold);border-radius:12px;font-weight:800;cursor:pointer';
+            more.textContent='Show More News ('+(items.length-visible.length)+' remaining)';
+            more.addEventListener('click',()=>{nhVisibleLimit+=72;nhRender();});
+            el.appendChild(more);
+          }
         }
 
         // Show an instrument only when explicitly mentioned in the headline.
@@ -352,5 +428,5 @@
         function nhMaybeHideClear(){const tc=document.getElementById('nhToasts');if(tc&&!tc.querySelector('.nh-toast')){const cb=document.getElementById('nhClearBtn');if(cb)cb.remove();}}
 
         let nhLoaded=false;
-        window.nhInitLoad=function(){if(!nhLoaded){nhLoaded=true;nhLoad();setInterval(function(){if(document.hidden)return;const page=document.getElementById('page-newshub');if(!page||page.classList.contains('active'))nhLoad();},2*60*1000);}};
+        window.nhInitLoad=function(){if(!nhLoaded){nhLoaded=true;nhRestorePublicNews();nhLoad();setInterval(function(){if(document.hidden)return;const page=document.getElementById('page-newshub');if(!page||page.classList.contains('active'))nhLoad();},2*60*1000);}};
         
