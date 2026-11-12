@@ -7,7 +7,7 @@ const KEYS={user:'pipsepaisa-user-auth-v2',admin:'pipsepaisa-admin-auth-v2',ment
 let client,user,role='',permission='',view='',currentId=null,currentStatus='draft',chosen=null,stories=[],saved=[],gatePassed=false;
 const NEWS_CACHE_KEY='psp_public_ai_studio_market_news_v1';
 const NEWS_CACHE_FRESH_MS=2*60*1000, NEWS_CACHE_MAX_STALE_MS=12*60*60*1000;
-let newsRequest=null,newsLastFetchedAt=0,newsVisibleLimit=36,lastNewsFilterKey='';
+let newsRequest=null,newsLastFetchedAt=0,newsLastSourceUpdatedAt='',newsVisibleLimit=36,lastNewsFilterKey='';
 const $=id=>document.getElementById(id);
 function msg(t){const x=$('toast');x.textContent=String(t);x.classList.add('show');setTimeout(()=>x.classList.remove('show'),3600);}
 function safe(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -73,11 +73,12 @@ function readNewsCache(){
   return entry;
  }catch{return null}
 }
-function storeNewsCache(items){
- try{localStorage.setItem(NEWS_CACHE_KEY,JSON.stringify({at:Date.now(),items}));}catch(_){}
+function storeNewsCache(items,updatedAt){
+ try{localStorage.setItem(NEWS_CACHE_KEY,JSON.stringify({at:Date.now(),items,updatedAt}));}catch(_){}
 }
 function applyNewsItems(items,updatedAt){
  if(!Array.isArray(items)||!items.length)return;
+ newsLastSourceUpdatedAt=String(updatedAt||'');
  stories=items;
  $('newsTotal').textContent=String(items.length);
  $('newsHot').textContent=String(items.filter(s=>s.heat==='hot').length);
@@ -147,9 +148,10 @@ async function loadNews(force=false){
    if(!r.ok)throw Error('News request returned '+r.status);
    const d=await r.json();
    if(!Array.isArray(d.items)||!d.items.length)throw Error('News feed temporarily unavailable.');
+   const unchanged=stories.length>0&&!!d.updatedAt&&d.updatedAt===newsLastSourceUpdatedAt;
    newsLastFetchedAt=Date.now();
-   storeNewsCache(d.items);
-   applyNewsItems(d.items,d.updatedAt);
+   storeNewsCache(d.items,d.updatedAt);
+   if(!unchanged)applyNewsItems(d.items,d.updatedAt);
   }catch(e){
    if(!stories.length){
     $('newsList').innerHTML='<div class="empty">News feed temporarily unavailable. Try Refresh.</div>';
