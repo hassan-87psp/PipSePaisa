@@ -31,8 +31,10 @@ async function saveStaticResponse(req,response){
   const cacheControl=response.headers.get('Cache-Control')||'';
   if(/\b(?:no-store|private)\b/i.test(cacheControl))return;
   try{
+    // Clone before awaiting storage, so a network-first response can be streamed.
+    const copy=response.clone();
     const cache=await caches.open(STATIC_CACHE);
-    await cache.put(req,response.clone());
+    await cache.put(req,copy);
     const keys=await cache.keys();
     if(keys.length>MAX_STATIC_ASSETS){
       await Promise.all(keys.slice(0,keys.length-MAX_STATIC_ASSETS).map(key=>cache.delete(key)));
