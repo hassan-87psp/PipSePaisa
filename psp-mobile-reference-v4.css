@@ -205,3 +205,31 @@ html.psp-luxe-mobile #page-signals .psp-luxe-signal-hero{background-image:url('/
  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp58-journal{grid-template-columns:1fr 52px!important}
  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp67-mini-ring{width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important}
 }
+
+
+/* Exact reference artwork: user-supplied, non-interactive, cropped bull illustration. */
+@media(max-width:768px){
+ html.psp-luxe-mobile[data-theme="dark"] #psp56Dashboard .psp63-market-art{
+   background-image:url('/assets/psp-mobile-bull-reference.webp')!important;
+   background-repeat:no-repeat!important;
+   background-size:112% auto!important;
+   background-position:52% 54%!important;
+   mix-blend-mode:screen!important;
+   opacity:1!important;
+   width:70%!important;
+   right:-14px!important;
+   top:4px!important;
+   bottom:7px!important;
+   filter:drop-shadow(0 0 9px rgba(252,152,27,.13))!important
+ }
+ html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp63-market-art{
+   background-image:url('/assets/psp-mobile-bull-20261119.svg')!important;
+   mix-blend-mode:normal!important
+ }
+ html.psp-luxe-mobile[data-theme="dark"] #page-signals .psp-luxe-signal-hero{
+   background-image:url('/assets/psp-mobile-bull-reference.webp'),linear-gradient(105deg,#281203,#070809 71%)!important;
+   background-repeat:no-repeat!important;
+   background-position:right -5px center,center!important;
+   background-size:56% auto,cover!important
+ }
+}
