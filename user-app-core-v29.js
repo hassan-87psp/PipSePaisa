@@ -6373,8 +6373,15 @@
  var refCSS=document.createElement('link');
  refCSS.rel='stylesheet';refCSS.href='/psp-mobile-reference-v4.css?v=20261119-final-ref-v4';
  document.head.appendChild(refCSS);
+ var signalCSS=document.createElement('link');
+ signalCSS.rel='stylesheet';signalCSS.href='/psp-mobile-signals-v5.css?v=20261119-signals-first-v5';
+ document.head.appendChild(signalCSS);
  var script=document.createElement('script');
  script.src='/psp-mobile-luxe-v1.js?v=20261119-final-ref-v4';
  script.async=false;
  (document.body||document.head).appendChild(script);
+ var signalsScript=document.createElement('script');
+ signalsScript.src='/psp-mobile-signals-v5.js?v=20261119-signals-first-v5';
+ signalsScript.async=false;
+ (document.body||document.head).appendChild(signalsScript);
 })();
