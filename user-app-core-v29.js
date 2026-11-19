@@ -6360,10 +6360,13 @@
  if(window.__pspLuxeLoader20261119)return;
  window.__pspLuxeLoader20261119=true;
  var css=document.createElement('link');
- css.rel='stylesheet';css.href='/psp-mobile-luxe-v1.css?v=20261119-theme-nav-v2';
+ css.rel='stylesheet';css.href='/psp-mobile-luxe-v1.css?v=20261119-reference-v3';
  document.head.appendChild(css);
+ var appCSS=document.createElement('link');
+ appCSS.rel='stylesheet';appCSS.href='/psp-mobile-app-v3.css?v=20261119-reference-1';
+ document.head.appendChild(appCSS);
  var script=document.createElement('script');
- script.src='/psp-mobile-luxe-v1.js?v=20261119-theme-nav-v2';
+ script.src='/psp-mobile-luxe-v1.js?v=20261119-reference-v3';
  script.async=false;
  (document.body||document.head).appendChild(script);
 })();
