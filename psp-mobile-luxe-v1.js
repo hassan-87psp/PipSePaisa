@@ -30,7 +30,7 @@
    const brand=document.createElement('div');
    brand.className='psp-luxe-brand';brand.setAttribute('role','button');brand.tabIndex=0;
    brand.setAttribute('aria-label','Go to PipSePaisa dashboard');
-   brand.innerHTML='<img src="/icon-192.png" alt=""><div><div class="psp-luxe-brand-title">Pip<em>Se</em>Paisa</div><div class="psp-luxe-brand-sub">Trade · Learn · Grow</div></div>';
+   brand.innerHTML='<svg class="psp-luxe-brand-mark" viewBox="0 0 48 48" role="img" aria-label="PipSePaisa"><path d="M4 41V29h7v12zm10 0V22h7v19zm10 0V13h7v28zm10 0V6h7v35z" fill="#F39522"/><path d="M3 28 18 18l9 3L42 5M33 6h9v9" stroke="#F39522" stroke-width="3.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><div><div class="psp-luxe-brand-title">Pip<em>Se</em>Paisa</div><div class="psp-luxe-brand-sub">Trade · Learn · Grow</div></div>';
    brand.addEventListener('click',()=>tap('dashboard'));
    brand.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tap('dashboard')}});
    const actions=document.createElement('div');actions.className='psp-luxe-top-actions';
@@ -45,7 +45,16 @@
      else if(typeof window.toggleSidebar==='function')window.toggleSidebar();
    });
    const theme=$('#themeBtn',top);
-   if(theme){theme.classList.add('psp-luxe-theme-button');actions.insertBefore(theme,actions.firstChild)}
+   if(theme){
+     theme.classList.add('psp-luxe-theme-button');
+     actions.insertBefore(theme,actions.firstChild);
+     if(!theme.dataset.pspThemeSaved){
+       theme.dataset.pspThemeSaved='1';
+       theme.addEventListener('click',()=>{
+         try{localStorage.setItem('psp_mobile_theme_choice_v4',document.documentElement.getAttribute('data-theme')||'dark')}catch(_){}
+       });
+     }
+   }
    const menu=$('.mobile-toggle',top);
    if(menu)menu.insertAdjacentElement('afterend',brand); else top.prepend(brand);
    top.appendChild(actions);
@@ -93,7 +102,7 @@
      if(tools){
        const card=document.createElement('div');
        card.className='psp58-card psp-luxe-tools-card';
-       card.innerHTML='<h3>◈ Quick Tools</h3><div class="psp-luxe-primary-tools"><button type="button" data-go="news"><span>▦</span>Economic<br>Calendar</button><button type="button" data-go="eaindicator"><span>Ⓟ</span>P+<br>Indicator</button><button type="button" data-go="tools"><span>▤</span>Position<br>Calculator</button><button type="button" data-go="journal"><span>▣</span>Trading<br>Journal</button></div>';
+       card.innerHTML='<h3><span class="psp-luxe-head-symbol">⬡</span><span>Quick Tools</span></h3><div class="psp-luxe-primary-tools"><button type="button" data-go="news"><span>▦</span>Economic<br>Calendar</button><button type="button" data-go="eaindicator"><span>Ⓟ</span>P+<br>Indicator</button><button type="button" data-go="tools"><span>▤</span>Position<br>Calculator</button><button type="button" data-go="journal"><span>▣</span>Trading<br>Journal</button></div>';
        card.querySelectorAll('.psp-luxe-primary-tools button').forEach(b=>b.addEventListener('click',()=>tap(b.dataset.go)));
        card.appendChild(tools);section.appendChild(card);
        card.dataset.pspLuxe='1';
@@ -168,11 +177,11 @@
      }
    }
    const featured=$('.psp58-card.featured .psp58-card-head h3',root);
-   if(featured)featured.textContent='📡 Market Signals';
+   if(featured)featured.innerHTML=icons.signals+' <span>Market Signals</span>';
    const analysis=$('.psp59-grid-secondary .psp58-card:not(.psp-luxe-tools-card) .psp58-card-head h3',root);
-   if(analysis)analysis.textContent='✦ Market Analysis';
+   if(analysis)analysis.innerHTML='<span class="psp-luxe-head-symbol">⌁</span><span>Market Analysis</span>';
    const journal=$('.psp59-grid-secondary .psp58-card:nth-child(2) .psp58-card-head h3',root);
-   if(journal)journal.textContent='◈ Trading Journal';
+   if(journal)journal.innerHTML='<span class="psp-luxe-head-symbol">▤</span><span>Trading Journal</span>';
    // Keep all entry, SL and multiple TP values available on demand.
    // Newly published rows remain expandable rather than replacing source values.
  }
@@ -275,6 +284,7 @@
  }
  function restoreDesktop(){
    document.documentElement.classList.remove('psp-luxe-mobile');
+   if(pspMobileThemeSet){document.documentElement.setAttribute('data-theme',desktopThemeOriginal);pspMobileThemeSet=false;}
    const top=$('#mainApp .topbar');
    if(top){
      const theme=$('#themeBtn',top),holder=$('.topbar-actions',top);
@@ -299,8 +309,19 @@
    $('#signalsGrid')?.querySelectorAll('.sig-card').forEach(el=>el.style.display='');
    dir='all';searchText='';
  }
+ let pspMobileThemeSet=false,desktopThemeOriginal=document.documentElement.getAttribute('data-theme')||'light';
  function render(){
    if(!mobile()){restoreDesktop();return}
+   if(!pspMobileThemeSet){
+     let preference=null;
+     try{preference=localStorage.getItem('psp_mobile_theme_choice_v4')}catch(_){}
+     // The supplied design reference is the dark luxury app. Light remains
+     // available through the existing theme button, never deleted.
+     const wanted=preference==='light'?'light':'dark';
+     document.documentElement.setAttribute('data-theme',wanted);
+     const btn=$('#themeBtn');if(btn)btn.textContent=wanted==='dark'?'🌙':'☀️';
+     pspMobileThemeSet=true;
+   }
    document.documentElement.classList.add('psp-luxe-mobile');
    makeHeader();makeBottomNav();makeSignalPage();polishHome();observe();
  }
