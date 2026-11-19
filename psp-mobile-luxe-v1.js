@@ -315,9 +315,9 @@
    if(!pspMobileThemeSet){
      let preference=null;
      try{preference=localStorage.getItem('psp_mobile_theme_choice_v4')}catch(_){}
-     // The supplied design reference is the dark luxury app. Light remains
+     // Light is the default mobile app theme. Dark remains
      // available through the existing theme button, never deleted.
-     const wanted=preference==='light'?'light':'dark';
+     const wanted=preference==='dark'?'dark':'light';
      document.documentElement.setAttribute('data-theme',wanted);
      const btn=$('#themeBtn');if(btn)btn.textContent=wanted==='dark'?'🌙':'☀️';
      pspMobileThemeSet=true;
