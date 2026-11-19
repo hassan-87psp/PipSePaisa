@@ -266,7 +266,24 @@ function journalHTML(trades,allowed){
   if(!allowed)return '<div class="psp58-empty compact"><span>🔒</span><b>Journal snapshot locked</b><small>Activate account access to view your stats.</small></div>';
   const rows=trades||[],wins=rows.filter(t=>Number(t.pnl??t.pips??0)>0).length,total=rows.length,wr=total?Math.round(wins/total*100):0;
   const weekAgo=Date.now()-7*86400000,week=rows.filter(t=>new Date(t.date||t.created_at||0).getTime()>=weekAgo).reduce((a,t)=>a+Number(t.pnl??t.pips??0),0),last=rows[0],lastP=last?Number(last.pnl??last.pips??0):null;
-  return `<div class="psp58-journal"><div><span>This Week</span><b class="${week>=0?'pos':'neg'}">${week>=0?'+':''}${Math.round(week*10)/10}</b></div><div class="psp67-win-cell"><span>Win Rate</span><div class="psp67-mini-ring" style="--pct:${wr}"><b>${wr}%</b></div></div><div><span>Total Trades</span><b>${total}</b></div><div><span>Last Trade</span><b class="${lastP==null?'':lastP>=0?'pos':'neg'}">${lastP==null?'—':(lastP>=0?'+':'')+lastP}</b></div></div>`;
+  // Responsive live performance sparkline: drawn only from this user's
+  // actual saved trades. Never fabricate performance history or pips.
+  let mobileTrend='';
+  if(typeof window.matchMedia==='function'&&window.matchMedia('(max-width:768px)').matches){
+    const series=rows.filter(t=>{
+      const d=new Date(t.date||t.created_at||0).getTime();
+      return Number.isFinite(d)&&d>0&&Number.isFinite(Number(t.pnl??t.pips));
+    }).slice(0,24).sort((a,b)=>new Date(a.date||a.created_at)-new Date(b.date||b.created_at));
+    if(series.length>1){
+      let balance=0;
+      const values=[0,...series.map(t=>balance+=Number(t.pnl??t.pips))];
+      const low=Math.min(...values),hi=Math.max(...values),range=Math.max(.001,hi-low);
+      const path=values.map((v,i)=>String(Math.round(i*320/(values.length-1)))+','+String(Math.round(59-51*(v-low)/range))).join(' ');
+      const latest=values[values.length-1],tone=latest>=0?'#11cf7e':'#ee5b61';
+      mobileTrend='<div class="psp-luxe-journal-trend"><svg viewBox="0 0 320 69" role="img" aria-label="Recent trade performance based on actual journal entries" preserveAspectRatio="none"><polyline points="'+path+'" fill="none" stroke="'+tone+'" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+    }
+  }
+  return '<div class="psp-luxe-journal-shell"><div class="psp58-journal"><div><span>This Week</span><b class="'+(week>=0?'pos':'neg')+'">'+(week>=0?'+':'')+(Math.round(week*10)/10)+'</b></div><div class="psp67-win-cell"><span>Win Rate</span><div class="psp67-mini-ring" style="--pct:'+wr+'"><b>'+wr+'%</b></div></div><div><span>Total Trades</span><b>'+total+'</b></div><div><span>Last Trade</span><b class="'+(lastP==null?'':lastP>=0?'pos':'neg')+'">'+(lastP==null?'—':(lastP>=0?'+':'')+lastP)+'</b></div></div>'+mobileTrend+'</div>';
 }
 function activityHTML(signals,charts,articles){
   let a=[];(signals||[]).slice(0,4).forEach(x=>{const st=statusInfo(x);a.push({ico:st.cls==='loss'?'🛑':st.final?'✅':'📡',t:(x.pair||'Signal')+' '+String(x.direction||'').toUpperCase(),m:st.label+(st.sub?' • '+st.sub:''),d:x.updated_at||x.created_at,cls:st.cls})});
