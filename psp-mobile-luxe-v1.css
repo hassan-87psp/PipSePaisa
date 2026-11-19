@@ -220,3 +220,15 @@ html.psp-luxe-mobile #mainApp .psp-luxe-brand:hover,html.psp-luxe-mobile #mainAp
  html.psp-luxe-mobile #page-signals .psp-luxe-tp-toggle:focus-visible{outline:2px solid #f39522;outline-offset:2px;border-radius:4px}
  html.psp-luxe-mobile #psp56Dashboard .psp58-stat{transform:none!important}
 }
+
+
+/* Compact authorized Entry / SL / TP1 on mobile Market Signals */
+@media screen and (max-width:768px){
+ html.psp-luxe-mobile #psp56Dashboard .psp-luxe-quick-levels{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;width:100%;flex:1 1 100%;order:5;padding:6px 0 0;margin-top:2px;border-top:1px solid rgba(255,255,255,.08)}
+ html.psp-luxe-mobile #psp56Dashboard .psp-luxe-qlevel{display:flex;flex-direction:column;gap:2px;min-width:0;padding:2px 6px;border-right:1px solid rgba(255,255,255,.22)}
+ html.psp-luxe-mobile #psp56Dashboard .psp-luxe-qlevel:last-child{border-right:0}
+ html.psp-luxe-mobile #psp56Dashboard .psp-luxe-qlevel small{font-size:9px!important;color:#aeb2b9!important;white-space:nowrap}
+ html.psp-luxe-mobile #psp56Dashboard .psp-luxe-qlevel b{font-size:12px!important;font-weight:900!important;color:#fff!important;overflow-wrap:anywhere}
+ html.psp-luxe-mobile #psp56Dashboard .psp-luxe-qlevel.q1 b{color:#ff6670!important}
+ html.psp-luxe-mobile #psp56Dashboard .psp-luxe-qlevel.q2 b{color:#50f5a5!important}
+}
