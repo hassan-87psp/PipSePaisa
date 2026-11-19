@@ -53,6 +53,8 @@ html.psp-v20-booting body::after{content:"";position:fixed;left:50%;top:50%;z-in
 <script>
   window.PSP_PORTAL_MODE = (new URLSearchParams(location.search).get('portal') === 'mentor') ? 'mentor' : 'user';
 </script>
+<!-- Warm app core download early; same morning UI and runtime order. -->
+<link rel="preload" as="script" href="/user-app-core-v29.js?v=20261031-v521-direct-download">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#f59e0b">
 <meta name="apple-mobile-web-app-capable" content="yes">
