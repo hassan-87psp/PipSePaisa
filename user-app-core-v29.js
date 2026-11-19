@@ -6376,6 +6376,9 @@
  var signalCSS=document.createElement('link');
  signalCSS.rel='stylesheet';signalCSS.href='/psp-mobile-signals-v5.css?v=20261119-signals-first-v5';
  document.head.appendChild(signalCSS);
+  var polishCSS=document.createElement('link');
+  polishCSS.rel='stylesheet';polishCSS.href='/psp-mobile-polish-v6.css?v=20261119-mobile-v6';
+  document.head.appendChild(polishCSS);
  var script=document.createElement('script');
  script.src='/psp-mobile-luxe-v1.js?v=20261119-final-ref-v4';
  script.async=false;
