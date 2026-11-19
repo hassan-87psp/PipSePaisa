@@ -6352,3 +6352,18 @@
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
  else mount();
 })();
+
+
+/* PSP Mobile Luxe 2026-11-19 — shared user-portal loader.
+   No effect on desktop layout; HTML route copies all use this core. */
+;(function(){
+ if(window.__pspLuxeLoader20261119)return;
+ window.__pspLuxeLoader20261119=true;
+ var css=document.createElement('link');
+ css.rel='stylesheet';css.href='/psp-mobile-luxe-v1.css?v=20261119-2';
+ document.head.appendChild(css);
+ var script=document.createElement('script');
+ script.src='/psp-mobile-luxe-v1.js?v=20261119-1';
+ script.async=false;
+ (document.body||document.head).appendChild(script);
+})();
