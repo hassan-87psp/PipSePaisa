@@ -38,7 +38,7 @@ async function submit(){
  const name=String(document.getElementById('v543NewName')?.value||'').trim();
  const email=String(document.getElementById('v543NewEmail')?.value||'').trim().toLowerCase();
  const whatsapp=String(document.getElementById('v543NewWhatsapp')?.value||'').trim();
- if(isNew&&(name.length<2||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)))return status('Enter the full name and a valid email.','error');
+ if(isNew&&(name.length<2||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))return status('Enter the full name and a valid email.','error');
  courseChanged();
  if(pending&&pending.course_key!==state.courseKey)return status('This reserved payment belongs to another course.','error');
  const file=document.getElementById('v221ManualPaidReceipt')?.files?.[0];
