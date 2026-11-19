@@ -275,7 +275,15 @@ function analysisHTML(charts,articles,allowed){
     return 'forex';
   };
   const tabs='<div class="psp-luxe-analysis-filters" aria-label="Filter market analysis">'+['All','Gold','Forex','Crypto','Macro'].map((v,i)=>'<button type="button" data-market="'+v.toLowerCase()+'" class="'+(!i?'active':'')+'">'+v+'</button>').join('')+'</div>';
-  const cards=items.slice(0,9).map(x=>{
+  // Prioritize a diverse three-card preview: Gold, Forex, and Macro/other,
+  // while retaining the rest for category filtering. All entries are real.
+  const ordered=[],used=new Set();
+  for(const cat of ['gold','forex','macro','crypto']){
+    const item=items.find(x=>category(x)===cat&&!used.has(x));
+    if(item){ordered.push(item);used.add(item)}
+  }
+  for(const x of items)if(!used.has(x))ordered.push(x);
+  const cards=ordered.slice(0,12).map(x=>{
     const cat=category(x),label=cat.charAt(0).toUpperCase()+cat.slice(1);
     return '<button type="button" class="psp58-analysis-item psp-luxe-analysis-tile" data-category="'+cat+'" data-goto-analysis="1">'+
       (x.image?'<img loading="lazy" src="'+esc(x.image)+'" alt="">':'<div class="psp58-thumb psp-luxe-art-'+cat+'">'+(cat==='gold'?'◈':cat==='crypto'?'₿':cat==='macro'?'◉':'▥')+'</div>')+
