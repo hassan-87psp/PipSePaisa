@@ -3,7 +3,7 @@
 'use strict';
 let loading=false,lastLoad=0,clockTimer=null;
 const PSP_DASH_CACHE_TTL_V220=45000;
-function dashCacheKeyV220(uid){return 'psp_dashboard_v221_b4_'+String(uid||'guest')}
+function dashCacheKeyV220(uid){return 'psp_dashboard_v223_mobile_app_'+String(uid||'guest')}
 function readDashCacheV220(uid){
   try{const x=JSON.parse(sessionStorage.getItem(dashCacheKeyV220(uid))||'null');if(!x||!x.html||!x.savedAt)return null;return x}catch(_){return null}
 }
