@@ -34,13 +34,13 @@
    brand.addEventListener('click',()=>tap('dashboard'));
    brand.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tap('dashboard')}});
    const actions=document.createElement('div');actions.className='psp-luxe-top-actions';
-   actions.innerHTML='<button class="psp-luxe-bell" type="button" aria-label="Notification settings"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></button><button class="psp-luxe-avatar" type="button" aria-label="Profile"><span>♟</span></button>';
+   actions.innerHTML='<button class="psp-luxe-bell" type="button" aria-label="Notification settings"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg></button><button class="psp-luxe-avatar" type="button" aria-label="Profile"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8.2" r="3.6"/><path d="M5.1 20c.5-4.2 3-6.4 6.9-6.4s6.4 2.2 6.9 6.4"/></svg></span></button>';
    actions.querySelector('.psp-luxe-avatar').addEventListener('click',()=>{
      if(typeof window.userCardClick==='function')window.userCardClick();
      else tap('profile');
    });
    actions.querySelector('.psp-luxe-bell').addEventListener('click',()=>{
-     const btn=$('.psp-notify-sidebar-nav')||$('[onclick*="pspNotifyOpen"]')||$('[onclick*="openNotify"]');
+     const btn=$('#pspNotifySidebarNav')||$('.psp-notify-sidebar-nav')||$('[onclick*="pspNotifyOpen"]')||$('[onclick*="openNotify"]');
      if(btn)btn.click();
      else if(typeof window.toggleSidebar==='function')window.toggleSidebar();
    });
@@ -117,6 +117,51 @@
      });
      summary.appendChild(quick);
    });
+   const analysisCard=section?.children[0],journalCard=section?.children[1],toolsCard=$('.psp-luxe-tools-card',section||root);
+   if(analysisCard){
+     analysisCard.classList.add('psp-luxe-analysis-card');
+     const filterRow=$('.psp-luxe-analysis-filters',analysisCard);
+     if(filterRow&&!filterRow.dataset.wired){
+       filterRow.dataset.wired='1';
+       filterRow.addEventListener('click',event=>{
+         const button=event.target.closest('[data-market]');if(!button)return;
+         const type=button.dataset.market;
+         filterRow.querySelectorAll('[data-market]').forEach(b=>b.classList.toggle('active',b===button));
+         let visible=0;
+         analysisCard.querySelectorAll('.psp-luxe-analysis-tile').forEach(tile=>{
+           const pass=type==='all'||tile.dataset.category===type;
+           tile.hidden=!pass;
+           if(pass)visible++;
+         });
+         const empty=$('.psp-luxe-filter-empty',analysisCard);
+         if(empty)empty.hidden=visible>0;
+       });
+     }
+     if(!analysisCard.dataset.cardClicks){
+       analysisCard.dataset.cardClicks='1';
+       analysisCard.addEventListener('click',event=>{
+         const el=event.target.closest('[data-goto-analysis]');
+         if(el)tap('articles');
+       });
+     }
+   }
+   if(journalCard)journalCard.classList.add('psp-luxe-journal-card');
+   if(toolsCard){
+     const more=$('.psp58-tools',toolsCard);
+     if(more&&!$('.psp-luxe-more-tools-toggle',toolsCard)){
+       const btn=document.createElement('button');
+       btn.className='psp-luxe-more-tools-toggle';
+       btn.type='button';
+       btn.textContent='More Tools +';
+       btn.setAttribute('aria-expanded','false');
+       btn.addEventListener('click',()=>{
+         const open=toolsCard.classList.toggle('psp-luxe-tools-open');
+         btn.textContent=open?'Less Tools −':'More Tools +';
+         btn.setAttribute('aria-expanded',String(open));
+       });
+       more.insertAdjacentElement('beforebegin',btn);
+     }
+   }
    const featured=$('.psp58-card.featured .psp58-card-head h3',root);
    if(featured)featured.textContent='📡 Market Signals';
    const analysis=$('.psp59-grid-secondary .psp58-card:not(.psp-luxe-tools-card) .psp58-card-head h3',root);
@@ -239,6 +284,8 @@
    const extra=section&&$('.psp-luxe-tools-card',section);
    if(extra){const tools=$('.psp58-tools',extra),journal=section.children[1];if(tools&&journal)journal.appendChild(tools);extra.remove()}
    $('#psp56Dashboard .psp58-home')?.removeAttribute('data-psp-luxe');
+   $('#psp56Dashboard .psp-luxe-analysis-card')?.classList.remove('psp-luxe-analysis-card');
+   $('#psp56Dashboard .psp-luxe-journal-card')?.classList.remove('psp-luxe-journal-card');
    $('#page-signals .psp-luxe-signal-hero')?.remove();
    $('#page-signals .psp-luxe-signal-stats')?.remove();
    $('#page-signals .psp-luxe-signal-search')?.remove();
