@@ -1,0 +1,365 @@
+/* PipSePaisa Signals V5 — Mobile only, screenshot-reference layout.
+   Content from existing Supabase RLS feed; desktop unaffected. */
+@media screen and (max-width:768px){
+html.psp-luxe-mobile #mainApp #page-signals{
+ padding-top:0!important;color:var(--text-primary)!important;
+ --psp-sig-orange:#ff941a;--psp-sig-lime:#21ef8a
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-hero{
+ display:flex!important;flex-direction:column;justify-content:center;
+ min-height:143px!important;height:143px!important;
+ padding:14px 16px!important;margin:0 0 12px!important;
+ border-radius:25px!important;position:relative!important;
+ overflow:hidden!important;isolation:isolate
+}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .psp-luxe-signal-hero{
+ background:
+ url('/assets/psp-mobile-bull-reference.webp') right -2px center / 65% auto no-repeat,
+ radial-gradient(ellipse at 80% 50%,rgba(238,125,9,.19),transparent 58%),
+ linear-gradient(115deg,#221005,#090909 68%)!important;
+ border:1.5px solid #ff981f!important;
+ box-shadow:0 0 18px rgba(248,133,17,.25),inset 0 0 17px rgba(216,107,3,.07)!important;
+}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .psp-luxe-signal-hero:before{
+ content:"";position:absolute;inset:0;
+ border-radius:inherit;pointer-events:none;z-index:0;
+ background:linear-gradient(90deg,#100a08 0%,rgba(14,9,7,.92) 27%,transparent 82%);
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-hero h2{
+ position:relative!important;display:flex!important;gap:8px!important;
+ align-items:center!important;max-width:75%!important;z-index:2!important;
+ font-size:clamp(25px,7.2vw,34px)!important;line-height:1.05!important;
+ font-weight:950!important;letter-spacing:-.9px!important;
+ margin:0 0 9px!important;white-space:nowrap!important
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-hero h2 svg{
+ flex:0 0 32px!important;width:32px!important;height:32px!important;
+ stroke:#ff9b0d!important;stroke-width:2.15;fill:none;
+ stroke-linecap:round;stroke-linejoin:round;
+ filter:drop-shadow(0 0 5px rgba(255,135,2,.3))
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-hero h2 span{color:inherit!important}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-hero p{
+ position:relative!important;z-index:2!important;
+ width:65%!important;max-width:240px!important;
+ font-size:clamp(10px,2.6vw,12px)!important;
+ line-height:1.46!important;margin:0!important;
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-stats{
+ display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+ gap:7px!important;margin:0 0 12px!important
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-stat{
+ display:flex!important;flex-direction:column!important;justify-content:space-between!important;
+ min-width:0!important;max-width:100%!important;height:95px!important;min-height:95px!important;
+ padding:11px 8px!important;border-radius:16px!important;
+ position:relative!important;overflow:hidden!important
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-stat>span{
+ display:flex!important;align-items:flex-start!important;gap:6px!important;
+ font-size:clamp(8px,2.1vw,11px)!important;font-weight:750!important;
+ line-height:1.18!important;color:inherit!important
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-stat>span svg{
+ flex:0 0 22px!important;width:22px!important;height:22px!important;
+ stroke:currentColor!important;stroke-width:2!important;fill:none!important;
+ stroke-linecap:round;stroke-linejoin:round
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-stat strong[data-stat]{
+ display:block!important;text-align:center!important;
+ font-size:clamp(25px,6.4vw,33px)!important;font-weight:950!important;
+ line-height:1!important;margin:0 0 2px!important;color:inherit!important
+}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .psp-luxe-signal-stat{
+ color:#fff!important;
+ box-shadow:inset 0 0 18px rgba(255,144,3,.1),0 0 10px rgba(234,123,9,.13)!important;
+}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .psp-luxe-signal-stat:nth-child(1){
+ background:linear-gradient(145deg,#884007 0%,#371806 60%,#1c0c05)!important;border:1px solid #ff971c!important
+}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .psp-luxe-signal-stat:nth-child(2){
+ background:linear-gradient(145deg,#064f29,#062717 68%,#04110a)!important;
+ border:1px solid #05d57d!important;box-shadow:0 0 12px rgba(0,190,96,.17)!important
+}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .psp-luxe-signal-stat:nth-child(3){
+ background:linear-gradient(145deg,#5f2362,#2a112f 68%,#170d1a)!important;
+ border:1px solid #c969e2!important;box-shadow:0 0 12px rgba(168,67,195,.17)!important
+}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .psp-luxe-signal-stat:nth-child(4){
+ background:linear-gradient(145deg,#073d64,#061d33 68%,#071019)!important;
+ border:1px solid #00b8ef!important;box-shadow:0 0 12px rgba(0,140,215,.17)!important
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-search{
+ height:48px!important;min-height:48px!important;
+ display:flex!important;gap:9px!important;align-items:center!important;
+ border-radius:17px!important;
+ padding:0 7px 0 12px!important;margin:0 0 11px!important;
+}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .psp-luxe-signal-search{
+ background:linear-gradient(110deg,#24170e,#141619 28%,#0d1013)!important;
+ border:1px solid rgba(236,158,74,.7)!important;
+ box-shadow:0 0 12px rgba(242,138,30,.14)!important;
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-search>span{
+ flex:0 0 27px!important;font-size:30px!important;
+ color:inherit!important;line-height:1!important
+}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-search input{
+ flex:1 1 auto!important;min-width:0!important;
+ background:transparent!important;border:0!important;
+ height:100%!important;font-size:clamp(11px,2.7vw,13px)!important;
+ outline:none!important;box-shadow:none!important
+}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .psp-luxe-signal-search input{color:#fff!important}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .psp-luxe-signal-search input::placeholder{color:#aeb0b7!important}
+html.psp-luxe-mobile #page-signals .psp-v5-filter-toggle{
+ display:grid;place-items:center;flex:0 0 39px!important;
+ width:39px!important;height:39px!important;border-radius:13px!important;
+ border:1.3px solid #f49519!important;cursor:pointer!important;
+ background:linear-gradient(145deg,#5a310d,#140c08)!important;
+ box-shadow:0 0 12px rgba(240,132,17,.27),inset 0 0 12px rgba(247,136,8,.1)!important;
+ color:#fff!important
+}
+html.psp-luxe-mobile #page-signals .psp-v5-filter-toggle svg{
+ width:25px;height:25px;fill:none;stroke:currentColor;
+ stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round
+}
+html.psp-luxe-mobile #page-signals .psp-v5-pills{
+ display:flex!important;gap:7px!important;align-items:center!important;
+ width:100%!important;overflow-x:auto!important;scrollbar-width:none;
+ padding:0 0 10px!important;margin:0 0 2px!important;
+ touch-action:pan-x
+}
+html.psp-luxe-mobile #page-signals .psp-v5-pills::-webkit-scrollbar{display:none}
+html.psp-luxe-mobile #page-signals .psp-v5-pill{
+ display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;
+ min-height:35px;white-space:nowrap;border-radius:99px;
+ border:1px solid rgba(255,255,255,.33)!important;
+ background:linear-gradient(130deg,#222326,#0d0d0e)!important;
+ padding:7px 13px;color:#f3f3f4!important;
+ font-size:clamp(10px,2.6vw,12px)!important;font-weight:750;
+ cursor:pointer;transition:border-color .16s,background .16s
+}
+html.psp-luxe-mobile #page-signals .psp-v5-pill.active{
+ color:#0d0c0a!important;border-color:#ffba27!important;
+ background:linear-gradient(135deg,#ffce54,#ff9313)!important;
+ box-shadow:0 2px 9px rgba(241,145,22,.2)!important
+}
+html.psp-luxe-mobile #page-signals .psp-v5-pill-divider{
+ display:block!important;flex:0 0 1px!important;height:22px;
+ margin:0 1px;background:rgba(255,255,255,.22)
+}
+html.psp-luxe-mobile #page-signals .psp-v5-pill-buy:not(.active){border-color:#13cb79!important;color:#65f9ab!important}
+html.psp-luxe-mobile #page-signals .psp-v5-pill-sell:not(.active){border-color:#ff4c50!important;color:#ff898b!important}
+html.psp-luxe-mobile #page-signals>.card .sig-filter-row{display:none!important}
+html.psp-luxe-mobile #page-signals.psp-v5-show-advanced>.card{
+ padding:9px!important;border-radius:14px!important;margin:0 0 9px!important;
+ border:1px solid rgba(239,145,29,.4)!important;
+ background:linear-gradient(135deg,#161719,#0d0e10)!important
+}
+html.psp-luxe-mobile #page-signals.psp-v5-show-advanced>.card .sig-filter-row{
+ display:flex!important;flex-direction:column!important;gap:6px!important
+}
+html.psp-luxe-mobile #page-signals.psp-v5-show-advanced>.card #sigFilters,
+html.psp-luxe-mobile #page-signals.psp-v5-show-advanced>.card #sigTimeFilters{
+ flex-wrap:wrap!important;overflow:visible!important
+}
+html.psp-luxe-mobile #page-signals.psp-v5-show-advanced>.card .sig-filter-row>div:last-child{width:auto!important}
+html.psp-luxe-mobile #page-signals #signalsGrid{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ gap:10px!important;padding:0 0 16px!important
+}
+html.psp-luxe-mobile #page-signals .signal-date-heading{display:none!important}
+html.psp-luxe-mobile #page-signals .sig-history-table-wrap{display:none!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card{
+ display:block;position:relative!important;
+ min-width:0!important;min-height:155px!important;
+ padding:14px 13px 11px!important;
+ border-radius:21px!important;overflow:hidden!important;
+ cursor:default!important
+}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .sig-card.psp-v5-card{
+ background:
+ radial-gradient(ellipse at 4% 46%,rgba(255,148,35,.12),transparent 37%),
+ linear-gradient(140deg,#1b1b1d,#0e1012 61%,#121416)!important;
+ border:1px solid rgba(255,255,255,.28)!important;
+ box-shadow:inset 3px 0 0 #f09522,0 6px 22px rgba(0,0,0,.28)!important
+}
+html.psp-luxe-mobile[data-theme="dark"] #page-signals .sig-card.psp-v5-card[data-psp-direction="buy"]{
+ box-shadow:inset 3px 0 0 #12e283,0 7px 22px rgba(0,0,0,.31)!important
+}
+html.psp-luxe-mobile #page-signals .psp-v5-thumb{
+ position:absolute!important;left:14px!important;top:20px!important;
+ display:grid;place-items:center;overflow:hidden;
+ width:54px;height:58px;border-radius:13px;
+ border:1px solid rgba(251,159,34,.7);
+ box-shadow:0 0 10px rgba(250,137,17,.2),inset 0 0 12px rgba(250,132,12,.1);
+ background:linear-gradient(140deg,#231a0d,#0b0c0e);
+ color:#fff
+}
+html.psp-luxe-mobile #page-signals .psp-v5-thumb svg{width:49px;height:49px;filter:drop-shadow(0 1px 6px rgba(250,164,31,.45))}
+html.psp-luxe-mobile #page-signals .psp-v5-thumb.forex{border-color:rgba(49,186,255,.6)!important;background:linear-gradient(#10263e,#080e1e)!important}
+html.psp-luxe-mobile #page-signals .psp-v5-thumb.crypto{background:linear-gradient(#824200,#241101)!important}
+html.psp-luxe-mobile #page-signals .psp-v5-crypto-mark{font-size:39px;font-weight:950;color:#fff;background:#eb8c02;border-radius:50%;width:44px;height:44px;display:grid;place-items:center}
+html.psp-luxe-mobile #page-signals .psp-v5-flag{font-size:36px;line-height:1}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-top{
+ display:flex!important;gap:5px!important;flex-wrap:wrap!important;
+ justify-content:flex-start!important;align-items:center!important;
+ width:calc(100% - 69px)!important;
+ margin:0 0 0 69px!important;padding:0 22px 0 0!important;
+ min-height:23px!important
+}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-pair{
+ font-size:clamp(15px,4vw,20px)!important;letter-spacing:-.5px!important;
+ font-weight:950!important;line-height:1.1!important;
+ min-width:0!important;flex:0 0 auto!important;white-space:nowrap!important;
+ margin:0!important
+}
+html.psp-luxe-mobile #page-signals .psp-v5-category{
+ order:-1!important;flex:0 0 auto;font-size:9px;
+ font-weight:850;line-height:1;white-space:nowrap;
+ padding:4px 6px;border-radius:7px;background:#f2a00a;color:#0f0d07
+}
+html.psp-luxe-mobile #page-signals .psp-v5-category.forex{background:linear-gradient(#87dcff,#2ab4ed);color:#0a2030}
+html.psp-luxe-mobile #page-signals .psp-v5-category.crypto{background:linear-gradient(#ffcf55,#f19307);color:#1c0e06}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-dir{
+ font-size:10px!important;font-weight:850!important;line-height:1.15!important;
+ border-radius:99px!important;padding:3px 8px!important;
+ min-height:23px!important;white-space:nowrap!important;margin:0 2px!important
+}
+html.psp-luxe-mobile #page-signals .psp-v5-current-status{
+ display:inline-flex!important;align-items:center;justify-content:center;
+ min-height:22px;padding:3px 8px;border-radius:999px;
+ border:1px solid rgba(14,224,120,.76);background:linear-gradient(#08482c,#0c2518);
+ font-size:10px;font-weight:850;line-height:1.1;color:#79ffb2;white-space:nowrap
+}
+html.psp-luxe-mobile #page-signals .psp-v5-current-status.pending{background:linear-gradient(#34363a,#191a1d);border-color:#6c6c73;color:#e9e9e9}
+html.psp-luxe-mobile #page-signals .psp-v5-current-status.closed{background:linear-gradient(#303134,#19191a);border-color:#888;color:#f1f1f1}
+html.psp-luxe-mobile #page-signals .psp-v5-current-status.tp{background:#074527;border-color:#26e991;color:#92ffbb}
+html.psp-luxe-mobile #page-signals .psp-v5-time{
+ width:calc(100% - 76px);margin:5px 0 8px 69px!important;
+ font-size:10px;line-height:1.2;color:#d3d2d4!important
+}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-levels{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ min-width:0!important;margin:0 23px 0 69px!important;
+ padding:0!important;row-gap:6px!important
+}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-levels>.sig-lv{
+ padding:3px 5px!important;min-width:0!important;background:none!important;
+ border:0!important;border-radius:0!important
+}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-levels>.sig-lv+.sig-lv{
+ border-left:1px solid rgba(255,255,255,.22)!important
+}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-lv .l{
+ font-size:clamp(8px,2.2vw,10px)!important;white-space:nowrap!important;
+ color:#b4b6be!important;font-weight:600!important
+}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-lv .v{
+ font-size:clamp(12px,3.15vw,15px)!important;line-height:1.23!important;
+ font-weight:900!important;white-space:nowrap!important;letter-spacing:-.3px!important;
+ color:#fff!important;overflow-wrap:normal!important
+}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-lv:nth-child(2) .v{color:#ff6670!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-lv:nth-child(3) .v{color:#4efa9a!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-lv:nth-child(n+4){display:none!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card.psp-luxe-expanded .sig-lv:nth-child(n+4){display:block!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-lv:nth-child(4){border-left:0!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-foot{
+ display:flex!important;min-height:21px!important;justify-content:flex-start!important;
+ align-items:center!important;gap:4px!important;
+ border-top:1px solid rgba(255,255,255,.08)!important;
+ margin:9px 40px 0 68px!important;padding:5px 0 0!important;
+ font-size:10px!important;white-space:normal!important;color:#c3c5cb!important
+}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-foot .sig-status,
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-foot>span:last-child{display:none!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-foot>span:first-child>span:not(.sig-status){display:none!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card:not(.psp-luxe-expanded)>div:has(>.sig-prog){display:none!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .psp-luxe-tp-toggle{display:none!important}
+html.psp-luxe-mobile #page-signals .psp-v5-outcome{
+ position:relative;display:inline-flex!important;
+ align-items:center!important;justify-content:center!important;
+ margin:5px 21px 0 69px!important;padding:5px 10px!important;
+ font-size:11px!important;font-weight:850!important;line-height:1.1!important;
+ border-radius:12px!important;border:1px solid #1acf7a;
+ background:linear-gradient(130deg,#06341d,#0b2116);
+ color:#6df4a7!important;white-space:nowrap!important
+}
+html.psp-luxe-mobile #page-signals .psp-v5-outcome.loss{border-color:#e64b54;background:#341113;color:#ff8c91!important}
+html.psp-luxe-mobile #page-signals .psp-v5-card-more{
+ position:absolute!important;right:8px!important;top:50%!important;
+ transform:translateY(-50%)!important;
+ width:25px;height:32px;display:grid!important;place-items:center;
+ background:transparent!important;border:0!important;cursor:pointer;color:#ff9419!important
+}
+html.psp-luxe-mobile #page-signals .psp-v5-card-more svg{width:24px;height:24px;stroke:currentColor;stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+html.psp-luxe-mobile #page-signals .psp-v5-empty-filter{grid-column:1/-1;text-align:center;padding:17px;color:#b6b9c0;font-size:12px}
+html.psp-luxe-mobile #page-signals #sigResultDash{margin:0 0 11px!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card[style*="display: none"]{display:none!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card[style*="display:none"]{display:none!important}
+}
+/* Light theme remains functional with same app geometry, contrasting text */
+@media screen and (max-width:768px){
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-luxe-signal-hero{
+ background:
+ url('/assets/psp-mobile-bull-20261119.svg') right -5px center / 64% auto no-repeat,
+ linear-gradient(120deg,#fff2df,#fffdf8 74%)!important;
+ border-color:#e6a449!important;box-shadow:0 4px 16px rgba(169,92,13,.12)!important
+}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-luxe-signal-hero h2{color:#172033!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-luxe-signal-hero p{color:#475569!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-luxe-signal-stat{
+ color:#1e293b!important;box-shadow:0 5px 15px rgba(85,58,13,.1)!important
+}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-luxe-signal-stat:nth-child(1){background:linear-gradient(140deg,#ffca71,#efa33e)!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-luxe-signal-stat:nth-child(2){background:linear-gradient(140deg,#c5f7da,#b6ebc9)!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-luxe-signal-stat:nth-child(3){background:linear-gradient(140deg,#efd8fa,#e1c7ee)!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-luxe-signal-stat:nth-child(4){background:linear-gradient(140deg,#bde5ff,#aee0fa)!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-luxe-signal-search{
+ background:#fffdfa!important;border-color:#daa75f!important
+}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-luxe-signal-search input{color:#182237!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-v5-pill:not(.active){
+ background:linear-gradient(145deg,#fffef9,#f7eee0)!important;
+ color:#273447!important;border-color:#d8c5a9!important
+}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-v5-pill-divider{background:#debf9b!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .sig-card.psp-v5-card{
+ background:linear-gradient(125deg,#fffdfa,#fcf6ee)!important;border-color:#dfcfb6!important;
+ box-shadow:inset 3px 0 0 #f39522,0 4px 16px rgba(94,57,20,.09)!important
+}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .sig-card.psp-v5-card .sig-pair,
+html.psp-luxe-mobile[data-theme="light"] #page-signals .sig-card.psp-v5-card .sig-lv .v{color:#172033!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .sig-card.psp-v5-card .sig-lv:nth-child(2) .v{color:#dd454c!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .sig-card.psp-v5-card .sig-lv:nth-child(3) .v{color:#039d58!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-v5-time,
+html.psp-luxe-mobile[data-theme="light"] #page-signals .sig-lv .l{color:#667487!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .sig-card.psp-v5-card .sig-levels>.sig-lv+.sig-lv{border-left-color:#dbcdbb!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .sig-card.psp-v5-card .sig-foot{border-top-color:#e7dccc!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-v5-current-status.pending{background:#f2eee9;color:#3f444b!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-v5-current-status.closed{background:#ececec;color:#333!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-v5-current-status.active,
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-v5-current-status.tp{background:#c1efd7;color:#087346!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-v5-outcome.profit{background:#d1f5e0;color:#087545!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-v5-outcome.loss{background:#fae4e5;color:#d23c45!important}
+html.psp-luxe-mobile[data-theme="light"] #page-signals .psp-v5-empty-filter{color:#526070}
+}
+@media screen and (max-width:380px){
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-hero{min-height:131px!important;height:131px!important}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-hero h2{font-size:25px!important}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-stats{gap:5px!important}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-stat{padding:8px 6px!important;height:91px!important;min-height:91px!important}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-stat>span{font-size:8.3px!important;gap:4px!important}
+html.psp-luxe-mobile #page-signals .psp-luxe-signal-stat>span svg{width:19px!important;height:19px!important;flex-basis:19px!important}
+html.psp-luxe-mobile #page-signals .psp-v5-pill{padding:7px 11px!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card{padding:12px 10px 10px!important}
+html.psp-luxe-mobile #page-signals .psp-v5-thumb{left:11px!important;width:49px;height:55px}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-top{margin-left:61px!important;width:calc(100% - 61px)!important}
+html.psp-luxe-mobile #page-signals .psp-v5-time{margin-left:61px!important;width:calc(100% - 67px)!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-levels{margin-left:61px!important;margin-right:15px!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-lv .v{font-size:11.8px!important}
+html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-foot{margin-left:61px!important}
+html.psp-luxe-mobile #page-signals .psp-v5-outcome{margin-left:61px!important}
+}
