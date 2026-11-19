@@ -136,7 +136,26 @@
    const values=computeStats();
    pg.querySelectorAll('.psp-luxe-signal-stat strong[data-stat]').forEach((el)=>{el.textContent=values[Number(el.dataset.stat)]||'—'});
  }
+ function ensureAllTargetsAccessible(){
+   const grid=$('#signalsGrid');if(!grid)return;
+   grid.querySelectorAll('.sig-card').forEach(card=>{
+     if($('.psp-luxe-tp-toggle',card))return;
+     const levels=$('.sig-levels',card);
+     if(!levels||levels.querySelectorAll('.sig-lv').length<4)return;
+     const button=document.createElement('button');
+     button.type='button';button.className='psp-luxe-tp-toggle';
+     button.textContent='View all take-profit levels +';
+     button.setAttribute('aria-expanded','false');
+     button.addEventListener('click',()=>{
+       const expanded=card.classList.toggle('psp-luxe-expanded');
+       button.textContent=expanded?'Show less −':'View all take-profit levels +';
+       button.setAttribute('aria-expanded',String(expanded));
+     });
+     levels.insertAdjacentElement('afterend',button);
+   });
+ }
  function filterCards(){
+   ensureAllTargetsAccessible();
    const pg=$('#page-signals'),grid=$('#signalsGrid');
    if(!pg||!grid||!mobile())return;
    const cards=grid.querySelectorAll('.sig-card:not(.sig-history-table-wrap)');let count=0;
