@@ -363,3 +363,5 @@ html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-lv .v{font-size:11
 html.psp-luxe-mobile #page-signals .sig-card.psp-v5-card .sig-foot{margin-left:61px!important}
 html.psp-luxe-mobile #page-signals .psp-v5-outcome{margin-left:61px!important}
 }
+
+@media screen and (max-width:768px){html.psp-luxe-mobile #page-signals .psp-luxe-dir-pills{display:none!important}html.psp-luxe-mobile #page-signals .sig-card.sig-history-mobile-card.psp-v5-card{display:block}html.psp-luxe-mobile #page-signals #signalsGrid .sig-history-table-wrap{display:none!important}}
