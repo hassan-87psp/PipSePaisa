@@ -1,0 +1,298 @@
+/* PipSePaisa App-Look V3 — visual fidelity refinements, mobile only.
+ * Source of truth stays in Supabase; this layer does not generate sample records.
+ * Keeps original six tabs, light/dark controls, and all desktop styles.
+ */
+@media screen and (max-width:768px){
+  html.psp-luxe-mobile{--psp-app-gold:#F39522;--psp-app-green:#14d889;--psp-app-radius:18px}
+  html.psp-luxe-mobile body{font-family:"Plus Jakarta Sans",system-ui,sans-serif!important}
+  html.psp-luxe-mobile #mainApp .content{padding:10px 12px calc(107px + env(safe-area-inset-bottom,0px))!important;overflow-x:clip!important}
+  html.psp-luxe-mobile #mainApp .topbar{height:75px!important;min-height:75px!important}
+  html.psp-luxe-mobile #mainApp .psp-luxe-brand-title{letter-spacing:-.8px}
+  html.psp-luxe-mobile #mainApp .psp-luxe-avatar span{font-size:0!important}
+  html.psp-luxe-mobile #mainApp .psp-luxe-avatar span svg{height:23px;width:23px}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-home{gap:12px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp63-welcome{
+    height:168px!important;min-height:168px!important;max-height:168px!important;
+    padding:15px 16px!important;border-radius:22px!important;
+    box-shadow:0 0 0 1px rgba(250,167,35,.16),0 8px 30px rgba(236,121,13,.11)!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp63-welcome-copy{width:74%!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp63-welcome-kicker{
+    font-size:clamp(12px,3.7vw,16px)!important;font-weight:500!important;
+    letter-spacing:-.25px!important;text-transform:capitalize!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp63-welcome h2{
+    font-size:clamp(26px,7.8vw,37px)!important;font-weight:950!important;
+    letter-spacing:-1.1px!important;line-height:1.03!important;margin:2px 0 6px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp63-welcome p{
+    max-width:225px!important;font-size:clamp(10px,2.6vw,12px)!important;
+    line-height:1.42!important;margin:0!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp63-market-art{
+    right:-18px!important;top:2px!important;bottom:3px!important;
+    width:60%!important;z-index:1!important;opacity:.99!important;
+    background-size:125% auto!important;background-position:53% 53%!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp58-live-time{
+    flex-wrap:nowrap!important;width:calc(100vw - 66px)!important;max-width:435px!important;
+    margin-top:13px!important;gap:5px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp58-live-time>span{
+    padding:6px 7px!important;min-width:0!important;white-space:nowrap!important;
+    border-radius:99px!important;font-size:clamp(8px,2vw,10px)!important;
+    backdrop-filter:blur(5px)
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp58-live-time b{
+    font-size:clamp(8px,2.1vw,10px)!important;white-space:nowrap!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp58-live-time .psp58-live-dot{margin-left:auto!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stats{gap:7px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stat{
+    height:98px!important;min-height:98px!important;max-height:98px!important;
+    padding:9px 7px!important;border-radius:16px!important;
+    box-shadow:0 7px 20px rgba(0,0,0,.11),inset 0 1px rgba(255,255,255,.08)!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stat .ico{position:absolute!important;top:10px;left:8px}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stat>div{left:36px!important;top:10px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stat .lab{font-size:clamp(8.5px,2.15vw,11px)!important;letter-spacing:-.2px;line-height:1.17!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stat .val{margin:21px 0 0!important;font-size:clamp(24px,7.2vw,33px)!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stat .go{font-size:17px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp59-grid-primary,
+  html.psp-luxe-mobile #psp56Dashboard .psp59-grid-secondary{gap:11px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-card{
+    border-radius:18px!important;padding:12px!important;box-shadow:0 8px 22px rgba(0,0,0,.17)!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp58-card-head{margin-bottom:9px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-card-head h3{font-size:clamp(15px,3.7vw,19px)!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-link{font-size:11px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-card.featured:before{top:13px!important;bottom:13px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-card.featured .psp106-dash-empty{
+    margin:2px 0!important;padding:13px 10px!important;
+    font-size:11px!important;line-height:1.4!important;border-radius:11px!important;
+    min-height:44px!important;display:grid;place-items:center
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp58-card.class-card.psp-luxe-vsa{
+    border:1px solid #d98811!important;min-height:155px!important;border-radius:20px!important;
+    background:radial-gradient(ellipse at 10% 85%,rgba(251,153,30,.5),transparent 50%),linear-gradient(100deg,#422005,#100c0b 70%,#16100b)!important;
+    box-shadow:0 0 17px rgba(247,143,11,.15)!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-vsa-inner{
+    min-height:155px!important;max-height:155px!important;height:155px!important;padding:9px 11px 9px 0!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-vsa-photo{
+    width:33%!important;min-width:98px!important;object-position:center 18%!important;
+    mask-image:linear-gradient(90deg,#000 83%,transparent 100%)!important;
+    -webkit-mask-image:linear-gradient(90deg,#000 83%,transparent 100%)!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-vsa-kicker{
+    background:linear-gradient(120deg,#ffca50,#f39522)!important;font-size:10px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-vsa-content{display:flex!important;flex-direction:column;align-items:flex-start;justify-content:center}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-vsa-content h3{
+    font-size:clamp(17px,4.1vw,21px)!important;line-height:1.06!important;
+    letter-spacing:-.35px!important;color:#fff!important;
+    margin:6px 0 5px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-vsa-content p{
+    color:#ece6dd!important;font-size:clamp(9px,2.3vw,11px)!important;
+    line-height:1.3!important;-webkit-line-clamp:2!important;margin-bottom:8px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-vsa-content a{padding:8px 13px!important;box-shadow:0 4px 18px rgba(244,151,26,.25)!important}
+  /* One full-width market row followed by two balanced dashboard cards. */
+  html.psp-luxe-mobile #psp56Dashboard .psp59-grid-secondary{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    align-items:start!important;column-gap:9px!important;row-gap:10px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp59-grid-secondary>.psp-luxe-analysis-card{
+    grid-column:1 / -1!important;grid-row:1!important;min-width:0
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp59-grid-secondary>.psp-luxe-journal-card{
+    grid-column:1!important;grid-row:2!important;min-width:0;height:100%!important;padding:10px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp59-grid-secondary>.psp-luxe-tools-card{
+    grid-column:2!important;grid-row:2!important;min-width:0;height:100%!important;padding:10px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-card>.psp58-card-head h3{font-size:19px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-card .psp-luxe-analysis-filters{
+    display:flex!important;gap:7px!important;align-items:center!important;
+    width:100%!important;overflow-x:auto!important;scrollbar-width:none;
+    padding:0 0 10px!important;margin:0!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-filters button{
+    flex:0 0 auto!important;padding:6px 12px!important;
+    border:1px solid rgba(255,255,255,.3)!important;
+    border-radius:99px!important;background:transparent!important;
+    color:var(--text-secondary)!important;font-size:10px!important;
+    font-weight:800!important;cursor:pointer
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-filters button.active{
+    background:linear-gradient(135deg,#ffc64e,#f39205)!important;
+    border-color:#f39205!important;color:#17120b!important;
+    box-shadow:0 3px 10px rgba(243,149,34,.18)!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-strip{
+    display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:8px!important;min-height:0!important;overflow:visible!important;
+    scroll-snap-type:none!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-strip>.psp-luxe-analysis-tile{
+    position:relative!important;display:flex!important;flex-direction:column!important;
+    flex:initial!important;align-items:stretch!important;gap:0!important;
+    width:auto!important;min-width:0!important;min-height:150px!important;
+    margin:0!important;padding:5px!important;border-radius:14px!important;
+    overflow:hidden!important;text-align:left!important;cursor:pointer!important;
+    border:1px solid rgba(255,177,74,.42)!important;scroll-snap-align:none!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-strip>.psp-luxe-analysis-tile[hidden]{display:none!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-tile>img,
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-tile>.psp58-thumb,
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-explore-art{
+    display:grid!important;place-items:center!important;
+    width:100%!important;max-width:100%!important;height:77px!important;
+    flex:0 0 77px!important;min-height:77px!important;margin:0!important;
+    border-radius:10px!important;object-fit:cover!important;font-size:33px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-explore-art.gold,
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-art-gold{
+    color:#ffd566!important;background:radial-gradient(circle at 55% 60%,#b86b06,#422306 68%,#151009)!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-explore-art.forex,
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-art-forex{
+    color:#54d6ee!important;background:linear-gradient(155deg,#093d58,#0a1523 60%,#152035)!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-explore-art.macro,
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-art-macro{
+    color:#e6baf5!important;background:linear-gradient(135deg,#41335f,#1a182a)!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-art-crypto{background:linear-gradient(125deg,#724317,#1b1412)!important;color:#ffbb5c!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-market-tag{
+    position:absolute;top:10px;right:9px;z-index:2;
+    border-radius:20px;padding:3px 7px;background:#f2a019;color:#16130c;
+    font-size:9px;line-height:1.1;font-weight:950
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-market-tag.forex{background:#58cafa!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-market-tag.crypto{background:#f5a827!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-market-tag.macro{background:#da83e8!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-tile>.psp58-analysis-copy{
+    display:block!important;width:100%!important;padding:7px 2px 3px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-tile .psp58-analysis-copy b{
+    display:-webkit-box!important;-webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;white-space:normal!important;overflow:hidden!important;
+    text-overflow:ellipsis!important;font-size:clamp(9px,2.4vw,11px)!important;
+    line-height:1.23!important;min-height:2.46em!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-tile .psp58-analysis-copy small{
+    display:block!important;margin-top:5px!important;font-size:8px!important;
+    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-filter-empty{
+    padding:12px;text-align:center;font-size:11px;color:var(--text-muted)
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-filter-empty[hidden]{display:none!important}
+  /* Compact side-by-side Journal & Tools matching the app reference. */
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp58-card-head,
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-tools-card .psp58-card-head{margin-bottom:7px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp58-card-head h3,
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-tools-card h3{
+    font-size:clamp(12px,3.2vw,16px)!important;white-space:normal!important;
+    line-height:1.18!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp58-link{font-size:0!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp58-link:after{content:"›";font-size:22px}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp58-journal{
+    display:grid!important;grid-template-columns:1fr 65px!important;
+    align-items:center!important;gap:5px!important;margin-top:7px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp58-journal>div:nth-child(n+3){display:none!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp58-journal>div{
+    min-width:0!important;min-height:65px!important;padding:7px!important;
+    border-radius:10px!important;display:flex!important;flex-direction:column!important;
+    justify-content:center!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp58-journal>div span{
+    font-size:clamp(7px,1.8vw,9px)!important;line-height:1.15!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp58-journal>div b{
+    font-size:clamp(16px,4vw,21px)!important;line-height:1.15!important;white-space:nowrap
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp67-win-cell{
+    background:none!important;border:0!important;padding:0!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp67-mini-ring{
+    width:61px!important;height:61px!important;min-width:61px!important;min-height:61px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp67-mini-ring b{font-size:13px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-trend{height:65px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-tools-card .psp-luxe-primary-tools{
+    display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:4px!important;margin:9px 0 3px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-tools-card .psp-luxe-primary-tools button{
+    min-height:97px!important;height:97px!important;padding:5px 2px!important;gap:7px!important;
+    border-radius:11px!important;min-width:0!important;
+    line-height:1.2!important;font-size:clamp(7px,1.55vw,9px)!important;
+    overflow-wrap:anywhere
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-tools-card .psp-luxe-primary-tools button span{
+    display:block!important;font-size:clamp(17px,3.7vw,23px)!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-tools-card .psp58-tools{display:none!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-tools-card.psp-luxe-tools-open .psp58-tools{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-tools-card .psp-luxe-more-tools-toggle{
+    display:block;margin-top:5px;padding:3px 1px;background:transparent;
+    border:none;color:var(--gold);font-size:10px;font-weight:800;cursor:pointer
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-tools-card .psp58-tools:before{display:none!important}
+  /* Six-tab dock remains scroll-free and never removes access to Strength/More */
+  html.psp-luxe-mobile #userBottomNav{border-radius:27px!important;bottom:calc(8px + env(safe-area-inset-bottom,0px))!important}
+  html.psp-luxe-mobile #userBottomNav .ubn-item.active{font-weight:950}
+  html.psp-luxe-mobile #page-signals .psp-luxe-signal-stats strong{font-size:clamp(22px,5.9vw,27px)}
+}
+@media screen and (max-width:440px){
+  html.psp-luxe-mobile #psp56Dashboard .psp63-market-art{width:64%!important;right:-25px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-live-time{width:calc(100vw - 47px)!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-strip{gap:6px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-analysis-tile>img,
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-explore-art{height:68px!important;flex-basis:68px!important;min-height:68px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-tools-card .psp-luxe-primary-tools{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important
+  }
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-tools-card .psp-luxe-primary-tools button{
+    min-height:55px!important;height:55px!important;gap:3px!important
+  }
+}
+@media screen and (max-width:360px){
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stat{padding:6px 5px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stat .ico{width:19px!important;height:19px!important;left:5px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stat>div{left:27px!important;right:2px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stat .lab{font-size:7.7px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp58-stat .val{font-size:21px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp58-journal{grid-template-columns:1fr 49px!important}
+  html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-card .psp67-mini-ring{width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important}
+}
+/* Keep original light theme setting but with the identical polished card geometry */
+@media screen and (max-width:768px){
+  html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp58-card.class-card.psp-luxe-vsa{
+    background:radial-gradient(ellipse at 12% 80%,rgba(247,148,25,.45),transparent 48%),linear-gradient(112deg,#3c1d04,#150e09 78%,#1f0f06)!important;
+    border-color:#e19b37!important
+  }
+  html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp-luxe-vsa-content h3{color:#fff!important}
+  html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp-luxe-vsa-content p{color:#e9e4dc!important}
+  html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp-luxe-analysis-tile{
+    border-color:#e6d2b0!important;background:linear-gradient(150deg,#fffdf8,#fbf2e6)!important
+  }
+  html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp-luxe-analysis-filters button{
+    border-color:#d6b788!important;background:#fffaf2!important;color:#394658!important
+  }
+  html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp-luxe-analysis-filters button.active{background:linear-gradient(135deg,#ffc64e,#f39205)!important;color:#17120b!important}
+  html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp-luxe-more-tools-toggle{color:#a15f07!important}
+  html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp-luxe-analysis-card,
+  html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp-luxe-journal-card,
+  html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp-luxe-tools-card{
+    box-shadow:0 5px 22px rgba(110,75,25,.08)!important
+  }
+}
