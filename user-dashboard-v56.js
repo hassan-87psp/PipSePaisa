@@ -259,8 +259,8 @@ function analysisHTML(charts,articles,allowed){
   if(!allowed)return '<div class="psp58-empty"><span>🔒</span><b>Market analysis is locked</b><small>Available during Free Access or after verification.</small><button onclick="PSPAccountVerification.goProfile()">Open Profile →</button></div>';
   const mobile=typeof window.matchMedia==='function'&&window.matchMedia('(max-width:768px)').matches;
   let items=[];
-  (charts||[]).forEach(x=>items.push({type:'chart',title:x.title||x.pair||'Market Analysis',text:(x.notes||x.description||'').slice(0,88),image:x.image_url||x.chart_url||'',date:x.updated_at||x.created_at,pair:x.pair||''}));
-  (articles||[]).forEach(x=>items.push({type:'article',title:x.title||'Latest Article',text:(x.summary||x.content||'').replace(/<[^>]*>/g,'').slice(0,88),image:x.image_url||'',date:x.updated_at||x.created_at,pair:''}));
+  (charts||[]).forEach(x=>items.push({type:'chart',title:x.title||x.pair||'Market Analysis',text:(x.notes||x.description||'').slice(0,88),image:x.image_url||x.chart_url||'',date:x.created_at||x.updated_at,pair:x.pair||''}));
+  (articles||[]).forEach(x=>items.push({type:'article',title:x.title||'Latest Article',text:(x.summary||x.content||'').replace(/<[^>]*>/g,'').slice(0,88),image:x.image_url||'',date:x.created_at||x.updated_at,pair:''}));
   items.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
   if(!mobile){
     items=items.slice(0,2);
@@ -275,14 +275,8 @@ function analysisHTML(charts,articles,allowed){
     return 'forex';
   };
   const tabs='<div class="psp-luxe-analysis-filters" aria-label="Filter market analysis">'+['All','Gold','Forex','Crypto','Macro'].map((v,i)=>'<button type="button" data-market="'+v.toLowerCase()+'" class="'+(!i?'active':'')+'">'+v+'</button>').join('')+'</div>';
-  // Prioritize a diverse three-card preview: Gold, Forex, and Macro/other,
-  // while retaining the rest for category filtering. All entries are real.
-  const ordered=[],used=new Set();
-  for(const cat of ['gold','forex','macro','crypto']){
-    const item=items.find(x=>category(x)===cat&&!used.has(x));
-    if(item){ordered.push(item);used.add(item)}
-  }
-  for(const x of items)if(!used.has(x))ordered.push(x);
+  // Strictly newest-published-first across categories. Filters retain all reports.
+  const ordered=items;
   const cards=ordered.slice(0,12).map(x=>{
     const cat=category(x),label=cat.charAt(0).toUpperCase()+cat.slice(1);
     return '<button type="button" class="psp58-analysis-item psp-luxe-analysis-tile" data-category="'+cat+'" data-goto-analysis="1">'+
@@ -304,8 +298,11 @@ function analysisHTML(charts,articles,allowed){
 }
 function journalHTML(trades,allowed){
   if(!allowed)return '<div class="psp58-empty compact"><span>🔒</span><b>Journal snapshot locked</b><small>Activate account access to view your stats.</small></div>';
-  const rows=trades||[],wins=rows.filter(t=>Number(t.pnl??t.pips??0)>0).length,total=rows.length,wr=total?Math.round(wins/total*100):0;
-  const weekAgo=Date.now()-7*86400000,week=rows.filter(t=>new Date(t.trade_date||t.date||t.created_at||0).getTime()>=weekAgo).reduce((a,t)=>a+Number(t.pnl??t.pips??0),0),last=rows[0],lastP=last?Number(last.pnl??last.pips??0):null;
+  const rows=trades||[],wins=rows.filter(t=>Number(t.pnl??t.pips??0)>0).length,total=rows.length,wr=total?Math.round(wins/total*100):null;
+  const nowPKT=new Date(Date.now()+5*3600000),mondayOffset=(nowPKT.getUTCDay()+6)%7;
+  const weekStartPKT=Date.UTC(nowPKT.getUTCFullYear(),nowPKT.getUTCMonth(),nowPKT.getUTCDate()-mondayOffset)-5*3600000;
+  const weekRows=rows.filter(t=>new Date(t.trade_date||t.date||t.created_at||0).getTime()>=weekStartPKT);
+  const week=weekRows.reduce((a,t)=>a+Number(t.pnl??t.pips??0),0),last=rows[0],lastP=last?Number(last.pnl??last.pips??0):null;
   // Responsive live performance sparkline: drawn only from this user's
   // actual saved trades. Never fabricate performance history or pips.
   let mobileTrend='';
@@ -320,10 +317,10 @@ function journalHTML(trades,allowed){
       const low=Math.min(...values),hi=Math.max(...values),range=Math.max(.001,hi-low);
       const path=values.map((v,i)=>String(Math.round(i*320/(values.length-1)))+','+String(Math.round(59-51*(v-low)/range))).join(' ');
       const latest=values[values.length-1],tone=latest>=0?'#11cf7e':'#ee5b61';
-      mobileTrend='<div class="psp-luxe-journal-trend"><svg viewBox="0 0 320 69" role="img" aria-label="Recent trade performance based on actual journal entries" preserveAspectRatio="none"><polyline points="'+path+'" fill="none" stroke="'+tone+'" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+      mobileTrend='<div class="psp-luxe-journal-trend" aria-label="Recent performance from saved trades"><svg viewBox="0 0 320 69" role="img" aria-label="Recent trade performance based on actual journal entries" preserveAspectRatio="none"><polyline points="'+path+'" fill="none" stroke="'+tone+'" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
     }
   }
-  return '<div class="psp-luxe-journal-shell"><div class="psp58-journal"><div><span>This Week</span><b class="'+(week>=0?'pos':'neg')+'">'+(week>=0?'+':'')+(Math.round(week*10)/10)+'</b></div><div class="psp67-win-cell"><span>Win Rate</span><div class="psp67-mini-ring" style="--pct:'+wr+'"><b>'+wr+'%</b></div></div><div><span>Total Trades</span><b>'+total+'</b></div><div><span>Last Trade</span><b class="'+(lastP==null?'':lastP>=0?'pos':'neg')+'">'+(lastP==null?'—':(lastP>=0?'+':'')+lastP)+'</b></div></div>'+mobileTrend+'</div>';
+  return '<div class="psp-luxe-journal-shell"><div class="psp58-journal"><div><span>This Week</span><b class="'+(week>=0?'pos':'neg')+'">'+(week>=0?'+':'')+(Math.round(week*10)/10)+'</b></div><div class="psp67-win-cell"><span>All-time Win Rate</span><div class="psp67-mini-ring" style="--pct:'+(wr??0)+'"><b>'+(wr===null?'—':wr+'%')+'</b></div></div><div><span>Total Trades</span><b>'+total+'</b></div><div><span>Last Trade</span><b class="'+(lastP==null?'':lastP>=0?'pos':'neg')+'">'+(lastP==null?'—':(lastP>=0?'+':'')+lastP)+'</b></div></div>'+(mobileTrend||'<div class="psp-luxe-journal-no-trend">'+(total?'Add another trade to see your performance trend.':'No trades recorded yet.')+'</div>')+'</div>';
 }
 function activityHTML(signals,charts,articles){
   let a=[];(signals||[]).slice(0,4).forEach(x=>{const st=statusInfo(x);a.push({ico:st.cls==='loss'?'🛑':st.final?'✅':'📡',t:(x.pair||'Signal')+' '+String(x.direction||'').toUpperCase(),m:st.label+(st.sub?' • '+st.sub:''),d:x.updated_at||x.created_at,cls:st.cls})});
