@@ -456,3 +456,14 @@ html.psp-luxe-mobile #mainApp .psp-luxe-brand:hover,html.psp-luxe-mobile #mainAp
  }
  html.psp-luxe-mobile[data-theme="light"] #mainApp .card-meta{color:#64748b!important}
 }
+
+/* V2 journal real-data trend */
+@media screen and (max-width:768px){
+ html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-shell{display:block;max-width:100%}
+ html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-trend{
+   height:65px;margin:9px 2px 0;padding:1px 5px 0;border-radius:9px;
+   background:linear-gradient(0deg,rgba(8,173,92,.12),transparent 75%);overflow:hidden
+ }
+ html.psp-luxe-mobile #psp56Dashboard .psp-luxe-journal-trend svg{display:block;width:100%;height:100%;overflow:visible}
+ html.psp-luxe-mobile[data-theme="light"] #psp56Dashboard .psp-luxe-journal-trend{background:linear-gradient(0deg,rgba(21,170,93,.1),rgba(255,255,255,.25))}
+}
