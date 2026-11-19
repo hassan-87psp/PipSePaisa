@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 280" role="img" aria-label="Golden geometric bull and rising market candlesticks">
+<defs>
+<linearGradient id="body" x1="0" y1="1" x2=".9" y2=".05"><stop offset="0" stop-color="#743004"/><stop offset=".36" stop-color="#ff9c12"/><stop offset=".7" stop-color="#ffcd45"/><stop offset="1" stop-color="#8a4207"/></linearGradient>
+<linearGradient id="head" x1="0" x2=".8" y1="1" y2="0"><stop stop-color="#7c3200"/><stop offset=".5" stop-color="#ff9d00"/><stop offset="1" stop-color="#ffe16f"/></linearGradient>
+<linearGradient id="dark" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#4c1d00"/><stop offset=".6" stop-color="#ae4f02"/><stop offset="1" stop-color="#fda018"/></linearGradient>
+<linearGradient id="leg" x1=".1" y1="0" x2=".9" y2="1"><stop stop-color="#fcbd2e"/><stop offset=".7" stop-color="#923c02"/><stop offset="1" stop-color="#462000"/></linearGradient>
+<radialGradient id="floor"><stop stop-color="#ffad25" stop-opacity=".8"/><stop offset=".6" stop-color="#f39108" stop-opacity=".3"/><stop offset="1" stop-color="#fd8b00" stop-opacity="0"/></radialGradient>
+<filter id="glow" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="7"/></filter>
+<filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2"/></filter>
+</defs>
+<g opacity=".8" stroke="#f79008" stroke-width="3" fill="none">
+<path d="M15 187V155M32 162V120M65 165V142M92 141V102M119 128V98M147 99V65M176 105V71M207 86V50M242 84V48M280 66V24M315 72V34M353 48V14M387 65V28M423 41V7M458 45V6M492 24V1" opacity=".7"/>
+</g>
+<g fill="#ffa90b" opacity=".7">
+<rect x="12" y="165" width="7" height="18" rx="1"/><rect x="30" y="132" width="6" height="25"/><rect x="63" y="145" width="7" height="17"/><rect x="88" y="108" width="7" height="28"/><rect x="116" y="104" width="7" height="21"/><rect x="143" y="77" width="7" height="22"/><rect x="173" y="81" width="7" height="25"/><rect x="202" y="56" width="7" height="30"/><rect x="238" y="53" width="7" height="33"/><rect x="275" y="31" width="7" height="35"/><rect x="310" y="41" width="7" height="29"/><rect x="350" y="22" width="7" height="28"/><rect x="384" y="34" width="7" height="24"/><rect x="421" y="12" width="7" height="29"/><rect x="453" y="14" width="7" height="28"/><rect x="490" y="7" width="7" height="20"/>
+</g>
+<ellipse cx="316" cy="251" rx="210" ry="27" fill="url(#floor)"/><ellipse cx="317" cy="246" rx="155" ry="5" fill="#fb9407" opacity=".62" filter="url(#glow)"/>
+<g stroke="#ffcf4c" stroke-linejoin="round" stroke-linecap="round">
+<!-- tail sweep -->
+<path d="M416 140C459 144 476 114 498 107C515 101 527 111 514 122C505 133 472 129 461 135" fill="none" stroke="#ffa21c" stroke-width="8"/>
+<path d="M416 139C457 141 480 112 502 107" fill="none" stroke="#ffe9a0" stroke-width="2.5"/>
+<!-- back legs -->
+<path d="M356 174L394 177L411 214L444 240L432 249L403 246L372 222L350 196Z" fill="url(#leg)" stroke-width="3"/>
+<path d="M340 185L369 187L360 218L378 243L364 250L350 247L326 222Z" fill="url(#dark)" stroke-width="2"/>
+<!-- forelegs -->
+<path d="M231 166L263 188L246 228L235 243L253 244L253 251L214 251L215 233L218 197Z" fill="url(#leg)" stroke-width="3"/>
+<path d="M266 183L298 184L294 213L281 240L301 242L295 251L262 250L261 234L263 208Z" fill="url(#dark)" stroke-width="2.5"/>
+<!-- body silhouette -->
+<path d="M211 111L252 98L322 91L377 104L418 129L408 173L386 194L322 199L260 195L216 174L202 145Z" fill="url(#body)" stroke-width="4"/>
+<!-- geometric bright facets -->
+<path d="M252 98L322 91L287 131L251 139L211 111Z" fill="#ffe17a" opacity=".92" stroke="none"/>
+<path d="M322 91L377 104L351 137L286 130Z" fill="#ffb221" opacity=".98" stroke="none"/>
+<path d="M377 104L418 129L408 173L352 160Z" fill="#d86805" stroke="none"/>
+<path d="M211 111L251 139L258 188L216 174L202 145Z" fill="#c25f02" stroke="none"/>
+<path d="M251 139L288 131L321 195L258 188Z" fill="#d97d0a" stroke="none"/>
+<path d="M288 131L351 137L355 191L321 195Z" fill="#f6a522" stroke="none"/>
+<path d="M351 137L408 173L385 194L355 191Z" fill="#894008" stroke="none"/>
+<path d="M250 139L322 91M288 131L355 191M351 137L377 104M258 188L351 137" fill="none" stroke="#ffe598" stroke-opacity=".38" stroke-width="2"/>
+<!-- neck & strong shoulder -->
+<path d="M224 121L263 135L250 178L210 171L187 150Z" fill="url(#head)" stroke-width="3"/>
+<!-- bull face facing left -->
+<path d="M207 121L177 133L159 156L161 172L188 184L215 171L229 146L220 125Z" fill="url(#head)" stroke-width="3.5"/>
+<path d="M177 133L205 126L198 152L164 168L159 156Z" fill="#ffcd48" opacity=".72" stroke="none"/>
+<path d="M198 152L215 171L188 184L164 169Z" fill="#a94f06" stroke="none"/>
+<!-- horns -->
+<path d="M202 131C191 106 181 98 164 97C150 100 148 108 140 117C157 108 169 114 177 131" fill="#ffcf64" stroke="#ffedab" stroke-width="3"/>
+<path d="M215 130C225 110 230 96 248 91C251 104 248 116 236 134" fill="#ffde80" stroke="#fff0b3" stroke-width="2.5"/>
+<!-- eyes, muzzle -->
+<ellipse cx="185" cy="150" rx="4" ry="3" fill="#351c03" stroke="none"/>
+<path d="M160 168L179 171" stroke="#7d2d01" stroke-width="3"/>
+</g>
+<path d="M151 251H466" stroke="#ffb33e" stroke-opacity=".75" stroke-width="2.5" filter="url(#soft)"/>
+</svg>
