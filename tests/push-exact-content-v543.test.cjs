@@ -77,5 +77,5 @@ test('Dashboard versioned assets include new item routing without redesigning cu
  for(const p of ['/psp-v28-fixes.js','/user-signals-core-v29.js']){
   assert.ok(dashboard.includes(p+'?v=20261102-v543-push-route'),p);
  }
- assert.match(dashboard,/\/user-app-core-v29\.js\?v=(?:20261102-v543-push-route|20261119-mobile-luxe-v1)/);
+ assert.match(dashboard,/\/user-app-core-v29\.js\?v=(?:20261102-v543-push-route|20261119-mobile-luxe-v1|20261119-theme-nav-v2)/);
 });
