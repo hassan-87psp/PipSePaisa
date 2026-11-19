@@ -211,3 +211,12 @@ html.psp-luxe-mobile #mainApp .psp-luxe-brand:hover,html.psp-luxe-mobile #mainAp
 @media screen and (min-width:769px){
  .psp-luxe-brand,.psp-luxe-top-actions,.psp-luxe-signal-hero,.psp-luxe-signal-stats,.psp-luxe-signal-search,.psp-luxe-dir-pills{display:none!important}
 }
+
+
+@media screen and (max-width:768px){
+ html.psp-luxe-mobile #page-signals .sig-card.psp-luxe-expanded .sig-levels>.sig-lv:nth-child(n+4){display:block!important}
+ html.psp-luxe-mobile #page-signals .sig-card.psp-luxe-expanded .sig-levels{row-gap:7px!important}
+ html.psp-luxe-mobile #page-signals .psp-luxe-tp-toggle{appearance:none;display:block;margin:8px 0 2px;padding:5px 0;background:none;border:0;color:#ffc067;font-size:10px;font-weight:800;cursor:pointer;text-align:left}
+ html.psp-luxe-mobile #page-signals .psp-luxe-tp-toggle:focus-visible{outline:2px solid #f39522;outline-offset:2px;border-radius:4px}
+ html.psp-luxe-mobile #psp56Dashboard .psp58-stat{transform:none!important}
+}
