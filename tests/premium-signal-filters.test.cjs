@@ -100,7 +100,7 @@ test('Every User Panel route alias and admin workspace uses fresh signal script 
   assert.match(read(file),/user-signals-core-v29\.js\?v=[0-9a-z-]+/i,file+' must version the signal script');
  }
  for(const file of ['dashboard/index.html','signals/index.html','charts-articles/index.html','live-charts/index.html','world-news/index.html']){
-  assert.match(read(file),/user-signals-core-v29\.js\?v=(?:20261102-v543-push-route|20261119-signals-first-v5)/,file+' must load the tested exact-item signal handler');
+  assert.ok(read(file).includes('user-signals-core-v29.js?v=20261102-v543-push-route'),file+' must load exact-item push handler');
  }
  for(const file of ['admin/index.html','admin-panel.html']){
   const html=read(file),actual=html.match(/<script defer src="([^"]*admin-core-v406\.js\?v=[^"]+)"\><\/script>/),

@@ -779,7 +779,7 @@ function renderSignals(){
   }
   const list=SIGNALS.filter(function(s){
     var finished=(s.rawStatus==='sl'||s.rawStatus==='closed'||s.rawStatus==='tp3'||s.rawStatus==='be');
-    var viewOk=(sigView==='all')?true:((sigView==='active')?(!finished):finished);
+    var viewOk=(sigView==='active')?(!finished):finished;
     var catOk=(sigF==='all')?true:(s.cat===sigF);
     return viewOk&&catOk&&inTime(s);
   });
@@ -816,7 +816,7 @@ function renderSignals(){
       }
       currentRows+=sigHistoryRow(s);
 
-      const a=s.rawStatus==='pending'?['st-pending','Pending']:(stMap[s.status]||stMap.active);const sc=a[0],st=a[1];
+      const a=stMap[s.status]||stMap.active;const sc=a[0],st=a[1];
       const pct=s.rawStatus==='sl'?100:(s.tpHit>=3?100:s.tpHit===2?66:s.tpHit===1?33:0);
       const loss=s.rawStatus==='sl';
       const prog=`<div style="margin-top:12px;">
@@ -827,7 +827,7 @@ function renderSignals(){
           <span style="color:${s.tpHit>=3&&!loss?'#10b981':'var(--text-muted)'}">${s.tpHit>=3&&!loss?'✓ ':''}TP3</span>
         </div>
       </div>`;
-      sigHtml+=`<div class="card sig-card sig-history-mobile-card" data-psp-signal-id="${vEsc(s.id)}">
+      sigHtml+=`<div class="card sig-card sig-history-mobile-card">
         <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}</span>${s.orderType&&s.orderType!=='market'?`<span style="font-size:11.5px;font-weight:900;padding:5px 11px;border-radius:999px;background:rgba(14,165,233,.14);color:#0ea5e9;border:1.5px solid rgba(14,165,233,.55);letter-spacing:.4px;white-space:nowrap;margin-left:6px">${s.orderType==='limit'?'📍':'🚀'} ${s.dir.toUpperCase()} ${s.orderType.toUpperCase()}</span>`:''}</div>
         <div class="sig-levels">
           <div class="sig-lv"><div class="l">Entry</div><div class="v">${s.entry}</div></div>
@@ -852,7 +852,7 @@ function renderSignals(){
           <div style="height:1px;background:var(--border);flex:1;"></div>
         </div>`;
       }
-      const a=s.rawStatus==='pending'?['st-pending','Pending']:(stMap[s.status]||stMap.active);const sc=a[0],st=a[1];
+      const a=stMap[s.status]||stMap.active;const sc=a[0],st=a[1];
       const pct=s.rawStatus==='sl'?100:(s.tpHit>=3?100:s.tpHit===2?66:s.tpHit===1?33:0);
       const loss=s.rawStatus==='sl';
       const prog=`<div style="margin-top:12px;">
@@ -867,7 +867,7 @@ function renderSignals(){
 <div style="font-size:14px;font-weight:800;color:var(--gold)">🔒 VIP Signal</div>\
 <div style="font-size:11px;color:var(--text-muted)">Tap to upgrade &amp; unlock Entry, SL &amp; TP</div>\
 <div style="margin-top:4px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#0a0e1a;font-weight:800;font-size:11px;padding:6px 14px;border-radius:8px">View VIP Plans →</div></div>':'';
-      sigHtml+=`<div class="card sig-card" data-psp-signal-id="${vEsc(s.id)}">
+      sigHtml+=`<div class="card sig-card">
         <div class="sig-top"><div class="sig-pair">${s.ico} ${s.pair}</div><span class="sig-dir ${s.dir}">${s.dir.toUpperCase()}</span>${s.orderType&&s.orderType!=='market'?`<span style="font-size:11.5px;font-weight:900;padding:5px 11px;border-radius:999px;background:rgba(14,165,233,.14);color:#0ea5e9;border:1.5px solid rgba(14,165,233,.55);letter-spacing:.4px;white-space:nowrap;margin-left:6px">${s.orderType==='limit'?'📍':'🚀'} ${s.dir.toUpperCase()} ${s.orderType.toUpperCase()}</span>`:''}</div>
         <div style="position:relative">
           ${lockOv}
@@ -1822,7 +1822,7 @@ function renderSignals(){
 
   var viewRows=SIGNALS.filter(function(s){
     var finished=pspSigIsFinished(s);
-    var viewOk=(sigView==='all')?true:((sigView==='active')?(!finished):finished);
+    var viewOk=(sigView==='active')?(!finished):finished;
     var catOk=premiumDesktop||sigF==='all'||s.cat===sigF;
     return viewOk&&catOk&&(premiumDesktop||inTime(s));
   });

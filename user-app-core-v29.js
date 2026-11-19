@@ -6136,13 +6136,8 @@
     // the page the user is currently viewing, including My Courses.
     if (!appWasVisible || !activePageBefore) {
       window.scrollTo(0, 0);
-      // V5: user-requested Signals-first mobile portal. Desktop stays Dashboard.
-      // Explicit deep links and ?page=... are still handled by the intended-route system.
-      const mobileFirst=window.matchMedia&&window.matchMedia('(max-width:768px)').matches;
-      const firstPage=mobileFirst?'signals':'dashboard';
-      const firstItem=document.querySelector('.menu-item[data-page="'+firstPage+'"]');
-      showPage(firstPage, firstItem||undefined);
-      if(mobileFirst && typeof window.ubnSync==='function')window.ubnSync('signals');
+      const dashboardItem=document.querySelector('.menu-item[data-page="dashboard"]');
+      showPage('dashboard', dashboardItem);
       setTimeout(function(){if(typeof window.pspApplyIntendedRoute==='function')window.pspApplyIntendedRoute();},0);
 
       // V218: do not build/resize the hidden Journal chart during login.
@@ -6356,35 +6351,4 @@
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});
  else mount();
-})();
-
-
-/* PSP Mobile Luxe 2026-11-19 — shared user-portal loader.
-   No effect on desktop layout; HTML route copies all use this core. */
-;(function(){
- if(window.__pspLuxeLoader20261119)return;
- window.__pspLuxeLoader20261119=true;
- var css=document.createElement('link');
- css.rel='stylesheet';css.href='/psp-mobile-luxe-v1.css?v=20261119-reference-v3';
- document.head.appendChild(css);
- var appCSS=document.createElement('link');
- appCSS.rel='stylesheet';appCSS.href='/psp-mobile-app-v3.css?v=20261119-reference-1';
- document.head.appendChild(appCSS);
- var refCSS=document.createElement('link');
- refCSS.rel='stylesheet';refCSS.href='/psp-mobile-reference-v4.css?v=20261119-final-ref-v4';
- document.head.appendChild(refCSS);
- var signalCSS=document.createElement('link');
- signalCSS.rel='stylesheet';signalCSS.href='/psp-mobile-signals-v5.css?v=20261119-signals-first-v5';
- document.head.appendChild(signalCSS);
-  var polishCSS=document.createElement('link');
-  polishCSS.rel='stylesheet';polishCSS.href='/psp-mobile-polish-v6.css?v=20261119-mobile-v6';
-  document.head.appendChild(polishCSS);
- var script=document.createElement('script');
- script.src='/psp-mobile-luxe-v1.js?v=20261119-final-ref-v4';
- script.async=false;
- (document.body||document.head).appendChild(script);
- var signalsScript=document.createElement('script');
- signalsScript.src='/psp-mobile-signals-v5.js?v=20261119-signals-first-v5';
- signalsScript.async=false;
- (document.body||document.head).appendChild(signalsScript);
 })();

@@ -3,7 +3,7 @@
 'use strict';
 let loading=false,lastLoad=0,clockTimer=null;
 const PSP_DASH_CACHE_TTL_V220=45000;
-function dashCacheKeyV220(uid){return 'psp_dashboard_v225_premium_v6_'+String(uid||'guest')}
+function dashCacheKeyV220(uid){return 'psp_dashboard_v221_b4_'+String(uid||'guest')}
 function readDashCacheV220(uid){
   try{const x=JSON.parse(sessionStorage.getItem(dashCacheKeyV220(uid))||'null');if(!x||!x.html||!x.savedAt)return null;return x}catch(_){return null}
 }
@@ -257,75 +257,16 @@ function nextClassHTML(classes,enrollments,courses){
 }
 function analysisHTML(charts,articles,allowed){
   if(!allowed)return '<div class="psp58-empty"><span>🔒</span><b>Market analysis is locked</b><small>Available during Free Access or after verification.</small><button onclick="PSPAccountVerification.goProfile()">Open Profile →</button></div>';
-  const mobile=typeof window.matchMedia==='function'&&window.matchMedia('(max-width:768px)').matches;
-  let items=[];
-  (charts||[]).forEach(x=>items.push({type:'chart',title:x.title||x.pair||'Market Analysis',text:(x.notes||x.description||'').slice(0,88),image:x.image_url||x.chart_url||'',date:x.created_at||x.updated_at,pair:x.pair||''}));
-  (articles||[]).forEach(x=>items.push({type:'article',title:x.title||'Latest Article',text:(x.summary||x.content||'').replace(/<[^>]*>/g,'').slice(0,88),image:x.image_url||'',date:x.created_at||x.updated_at,pair:''}));
-  items.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
-  if(!mobile){
-    items=items.slice(0,2);
-    if(!items.length)return '<div class="psp58-empty"><span>📈</span><b>No analysis published yet</b><small>Fresh charts and articles will appear here.</small></div>';
-    return '<div class="psp58-analysis-list">'+items.map(x=>'<div class="psp58-analysis-item" onclick="document.querySelector(\'[data-page=articles]\').click()">'+(x.image?'<img src="'+esc(x.image)+'" alt="">':'<div class="psp58-thumb">'+(x.type==='chart'?'📈':'📝')+'</div>')+'<div class="psp58-analysis-copy"><b>'+esc(x.title)+'</b><span>'+esc(x.text||'Open to view details')+'</span><small>'+esc(fmtPKT(x.date))+' PKT</small></div><span class="psp58-arrow">→</span></div>').join('')+'</div>';
-  }
-  const category=x=>{
-    const t=(x.title+' '+(x.pair||'')).toLowerCase();
-    if(/gold|xau|xag|silver/.test(t))return 'gold';
-    if(/btc|bitcoin|eth|crypto|ethereum|solana/.test(t))return 'crypto';
-    if(/cpi|inflation|nfp|fomc|pce|macro|fed |interest rate|central bank|economy|geopolitic|tariff/.test(t))return 'macro';
-    return 'forex';
-  };
-  const tabs='<div class="psp-luxe-analysis-filters" aria-label="Filter market analysis">'+['All','Gold','Forex','Crypto','Macro'].map((v,i)=>'<button type="button" data-market="'+v.toLowerCase()+'" class="'+(!i?'active':'')+'">'+v+'</button>').join('')+'</div>';
-  // Strictly newest-published-first across categories. Filters retain all reports.
-  const ordered=items;
-  const cards=ordered.slice(0,12).map(x=>{
-    const cat=category(x),label=cat.charAt(0).toUpperCase()+cat.slice(1);
-    return '<button type="button" class="psp58-analysis-item psp-luxe-analysis-tile" data-category="'+cat+'" data-goto-analysis="1">'+
-      (x.image?'<img loading="lazy" src="'+esc(x.image)+'" alt="">':'<div class="psp58-thumb psp-luxe-art-'+cat+'">'+(cat==='gold'?'◈':cat==='crypto'?'₿':cat==='macro'?'◉':'▥')+'</div>')+
-      '<span class="psp-luxe-market-tag '+cat+'">'+label+'</span>'+
-      '<div class="psp58-analysis-copy"><b>'+esc(x.title)+'</b><small>'+esc(fmtPKT(x.date))+' PKT</small></div>'+
-    '</button>';
-  });
-  // If under 3 published reports, category browse cards are clearly labeled
-  // as discovery links. They never pretend to be real reports.
-  const categories=['gold','forex','macro'];
-  for(let k=0;cards.length<3&&k<categories.length;k++){
-    const cat=categories[k];
-    if(items.some(x=>category(x)===cat))continue;
-    const label=cat==='gold'?'Gold Analysis':cat==='forex'?'Forex Analysis':'Macro Outlook';
-    cards.push('<button type="button" class="psp58-analysis-item psp-luxe-analysis-tile psp-luxe-explore-tile" data-category="'+cat+'" data-goto-analysis="1"><span class="psp-luxe-explore-art '+cat+'">'+(cat==='gold'?'◈':cat==='forex'?'▥':'◎')+'</span><span class="psp-luxe-market-tag '+cat+'">'+cat.charAt(0).toUpperCase()+cat.slice(1)+'</span><div class="psp58-analysis-copy"><b>'+label+'</b><small>Explore market analysis</small></div></button>');
-  }
-  return tabs+'<div class="psp58-analysis-list psp-luxe-analysis-strip">'+cards.join('')+'</div><div class="psp-luxe-filter-empty" hidden>No analysis available in this category.</div>';
+  let items=[];(charts||[]).slice(0,2).forEach(x=>items.push({type:'chart',title:x.title||x.pair||'Market Analysis',text:(x.notes||x.description||'').slice(0,88),image:x.image_url||x.chart_url||'',date:x.updated_at||x.created_at}));
+  if(items.length<2)(articles||[]).slice(0,2-items.length).forEach(x=>items.push({type:'article',title:x.title||'Latest Article',text:(x.summary||x.content||'').replace(/<[^>]*>/g,'').slice(0,88),image:x.image_url||'',date:x.updated_at||x.created_at}));
+  if(!items.length)return '<div class="psp58-empty"><span>📈</span><b>No analysis published yet</b><small>Fresh charts and articles will appear here.</small></div>';
+  return '<div class="psp58-analysis-list">'+items.map(x=>`<div class="psp58-analysis-item" onclick="document.querySelector('[data-page=articles]').click()">${x.image?`<img src="${esc(x.image)}" alt="">`:`<div class="psp58-thumb">${x.type==='chart'?'📈':'📝'}</div>`}<div class="psp58-analysis-copy"><b>${esc(x.title)}</b><span>${esc(x.text||'Open to view details')}</span><small>${esc(fmtPKT(x.date))} PKT</small></div><span class="psp58-arrow">→</span></div>`).join('')+'</div>';
 }
 function journalHTML(trades,allowed){
   if(!allowed)return '<div class="psp58-empty compact"><span>🔒</span><b>Journal snapshot locked</b><small>Activate account access to view your stats.</small></div>';
-  const rows=trades||[];
-  // Open entries with null P&L must not count as losses or fake a last result.
-  const settled=rows.filter(t=>t&&t.pnl!=null&&t.pnl!==''&&Number.isFinite(Number(t.pnl)));
-  const decisions=settled.filter(t=>Number(t.pnl)!==0);
-  const wins=decisions.filter(t=>Number(t.pnl)>0).length,total=settled.length;
-  const wr=decisions.length?Math.round(wins/decisions.length*100):null;
-  const nowPKT=new Date(Date.now()+5*3600000),mondayOffset=(nowPKT.getUTCDay()+6)%7;
-  const weekStartPKT=Date.UTC(nowPKT.getUTCFullYear(),nowPKT.getUTCMonth(),nowPKT.getUTCDate()-mondayOffset)-5*3600000;
-  const weekRows=settled.filter(t=>new Date(t.trade_date||t.date||t.created_at||0).getTime()>=weekStartPKT);
-  const week=weekRows.reduce((a,t)=>a+Number(t.pnl),0),last=settled[0],lastP=last?Number(last.pnl):null;
-  // Responsive live performance sparkline: drawn only from this user's
-  // actual saved trades. Never fabricate performance history or pips.
-  let mobileTrend='';
-  if(typeof window.matchMedia==='function'&&window.matchMedia('(max-width:768px)').matches){
-    const series=settled.filter(t=>{
-      const d=new Date(t.trade_date||t.date||t.created_at||0).getTime();
-      return Number.isFinite(d)&&d>0&&Number.isFinite(Number(t.pnl??t.pips));
-    }).slice(0,24).sort((a,b)=>new Date(a.trade_date||a.date||a.created_at)-new Date(b.trade_date||b.date||b.created_at));
-    if(series.length>1){
-      let balance=0;
-      const values=[0,...series.map(t=>balance+=Number(t.pnl??t.pips))];
-      const low=Math.min(...values),hi=Math.max(...values),range=Math.max(.001,hi-low);
-      const path=values.map((v,i)=>String(Math.round(i*320/(values.length-1)))+','+String(Math.round(59-51*(v-low)/range))).join(' ');
-      const latest=values[values.length-1],tone=latest>=0?'#11cf7e':'#ee5b61';
-      mobileTrend='<div class="psp-luxe-journal-trend" aria-label="Recent performance from saved trades"><svg viewBox="0 0 320 69" role="img" aria-label="Recent trade performance based on actual journal entries" preserveAspectRatio="none"><polyline points="'+path+'" fill="none" stroke="'+tone+'" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
-    }
-  }
-  return '<div class="psp-luxe-journal-shell"><div class="psp58-journal"><div><span>This Week</span><b class="'+(week>=0?'pos':'neg')+'">'+(week>=0?'+':'')+(Math.round(week*10)/10)+'</b></div><div class="psp67-win-cell"><span>All-time Win Rate</span><div class="psp67-mini-ring" style="--pct:'+(wr??0)+'"><b>'+(wr===null?'—':wr+'%')+'</b></div></div><div><span>Closed Trades</span><b>'+total+'</b></div><div><span>Last Trade</span><b class="'+(lastP==null?'':lastP>=0?'pos':'neg')+'">'+(lastP==null?'—':(lastP>=0?'+':'')+lastP)+'</b></div></div>'+(mobileTrend||'<div class="psp-luxe-journal-no-trend">'+(total?'Add another closed trade to see your performance trend.':(rows.length?'No closed trades yet.':'No trades recorded yet.'))+'</div>')+'</div>';
+  const rows=trades||[],wins=rows.filter(t=>Number(t.pnl??t.pips??0)>0).length,total=rows.length,wr=total?Math.round(wins/total*100):0;
+  const weekAgo=Date.now()-7*86400000,week=rows.filter(t=>new Date(t.date||t.created_at||0).getTime()>=weekAgo).reduce((a,t)=>a+Number(t.pnl??t.pips??0),0),last=rows[0],lastP=last?Number(last.pnl??last.pips??0):null;
+  return `<div class="psp58-journal"><div><span>This Week</span><b class="${week>=0?'pos':'neg'}">${week>=0?'+':''}${Math.round(week*10)/10}</b></div><div class="psp67-win-cell"><span>Win Rate</span><div class="psp67-mini-ring" style="--pct:${wr}"><b>${wr}%</b></div></div><div><span>Total Trades</span><b>${total}</b></div><div><span>Last Trade</span><b class="${lastP==null?'':lastP>=0?'pos':'neg'}">${lastP==null?'—':(lastP>=0?'+':'')+lastP}</b></div></div>`;
 }
 function activityHTML(signals,charts,articles){
   let a=[];(signals||[]).slice(0,4).forEach(x=>{const st=statusInfo(x);a.push({ico:st.cls==='loss'?'🛑':st.final?'✅':'📡',t:(x.pair||'Signal')+' '+String(x.direction||'').toUpperCase(),m:st.label+(st.sub?' • '+st.sub:''),d:x.updated_at||x.created_at,cls:st.cls})});

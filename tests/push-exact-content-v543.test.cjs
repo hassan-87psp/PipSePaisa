@@ -74,7 +74,7 @@ test('Signal push matches only an authorized signal and masks VIP-only levels',(
  assert.match(users,/document\.getElementById\('pspPushSignalBodyV543'\)\.textContent=fields\.join/);
 });
 test('Dashboard versioned assets include new item routing without redesigning current UI',()=>{
- assert.match(dashboard,/\/psp-v28-fixes\.js\?v=(?:20261102-v543-push-route|20261119-signals-router-v6)/);
- assert.match(dashboard,/\/user-signals-core-v29\.js\?v=(?:20261102-v543-push-route|20261119-signals-first-v5)/);
- assert.match(dashboard,/\/user-app-core-v29\.js\?v=(?:20261102-v543-push-route|20261119-mobile-luxe-v1|20261119-theme-nav-v2|20261119-reference-v3|20261119-final-ref-v4|20261119-signals-first-v5|20261119-mobile-v6a)/);
+ for(const p of ['/psp-v28-fixes.js','/user-app-core-v29.js','/user-signals-core-v29.js']){
+  assert.ok(dashboard.includes(p+'?v=20261102-v543-push-route'),p);
+ }
 });

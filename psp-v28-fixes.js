@@ -1,8 +1,5 @@
 (function(){
 'use strict';
-// Only the first plain mobile dashboard boot defaults to Signals.
-// Explicit notification/deep links, desktop and later Home/Back stay unchanged.
-let pspV6FirstRoutePending=true;
 const ROOT_PATH=()=>location.pathname.replace(/index\.html$/i,'')||'/';
 const PAGE_TO_PATH={dashboard:'/dashboard',journal:'/journal',performance:'/performance',signals:'/signals',charts:'/live-charts',articles:'/charts-articles',newshub:'/world-news',strength:'/currency-strength',trades:'/my-trades',analysis:'/trades-analysis',tools:'/tools',aireport:'/ai-report',news:'/economic-news',chats:'/member-chats',vipplans:'/vip-plans',aitools:'/ai-tools',about:'/about',announce:'/announcements',support:'/support',settings:'/profile',mycourses:'/my-courses',eaindicator:'/eaindicator'};
 const PATH_TO_PAGE={};Object.keys(PAGE_TO_PATH).forEach(k=>PATH_TO_PAGE[PAGE_TO_PATH[k]]=k);
@@ -17,14 +14,9 @@ function intended(){let target='';try{const path=normalizePath();if(PATH_TO_PAGE
  // Deep link item requested by notification takes priority over /dashboard path.
  // Ordinary navigation continues to prefer its existing path behaviour.
  if(exactPush)target=pushPage;
- if(!exactPush && pspV6FirstRoutePending && target==='dashboard' &&
-    typeof window.matchMedia==='function' && window.matchMedia('(max-width:768px)').matches &&
-    !q.has('page') && !q.has('open') && !q.has('payment') && !(location.hash||'')){
-   target='signals';
- }
  if(!target)target=(q.get('open')||q.get('page')||'').toLowerCase();const hash=(location.hash||'').replace(/^#/,'').toLowerCase();if(!target&&hash)target=hash;if(target==='course-basic'||target==='basic-course')target='basic';if(target==='course-advanced'||target==='advanced-course')target='advanced';if(target==='login'||target==='auth-login')target='auth-login'}catch(_){}return target;}
 function rememberTarget(value){try{if(value&&value!=='auth-login')sessionStorage.setItem('psp_intended_route',value)}catch(_){}}
-function consumeTarget(){let value=intended();pspV6FirstRoutePending=false;try{if(!value||value==='auth-login')value=sessionStorage.getItem('psp_intended_route')||value;if(value&&value!=='auth-login')sessionStorage.removeItem('psp_intended_route')}catch(_){}return value;}
+function consumeTarget(){let value=intended();try{if(!value||value==='auth-login')value=sessionStorage.getItem('psp_intended_route')||value;if(value&&value!=='auth-login')sessionStorage.removeItem('psp_intended_route')}catch(_){}return value;}
 function appVisible(){const app=document.getElementById('mainApp');return !!(app&&getComputedStyle(app).display!=='none');}
 function pathForPage(page){return PAGE_TO_PATH[page]||('/'+String(page||'dashboard').replace(/[^a-z0-9-]/gi,'-').toLowerCase());}
 window.pspApplyIntendedRoute=function(){if(!appVisible())return false;const target=consumeTarget();if(!target||target==='auth-login'||window.__pspV28AppliedRoute===target)return false;if(target==='basic'||target==='advanced'){window.__pspV28AppliedRoute=target;const nav=document.querySelector('.menu-item[data-page="mycourses"],.menu-item[data-page="learn"]');if(typeof window.openMyCoursesPage==='function')window.openMyCoursesPage(nav);else if(typeof window.showPage==='function')window.showPage('mycourses',nav||undefined);setTimeout(()=>{if(typeof window.openCourseDetail==='function')window.openCourseDetail(target)},100);return true}const pageMap={home:'dashboard',dashboard:'dashboard',signals:'signals',charts:'charts',articles:'articles',mycourses:'mycourses',courses:'mycourses',performance:'performance',tools:'tools',settings:'settings',profile:'settings'};const page=pageMap[target]||target;const nav=document.querySelector('.menu-item[data-page="'+CSS.escape(page)+'"]');if(nav&&typeof window.showPage==='function'){window.__pspV28AppliedRoute=target;window.__pspRouteApplying=true;window.showPage(page,nav);window.__pspRouteApplying=false;return true}return false;};
