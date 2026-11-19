@@ -6136,8 +6136,13 @@
     // the page the user is currently viewing, including My Courses.
     if (!appWasVisible || !activePageBefore) {
       window.scrollTo(0, 0);
-      const dashboardItem=document.querySelector('.menu-item[data-page="dashboard"]');
-      showPage('dashboard', dashboardItem);
+      // V5: user-requested Signals-first mobile portal. Desktop stays Dashboard.
+      // Explicit deep links and ?page=... are still handled by the intended-route system.
+      const mobileFirst=window.matchMedia&&window.matchMedia('(max-width:768px)').matches;
+      const firstPage=mobileFirst?'signals':'dashboard';
+      const firstItem=document.querySelector('.menu-item[data-page="'+firstPage+'"]');
+      showPage(firstPage, firstItem||undefined);
+      if(mobileFirst && typeof window.ubnSync==='function')window.ubnSync('signals');
       setTimeout(function(){if(typeof window.pspApplyIntendedRoute==='function')window.pspApplyIntendedRoute();},0);
 
       // V218: do not build/resize the hidden Journal chart during login.
