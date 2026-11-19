@@ -3,7 +3,7 @@
 'use strict';
 let loading=false,lastLoad=0,clockTimer=null;
 const PSP_DASH_CACHE_TTL_V220=45000;
-function dashCacheKeyV220(uid){return 'psp_dashboard_v224_reference_v4_'+String(uid||'guest')}
+function dashCacheKeyV220(uid){return 'psp_dashboard_v225_premium_v6_'+String(uid||'guest')}
 function readDashCacheV220(uid){
   try{const x=JSON.parse(sessionStorage.getItem(dashCacheKeyV220(uid))||'null');if(!x||!x.html||!x.savedAt)return null;return x}catch(_){return null}
 }
@@ -298,16 +298,21 @@ function analysisHTML(charts,articles,allowed){
 }
 function journalHTML(trades,allowed){
   if(!allowed)return '<div class="psp58-empty compact"><span>🔒</span><b>Journal snapshot locked</b><small>Activate account access to view your stats.</small></div>';
-  const rows=trades||[],wins=rows.filter(t=>Number(t.pnl??t.pips??0)>0).length,total=rows.length,wr=total?Math.round(wins/total*100):null;
+  const rows=trades||[];
+  // Open entries with null P&L must not count as losses or fake a last result.
+  const settled=rows.filter(t=>t&&t.pnl!=null&&t.pnl!==''&&Number.isFinite(Number(t.pnl)));
+  const decisions=settled.filter(t=>Number(t.pnl)!==0);
+  const wins=decisions.filter(t=>Number(t.pnl)>0).length,total=settled.length;
+  const wr=decisions.length?Math.round(wins/decisions.length*100):null;
   const nowPKT=new Date(Date.now()+5*3600000),mondayOffset=(nowPKT.getUTCDay()+6)%7;
   const weekStartPKT=Date.UTC(nowPKT.getUTCFullYear(),nowPKT.getUTCMonth(),nowPKT.getUTCDate()-mondayOffset)-5*3600000;
-  const weekRows=rows.filter(t=>new Date(t.trade_date||t.date||t.created_at||0).getTime()>=weekStartPKT);
-  const week=weekRows.reduce((a,t)=>a+Number(t.pnl??t.pips??0),0),last=rows[0],lastP=last?Number(last.pnl??last.pips??0):null;
+  const weekRows=settled.filter(t=>new Date(t.trade_date||t.date||t.created_at||0).getTime()>=weekStartPKT);
+  const week=weekRows.reduce((a,t)=>a+Number(t.pnl),0),last=settled[0],lastP=last?Number(last.pnl):null;
   // Responsive live performance sparkline: drawn only from this user's
   // actual saved trades. Never fabricate performance history or pips.
   let mobileTrend='';
   if(typeof window.matchMedia==='function'&&window.matchMedia('(max-width:768px)').matches){
-    const series=rows.filter(t=>{
+    const series=settled.filter(t=>{
       const d=new Date(t.trade_date||t.date||t.created_at||0).getTime();
       return Number.isFinite(d)&&d>0&&Number.isFinite(Number(t.pnl??t.pips));
     }).slice(0,24).sort((a,b)=>new Date(a.trade_date||a.date||a.created_at)-new Date(b.trade_date||b.date||b.created_at));
@@ -320,7 +325,7 @@ function journalHTML(trades,allowed){
       mobileTrend='<div class="psp-luxe-journal-trend" aria-label="Recent performance from saved trades"><svg viewBox="0 0 320 69" role="img" aria-label="Recent trade performance based on actual journal entries" preserveAspectRatio="none"><polyline points="'+path+'" fill="none" stroke="'+tone+'" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
     }
   }
-  return '<div class="psp-luxe-journal-shell"><div class="psp58-journal"><div><span>This Week</span><b class="'+(week>=0?'pos':'neg')+'">'+(week>=0?'+':'')+(Math.round(week*10)/10)+'</b></div><div class="psp67-win-cell"><span>All-time Win Rate</span><div class="psp67-mini-ring" style="--pct:'+(wr??0)+'"><b>'+(wr===null?'—':wr+'%')+'</b></div></div><div><span>Total Trades</span><b>'+total+'</b></div><div><span>Last Trade</span><b class="'+(lastP==null?'':lastP>=0?'pos':'neg')+'">'+(lastP==null?'—':(lastP>=0?'+':'')+lastP)+'</b></div></div>'+(mobileTrend||'<div class="psp-luxe-journal-no-trend">'+(total?'Add another trade to see your performance trend.':'No trades recorded yet.')+'</div>')+'</div>';
+  return '<div class="psp-luxe-journal-shell"><div class="psp58-journal"><div><span>This Week</span><b class="'+(week>=0?'pos':'neg')+'">'+(week>=0?'+':'')+(Math.round(week*10)/10)+'</b></div><div class="psp67-win-cell"><span>All-time Win Rate</span><div class="psp67-mini-ring" style="--pct:'+(wr??0)+'"><b>'+(wr===null?'—':wr+'%')+'</b></div></div><div><span>Closed Trades</span><b>'+total+'</b></div><div><span>Last Trade</span><b class="'+(lastP==null?'':lastP>=0?'pos':'neg')+'">'+(lastP==null?'—':(lastP>=0?'+':'')+lastP)+'</b></div></div>'+(mobileTrend||'<div class="psp-luxe-journal-no-trend">'+(total?'Add another closed trade to see your performance trend.':(rows.length?'No closed trades yet.':'No trades recorded yet.'))+'</div>')+'</div>';
 }
 function activityHTML(signals,charts,articles){
   let a=[];(signals||[]).slice(0,4).forEach(x=>{const st=statusInfo(x);a.push({ico:st.cls==='loss'?'🛑':st.final?'✅':'📡',t:(x.pair||'Signal')+' '+String(x.direction||'').toUpperCase(),m:st.label+(st.sub?' • '+st.sub:''),d:x.updated_at||x.created_at,cls:st.cls})});
