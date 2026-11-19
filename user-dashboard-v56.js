@@ -260,7 +260,7 @@ function analysisHTML(charts,articles,allowed){
   let items=[];(charts||[]).slice(0,2).forEach(x=>items.push({type:'chart',title:x.title||x.pair||'Market Analysis',text:(x.notes||x.description||'').slice(0,88),image:x.image_url||x.chart_url||'',date:x.updated_at||x.created_at}));
   if(items.length<2)(articles||[]).slice(0,2-items.length).forEach(x=>items.push({type:'article',title:x.title||'Latest Article',text:(x.summary||x.content||'').replace(/<[^>]*>/g,'').slice(0,88),image:x.image_url||'',date:x.updated_at||x.created_at}));
   if(!items.length)return '<div class="psp58-empty"><span>📈</span><b>No analysis published yet</b><small>Fresh charts and articles will appear here.</small></div>';
-  return '<div class="psp58-analysis-list">'+items.map(x=>`<div class="psp58-analysis-item" onclick="document.querySelector('[data-page=articles]').click()">${x.image?`<img src="${esc(x.image)}" alt="">`:`<div class="psp58-thumb">${x.type==='chart'?'📈':'📝'}</div>`}<div class="psp58-analysis-copy"><b>${esc(x.title)}</b><span>${esc(x.text||'Open to view details')}</span><small>${esc(fmtPKT(x.date))} PKT</small></div><span class="psp58-arrow">→</span></div>`).join('')+'</div>';
+  return '<div class="psp58-analysis-list">'+items.map(x=>`<div class="psp58-analysis-item" onclick="document.querySelector('[data-page=articles]').click()">${x.image?`<img src="${esc(x.image)}" alt="" loading="lazy" decoding="async">`:`<div class="psp58-thumb">${x.type==='chart'?'📈':'📝'}</div>`}<div class="psp58-analysis-copy"><b>${esc(x.title)}</b><span>${esc(x.text||'Open to view details')}</span><small>${esc(fmtPKT(x.date))} PKT</small></div><span class="psp58-arrow">→</span></div>`).join('')+'</div>';
 }
 function journalHTML(trades,allowed){
   if(!allowed)return '<div class="psp58-empty compact"><span>🔒</span><b>Journal snapshot locked</b><small>Activate account access to view your stats.</small></div>';
@@ -326,17 +326,18 @@ async function load(force=false){
     ]);
     const data=i=>all[i].status==='fulfilled'&&!all[i].value?.error?(all[i].value.data||[]):[];
     let signals=data(0);
+    // V221 performance: check both existing fallback feeds together rather than
+    // delaying the entire dashboard with two sequential Supabase round trips.
+    // Preserve V159 priority, legacy fallback, and the same access checks.
     if(all[0].status!=='fulfilled' || all[0].value?.error || !signals.length){
-      try{
-        const v159Rpc=await c.rpc('psp_user_signal_feed_v159');
-        if(!v159Rpc.error && (v159Rpc.data||[]).length) signals=(v159Rpc.data||[]).slice(0,30);
-      }catch(_){}
-    }
-    if(!signals.length){
-      try{
-        const oldRpc=await c.rpc('psp_user_signals_feed',{p_limit:30});
-        if(!oldRpc.error && (oldRpc.data||[]).length) signals=oldRpc.data||[];
-      }catch(_){}
+      const fallbacks=await Promise.allSettled([
+        c.rpc('psp_user_signal_feed_v159'),
+        c.rpc('psp_user_signals_feed',{p_limit:30})
+      ]);
+      const v159=fallbacks[0].status==='fulfilled'?fallbacks[0].value:null;
+      const legacy=fallbacks[1].status==='fulfilled'?fallbacks[1].value:null;
+      if(!v159?.error && (v159?.data||[]).length) signals=(v159.data||[]).slice(0,30);
+      else if(!legacy?.error && (legacy?.data||[]).length) signals=legacy.data||[];
     }
     if((all[0].status!=='fulfilled' || all[0].value?.error) && !signals.length){
       console.warn('Dashboard signal RPC feeds unavailable, trying legacy query.',all[0].status==='fulfilled'?all[0].value?.error:all[0].reason);
