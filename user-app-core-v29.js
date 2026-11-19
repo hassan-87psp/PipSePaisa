@@ -6365,8 +6365,11 @@
  var appCSS=document.createElement('link');
  appCSS.rel='stylesheet';appCSS.href='/psp-mobile-app-v3.css?v=20261119-reference-1';
  document.head.appendChild(appCSS);
+ var refCSS=document.createElement('link');
+ refCSS.rel='stylesheet';refCSS.href='/psp-mobile-reference-v4.css?v=20261119-final-ref-v4';
+ document.head.appendChild(refCSS);
  var script=document.createElement('script');
- script.src='/psp-mobile-luxe-v1.js?v=20261119-reference-v3';
+ script.src='/psp-mobile-luxe-v1.js?v=20261119-final-ref-v4';
  script.async=false;
  (document.body||document.head).appendChild(script);
 })();
