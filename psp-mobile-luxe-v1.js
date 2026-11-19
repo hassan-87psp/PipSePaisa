@@ -44,6 +44,8 @@
      if(btn)btn.click();
      else if(typeof window.toggleSidebar==='function')window.toggleSidebar();
    });
+   const theme=$('#themeBtn',top);
+   if(theme){theme.classList.add('psp-luxe-theme-button');actions.insertBefore(theme,actions.firstChild)}
    const menu=$('.mobile-toggle',top);
    if(menu)menu.insertAdjacentElement('afterend',brand); else top.prepend(brand);
    top.appendChild(actions);
@@ -51,14 +53,27 @@
  function makeBottomNav(){
    const nav=$('#userBottomNav');if(!nav)return;
    if(desktopBottom.html===null)desktopBottom.html=nav.innerHTML;
-   if(nav.dataset.pspLuxe==='1')return;
-   const items=[['dashboard','Home','home'],['signals','Signals','signals'],['articles','Charts','charts'],['newshub','News','news'],['learn','Learn','learn']];
-   nav.innerHTML=items.map(([key,name,ico])=>'<div class="ubn-item" data-page="'+key+'" role="button" tabindex="0" aria-label="'+name+'"><span>'+icons[ico]+'</span><b>'+name+'</b></div>').join('');
-   nav.querySelectorAll('.ubn-item').forEach(el=>{
-     el.addEventListener('click',()=>tap(el.dataset.page));
-     el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tap(el.dataset.page)}});
+   // Keep the ORIGINAL six user navigation entries, their onclick handlers,
+   // admin visibility rules and the More drawer. Change visuals only.
+   if(nav.dataset.pspLuxe==='2')return;
+   const choices=['home','signals','charts','news','strength','more'];
+   const extra={
+     strength:'<svg viewBox="0 0 24 24"><path d="M2 12h3l2-6 4 12 3-9 2 3h6"/></svg>',
+     more:'<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>'
+   };
+   nav.querySelectorAll('.ubn-item').forEach((el,i)=>{
+     const existing=el.getAttribute('data-page')||choices[i]||'more';
+     const name=existing==='dashboard'?'home':existing==='articles'?'charts':existing==='newshub'?'news':existing;
+     const art=icons[name]||extra[name];
+     const span=el.querySelector('span');
+     if(span&&art)span.innerHTML=art;
+     el.setAttribute('role','button');
+     el.tabIndex=0;
+     el.addEventListener('keydown',e=>{
+       if(e.key==='Enter'||e.key===' '){e.preventDefault();el.click()}
+     });
    });
-   nav.dataset.pspLuxe='1';
+   nav.dataset.pspLuxe='2';
    const active=$('.page.active[id^="page-"]');
    if(active&&typeof window.ubnSync==='function')window.ubnSync(active.id.replace('page-',''));
  }
@@ -66,7 +81,7 @@
    const card=$('.psp58-card.class-card',root);if(!card||card.classList.contains('psp-luxe-vsa'))return;
    origVsa.set(card,card.innerHTML);
    card.classList.add('psp-luxe-vsa');
-   card.innerHTML='<div class="psp-luxe-vsa-inner"><img class="psp-luxe-vsa-photo" src="/sajid-ghori.webp" alt="Sir Sajid Khan Ghori" loading="lazy"><div class="psp-luxe-vsa-content"><span class="psp-luxe-vsa-kicker">Upcoming VSA Batch</span><h3>VSA Advanced Mentorship</h3><p>Learn Volume Spread Analysis with Sir Sajid Khan Ghori. Next batch schedule to be announced.</p><a href="/courses/vsa-volume-spread-analysis/">View VSA Batch →</a></div></div>';
+   card.innerHTML='<div class="psp-luxe-vsa-inner"><img class="psp-luxe-vsa-photo" src="/sajid-ghori.webp" alt="Sir Sajid Khan Ghori" loading="lazy"><div class="psp-luxe-vsa-content"><span class="psp-luxe-vsa-kicker">Upcoming VSA Batch</span><h3>VSA Advanced Mentorship</h3><p>Learn Volume Spread Analysis with Sir Sajid Khan Ghori. New batch • Schedule coming soon.</p><a href="/courses/vsa-volume-spread-analysis/">View VSA Batch →</a></div></div>';
  }
  function polishHome(){
    const root=$('#psp56Dashboard .psp58-home');if(!root||root.dataset.pspLuxe==='1')return;
@@ -78,7 +93,8 @@
      if(tools){
        const card=document.createElement('div');
        card.className='psp58-card psp-luxe-tools-card';
-       card.innerHTML='<h3>◈ Quick Tools</h3>';
+       card.innerHTML='<h3>◈ Quick Tools</h3><div class="psp-luxe-primary-tools"><button type="button" data-go="news"><span>▦</span>Economic<br>Calendar</button><button type="button" data-go="eaindicator"><span>Ⓟ</span>P+<br>Indicator</button><button type="button" data-go="tools"><span>▤</span>Position<br>Calculator</button><button type="button" data-go="journal"><span>▣</span>Trading<br>Journal</button></div>';
+       card.querySelectorAll('.psp-luxe-primary-tools button').forEach(b=>b.addEventListener('click',()=>tap(b.dataset.go)));
        card.appendChild(tools);section.appendChild(card);
        card.dataset.pspLuxe='1';
      }
@@ -209,9 +225,14 @@
  }
  function restoreDesktop(){
    document.documentElement.classList.remove('psp-luxe-mobile');
-   const top=$('#mainApp .topbar');if(top){$('.psp-luxe-brand',top)?.remove();$('.psp-luxe-top-actions',top)?.remove()}
+   const top=$('#mainApp .topbar');
+   if(top){
+     const theme=$('#themeBtn',top),holder=$('.topbar-actions',top);
+     if(theme&&holder){theme.classList.remove('psp-luxe-theme-button');holder.appendChild(theme)}
+     $('.psp-luxe-brand',top)?.remove();$('.psp-luxe-top-actions',top)?.remove();
+   }
    const nav=$('#userBottomNav');
-   if(nav&&nav.dataset.pspLuxe==='1'&&desktopBottom.html!==null){nav.innerHTML=desktopBottom.html;delete nav.dataset.pspLuxe}
+   if(nav&&nav.dataset.pspLuxe==='2'&&desktopBottom.html!==null){nav.innerHTML=desktopBottom.html;delete nav.dataset.pspLuxe}
    const card=$('#psp56Dashboard .psp58-card.class-card.psp-luxe-vsa');
    if(card&&origVsa.has(card)){card.innerHTML=origVsa.get(card);card.classList.remove('psp-luxe-vsa')}
    const section=$('#psp56Dashboard .psp59-grid-secondary');
