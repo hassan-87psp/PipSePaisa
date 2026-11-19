@@ -83,6 +83,24 @@
        card.dataset.pspLuxe='1';
      }
    }
+   // Show the actual authorized Entry / SL / TP1 values directly in the
+   // collapsed market-signal rows, as in the approved mobile reference.
+   root.querySelectorAll('.psp106-dash-signal').forEach(item=>{
+     const summary=$('summary',item);
+     if(!summary||$('.psp-luxe-quick-levels',summary))return;
+     const values=[...item.querySelectorAll('.psp106-dash-levels>div')].slice(0,3);
+     if(!values.length)return;
+     const quick=document.createElement('div');
+     quick.className='psp-luxe-quick-levels';
+     values.forEach((v,i)=>{
+       const cell=document.createElement('span');cell.className='psp-luxe-qlevel q'+i;
+       const label=document.createElement('small'),value=document.createElement('b');
+       label.textContent=v.querySelector('span')?.textContent||['Entry','SL','TP1'][i];
+       value.textContent=v.querySelector('b')?.textContent||'—';
+       cell.append(label,value);quick.appendChild(cell);
+     });
+     summary.appendChild(quick);
+   });
    const featured=$('.psp58-card.featured .psp58-card-head h3',root);
    if(featured)featured.textContent='📡 Market Signals';
    const analysis=$('.psp59-grid-secondary .psp58-card:not(.psp-luxe-tools-card) .psp58-card-head h3',root);
