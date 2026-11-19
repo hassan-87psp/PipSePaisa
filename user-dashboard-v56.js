@@ -257,23 +257,55 @@ function nextClassHTML(classes,enrollments,courses){
 }
 function analysisHTML(charts,articles,allowed){
   if(!allowed)return '<div class="psp58-empty"><span>🔒</span><b>Market analysis is locked</b><small>Available during Free Access or after verification.</small><button onclick="PSPAccountVerification.goProfile()">Open Profile →</button></div>';
-  let items=[];(charts||[]).slice(0,2).forEach(x=>items.push({type:'chart',title:x.title||x.pair||'Market Analysis',text:(x.notes||x.description||'').slice(0,88),image:x.image_url||x.chart_url||'',date:x.updated_at||x.created_at}));
-  if(items.length<2)(articles||[]).slice(0,2-items.length).forEach(x=>items.push({type:'article',title:x.title||'Latest Article',text:(x.summary||x.content||'').replace(/<[^>]*>/g,'').slice(0,88),image:x.image_url||'',date:x.updated_at||x.created_at}));
-  if(!items.length)return '<div class="psp58-empty"><span>📈</span><b>No analysis published yet</b><small>Fresh charts and articles will appear here.</small></div>';
-  return '<div class="psp58-analysis-list">'+items.map(x=>`<div class="psp58-analysis-item" onclick="document.querySelector('[data-page=articles]').click()">${x.image?`<img src="${esc(x.image)}" alt="">`:`<div class="psp58-thumb">${x.type==='chart'?'📈':'📝'}</div>`}<div class="psp58-analysis-copy"><b>${esc(x.title)}</b><span>${esc(x.text||'Open to view details')}</span><small>${esc(fmtPKT(x.date))} PKT</small></div><span class="psp58-arrow">→</span></div>`).join('')+'</div>';
+  const mobile=typeof window.matchMedia==='function'&&window.matchMedia('(max-width:768px)').matches;
+  let items=[];
+  (charts||[]).forEach(x=>items.push({type:'chart',title:x.title||x.pair||'Market Analysis',text:(x.notes||x.description||'').slice(0,88),image:x.image_url||x.chart_url||'',date:x.updated_at||x.created_at,pair:x.pair||''}));
+  (articles||[]).forEach(x=>items.push({type:'article',title:x.title||'Latest Article',text:(x.summary||x.content||'').replace(/<[^>]*>/g,'').slice(0,88),image:x.image_url||'',date:x.updated_at||x.created_at,pair:''}));
+  items.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+  if(!mobile){
+    items=items.slice(0,2);
+    if(!items.length)return '<div class="psp58-empty"><span>📈</span><b>No analysis published yet</b><small>Fresh charts and articles will appear here.</small></div>';
+    return '<div class="psp58-analysis-list">'+items.map(x=>'<div class="psp58-analysis-item" onclick="document.querySelector(\'[data-page=articles]\').click()">'+(x.image?'<img src="'+esc(x.image)+'" alt="">':'<div class="psp58-thumb">'+(x.type==='chart'?'📈':'📝')+'</div>')+'<div class="psp58-analysis-copy"><b>'+esc(x.title)+'</b><span>'+esc(x.text||'Open to view details')+'</span><small>'+esc(fmtPKT(x.date))+' PKT</small></div><span class="psp58-arrow">→</span></div>').join('')+'</div>';
+  }
+  const category=x=>{
+    const t=(x.title+' '+(x.pair||'')).toLowerCase();
+    if(/gold|xau|xag|silver/.test(t))return 'gold';
+    if(/btc|bitcoin|eth|crypto|ethereum|solana/.test(t))return 'crypto';
+    if(/cpi|inflation|nfp|fomc|pce|macro|fed |interest rate|central bank|economy|geopolitic|tariff/.test(t))return 'macro';
+    return 'forex';
+  };
+  const tabs='<div class="psp-luxe-analysis-filters" aria-label="Filter market analysis">'+['All','Gold','Forex','Crypto','Macro'].map((v,i)=>'<button type="button" data-market="'+v.toLowerCase()+'" class="'+(!i?'active':'')+'">'+v+'</button>').join('')+'</div>';
+  const cards=items.slice(0,9).map(x=>{
+    const cat=category(x),label=cat.charAt(0).toUpperCase()+cat.slice(1);
+    return '<button type="button" class="psp58-analysis-item psp-luxe-analysis-tile" data-category="'+cat+'" data-goto-analysis="1">'+
+      (x.image?'<img loading="lazy" src="'+esc(x.image)+'" alt="">':'<div class="psp58-thumb psp-luxe-art-'+cat+'">'+(cat==='gold'?'◈':cat==='crypto'?'₿':cat==='macro'?'◉':'▥')+'</div>')+
+      '<span class="psp-luxe-market-tag '+cat+'">'+label+'</span>'+
+      '<div class="psp58-analysis-copy"><b>'+esc(x.title)+'</b><small>'+esc(fmtPKT(x.date))+' PKT</small></div>'+
+    '</button>';
+  });
+  // If under 3 published reports, category browse cards are clearly labeled
+  // as discovery links. They never pretend to be real reports.
+  const categories=['gold','forex','macro'];
+  for(let k=0;cards.length<3&&k<categories.length;k++){
+    const cat=categories[k];
+    if(items.some(x=>category(x)===cat))continue;
+    const label=cat==='gold'?'Gold Analysis':cat==='forex'?'Forex Analysis':'Macro Outlook';
+    cards.push('<button type="button" class="psp58-analysis-item psp-luxe-analysis-tile psp-luxe-explore-tile" data-category="'+cat+'" data-goto-analysis="1"><span class="psp-luxe-explore-art '+cat+'">'+(cat==='gold'?'◈':cat==='forex'?'▥':'◎')+'</span><span class="psp-luxe-market-tag '+cat+'">'+cat.charAt(0).toUpperCase()+cat.slice(1)+'</span><div class="psp58-analysis-copy"><b>'+label+'</b><small>Explore market analysis</small></div></button>');
+  }
+  return tabs+'<div class="psp58-analysis-list psp-luxe-analysis-strip">'+cards.join('')+'</div><div class="psp-luxe-filter-empty" hidden>No analysis available in this category.</div>';
 }
 function journalHTML(trades,allowed){
   if(!allowed)return '<div class="psp58-empty compact"><span>🔒</span><b>Journal snapshot locked</b><small>Activate account access to view your stats.</small></div>';
   const rows=trades||[],wins=rows.filter(t=>Number(t.pnl??t.pips??0)>0).length,total=rows.length,wr=total?Math.round(wins/total*100):0;
-  const weekAgo=Date.now()-7*86400000,week=rows.filter(t=>new Date(t.date||t.created_at||0).getTime()>=weekAgo).reduce((a,t)=>a+Number(t.pnl??t.pips??0),0),last=rows[0],lastP=last?Number(last.pnl??last.pips??0):null;
+  const weekAgo=Date.now()-7*86400000,week=rows.filter(t=>new Date(t.trade_date||t.date||t.created_at||0).getTime()>=weekAgo).reduce((a,t)=>a+Number(t.pnl??t.pips??0),0),last=rows[0],lastP=last?Number(last.pnl??last.pips??0):null;
   // Responsive live performance sparkline: drawn only from this user's
   // actual saved trades. Never fabricate performance history or pips.
   let mobileTrend='';
   if(typeof window.matchMedia==='function'&&window.matchMedia('(max-width:768px)').matches){
     const series=rows.filter(t=>{
-      const d=new Date(t.date||t.created_at||0).getTime();
+      const d=new Date(t.trade_date||t.date||t.created_at||0).getTime();
       return Number.isFinite(d)&&d>0&&Number.isFinite(Number(t.pnl??t.pips));
-    }).slice(0,24).sort((a,b)=>new Date(a.date||a.created_at)-new Date(b.date||b.created_at));
+    }).slice(0,24).sort((a,b)=>new Date(a.trade_date||a.date||a.created_at)-new Date(b.trade_date||b.date||b.created_at));
     if(series.length>1){
       let balance=0;
       const values=[0,...series.map(t=>balance+=Number(t.pnl??t.pips))];
