@@ -127,16 +127,21 @@
          const button=event.target.closest('[data-market]');if(!button)return;
          const type=button.dataset.market;
          filterRow.querySelectorAll('[data-market]').forEach(b=>b.classList.toggle('active',b===button));
-         let visible=0;
-         analysisCard.querySelectorAll('.psp-luxe-analysis-tile').forEach(tile=>{
-           const pass=type==='all'||tile.dataset.category===type;
-           tile.hidden=!pass;
-           if(pass)visible++;
-         });
-         const empty=$('.psp-luxe-filter-empty',analysisCard);
-         if(empty)empty.hidden=visible>0;
+         showAnalysisTiles(type);
        });
      }
+     function showAnalysisTiles(type){
+       let visible=0;
+       analysisCard.querySelectorAll('.psp-luxe-analysis-tile').forEach(tile=>{
+         const match=type==='all'||tile.dataset.category===type;
+         const show=match&&visible<3;
+         tile.hidden=!show;
+         if(show)visible++;
+       });
+       const empty=$('.psp-luxe-filter-empty',analysisCard);
+       if(empty)empty.hidden=visible>0;
+     }
+     showAnalysisTiles(filterRow?.querySelector('[data-market].active')?.dataset.market||'all');
      if(!analysisCard.dataset.cardClicks){
        analysisCard.dataset.cardClicks='1';
        analysisCard.addEventListener('click',event=>{
