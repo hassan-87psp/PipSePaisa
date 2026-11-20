@@ -847,3 +847,147 @@
 /* V222: remove Next Live Class card; let Latest Signal use the full row. */
 #psp56Dashboard .psp59-grid-primary{grid-template-columns:minmax(0,1fr)!important;grid-auto-rows:auto!important;align-items:start!important}
 #psp56Dashboard .psp59-grid-primary>.psp58-card.featured{min-height:0!important;height:auto!important;align-self:start!important}
+
+/* V223 Mobile Dashboard refinement — deliberately scoped to this dashboard only.
+   Keep existing cream/orange theme, bottom navigation, data flows and desktop layout. */
+@media (max-width:700px){
+  #psp56Dashboard .psp58-home{gap:12px!important}
+  #psp56Dashboard .psp63-welcome{
+    padding:14px 15px!important;gap:8px!important;
+    border-radius:20px!important;
+    box-shadow:0 7px 24px rgba(26,27,31,.055)!important;
+  }
+  #psp56Dashboard .psp63-welcome h2{
+    font-size:24px!important;line-height:1.18!important;letter-spacing:-.5px!important;
+  }
+  #psp56Dashboard .psp63-welcome p{
+    font-size:11.5px!important;line-height:1.42!important;
+    color:var(--text-secondary)!important;
+  }
+  #psp56Dashboard .psp63-welcome-kicker{font-size:10px!important;letter-spacing:1.1px!important}
+  #psp56Dashboard .psp63-welcome .psp58-live-time{margin-top:9px!important;gap:6px!important}
+  #psp56Dashboard .psp63-welcome .psp58-live-time>span{
+    padding:6px 8px!important;font-size:9px!important;
+    max-width:100%;
+  }
+  #psp56Dashboard .psp63-welcome .psp58-live-time b{font-size:9.5px!important}
+  #psp56Dashboard .psp58-stats{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;
+  }
+  #psp56Dashboard .psp58-stat{
+    gap:8px!important;padding:11px 10px!important;
+    border-radius:17px!important;min-height:102px!important;
+    box-shadow:0 6px 18px rgba(26,27,31,.045)!important;
+  }
+  #psp56Dashboard .psp58-stat .ico{
+    width:35px!important;height:35px!important;flex:0 0 35px!important;
+    border-radius:11px!important;
+  }
+  #psp56Dashboard .psp58-stat .lab{
+    font-size:10px!important;letter-spacing:.45px!important;line-height:1.25!important;
+    white-space:normal!important;
+  }
+  #psp56Dashboard .psp58-stat .val{
+    font-size:26px!important;margin-top:5px!important;line-height:1!important;
+  }
+  #psp56Dashboard .psp58-stat small{
+    font-size:9.5px!important;line-height:1.25!important;
+    white-space:normal!important;display:-webkit-box!important;
+    -webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;
+    overflow:hidden!important;color:var(--text-secondary)!important;
+  }
+  #psp56Dashboard .psp58-stat .go{font-size:14px!important}
+  #psp56Dashboard .psp59-grid-primary,
+  #psp56Dashboard .psp59-grid-secondary{
+    display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+    grid-auto-rows:auto!important;align-items:start!important;
+    align-content:start!important;gap:12px!important;
+  }
+  #psp56Dashboard .psp59-grid-primary>.psp58-card,
+  #psp56Dashboard .psp59-grid-secondary>.psp58-card{
+    height:auto!important;min-height:0!important;max-height:none!important;
+    align-self:start!important;flex:0 0 auto!important;
+  }
+  #psp56Dashboard .psp58-card{
+    padding:15px!important;border-radius:20px!important;
+    box-shadow:0 6px 20px rgba(26,27,31,.052)!important;
+  }
+  #psp56Dashboard .psp58-card-head{
+    margin-bottom:12px!important;gap:8px!important;align-items:center!important;
+  }
+  #psp56Dashboard .psp58-card-head .eyebrow{
+    font-size:10px!important;letter-spacing:1px!important;
+  }
+  #psp56Dashboard .psp58-card-head h3{
+    font-size:17px!important;line-height:1.22!important;letter-spacing:-.15px!important;
+  }
+  #psp56Dashboard .psp58-card-head .psp58-link{
+    font-size:11px!important;white-space:nowrap!important;
+    padding:9px 2px!important;
+  }
+  #psp56Dashboard .psp106-dash-empty{
+    padding:13px 8px!important;font-size:11.5px!important;
+    color:var(--text-secondary)!important;
+  }
+  #psp56Dashboard .psp58-analysis-list{gap:9px!important}
+  #psp56Dashboard .psp58-analysis-item{
+    display:grid!important;grid-template-columns:68px minmax(0,1fr) 14px!important;
+    padding:9px!important;gap:10px!important;
+    border-radius:13px!important;align-items:center!important;
+  }
+  #psp56Dashboard .psp58-analysis-item img,
+  #psp56Dashboard .psp58-analysis-item .psp58-thumb{
+    width:68px!important;height:64px!important;border-radius:10px!important;
+  }
+  #psp56Dashboard .psp58-analysis-copy{min-width:0!important}
+  #psp56Dashboard .psp223-analysis-tag{
+    display:block!important;font-size:8.5px!important;font-weight:800!important;
+    letter-spacing:.65px!important;color:var(--gold)!important;margin-bottom:3px!important;
+  }
+  #psp56Dashboard .psp58-analysis-copy b{
+    display:-webkit-box!important;-webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;overflow:hidden!important;
+    white-space:normal!important;font-size:12px!important;
+    line-height:1.28!important;color:var(--text-primary)!important;
+  }
+  #psp56Dashboard .psp58-analysis-copy>span:not(.psp223-analysis-tag){
+    font-size:10px!important;line-height:1.35!important;
+    white-space:nowrap!important;overflow:hidden!important;
+    text-overflow:ellipsis!important;color:var(--text-secondary)!important;
+    margin-top:3px!important;
+  }
+  #psp56Dashboard .psp58-analysis-copy small{
+    font-size:9.5px!important;line-height:1.3!important;margin-top:4px!important;
+  }
+  #psp56Dashboard .psp58-journal{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;margin-bottom:12px!important}
+  #psp56Dashboard .psp58-journal>div{
+    min-height:80px!important;padding:12px!important;border-radius:14px!important;
+  }
+  #psp56Dashboard .psp58-journal span{
+    font-size:10px!important;line-height:1.25!important;letter-spacing:.35px!important;
+    color:var(--text-secondary)!important;
+  }
+  #psp56Dashboard .psp58-journal b{font-size:20px!important;line-height:1.15!important}
+  #psp56Dashboard .psp58-journal .psp67-mini-ring{flex:0 0 auto}
+  #psp56Dashboard .psp58-tools,
+  #psp56Dashboard .psp59-grid-secondary>.psp58-card:last-child .psp58-tools{
+    margin-top:10px!important;gap:9px!important;
+  }
+  #psp56Dashboard .psp58-tools button{
+    min-height:45px!important;padding:10px 11px!important;
+    border-radius:13px!important;font-size:11px!important;
+  }
+}
+@media (max-width:360px){
+  #psp56Dashboard .psp58-stat .ico{width:30px!important;height:30px!important;flex-basis:30px!important}
+  #psp56Dashboard .psp58-stat .lab{font-size:9px!important}
+  #psp56Dashboard .psp58-stat .go{display:none!important}
+  #psp56Dashboard .psp58-analysis-item{grid-template-columns:60px minmax(0,1fr) 12px!important}
+  #psp56Dashboard .psp58-analysis-item img,
+  #psp56Dashboard .psp58-analysis-item .psp58-thumb{width:60px!important}
+}
+@media (max-width:700px) and (prefers-reduced-motion:reduce){
+  #psp56Dashboard .psp58-home,
+  #psp56Dashboard .psp58-stat,
+  #psp56Dashboard .psp58-card{animation:none!important;transition:none!important}
+}
