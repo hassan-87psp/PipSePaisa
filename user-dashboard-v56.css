@@ -1334,3 +1334,51 @@
   #psp56Dashboard .psp58-stat small{font-size:8.6px!important}
   #psp56Dashboard .psp224-signal-idle{display:none!important}
 }
+
+/* V226: high-fidelity user dashboard refinements, mobile-only. */
+@media(max-width:700px){
+  #psp56Dashboard .psp226-greeting-row{
+    display:flex!important;align-items:center!important;gap:12px!important;
+    justify-content:space-between!important;min-width:0!important;
+  }
+  #psp56Dashboard .psp226-greeting-row h2{min-width:0!important;flex:1!important}
+  #psp56Dashboard .psp226-refresh{
+    display:grid!important;place-items:center!important;flex:0 0 38px!important;
+    width:38px!important;height:38px!important;
+    border:1px solid rgba(199,151,76,.29)!important;
+    border-radius:12px!important;
+    background:linear-gradient(150deg,rgba(255,255,255,.65),rgba(253,227,185,.44))!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 3px 9px rgba(30,24,17,.04)!important;
+    color:#bd7b1c!important;cursor:pointer!important;
+  }
+  #psp56Dashboard .psp226-refresh svg{
+    width:19px!important;height:19px!important;fill:none!important;
+    stroke:currentColor!important;stroke-width:1.9!important;
+    stroke-linecap:round!important;stroke-linejoin:round!important;
+  }
+  #psp56Dashboard .psp226-refresh.is-refreshing svg{animation:psp226Spin .8s linear infinite}
+  #psp56Dashboard .psp226-refresh:disabled{opacity:.6!important;cursor:default!important}
+  #psp56Dashboard .psp226-refresh:focus-visible,
+  #psp56Dashboard .psp58-stat:focus-visible{outline:2px solid #f39522!important;outline-offset:2px!important}
+  /* Actionable chart badges and clearer hierarchy. */
+  #psp56Dashboard .psp58-analysis-copy .psp223-analysis-tag{
+    width:max-content!important;max-width:100%!important;
+    padding:3px 7px!important;border-radius:6px!important;
+    background:rgba(243,149,34,.095)!important;
+    border:1px solid rgba(243,149,34,.15)!important;
+    letter-spacing:.55px!important;margin-bottom:5px!important;
+  }
+  #psp56Dashboard .psp58-analysis-item{
+    transition:transform .18s ease,border-color .18s ease!important;
+  }
+  #psp56Dashboard .psp58-analysis-item:active{transform:scale(.988)!important}
+  #psp56Dashboard .psp58-journal>div{
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 3px 11px rgba(20,20,20,.025)!important;
+  }
+  #psp56Dashboard .psp58-tools button:active,
+  #psp56Dashboard .psp58-stat:active{transform:scale(.985)!important}
+}
+@keyframes psp226Spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){
+ #psp56Dashboard .psp226-refresh.is-refreshing svg{animation:none!important}
+}
