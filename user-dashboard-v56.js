@@ -3,7 +3,7 @@
 'use strict';
 let loading=false,lastLoad=0,clockTimer=null;
 const PSP_DASH_CACHE_TTL_V220=45000;
-function dashCacheKeyV220(uid){return 'psp_dashboard_v224_b4_'+String(uid||'guest')}
+function dashCacheKeyV220(uid){return 'psp_dashboard_v226_b4_'+String(uid||'guest')}
 function readDashCacheV220(uid){
   try{const x=JSON.parse(sessionStorage.getItem(dashCacheKeyV220(uid))||'null');if(!x||!x.html||!x.savedAt)return null;return x}catch(_){return null}
 }
@@ -268,12 +268,19 @@ function psp223AnalysisPreview(raw,title){
   }
   return summary;
 }
+function psp226AnalysisBadge(item){
+  if(item.type!=='chart')return 'ARTICLE';
+  const title=String(item.title||'').toUpperCase();
+  const pair=title.match(/\b(XAUUSD|XAGUSD|BTCUSD|ETHUSD|[A-Z]{6})\b/);
+  const tf=title.match(/\b(M1|M5|M15|M30|H1|H4|D1|W1|MN1)\b/);
+  return pair&&tf?pair[1]+' · '+tf[1]:'MARKET CHART';
+}
 function analysisHTML(charts,articles,allowed){
   if(!allowed)return '<div class="psp58-empty"><span>🔒</span><b>Market analysis is locked</b><small>Available during Free Access or after verification.</small><button onclick="PSPAccountVerification.goProfile()">Open Profile →</button></div>';
   let items=[];(charts||[]).slice(0,2).forEach(x=>items.push({type:'chart',title:x.title||x.pair||'Market Analysis',text:(x.notes||x.description||''),image:x.image_url||x.chart_url||'',date:x.updated_at||x.created_at}));
   if(items.length<2)(articles||[]).slice(0,2-items.length).forEach(x=>items.push({type:'article',title:x.title||'Latest Article',text:(x.summary||x.content||'').replace(/<[^>]*>/g,''),image:x.image_url||'',date:x.updated_at||x.created_at}));
   if(!items.length)return '<div class="psp58-empty"><span>📈</span><b>No analysis published yet</b><small>Fresh charts and articles will appear here.</small></div>';
-  return '<div class="psp58-analysis-list">'+items.map(x=>`<div class="psp58-analysis-item" onclick="document.querySelector('[data-page=articles]').click()">${x.image?`<img src="${esc(x.image)}" alt="" loading="lazy" decoding="async">`:`<div class="psp58-thumb">${x.type==='chart'?'📈':'📝'}</div>`}<div class="psp58-analysis-copy"><span class="psp223-analysis-tag">${x.type==='chart'?'MARKET CHART':'ARTICLE'}</span><b>${esc(x.title)}</b><span>${esc(psp223AnalysisPreview(x.text,x.title)||'Open to view details')}</span><small>${esc(fmtPKT(x.date))} PKT</small></div><span class="psp58-arrow">→</span></div>`).join('')+'</div>';
+  return '<div class="psp58-analysis-list">'+items.map(x=>`<div class="psp58-analysis-item" onclick="document.querySelector('[data-page=articles]').click()">${x.image?`<img src="${esc(x.image)}" alt="" loading="lazy" decoding="async">`:`<div class="psp58-thumb">${x.type==='chart'?'📈':'📝'}</div>`}<div class="psp58-analysis-copy"><span class="psp223-analysis-tag">${esc(psp226AnalysisBadge(x))}</span><b>${esc(x.title)}</b><span>${esc(psp223AnalysisPreview(x.text,x.title)||'Open to view details')}</span><small>${esc(fmtPKT(x.date))} PKT</small></div><span class="psp58-arrow">→</span></div>`).join('')+'</div>';
 }
 function journalHTML(trades,allowed){
   if(!allowed)return '<div class="psp58-empty compact"><span>🔒</span><b>Journal snapshot locked</b><small>Activate account access to view your stats.</small></div>';
@@ -365,8 +372,8 @@ async function load(force=false){
       <div class="psp63-welcome">
         <div class="psp63-welcome-copy">
           <span class="psp63-welcome-kicker">WELCOME BACK,</span>
-          <h2>${esc(userName(user))} <span class="psp58-wave">👋</span></h2>
-          <p>Your live market, learning and account overview — updated in real time.</p>
+          <div class="psp226-greeting-row"><h2>${esc(userName(user))} <span class="psp58-wave">👋</span></h2><button class="psp226-refresh" type="button" aria-label="Refresh dashboard" title="Refresh dashboard" onclick="psp226Refresh(this)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14-5L4 8m0-5v5h5M4 13a8 8 0 0 0 14 5l2-2m0 5v-5h-5"/></svg></button></div>
+          <p>Your trading workspace, all in one place.</p>
           <div class="psp58-live-time">
             <span>📅 <b id="psp58DashboardDate">${esc(fmtPKT(new Date(),'date'))}</b></span>
             <span>🕘 <b id="psp58DashboardClock">${esc(fmtPKT(new Date(),'time'))} PKT</b></span>
@@ -417,7 +424,7 @@ async function load(force=false){
         </div>
         <div class="psp63-access-wrap">${accessHTML()}</div>
       </div>
-      <section class="psp58-stats"><div class="psp58-stat signal" onclick="psp58Nav('signals')"><span class="ico psp67-line-icon">${psp67Icon('signal')}</span><div><span class="lab">Active Signals</span><b class="val" data-count="${active}">0</b><small>${active?'Live setups & partial TPs':'No live setup right now'}</small></div>${psp67Spark(psp67Series(signals))}<span class="go">→</span></div><div class="psp58-stat charts" onclick="psp58Nav('articles')"><span class="ico psp67-line-icon">${psp67Icon('charts')}</span><div><span class="lab">Today’s Charts</span><b class="val" data-count="${todayCharts}">0</b><small>PKT market analysis</small></div>${psp67Spark(psp67Series(charts))}<span class="go">→</span></div><div class="psp58-stat articles" onclick="psp58Nav('articles')"><span class="ico psp67-line-icon">${psp67Icon('articles')}</span><div><span class="lab">Recent Articles</span><b class="val" data-count="${articles.length}">0</b><small>Education & insights</small></div>${psp67Spark(psp67Series(articles))}<span class="go">→</span></div><div class="psp58-stat courses" onclick="navMyCoursesV58()"><span class="ico psp67-line-icon">${psp67Icon('courses')}</span><div><span class="lab">My Courses</span><b class="val" data-count="${enrollments.length}">0</b><small>Course access & classes</small></div>${psp67Spark(psp67Series(enrollments))}<span class="go">→</span></div></section>
+      <section class="psp58-stats"><div class="psp58-stat signal" role="button" tabindex="0" onclick="psp58Nav('signals')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();psp58Nav('signals')}"><span class="ico psp67-line-icon">${psp67Icon('signal')}</span><div><span class="lab">Active Signals</span><b class="val" data-count="${active}">0</b><small>${active?'Live setups & partial TPs':'No live setup right now'}</small></div>${psp67Spark(psp67Series(signals))}<span class="go">→</span></div><div class="psp58-stat charts" role="button" tabindex="0" onclick="psp58Nav('articles')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();psp58Nav('articles')}"><span class="ico psp67-line-icon">${psp67Icon('charts')}</span><div><span class="lab">Today’s Charts</span><b class="val" data-count="${todayCharts}">0</b><small>PKT market analysis</small></div>${psp67Spark(psp67Series(charts))}<span class="go">→</span></div><div class="psp58-stat articles" role="button" tabindex="0" onclick="psp58Nav('articles')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();psp58Nav('articles')}"><span class="ico psp67-line-icon">${psp67Icon('articles')}</span><div><span class="lab">Recent Articles</span><b class="val" data-count="${articles.length}">0</b><small>Education & insights</small></div>${psp67Spark(psp67Series(articles))}<span class="go">→</span></div><div class="psp58-stat courses" role="button" tabindex="0" onclick="navMyCoursesV58()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();navMyCoursesV58()}"><span class="ico psp67-line-icon">${psp67Icon('courses')}</span><div><span class="lab">My Courses</span><b class="val" data-count="${enrollments.length}">0</b><small>Course access & classes</small></div>${psp67Spark(psp67Series(enrollments))}<span class="go">→</span></div></section>
       <section class="psp59-grid-primary"><div class="psp58-card featured"><div class="psp58-card-head"><div><span class="eyebrow">MARKET SIGNAL</span><h3>Latest Signal</h3></div><button class="psp58-link" onclick="psp58Nav('signals')">View All →</button></div>${latestSignalsHTML(signals,allowed)}</div></section>
       <section class="psp59-grid-secondary"><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">MARKET INTELLIGENCE</span><h3>Latest Market Analysis</h3></div><button class="psp58-link" onclick="psp58Nav('articles')">Explore →</button></div>${analysisHTML(charts,articles,allowed)}</div><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">YOUR TRADING JOURNAL</span><h3>Journal Snapshot</h3></div><button class="psp58-link" onclick="psp58Nav('journal')">Open Journal →</button></div>${journalHTML(trades,allowed)}<div class="psp58-tools"><button onclick="psp58Nav('newshub')"><span class="psp224-tool-icon" aria-hidden="true">📡</span><span class="psp224-tool-label">World News Hub</span><span class="psp224-tool-chevron" aria-hidden="true">↗</span></button><button onclick="psp58Nav('strength')"><span class="psp224-tool-icon" aria-hidden="true">💪</span><span class="psp224-tool-label">Strength Meter</span><span class="psp224-tool-chevron" aria-hidden="true">↗</span></button><button onclick="psp58Nav('charts')"><span class="psp224-tool-icon" aria-hidden="true">📊</span><span class="psp224-tool-label">Live Charts</span><span class="psp224-tool-chevron" aria-hidden="true">↗</span></button><button onclick="psp58Nav('aireport')"><span class="psp224-tool-icon" aria-hidden="true">🤖</span><span class="psp224-tool-label">AI Report</span><span class="psp224-tool-chevron" aria-hidden="true">↗</span></button></div></div></section>
     </div>`;
@@ -428,7 +435,16 @@ async function load(force=false){
 }
 function wrap(){if(window.__psp58DashWrap||typeof window.showPage!=='function')return;window.__psp58DashWrap=true;const old=window.showPage;window.showPage=function(page,el){const r=old.apply(this,arguments);if(page==='dashboard')setTimeout(()=>load(),0);return r}}
 function init(){wrap();setTimeout(()=>{wrap();if(q('#page-dashboard')?.classList.contains('active'))load(false)},360);window.addEventListener('pageshow',()=>{if(q('#page-dashboard')?.classList.contains('active'))setTimeout(()=>load(false),220)})}
-window.PSPUserDashboard={load};window.psp58Nav=nav;window.goDashboardHome=function(){nav('dashboard')};
+window.PSPUserDashboard={load};
+window.psp226Refresh=function(button){
+  if(!button||button.disabled)return;
+  button.disabled=true;
+  button.classList.add('is-refreshing');
+  Promise.resolve(load(true)).catch(function(e){console.warn('Dashboard refresh:',e)}).finally(function(){
+    if(button.isConnected){button.disabled=false;button.classList.remove('is-refreshing')}
+  });
+};
+window.psp58Nav=nav;window.goDashboardHome=function(){nav('dashboard')};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 
