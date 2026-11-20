@@ -1077,7 +1077,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="/course-marketplace-v3.css?v=20260930-v362-stable-thumb">
 <link rel="stylesheet" href="/psp-v18-auth-access.css?v=20260731-v19-fix">
 <link rel="stylesheet" href="/account-verification-v49.css?v=20260812-v56">
-<link rel="stylesheet" href="/user-dashboard-v56.css?v=20261120-v225-final-polish">
+<link rel="stylesheet" href="/user-dashboard-v56.css?v=20261120-v226-app-refinement">
 <link rel="stylesheet" href="/psp-v20-final.css?v=20260731-v20-final">
 <link rel="stylesheet" href="/psp-v28-fixes.css?v=20260813-v74-mobile-baseline-restore">
 <link rel="stylesheet" href="/psp-v29-final.css?v=20260802-v29-final">
@@ -4058,13 +4058,13 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 </script>
 
 <!-- Mobile Bottom Nav (user) -->
-<div id="userBottomNav">
-  <div class="ubn-item" data-page="dashboard" onclick="ubnGo('dashboard',this)"><span>🏠</span><b>Home</b></div>
-  <div class="ubn-item" data-page="signals" onclick="ubnGo('signals',this)"><span>📶</span><b>Signals</b></div>
-  <div class="ubn-item" data-page="articles" onclick="ubnGo('articles',this)"><span>📈</span><b>Charts</b></div>
-  <div class="ubn-item" data-page="newshub" onclick="ubnGo('newshub',this)"><span>📡</span><b>News</b></div>
-  <div class="ubn-item" data-page="strength" onclick="ubnGo('strength',this)"><span>💪</span><b>Strength</b></div>
-  <div class="ubn-item" onclick="toggleSidebar()"><span>☰</span><b>More</b></div>
+<div id="userBottomNav" aria-label="Main navigation">
+  <div class="ubn-item" role="button" tabindex="0" data-page="dashboard" onclick="ubnGo('dashboard',this)" onkeydown="ubnKey(event,'dashboard',this)"><span class="ubn226-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span><b>Home</b></div>
+  <div class="ubn-item" role="button" tabindex="0" data-page="signals" onclick="ubnGo('signals',this)" onkeydown="ubnKey(event,'signals',this)"><span class="ubn226-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 20v-5M9 20V9M14 20v-8M19 20V4"/><path d="M3 20h18"/></svg></span><b>Signals</b></div>
+  <div class="ubn-item" role="button" tabindex="0" data-page="articles" onclick="ubnGo('articles',this)" onkeydown="ubnKey(event,'articles',this)"><span class="ubn226-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 3v18h18"/><path d="m6 15 5-5 4 3 5-7"/></svg></span><b>Charts</b></div>
+  <div class="ubn-item" role="button" tabindex="0" data-page="newshub" onclick="ubnGo('newshub',this)" onkeydown="ubnKey(event,'newshub',this)"><span class="ubn226-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 20v-7"/><path d="M8 16a6 6 0 0 1 8 0"/><path d="M5 12a10 10 0 0 1 14 0"/><path d="M2 8a14 14 0 0 1 20 0"/><circle cx="12" cy="21" r="1"/></svg></span><b>News</b></div>
+  <div class="ubn-item" role="button" tabindex="0" data-page="strength" onclick="ubnGo('strength',this)" onkeydown="ubnKey(event,'strength',this)"><span class="ubn226-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 13h4l3-7 4 12 3-7h4"/></svg></span><b>Strength</b></div>
+  <div class="ubn-item" role="button" tabindex="0" onclick="toggleSidebar()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSidebar()}"><span class="ubn226-icon"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><b>More</b></div>
 </div>
 <style>
 #userBottomNav{display:none;position:fixed;left:0;right:0;bottom:0;z-index:1500;background:var(--bg-card);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,.12);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));justify-content:space-around;align-items:center}
@@ -4090,6 +4090,7 @@ var mo=new MutationObserver(function(){clearTimeout(window._cuT);window._cuT=set
 }
 </style>
 <script>
+function ubnKey(event,p,el){if(event.key==='Enter'||event.key===' '){event.preventDefault();ubnGo(p,el)}}
 function ubnGo(p,el){var it=document.querySelector('.menu-item[data-page="'+p+'"]');if(typeof showPage==='function')showPage(p,it||undefined);}
 function ubnSync(p){document.querySelectorAll('#userBottomNav .ubn-item[data-page]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-page')===p);});}
 (function(){
@@ -4115,6 +4116,26 @@ function ubnSync(p){document.querySelectorAll('#userBottomNav .ubn-item[data-pag
 })();
 </script>
 
+
+<style id="pspV226NavVectorIcons">
+@media(max-width:768px){
+  #userBottomNav .ubn-item>.ubn226-icon{
+    display:grid!important;place-items:center!important;
+    height:31px!important;width:36px!important;min-width:36px!important;
+    border-radius:10px!important;color:var(--text-secondary)!important;
+  }
+  #userBottomNav .ubn-item>.ubn226-icon svg{
+    display:block!important;width:22px!important;height:22px!important;
+    fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;
+    stroke-linecap:round!important;stroke-linejoin:round!important;
+  }
+  #userBottomNav .ubn-item.active>.ubn226-icon{
+    color:#ce8110!important;background:rgba(243,149,34,.14)!important;
+  }
+  #userBottomNav .ubn-item.active>.ubn226-icon svg{stroke-width:2.15!important}
+  #userBottomNav .ubn-item>b{letter-spacing:.03px!important}
+}
+</style>
 <style id="pspV225BottomNavPolish">
 /* Bottom nav: same six destinations; visual active state only. */
 @media(max-width:768px){
@@ -4250,7 +4271,7 @@ window.addEventListener('message',function(event){
 <script src="/psp-v49-auth-compat.js?v=20261007-v489-password-securitysapp"></script>
 <script src="/psp-v29-final.js?v=20260802-v29-final"></script>
 <script src="/account-verification-v49.js?v=20261110-v546-vip-access"></script>
-<script src="/user-dashboard-v56.js?v=20261120-v224-premium-mobile"></script>
+<script src="/user-dashboard-v56.js?v=20261120-v226-app-refinement"></script>
 <script defer src="/psp-vip-live-access-v546.js?v=20261110-v546-live-access"></script>
 
 <style id="pspV119NoInternalFooter">
