@@ -843,3 +843,7 @@
   }
 }
 
+
+/* V222: remove Next Live Class card; let Latest Signal use the full row. */
+#psp56Dashboard .psp59-grid-primary{grid-template-columns:minmax(0,1fr)!important;grid-auto-rows:auto!important;align-items:start!important}
+#psp56Dashboard .psp59-grid-primary>.psp58-card.featured{min-height:0!important;height:auto!important;align-self:start!important}
