@@ -1197,3 +1197,140 @@
   #psp56Dashboard .psp58-card,
   #psp56Dashboard .psp58-analysis-item{transition:none!important;animation:none!important}
 }
+
+/* V225: final mobile-only dashboard layout fixes.
+   Prevents the V64 three-column welcome grid clipping the access card. */
+@media (max-width:700px){
+  #psp56Dashboard .psp63-welcome{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:auto auto!important;
+    width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;max-height:none!important;
+    gap:8px!important;padding:15px!important;
+    overflow:hidden!important;box-sizing:border-box!important;
+  }
+  #psp56Dashboard .psp63-welcome-copy{
+    grid-column:1/-1!important;min-width:0!important;max-width:100%!important;
+  }
+  #psp56Dashboard .psp63-market-art{display:none!important}
+  #psp56Dashboard .psp63-access-wrap{
+    display:flex!important;position:relative!important;inset:auto!important;
+    grid-column:1/-1!important;grid-row:2!important;
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    margin:2px 0 0!important;padding:0!important;
+    align-items:stretch!important;justify-content:stretch!important;
+    overflow:visible!important;box-sizing:border-box!important;
+  }
+  #psp56Dashboard .psp63-access-wrap .psp58-access{
+    display:flex!important;align-items:center!important;min-width:0!important;
+    width:100%!important;max-width:100%!important;
+    padding:8px 10px!important;border-radius:12px!important;
+    gap:9px!important;box-sizing:border-box!important;
+    background:color-mix(in srgb,var(--bg-card) 92%,#fce9c8)!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.48)!important;
+  }
+  #psp56Dashboard .psp63-access-wrap .psp58-access>div{
+    min-width:0!important;flex:1!important;overflow-wrap:anywhere!important;
+  }
+  #psp56Dashboard .psp63-access-wrap .psp58-access-icon{
+    flex:0 0 28px!important;width:28px!important;height:28px!important;
+  }
+  #psp56Dashboard .psp63-access-wrap .psp58-access b{
+    font-size:11px!important;line-height:1.2!important;
+  }
+  #psp56Dashboard .psp63-access-wrap .psp58-access span:not(.psp58-access-icon){
+    font-size:10px!important;line-height:1.25!important;
+  }
+  #psp56Dashboard .psp63-welcome p{
+    max-width:100%!important;line-height:1.42!important;
+  }
+  /* Four precisely balanced mobile stat tiles */
+  #psp56Dashboard .psp58-stats{
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:9px!important;align-items:stretch!important;
+  }
+  #psp56Dashboard .psp58-stat{
+    display:grid!important;grid-template-columns:34px minmax(0,1fr) 10px!important;
+    align-items:center!important;gap:8px!important;
+    min-width:0!important;min-height:106px!important;height:100%!important;
+    padding:11px 9px!important;box-sizing:border-box!important;
+    border-radius:17px!important;
+  }
+  #psp56Dashboard .psp58-stat .ico{
+    grid-column:1!important;width:34px!important;height:34px!important;
+    flex:0 0 34px!important;align-self:center!important;
+  }
+  #psp56Dashboard .psp58-stat>div{
+    grid-column:2!important;display:flex!important;flex-direction:column!important;
+    justify-content:center!important;min-width:0!important;
+  }
+  #psp56Dashboard .psp58-stat .lab{
+    min-height:25px!important;max-height:28px!important;
+    display:-webkit-box!important;-webkit-box-orient:vertical!important;
+    -webkit-line-clamp:2!important;white-space:normal!important;
+    overflow:hidden!important;font-size:9.2px!important;line-height:1.25!important;
+    letter-spacing:.35px!important;
+  }
+  #psp56Dashboard .psp58-stat .val{
+    font-size:25px!important;line-height:1!important;margin-top:3px!important;
+  }
+  #psp56Dashboard .psp58-stat small{
+    min-height:23px!important;max-height:27px!important;
+    margin-top:5px!important;font-size:9px!important;line-height:1.22!important;
+    -webkit-line-clamp:2!important;
+  }
+  #psp56Dashboard .psp58-stat .go{
+    grid-column:3!important;font-size:13px!important;justify-self:end!important;
+    align-self:center!important;margin:0!important;
+  }
+  /* Cleaner standby signal (the fully detailed layout still appears for live trades) */
+  #psp56Dashboard .psp224-signal-empty{
+    min-height:62px!important;gap:9px!important;padding:9px 11px!important;
+    background:linear-gradient(115deg,color-mix(in srgb,var(--bg-elevated) 92%,#fce5bc),var(--bg-elevated))!important;
+  }
+  #psp56Dashboard .psp224-signal-symbol{
+    flex:0 0 34px!important;width:34px!important;height:34px!important;
+    border-radius:11px!important;
+  }
+  #psp56Dashboard .psp224-signal-message strong{
+    font-size:11.5px!important;line-height:1.3!important;
+  }
+  #psp56Dashboard .psp224-signal-message small{
+    font-size:9.8px!important;line-height:1.3!important;
+  }
+  #psp56Dashboard .psp224-signal-idle{
+    font-size:7px!important;letter-spacing:.35px!important;padding:4px 5px!important;
+  }
+  /* Market Analysis: allow a complete third headline line on smaller phones */
+  #psp56Dashboard .psp58-analysis-item{
+    grid-template-columns:66px minmax(0,1fr) 11px!important;
+    align-items:center!important;gap:9px!important;
+    padding:9px!important;min-width:0!important;
+  }
+  #psp56Dashboard .psp58-analysis-item img,
+  #psp56Dashboard .psp58-analysis-item .psp58-thumb{
+    width:66px!important;height:76px!important;border-radius:11px!important;
+  }
+  #psp56Dashboard .psp58-analysis-copy{min-width:0!important}
+  #psp56Dashboard .psp58-analysis-copy b{
+    font-size:12px!important;line-height:1.28!important;
+    display:-webkit-box!important;-webkit-box-orient:vertical!important;
+    -webkit-line-clamp:3!important;white-space:normal!important;
+    overflow:hidden!important;overflow-wrap:break-word!important;
+  }
+  #psp56Dashboard .psp58-analysis-copy>span:not(.psp223-analysis-tag){
+    font-size:9.7px!important;line-height:1.27!important;
+    -webkit-line-clamp:1!important;
+  }
+  #psp56Dashboard .psp58-analysis-copy small{
+    font-size:9.3px!important;margin-top:5px!important;
+  }
+}
+@media (max-width:390px){
+  #psp56Dashboard .psp58-stat{grid-template-columns:30px minmax(0,1fr) 9px!important;gap:6px!important}
+  #psp56Dashboard .psp58-stat .ico{width:30px!important;height:30px!important;flex-basis:30px!important}
+  #psp56Dashboard .psp58-stat .lab{font-size:8.7px!important}
+  #psp56Dashboard .psp58-stat small{font-size:8.6px!important}
+  #psp56Dashboard .psp224-signal-idle{display:none!important}
+}
