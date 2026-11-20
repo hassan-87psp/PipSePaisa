@@ -3,7 +3,7 @@
 'use strict';
 let loading=false,lastLoad=0,clockTimer=null;
 const PSP_DASH_CACHE_TTL_V220=45000;
-function dashCacheKeyV220(uid){return 'psp_dashboard_v222_b4_'+String(uid||'guest')}
+function dashCacheKeyV220(uid){return 'psp_dashboard_v223_b4_'+String(uid||'guest')}
 function readDashCacheV220(uid){
   try{const x=JSON.parse(sessionStorage.getItem(dashCacheKeyV220(uid))||'null');if(!x||!x.html||!x.savedAt)return null;return x}catch(_){return null}
 }
@@ -255,12 +255,20 @@ function nextClassHTML(classes,enrollments,courses){
     <button class="psp58-primary" onclick="${key==='basic'?'openFreeCourseV71()':'navMyCoursesV58()'}">${key==='basic'?'Open Free Course →':'Open My Course →'}</button>
   </div>`;
 }
+function psp223AnalysisPreview(raw,title){
+  let summary=String(raw||'').replace(/<[^>]*>/g,' ').replace(/^[#\s]+/g,'').replace(/\s+/g,' ').trim();
+  const heading=String(title||'').trim();
+  if(heading&&summary.toLowerCase().startsWith(heading.toLowerCase())){
+    summary=summary.slice(heading.length).replace(/^[\s#:\-–—|]+/g,'').trim();
+  }
+  return summary.slice(0,130);
+}
 function analysisHTML(charts,articles,allowed){
   if(!allowed)return '<div class="psp58-empty"><span>🔒</span><b>Market analysis is locked</b><small>Available during Free Access or after verification.</small><button onclick="PSPAccountVerification.goProfile()">Open Profile →</button></div>';
   let items=[];(charts||[]).slice(0,2).forEach(x=>items.push({type:'chart',title:x.title||x.pair||'Market Analysis',text:(x.notes||x.description||'').slice(0,88),image:x.image_url||x.chart_url||'',date:x.updated_at||x.created_at}));
   if(items.length<2)(articles||[]).slice(0,2-items.length).forEach(x=>items.push({type:'article',title:x.title||'Latest Article',text:(x.summary||x.content||'').replace(/<[^>]*>/g,'').slice(0,88),image:x.image_url||'',date:x.updated_at||x.created_at}));
   if(!items.length)return '<div class="psp58-empty"><span>📈</span><b>No analysis published yet</b><small>Fresh charts and articles will appear here.</small></div>';
-  return '<div class="psp58-analysis-list">'+items.map(x=>`<div class="psp58-analysis-item" onclick="document.querySelector('[data-page=articles]').click()">${x.image?`<img src="${esc(x.image)}" alt="" loading="lazy" decoding="async">`:`<div class="psp58-thumb">${x.type==='chart'?'📈':'📝'}</div>`}<div class="psp58-analysis-copy"><b>${esc(x.title)}</b><span>${esc(x.text||'Open to view details')}</span><small>${esc(fmtPKT(x.date))} PKT</small></div><span class="psp58-arrow">→</span></div>`).join('')+'</div>';
+  return '<div class="psp58-analysis-list">'+items.map(x=>`<div class="psp58-analysis-item" onclick="document.querySelector('[data-page=articles]').click()">${x.image?`<img src="${esc(x.image)}" alt="" loading="lazy" decoding="async">`:`<div class="psp58-thumb">${x.type==='chart'?'📈':'📝'}</div>`}<div class="psp58-analysis-copy"><span class="psp223-analysis-tag">${x.type==='chart'?'MARKET CHART':'ARTICLE'}</span><b>${esc(x.title)}</b><span>${esc(psp223AnalysisPreview(x.text,x.title)||'Open to view details')}</span><small>${esc(fmtPKT(x.date))} PKT</small></div><span class="psp58-arrow">→</span></div>`).join('')+'</div>';
 }
 function journalHTML(trades,allowed){
   if(!allowed)return '<div class="psp58-empty compact"><span>🔒</span><b>Journal snapshot locked</b><small>Activate account access to view your stats.</small></div>';
@@ -319,9 +327,8 @@ async function load(force=false){
       c.from('charts').select('id,title,pair,notes,image_url,created_at,updated_at').order('created_at',{ascending:false}).limit(8),
       c.from('articles').select('id,title,content,image_url,created_at,updated_at,is_published').eq('is_published',true).order('created_at',{ascending:false}).limit(8),
       c.from('course_enrollments').select('id,course_key,payment_status,enrollment_status,created_at').eq('user_id',user.id).order('created_at',{ascending:false}),
-      c.from('course_classes').select('id,class_number,course_key,title,subtitle,is_active,scheduled_at').order('class_number',{ascending:true}),
+      // V223: Next Live Class is no longer on the dashboard. Skip its two unused queries.
       c.from('trades').select('id,trade_date,created_at,pnl').eq('user_id',user.id).order('created_at',{ascending:false}).limit(100),
-      c.from('courses').select('id,course_key,title,mentor_name,display_order').order('display_order',{ascending:true}).limit(10),
       Promise.resolve(window.PSPAccountVerification?.load?.(true))
     ]);
     const data=i=>all[i].status==='fulfilled'&&!all[i].value?.error?(all[i].value.data||[]):[];
@@ -346,7 +353,7 @@ async function load(force=false){
         if(!legacySignals.error)signals=legacySignals.data||[];
       }catch(_){}
     }
-    const charts=data(1),articles=data(2),enrollments=data(3),classes=data(4),trades=data(5),courses=data(6);
+    const charts=data(1),articles=data(2),enrollments=data(3),trades=data(4);
     const av=window.PSPAccountVerification?.getState?.(),allowed=!!av?.can_access;
     const active=signals.filter(isLiveSignal).length,todayCharts=charts.filter(x=>pktDateKey(x.created_at)===todayPKT()).length;
     root.innerHTML=`<div class="psp58-home">
