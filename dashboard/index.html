@@ -1077,7 +1077,7 @@ input,select,textarea{transition:border-color .15s,box-shadow .15s}input:focus,s
 <link rel="stylesheet" href="/course-marketplace-v3.css?v=20260930-v362-stable-thumb">
 <link rel="stylesheet" href="/psp-v18-auth-access.css?v=20260731-v19-fix">
 <link rel="stylesheet" href="/account-verification-v49.css?v=20260812-v56">
-<link rel="stylesheet" href="/user-dashboard-v56.css?v=20261120-v224-premium-mobile">
+<link rel="stylesheet" href="/user-dashboard-v56.css?v=20261120-v225-final-polish">
 <link rel="stylesheet" href="/psp-v20-final.css?v=20260731-v20-final">
 <link rel="stylesheet" href="/psp-v28-fixes.css?v=20260813-v74-mobile-baseline-restore">
 <link rel="stylesheet" href="/psp-v29-final.css?v=20260802-v29-final">
@@ -4112,6 +4112,74 @@ function ubnSync(p){document.querySelectorAll('#userBottomNav .ubn-item[data-pag
   var app=document.getElementById('mainApp'),lp=document.getElementById('landingPage');
   if(window.MutationObserver){var mo=new MutationObserver(syncVisibility);if(app)mo.observe(app,{attributes:true,attributeFilter:['style','class']});if(lp)mo.observe(lp,{attributes:true,attributeFilter:['style','class']});}
   syncVisibility();
+})();
+</script>
+
+<style id="pspV225BottomNavPolish">
+/* Bottom nav: same six destinations; visual active state only. */
+@media(max-width:768px){
+  body.ubn-on #userBottomNav{
+    background:var(--bg-card)!important;
+    border-top:1px solid color-mix(in srgb,var(--border) 78%,#edc785)!important;
+    box-shadow:0 -7px 24px rgba(28,29,33,.075)!important;
+    gap:2px!important;padding:6px 5px calc(6px + env(safe-area-inset-bottom,0px))!important;
+    box-sizing:border-box!important;
+  }
+  #userBottomNav .ubn-item{
+    position:relative!important;flex:1 1 0!important;min-width:0!important;
+    padding:6px 1px!important;gap:3px!important;border-radius:12px!important;
+    border:1px solid transparent!important;
+    color:var(--text-muted)!important;
+    transition:background .17s ease,color .17s ease,border-color .17s ease!important;
+  }
+  #userBottomNav .ubn-item>span{
+    display:grid!important;place-items:center!important;
+    min-width:27px!important;height:27px!important;font-size:19px!important;
+    line-height:1!important;border-radius:9px!important;
+  }
+  #userBottomNav .ubn-item>b{
+    font-size:9.5px!important;font-weight:700!important;line-height:1.2!important;
+    white-space:nowrap!important;
+  }
+  #userBottomNav .ubn-item.active{
+    color:var(--text-primary)!important;
+    background:linear-gradient(180deg,rgba(243,149,34,.145),rgba(243,149,34,.045))!important;
+    border-color:rgba(243,149,34,.22)!important;
+  }
+  #userBottomNav .ubn-item.active:before{
+    content:"";position:absolute;top:-7px;left:50%;
+    width:23px;height:3px;transform:translateX(-50%);
+    background:#f39522;border-radius:0 0 4px 4px;
+  }
+  #userBottomNav .ubn-item.active>span{background:rgba(243,149,34,.11)!important}
+  #userBottomNav .ubn-item.active>b{color:#b87917!important;font-weight:850!important}
+  #userBottomNav .ubn-item:focus-visible{outline:2px solid #f39522!important;outline-offset:2px!important}
+}
+@media(max-width:370px){
+  #userBottomNav .ubn-item>b{font-size:9px!important}
+  #userBottomNav .ubn-item>span{font-size:18px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  #userBottomNav .ubn-item{transition:none!important}
+}
+</style>
+<script id="pspV225BottomNavInitialSync">
+(function(){
+  function init(){
+    var app=document.getElementById('mainApp');
+    if(!app||!window.MutationObserver)return;
+    function sync(){
+      var current=app.querySelector('.page.active[id^="page-"]');
+      if(current&&typeof window.ubnSync==='function')window.ubnSync(current.id.slice(5));
+    }
+    var obs=new MutationObserver(sync);
+    app.querySelectorAll('.page[id^="page-"]').forEach(function(page){
+      obs.observe(page,{attributes:true,attributeFilter:['class']});
+    });
+    sync();
+    window.addEventListener('pageshow',sync);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
 <script id="pspAuthBackdropV28Placeholder"></script>
