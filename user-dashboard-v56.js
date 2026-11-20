@@ -3,7 +3,7 @@
 'use strict';
 let loading=false,lastLoad=0,clockTimer=null;
 const PSP_DASH_CACHE_TTL_V220=45000;
-function dashCacheKeyV220(uid){return 'psp_dashboard_v223_b4_'+String(uid||'guest')}
+function dashCacheKeyV220(uid){return 'psp_dashboard_v224_b4_'+String(uid||'guest')}
 function readDashCacheV220(uid){
   try{const x=JSON.parse(sessionStorage.getItem(dashCacheKeyV220(uid))||'null');if(!x||!x.html||!x.savedAt)return null;return x}catch(_){return null}
 }
@@ -169,7 +169,7 @@ function latestSignalsHTML(signals,allowed){
   const desktop=`<div class="psp106-latest-desktop">${signalHTML(live[0]||null,allowed)}</div>`;
   let mobile='';
   if(!live.length){
-    mobile='<div class="psp106-latest-mobile"><div class="psp106-dash-empty">📡 No active signal right now.</div></div>';
+    mobile='<div class="psp106-latest-mobile"><div class="psp224-signal-empty" role="status"><span class="psp224-signal-symbol" aria-hidden="true">'+psp67Icon('signal')+'</span><span class="psp224-signal-message"><strong>No active signals</strong><small>New market setups will appear here.</small></span><span class="psp224-signal-idle">STANDBY</span></div></div>';
   }else{
     mobile=`<div class="psp106-latest-mobile">
       <div class="psp106-dash-head">
@@ -261,12 +261,17 @@ function psp223AnalysisPreview(raw,title){
   if(heading&&summary.toLowerCase().startsWith(heading.toLowerCase())){
     summary=summary.slice(heading.length).replace(/^[\s#:\-–—|]+/g,'').trim();
   }
-  return summary.slice(0,130);
+  if(summary.length>115){
+    let excerpt=summary.slice(0,115);
+    if(excerpt.lastIndexOf(' ')>70)excerpt=excerpt.slice(0,excerpt.lastIndexOf(' '));
+    return excerpt.trim()+'…';
+  }
+  return summary;
 }
 function analysisHTML(charts,articles,allowed){
   if(!allowed)return '<div class="psp58-empty"><span>🔒</span><b>Market analysis is locked</b><small>Available during Free Access or after verification.</small><button onclick="PSPAccountVerification.goProfile()">Open Profile →</button></div>';
-  let items=[];(charts||[]).slice(0,2).forEach(x=>items.push({type:'chart',title:x.title||x.pair||'Market Analysis',text:(x.notes||x.description||'').slice(0,88),image:x.image_url||x.chart_url||'',date:x.updated_at||x.created_at}));
-  if(items.length<2)(articles||[]).slice(0,2-items.length).forEach(x=>items.push({type:'article',title:x.title||'Latest Article',text:(x.summary||x.content||'').replace(/<[^>]*>/g,'').slice(0,88),image:x.image_url||'',date:x.updated_at||x.created_at}));
+  let items=[];(charts||[]).slice(0,2).forEach(x=>items.push({type:'chart',title:x.title||x.pair||'Market Analysis',text:(x.notes||x.description||''),image:x.image_url||x.chart_url||'',date:x.updated_at||x.created_at}));
+  if(items.length<2)(articles||[]).slice(0,2-items.length).forEach(x=>items.push({type:'article',title:x.title||'Latest Article',text:(x.summary||x.content||'').replace(/<[^>]*>/g,''),image:x.image_url||'',date:x.updated_at||x.created_at}));
   if(!items.length)return '<div class="psp58-empty"><span>📈</span><b>No analysis published yet</b><small>Fresh charts and articles will appear here.</small></div>';
   return '<div class="psp58-analysis-list">'+items.map(x=>`<div class="psp58-analysis-item" onclick="document.querySelector('[data-page=articles]').click()">${x.image?`<img src="${esc(x.image)}" alt="" loading="lazy" decoding="async">`:`<div class="psp58-thumb">${x.type==='chart'?'📈':'📝'}</div>`}<div class="psp58-analysis-copy"><span class="psp223-analysis-tag">${x.type==='chart'?'MARKET CHART':'ARTICLE'}</span><b>${esc(x.title)}</b><span>${esc(psp223AnalysisPreview(x.text,x.title)||'Open to view details')}</span><small>${esc(fmtPKT(x.date))} PKT</small></div><span class="psp58-arrow">→</span></div>`).join('')+'</div>';
 }
@@ -414,7 +419,7 @@ async function load(force=false){
       </div>
       <section class="psp58-stats"><div class="psp58-stat signal" onclick="psp58Nav('signals')"><span class="ico psp67-line-icon">${psp67Icon('signal')}</span><div><span class="lab">Active Signals</span><b class="val" data-count="${active}">0</b><small>${active?'Live setups & partial TPs':'No live setup right now'}</small></div>${psp67Spark(psp67Series(signals))}<span class="go">→</span></div><div class="psp58-stat charts" onclick="psp58Nav('articles')"><span class="ico psp67-line-icon">${psp67Icon('charts')}</span><div><span class="lab">Today’s Charts</span><b class="val" data-count="${todayCharts}">0</b><small>PKT market analysis</small></div>${psp67Spark(psp67Series(charts))}<span class="go">→</span></div><div class="psp58-stat articles" onclick="psp58Nav('articles')"><span class="ico psp67-line-icon">${psp67Icon('articles')}</span><div><span class="lab">Recent Articles</span><b class="val" data-count="${articles.length}">0</b><small>Education & insights</small></div>${psp67Spark(psp67Series(articles))}<span class="go">→</span></div><div class="psp58-stat courses" onclick="navMyCoursesV58()"><span class="ico psp67-line-icon">${psp67Icon('courses')}</span><div><span class="lab">My Courses</span><b class="val" data-count="${enrollments.length}">0</b><small>Course access & classes</small></div>${psp67Spark(psp67Series(enrollments))}<span class="go">→</span></div></section>
       <section class="psp59-grid-primary"><div class="psp58-card featured"><div class="psp58-card-head"><div><span class="eyebrow">MARKET SIGNAL</span><h3>Latest Signal</h3></div><button class="psp58-link" onclick="psp58Nav('signals')">View All →</button></div>${latestSignalsHTML(signals,allowed)}</div></section>
-      <section class="psp59-grid-secondary"><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">MARKET INTELLIGENCE</span><h3>Latest Market Analysis</h3></div><button class="psp58-link" onclick="psp58Nav('articles')">Explore →</button></div>${analysisHTML(charts,articles,allowed)}</div><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">YOUR TRADING JOURNAL</span><h3>Journal Snapshot</h3></div><button class="psp58-link" onclick="psp58Nav('journal')">Open Journal →</button></div>${journalHTML(trades,allowed)}<div class="psp58-tools"><button onclick="psp58Nav('newshub')">📡 <span>World News Hub</span></button><button onclick="psp58Nav('strength')">💪 <span>Strength Meter</span></button><button onclick="psp58Nav('charts')">📊 <span>Live Charts</span></button><button onclick="psp58Nav('aireport')">🤖 <span>AI Report</span></button></div></div></section>
+      <section class="psp59-grid-secondary"><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">MARKET INTELLIGENCE</span><h3>Latest Market Analysis</h3></div><button class="psp58-link" onclick="psp58Nav('articles')">Explore →</button></div>${analysisHTML(charts,articles,allowed)}</div><div class="psp58-card"><div class="psp58-card-head"><div><span class="eyebrow">YOUR TRADING JOURNAL</span><h3>Journal Snapshot</h3></div><button class="psp58-link" onclick="psp58Nav('journal')">Open Journal →</button></div>${journalHTML(trades,allowed)}<div class="psp58-tools"><button onclick="psp58Nav('newshub')"><span class="psp224-tool-icon" aria-hidden="true">📡</span><span class="psp224-tool-label">World News Hub</span><span class="psp224-tool-chevron" aria-hidden="true">↗</span></button><button onclick="psp58Nav('strength')"><span class="psp224-tool-icon" aria-hidden="true">💪</span><span class="psp224-tool-label">Strength Meter</span><span class="psp224-tool-chevron" aria-hidden="true">↗</span></button><button onclick="psp58Nav('charts')"><span class="psp224-tool-icon" aria-hidden="true">📊</span><span class="psp224-tool-label">Live Charts</span><span class="psp224-tool-chevron" aria-hidden="true">↗</span></button><button onclick="psp58Nav('aireport')"><span class="psp224-tool-icon" aria-hidden="true">🤖</span><span class="psp224-tool-label">AI Report</span><span class="psp224-tool-chevron" aria-hidden="true">↗</span></button></div></div></section>
     </div>`;
     writeDashCacheV220(user.id,root.innerHTML);
     animateCounters(root);startClock();
